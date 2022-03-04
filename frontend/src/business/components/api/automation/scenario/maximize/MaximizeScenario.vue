@@ -34,26 +34,40 @@
                    highlight-current
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
-                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick">
-              <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
+                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" class="ms-tree">
+            <el-row class="custom-tree-node" :gutter="18" type="flex" align="middle" slot-scope="{node, data}" style="width: 100%">
+              <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-if="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
+                <span v-if="!node.expanded" class="el-icon-circle-plus-outline custom-node_e" @click="openOrClose(node)"/>
+                <span v-else class="el-icon-remove-outline custom-node_e" @click="openOrClose(node)"/>
+              </el-col>
+              <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-else>
+              </el-col>
+              <el-col>
                 <!-- 步骤组件-->
-                 <ms-component-config
-                   :isMax="true"
-                   :type="data.type"
-                   :scenario="data"
-                   :response="response"
-                   :currentScenario="currentScenario"
-                   :currentEnvironmentId="currentEnvironmentId"
-                   :node="node"
-                   :project-list="projectList"
-                   :env-map="projectEnvMap"
-                   :message="message"
-                   @remove="remove" @copyRow="copyRow"
-                   @runScenario="runScenario"
-                   @stopScenario="stopScenario"
-                   @suggestClick="suggestClick"
-                   @refReload="refReload" @openScenario="openScenario"/>
-              </span>
+                <ms-component-config
+                  :isMax="true"
+                  :type="data.type"
+                  :scenario="data"
+                  :response="response"
+                  :currentScenario="currentScenario"
+                  :currentEnvironmentId="currentEnvironmentId"
+                  :node="node"
+                  :project-list="projectList"
+                  :env-map="projectEnvMap"
+                  :message="message"
+                  @remove="remove" @copyRow="copyRow"
+                  @runScenario="runScenario"
+                  @stopScenario="stopScenario"
+                  @suggestClick="suggestClick"
+                  @refReload="refReload" @openScenario="openScenario"
+                  v-if="stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1
+                         || (!node.parent || !node.parent.data || stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1)"
+                />
+                <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none;">
+                  {{ hideNode(node) }}
+                </div>
+              </el-col>
+            </el-row>
           </el-tree>
           <div @click="fabClick">
             <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
@@ -109,7 +123,7 @@
                 :draggable="false"
                 @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
                 @refReload="refReload" @openScenario="openScenario"
-                v-if="selectedTreeNode && selectedNode"/>
+                v-if="selectedTreeNode && selectedNode && stepFilter.get('ALlSamplerStep').indexOf(item.type) ===-1"/>
             </div>
           </div>
         </div>
@@ -414,6 +428,7 @@ export default {
           arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
         }
         if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+          this.hideTreeNode(arr[i], arr[i].hashTree);
           this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
         // 添加debug结果
@@ -421,6 +436,30 @@ export default {
           arr[i].requestResult = this.debugResult.get(arr[i].id + arr[i].name);
         }
       }
+    },
+    openOrClose(node) {
+      node.expanded = !node.expanded;
+      if (node.expanded) {
+        this.nodeExpand(node.data);
+      } else {
+        this.nodeCollapse(node.data);
+      }
+    },
+    hideNode(node) {
+      node.isLeaf = true;
+      node.visible = false;
+    },
+    hideTreeNode(node, array) {
+      let isLeaf = true;
+      array.forEach(item => {
+        if (this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
+          isLeaf = false;
+        }
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.hideTreeNode(item, item.hashTree);
+        }
+      })
+      node.isLeaf = isLeaf;
     },
     sort() {
       for (let i in this.scenarioDefinition) {
@@ -437,6 +476,7 @@ export default {
         }
 
         if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
+          this.hideTreeNode(this.scenarioDefinition[i], this.scenarioDefinition[i].hashTree);
           this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
         }
         // 添加debug结果
@@ -899,7 +939,7 @@ export default {
     runScenario(scenario) {
       this.$emit('runScenario', scenario);
     },
-    stopScenario(){
+    stopScenario() {
       this.$emit('stopScenario');
     },
     editScenarioAdvance(data) {
@@ -996,14 +1036,16 @@ export default {
   z-index: 9;
 }
 
+
 .ms-tree >>> .el-tree-node__expand-icon.expanded {
   -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
 }
 
 .ms-tree >>> .el-icon-caret-right:before {
-  content: '\e723';
-  font-size: 20px;
+  /*content: '\e723';*/
+  padding: 0;
+  content: "";
 }
 
 .ms-tree >>> .el-tree-node__expand-icon.is-leaf {
@@ -1016,8 +1058,9 @@ export default {
 
 .ms-tree >>> .el-tree-node__expand-icon.expanded.el-icon-caret-right:before {
   color: #7C3985;
-  content: "\e722";
-  font-size: 20px;
+  /* content: "\e722";*/
+  padding: 0;
+  content: "";
 }
 
 .ms-sc-variable-header >>> .el-dialog__body {
@@ -1091,5 +1134,15 @@ export default {
 
 .ms-aside-container {
   height: calc(100vh - 50px) !important;
+}
+
+.custom-node_e {
+  color: #7C3985;
+  font-size: 20px;
+}
+
+.custom-tree-node-col {
+  width: 20px;
+  padding: 0px;
 }
 </style>

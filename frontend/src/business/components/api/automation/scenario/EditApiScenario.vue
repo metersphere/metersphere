@@ -196,39 +196,47 @@
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" v-if="showHideTree">
-                    <span class="custom-tree-node father" slot-scope="{node, data}" style="width: 96%">
-                      <!-- 步骤组件-->
-                       <ms-component-config
-                         :scenario-definition="scenarioDefinition"
-                         :message="message"
-                         :type="data.type"
-                         :scenario="data"
-                         :response="response"
-                         :currentScenario="currentScenario"
-                         :expandedNode="expandedNode"
-                         :currentEnvironmentId="currentEnvironmentId"
-                         :node="node"
-                         :project-list="projectList"
-                         :env-map="projectEnvMap"
-                         :env-group-id="envGroupId"
-                         :environment-type="environmentType"
-                         @remove="remove"
-                         @copyRow="copyRow"
-                         @suggestClick="suggestClick"
-                         @refReload="refReload"
-                         @runScenario="runDebug"
-                         @stopScenario="stop"
-                         @setDomain="setDomain"
-                         @openScenario="openScenario"
-                         @editScenarioAdvance="editScenarioAdvance"
-                         v-if="stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1
-                         || (!node.parent || !node.parent.data || stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1)"/>
 
-                       <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none;">
-                         {{ hideNode(node) }}
-                       </div>
-
-                    </span>
+                <el-row class="custom-tree-node" :gutter="18" type="flex" align="middle" slot-scope="{node, data}" style="width: 100%">
+                  <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-if="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
+                    <span v-if="!node.expanded" class="el-icon-circle-plus-outline custom-node_e" @click="openOrClose(node)"/>
+                    <span v-else class="el-icon-remove-outline custom-node_e" @click="openOrClose(node)"/>
+                  </el-col>
+                  <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-else>
+                  </el-col>
+                  <el-col>
+                    <!-- 步骤组件-->
+                    <ms-component-config
+                      :scenario-definition="scenarioDefinition"
+                      :message="message"
+                      :type="data.type"
+                      :scenario="data"
+                      :response="response"
+                      :currentScenario="currentScenario"
+                      :expandedNode="expandedNode"
+                      :currentEnvironmentId="currentEnvironmentId"
+                      :node="node"
+                      :project-list="projectList"
+                      :env-map="projectEnvMap"
+                      :env-group-id="envGroupId"
+                      :environment-type="environmentType"
+                      @remove="remove"
+                      @copyRow="copyRow"
+                      @suggestClick="suggestClick"
+                      @refReload="refReload"
+                      @runScenario="runDebug"
+                      @stopScenario="stop"
+                      @setDomain="setDomain"
+                      @openScenario="openScenario"
+                      @editScenarioAdvance="editScenarioAdvance"
+                      v-if="stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1
+                         || (!node.parent || !node.parent.data || stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1)"
+                    />
+                    <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none;">
+                      {{ hideNode(node) }}
+                    </div>
+                  </el-col>
+                </el-row>
               </el-tree>
             </div>
           </el-col>
@@ -443,6 +451,7 @@ export default {
       showConfigButtonWithOutPermission: false,
       props: {
         label: "label",
+        isLeaf: "isLeaf",
         children: "hashTree"
       },
       moduleObj: {
@@ -601,6 +610,14 @@ export default {
     }
   },
   methods: {
+    openOrClose(node) {
+      node.expanded = !node.expanded;
+      if (node.expanded) {
+        this.nodeExpand(node.data);
+      } else {
+        this.nodeCollapse(node.data);
+      }
+    },
     hideNode(node) {
       node.isLeaf = true;
       node.visible = false;
@@ -608,15 +625,14 @@ export default {
     hideTreeNode(node, array) {
       let isLeaf = true;
       array.forEach(item => {
-        if (!item.isLeaf && !isLeaf) {
+        if (this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
           isLeaf = false;
         }
-        if (item.childNodes && item.childNodes.length > 0) {
-          this.hideTreeNode(item, item.childNodes);
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.hideTreeNode(item, item.hashTree);
         }
       })
       node.isLeaf = isLeaf;
-      node.clazzName = '.is-leaf';
     },
     currentUser: () => {
       return getCurrentUser();
@@ -654,9 +670,6 @@ export default {
                 this.$store.state.currentApiCase.resetDataSource = getUUID();
               } else {
                 this.$store.state.currentApiCase = {resetDataSource: getUUID()};
-              }
-              if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
-                this.hideTreeNode(this.$refs.stepTree.root, this.$refs.stepTree.root.childNodes);
               }
             }
           }
@@ -1106,6 +1119,7 @@ export default {
         // 添加debug结果
         stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.hideTreeNode(stepArray[i], stepArray[i].hashTree);
           this.stepSize += stepArray[i].hashTree.length;
           this.sort(stepArray[i].hashTree, stepArray[i].projectId, stepArray[i].parentIndex);
         }
@@ -1530,9 +1544,6 @@ export default {
             this.resetResourceId(this.scenarioDefinition);
           }
           this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
-          if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
-            this.hideTreeNode(this.$refs.stepTree.root, this.$refs.stepTree.root.childNodes);
-          }
         })
       }
     },
@@ -2002,8 +2013,9 @@ export default {
 }
 
 .ms-tree >>> .el-icon-caret-right:before {
-  content: '\e723';
-  font-size: 20px;
+  /*content: '\e723';*/
+  padding: 0;
+  content: "";
 }
 
 .ms-tree >>> .el-tree-node__expand-icon.is-leaf {
@@ -2016,8 +2028,9 @@ export default {
 
 .ms-tree >>> .el-tree-node__expand-icon.expanded.el-icon-caret-right:before {
   color: #7C3985;
-  content: "\e722";
-  font-size: 20px;
+  /* content: "\e722";*/
+  padding: 0;
+  content: "";
 }
 
 .ms-sc-variable-header >>> .el-dialog__body {
@@ -2081,4 +2094,13 @@ export default {
   z-index: 999;
 }
 
+.custom-node_e {
+  color: #7C3985;
+  font-size: 20px;
+}
+
+.custom-tree-node-col {
+  width: 20px;
+  padding: 0px;
+}
 </style>
