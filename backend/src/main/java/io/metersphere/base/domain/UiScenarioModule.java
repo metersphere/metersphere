@@ -21,7 +21,7 @@ public class UiScenarioModule implements Serializable {
 
     private Double pos;
 
-    private String createUseru;
+    private String createUser;
 
     private static final long serialVersionUID = 1L;
 }

@@ -624,73 +624,73 @@ public class UiScenarioModuleExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruIsNull() {
-            addCriterion("create_useru is null");
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruIsNotNull() {
-            addCriterion("create_useru is not null");
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruEqualTo(String value) {
-            addCriterion("create_useru =", value, "createUseru");
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruNotEqualTo(String value) {
-            addCriterion("create_useru <>", value, "createUseru");
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruGreaterThan(String value) {
-            addCriterion("create_useru >", value, "createUseru");
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruGreaterThanOrEqualTo(String value) {
-            addCriterion("create_useru >=", value, "createUseru");
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruLessThan(String value) {
-            addCriterion("create_useru <", value, "createUseru");
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruLessThanOrEqualTo(String value) {
-            addCriterion("create_useru <=", value, "createUseru");
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruLike(String value) {
-            addCriterion("create_useru like", value, "createUseru");
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruNotLike(String value) {
-            addCriterion("create_useru not like", value, "createUseru");
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruIn(List<String> values) {
-            addCriterion("create_useru in", values, "createUseru");
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruNotIn(List<String> values) {
-            addCriterion("create_useru not in", values, "createUseru");
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruBetween(String value1, String value2) {
-            addCriterion("create_useru between", value1, value2, "createUseru");
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateUseruNotBetween(String value1, String value2) {
-            addCriterion("create_useru not between", value1, value2, "createUseru");
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
             return (Criteria) this;
         }
     }
