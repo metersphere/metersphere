@@ -28,8 +28,9 @@ public class ResourceService {
     }
 
     public ResponseEntity<FileSystemResource> getMdImage(String name) {
-        if (name.contains("/"))
+        if (name.contains("/")) {
             MSException.throwException(Translator.get("invalid_parameter"));
+        }
         File file = new File(FileUtils.MD_IMAGE_DIR + "/" + name);
         HttpHeaders headers = new HttpHeaders();
         String fileName = encodeFileName(file.getName());
@@ -65,6 +66,9 @@ public class ResourceService {
     }
 
     public void mdDelete(String fileName) {
+        if (fileName.contains("/")) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
         FileUtils.deleteFile(FileUtils.MD_IMAGE_DIR + "/" + fileName);
     }
 }
