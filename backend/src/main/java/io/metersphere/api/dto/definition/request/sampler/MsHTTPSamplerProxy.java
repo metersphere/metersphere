@@ -167,8 +167,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setDoMultipart(this.isDoMultipartPost());
         if (config.getConfig() == null) {
             // 单独接口执行
-            this.setProjectId(config.getProjectId());
-            config.setConfig(ElementUtil.getEnvironmentConfig(this.useEnvironment, this.getProjectId(), this.isMockEnvironment()));
+            if (StringUtils.isNotEmpty(config.getProjectId())) {
+                this.setProjectId(config.getProjectId());
+            }
+            String projectId = this.getProjectId();
+            config.setConfig(ElementUtil.getEnvironmentConfig(this.useEnvironment, projectId, this.isMockEnvironment()));
+            this.setProjectId(projectId);
         }
 
         config.compatible(this);
