@@ -111,7 +111,7 @@
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers " :response="apiCase.responseData" :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <tcp-format-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
+        <tcp-format-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP'"/>
         <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
