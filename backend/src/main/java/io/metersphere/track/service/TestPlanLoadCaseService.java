@@ -471,7 +471,7 @@ public class TestPlanLoadCaseService {
     }
 
     public void initOrderField() {
-        ServiceUtils.initOrderField(TestPlanLoadCase.class, TestPlanLoadCaseMapper.class,
+        ServiceUtils.initOrderField(TestPlanLoadCaseWithBLOBs.class, TestPlanLoadCaseMapper.class,
                 extTestPlanLoadCaseMapper::selectPlanIds,
                 extTestPlanLoadCaseMapper::getIdsOrderByUpdateTime);
     }
