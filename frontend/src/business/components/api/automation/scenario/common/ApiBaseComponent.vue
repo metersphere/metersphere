@@ -32,10 +32,11 @@
         <slot name="message"></slot>
         <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root&&!showVersion" style="width: 30px"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="(data.disabled && !data.root) || !showVersion" style="width: 30px"/>
         </el-tooltip>
-        <slot name="button" v-if="showVersion"></slot>
-        <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
+        <slot name="button"></slot>
+        <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"
+                   :disabled="(data.disabled && !data.root) || !showVersion "/>
 
         <el-button v-if="showVersion && stepFilter.get('ALlSamplerStep').indexOf(data.type) !==-1" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"/>
         <step-extend-btns style="display: contents"
