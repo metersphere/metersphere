@@ -23,7 +23,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,7 +46,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private Map<Integer, String> headMap;
     private Map<String,String> excelHeadToFieldNameDic = new HashMap<>();
 
-    private static NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
@@ -577,16 +575,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private RowInfo parseIndexInRow(String row,int rowIndex) {
         RowInfo rowInfo = new RowInfo();
         String parseString = row;
-        if(isNumericzidai(parseString)){
-            Double aDouble = Double.valueOf(parseString);
-            parseString = numberFormat.format(aDouble);
-        }
+
         int index = -1;
         String rowMessage = row;
-        if(isNumericzidai(rowMessage)){
-            Double aDouble = Double.valueOf(rowMessage);
-            rowMessage = numberFormat.format(aDouble);
-        }
         String[] indexSplitCharArr = new String[]{")", "）", "]", "】", ".", ",", "，", "。"};
         if (StringUtils.startsWithAny(row, "(", "（", "[", "【")) {
             parseString = parseString.substring(1);
