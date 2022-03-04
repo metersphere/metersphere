@@ -1786,12 +1786,12 @@ public class ApiAutomationService {
                         List<String> scenarioNames = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
 
                         if (StringUtils.isNotEmpty(deleteScenarioName) && CollectionUtils.isNotEmpty(scenarioNames)) {
-                            String nameListStr = "[";
+                            String nameListStr = " ";
                             for (String name : scenarioNames) {
                                 nameListStr += name + ",";
                             }
                             if (nameListStr.length() > 1) {
-                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "]";
+                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + " ";
                             }
                             String msg = deleteScenarioName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
                             checkMsgList.add(msg);

@@ -76,10 +76,16 @@ public class ElementUtil {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
+            if(StringUtils.isEmpty(projectId)){
+                projectId = environment.getProjectId();
+            }
             if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
                 isMockEnvironment = true;
             }
             // 单独接口执行
+            if (StringUtils.isEmpty(projectId)) {
+                projectId = environment.getProjectId();
+            }
             Map<String, EnvironmentConfig> map = new HashMap<>();
             map.put(projectId, JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             return map;
