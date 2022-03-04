@@ -38,7 +38,7 @@ public class UITest {
 
     @Test
     public void testUIRun() {
-        uiAutomationService.run();
+        uiAutomationService.run("");
         try {
             Thread.sleep(1000 * 60 * 5);
         } catch (InterruptedException e) {
