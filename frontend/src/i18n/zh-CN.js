@@ -3077,5 +3077,7 @@ export default {
     ui_automation: "UI 自动化",
     report: "测试报告",
     scenario_list: "场景列表",
+    selenium_tip: "支持 Selenium-IDE 插件格式导入",
+    selenium_export_tip: "通过 MeterSphere 导出 side 文件",
   }
 };
