@@ -194,4 +194,32 @@ public class ParameterConfig extends MsParameter {
             }
         }
     }
+
+    public void setHeader(String name, String value) {
+        if (StringUtils.isEmpty(name)) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(headers)) {
+            headers = new LinkedList<>();
+        }
+        for (KeyValue kv : headers) {
+            if (StringUtils.equalsIgnoreCase(kv.getName(), name)) {
+                kv.setValue(value);
+                return;
+            }
+        }
+        KeyValue kv = new KeyValue(name, value);
+        headers.add(kv);
+    }
+
+    public KeyValue getHeader(String name) {
+        if (StringUtils.isNotEmpty(name) && CollectionUtils.isNotEmpty(headers)) {
+            for (KeyValue kv : headers) {
+                if (StringUtils.equalsIgnoreCase(kv.getName(), name)) {
+                    return kv;
+                }
+            }
+        }
+        return null;
+    }
 }
