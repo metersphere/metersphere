@@ -68,7 +68,7 @@ public class NoticeSendService {
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
                     .forEach(messageDetail -> {
                         MessageDetail m = SerializationUtils.clone(messageDetail);
-                        NoticeModel n =  SerializationUtils.clone(noticeModel);
+                        NoticeModel n = SerializationUtils.clone(noticeModel);
                         this.getNoticeSender(m).send(m, n);
                     });
 
@@ -106,7 +106,7 @@ public class NoticeSendService {
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
                     .forEach(messageDetail -> {
                         MessageDetail m = SerializationUtils.clone(messageDetail);
-                        NoticeModel n =  SerializationUtils.clone(noticeModel);
+                        NoticeModel n = SerializationUtils.clone(noticeModel);
                         this.getNoticeSender(m).send(m, n);
                     });
 
@@ -139,7 +139,7 @@ public class NoticeSendService {
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
                     .forEach(messageDetail -> {
                         MessageDetail m = SerializationUtils.clone(messageDetail);
-                        NoticeModel n =  SerializationUtils.clone(noticeModel);
+                        NoticeModel n = SerializationUtils.clone(noticeModel);
                         this.getNoticeSender(m).send(m, n);
                     });
 
