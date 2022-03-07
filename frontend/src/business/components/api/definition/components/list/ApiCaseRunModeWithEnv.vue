@@ -155,7 +155,7 @@ export default {
       this.runConfig.environmentGroupId = id;
     },
     getWsProjects() {
-      this.$get("/project/listAll", res => {
+      this.$get("/project/getOwnerProjects", res => {
         this.projectList = res.data;
       })
     },

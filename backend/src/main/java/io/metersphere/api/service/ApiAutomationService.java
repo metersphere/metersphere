@@ -2002,7 +2002,7 @@ public class ApiAutomationService {
                         if (refType.equals("CASE")) {
                             ApiScenarioImportUtil.checkCase(object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
                         } else {
-                            checkAutomation(object,projectId);
+                            checkAutomation(object);
                         }
                     }else{
                         object.put("referenced", "Copy");
@@ -2019,13 +2019,10 @@ public class ApiAutomationService {
         }
     }
 
-    public void checkAutomation(JSONObject object, String projectId) {
+    public void checkAutomation(JSONObject object) {
         ApiScenarioWithBLOBs bloBs = getDto(object.getString("id"));
-        if (bloBs != null) {
-            boolean isSameWorkSpace = ApiScenarioImportUtil.checkWorkSpace(bloBs.getProjectId(),projectId);
-            if(!isSameWorkSpace){
-                object.put("referenced", "Copy");
-            }
+        if (bloBs == null) {
+            object.put("referenced", "Copy");
         }
     }
 

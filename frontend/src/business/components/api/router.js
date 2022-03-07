@@ -45,7 +45,7 @@ export default {
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
-      path: "automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?",
+      path: "automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:workspaceId?",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),
     },
