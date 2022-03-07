@@ -403,7 +403,10 @@ import {
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css";
 import OutsideClick from "@/common/js/outside-click";
-import {savePreciseEnvProjectIds, saveScenario} from "@/business/components/api/automation/api-automation";
+import {
+  savePreciseEnvProjectIds,
+  saveScenario
+} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
 
@@ -420,7 +423,7 @@ export default {
     customNum: {
       type: Boolean,
       default: false
-    }
+    },
   },
   components: {
     'MsVersionHistory': versionHistory.default,
@@ -492,6 +495,7 @@ export default {
       selectedNode: undefined,
       expandedNode: [],
       scenarioDefinition: [],
+      scenarioDefinitionOrg: [],
       path: "/api/automation/create",
       debugData: {},
       reportId: "",
@@ -547,24 +551,12 @@ export default {
     }
   },
   watch: {
-    currentScenario: {
-      handler(val) {
-        if (val && this.$store.state.scenarioMap) {
-          let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
-          change = change + 1;
-          this.$store.state.scenarioMap.set(this.currentScenario.id, change);
-        }
+    scenarioDefinition: {
+      handler(v) {
+        this.currentScenario.scenarioDefinition = v;
       },
       deep: true
     },
-    'currentScenario.tags'() {
-      if (this.$store.state.scenarioMap) {
-        let change = this.$store.state.scenarioMap.get(this.currentScenario.id);
-        change = change + 1;
-        this.$store.state.scenarioMap.set(this.currentScenario.id, change);
-      }
-    },
-
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
@@ -590,15 +582,10 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.addListener();
-      this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
     });
     if (!this.currentScenario.name) {
       this.$refs.refFab.openMenu();
     }
-    if (!(this.$store.state.scenarioMap instanceof Map)) {
-      this.$store.state.scenarioMap = new Map();
-    }
-    this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
   },
   directives: {OutsideClick},
   computed: {
@@ -1428,7 +1415,6 @@ export default {
             }
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
-              this.$store.state.scenarioMap.delete(this.currentScenario.id);
               this.path = "/api/automation/update";
               this.$store.state.pluginFiles = [];
               if (response.data) {
@@ -1520,6 +1506,18 @@ export default {
                 }
                 this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
+                this.scenarioDefinitionOrg = obj.hashTree;
+                let v1 = {
+                  apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
+                  name: this.currentScenario.name,
+                  status: this.currentScenario.status,
+                  principal: this.currentScenario.principal,
+                  level: this.currentScenario.level,
+                  tags: this.currentScenario.tags,
+                  description: this.currentScenario.description,
+                  scenarioDefinition: this.scenarioDefinitionOrg
+                };
+                this.currentScenario.scenarioDefinitionOrg = v1
                 this.oldScenarioDefinition = obj.hashTree;
               }
             }
@@ -1543,7 +1541,6 @@ export default {
           if (this.scenarioDefinition) {
             this.resetResourceId(this.scenarioDefinition);
           }
-          this.$store.state.scenarioMap.set(this.currentScenario.id, 0);
         })
       }
     },
