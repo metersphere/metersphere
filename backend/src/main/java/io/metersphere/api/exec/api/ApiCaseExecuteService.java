@@ -6,13 +6,12 @@ import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
+import io.metersphere.api.dto.scenario.DatabaseConfig;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
-import io.metersphere.api.service.ApiCaseResultService;
-import io.metersphere.api.service.ApiExecutionQueueService;
-import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.api.service.ApiScenarioReportStructureService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -20,6 +19,7 @@ import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.constants.RunModeConstants;
@@ -31,6 +31,7 @@ import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -133,6 +134,51 @@ public class ApiCaseExecuteService {
         return responseDTOS;
     }
 
+    public void checkEnv(List<ApiTestCaseWithBLOBs> caseList) {
+        if (CollectionUtils.isNotEmpty(caseList)) {
+            StringBuilder builderHttp = new StringBuilder();
+            StringBuilder builderTcp = new StringBuilder();
+            for (ApiTestCaseWithBLOBs apiCase : caseList) {
+                JSONObject apiCaseNew = new JSONObject(apiCase.getRequest());
+                if ("HTTPSamplerProxy".equals(apiCaseNew.getString("type"))) {
+                    try {
+                        String environmentId = apiCaseNew.getString("useEnvironment");
+                        if (!StringUtils.isNotEmpty(environmentId)) {
+                            builderHttp.append(apiCase.getName()).append("; ");
+                        }
+                    } catch (Exception e) {
+                        MSException.throwException("用例：" + builderHttp.append(apiCase.getName()).append("; ") + "运行环境为空！请检查");
+                    }
+                }
+                if ("JDBCSampler".equals(apiCaseNew.getString("type"))) {
+                    try {
+                        String environmentId = apiCaseNew.getString("useEnvironment");
+                        String dataSourceId = apiCaseNew.getString("dataSourceId");
+                        DatabaseConfig dataSource = null;
+                        ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                        ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
+                        EnvironmentConfig envConfig = null;
+                        if (environment != null && environment.getConfig() != null) {
+                            envConfig = com.alibaba.fastjson.JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                            if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                                for (DatabaseConfig item : envConfig.getDatabaseConfigs()) {
+                                    if (item.getId().equals(dataSourceId)) {
+                                        dataSource = item;
+                                    }
+                                }
+                            }
+                        }
+                        if (dataSource == null) {
+                            MSException.throwException("用例：" + builderTcp.append(apiCase.getName()).append("; "));
+                        }
+                    } catch (Exception e) {
+                        MSException.throwException("用例数据源为空，请检查!");
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * 接口定义case执行
      *
@@ -158,7 +204,8 @@ public class ApiCaseExecuteService {
         example.createCriteria().andIdIn(request.getIds());
         List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
         LoggerUtil.debug("查询到执行数据：" + caseList.size());
-
+        // 环境检查
+        this.checkEnv(caseList);
         // 集合报告设置
         String serialReportId = null;
         if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
