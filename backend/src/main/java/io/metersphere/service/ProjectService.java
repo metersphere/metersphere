@@ -368,6 +368,7 @@ public class ProjectService {
         Boolean cleanTrackReport = project.getCleanTrackReport();
         Boolean cleanApiReport = project.getCleanApiReport();
         Boolean cleanLoadReport = project.getCleanLoadReport();
+        LogUtil.info("clean track/api/performance report: " + cleanTrackReport + "/" + cleanApiReport + "/" + cleanLoadReport);
         // 未设置则不更新定时任务
         if (cleanTrackReport == null && cleanApiReport == null && cleanLoadReport == null) {
             return;

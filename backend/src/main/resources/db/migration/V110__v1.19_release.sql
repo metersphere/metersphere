@@ -612,5 +612,31 @@ select id, 'URL_REPEATABLE', if(repeatable, 'true', 'false')
 from project
 where not exists(select * from project_application where project_id = id and type = 'URL_REPEATABLE');
 
+-- drop column
+alter table project drop column repeatable;
+
+alter table project drop column custom_num;
+
+alter table project drop column scenario_custom_num;
+
+alter table project drop column mock_tcp_port;
+
+alter table project drop column is_mock_tcp_open;
+
+alter table project drop column api_quick;
+
+alter table project drop column case_public;
+
+alter table project drop column clean_track_report;
+
+alter table project drop column clean_track_report_expr;
+
+alter table project drop column clean_api_report;
+
+alter table project drop column clean_api_report_expr;
+
+alter table project drop column clean_load_report;
+
+alter table project drop column clean_load_report_expr;
 
 
