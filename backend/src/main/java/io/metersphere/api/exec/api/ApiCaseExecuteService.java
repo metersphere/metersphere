@@ -165,7 +165,7 @@ public class ApiCaseExecuteService {
                 && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             serialReportId = UUID.randomUUID().toString();
             APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), null, request.getConfig().getReportName(),
-                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(),
+                    ReportTriggerMode.BATCH.name(), ExecuteType.Saved.name(), request.getProjectId(),
                     null, request.getConfig());
             report.setVersionId(caseList.get(0).getVersionId());
             report.setName(request.getConfig().getReportName());
