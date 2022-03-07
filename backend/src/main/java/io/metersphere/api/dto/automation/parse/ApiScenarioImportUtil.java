@@ -146,56 +146,21 @@ public class ApiScenarioImportUtil {
         ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.getString("id"));
-        if (bloBs != null) {
-            boolean isSameWorkSpace = checkWorkSpace(bloBs.getProjectId(),projectId);
-            if(!isSameWorkSpace){
-                ApiDefinitionResult apiDefinition = apiDefinitionService.getById(bloBs.getApiDefinitionId());
-                String apiDefinitionId = checkDefinition(apiDefinitionService,apiDefinition, versionId,projectId,apiDefinitionMapper);
-                structureCaseData(bloBs,apiDefinitionId,versionId,projectId,apiTestCaseMapper);
-                object.put("projectId", projectId);
-                object.put("id", bloBs.getId());
-            }
-        }else{
+        if (bloBs == null) {
             ApiDefinitionResult apiDefinition = getApiDefinitionResult(object,apiDefinitionService);
             ApiTestCaseWithBLOBs testCase;
             if(apiDefinition!=null){
                 testCase= getApiTestCase(object, testCaseService, apiDefinition);
                 if (testCase != null) {
-                    boolean isSameWorkSpace = checkWorkSpace(testCase.getProjectId(),projectId);
-                    if(!isSameWorkSpace){
-                        String apiDefinitionId = checkDefinition(apiDefinitionService, apiDefinition, versionId,projectId,apiDefinitionMapper);
-                        structureCaseData(testCase,apiDefinitionId,versionId,projectId,apiTestCaseMapper);
-                    }
+                    object.put("id", testCase.getId());
                 }else{
-                    String apiDefinitionId = checkDefinition(apiDefinitionService, apiDefinition, versionId,projectId,apiDefinitionMapper);
-                    testCase= structureCaseByJson(object, versionId, projectId, apiDefinitionId,apiTestCaseMapper);
+                    structureCaseByJson(object, apiDefinition,apiTestCaseMapper);
                 }
             }else{
                 ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(apiDefinitionService, object, versionId, projectId, apiDefinitionMapper);
-                testCase = structureCaseByJson(object, versionId, projectId, apiDefinitionResult.getId(),apiTestCaseMapper);
+                structureCaseByJson(object, apiDefinitionResult,apiTestCaseMapper);
             }
-            object.put("projectId", projectId);
-            object.put("id", testCase.getId());
         }
-    }
-
-    private static String checkDefinition(ApiDefinitionService apiDefinitionService, ApiDefinitionResult apiDefinition, String versionId, String projectId,ApiDefinitionMapper apiDefinitionMapper) {
-        boolean isSameWorkspace = checkWorkSpace(apiDefinition.getProjectId(),projectId);
-        if(!isSameWorkspace){
-            String requestStr = apiDefinition.getRequest();
-            JSONObject objectDefinition = JSONObject.parseObject(requestStr);
-            ApiDefinitionResult apiDefinitionResult1 = insertDefinitionByApiDefinition(apiDefinitionService,apiDefinition, objectDefinition, versionId, projectId,apiDefinitionMapper);
-            return apiDefinitionResult1.getId();
-        }else{
-            return apiDefinition.getId();
-        }
-    }
-
-    private static void structureCaseData(ApiTestCaseWithBLOBs testCase, String apiDefinitionId, String versionId, String projectId,ApiTestCaseMapper apiTestCaseMapper) {
-        String requestStr = testCase.getRequest();
-        JSONObject objectCase = JSONObject.parseObject(requestStr);
-        testCase.setApiDefinitionId(apiDefinitionId);
-        insertCaseByApiTestCase(testCase,objectCase,versionId,projectId,apiTestCaseMapper);
     }
 
     public static ApiDefinitionResult structureApiDefinitionByJson(ApiDefinitionService apiDefinitionService,JSONObject object, String versionId, String projectId,ApiDefinitionMapper apiDefinitionMapper) {
@@ -232,38 +197,21 @@ public class ApiScenarioImportUtil {
         return test;
     }
 
-    public static ApiDefinitionResult insertDefinitionByApiDefinition(ApiDefinitionService apiDefinitionService, ApiDefinitionResult apiDefinitionResult, JSONObject objectDefinition, String versionId, String projectId,ApiDefinitionMapper apiDefinitionMapper){
-        String id = UUID.randomUUID().toString();
-        apiDefinitionResult.setId(id);
-        apiDefinitionResult.setProjectId(projectId);
-        apiDefinitionResult.setVersionId(versionId);
-        apiDefinitionResult.setRefId(id);
-        apiDefinitionResult.setLatest(true);
-        objectDefinition.put("id", id);
-        objectDefinition.put("resourceId", id);
-        objectDefinition.put("projectId", projectId);
-        objectDefinition.put("useEnvironment","");
-        apiDefinitionService.initModulePathAndId(projectId, apiDefinitionResult);
-        apiDefinitionResult.setRequest(JSON.toJSONString(objectDefinition));
-        apiDefinitionResult.setOrder(apiDefinitionService.getImportNextOrder(projectId));
-        apiDefinitionMapper.insert(apiDefinitionResult);
-        return apiDefinitionResult;
-    }
-
-    public static ApiTestCaseWithBLOBs structureCaseByJson(JSONObject object, String versionId, String projectId, String apiDefinitionId,ApiTestCaseMapper apiTestCaseMapper) {
+    public static void structureCaseByJson(JSONObject object, ApiDefinitionResult apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
+        String projectId = apiDefinition.getProjectId();
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
         String id = UUID.randomUUID().toString();
         apiTestCase.setId(id);
         apiTestCase.setName(object.getString("name"));
         apiTestCase.setCaseStatus(APITestStatus.Underway.name());
-        apiTestCase.setApiDefinitionId(apiDefinitionId);
+        apiTestCase.setApiDefinitionId(apiDefinition.getId());
         apiTestCase.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiTestCase.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiTestCase.setProjectId(projectId);
         apiTestCase.setCreateTime(System.currentTimeMillis());
         apiTestCase.setUpdateTime(System.currentTimeMillis());
-        apiTestCase.setVersionId(versionId);
+        apiTestCase.setVersionId(apiDefinition.getVersionId());
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
@@ -271,22 +219,6 @@ public class ApiScenarioImportUtil {
         apiTestCase.setRequest(object.toJSONString());
         apiTestCase.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
         apiTestCaseMapper.insert(apiTestCase);
-        return  apiTestCase;
-    }
-
-    public static void insertCaseByApiTestCase(ApiTestCaseWithBLOBs bloBs, JSONObject objectCase, String versionId, String projectId,ApiTestCaseMapper apiTestCaseMapper){
-        ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-        String id = UUID.randomUUID().toString();
-        bloBs.setId(id);
-        bloBs.setProjectId(projectId);
-        bloBs.setVersionId(versionId);
-        objectCase.put("id", id);
-        objectCase.put("resourceId", id);
-        objectCase.put("projectId", projectId);
-        objectCase.put("useEnvironment","");
-        bloBs.setRequest(JSON.toJSONString(objectCase));
-        bloBs.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
-        apiTestCaseMapper.insert(bloBs);
     }
 
     public static void formatHashTree(JSONArray hashTree) {

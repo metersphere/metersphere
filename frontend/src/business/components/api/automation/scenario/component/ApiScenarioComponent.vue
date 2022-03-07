@@ -67,7 +67,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -112,11 +112,12 @@ export default {
     },
   },
   created() {
-    if (!this.scenario.projectId) {
+    /*if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();
-    }
+    }*/
     if (this.scenario.num) {
       this.isShowNum = true;
+      this.getWorkspaceId(this.scenario.projectId);
     } else {
       this.isShowNum = false;
     }
@@ -139,9 +140,9 @@ export default {
       return this.scenario.referenced !== undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF';
 
     },
-    projectId() {
+    /*projectId() {
       return getCurrentProjectID();
-    },
+    },*/
   },
   methods: {
     run() {
@@ -256,9 +257,16 @@ export default {
     clickResource(resource) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId}
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId,workspaceId:this.dataWorkspaceId }
       });
       window.open(automationData.href, '_blank');
+    },
+    getWorkspaceId(projectId) {
+      this.$get("/project/get/" + projectId, response => {
+        if (response.data) {
+          this.dataWorkspaceId = response.data.workspaceId;
+        }
+      });
     }
   }
 }

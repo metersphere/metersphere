@@ -149,7 +149,7 @@ export default {
       this.$emit('close');
     },
     getWsProjects() {
-      this.$get("/project/listAll", res => {
+      this.$get("/project/getOwnerProjects", res => {
         this.projectList = res.data;
       })
     },
@@ -175,6 +175,7 @@ export default {
     showPopover() {
       this.projectIds.clear();
       let url = "/api/automation/env";
+
       this.$post(url, this.request, res => {
         let data = res.data;
         if (data) {

@@ -37,4 +37,6 @@ public interface ExtProjectMapper {
     int getProjectPlanBugSize(@Param("projectId") String projectId);
 
     void setDefaultMessageTask(@Param("projectId") String projectId);
+
+    List<ProjectDTO> queryListByIds(@Param("ids") List<String> ids);
 }

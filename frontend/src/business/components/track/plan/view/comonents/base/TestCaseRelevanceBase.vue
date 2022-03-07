@@ -28,19 +28,6 @@
 
     <slot></slot>
 
-    <!--        <template v-slot:footer>
-
-              <div v-if="$slots.footer">
-                <slot name="footer"></slot>
-              </div>
-              <div v-else>
-                <div style="margin-bottom: 15px" v-if="flag">
-                  <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
-                </div>
-                <ms-dialog-footer @cancel="close" v-loading="isSaving" @confirm="save"/>
-              </div>
-            </template>-->
-
   </relevance-dialog>
 </template>
 

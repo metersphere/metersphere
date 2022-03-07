@@ -223,7 +223,7 @@ export default {
         });
       },
       getWsProjects() {
-        this.$get("/project/listAll", res => {
+        this.$get("/project/getOwnerProjects", res => {
           this.projectList = res.data;
         })
       },
