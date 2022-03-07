@@ -2,6 +2,11 @@
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.environment.environment_config')"
              :visible.sync="visible" class="environment-dialog" width="80%" top="50px"
              @close="close" append-to-body destroy-on-close ref="environmentConfig">
+    <template #title>
+      <ms-dialog-header :title="$t('api_test.environment.environment_config')"
+                        @cancel="visible = false"
+                        @confirm="save"/>
+    </template>
     <el-container v-loading="result.loading">
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
@@ -24,13 +29,14 @@
   import EnvironmentEdit from "./environment/EnvironmentEdit";
   import {deepClone, hasPermission, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
   import {Environment, parseEnvironment} from "../model/EnvironmentModel";
+  import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 
   export default {
     name: "ApiEnvironmentConfig",
     components: {
       EnvironmentEdit,
       MsAsideItem,
-      MsMainContainer, MsAsideContainer, MsContainer, MsApiCollapseItem, MsApiCollapse, draggable
+      MsMainContainer, MsAsideContainer, MsContainer, MsApiCollapseItem, MsApiCollapse, draggable, MsDialogHeader
     },
     data() {
       return {
@@ -177,6 +183,9 @@
         if(this.currentEnvironment.name){
           this.ifCreate = false;
         }
+      },
+      save(){
+        this.$refs.environmentEdit.save();
       },
       close() {
         this.$emit('close');
