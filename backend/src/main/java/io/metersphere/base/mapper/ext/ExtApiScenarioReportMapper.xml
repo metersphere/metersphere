@@ -139,20 +139,19 @@
 
     <select id="list" resultMap="BaseResultMap">
         select * from (
-        select * from (
-        SELECT s_r.name AS test_name,
-        s_r.end_time,
-        s_r.user_id,
-        s_r.name,
-        s_r.id,
-        s_r.project_id,
-        s_r.create_time,
-        s_r.update_time,
-        s_r.status,
-        s_r.trigger_mode,
-        s_r.execute_type,
-        s_r.report_type
-        FROM api_scenario_report s_r
+            SELECT s_r.name AS test_name,
+            s_r.end_time,
+            s_r.user_id,
+            s_r.name,
+            s_r.id,
+            s_r.project_id,
+            s_r.create_time,
+            s_r.update_time,
+            s_r.status,
+            s_r.trigger_mode,
+            s_r.execute_type,
+            s_r.report_type
+            FROM api_scenario_report s_r
         <where>
             <if test="request.combine != null">
                 <include refid="listCombine">
@@ -197,28 +196,20 @@
                 </foreach>
             </if>
             AND s_r.execute_type = 'Saved'
-            <if test="request.orders != null and request.orders.size() > 0">
-                order by
-                <foreach collection="request.orders" separator="," item="order">
-                    ${order.name} ${order.type}
-                </foreach>
-            </if>
         </where>
-        ) apiScenarioReport
-        union
-        select * from (
+        union all
         select a_r.name as test_name,
-        a_r.end_time,
-        a_r.user_id,
-        a_r.name,
-        a_r.id,
-        a_r.project_id,
-        a_r.create_time,
-        a_r.create_time as update_time,
-        a_r.status,
-        a_r.trigger_mode,
-        'Saved' as execute_type,
-        'API_INDEPENDENT' as report_type
+            a_r.end_time,
+            a_r.user_id,
+            a_r.name,
+            a_r.id,
+            a_r.project_id,
+            a_r.create_time,
+            a_r.create_time as update_time,
+            a_r.status,
+            a_r.trigger_mode,
+            'Saved' as execute_type,
+            'API_INDEPENDENT' as report_type
         from api_definition_exec_result a_r
         where (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
         <if test="request.combine != null">
@@ -247,30 +238,32 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='report_type'">
-                            and a_r.report_type in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                        <otherwise>
+                        <when test="key=='trigger_mode'">
                             and a_r.trigger_mode in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
-                        </otherwise>
+                        </when>
                     </choose>
                 </if>
             </foreach>
         </if>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
+        ) r
+        where 1 = 1
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='report_type'">
+                            and r.report_type in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
             </foreach>
         </if>
-        ) apiDefinitionReport
-        ) r
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -281,32 +274,32 @@
 
     <select id="idList" resultType="java.lang.String">
         select r.id from (
-        SELECT s_r.name AS test_name,
-        s_r.end_time,
-        s_r.user_id,
-        s_r.name,
-        s_r.id,
-        s_r.project_id,
-        s_r.create_time,
-        s_r.update_time,
-        s_r.status,
-        s_r.trigger_mode,
-        s_r.execute_type,
-        s_r.report_type
+            SELECT s_r.name AS test_name,
+            s_r.end_time,
+            s_r.user_id,
+            s_r.name,
+            s_r.id,
+            s_r.project_id,
+            s_r.create_time,
+            s_r.update_time,
+            s_r.status,
+            s_r.trigger_mode,
+            s_r.execute_type,
+            s_r.report_type
         FROM api_scenario_report s_r
-        union
+        union all
         select a_r.name as test_name,
-        a_r.end_time,
-        a_r.user_id,
-        a_r.name,
-        a_r.id,
-        a_r.project_id,
-        a_r.create_time,
-        a_r.create_time as update_time,
-        a_r.status,
-        a_r.trigger_mode,
-        'Saved' as execute_type,
-        'API_INDEPENDENT' as report_type
+            a_r.end_time,
+            a_r.user_id,
+            a_r.name,
+            a_r.id,
+            a_r.project_id,
+            a_r.create_time,
+            a_r.create_time as update_time,
+            a_r.status,
+            a_r.trigger_mode,
+            'Saved' as execute_type,
+            'API_INDEPENDENT' as report_type
         from api_definition_exec_result a_r
         where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
         ) r
