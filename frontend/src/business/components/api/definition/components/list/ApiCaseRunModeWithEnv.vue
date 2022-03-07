@@ -92,6 +92,7 @@ export default {
       runModeVisible: false,
       resourcePools: [],
       runConfig: {
+        reportName: "",
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
@@ -117,12 +118,14 @@ export default {
       this.runConfig.onSampleError = false;
       this.runConfig.runWithinResourcePool = false;
       this.runConfig.resourcePoolId = null;
+      this.runConfig.reportName = "";
     },
     close() {
       this.runConfig = {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
+        reportName: "",
         runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: new Map(),
@@ -133,6 +136,10 @@ export default {
       this.$emit('close');
     },
     handleRunBatch() {
+      if ((this.runConfig.mode === 'serial' || this.runConfig.mode === 'parallel') && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
+        this.$warning(this.$t('commons.input_name'));
+        return;
+      }
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
     },

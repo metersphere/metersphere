@@ -154,7 +154,7 @@ export default {
       })
     },
     handleRunBatch() {
-      if (this.runConfig.mode === 'serial' && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
+      if ((this.runConfig.mode === 'serial' || this.runConfig.mode === 'parallel') && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
         this.$warning(this.$t('commons.input_name'));
         return;
       }
