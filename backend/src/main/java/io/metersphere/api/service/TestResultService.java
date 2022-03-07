@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
-import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -54,6 +53,8 @@ public class TestResultService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
+    private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
 
     public void saveResults(ResultDTO dto) {
         // 处理环境
@@ -64,7 +65,8 @@ public class TestResultService {
         List<RequestResult> requestResults = dto.getRequestResults();
         //处理环境参数
         if (CollectionUtils.isNotEmpty(environmentList)) {
-            ExecutedHandleSingleton.parseEnvironment(environmentList);
+            apiEnvironmentRunningParamService.parseEnvironment(environmentList);
+
         }
         //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
         if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
@@ -88,7 +90,7 @@ public class TestResultService {
                 }
                 //处理环境参数
                 if (CollectionUtils.isNotEmpty(environmentList)) {
-                    ExecutedHandleSingleton.parseEnvironment(environmentList);
+                    apiEnvironmentRunningParamService.parseEnvironment(environmentList);
                 }
                 // 处理用例/场景和计划关系
                 updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
