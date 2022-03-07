@@ -95,7 +95,7 @@
 
 <script>
 import MsTable from "@/business/components/common/components/table/MsTable";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
@@ -142,7 +142,7 @@ export default {
   },
   methods: {
     initTableData() {
-      this.condition.workspaceId = getCurrentWorkspaceId();
+      this.condition.projectId = getCurrentProjectID();
       this.condition.templateId = this.templateId;
       this.condition.templateContainIds = Array.from(this.templateContainIds);
       let filters = this.condition.filters;
