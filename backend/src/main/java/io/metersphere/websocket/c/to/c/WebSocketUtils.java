@@ -50,7 +50,7 @@ public class WebSocketUtils {
                 WebSocketUtils.ONLINE_USER_SESSIONS.remove(("send." + reportId));
             }
         } catch (Exception e) {
-            LoggerUtil.error("关闭socket失败：" + e.getMessage());
+            LoggerUtil.error("关闭socket失败：", e);
         }
     }
 }

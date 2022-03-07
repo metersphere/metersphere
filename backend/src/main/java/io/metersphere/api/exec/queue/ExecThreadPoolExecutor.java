@@ -109,7 +109,7 @@ public class ExecThreadPoolExecutor {
             threadPool.allowCoreThreadTimeOut(true);
             LoggerUtil.info("AllCoreThreads: " + threadPool.prestartAllCoreThreads());
         } catch (Exception e) {
-            LoggerUtil.error("设置线程参数异常：" + e);
+            LoggerUtil.error("设置线程参数异常：", e);
         }
     }
 

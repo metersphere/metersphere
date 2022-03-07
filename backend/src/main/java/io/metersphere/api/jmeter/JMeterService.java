@@ -129,7 +129,7 @@ public class JMeterService {
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
-                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ] 失败：" + e.getMessage());
+                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ] 失败：", e);
                 ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
                 apiScenarioReportService.delete(request.getReportId());
                 MSException.throwException(e.getMessage());
@@ -171,7 +171,7 @@ public class JMeterService {
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(request);
-            LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败：" + e.getMessage());
+            LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败：", e);
             LoggerUtil.error(e);
         }
     }
