@@ -26,7 +26,7 @@ public class ApiEnvironmentRunningParamService {
     @Resource
     ApiTestEnvironmentMapper testEnvironmentMapper;
 
-    public void addParam(String environmentId, Map<String,String> varMap) {
+    public void addParam(String environmentId, Map<String, String> varMap) {
         if (MapUtils.isEmpty(varMap)) {
             return;
         }
@@ -42,7 +42,7 @@ public class ApiEnvironmentRunningParamService {
                 if (commonConfig.containsKey("variables")) {
                     JSONArray variables = commonConfig.getJSONArray("variables");
 
-                    for (Map.Entry<String, String> entry: varMap.entrySet()){
+                    for (Map.Entry<String, String> entry : varMap.entrySet()) {
                         String key = entry.getKey();
                         String value = entry.getValue();
 
@@ -51,9 +51,9 @@ public class ApiEnvironmentRunningParamService {
                             JSONObject jsonObj = variables.getJSONObject(i);
                             if (jsonObj.containsKey("name") && StringUtils.equals(jsonObj.getString("name"), key)) {
                                 contains = true;
-                                if(jsonObj.containsKey("value") && StringUtils.equals(jsonObj.getString("value"), value)){
+                                if (jsonObj.containsKey("value") && StringUtils.equals(jsonObj.getString("value"), value)) {
                                     break;
-                                }else {
+                                } else {
                                     envNeedUpdate = true;
                                     jsonObj.put("value", value);
                                 }
@@ -77,7 +77,7 @@ public class ApiEnvironmentRunningParamService {
                     }
                 } else {
                     JSONArray variables = new JSONArray();
-                    for (Map.Entry<String, String> entry: varMap.entrySet()){
+                    for (Map.Entry<String, String> entry : varMap.entrySet()) {
                         String key = entry.getKey();
                         String value = entry.getValue();
 
@@ -97,7 +97,7 @@ public class ApiEnvironmentRunningParamService {
             } else {
                 JSONObject commonConfig = new JSONObject();
                 JSONArray variables = new JSONArray();
-                for (Map.Entry<String, String> entry: varMap.entrySet()) {
+                for (Map.Entry<String, String> entry : varMap.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
                     JSONObject itemObj = new JSONObject();
@@ -112,7 +112,7 @@ public class ApiEnvironmentRunningParamService {
                 commonConfig.put("variables", variables);
                 configObj.put("commonConfig", commonConfig);
             }
-            if(envNeedUpdate){
+            if (envNeedUpdate) {
                 environment.setConfig(configObj.toJSONString());
                 testEnvironmentMapper.updateByPrimaryKeyWithBLOBs(environment);
             }
@@ -124,36 +124,34 @@ public class ApiEnvironmentRunningParamService {
 
     public void parseEvn(String envStr) {
         String[] envStringArr = envStr.split("\n");
-        Map<String, Map<String,String>> envVarsMap = new HashMap<>();
+        Map<String, Map<String, String>> envVarsMap = new HashMap<>();
         for (String env : envStringArr) {
             if (StringUtils.contains(env, "=")) {
                 String[] envItem = env.split("=");
-                if (envItem.length > 1) {
-                    String jmeterVarKey = envItem[0];
-                    if (this.checkValidity(jmeterVarKey, "MS.ENV.")) {
-                        String[] envAndKeyArr = jmeterVarKey.substring("MS.ENV.".length()).split("\\.");
-                        String envId = envAndKeyArr[0];
-                        String[] keyArr = ArrayUtils.remove(envAndKeyArr, 0);
-                        String key = StringUtils.join(keyArr, ".");
-                        String value = StringUtils.substring(env, jmeterVarKey.length() + 1);
-                        if (StringUtils.isNoneEmpty(envId, key, value)) {
-                            if(envVarsMap.containsKey(envId)){
-                                envVarsMap.get(envId).put(key,value);
-                            }else {
-                                Map<String,String> varMap = new HashMap<>();
-                                varMap.put(key,value);
-                                envVarsMap.put(envId,varMap);
-                            }
+                String jmeterVarKey = envItem[0];
+                if (this.checkValidity(jmeterVarKey, "MS.ENV.")) {
+                    String[] envAndKeyArr = jmeterVarKey.substring("MS.ENV.".length()).split("\\.");
+                    String envId = envAndKeyArr[0];
+                    String[] keyArr = ArrayUtils.remove(envAndKeyArr, 0);
+                    String key = StringUtils.join(keyArr, ".");
+                    String value = StringUtils.substring(env, jmeterVarKey.length() + 1);
+                    if (StringUtils.isNoneEmpty(envId, key)) {
+                        if (envVarsMap.containsKey(envId)) {
+                            envVarsMap.get(envId).put(key, value);
+                        } else {
+                            Map<String, String> varMap = new HashMap<>();
+                            varMap.put(key, value);
+                            envVarsMap.put(envId, varMap);
                         }
                     }
                 }
             }
         }
 
-        if(MapUtils.isNotEmpty(envVarsMap)){
-            for (Map.Entry<String, Map<String, String>> entry: envVarsMap.entrySet()){
+        if (MapUtils.isNotEmpty(envVarsMap)) {
+            for (Map.Entry<String, Map<String, String>> entry : envVarsMap.entrySet()) {
                 String envId = entry.getKey();
-                Map<String,String> vars = entry.getValue();
+                Map<String, String> vars = entry.getValue();
                 this.addParam(envId, vars);
             }
         }
