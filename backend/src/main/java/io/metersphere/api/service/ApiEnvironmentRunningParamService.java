@@ -5,13 +5,16 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author song.tianyang
@@ -23,74 +26,97 @@ public class ApiEnvironmentRunningParamService {
     @Resource
     ApiTestEnvironmentMapper testEnvironmentMapper;
 
-    public void addParam(String environmentId, String key, String value) {
-        if (StringUtils.isEmpty(key)) {
+    public void addParam(String environmentId, Map<String,String> varMap) {
+        if (MapUtils.isEmpty(varMap)) {
             return;
         }
         ApiTestEnvironmentWithBLOBs environment = testEnvironmentMapper.selectByPrimaryKey(environmentId);
         if (environment == null) {
             return;
         }
+        boolean envNeedUpdate = false;
         try {
             JSONObject configObj = JSONObject.parseObject(environment.getConfig());
             if (configObj.containsKey("commonConfig")) {
                 JSONObject commonConfig = configObj.getJSONObject("commonConfig");
                 if (commonConfig.containsKey("variables")) {
                     JSONArray variables = commonConfig.getJSONArray("variables");
-                    boolean contains = false;
-                    for (int i = 0; i < variables.size(); i++) {
-                        JSONObject jsonObj = variables.getJSONObject(i);
-                        if (jsonObj.containsKey("name") && StringUtils.equals(jsonObj.getString("name"), key)) {
-                            contains = true;
-                            jsonObj.put("value", value);
+
+                    for (Map.Entry<String, String> entry: varMap.entrySet()){
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+
+                        boolean contains = false;
+                        for (int i = 0; i < variables.size(); i++) {
+                            JSONObject jsonObj = variables.getJSONObject(i);
+                            if (jsonObj.containsKey("name") && StringUtils.equals(jsonObj.getString("name"), key)) {
+                                contains = true;
+                                if(jsonObj.containsKey("value") && StringUtils.equals(jsonObj.getString("value"), value)){
+                                    break;
+                                }else {
+                                    envNeedUpdate = true;
+                                    jsonObj.put("value", value);
+                                }
+
+                            }
+                        }
+                        if (!contains) {
+                            envNeedUpdate = true;
+                            JSONObject itemObj = new JSONObject();
+                            itemObj.put("name", key);
+                            itemObj.put("value", value);
+                            itemObj.put("enable", true);
+
+                            if (variables.size() == 0) {
+                                variables.add(itemObj);
+                            } else {
+                                variables.add(variables.size() - 1, itemObj);
+                            }
+                            commonConfig.put("variables", variables);
                         }
                     }
-                    if (!contains) {
+                } else {
+                    JSONArray variables = new JSONArray();
+                    for (Map.Entry<String, String> entry: varMap.entrySet()){
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+
                         JSONObject itemObj = new JSONObject();
                         itemObj.put("name", key);
                         itemObj.put("value", value);
                         itemObj.put("enable", true);
-
-                        if (variables.size() == 0) {
-                            variables.add(itemObj);
-                        } else {
-                            variables.add(variables.size() - 1, itemObj);
-                        }
-                        commonConfig.put("variables", variables);
+                        variables.add(itemObj);
                     }
-                } else {
-                    JSONArray variables = new JSONArray();
-                    JSONObject itemObj = new JSONObject();
-                    itemObj.put("name", key);
-                    itemObj.put("value", value);
-                    itemObj.put("enable", true);
-
                     JSONObject emptyObj = new JSONObject();
                     emptyObj.put("enable", true);
-
-                    variables.add(itemObj);
                     variables.add(emptyObj);
+
                     commonConfig.put("variables", variables);
+
                 }
             } else {
                 JSONObject commonConfig = new JSONObject();
                 JSONArray variables = new JSONArray();
-                JSONObject itemObj = new JSONObject();
-                itemObj.put("name", key);
-                itemObj.put("value", value);
-                itemObj.put("enable", true);
-
+                for (Map.Entry<String, String> entry: varMap.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    JSONObject itemObj = new JSONObject();
+                    itemObj.put("name", key);
+                    itemObj.put("value", value);
+                    itemObj.put("enable", true);
+                    variables.add(itemObj);
+                }
                 JSONObject emptyObj = new JSONObject();
                 emptyObj.put("enable", true);
-
-                variables.add(itemObj);
                 variables.add(emptyObj);
                 commonConfig.put("variables", variables);
                 configObj.put("commonConfig", commonConfig);
             }
+            if(envNeedUpdate){
+                environment.setConfig(configObj.toJSONString());
+                testEnvironmentMapper.updateByPrimaryKeyWithBLOBs(environment);
+            }
 
-            environment.setConfig(configObj.toJSONString());
-            testEnvironmentMapper.updateByPrimaryKeyWithBLOBs(environment);
         } catch (Exception ex) {
             LoggerUtil.error("设置环境变量异常：" + ex.getMessage());
         }
@@ -98,6 +124,7 @@ public class ApiEnvironmentRunningParamService {
 
     public void parseEvn(String envStr) {
         String[] envStringArr = envStr.split("\n");
+        Map<String, Map<String,String>> envVarsMap = new HashMap<>();
         for (String env : envStringArr) {
             if (StringUtils.contains(env, "=")) {
                 String[] envItem = env.split("=");
@@ -110,10 +137,24 @@ public class ApiEnvironmentRunningParamService {
                         String key = StringUtils.join(keyArr, ".");
                         String value = StringUtils.substring(env, jmeterVarKey.length() + 1);
                         if (StringUtils.isNoneEmpty(envId, key, value)) {
-                            this.addParam(envId, key, value);
+                            if(envVarsMap.containsKey(envId)){
+                                envVarsMap.get(envId).put(key,value);
+                            }else {
+                                Map<String,String> varMap = new HashMap<>();
+                                varMap.put(key,value);
+                                envVarsMap.put(envId,varMap);
+                            }
                         }
                     }
                 }
+            }
+        }
+
+        if(MapUtils.isNotEmpty(envVarsMap)){
+            for (Map.Entry<String, Map<String, String>> entry: envVarsMap.entrySet()){
+                String envId = entry.getKey();
+                Map<String,String> vars = entry.getValue();
+                this.addParam(envId, vars);
             }
         }
     }
