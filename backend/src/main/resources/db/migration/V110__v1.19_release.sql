@@ -469,7 +469,8 @@ BEGIN
         FROM custom_field,
              test_case_template
         WHERE custom_field.id LIKE CONCAT(fieldId, '%')
-          AND test_case_template.id LIKE CONCAT(templateId, '%');
+          AND test_case_template.id LIKE CONCAT(templateId, '%')
+          AND (custom_field.project_id = test_case_template.project_id OR custom_field.project_id = 'global');
 
         INSERT INTO custom_field_template(id, field_id, template_id, scene, required, `order`, default_value,
                                           custom_data, `key`)
@@ -485,7 +486,8 @@ BEGIN
         FROM custom_field,
              issue_template
         WHERE custom_field.id LIKE CONCAT(fieldId, '%')
-          AND issue_template.id LIKE CONCAT(templateId, '%');
+          AND issue_template.id LIKE CONCAT(templateId, '%')
+          AND (custom_field.project_id = issue_template.project_id OR custom_field.project_id = 'global');
 
     END LOOP;
     CLOSE cursor1;
