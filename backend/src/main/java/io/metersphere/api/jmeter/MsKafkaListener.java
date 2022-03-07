@@ -93,7 +93,7 @@ public class MsKafkaListener {
                 });
             }
         } catch (Exception e) {
-            LoggerUtil.error("KAFKA消费失败：" + e.getMessage());
+            LoggerUtil.error("KAFKA消费失败：", e);
         } finally {
             ack.acknowledge();
         }
@@ -121,7 +121,7 @@ public class MsKafkaListener {
                 return element;
             }
         } catch (Exception e) {
-            LoggerUtil.error("formatResult 格式化数据失败：" + e.getMessage());
+            LoggerUtil.error("formatResult 格式化数据失败：", e);
         }
         return null;
     }
