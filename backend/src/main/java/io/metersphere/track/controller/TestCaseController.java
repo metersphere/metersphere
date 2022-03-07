@@ -198,10 +198,10 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, targetClass = TestCaseMapper.class,
             event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseCreate", subject = "测试用例通知")
     public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        if(StringUtils.isBlank(request.getId())){
+        if (StringUtils.isBlank(request.getId())) {
             //新增 后端生成 id
             request.setId(UUID.randomUUID().toString());
-        }else{
+        } else {
             //复制，前端生成 id
         }
         return testCaseService.save(request, files);
@@ -243,12 +243,12 @@ public class TestCaseController {
         return testCaseService.deleteTestCaseToGc(testCaseId);
     }
 
-   @GetMapping("/deletePublic/{versionId}/{refId}")
+    @GetMapping("/deletePublic/{versionId}/{refId}")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
             mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
     public void deletePublic(@PathVariable String versionId, @PathVariable String refId) {
-         testCaseService.deleteTestCasePublic(versionId ,refId);
+        testCaseService.deleteTestCasePublic(versionId, refId);
     }
 
 
@@ -291,10 +291,6 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
     public void editTestCaseBath(@RequestBody TestCaseBatchRequest request) {
-        List<String> ids = request.getIds();
-        for (String id : ids) {
-            checkPermissionService.checkTestCaseOwner(id);
-        }
         testCaseService.editTestCaseBath(request);
     }
 
@@ -391,8 +387,8 @@ public class TestCaseController {
 
     @PostMapping("/edit/follows/{caseId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-    public void editTestFollows(@PathVariable String caseId,@RequestBody List<String> follows) {
-        testCaseService.saveFollows(caseId,follows);
+    public void editTestFollows(@PathVariable String caseId, @RequestBody List<String> follows) {
+        testCaseService.saveFollows(caseId, follows);
     }
 
     @GetMapping("versions/{caseId}")
