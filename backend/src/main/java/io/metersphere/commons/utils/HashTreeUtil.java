@@ -81,7 +81,7 @@ public class HashTreeUtil {
         return returnMap;
     }
 
-    public synchronized void setEnvParamsMapToHashTree(HashTree hashTree, Map<String, Map<String, String>> envParamsMap) {
+    public  void setEnvParamsMapToHashTree(HashTree hashTree, Map<String, Map<String, String>> envParamsMap) {
         if (hashTree != null) {
             Map<String, String> allParamMap = new HashMap<>();
             for (Map<String, String> paramMap : envParamsMap.values()) {
