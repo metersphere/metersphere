@@ -110,6 +110,7 @@ import {PROJECT_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+const jsondiffpatch = require('jsondiffpatch');
 
 export default {
   name: "ApiAutomation",
@@ -160,6 +161,8 @@ export default {
       customNum: false,
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
+      isLeave: false,
+      isSave: false
     };
   },
   created() {
@@ -279,7 +282,7 @@ export default {
           status: "Underway", principal: getCurrentUser().id,
           apiScenarioModuleId: "default-module", id: getUUID(),
           modulePath: "/" + this.$t("commons.module_title"),
-          level: "P0"
+          level: "P0", type: "add"
         };
         if (this.nodeTree && this.nodeTree.length > 0) {
           currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
@@ -321,28 +324,60 @@ export default {
     },
     handleTabClose() {
       let message = "";
-      this.tabs.forEach(t => {
-        if (t && this.$store.state.scenarioMap.has(t.currentScenario.id) && this.$store.state.scenarioMap.get(t.currentScenario.id) > 1) {
-          message += t.currentScenario.name + "，";
-        }
-      });
-      if (message !== "") {
-        this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.$store.state.scenarioMap.clear();
-              this.tabs = [];
-              this.activeName = "default";
-              this.refresh();
+      if (!this.isSave) {
+        this.tabs.forEach(t => {
+          if (t.currentScenario.type !== "add") {
+            let v1 = t.currentScenario.scenarioDefinitionOrg;
+            let v2 = {
+              apiScenarioModuleId: t.currentScenario.apiScenarioModuleId,
+              name: t.currentScenario.name,
+              status: t.currentScenario.status,
+              principal: t.currentScenario.principal,
+              level: t.currentScenario.level,
+              tags: t.currentScenario.tags,
+              description: t.currentScenario.description,
+              scenarioDefinition: t.currentScenario.scenarioDefinition
+            };
+            this.deleteResourceIds(v1.scenarioDefinition);
+            this.deleteResourceIds(v2.scenarioDefinition);
+            let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
+            if (delta) {
+              this.isLeave = true;
+            }
+            if (t && this.isLeave) {
+              message += t.currentScenario.name + "，";
             }
           }
         });
+        if (message !== "") {
+          this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.tabs = [];
+                this.activeName = "default";
+                this.refresh();
+                this.isSave = false;
+              } else {
+                this.isLeave = false;
+                this.isSave = false;
+              }
+            }
+          });
+        } else {
+          this.tabs = [];
+          this.activeName = "default";
+          this.refresh();
+          this.isSave = false;
+          this.isLeave = false;
+        }
       } else {
         this.tabs = [];
         this.activeName = "default";
         this.refresh();
+        this.isSave = false;
+        this.isLeave = false;
       }
     },
     handleCommand(e) {
@@ -367,21 +402,62 @@ export default {
         this.activeName = "default";
       }
     },
+    deleteResourceIds(array) {
+      array.forEach(item => {
+        if (item.resourceId) {
+          delete item.resourceId;
+        }
+        if (item.id) {
+          delete item.id;
+        }
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.deleteResourceIds(item.hashTree);
+        }
+      })
+    },
     closeConfirm(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
-      if (t && this.$store.state.scenarioMap.has(t[0].currentScenario.id) && this.$store.state.scenarioMap.get(t[0].currentScenario.id) > 0) {
-        this.$alert(this.$t('commons.scenario') + " [ " + t[0].currentScenario.name + " ] " + this.$t('commons.confirm_info'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.$store.state.scenarioMap.delete(t[0].currentScenario.id);
-              this.removeTab(targetName);
+      if (!this.isSave && t[0].currentScenario.type !== 'add') {
+        let v1 = t[0].currentScenario.scenarioDefinitionOrg;
+        let v2 = {
+          apiScenarioModuleId: t[0].currentScenario.apiScenarioModuleId,
+          name: t[0].currentScenario.name,
+          status: t[0].currentScenario.status,
+          principal: t[0].currentScenario.principal,
+          level: t[0].currentScenario.level,
+          tags: t[0].currentScenario.tags,
+          description: t[0].currentScenario.description,
+          scenarioDefinition: t[0].currentScenario.scenarioDefinition
+        };
+        this.deleteResourceIds(v1.scenarioDefinition);
+        this.deleteResourceIds(v2.scenarioDefinition);
+        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
+        if (delta) {
+          this.isLeave = true;
+        }
+        if (this.isLeave) {
+          this.$alert(this.$t('commons.scenario') + " [ " + t[0].currentScenario.name + " ] " + this.$t('commons.confirm_info'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.isLeave = false;
+                this.removeTab(targetName);
+                this.isSave = false;
+              } else {
+                this.isLeave = false;
+                this.isSave = false;
+              }
             }
-          }
-        });
+          });
+        } else {
+          this.isLeave = false;
+          this.isSave = false;
+          this.removeTab(targetName);
+        }
       } else {
-        this.$store.state.scenarioMap.delete(t[0].currentScenario.id);
+        this.isLeave = false;
+        this.isSave = false;
         this.removeTab(targetName);
       }
     },
@@ -418,6 +494,7 @@ export default {
       if (this.$refs.apiTrashScenarioList) {
         this.$refs.apiTrashScenarioList.search(data);
       }
+      this.isSave = true;
       this.$refs.nodeTree.list();
     },
     refreshTree() {
