@@ -1,9 +1,5 @@
 <template>
   <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
-    <ms-dialog-header class="ms-opt-btn"
-                      :btn-size="'medium'"
-                      @cancel="cancel"
-                      @confirm="save()"/>
     <el-form :model="environment" :rules="rules" ref="environment" label-width="80px">
       <el-form-item prop="name" :label="$t('api_test.environment.name')">
         <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
