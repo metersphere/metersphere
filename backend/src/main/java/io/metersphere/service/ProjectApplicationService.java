@@ -7,6 +7,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectApplicationMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -104,6 +105,11 @@ public class ProjectApplicationService {
             LogUtil.error("update project config parse mock port error.");
             port = 0;
         }
+
+        if (port == 0) {
+            MSException.throwException("tcp port cannot be 0");
+        }
+
         if (port > 0) {
             projectService.checkMockTcpPort(port);
         }
