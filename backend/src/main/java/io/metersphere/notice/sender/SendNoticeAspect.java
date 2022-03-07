@@ -1,15 +1,11 @@
 package io.metersphere.notice.sender;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.service.SystemParameterService;
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -30,9 +26,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue;
@@ -41,9 +34,7 @@ import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValu
 @Component
 public class SendNoticeAspect {
     @Resource
-    private NoticeSendService noticeSendService;
-    @Resource
-    private SystemParameterService systemParameterService;
+    private AfterReturningNoticeSendService afterReturningNoticeSendService;
 
     private ExpressionParser parser = new SpelExpressionParser();
     private LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
@@ -131,96 +122,10 @@ public class SendNoticeAspect {
             for (int len = 0; len < params.length; len++) {
                 context.setVariable(params[len], args[len]);
             }
-
-            handleNotice(sendNotice, retValue);
+            SessionUser sessionUser = SessionUtils.getUser();
+            afterReturningNoticeSendService.sendNotice(sendNotice, retValue, sessionUser);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
-    }
-
-    private void handleNotice(SendNotice sendNotice, Object retValue) {
-        //
-        List<Map> resources = new ArrayList<>();
-        String source = sendNotice.source();
-        if (StringUtils.isNotBlank(source)) {
-            // array
-            if (StringUtils.startsWith(source, "[")) {
-                resources.addAll(JSON.parseArray(source, Map.class));
-            }
-            // map
-            else {
-                Map<?, ?> value = JSON.parseObject(source, Map.class);
-                resources.add(value);
-            }
-        } else {
-            resources.add(new BeanMap(retValue));
-        }
-        // 有批量操作发送多次
-        for (Map resource : resources) {
-            Map<String, Object> paramMap = getParamMap(resource);
-            String context = getContext(sendNotice, paramMap);
-
-            NoticeModel noticeModel = NoticeModel.builder()
-                    .operator(SessionUtils.getUserId())
-                    .context(context)
-                    .subject(sendNotice.subject())
-                    .mailTemplate(sendNotice.mailTemplate())
-                    .paramMap(paramMap)
-                    .event(sendNotice.event())
-                    .status((String) paramMap.get("status"))
-                    .excludeSelf(true)
-                    .build();
-            noticeSendService.send(sendNotice.taskType(), noticeModel);
-        }
-    }
-
-    private Map<String, Object> getParamMap(Map resource) {
-        Map<String, Object> paramMap = new HashMap<>();
-        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        paramMap.put("url", baseSystemConfigDTO.getUrl());
-        paramMap.put("operator", SessionUtils.getUser().getName());
-        paramMap.put("planShareUrl", ""); // 占位符
-        paramMap.putAll(resource);
-        return paramMap;
-    }
-
-    private String getContext(SendNotice sendNotice, Map<String, Object> paramMap) {
-        String operation = "";
-        switch (sendNotice.event()) {
-            case NoticeConstants.Event.CREATE:
-            case NoticeConstants.Event.CASE_CREATE:
-                operation = "创建了";
-                break;
-            case NoticeConstants.Event.UPDATE:
-            case NoticeConstants.Event.CASE_UPDATE:
-                operation = "更新了";
-                break;
-            case NoticeConstants.Event.DELETE:
-            case NoticeConstants.Event.CASE_DELETE:
-                operation = "删除了";
-                break;
-            case NoticeConstants.Event.COMMENT:
-                operation = "评论了";
-                break;
-            case NoticeConstants.Event.COMPLETE:
-                operation = "完成了";
-                break;
-            case NoticeConstants.Event.CLOSE_SCHEDULE:
-                operation = "关闭了定时任务";
-                break;
-            default:
-                break;
-        }
-        String subject = sendNotice.subject();
-        String resource = StringUtils.removeEnd(subject, "通知");
-
-        String name = "";
-        if (paramMap.containsKey("name")) {
-            name = ": ${name}";
-        }
-        if (paramMap.containsKey("title")) {
-            name = ": ${title}";
-        }
-        return "${operator}" + operation + resource + name;
     }
 }
