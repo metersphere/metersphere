@@ -180,7 +180,7 @@ public class ProjectApplicationService {
             LogUtil.error("create or update project config error. project id or conf type or value is blank.");
             return;
         }
-
+        LogUtil.info("create or update project config: " + projectId + "-" + type + "-" + value);
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
         if (projectApplicationMapper.countByExample(example) > 0) {
