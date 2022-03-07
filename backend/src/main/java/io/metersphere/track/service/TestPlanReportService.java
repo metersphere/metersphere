@@ -402,7 +402,7 @@ public class TestPlanReportService {
         return principalName;
     }
 
-    public synchronized void updateReport(List<String> testPlanReportIdList, String runMode, String triggerMode) {
+    public void updateReport(List<String> testPlanReportIdList, String runMode, String triggerMode) {
         for (String planReportId : testPlanReportIdList) {
             this.countReportByTestPlanReportId(planReportId, runMode, triggerMode);
         }
