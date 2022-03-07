@@ -135,7 +135,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
             LoggerUtil.debug("send. " + this.getName());
             WebSocketUtils.sendMessageSingle(dto);
         } catch (Exception ex) {
-            LoggerUtil.error("消息推送失败：" + ex.getMessage());
+            LoggerUtil.error("消息推送失败：" , ex);
         }
     }
 

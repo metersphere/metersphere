@@ -134,7 +134,7 @@ public class ApiScenarioSerialService {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            LoggerUtil.error("执行终止：" + e.getMessage());
+            LoggerUtil.error("执行终止：", e);
         }
     }
 
