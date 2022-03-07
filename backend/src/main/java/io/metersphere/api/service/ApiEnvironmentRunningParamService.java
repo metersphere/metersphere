@@ -118,7 +118,7 @@ public class ApiEnvironmentRunningParamService {
             }
 
         } catch (Exception ex) {
-            LoggerUtil.error("设置环境变量异常：" + ex.getMessage());
+            LoggerUtil.error("设置环境变量异常", ex);
         }
     }
 
