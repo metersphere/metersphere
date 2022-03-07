@@ -15,7 +15,7 @@
       :title="displayTitle"
       :if-from-variable-advance="ifFromVariableAdvance">
 
-      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
+      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')">
         <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
         <span v-else>
           <el-tooltip class="ms-num" effect="dark"
@@ -231,8 +231,8 @@ export default {
       envType: this.environmentType,
       environmentMap: this.envMap,
       isShowNum: false,
-      isSameSpace: true,
       response: {},
+      dataWorkspaceId:'',
     }
   },
   created() {
@@ -251,11 +251,11 @@ export default {
 
     if (this.request.num) {
       this.isShowNum = true;
+      this.getWorkspaceId(this.request.projectId);
       this.request.root = true;
       if (this.request.id && this.request.referenced === 'REF') {
         this.request.disabled = true;
       }
-      this.getWorkspaceId(this.request.projectId);
     } else {
       this.isShowNum = false;
     }
@@ -485,7 +485,6 @@ export default {
             }
             if (response.data.num) {
               this.request.num = response.data.num;
-              this.getWorkspaceId(response.data.projectId);
             }
             this.request.id = response.data.id;
             this.request.disabled = true;
@@ -510,7 +509,6 @@ export default {
             if (response.data) {
               if (response.data.num) {
                 this.request.num = response.data.num;
-                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
               this.request.versionName = response.data.versionName;
@@ -522,7 +520,6 @@ export default {
             if (response.data) {
               if (response.data.num) {
                 this.request.num = response.data.num;
-                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
               this.request.versionName = response.data.versionName;
@@ -704,7 +701,8 @@ export default {
             dataType: "api",
             dataSelectRange: 'edit:' + resource.id,
             projectId: resource.projectId,
-            type: resource.protocol
+            type: resource.protocol,
+            workspaceId:this.dataWorkspaceId,
           }
         });
         window.open(definitionData.href, '_blank');
@@ -714,6 +712,7 @@ export default {
             response.data.sourceId = resource.resourceId;
             response.data.type = resource.type;
             response.data.refType = resource.refType;
+            response.data.workspaceId = this.dataWorkspaceId;
             this.clickCase(response.data)
           } else {
             this.$error("接口用例场景场景已经被删除");
@@ -750,11 +749,7 @@ export default {
     getWorkspaceId(projectId) {
       this.$get("/project/get/" + projectId, response => {
         if (response.data) {
-          if (response.data.workspaceId === getCurrentWorkspaceId()) {
-            this.isShowNum = true;
-          } else {
-            this.isSameSpace = false;
-          }
+          this.dataWorkspaceId = response.data.workspaceId
         }
       });
     },

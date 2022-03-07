@@ -106,7 +106,7 @@
 <script>
 
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
-import {PROJECT_ID} from "@/common/js/constants";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -166,6 +166,10 @@ export default {
     };
   },
   created() {
+    let workspaceId = this.$route.params.workspaceId;
+    if (workspaceId) {
+      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+    }
     let projectId = this.$route.params.projectId;
     if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);

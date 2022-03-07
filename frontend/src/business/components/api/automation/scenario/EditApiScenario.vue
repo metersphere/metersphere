@@ -1097,11 +1097,6 @@ export default {
         if (!stepArray[i].projectId) {
           // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
           stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-        } else {
-          const project = this.projectList.find(p => p.id === stepArray[i].projectId);
-          if (!project) {
-            stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-          }
         }
         // 添加debug结果
         stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
@@ -1669,7 +1664,7 @@ export default {
       this.environmentType = val;
     },
     getWsProjects() {
-      this.$get("/project/listAll", res => {
+      this.$get("/project/getOwnerProjects", res => {
         this.projectList = res.data;
       })
     },
