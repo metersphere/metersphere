@@ -1,20 +1,13 @@
 <template>
   <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog">
-
-    <template v-slot:headerBtn>
-
-      <div v-if="$slots.headerBtn">
-        <slot name="headerBtn"></slot>
-      </div>
-      <div v-else>
-        <div style="margin-bottom: 5px; display:inline-block" v-if="flag">
-          <el-checkbox v-model="checked" class="el-checkbox__label">{{
-              $t('test_track.sync_add_api_load')
-            }}
-          </el-checkbox>
-        </div>
-        <ms-dialog-header @cancel="close" v-loading="isSaving" @confirm="save"/>
-      </div>
+    <template slot="title" slot-scope="{title}">
+      <ms-dialog-header :title="title" @cancel="close" @confirm="save">
+        <template #other>
+          <div v-if="flag" style="margin-top: 5px;">
+            <el-checkbox v-model="checked" class="el-checkbox__label">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
+          </div>
+        </template>
+      </ms-dialog-header>
     </template>
 
     <template v-slot:aside>
@@ -50,8 +43,8 @@
 
 import MsDialogHeader from '../../../../../common/components/MsDialogHeader'
 import SelectMenu from "../../../../common/SelectMenu";
-  import RelevanceDialog from "./RelevanceDialog";
-  import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import RelevanceDialog from "./RelevanceDialog";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
   export default {
     name: "TestCaseRelevanceBase",
@@ -149,11 +142,7 @@ import SelectMenu from "../../../../common/SelectMenu";
 
 <style scoped>
 
-.el-checkbox__label {
-  display: inline-block;
-  padding-left: 10px;
-  line-height: 19px;
-  font-size: 14px;
-  padding-right: 10px;
-}
+/*.el-checkbox__label {*/
+/*  float: right;*/
+/*}*/
 </style>
