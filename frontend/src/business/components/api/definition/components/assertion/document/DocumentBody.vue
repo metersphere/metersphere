@@ -36,14 +36,14 @@
       </el-table-column>
 
       <el-table-column prop="include" width="78" :label="$t('api_test.request.assertions.must_contain')"
-                       :render-header="renderHeader">
+                       :scoped-slot="renderHeader">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked || scope.row.type==='array'"/>
         </template>
       </el-table-column>
 
       <el-table-column prop="typeVerification" width="100" :label="$t('api_test.request.assertions.type_verification')"
-                       :render-header="renderHeaderType">
+                       :scoped-slot="renderHeaderType">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked"/>
         </template>
@@ -75,7 +75,7 @@
       </el-table-column>
 
       <el-table-column prop="arrayVerification" width="140" :label="$t('api_test.request.assertions.check')"
-                       :render-header="renderHeaderArray">
+                       :scoped-slot="renderHeaderArray">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange"
                        v-if="scope.row.type==='array'" :disabled="checked"/>

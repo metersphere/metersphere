@@ -20,12 +20,12 @@ export default {
     // },
     {
       path: "report/list/:testId",
-      name: "ApiReportList",
+      name: "ApiReports",
       component: () => import('@/business/components/api/report/ApiReportList'),
     },
     {
       path: "report/view/:reportId",
-      name: "ApiReportView",
+      name: "ApiReportViews",
       component: () => import('@/business/components/api/report/ApiReportView'),
     },
     {
