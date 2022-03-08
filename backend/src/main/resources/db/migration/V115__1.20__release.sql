@@ -64,3 +64,16 @@ CREATE TABLE `ui_scenario`
     KEY                     `ui_scenario_version_id_index` (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `ui_element_module`
+(
+    `id`           varchar(50) NOT NULL COMMENT 'Ui scenario node ID',
+    `project_id`   varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
+    `name`         varchar(64) NOT NULL COMMENT 'Node name',
+    `parent_id`    varchar(50)  DEFAULT NULL COMMENT 'Parent node ID',
+    `level`        int(10) DEFAULT '1' COMMENT 'Node level',
+    `create_time`  bigint(13) NOT NULL COMMENT 'Create timestamp',
+    `update_time`  bigint(13) NOT NULL COMMENT 'Update timestamp',
+    `pos`          double       DEFAULT NULL,
+    `create_user` varchar(100) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
