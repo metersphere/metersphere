@@ -1,6 +1,12 @@
 <template>
   <relevance-dialog :width="width" :title="dialogTitle" ref="relevanceDialog">
-    <template slot="title" slot-scope="{title}">
+    <!-- todo -->
+    <template slot="headerBtn" v-if="$slots.headerBtn">
+      <div>
+        <slot name="headerBtn"></slot>
+      </div>
+    </template>
+    <template slot="title" slot-scope="{title}" v-if="!$slots.headerBtn">
       <ms-dialog-header :title="title" @cancel="close" @confirm="save">
         <template #other>
           <div v-if="flag" style="margin-top: 5px;">
