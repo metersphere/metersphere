@@ -110,17 +110,6 @@ public class NoticeService {
         return scheduleMessageTask;
     }
 
-    public List<MessageDetail> searchMessageByType(String type) {
-        try {
-            String projectId = SessionUtils.getCurrentProjectId();
-            return getMessageDetails(type, projectId);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            return new ArrayList<>();
-        }
-    }
-
-
     public List<MessageDetail> searchMessageByTypeAndProjectId(String type, String projectId) {
         try {
             return getMessageDetails(type, projectId);

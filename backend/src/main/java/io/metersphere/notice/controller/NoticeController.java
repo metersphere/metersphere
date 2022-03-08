@@ -2,6 +2,7 @@ package io.metersphere.notice.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.service.NoticeService;
@@ -24,7 +25,8 @@ public class NoticeController {
 
     @GetMapping("/search/message/type/{type}")
     public List<MessageDetail> searchMessage(@PathVariable String type) {
-        return noticeService.searchMessageByType(type);
+        String projectId = SessionUtils.getCurrentProjectId();
+        return noticeService.searchMessageByTypeAndProjectId(type, projectId);
     }
 
     @GetMapping("/search/message/{testId}")

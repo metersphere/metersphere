@@ -3,6 +3,7 @@ package io.metersphere.notice.sender;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.notice.service.NoticeSendService;
@@ -50,6 +51,7 @@ public class AfterReturningNoticeSendService {
             paramMap.put("url", baseSystemConfigDTO.getUrl());
             paramMap.put("operator", sessionUser.getName());
             paramMap.putAll(resource);
+            paramMap.putIfAbsent("projectId", SessionUtils.getCurrentProjectId());
             // 占位符
             handleDefaultValues(paramMap);
 
