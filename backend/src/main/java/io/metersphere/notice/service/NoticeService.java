@@ -111,20 +111,9 @@ public class NoticeService {
         return scheduleMessageTask;
     }
 
-    public List<MessageDetail> searchMessageByType(String type) {
+    public List<MessageDetail> searchMessageByTypeAndProjectId(String type, String projectId) {
         try {
-            String workspaceId = SessionUtils.getCurrentWorkspaceId();
-            return getMessageDetails(type, workspaceId);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            return new ArrayList<>();
-        }
-    }
-
-
-    public List<MessageDetail> searchMessageByTypeAndWorkspaceId(String type, String workspaceId) {
-        try {
-            return getMessageDetails(type, workspaceId);
+            return getMessageDetails(type, projectId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             return new ArrayList<>();
