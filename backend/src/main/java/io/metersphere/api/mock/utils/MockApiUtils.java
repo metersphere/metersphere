@@ -709,11 +709,13 @@ public class MockApiUtils {
     }
 
     public static boolean checkParamsCompliance(JSONArray jsonArray, List<MockConfigRequestParams> mockConfigRequestParamList, boolean isAllMatch) {
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject obj = jsonArray.getJSONObject(i);
-            boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList, isAllMatch);
-            if (isMatch) {
-                return true;
+        if (jsonArray != null) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList, isAllMatch);
+                if (isMatch) {
+                    return true;
+                }
             }
         }
         return false;
