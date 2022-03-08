@@ -1135,6 +1135,7 @@ public class ApiDefinitionService {
                 String context = request.getSwaggerUrl() + "导入失败";
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
+                paramMap.put("projectId", request.getProjectId());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
                         .context(context)
