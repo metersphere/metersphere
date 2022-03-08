@@ -2,7 +2,7 @@ package com.test;
 
 import com.google.gson.Gson;
 import io.metersphere.Application;
-import io.metersphere.xpack.ui.domain.SideDTO;
+import io.metersphere.xpack.ui.dto.SideDTO;
 import io.metersphere.xpack.ui.service.UiAutomationService;
 import io.metersphere.xpack.ui.util.TemplateUtils;
 import io.metersphere.xpack.ui.util.WebDriverSamplerHelper;
