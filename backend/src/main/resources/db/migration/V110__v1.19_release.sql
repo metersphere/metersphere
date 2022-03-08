@@ -642,3 +642,12 @@ alter table project drop column clean_load_report;
 alter table project drop column clean_load_report_expr;
 
 
+
+alter table api_test_environment
+    add create_time bigint(13) null;
+
+alter table api_test_environment
+    add update_time bigint(13) null;
+
+update api_test_environment set create_time = unix_timestamp() * 1000 where create_time is null;
+update api_test_environment set update_time = unix_timestamp() * 1000 where update_time is null;

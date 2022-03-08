@@ -51,6 +51,7 @@ public class ApiTestEnvironmentService {
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
+        example.setOrderByClause("update_time desc");
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
@@ -65,6 +66,7 @@ public class ApiTestEnvironmentService {
             environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(), '%'));    //使搜索文本变成数据库中的正则表达式
             criteria.andNameLike(environmentRequest.getName());
         }
+        example.setOrderByClause("update_time desc");
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
@@ -101,6 +103,8 @@ public class ApiTestEnvironmentService {
         FileUtils.createFiles(request.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
         //检查Config，判断isMock参数是否给True
         request = this.updateConfig(request,false);
+        request.setCreateTime(System.currentTimeMillis());
+        request.setUpdateTime(System.currentTimeMillis());
         apiTestEnvironmentMapper.insert(request);
         return request.getId();
     }
@@ -123,6 +127,7 @@ public class ApiTestEnvironmentService {
     public void update(ApiTestEnvironmentDTO apiTestEnvironment,List<MultipartFile> sslFiles) {
         checkEnvironmentExist(apiTestEnvironment);
         FileUtils.createFiles(apiTestEnvironment.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
+        apiTestEnvironment.setUpdateTime(System.currentTimeMillis());
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
     }
     private void checkEnvironmentExist(ApiTestEnvironmentWithBLOBs environment) {
