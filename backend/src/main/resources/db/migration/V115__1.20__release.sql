@@ -28,7 +28,7 @@ CREATE TABLE `ui_scenario`
     `project_id`            varchar(50)  NOT NULL COMMENT 'Project ID this test belongs to',
     `tags`                  varchar(2000) DEFAULT NULL COMMENT 'tag list',
     `user_id`               varchar(64)   DEFAULT NULL COMMENT 'User ID',
-    `ui_scenario_module_id` varchar(64)   DEFAULT NULL COMMENT 'User ID',
+    `module_id`             varchar(64)   DEFAULT NULL COMMENT 'Module ID',
     `module_path`           varchar(1000) DEFAULT NULL,
     `name`                  varchar(255) NOT NULL COMMENT 'ui scenario name',
     `level`                 varchar(100)  DEFAULT NULL COMMENT 'ui scenario level ',

@@ -384,73 +384,73 @@ public class UiScenarioExample {
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdIsNull() {
-            addCriterion("ui_scenario_module_id is null");
+        public Criteria andModuleIdIsNull() {
+            addCriterion("module_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdIsNotNull() {
-            addCriterion("ui_scenario_module_id is not null");
+        public Criteria andModuleIdIsNotNull() {
+            addCriterion("module_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdEqualTo(String value) {
-            addCriterion("ui_scenario_module_id =", value, "uiScenarioModuleId");
+        public Criteria andModuleIdEqualTo(String value) {
+            addCriterion("module_id =", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdNotEqualTo(String value) {
-            addCriterion("ui_scenario_module_id <>", value, "uiScenarioModuleId");
+        public Criteria andModuleIdNotEqualTo(String value) {
+            addCriterion("module_id <>", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdGreaterThan(String value) {
-            addCriterion("ui_scenario_module_id >", value, "uiScenarioModuleId");
+        public Criteria andModuleIdGreaterThan(String value) {
+            addCriterion("module_id >", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdGreaterThanOrEqualTo(String value) {
-            addCriterion("ui_scenario_module_id >=", value, "uiScenarioModuleId");
+        public Criteria andModuleIdGreaterThanOrEqualTo(String value) {
+            addCriterion("module_id >=", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdLessThan(String value) {
-            addCriterion("ui_scenario_module_id <", value, "uiScenarioModuleId");
+        public Criteria andModuleIdLessThan(String value) {
+            addCriterion("module_id <", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdLessThanOrEqualTo(String value) {
-            addCriterion("ui_scenario_module_id <=", value, "uiScenarioModuleId");
+        public Criteria andModuleIdLessThanOrEqualTo(String value) {
+            addCriterion("module_id <=", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdLike(String value) {
-            addCriterion("ui_scenario_module_id like", value, "uiScenarioModuleId");
+        public Criteria andModuleIdLike(String value) {
+            addCriterion("module_id like", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdNotLike(String value) {
-            addCriterion("ui_scenario_module_id not like", value, "uiScenarioModuleId");
+        public Criteria andModuleIdNotLike(String value) {
+            addCriterion("module_id not like", value, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdIn(List<String> values) {
-            addCriterion("ui_scenario_module_id in", values, "uiScenarioModuleId");
+        public Criteria andModuleIdIn(List<String> values) {
+            addCriterion("module_id in", values, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdNotIn(List<String> values) {
-            addCriterion("ui_scenario_module_id not in", values, "uiScenarioModuleId");
+        public Criteria andModuleIdNotIn(List<String> values) {
+            addCriterion("module_id not in", values, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdBetween(String value1, String value2) {
-            addCriterion("ui_scenario_module_id between", value1, value2, "uiScenarioModuleId");
+        public Criteria andModuleIdBetween(String value1, String value2) {
+            addCriterion("module_id between", value1, value2, "moduleId");
             return (Criteria) this;
         }
 
-        public Criteria andUiScenarioModuleIdNotBetween(String value1, String value2) {
-            addCriterion("ui_scenario_module_id not between", value1, value2, "uiScenarioModuleId");
+        public Criteria andModuleIdNotBetween(String value1, String value2) {
+            addCriterion("module_id not between", value1, value2, "moduleId");
             return (Criteria) this;
         }
 

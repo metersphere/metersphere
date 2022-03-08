@@ -13,7 +13,7 @@ public class UiScenario implements Serializable {
 
     private String userId;
 
-    private String uiScenarioModuleId;
+    private String moduleId;
 
     private String modulePath;
 
