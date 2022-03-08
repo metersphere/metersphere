@@ -61,7 +61,8 @@ public class NoticeSendService {
      */
     public void send(String taskType, NoticeModel noticeModel) {
         try {
-            List<MessageDetail> messageDetails = noticeService.searchMessageByType(taskType);
+            String projectId = (String) noticeModel.getParamMap().get("projectId");
+            List<MessageDetail> messageDetails = noticeService.searchMessageByTypeAndProjectId(taskType, projectId);
 
             // 异步发送通知
             messageDetails.stream()
@@ -132,7 +133,7 @@ public class NoticeSendService {
 //                default:
 //                    break;
 //            }
-            messageDetails = noticeService.searchMessageByTypeAndWorkspaceId(taskType, project.getWorkspaceId());
+            messageDetails = noticeService.searchMessageByTypeAndProjectId(taskType, project.getId());
 
             // 异步发送通知
             messageDetails.stream()
