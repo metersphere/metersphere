@@ -5,13 +5,13 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
             <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
           </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
             <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
           </el-tooltip>
-          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
+          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-show="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
           <!--  版本历史 -->
           <ms-version-history v-xpack
                               ref="versionHistory"
@@ -195,7 +195,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" v-if="showHideTree">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -467,7 +467,6 @@ export default {
       levels: PRIORITY,
       scenario: {},
       loading: false,
-      showHideTree: true,
       apiListVisible: false,
       customizeVisible: false,
       isBtnHide: false,
@@ -1218,9 +1217,8 @@ export default {
       });
     },
     showHide() {
-      this.showHideTree = false
       this.$nextTick(() => {
-        this.showHideTree = true
+        this.$store.state.forceRerenderIndex = getUUID();
       });
     },
     runDebug(runScenario) {

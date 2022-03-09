@@ -34,7 +34,8 @@ const state = {
   apiStatus: new Map(),
   testCaseMap: new Map(),
   curTabId: null,
-  testCaseDefaultValue: {}
+  testCaseDefaultValue: {},
+  forceRerenderIndex: "",
 }
 
 const store = new Vuex.Store({
