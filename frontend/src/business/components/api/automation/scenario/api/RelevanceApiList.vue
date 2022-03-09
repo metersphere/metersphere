@@ -25,7 +25,7 @@
         ref="apitable">
 
         <template v-slot:header>
-          <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly"
+          <ms-environment-select :project-id="projectId" v-if="isTestPlan || isScript" :is-read-only="isReadOnly"
                                  @setEnvironment="setEnvironment" ref="msEnvironmentSelect"/>
         </template>
 
@@ -79,6 +79,12 @@ export default {
     visible: {
       type: Boolean,
       default: false,
+    },
+    isScript: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
     isApiListEnable: {
       type: Boolean,
