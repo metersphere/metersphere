@@ -327,15 +327,21 @@ export default {
         this.buildReport();
       } else if (this.isShare) {
         getShareScenarioReport(this.shareId, this.reportId, (data) => {
+          this.checkReport(data);
           this.handleGetScenarioReport(data);
         });
       } else {
         getScenarioReport(this.reportId, (data) => {
+          this.checkReport(data);
           this.handleGetScenarioReport(data);
         });
       }
     },
-
+    checkReport(data) {
+      if (!data) {
+        this.$emit('reportNotExist');
+      }
+    },
     handleGetScenarioReport(data) {
       if (data) {
         this.report = data;
