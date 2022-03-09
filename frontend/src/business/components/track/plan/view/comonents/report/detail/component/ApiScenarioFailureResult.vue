@@ -57,8 +57,16 @@
       </el-card>
     </ms-aside-container>
     <ms-main-container>
-      <ms-api-report v-if="showResponse" :is-plan="true" :share-id="shareId" :is-share="isShare"
-                     :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+      <ms-api-report
+        v-if="showResponse"
+        :is-plan="true"
+        :share-id="shareId"
+        :is-share="isShare"
+        :template-report="response"
+        :is-template="isTemplate"
+        :infoDb="true"
+        :report-id="reportId"
+        @reportNotExist="showResponse = false"/>
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
