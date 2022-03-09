@@ -3071,6 +3071,7 @@ export default {
   },
   ui: {
     ui_automation: "UI Automation",
+    ui_element: "UI Element Library",
     report: "Test Report",
   }
 };

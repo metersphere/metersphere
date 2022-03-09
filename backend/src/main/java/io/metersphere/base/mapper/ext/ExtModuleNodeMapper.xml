@@ -35,31 +35,31 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="record.id != null">
-        #{id,jdbcType=VARCHAR},
+        #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.projectId != null">
-        #{projectId,jdbcType=VARCHAR},
+        #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        #{name,jdbcType=VARCHAR},
+        #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.parentId != null">
-        #{parentId,jdbcType=VARCHAR},
+        #{record.parentId,jdbcType=VARCHAR},
       </if>
       <if test="record.level != null">
-        #{level,jdbcType=INTEGER},
+        #{record.level,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        #{createTime,jdbcType=BIGINT},
+        #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
+        #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.pos != null">
-        #{pos,jdbcType=DOUBLE},
+        #{record.pos,jdbcType=DOUBLE},
       </if>
       <if test="record.createUser != null">
-        #{createUser,jdbcType=VARCHAR},
+        #{record.createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -132,7 +132,7 @@
 
   <select id="selectByExample" resultType="io.metersphere.base.domain.ModuleNode">
     select
-    <if test="distinct">
+    <if test="example.distinct">
       distinct
     </if>
     <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List" />
@@ -140,8 +140,8 @@
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
+    <if test="example.orderByClause != null">
+      order by ${example.orderByClause}
     </if>
   </select>
   <select id="getNodeIdsByPid" resultType="java.lang.String">
@@ -153,7 +153,7 @@
     select
     <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
     from ${tableName}
-    where test_case_node.project_id = #{projectId}
+    where project_id = #{projectId}
     order by pos asc
   </select>
   <select id="get" resultType="io.metersphere.track.dto.ModuleNodeDTO">

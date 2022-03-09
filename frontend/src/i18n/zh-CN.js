@@ -3075,6 +3075,7 @@ export default {
   },
   ui: {
     ui_automation: "UI 自动化",
+    ui_element: "元素库",
     report: "测试报告",
     scenario_list: "场景列表",
     selenium_tip: "支持 Selenium-IDE 插件格式导入",

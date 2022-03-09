@@ -16,7 +16,7 @@ public interface ExtModuleNodeMapper {
 
     List<ModuleNodeDTO> getNodeTreeByProjectId(@Param("tableName") String tableName, @Param("projectId") String projectId);
 
-    int updateByPrimaryKeySelective(@Param("tableName") String tableName, @Param("tableName") ModuleNode record);
+    int updateByPrimaryKeySelective(@Param("tableName") String tableName, @Param("record") ModuleNode record);
 
     int deleteByExample(@Param("tableName") String tableName, @Param("example") TestCaseNodeExample example);
 

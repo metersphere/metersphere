@@ -3074,6 +3074,7 @@ export default {
   },
   ui: {
     ui_automation: "UI 自動化",
+    ui_element: "元素庫",
     report: "測試報告",
   }
 };
