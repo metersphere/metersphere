@@ -3,7 +3,7 @@
     <div class="header" @click="active(data)">
       <slot name="beforeHeaderLeft">
         <div v-if="data.index" class="el-step__icon is-text enable-switch" :style="{'color': color, 'background-color': backgroundColor}">
-          <div class="el-step__icon-inner">{{ data.index }}</div>
+          <div class="el-step__icon-inner" :key="$store.state.forceRerenderIndex">{{ data.index }}</div>
         </div>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
