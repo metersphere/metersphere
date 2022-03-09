@@ -8,7 +8,7 @@
         <slot name="version"></slot>
       </template>
 
-      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly"
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan || isScript" :is-read-only="isReadOnly"
                              @setEnvironment="setEnvironment" ref="msEnvironmentSelect"/>
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
@@ -173,6 +173,12 @@ export default {
     isApiListEnable: {
       type: Boolean,
       default: false,
+    },
+    isScript: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
     isReadOnly: {
       type: Boolean,
