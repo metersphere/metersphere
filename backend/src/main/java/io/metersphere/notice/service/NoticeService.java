@@ -121,9 +121,9 @@ public class NoticeService {
         }
     }
 
-    public List<MessageDetail> searchMessageByTypeAndProjectId(String type, String projectId) {
+    public List<MessageDetail> searchMessageByTypeAndWorkspaceId(String type, String workspaceId) {
         try {
-            return getMessageDetails(type, projectId);
+            return getMessageDetails(type, workspaceId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             return new ArrayList<>();
