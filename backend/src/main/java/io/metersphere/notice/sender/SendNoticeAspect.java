@@ -123,7 +123,8 @@ public class SendNoticeAspect {
                 context.setVariable(params[len], args[len]);
             }
             SessionUser sessionUser = SessionUtils.getUser();
-            afterReturningNoticeSendService.sendNotice(sendNotice, retValue, sessionUser);
+            String currentProjectId = SessionUtils.getCurrentProjectId();
+            afterReturningNoticeSendService.sendNotice(sendNotice, retValue, sessionUser, currentProjectId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
