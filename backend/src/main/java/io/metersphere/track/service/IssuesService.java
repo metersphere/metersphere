@@ -77,6 +77,8 @@ public class IssuesService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private IssueFollowMapper issueFollowMapper;
+    @Resource
+    private TestPlanTestCaseMapper testPlanTestCaseMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -284,10 +286,16 @@ public class IssuesService {
         if (request.getIsPlanEdit() == true) {
             example.createCriteria().andResourceIdEqualTo(caseResourceId).andIssuesIdEqualTo(id);
             testCaseIssuesMapper.deleteByExample(example);
+            testCaseIssueService.updateIssuesCount(caseResourceId);
         } else {
             extIssuesMapper.deleteIssues(id, caseResourceId);
+            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+            testPlanTestCaseExample.createCriteria().andCaseIdEqualTo(caseResourceId);
+            List<TestPlanTestCase> list = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
+            list.forEach(item -> {
+                testCaseIssueService.updateIssuesCount(item.getId());
+            });
         }
-        testCaseIssueService.updateIssuesCount(caseResourceId);
     }
 
     public void delete(String id) {
