@@ -56,6 +56,10 @@ export default {
       this.$refs.postRelationshipList.getTableData();
     },
     openGraph() {
+      if (!this.resourceId) {
+        this.$warning(this.$t('api_test.automation.save_case_info'));
+        return;
+      }
       getRelationshipGraph(this.resourceId, this.resourceType,  (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
