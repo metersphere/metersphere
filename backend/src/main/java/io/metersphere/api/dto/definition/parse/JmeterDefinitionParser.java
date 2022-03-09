@@ -718,7 +718,20 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             String bodyType = this.getBodyType(samplerProxy.getHeaders());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
-                    samplerProxy.getBody().setType(Body.RAW);
+                    List<KeyValue> headers = samplerProxy.getHeaders();
+                    boolean jsonType = false;
+                    if (CollectionUtils.isNotEmpty(headers)) {
+                        for (KeyValue header : headers) {
+                            if (StringUtils.equals(header.getName(), "Content-Type") && StringUtils.equals(header.getValue(), "application/json")) {
+                                samplerProxy.getBody().setType(Body.JSON);
+                                jsonType = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!jsonType) {
+                        samplerProxy.getBody().setType(Body.RAW);
+                    }
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> samplerProxy.getBody().setRaw(v));
                     samplerProxy.getBody().initKvs();
                 } else if (StringUtils.isNotEmpty(bodyType) || ("POST".equalsIgnoreCase(source.getMethod()) && source.getArguments().getArgumentsAsMap().size() > 0)) {
