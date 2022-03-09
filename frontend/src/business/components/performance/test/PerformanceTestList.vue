@@ -25,7 +25,7 @@
           :row-order-group-id="projectId"
           :row-order-func="editLoadTestCaseOrder"
           :batch-operators="batchButtons"
-          operator-width="190px"
+          operator-width="120px"
           :screen-height="screenHeight"
           @refresh="search"
           :disable-header-config="true"
