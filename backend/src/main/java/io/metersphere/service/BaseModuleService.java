@@ -76,6 +76,10 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         return extModuleNodeMapper.getNodeIdsByPid(tableName, nodeId);
     }
 
+    public ModuleNode get(String id) {
+        return extModuleNodeMapper.selectByPrimaryKey(tableName, id);
+    }
+
     private void validateNode(ModuleNode node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
             throw new RuntimeException(Translator.get("test_case_node_level_tip")
@@ -560,5 +564,21 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         TestCaseNodeExample example = new TestCaseNodeExample();
         example.createCriteria().andIdEqualTo(nodeId);
         return extModuleNodeMapper.countByExample(tableName, example);
+    }
+
+    public List<ModuleNode> selectSameModule(ModuleNode node) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        TestCaseNodeExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(node.getName())
+                .andProjectIdEqualTo(node.getProjectId());
+        if (StringUtils.isNotBlank(node.getParentId())) {
+            criteria.andParentIdEqualTo(node.getParentId());
+        } else {
+            criteria.andParentIdIsNull();
+        }
+        if (StringUtils.isNotBlank(node.getId())) {
+            criteria.andIdNotEqualTo(node.getId());
+        }
+        return extModuleNodeMapper.selectByExample(tableName, example);
     }
 }
