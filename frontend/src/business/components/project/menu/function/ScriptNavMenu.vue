@@ -24,7 +24,7 @@
     </div>
     <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate"/>
     <!--接口列表-->
-    <api-func-relevance @save="apiSave" @close="apiClose" ref="apiFuncRelevance"/>
+    <api-func-relevance @save="apiSave" :is-test-plan="false" :is-script="true" @close="apiClose" ref="apiFuncRelevance"/>
   </div>
 
 </template>
