@@ -1,6 +1,5 @@
 package io.metersphere.commons.utils;
 
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectVersion;
 import io.metersphere.base.domain.User;
@@ -18,6 +17,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -233,6 +233,25 @@ public class ServiceUtils {
     public static Long getNextOrder(String groupId, BiFunction<String, Long, Long> getLastOrderFunc) {
         Long lastOrder = getLastOrderFunc.apply(groupId, null);
        return (lastOrder == null ? 0 : lastOrder) + ServiceUtils.ORDER_STEP;
+    }
+
+    public static <T> int getNextNum(String projectId, Class<T> clazz, Function<String, T> getNextNumFunc) {
+        T data = getNextNumFunc.apply(projectId);
+        try {
+            Method getNum = clazz.getMethod("getNum");
+            if (data == null || getNum.invoke(data) == null) {
+                return 100001;
+            } else {
+                return Optional.ofNullable((Integer)getNum.invoke(data) + 1).orElse(100001);
+            }
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return 100001;
     }
 
     public static SqlSession getBatchSqlSession() {

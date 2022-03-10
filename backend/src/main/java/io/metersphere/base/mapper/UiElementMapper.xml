@@ -3,6 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.UiElementMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.UiElement">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="INTEGER" property="num" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
@@ -11,7 +12,9 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="order" jdbcType="BIGINT" property="order" />
     <result column="latest" jdbcType="BIT" property="latest" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
@@ -74,8 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, module_id, project_id, `name`, location_type, `location`, create_user, version_id, 
-    ref_id, latest, create_time, update_time
+    id, num, module_id, project_id, `name`, location_type, `location`, create_user, version_id, 
+    ref_id, `order`, latest, description, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UiElementExample" resultMap="BaseResultMap">
     select
@@ -108,22 +111,25 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.UiElement">
-    insert into ui_element (id, module_id, project_id, 
-      `name`, location_type, `location`, 
-      create_user, version_id, ref_id, 
-      latest, create_time, update_time
-      )
-    values (#{id,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{locationType,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
-      #{latest,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
-      )
+    insert into ui_element (id, num, module_id, 
+      project_id, `name`, location_type, 
+      `location`, create_user, version_id, 
+      ref_id, `order`, latest, description, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{moduleId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{locationType,jdbcType=VARCHAR}, 
+      #{location,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
+      #{refId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{latest,jdbcType=BIT}, #{description,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.UiElement">
     insert into ui_element
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="moduleId != null">
         module_id,
@@ -149,8 +155,14 @@
       <if test="refId != null">
         ref_id,
       </if>
+      <if test="order != null">
+        `order`,
+      </if>
       <if test="latest != null">
         latest,
+      </if>
+      <if test="description != null">
+        description,
       </if>
       <if test="createTime != null">
         create_time,
@@ -162,6 +174,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
       </if>
       <if test="moduleId != null">
         #{moduleId,jdbcType=VARCHAR},
@@ -187,8 +202,14 @@
       <if test="refId != null">
         #{refId,jdbcType=VARCHAR},
       </if>
+      <if test="order != null">
+        #{order,jdbcType=BIGINT},
+      </if>
       <if test="latest != null">
         #{latest,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -209,6 +230,9 @@
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
       </if>
       <if test="record.moduleId != null">
         module_id = #{record.moduleId,jdbcType=VARCHAR},
@@ -234,8 +258,14 @@
       <if test="record.refId != null">
         ref_id = #{record.refId,jdbcType=VARCHAR},
       </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=BIGINT},
+      </if>
       <if test="record.latest != null">
         latest = #{record.latest,jdbcType=BIT},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -251,6 +281,7 @@
   <update id="updateByExample" parameterType="map">
     update ui_element
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
@@ -259,7 +290,9 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT},
       latest = #{record.latest,jdbcType=BIT},
+      description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -269,6 +302,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.UiElement">
     update ui_element
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
       <if test="moduleId != null">
         module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
@@ -293,8 +329,14 @@
       <if test="refId != null">
         ref_id = #{refId,jdbcType=VARCHAR},
       </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=BIGINT},
+      </if>
       <if test="latest != null">
         latest = #{latest,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -307,7 +349,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.UiElement">
     update ui_element
-    set module_id = #{moduleId,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=INTEGER},
+      module_id = #{moduleId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       location_type = #{locationType,jdbcType=VARCHAR},
@@ -315,7 +358,9 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT},
       latest = #{latest,jdbcType=BIT},
+      description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}

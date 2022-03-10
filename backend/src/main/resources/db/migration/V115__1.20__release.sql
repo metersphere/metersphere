@@ -56,8 +56,8 @@ CREATE TABLE `ui_scenario`
     `environment_type`      varchar(20)   DEFAULT NULL,
     `environment_json`      longtext,
     `environment_group_id`  varchar(50)   DEFAULT NULL,
-    `version_id`            varchar(50)   DEFAULT NULL,
-    `ref_id`                varchar(255)  DEFAULT NULL,
+    `version_id`            varchar(50)   NOT NULL,
+    `ref_id`                varchar(255)  NOT NULL,
     `latest`                tinyint(1) DEFAULT '0' COMMENT '是否为最新版本 0:否，1:是',
     PRIMARY KEY (`id`),
     KEY                     `ui_scenario_ref_id_index` (`ref_id`),
@@ -77,3 +77,25 @@ CREATE TABLE `ui_element_module`
     `create_user` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `ui_element` (
+  `id` varchar(50) NOT NULL COMMENT 'Ui element ID',
+  `num` int(11) DEFAULT NULL COMMENT 'Ui element ID',
+  `module_id` varchar(50) NOT NULL COMMENT 'Node ID this case belongs to',
+  `project_id` varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
+  `name` varchar(255) NOT NULL COMMENT 'Ui element name',
+  `location_type` varchar(30) NOT NULL COMMENT 'Location type',
+  `location` varchar(300) NOT NULL COMMENT 'Location',
+  `create_user` varchar(100) DEFAULT NULL,
+  `version_id` varchar(50) NOT NULL COMMENT '版本ID',
+  `ref_id` varchar(50) NOT NULL COMMENT '指向初始版本ID',
+  `order`  bigint(20) NOT NULL COMMENT '自定义排序，间隔5000',
+  `latest` tinyint(1) DEFAULT '0' COMMENT '是否为最新版本 0:否，1:是',
+  `description` varchar(1000) DEFAULT '' COMMENT '元素描述',
+  `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+  `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+  PRIMARY KEY (`id`),
+  KEY `ui_element_order_index` (`order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+

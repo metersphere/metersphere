@@ -229,6 +229,9 @@ export default {
             return;
           }
         }
+      } else {
+        this.returnDataKeys = this.defaultKey;
+        this.setKey(this.defaultKey);
       }
     },
     //下拉框select点击[入口]
@@ -364,7 +367,9 @@ export default {
         for (let i = 0; i < data.length; i++) {
           const n = data[i];
           if (n[this.obj.pid] === id) {
-            n[this.obj.children] = fa(n[this.obj.id]);
+            if (this.obj.children) {
+              n[this.obj.children] = fa(n[this.obj.id]);
+            }
             temp.push(n);
           }
         }

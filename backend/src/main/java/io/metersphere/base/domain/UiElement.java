@@ -7,6 +7,8 @@ import lombok.Data;
 public class UiElement implements Serializable {
     private String id;
 
+    private Integer num;
+
     private String moduleId;
 
     private String projectId;
@@ -23,7 +25,11 @@ public class UiElement implements Serializable {
 
     private String refId;
 
+    private Long order;
+
     private Boolean latest;
+
+    private String description;
 
     private Long createTime;
 
