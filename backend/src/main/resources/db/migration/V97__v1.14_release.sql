@@ -390,7 +390,7 @@ CREATE TABLE `test_plan_follow`
     `follow_id`    varchar(50) DEFAULT NULL COMMENT '关注人',
     UNIQUE KEY `test_plan_principal_pk` (`test_plan_id`, `follow_id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+  DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 INSERT INTO test_plan_follow
 SELECT id, follow_people

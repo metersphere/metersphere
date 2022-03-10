@@ -6,7 +6,7 @@ CREATE TABLE `issue_follow`
     KEY `issue_follow_follow_id_index` (`follow_id`),
     KEY `issue_follow_issue_id_index` (`issue_id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+  DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- group
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
