@@ -48,8 +48,8 @@ public class IssueTemplateController {
         issueTemplateService.update(request);
     }
 
-    @GetMapping("/option/{projectId}")
-    public List<IssueTemplate> list(@PathVariable String projectId) {
+    @GetMapping({"/option/{projectId}", "/option"})
+    public List<IssueTemplate> list(@PathVariable(required = false) String projectId) {
         return issueTemplateService.getOption(projectId);
     }
 

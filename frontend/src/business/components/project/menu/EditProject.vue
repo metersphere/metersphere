@@ -17,14 +17,14 @@
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('workspace.case_template_manage')" prop="caseTemplateId">
-          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
+          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate" :project-id="form.id"/>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth"
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
                            :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
-                           :platformOptions="issueOptions"
+                           :platformOptions="issueOptions" :project-id="form.id"
                            ref="issueTemplate"/>
 
           <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'"

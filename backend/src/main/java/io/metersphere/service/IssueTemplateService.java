@@ -204,11 +204,16 @@ public class IssueTemplateService extends TemplateBaseService {
     }
 
     public List<IssueTemplate> getOption(String projectId) {
+        List<IssueTemplate> issueTemplates;
         IssueTemplateExample example = new IssueTemplateExample();
+        if (StringUtils.isBlank(projectId)) {
+            example.createCriteria().andGlobalEqualTo(true).andSystemEqualTo(true);
+            return issueTemplateMapper.selectByExample(example);
+        }
         example.createCriteria()
                 .andProjectIdEqualTo(projectId)
                 .andSystemEqualTo(false);
-        List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
+        issueTemplates = issueTemplateMapper.selectByExample(example);
         issueTemplates.addAll(getSystemTemplates(projectId));
         return issueTemplates;
     }
