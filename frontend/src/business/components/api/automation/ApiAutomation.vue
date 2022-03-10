@@ -385,6 +385,9 @@ export default {
         this.isSave = false;
         this.isLeave = false;
       }
+      if (this.tabs && this.tabs.length === 0) {
+        this.refreshAll();
+      }
     },
     handleCommand(e) {
       switch (e) {
@@ -466,6 +469,9 @@ export default {
         this.isSave = false;
         this.removeTab(targetName);
       }
+      if (this.tabs && this.tabs.length === 0) {
+        this.refreshAll();
+      }
     },
     removeTab(targetName) {
       this.tabs = this.tabs.filter(tab => tab.name !== targetName);
@@ -496,12 +502,7 @@ export default {
     },
     refresh(data) {
       this.setTabTitle(data);
-      this.$refs.apiScenarioList.search(data);
-      if (this.$refs.apiTrashScenarioList) {
-        this.$refs.apiTrashScenarioList.search(data);
-      }
       this.isSave = true;
-      this.$refs.nodeTree.list();
     },
     refreshTree() {
       if (this.$refs.nodeTree) {
@@ -518,7 +519,7 @@ export default {
     setTabTitle(data) {
       for (let index in this.tabs) {
         let tab = this.tabs[index];
-        if (tab.name === this.activeName) {
+        if (tab && tab.name === this.activeName) {
           tab.label = data.name;
           break;
         }

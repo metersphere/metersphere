@@ -345,18 +345,14 @@
         width="100%">
         <scenario-diff
           v-if="dialogVisible"
-          :old-data="oldData"
-          :new-data="newData"
           :custom-num="customNum"
+          :currentScenarioId="currentScenario.id"
+          :dffScenarioId="dffScenarioId"
+          :scenarioRefId="scenarioRefId"
           :module-options="moduleOptions"
-          :old-scenario-definition="oldScenarioDefinition"
-          :new-scenario-definition="newScenarioDefinition"
           :project-env-map="projectEnvMap"
-          :new-project-env-map="newProjectEnvMap"
           :old-enable-cookie-share="enableCookieShare"
-          :new-enable-cookie-share="newEnableCookieShare"
           :old-on-sample-error="onSampleError"
-          :new-on-sample-error="newOnSampleError"
           :project-list="projectList"
           :type="type"/>
       </el-dialog>
@@ -435,7 +431,6 @@ export default {
   data() {
     return {
       onSampleError: true,
-      newOnSampleError: true,
       showConfigButtonWithOutPermission: false,
       props: {
         label: "label",
@@ -476,26 +471,21 @@ export default {
       debugVisible: false,
       customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false},
       operatingElements: [],
-      currentRow: {cases: [], apis: [], referenced: true},
       selectedTreeNode: undefined,
       selectedNode: undefined,
       expandedNode: [],
       scenarioDefinition: [],
-      scenarioDefinitionOrg: [],
       path: "/api/automation/create",
       debugData: {},
       reportId: "",
       enableCookieShare: false,
-      newEnableCookieShare: false,
       globalOptions: {
         spacing: 30
       },
       response: {},
       projectIds: new Set,
       projectEnvMap: new Map,
-      newProjectEnvMap: new Map,
       projectList: [],
-      debugResult: new Map,
       drawer: false,
       isFullUrl: true,
       expandedStatus: false,
@@ -527,16 +517,14 @@ export default {
       environmentType: ENV_TYPE.JSON,
       executeType: "",
       versionData: [],
-      newData: [],
-      oldData: [],
       dialogVisible: false,
-      newScenarioDefinition: [],
-      oldScenarioDefinition: [],
       currentItem: {},
       pluginDelStep: false,
       isBatchProcess: false,
       isCheckedAll: false,
       selectDataCounts: 0,
+      dffScenarioId: "",
+      scenarioRefId: "",
       batchOperators: [
         {
           name: this.$t('api_test.automation.bulk_activation_steps'),
@@ -565,14 +553,6 @@ export default {
         },
       ],
     }
-  },
-  watch: {
-    scenarioDefinition: {
-      handler(v) {
-        this.currentScenario.scenarioDefinition = v;
-      },
-      deep: true
-    },
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
@@ -1496,6 +1476,7 @@ export default {
                 this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
               this.pluginDelStep = false;
+              this.$emit('refresh', this.currentScenario);
               resolve();
             });
           }
@@ -1552,21 +1533,6 @@ export default {
                   this.environmentType = response.data.environmentType;
                 }
                 this.currentScenario.variables = [];
-                let index = 1;
-                if (obj.variables) {
-                  obj.variables.forEach(item => {
-                    // 兼容历史数据
-                    if (item.name) {
-                      if (!item.type) {
-                        item.type = "CONSTANT";
-                        item.id = getUUID();
-                      }
-                      item.num = index;
-                      this.currentScenario.variables.push(item);
-                      index++;
-                    }
-                  })
-                }
                 if (obj.headers) {
                   this.currentScenario.headers = obj.headers;
                 }
@@ -1578,18 +1544,6 @@ export default {
                 }
                 this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
-                let v1 = {
-                  apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
-                  name: this.currentScenario.name,
-                  status: this.currentScenario.status,
-                  principal: this.currentScenario.principal,
-                  level: this.currentScenario.level,
-                  tags: this.currentScenario.tags,
-                  description: this.currentScenario.description,
-                  scenarioDefinition: this.scenarioDefinition
-                };
-                this.currentScenario.scenarioDefinitionOrg = v1
-                this.oldScenarioDefinition = obj.hashTree;
               }
             }
             if (this.currentScenario.copy) {
@@ -1606,13 +1560,27 @@ export default {
             });
           }
           this.loading = false;
-          this.setDomain();
           this.sort();
-          this.commandTreeNode();
+          this.cancelBatchProcessing();
           // 初始化resourceId
           if (this.scenarioDefinition) {
             this.resetResourceId(this.scenarioDefinition);
           }
+          // 记录初始化数据
+          let v1 = {
+            apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
+            name: this.currentScenario.name,
+            status: this.currentScenario.status,
+            principal: this.currentScenario.principal,
+            level: this.currentScenario.level,
+            tags: this.currentScenario.tags,
+            description: this.currentScenario.description,
+            scenarioDefinition: this.scenarioDefinition
+          };
+
+          this.currentScenario.scenarioDefinitionOrg = JSON.parse(JSON.stringify(v1));
+          this.currentScenario.scenarioDefinition = this.scenarioDefinition;
+
         })
       }
     },
@@ -1750,8 +1718,6 @@ export default {
     },
     detailRefresh(result) {
       // 把执行结果分发给各个请求
-      this.debugResult = result;
-      this.sort()
     },
     fullScreen() {
       this.drawer = true;
@@ -1900,68 +1866,14 @@ export default {
       });
     },
     compare(row) {
-      this.$get('/api/automation/get/' + row.id + "/" + this.currentScenario.refId, response => {
-        this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
-          if (res.data) {
-            if (res.data.scenarioDefinition != null) {
-              let obj = JSON.parse(res.data.scenarioDefinition);
-              if (obj) {
-                if (obj.hashTree) {
-                  for (let i = 0; i < obj.hashTree.length; i++) {
-                    if (!obj.hashTree[i].index) {
-                      obj.hashTree[i].index = i + 1;
-                    }
-                    obj.hashTree[i].disabled = true;
-                    if (!obj.hashTree[i].requestResult) {
-                      obj.hashTree[i].requestResult = [{responseResult: {}}];
-                    }
-                  }
-                  this.newEnableCookieShare = obj.enableCookieShare;
-                  if (obj.onSampleError === undefined) {
-                    this.newOnSampleError = true;
-                  } else {
-                    this.newOnSampleError = obj.onSampleError;
-                  }
-                }
-                this.dataProcessing(obj.hashTree);
-                this.newScenarioDefinition = obj.hashTree;
-                for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
-                  this.oldScenarioDefinition[i].disabled = true;
-                }
-                if (response.data.environmentJson) {
-                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
-                } else {
-                  // 兼容历史数据
-                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
-                }
-              }
-            }
-            res.data.userName = response.data.userName
-            this.dealWithTag(res.data);
-            this.oldData = this.currentScenario;
-            this.newData = res.data;
-            this.closeExpansion()
-          }
-          this.sort();
-          this.dialogVisible = true;
-        });
-      })
+      this.scenarioRefId = this.currentScenario.refId;
+      this.dffScenarioId = row.id;
+      this.dialogVisible = true;
     },
     closeDiff() {
       this.oldScenarioDefinition = []
     },
-    dealWithTag(newScenario) {
-      if (newScenario.tags) {
-        if (Object.prototype.toString.call(newScenario.tags) === "[object String]") {
-          newScenario.tags = JSON.parse(newScenario.tags);
-        }
-      }
-      if (this.currentScenario.tags) {
-        if (Object.prototype.toString.call(this.currentScenario.tags) === "[object String]") {
-          this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
-        }
-      }
-    },
+
     checkout(row) {
       let api = this.versionData.filter(v => v.versionId === row.id)[0];
       if (api.tags && api.tags.length > 0) {
