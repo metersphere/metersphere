@@ -118,7 +118,6 @@ import MsApiAdvancedConfig from "./ApiAdvancedConfig";
 import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 import {hasPermission} from '@/common/js/utils';
 import Convert from "@/business/components/common/json-schema/convert/convert";
-import MsJmxStep from "../../step/JmxStep";
 import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
 
 export default {
@@ -134,7 +133,7 @@ export default {
     MsApiBody,
     MsApiKeyValue,
     MsApiAssertions,
-    MsJmxStep
+    MsJmxStep: () => import( "@/business/components/api/definition/components/step/JmxStep"),
   },
   props: {
     method: String,
