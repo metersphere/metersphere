@@ -409,4 +409,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String imgRegex = "<img src.*?/>";
         return ztDescription.replaceAll(imgRegex, "");
     }
+
+    @Override
+    public Boolean checkProjectExist(String relateId) {
+        return zentaoClient.checkProjectExist(relateId);
+    }
 }

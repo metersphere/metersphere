@@ -522,4 +522,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         }
         return false;
     }
+
+    @Override
+    public Boolean checkProjectExist(String relateId) {
+        return null;
+    }
 }

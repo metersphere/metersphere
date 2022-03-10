@@ -2,6 +2,7 @@
   <div>
     <el-form-item :label-width="labelWidth" :label="$t('project.jira_key')">
       <el-input v-model="form.jiraKey" autocomplete="off" @blur="getIssueTypeOption"/>
+      <slot name="checkBtn"></slot>
       <ms-instructions-icon effect="light">
         <template>
           <img class="jira-image" src="@/assets/jira-key.png"/>

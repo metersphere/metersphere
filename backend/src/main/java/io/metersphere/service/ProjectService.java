@@ -36,6 +36,11 @@ import io.metersphere.performance.request.DeleteTestPlanRequest;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.track.issue.AbstractIssuePlatform;
+import io.metersphere.track.issue.JiraPlatform;
+import io.metersphere.track.issue.TapdPlatform;
+import io.metersphere.track.issue.ZentaoPlatform;
+import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanReportService;
@@ -186,6 +191,35 @@ public class ProjectService {
         projectApplication.setType(ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString());
         projectApplicationMapper.insert(projectApplication);
         return project;
+    }
+
+    public void checkThirdProjectExist(Project project) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        if (StringUtils.isBlank(project.getId())) {
+            MSException.throwException("project ID cannot be empty");
+        }
+        issuesRequest.setProjectId(project.getId());
+        issuesRequest.setWorkspaceId(project.getWorkspaceId());
+        if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Tapd.name())) {
+            TapdPlatform tapd = new TapdPlatform(issuesRequest);
+            this.doCheckThirdProjectExist(tapd, project.getTapdId());
+        } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Jira.name())) {
+            JiraPlatform jira = new JiraPlatform(issuesRequest);
+            this.doCheckThirdProjectExist(jira, project.getJiraKey());
+        } else if (StringUtils.equalsIgnoreCase(project.getPlatform(), IssuesManagePlatform.Zentao.name())) {
+            ZentaoPlatform zentao = new ZentaoPlatform(issuesRequest);
+            this.doCheckThirdProjectExist(zentao, project.getZentaoId());
+        }
+    }
+
+    private void doCheckThirdProjectExist(AbstractIssuePlatform platform, String relateId) {
+        if (StringUtils.isBlank(relateId)) {
+            MSException.throwException(Translator.get("issue_project_not_exist"));
+        }
+        Boolean exist = platform.checkProjectExist(relateId);
+        if (BooleanUtils.isFalse(exist)) {
+            MSException.throwException(Translator.get("issue_project_not_exist"));
+        }
     }
 
     private String genSystemId() {
