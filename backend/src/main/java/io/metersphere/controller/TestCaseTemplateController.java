@@ -50,8 +50,8 @@ public class TestCaseTemplateController {
         testCaseTemplateService.update(request);
     }
 
-    @GetMapping("/option/{projectId}")
-    public List<TestCaseTemplate> list(@PathVariable String projectId) {
+    @GetMapping({"/option/{projectId}", "/option"})
+    public List<TestCaseTemplate> list(@PathVariable(required = false) String projectId) {
         return testCaseTemplateService.getOption(projectId);
     }
 

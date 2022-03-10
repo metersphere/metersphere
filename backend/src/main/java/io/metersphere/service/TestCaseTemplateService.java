@@ -157,10 +157,10 @@ public class TestCaseTemplateService extends TemplateBaseService {
         }
     }
 
-    public TestCaseTemplateWithBLOBs getDefaultTemplate(String workspaceId) {
+    public TestCaseTemplateWithBLOBs getDefaultTemplate(String projectId) {
         TestCaseTemplateExample example = new TestCaseTemplateExample();
         example.createCriteria()
-                .andProjectIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(projectId)
                 .andSystemEqualTo(true);
         List<TestCaseTemplateWithBLOBs> testCaseTemplates = testCaseTemplateMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(testCaseTemplates)) {
@@ -174,11 +174,17 @@ public class TestCaseTemplateService extends TemplateBaseService {
     }
 
     public List<TestCaseTemplate> getOption(String projectId) {
+        List<TestCaseTemplate> testCaseTemplates;
         TestCaseTemplateExample example = new TestCaseTemplateExample();
+        if (StringUtils.isBlank(projectId)) {
+            example.createCriteria().andGlobalEqualTo(true)
+                    .andSystemEqualTo(true);
+            return testCaseTemplateMapper.selectByExample(example);
+        }
         example.createCriteria()
                 .andProjectIdEqualTo(projectId)
                 .andSystemNotEqualTo(true);
-        List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
+        testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
         testCaseTemplates.add(getDefaultTemplate(projectId));
         return testCaseTemplates;
     }

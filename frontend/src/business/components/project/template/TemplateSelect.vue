@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import {getCurrentProjectID} from "@/common/js/utils";
 import {LOCAL} from "@/common/js/constants";
 
 export default {
@@ -22,6 +21,7 @@ export default {
     platform: String,
     platformOptions: Array,
     disabled: Boolean,
+    projectId: String,
     data: {
       type: Object,
       default() {
@@ -52,7 +52,8 @@ export default {
       if (this.scene === 'ISSUE') {
         url = 'field/template/issue/option/';
       }
-      this.$get(url + getCurrentProjectID(), (response) => {
+      let projectId = this.projectId || '';
+      this.$get(url + projectId, (response) => {
         this.templateOptions = response.data;
         this.templateFilterOptions = this.templateOptions;
         if (!this.data[this.prop]) {
