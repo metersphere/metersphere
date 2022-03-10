@@ -264,4 +264,13 @@ public class TapdPlatform extends AbstractIssuePlatform {
         }
         return null;
     }
+
+    @Override
+    public Boolean checkProjectExist(String relateId) {
+        try {
+            return tapdClient.checkProjectExist(relateId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
