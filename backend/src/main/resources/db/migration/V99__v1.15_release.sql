@@ -34,7 +34,7 @@ alter table api_scenario
     add environment_group_id varchar(50) null;
 
 update api_scenario
-set environment_json = api_scenario.scenario_definition -> '$.environmentMap'
+set environment_json = JSON_EXTRACT(api_scenario.scenario_definition, '$.environmentMap')
 where api_scenario.environment_json is null;
 
 update api_scenario set environment_type = 'JSON';
