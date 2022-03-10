@@ -39,12 +39,17 @@
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
+          <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
         </el-form-item>
 
-        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form"/>
-
+        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form">
+          <template #checkBtn>
+            <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
+          </template>
+        </project-jira-config>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+          <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
           <ms-instructions-icon effect="light">
             <template>
               禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
@@ -186,6 +191,15 @@ export default {
     this.createVisible = false;
   },
   methods: {
+    check() {
+      if (!this.form.id) {
+        this.$warning(this.$t("test_track.issue.save_project_first"));
+        return;
+      }
+      this.$post("/project/check/third/project", this.form, () => {
+        this.$success("OK");
+      });
+    },
     getOptions() {
       if (this.$refs.issueTemplate) {
         this.$refs.issueTemplate.getTemplateOptions();
@@ -308,5 +322,9 @@ pre {
 
 .el-input, .el-textarea {
   width: 80%;
+}
+
+.checkButton {
+  margin-left: 5px;
 }
 </style>

@@ -133,7 +133,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public List<JiraIssueType> getIssueTypes(String jiraKey) {
-        return jiraClientV2.getIssueType(jiraKey);
+        try {
+            return jiraClientV2.getIssueType(jiraKey);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -647,5 +651,18 @@ public class JiraPlatform extends AbstractIssuePlatform {
             options.add(jsonObject);
         });
         return options.toJSONString();
+    }
+
+    @Override
+    public Boolean checkProjectExist(String relateId) {
+        try {
+            JiraIssueProject project = jiraClientV2.getProject(relateId);
+            if (project != null && StringUtils.isNotBlank(project.getId())) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 }
