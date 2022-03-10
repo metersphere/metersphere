@@ -64,7 +64,7 @@
     </div>
 
     <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
-      <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
+      <span class="ms-mode-span-label">{{ $t("run_mode.report_name") }}：</span>
       <el-input
         v-model="runConfig.reportName"
         :placeholder="$t('commons.input_content')"
@@ -188,6 +188,18 @@ export default {
 
 .ms-mode-div {
   margin-top: 20px;
+}
+
+.ms-mode-span {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.ms-mode-span-label:before {
+  content: '*';
+  color: #F56C6C;
+  margin-right: 4px;
+  margin-left: 10px;
 }
 
 </style>
