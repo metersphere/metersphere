@@ -98,4 +98,15 @@ CREATE TABLE `ui_element` (
   KEY `ui_element_order_index` (`order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
+-- ui 自动化引用关系表
+CREATE TABLE `ui_scenario_reference` (
+ `id` varchar(50) NOT NULL,
+ `ui_scenario_id` varchar(255) DEFAULT NULL,
+ `create_time` bigint(13) DEFAULT NULL,
+ `create_user_id` varchar(64) DEFAULT NULL,
+ `reference_id` varchar(255) DEFAULT NULL,
+ `reference_type` varchar(255) DEFAULT NULL,
+ `data_type` varchar(255) DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `ui_scenario_id_idx` (`ui_scenario_id`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
