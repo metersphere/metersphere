@@ -3059,6 +3059,7 @@ export default {
   error_report_library: {
     name: "誤報庫",
     assertion: "誤報斷言",
+    tips:"注：在\"項目設置-設置環境-全局斷言\"中啟用誤報將進行以下規則匹配",
     use_error_report: "啟用誤報",
     use_desc: "失敗斷言與誤報規則衝突時統一處理為誤報",
     option: {

@@ -3060,6 +3060,7 @@ export default {
   error_report_library: {
     name: "误报库",
     assertion: "误报断言",
+    tips:"注：在\"项目设置-设置环境-全局断言\"中启用误报将进行以下规则匹配",
     use_error_report: "启用误报",
     use_desc: "失败断言与误报规则冲突时统一处理为误报",
     option: {

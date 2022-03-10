@@ -3056,6 +3056,7 @@ export default {
   error_report_library: {
     name: "Error report",
     assertion: "Error code assertion",
+    tips:"Tips: Use error report in \"Project Settings - Project environment-Assertions\"",
     use_error_report: "Use error code",
     use_desc: "In case of conflict between error code and error assertions, it is treated as error code",
     option: {

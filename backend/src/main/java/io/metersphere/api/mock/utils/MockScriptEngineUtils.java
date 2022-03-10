@@ -257,7 +257,7 @@ public class MockScriptEngineUtils {
                 LogUtil.error(e);
             }
         }
-        if (StringUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value) || StringUtils.equals(value,"null")) {
             value = paramKey;
         }
         return value;
