@@ -117,4 +117,14 @@ public class TapdClient extends BaseClient {
         USER_NAME = config.getAccount();
         PASSWD = config.getPassword();
     }
+
+    public boolean checkProjectExist(String relateId) {
+        String url = getBaseUrl() + "/roles?workspace_id={1}";
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, relateId);
+        TapdGetIssueResponse res = (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);
+        if (res != null && res.getStatus() == 404) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -2362,7 +2362,8 @@ export default {
       update_third_party_bugs: "Update the defects of third-party platforms",
       sync_bugs: "Synchronization Issue",
       save_before_open_comment: "Please save issue before comment",
-      delete_tip: "Confirm Delete Issue："
+      delete_tip: "Confirm Delete Issue：",
+      check_id_exist: "Check"
     },
     report: {
       name: "Test Plan Report",

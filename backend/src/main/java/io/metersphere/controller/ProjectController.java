@@ -152,4 +152,9 @@ public class ProjectController {
     public boolean isVersionEnable(@PathVariable String projectId) {
         return projectService.isVersionEnable(projectId);
     }
+
+    @PostMapping("/check/third/project")
+    public void checkThirdProjectExist(@RequestBody Project project) {
+        projectService.checkThirdProjectExist(project);
+    }
 }

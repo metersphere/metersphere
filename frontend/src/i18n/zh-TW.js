@@ -2366,7 +2366,8 @@ export default {
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷",
       save_before_open_comment: "請先保存缺陷再添加評論",
-      delete_tip: "確認刪除缺陷："
+      delete_tip: "確認刪除缺陷：",
+      check_id_exist: "檢查"
     },
     report: {
       name: "測試計劃報告",

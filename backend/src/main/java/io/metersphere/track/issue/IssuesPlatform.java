@@ -78,4 +78,11 @@ public interface IssuesPlatform {
      * @return
      */
     IssueTemplateDao getThirdPartTemplate();
+
+    /**
+     * 检查其它平台关联的ID是否存在
+     * @param relateId 其它平台在MS项目上关联的相关ID
+     * @return Boolean
+     */
+    Boolean checkProjectExist(String relateId);
 }
