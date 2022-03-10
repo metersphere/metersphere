@@ -648,3 +648,9 @@ alter table api_test_environment
 
 update api_test_environment set create_time = unix_timestamp() * 1000 where create_time is null;
 update api_test_environment set update_time = unix_timestamp() * 1000 where update_time is null;
+
+-- 删除历史脏数据
+delete
+from user_group_permission
+where group_id = 'admin'
+  and module_id = 'PROJECT_ERROR_REPORT_LIBRARY';
