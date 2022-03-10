@@ -67,8 +67,11 @@
     },
     methods: {
       funcSearch(queryString, cb) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        let results = [];
+        if(!this.showMockVars){
+          let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+          results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        }
         // 调用 callback 返回建议列表的数据
         cb(results);
       },
