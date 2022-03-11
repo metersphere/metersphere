@@ -1198,7 +1198,7 @@ export default {
       }
       this.isBtnHide = false;
       this.sort();
-      this.reload();
+      this.cancelBatchProcessing();
     },
     setApiParameter(item, refType, referenced) {
       let request = {};
@@ -1245,7 +1245,7 @@ export default {
       this.isBtnHide = false;
       this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.sort();
-      this.reload();
+      this.cancelBatchProcessing();
     },
     getMaintainerOptions() {
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
@@ -1455,32 +1455,34 @@ export default {
       }
       return new Promise((resolve) => {
         document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
-        this.$refs['currentScenario'].validate(async (valid) => {
-          if (valid) {
-            await this.setParameter();
-            if (!this.currentScenario.versionId) {
-              if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
-                this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
+        if (this.$refs['currentScenario']) {
+          this.$refs['currentScenario'].validate(async (valid) => {
+            if (valid) {
+              await this.setParameter();
+              if (!this.currentScenario.versionId) {
+                if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
+                  this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
+                }
               }
+              saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
+                this.$success(this.$t('commons.save_success'));
+                this.path = "/api/automation/update";
+                this.$store.state.pluginFiles = [];
+                if (response.data) {
+                  this.currentScenario.id = response.data.id;
+                }
+                // 保存成功后刷新历史版本
+                this.getVersionHistory();
+                if (this.currentScenario.tags instanceof String) {
+                  this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+                }
+                this.pluginDelStep = false;
+                this.$emit('refresh', this.currentScenario);
+                resolve();
+              });
             }
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
-              this.$success(this.$t('commons.save_success'));
-              this.path = "/api/automation/update";
-              this.$store.state.pluginFiles = [];
-              if (response.data) {
-                this.currentScenario.id = response.data.id;
-              }
-              // 保存成功后刷新历史版本
-              this.getVersionHistory();
-              if (this.currentScenario.tags instanceof String) {
-                this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
-              }
-              this.pluginDelStep = false;
-              this.$emit('refresh', this.currentScenario);
-              resolve();
-            });
-          }
-        })
+          })
+        }
       });
     },
     getEnv(definition) {
@@ -1560,8 +1562,6 @@ export default {
             });
           }
           this.loading = false;
-          this.sort();
-          this.cancelBatchProcessing();
           // 初始化resourceId
           if (this.scenarioDefinition) {
             this.resetResourceId(this.scenarioDefinition);
@@ -1580,7 +1580,10 @@ export default {
 
           this.currentScenario.scenarioDefinitionOrg = JSON.parse(JSON.stringify(v1));
           this.currentScenario.scenarioDefinition = this.scenarioDefinition;
-
+          this.$nextTick(() => {
+            this.sort();
+            this.cancelBatchProcessing();
+          });
         })
       }
     },

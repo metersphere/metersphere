@@ -460,78 +460,71 @@ export default {
   },
   methods: {
     getCurrentScenario() {
-      return new Promise((resolve) => {
-        if (this.currentScenarioId) {
-          this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenarioId, response => {
-            if (response.data) {
-              if (response.data.scenarioDefinition != null) {
-                let obj = JSON.parse(response.data.scenarioDefinition);
-                if (obj) {
-                  this.oldScenarioDefinition = obj.hashTree;
+      if (this.currentScenarioId) {
+        this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenarioId, response => {
+          if (response.data) {
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              if (obj) {
+                this.oldScenarioDefinition = obj.hashTree;
+              }
+            }
+            this.oldData = response.data;
+            this.$get('/api/automation/follow/' + this.currentScenarioId, response => {
+              this.oldData.follows = response.data;
+              for (let i = 0; i < response.data.length; i++) {
+                if (response.data[i] === this.currentUser().id) {
+                  this.showFollow = true;
+                  break;
                 }
               }
-              this.oldData = response.data;
-              this.$get('/api/automation/follow/' + this.currentScenarioId, response => {
-                this.oldData.follows = response.data;
-                for (let i = 0; i < response.data.length; i++) {
-                  if (response.data[i] === this.currentUser().id) {
-                    this.showFollow = true;
-                    break;
-                  }
-                }
-              });
-              this.getDffScenario();
-              resolve();
-            }
-          })
-        }
-      });
+            });
+          }
+        })
+      }
     },
     getDffScenario() {
-      return new Promise((resolve) => {
-        this.$get('/api/automation/get/' + this.dffScenarioId + "/" + this.scenarioRefId, response => {
-          this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
-            if (res.data) {
-              if (res.data.scenarioDefinition != null) {
-                let obj = JSON.parse(res.data.scenarioDefinition);
-                if (obj) {
-                  if (obj.hashTree) {
-                    for (let i = 0; i < obj.hashTree.length; i++) {
-                      if (!obj.hashTree[i].index) {
-                        obj.hashTree[i].index = i + 1;
-                      }
-                      obj.hashTree[i].disabled = true;
-                      if (!obj.hashTree[i].requestResult) {
-                        obj.hashTree[i].requestResult = [{responseResult: {}}];
-                      }
+      this.$get('/api/automation/get/' + this.dffScenarioId + "/" + this.scenarioRefId, response => {
+        this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
+          if (res.data) {
+            if (res.data.scenarioDefinition != null) {
+              let obj = JSON.parse(res.data.scenarioDefinition);
+              if (obj) {
+                if (obj.hashTree) {
+                  for (let i = 0; i < obj.hashTree.length; i++) {
+                    if (!obj.hashTree[i].index) {
+                      obj.hashTree[i].index = i + 1;
                     }
-                    this.newEnableCookieShare = obj.enableCookieShare;
-                    if (obj.onSampleError === undefined) {
-                      this.newOnSampleError = true;
-                    } else {
-                      this.newOnSampleError = obj.onSampleError;
+                    obj.hashTree[i].disabled = true;
+                    if (!obj.hashTree[i].requestResult) {
+                      obj.hashTree[i].requestResult = [{responseResult: {}}];
                     }
                   }
-                  this.newScenarioDefinition = obj.hashTree;
-                  for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
-                    this.oldScenarioDefinition[i].disabled = true;
-                  }
-                  if (response.data.environmentJson) {
-                    this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                  this.newEnableCookieShare = obj.enableCookieShare;
+                  if (obj.onSampleError === undefined) {
+                    this.newOnSampleError = true;
                   } else {
-                    // 兼容历史数据
-                    this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                    this.newOnSampleError = obj.onSampleError;
                   }
                 }
+                this.newScenarioDefinition = obj.hashTree;
+                for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
+                  this.oldScenarioDefinition[i].disabled = true;
+                }
+                if (response.data.environmentJson) {
+                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                } else {
+                  // 兼容历史数据
+                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                }
               }
-              res.data.userName = response.data.userName
-              this.dealWithTag(res.data);
-              this.newData = res.data;
-              this.closeExpansion()
-              resolve();
             }
-          });
-        })
+            res.data.userName = response.data.userName
+            this.dealWithTag(res.data);
+            this.newData = res.data;
+            this.closeExpansion()
+          }
+        });
       })
     },
     dealWithTag(newScenario) {
@@ -723,6 +716,7 @@ export default {
   },
   created() {
     this.getCurrentScenario();
+    this.getDffScenario();
   },
   mounted() {
     this.$nextTick(function () {
