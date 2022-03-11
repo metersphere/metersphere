@@ -238,14 +238,7 @@ public class ApiAutomationService {
             request.setCustomNum(String.valueOf(nextNum));
         }
         checkScenarioNum(request);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-        ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request,apiTestCaseMapper,apiDefinitionMapper);
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
+        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         scenario.setVersion(0);
 
         scenario.setCreateTime(System.currentTimeMillis());
@@ -351,17 +344,7 @@ public class ApiAutomationService {
         esbApiParamService.checkScenarioRequests(request);
         //如果场景有TCP步骤的话，也要做参数计算处理
         tcpApiParamService.checkTestElement(request.getScenarioDefinition());
-
-        //检查是否要增加引用的步骤的CASE类型的数据
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-        ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request,apiTestCaseMapper,apiDefinitionMapper);
-
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
+        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
 
         ApiScenarioWithBLOBs beforeScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
         Integer version = beforeScenario.getVersion();
@@ -454,7 +437,7 @@ public class ApiAutomationService {
                 .map(MsHTTPSamplerProxy::getId).collect(Collectors.toSet());
     }
 
-    public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request,ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper) {
+    public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request) {
         ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
         scenario.setId(request.getId());
         scenario.setName(request.getName());
@@ -503,7 +486,6 @@ public class ApiAutomationService {
         } else {
             scenario.setVersionId(request.getVersionId());
         }
-        checkReferenceCase(scenario,apiTestCaseMapper,apiDefinitionMapper);
         return scenario;
     }
 
