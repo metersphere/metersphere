@@ -127,6 +127,8 @@ public class ApiDefinitionService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private ApiDefinitionScenarioRelevanceMapper apiDefinitionScenarioRelevanceMapper;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -346,6 +348,8 @@ public class ApiDefinitionService {
         apiDefinitions.forEach(api -> {
             apiTestCaseService.deleteTestCase(api.getId());
             deleteFileByTestId(api.getId());
+            ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(api.getId());
+            apiDefinitionScenarioRelevanceMapper.deleteByPrimaryKey(result.getId());
             extApiDefinitionExecResultMapper.deleteByResourceId(api.getId());
             apiDefinitionMapper.deleteByPrimaryKey(api.getId());
             esbApiParamService.deleteByResourceId(api.getId());
@@ -1052,6 +1056,10 @@ public class ApiDefinitionService {
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
             apiDefinitionExecResultMapper.insert(result);
+            //生成关系数据
+            ApiDefinitionScenarioRelevance apiDefinitionScenarioRelevance = new ApiDefinitionScenarioRelevance();
+            apiDefinitionScenarioRelevance.setReportId(result.getId());
+            apiDefinitionScenarioRelevanceMapper.insert(apiDefinitionScenarioRelevance);
         }
         return apiExecuteService.debug(request, bodyFiles);
     }
