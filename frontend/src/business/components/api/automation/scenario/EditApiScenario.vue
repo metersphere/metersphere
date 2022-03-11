@@ -88,56 +88,53 @@
             <el-checkbox v-model="onSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
           </el-col>
 
-          <el-col :span="7">
-            <div style="float: right;width: 330px">
-              <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
-                           :project-ids="projectIds" :result="envResult"
-                           :environment-type.sync="environmentType" :isReadOnly="scenarioDefinition.length < 1"
-                           :group-id="envGroupId" :project-list="projectList"
-                           :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                           @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
-                           @showPopover="showPopover" :has-option-group="true"
-                           ref="envPopover" class="ms-message-right"/>
-              <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
-                <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
-                  {{ $t('api_test.request.debug') }}
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </el-tooltip>
-              <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+          <el-col :span="13">
+            <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
+                         :project-ids="projectIds" :result="envResult"
+                         :environment-type.sync="environmentType" :isReadOnly="scenarioDefinition.length < 1"
+                         :group-id="envGroupId" :project-list="projectList"
+                         :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+                         @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
+                         @showPopover="showPopover" :has-option-group="true"
+                         ref="envPopover" class="ms-message-right"/>
+            <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
+              <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
+                {{ $t('api_test.request.debug') }}
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </el-tooltip>
+            <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
 
-              <el-button id="inputDelay" type="primary" size="mini" v-prevent-re-click @click="editScenario"
-                         title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
-                {{ $t('commons.save') }}
-              </el-button>
+            <el-button id="inputDelay" type="primary" size="mini" v-prevent-re-click @click="editScenario"
+                       title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
+              {{ $t('commons.save') }}
+            </el-button>
 
-              <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
-                <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
-                           v-prevent-re-click @click="getApiScenario"></el-button>
-              </el-tooltip>
-            </div>
+            <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
+              <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
+                         v-prevent-re-click @click="getApiScenario"></el-button>
+            </el-tooltip>
+            <!--操作按钮-->
+            <el-link type="primary" @click.stop @click="showHistory" style="margin: 0px 5px">
+              {{ $t("commons.debug_history") }}
+            </el-link>
+
+            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
+              <i class="el-icon-star-off" style="color: #783987; font-size: 22px; margin-right: 5px;cursor: pointer;position: relative; top: 3px; " @click="saveFollow"/>
+            </el-tooltip>
+            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
+              <i class="el-icon-star-on" style="color: #783987; font-size: 22px; margin-right: 5px;cursor: pointer;position: relative; top: 3px; " @click="saveFollow"/>
+            </el-tooltip>
+            <el-link type="primary" style="margin-right: 5px" @click="openHis" v-show="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
+            <!--  版本历史 -->
+            <ms-version-history v-xpack
+                                ref="versionHistory"
+                                :version-data="versionData"
+                                :current-id="currentScenario.id"
+                                @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           </el-col>
-          <!--操作按钮-->
-          <el-link type="primary" @click.stop @click="showHistory" style="margin-right: 10px">
-            {{ $t("commons.debug_history") }}
-          </el-link>
-
-          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
-            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
-          </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
-            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-right: 5px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow"/>
-          </el-tooltip>
-          <el-link type="primary" style="margin-right: 5px" @click="openHis" v-show="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
-          <!--  版本历史 -->
-          <ms-version-history v-xpack
-                              ref="versionHistory"
-                              :version-data="versionData"
-                              :current-id="currentScenario.id"
-                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
-
           <el-tooltip effect="dark" :content="$t('commons.full_screen_editing')"
                       placement="top-start" style="margin-top: 6px">
             <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
@@ -281,7 +278,7 @@
         <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
 
         <!--步骤最大化-->
-        <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
+        <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden" v-if="drawer">
           <template v-slot:header>
             <scenario-header
               :currentScenario="currentScenario"
