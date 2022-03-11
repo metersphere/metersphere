@@ -53,7 +53,7 @@ export default {
       }
     },
     showOperator: Boolean,
-    commands: Object
+    commands: Array
   },
   methods: {
     click(item) {
