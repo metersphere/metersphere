@@ -224,19 +224,19 @@ public class CustomFieldService {
         return new ArrayList<>();
     }
 
-    public List<CustomField> getByWorkspaceId(String wsId) {
+    public List<CustomField> getByProjectId(String projectId) {
         CustomFieldExample example = new CustomFieldExample();
-        example.createCriteria().andWorkspaceIdEqualTo(wsId);
+        example.createCriteria().andProjectIdEqualTo(projectId);
         return customFieldMapper.selectByExample(example);
     }
 
-    public Map<String, CustomField> getNameMapByWorkspaceId(String wsId) {
-        return this.getByWorkspaceId(wsId)
+    public Map<String, CustomField> getNameMapByProjectId(String projectId) {
+        return this.getByProjectId(projectId)
                 .stream()
                 .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i));
     }
 
-    public Map<String, CustomField> getGlobalNameMapByWorkspaceId() {
+    public Map<String, CustomField> getGlobalNameMapByProjectId() {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria().andGlobalEqualTo(true);
         return customFieldMapper.selectByExample(example)

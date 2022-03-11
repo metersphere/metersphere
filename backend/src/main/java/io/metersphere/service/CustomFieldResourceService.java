@@ -61,6 +61,7 @@ public class CustomFieldResourceService {
     @Resource
     ExtCustomFieldResourceMapper extCustomFieldResourceMapper;
 
+    @Lazy
     @Resource
     SystemParameterService systemParameterService;
 
@@ -148,8 +149,8 @@ public class CustomFieldResourceService {
      */
     public void compatibleData() {
         LogUtil.info("init CustomFieldResourceService compatibleData start ===================");
-        List<String> workspaceIds = workspaceService.getWorkspaceIds();
-        Map<String, CustomField> globalFieldMap = customFieldService.getGlobalNameMapByWorkspaceId();
+        List<String> projectIds = projectService.getProjectIds();
+        Map<String, CustomField> globalFieldMap = customFieldService.getGlobalNameMapByProjectId();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ExtCustomFieldResourceMapper batchMapper = sqlSession.getMapper(ExtCustomFieldResourceMapper.class);
         CustomFieldMapper customFieldBatchMapper = sqlSession.getMapper(CustomFieldMapper.class);
@@ -160,16 +161,13 @@ public class CustomFieldResourceService {
             param.setSqlSession(sqlSession);
             param.setBatchMapper(batchMapper);
             param.setCustomFieldBatchMapper(customFieldBatchMapper);
-            workspaceIds.forEach(wsId -> {
-                param.setWdFieldMap(customFieldService.getNameMapByWorkspaceId(wsId));
-                param.setWorkspaceId(wsId);
+            projectIds.forEach(projectId -> {
+                param.setWdFieldMap(customFieldService.getNameMapByProjectId(projectId));
                 param.setJiraSyncFieldMap(new HashMap<>());
-                List<Project> projects = projectService.getProjectForCustomField(wsId);
-                projects.forEach(project -> {
-                    param.setProjectId(project.getId());
-                    compatibleTestCase(param);
-                    compatibleIssue(param, project);
-                });
+                param.setProjectId(projectId);
+                compatibleTestCase(param);
+                Project project = projectService.getProjectById(projectId);
+                compatibleIssue(param, project);
             });
             sqlSession.flushStatements();
             sqlSession.commit();
@@ -233,7 +231,7 @@ public class CustomFieldResourceService {
                                         if (jiraSyncFieldMap.containsKey(field.getId())) {
                                             customField = jiraSyncFieldMap.get(field.getId());
                                         } else {
-                                            customField = createCustomField(param.getWorkspaceId(), field, param);
+                                            customField = createCustomField(param.getProjectId(), field, param);
                                             param.getJiraSyncFieldMap().put(field.getId(), customField);
                                         }
                                     } else {
@@ -258,12 +256,12 @@ public class CustomFieldResourceService {
     /**
      * 如果是jira勾选了自动获取模板
      * 则创建对应的自定义字段，并标记成 thirdPart 为 true
-     * @param wsId
+     * @param projectId
      * @param field
      * @param param
      * @return
      */
-    private CustomField createCustomField(String wsId, CustomFieldItemDTO field, CustomFieldResourceRequest param) {
+    private CustomField createCustomField(String projectId, CustomFieldItemDTO field, CustomFieldResourceRequest param) {
         CustomField customField = new CustomField();
         customField.setId(UUID.randomUUID().toString());
         customField.setUpdateTime(System.currentTimeMillis());
@@ -274,7 +272,7 @@ public class CustomFieldResourceService {
         customField.setScene(TemplateConstants.FieldTemplateScene.ISSUE.name());
         customField.setThirdPart(true);
         customField.setType(field.getType());
-        customField.setWorkspaceId(wsId);
+        customField.setProjectId(projectId);
         CustomFieldMapper customFieldBatchMapper = param.getCustomFieldBatchMapper();
         customFieldBatchMapper.insert(customField);
         initCount++;
