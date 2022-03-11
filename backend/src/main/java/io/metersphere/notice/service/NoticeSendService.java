@@ -9,6 +9,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.*;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -59,6 +60,7 @@ public class NoticeSendService {
     /**
      * 在线操作发送通知
      */
+    @Async
     public void send(String taskType, NoticeModel noticeModel) {
         try {
             String projectId = (String) noticeModel.getParamMap().get("projectId");
@@ -81,6 +83,7 @@ public class NoticeSendService {
     /**
      * jenkins 和定时任务触发的发送
      */
+    @Async
     public void send(String triggerMode, String taskType, NoticeModel noticeModel) {
         // api和定时任务调用不排除自己
         noticeModel.setExcludeSelf(false);
@@ -119,6 +122,7 @@ public class NoticeSendService {
     /**
      * 后台触发的发送，没有session
      */
+    @Async
     public void send(Project project, String taskType, NoticeModel noticeModel) {
         try {
             List<MessageDetail> messageDetails;

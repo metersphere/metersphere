@@ -9,7 +9,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -25,7 +24,6 @@ public class AfterReturningNoticeSendService {
     @Resource
     private NoticeSendService noticeSendService;
 
-    @Async
     public void sendNotice(SendNotice sendNotice, Object retValue, SessionUser sessionUser, String currentProjectId) {
         //
         List<Map> resources = new ArrayList<>();
