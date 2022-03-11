@@ -6,9 +6,10 @@
           <div class="el-step__icon-inner" :key="$store.state.forceRerenderIndex">{{ data.index }}</div>
         </div>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
-        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
+        <el-tag class="ms-left-btn" size="mini" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
       </slot>
-      <span>
+
+      <span v-show="!isMax">
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}" @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
           <span @click.stop v-if="isShowInput && isShowNameInput">
@@ -25,9 +26,14 @@
           </span>
         </slot>
       </span>
+      <span v-show="isMax">
+        <slot name="headerLeft">
+            <span style="font-size: 12px" class="ms-step-name-width">{{ data.name }}</span>
+        </slot>
+      </span>
 
       <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
-        <slot name="message"></slot>
+        <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="(data.disabled && !data.root) || !showVersion" style="width: 30px"/>
@@ -240,9 +246,8 @@ export default {
 }
 
 .ms-left-btn {
-  font-size: 13px;
-  margin-right: 15px;
-  margin-left: 10px;
+  margin-right: 5px;
+  margin-left: 0px;
 }
 
 .header-right {
@@ -384,13 +389,13 @@ fieldset {
 
 .ms-step-name-width {
   display: inline-block;
-  margin: 0 5px;
+  margin: 0 0px;
   overflow-x: hidden;
   padding-bottom: 0;
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 400px;
+  width: 60px;
 }
 
 .ms-step-selected {

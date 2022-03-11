@@ -279,37 +279,10 @@
 
         <!--步骤最大化-->
         <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden" v-if="drawer">
-          <template v-slot:header>
-            <scenario-header
-              :currentScenario="currentScenario"
-              :projectEnvMap="projectEnvMap"
-              :projectIds.sync="projectIds"
-              :projectList="projectList"
-              :scenarioDefinition="scenarioDefinition"
-              :enableCookieShare="enableCookieShare"
-              :onSampleError="onSampleError"
-              :environment-type="environmentType"
-              :group-id="envGroupId"
-              :execDebug="stopDebug"
-              :isFullUrl.sync="isFullUrl"
-              :clearMessage="clearMessage"
-              @setEnvType="setEnvType"
-              @envGroupId="setEnvGroup"
-              @closePage="close"
-              @unFullScreen="unFullScreen"
-              @showAllBtn="showAllBtn"
-              @runDebug="runDebug"
-              @handleCommand="handleCommand"
-              @setProjectEnvMap="setProjectEnvMap"
-              @showScenarioParameters="showScenarioParameters"
-              @setCookieShare="setCookieShare"
-              @setSampleError="setSampleError"
-              @stop="stop"
-              ref="maximizeHeader"/>
-          </template>
-
           <maximize-scenario
             :scenario-definition="scenarioDefinition"
+            :projectIds.sync="projectIds"
+            :projectList="projectList"
             :envMap="projectEnvMap"
             :moduleOptions="moduleOptions"
             :req-error="reqError"
@@ -318,10 +291,22 @@
             :req-total-time="reqTotalTime"
             :currentScenario="currentScenario"
             :type="type"
-            :debug="debug"
+            :debug="debugLoading"
             :reloadDebug="reloadDebug"
             :stepReEnable="stepEnable"
             :message="message"
+            @setEnvType="setEnvType"
+            @envGroupId="setEnvGroup"
+            @closePage="close"
+            @unFullScreen="unFullScreen"
+            @showAllBtn="showAllBtn"
+            @runDebug="runDebug"
+            @handleCommand="handleCommand"
+            @setProjectEnvMap="setProjectEnvMap"
+            @showScenarioParameters="showScenarioParameters"
+            @setCookieShare="setCookieShare"
+            @setSampleError="setSampleError"
+            @stop="stop"
             @openScenario="openScenario"
             @runScenario="runDebug"
             @stopScenario="stop"
@@ -414,7 +399,6 @@ export default {
     ApiImport: () => import("../../definition/components/import/ApiImport"),
     EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
     MaximizeScenario: () => import("./maximize/MaximizeScenario"),
-    ScenarioHeader: () => import("./maximize/ScenarioHeader"),
     MsDrawer: () => import("../../../common/components/MsDrawer"),
     MsSelectTree: () => import("../../../common/select-tree/SelectTree"),
     MsChangeHistory: () => import("../../../history/ChangeHistory"),
@@ -614,7 +598,6 @@ export default {
       this.isBatchProcess = true;
       this.expandedNode = [];
       this.hideAllTreeNode(this.scenarioDefinition);
-      this.$refs.stepTree.root.expanded = true;
       this.reloadTreeStatus();
     },
     cancelBatchProcessing() {

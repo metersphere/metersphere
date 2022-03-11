@@ -449,7 +449,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 100px;
+  width: 80px;
 }
 
 .ms-form-create >>> .el-select {
