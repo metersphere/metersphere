@@ -131,7 +131,7 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 100px;
+    width: 80px;
   }
   .ms-test-running {
     color: #6D317C;
