@@ -35,7 +35,7 @@
           prop="permissions"
           :label="$t('group.permission')">
           <template v-slot:default="scope">
-            <group-permission :permissions="scope.row.permissions" :selected.sync="tableData" :read-only="readOnly"/>
+            <group-permission :permissions="scope.row.permissions" :selected.sync="tableData" :read-only="readOnly" :group="group"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -43,7 +43,7 @@
           :label="$t('group.check_all')">
           <template v-slot:default="scope">
             <div style="text-align: center;">
-              <el-checkbox @change="handleSelectAll($event, scope.row.permissions)" :disabled="readOnly"/>
+              <el-checkbox @change="handleSelectAll($event, scope.row.permissions)" :disabled="isReadOnly(scope.row)"/>
             </div>
           </template>
         </el-table-column>
@@ -83,6 +83,12 @@ export default {
   computed: {
     userGroupType() {
       return USER_GROUP_SCOPE;
+    },
+    isReadOnly() {
+      return function (data) {
+        const isDefaultSystemGroup = this.group.id === 'admin' && data.resource.id === 'SYSTEM_GROUP';
+        return this.readOnly || isDefaultSystemGroup;
+      }
     }
   },
   methods: {
