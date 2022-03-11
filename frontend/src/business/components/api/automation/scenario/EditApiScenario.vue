@@ -1572,10 +1572,10 @@ export default {
             level: this.currentScenario.level,
             tags: this.currentScenario.tags,
             description: this.currentScenario.description,
-            scenarioDefinition: this.scenarioDefinition
+            scenarioDefinition: JSON.parse(JSON.stringify(this.scenarioDefinition))
           };
 
-          this.currentScenario.scenarioDefinitionOrg = JSON.parse(JSON.stringify(v1));
+          this.currentScenario.scenarioDefinitionOrg = v1;
           this.currentScenario.scenarioDefinition = this.scenarioDefinition;
           this.$nextTick(() => {
             this.sort();
