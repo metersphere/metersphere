@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.track.dto.PlanReportCaseDTO;
@@ -31,6 +32,8 @@ public interface ExtApiDefinitionExecResultMapper {
     List<ApiDefinitionExecResult> selectStatusByIdList(@Param("ids") Collection<String> values);
 
     List<ApiDefinitionExecResult> selectApiResultByProjectId(String projectId);
+
+    long selectCountByRequest(@Param("request") QueryAPIReportRequest request);
 
     List<PlanReportCaseDTO> selectForPlanReport(@Param("ids") List<String> apiReportIds);
 

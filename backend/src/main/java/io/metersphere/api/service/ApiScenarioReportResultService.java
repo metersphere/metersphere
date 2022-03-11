@@ -2,7 +2,9 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
+import io.metersphere.base.domain.ApiDefinitionScenarioRelevance;
 import io.metersphere.base.domain.ApiScenarioReportResult;
+import io.metersphere.base.mapper.ApiDefinitionScenarioRelevanceMapper;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.ErrorReportLibraryUtil;
@@ -38,7 +40,8 @@ public class ApiScenarioReportResultService {
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(item.getSubRequestResults())) {
                     LoggerUtil.debug("合并事物请求暂不入库");
                 } else {
-                    apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                    ApiScenarioReportResult apiScenarioReportResult = this.newApiScenarioReportResult(reportId, item);
+                    apiScenarioReportResultMapper.insert(apiScenarioReportResult);
                 }
             });
         }
@@ -52,7 +55,8 @@ public class ApiScenarioReportResultService {
                 if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                     dto.getRequestResults().forEach(item -> {
                         if (StringUtils.isEmpty(item.getName()) || !item.getName().startsWith("Transaction=") || !CollectionUtils.isEmpty(item.getSubRequestResults())) {
-                            batchMapper.insert(this.newApiScenarioReportResult(dto.getReportId(), item));
+                            ApiScenarioReportResult apiScenarioReportResult = this.newApiScenarioReportResult(dto.getReportId(), item);
+                            batchMapper.insert(apiScenarioReportResult);
                         }
                     });
                 }

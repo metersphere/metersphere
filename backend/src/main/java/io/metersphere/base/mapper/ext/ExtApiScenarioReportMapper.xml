@@ -138,20 +138,29 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        select * from (
-            SELECT s_r.name AS test_name,
-            s_r.end_time,
-            s_r.user_id,
-            s_r.name,
-            s_r.id,
-            s_r.project_id,
-            s_r.create_time,
-            s_r.update_time,
-            s_r.status,
-            s_r.trigger_mode,
-            s_r.execute_type,
-            s_r.report_type
-            FROM api_scenario_report s_r
+        select if(a_s_r.id is null, a_d_r.id,a_s_r.id) as id ,if(a_s_r.id is null, a_d_r.name,a_s_r.name) as name ,if(a_s_r.id is null, a_d_r.end_time,a_s_r.end_time) as end_time ,
+               if(a_s_r.id is null, a_d_r.user_id,a_s_r.user_id) as user_id ,
+        if(a_s_r.id is null, a_d_r.project_id,a_s_r.project_id) as project_id ,
+        if(a_s_r.id is null, a_d_r.create_time,a_s_r.create_time) as create_time ,
+        if(a_s_r.id is null, a_d_r.update_time,a_s_r.update_time) as update_time ,
+        if(a_s_r.id is null, a_d_r.status,a_s_r.status) as status ,
+        if(a_s_r.id is null, a_d_r.trigger_mode,a_s_r.trigger_mode) as trigger_mode ,
+        if(a_s_r.id is null, a_d_r.execute_type,a_s_r.execute_type) as execute_type ,
+        if(a_s_r.id is null, a_d_r.report_type,a_s_r.report_type) as report_type from api_definition_scenario_relevance d_s_r
+        left join (
+        SELECT
+        s_r.end_time,
+        s_r.user_id,
+        s_r.name,
+        s_r.id,
+        s_r.project_id,
+        s_r.create_time,
+        s_r.update_time,
+        s_r.status,
+        s_r.trigger_mode,
+        s_r.execute_type,
+        s_r.report_type
+        FROM api_scenario_report s_r
         <where>
             <if test="request.combine != null">
                 <include refid="listCombine">
@@ -196,9 +205,15 @@
                 </foreach>
             </if>
             AND s_r.execute_type = 'Saved'
-        </where>
-        union all
-        select a_r.name as test_name,
+            <if test="request.orders != null and request.orders.size() > 0">
+                order by
+                <foreach collection="request.orders" separator="," item="order">
+                    s_r.${order.name} ${order.type}
+                </foreach>
+            </if>
+        </where>) a_s_r on d_s_r.report_id = a_s_r.id
+        left join
+        ( select
             a_r.end_time,
             a_r.user_id,
             a_r.name,
@@ -248,47 +263,87 @@
                 </if>
             </foreach>
         </if>
-        ) r
-        where 1 = 1
-        <if test="request.filters != null and request.filters.size() > 0">
-            <foreach collection="request.filters.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key=='report_type'">
-                            and r.report_type in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                    </choose>
-                </if>
-            </foreach>
-        </if>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                r.${order.name} ${order.type}
+                ${order.name} ${order.type}
             </foreach>
+        </if>
+        ) a_d_r on d_s_r.report_id = a_d_r.id
+        <if test="request.goPage != null and request.pageSize != null">
+            limit #{request.goPage},#{request.pageSize}
         </if>
     </select>
 
     <select id="idList" resultType="java.lang.String">
-        select r.id from (
-            SELECT s_r.name AS test_name,
-            s_r.end_time,
-            s_r.user_id,
-            s_r.name,
-            s_r.id,
-            s_r.project_id,
-            s_r.create_time,
-            s_r.update_time,
-            s_r.status,
-            s_r.trigger_mode,
-            s_r.execute_type,
-            s_r.report_type
+        select if(s_r.id is null, a_r.id,s_r.id) as id from api_definition_scenario_relevance d_s_r
+        left join  (
+            SELECT
+                s_r.end_time,
+                s_r.user_id,
+                s_r.name,
+                s_r.id,
+                s_r.project_id,
+                s_r.create_time,
+                s_r.update_time,
+                s_r.status,
+                s_r.trigger_mode,
+                s_r.execute_type,
+                s_r.report_type
         FROM api_scenario_report s_r
-        union all
-        select a_r.name as test_name,
+        <where>
+            <if test="request.combine != null">
+                <include refid="listCombine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+
+            <if test="request.name != null">
+                and s_r.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.userId != null">
+                AND s_r.user_id = #{request.userId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.projectId != null">
+                AND s_r.project_id = #{request.projectId}
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and s_r.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='report_type'">
+                                and s_r.report_type in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and s_r.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            AND s_r.execute_type = 'Saved'
+            <if test="request.orders != null and request.orders.size() > 0">
+                order by
+                <foreach collection="request.orders" separator="," item="order">
+                    s_r.${order.name} ${order.type}
+                </foreach>
+            </if>
+        </where>) s_r on d_s_r.report_id = s_r.id
+        left join(
+        select
             a_r.end_time,
             a_r.user_id,
             a_r.name,
@@ -301,59 +356,50 @@
             'Saved' as execute_type,
             'API_INDEPENDENT' as report_type
         from api_definition_exec_result a_r
-        where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
-        ) r
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                </include>
-            </if>
+        where (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
+        <if test="request.combine != null">
+            <include refid="listCombine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+            </include>
+        </if>
 
-            <if test="request.name != null">
-                and r.name like CONCAT('%', #{request.name},'%')
-            </if>
-            <if test="request.userId != null">
-                AND r.user_id = #{request.userId,jdbcType=VARCHAR}
-            </if>
-            <if test="request.projectId != null">
-                AND r.project_id = #{request.projectId}
-            </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='status'">
-                                and r.status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='report_type'">
-                                and r.report_type in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <otherwise>
-                                and r.trigger_mode in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </otherwise>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
-            AND r.execute_type = 'Saved'
-        </where>
+        <if test="request.name != null">
+            and a_r.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.userId != null">
+            AND a_r.user_id = #{request.userId,jdbcType=VARCHAR}
+        </if>
+        <if test="request.projectId != null">
+            AND a_r.project_id = #{request.projectId}
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and a_r.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='trigger_mode'">
+                            and a_r.trigger_mode in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                r.${order.name} ${order.type}
+                a_r.${order.name} ${order.type}
             </foreach>
         </if>
+         ) a_r on d_s_r.report_id = a_r.id
     </select>
 
     <select id="get" resultType="io.metersphere.api.dto.automation.APIScenarioReportResult">
@@ -470,6 +516,62 @@
         <foreach collection="ids" item="value" separator="," open="(" close=")">
             #{value}
         </foreach>
+    </select>
+    <select id="selectCountByRequest" resultType="java.lang.Long">
+        SELECT
+        count(s_r.id)
+        FROM api_scenario_report s_r
+        <where>
+            <if test="request.combine != null">
+                <include refid="listCombine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+
+            <if test="request.name != null">
+                and s_r.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.userId != null">
+                AND s_r.user_id = #{request.userId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.projectId != null">
+                AND s_r.project_id = #{request.projectId}
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and s_r.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='report_type'">
+                                and s_r.report_type in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and s_r.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            AND s_r.execute_type = 'Saved'
+            <if test="request.orders != null and request.orders.size() > 0">
+                order by
+                <foreach collection="request.orders" separator="," item="order">
+                    s_r.${order.name} ${order.type}
+                </foreach>
+            </if>
+        </where>
     </select>
 
     <update id="update" parameterType="java.util.List">

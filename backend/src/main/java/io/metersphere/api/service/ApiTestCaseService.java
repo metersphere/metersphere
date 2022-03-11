@@ -102,6 +102,9 @@ public class ApiTestCaseService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private TcpApiParamService tcpApiParamService;
+    @Resource
+    private ApiDefinitionScenarioRelevanceMapper apiDefinitionScenarioRelevanceMapper;
+
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -257,6 +260,8 @@ public class ApiTestCaseService {
     public void delete(String testId) {
         extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
         deleteFileByTestId(testId);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
+        apiDefinitionScenarioRelevanceMapper.deleteByPrimaryKey(result.getId());
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
