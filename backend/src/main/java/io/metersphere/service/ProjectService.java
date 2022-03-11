@@ -16,10 +16,7 @@ import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.AddProjectRequest;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.controller.request.ScheduleRequest;
@@ -920,6 +917,7 @@ public class ProjectService {
         if (StringUtils.isBlank(projectId)) {
             return;
         }
+        LogUtil.info("clean up track plan report before: " + DateUtils.getTimeString(time) + ", resourceId : " + projectId);
         testPlanReportService.cleanUpReport(time, projectId);
     }
 
@@ -927,6 +925,7 @@ public class ProjectService {
         if (StringUtils.isBlank(projectId)) {
             return;
         }
+        LogUtil.info("clean up api report before: " + DateUtils.getTimeString(time) + ", resourceId : " + projectId);
         apiScenarioReportService.cleanUpReport(time, projectId);
     }
 
@@ -934,6 +933,7 @@ public class ProjectService {
         if (StringUtils.isBlank(projectId)) {
             return;
         }
+        LogUtil.info("clean up load report before: " + DateUtils.getTimeString(time) + ", resourceId : " + projectId);
         performanceReportService.cleanUpReport(time, projectId);
     }
 

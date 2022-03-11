@@ -3,7 +3,6 @@ package io.metersphere.job.sechedule;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.service.ProjectApplicationService;
@@ -15,6 +14,7 @@ import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.function.BiConsumer;
 
 /**
  * @author lyh
@@ -41,17 +41,16 @@ public class CleanUpReportJob extends MsScheduleJob {
         if (project == null) {
             return;
         }
-
         ProjectConfig config = projectApplicationService.getProjectConfig(project.getId());
         try {
             if (BooleanUtils.isTrue(config.getCleanTrackReport())) {
-                this.cleanUpTrackReport(config.getCleanTrackReportExpr());
+                this.doCleanUp(projectService::cleanUpTrackReport, config.getCleanTrackReportExpr());
             }
             if (BooleanUtils.isTrue(config.getCleanApiReport())) {
-                this.cleanUpApiReport(config.getCleanApiReportExpr());
+                this.doCleanUp(projectService::cleanUpApiReport, config.getCleanApiReportExpr());
             }
             if (BooleanUtils.isTrue(config.getCleanLoadReport())) {
-                this.cleanUpLoadReport(config.getCleanLoadReportExpr());
+                this.doCleanUp(projectService::cleanUpLoadReport, config.getCleanLoadReportExpr());
             }
         } catch (Exception e) {
             LogUtil.error("clean up report error.");
@@ -68,31 +67,12 @@ public class CleanUpReportJob extends MsScheduleJob {
         return new TriggerKey(projectId, ScheduleGroup.CLEAN_UP_REPORT.name());
     }
 
-    private void cleanUpTrackReport(String expr) {
+    private void doCleanUp(BiConsumer<Long, String> func, String expr) {
         long time = getCleanDate(expr);
         if (time == 0) {
             return;
         }
-        LogUtil.info("clean up track plan report before: " + DateUtils.getTimeString(time) + ", resourceId : " + resourceId);
-        projectService.cleanUpTrackReport(time, resourceId);
-    }
-
-    private void cleanUpApiReport(String expr) {
-        long time = getCleanDate(expr);
-        if (time == 0) {
-            return;
-        }
-        LogUtil.info("clean up api report before: " + DateUtils.getTimeString(time) + ", resourceId : " + resourceId);
-        projectService.cleanUpApiReport(time, resourceId);
-    }
-
-    private void cleanUpLoadReport(String expr) {
-        long time = getCleanDate(expr);
-        if (time == 0) {
-            return;
-        }
-        LogUtil.info("clean up load report before: " + DateUtils.getTimeString(time) + ", resourceId : " + resourceId);
-        projectService.cleanUpLoadReport(time, resourceId);
+        func.accept(time, resourceId);
     }
 
     private long getCleanDate(String expr) {
