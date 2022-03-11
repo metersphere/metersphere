@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -69,6 +70,8 @@ public class ApiDefinitionExecResultService {
     private ProjectMapper projectMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiDefinitionScenarioRelevanceMapper apiDefinitionScenarioRelevanceMapper;
 
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
@@ -350,6 +353,8 @@ public class ApiDefinitionExecResultService {
     public void deleteByResourceId(String resourceId) {
         ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
         example.createCriteria().andResourceIdEqualTo(resourceId);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(resourceId);
+        apiDefinitionScenarioRelevanceMapper.deleteByPrimaryKey(result.getId());
         apiDefinitionExecResultMapper.deleteByExample(example);
     }
 
@@ -359,6 +364,13 @@ public class ApiDefinitionExecResultService {
         }
         ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
         example.createCriteria().andResourceIdIn(ids);
+        List<ApiDefinitionExecResult> apiDefinitionExecResults = apiDefinitionExecResultMapper.selectByExample(example);
+        if(apiDefinitionExecResults!=null&&apiDefinitionExecResults.size()!=0){
+            List<String> reportIds = apiDefinitionExecResults.stream().map(ApiDefinitionExecResult::getId).collect(Collectors.toList());
+            ApiDefinitionScenarioRelevanceExample sexample = new ApiDefinitionScenarioRelevanceExample();
+            sexample.createCriteria().andReportIdIn(reportIds);
+            apiDefinitionScenarioRelevanceMapper.deleteByExample(sexample);
+        }
         apiDefinitionExecResultMapper.deleteByExample(example);
     }
 

@@ -6,11 +6,21 @@ import java.util.List;
 
 public class ExtApiDefinitionExecResultProvider {
     public String insertListSql(List<ApiDefinitionExecResult> list) {
+        StringBuffer rsqlList = new StringBuffer();
+        rsqlList.append(";").append("insert into api_definition_scenario_relevance ( report_id ) values ");
         StringBuffer sqlList = new StringBuffer();
         sqlList.append("insert into api_definition_exec_result (id, `name`, resource_id, `status`, user_id, start_time, end_time," +
                 " create_time, `type`, actuator, trigger_mode, version_id, error_code,project_id,integrated_report_id, content) values ");
         for (int i = 0; i < list.size(); i++) {
             ApiDefinitionExecResult result = list.get(i);
+            rsqlList.append(" (")
+                    .append("'")
+                    .append(result.getId())
+                    .append("'")
+                    .append(")");
+            if (i < list.size() - 1) {
+                rsqlList.append(",");
+            }
             sqlList.append(" (")
                     .append("'")
                     .append(result.getId())
@@ -50,6 +60,9 @@ public class ExtApiDefinitionExecResultProvider {
                 sqlList.append(",");
             }
         }
+        rsqlList.append(";");
+        sqlList.append(";");
+        sqlList.append(rsqlList);
         return sqlList.toString();
     }
 }
