@@ -27,6 +27,7 @@
                  @click.native="selectClick"
                  @remove-tag="removeTag"
                  @clear="clean"
+                 :placeholder="placeholder"
                  class="ms-tree-select">
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
       </el-select>
@@ -135,6 +136,12 @@ export default {
       type: String,
       default() {
         return '300px';
+      }
+    },
+    placeholder: {
+      type: String,
+      default() {
+        return this.$t('el.select.placeholder');
       }
     }
   },

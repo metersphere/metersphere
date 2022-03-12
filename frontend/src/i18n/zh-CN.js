@@ -1,7 +1,7 @@
 export default {
   commons: {
     project_permission: '请先添加该项目权限',
-    no_permission:'暂无权限',
+    no_permission: '暂无权限',
     failure_continues: "失败继续",
     full_screen_editing: "全屏编辑",
     trash: "回收站",
@@ -241,8 +241,8 @@ export default {
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
     type: "类型",
-    type_of_num:"只能输入数字类型",
-    validity_period:'有效期',
+    type_of_num: "只能输入数字类型",
+    validity_period: '有效期',
     please_select_a_deadline: "请选择截止时间",
     relationship: {
       name: '依赖关系',
@@ -910,7 +910,7 @@ export default {
     api_test_report: '接口测试报告',
     load_test_report: '性能测试报告',
     test_plan_report: '测试计划报告',
-    report_sharing_link:'报告分享链接',
+    report_sharing_link: '报告分享链接',
     recent: '我最近的报告',
     search_by_name: '根据名称搜索',
     batch_add_monitor_tips: '格式：名称,IP,Port,描述<br/>如：项目1,192.168.1.52,9100,测试',
@@ -1156,14 +1156,14 @@ export default {
       rule: {
         input_code: "请输入 HTTP Code"
       },
-      range_type:{
+      range_type: {
         value_eq: "值-等于[value=]",
         value_not_eq: "值-不等于[value!=]",
-        value_contain:"值-包含[include=]",
+        value_contain: "值-包含[include=]",
         length_eq: "长度-等于[length=]",
         length_not_eq: "长度-不等于[length!=]",
-        length_large_than:"长度-大于[length>]",
-        length_shot_than:"长度-小于[length<]",
+        length_large_than: "长度-大于[length>]",
+        length_shot_than: "长度-小于[length<]",
         regular_match: "正则匹配",
       }
     },
@@ -3037,8 +3037,8 @@ export default {
       delete: "删除",
       read: "查看脚本",
     },
-    personal_information:{
-      name:'设置',
+    personal_information: {
+      name: '设置',
       personal_setting: '个人设置',
       api_keys: 'API Keys',
       edit_password: "修改密码",
@@ -3080,5 +3080,9 @@ export default {
     scenario_list: "场景列表",
     selenium_tip: "支持 Selenium-IDE 插件格式导入",
     selenium_export_tip: "通过 MeterSphere 导出 side 文件",
+    elementObject: "元素对象",
+    elementLocator: "元素定位",
+    elementType: "所属分类",
+    not_selected: "(未选择元素)",
   }
 };
