@@ -97,7 +97,7 @@
                          @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
                          @showPopover="showPopover" :has-option-group="true"
                          ref="envPopover" class="ms-message-right"/>
-            <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
+            <el-tooltip v-if="!debugLoading && showDebug" content="Ctrl + R" placement="top">
               <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                 {{ $t('api_test.request.debug') }}
                 <el-dropdown-menu slot="dropdown">
@@ -105,7 +105,7 @@
                 </el-dropdown-menu>
               </el-dropdown>
             </el-tooltip>
-            <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+            <el-button size="mini" type="primary" v-else-if="showDebug" @click="stop">{{ $t('report.stop_btn') }}</el-button>
 
             <el-button id="inputDelay" type="primary" size="mini" v-prevent-re-click @click="editScenario"
                        title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
@@ -371,6 +371,7 @@ import {ENV_TYPE} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
+const workspaceRepository = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./repository/WorkspaceRepository.vue") : {};
 
 let jsonPath = require('jsonpath');
 export default {
@@ -457,6 +458,8 @@ export default {
       expandedNode: [],
       scenarioDefinition: [],
       path: "/api/automation/create",
+      repositoryCreatePath: "/repository/api/automation/create",
+      repositoryUpdatePath: "/repository/api/automation/update",
       debugData: {},
       reportId: "",
       enableCookieShare: false,
@@ -503,6 +506,8 @@ export default {
       pluginDelStep: false,
       isBatchProcess: false,
       isCheckedAll: false,
+      showXpackCompnent: false,
+      showDebug: true,
       selectDataCounts: 0,
       dffScenarioId: "",
       scenarioRefId: "",
@@ -554,6 +559,9 @@ export default {
 
     if (hasLicense()) {
       this.getVersionHistory();
+    }
+    if (requireComponent !== null && JSON.stringify(workspaceRepository) !== '{}') {
+      this.showXpackCompnent = true;
     }
   },
   mounted() {
@@ -1061,11 +1069,16 @@ export default {
       return index - 0.33
     },
     setVariables(v, headers) {
+      if (this.showXpackCompnent) {
+        this.showDebug = false;
+      }
       this.currentScenario.variables = v;
       this.currentScenario.headers = headers;
       if (this.path.endsWith("/update")) {
         // 直接更新场景防止编辑内容丢失
         this.editScenario();
+      } else {
+        this.showDebug = true;
       }
       if (this.$refs.maximizeHeader) {
         this.$refs.maximizeHeader.getVariableSize();
@@ -1469,9 +1482,19 @@ export default {
                   this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
                 }
               }
+              if (this.path.endsWith("/update") && this.showXpackCompnent) {
+                this.path = this.repositoryUpdatePath;
+              }
+              if (this.path.endsWith("/create") && this.showXpackCompnent) {
+                this.path = this.repositoryCreatePath;
+              }
               saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
                 this.$success(this.$t('commons.save_success'));
-                this.path = "/api/automation/update";
+                if (this.showXpackCompnent) {
+                  this.path = this.repositoryUpdatePath;
+                } else {
+                  this.path = "/api/automation/update";
+                }
                 this.$store.state.pluginFiles = [];
                 if (response.data) {
                   this.currentScenario.id = response.data.id;

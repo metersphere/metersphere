@@ -70,6 +70,34 @@ function getScenarioFiles(obj) {
   return scenarioFiles;
 }
 
+function getRepositoryFiles(obj) {
+  let repositoryFiles = [];
+  obj.repositoryFileIds = [];
+  // 场景变量csv 文件
+  if (obj.variables) {
+    obj.variables.forEach(param => {
+      if (param.type === 'CSV' && param.fileResource === 'repository') {
+        param.files = [];
+        let fileId = getUUID().substring(0, 12);
+        let fileSplits = param.repositoryFilePath.split('/');
+        let fileName = fileSplits[fileSplits.length-1];
+        param.files.push({
+          id: fileId,
+          name: fileName
+        });
+        obj.repositoryFileIds.push(fileId);
+        let repositoryFile = {
+          repositoryId: param.repositoryId,
+          repositoryBranch: param.repositoryBranch,
+          repositoryFilePath: param.repositoryFilePath,
+        };
+        repositoryFiles.push(repositoryFile);
+      }
+    });
+  }
+  return repositoryFiles;
+}
+
 export function saveScenario(url, scenario, scenarioDefinition, _this, success) {
   let bodyFiles = getBodyUploadFiles(scenario, scenarioDefinition);
   if (_this && _this.$store && _this.$store.state && _this.$store.state.pluginFiles && _this.$store.state.pluginFiles.length > 0) {
@@ -91,6 +119,10 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
     scenarioFiles.forEach(f => {
       formData.append("scenarioFiles", f);
     })
+  }
+  if (_this.showXpackCompnent) {
+    let repositoryFiles = getRepositoryFiles(scenario);
+    formData.append('repositoryFiles', new Blob([JSON.stringify(repositoryFiles)], {type: "application/json"}));
   }
   formData.append('request', new Blob([JSON.stringify(scenario)], {type: "application/json"}));
   let axiosRequestConfig = getUploadConfig(url, formData);
