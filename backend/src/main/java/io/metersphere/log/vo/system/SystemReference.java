@@ -23,6 +23,7 @@ public class SystemReference {
     public static Map<String, String> baseColumns = new LinkedHashMap<>();
     public static Map<String, String> groupColumns = new LinkedHashMap<>();
     public static Map<String, String> projectApplicationColumns = new LinkedHashMap<>();
+    public static Map<String, String> workspaceRepositoryColumns = new LinkedHashMap<>();
 
     static {
 
@@ -44,6 +45,7 @@ public class SystemReference {
         mailColumns.clear();
         groupColumns.clear();
         projectApplicationColumns.clear();
+        workspaceRepositoryColumns.clear();
 
         userColumns.put("name", "用户名称");
         userColumns.put("createUser", "创建人");
@@ -159,5 +161,9 @@ public class SystemReference {
         groupColumns.put("description", "描述");
         groupColumns.put("type", "所属类型");
         groupColumns.put("scopeId", "全局用户组");
+
+        workspaceRepositoryColumns.put("repositoryName", "存储库名称");
+        workspaceRepositoryColumns.put("repositoryUrl", "存储库地址");
+        workspaceRepositoryColumns.put("workspaceId", "工作空间");
     }
 }
