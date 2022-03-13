@@ -397,6 +397,7 @@ import {ENV_TYPE} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
+const workspaceRepository = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./repository/WorkspaceRepository.vue") : {};
 
 let jsonPath = require('jsonpath');
 export default {
@@ -481,6 +482,7 @@ export default {
       scenarioDefinition: [],
       scenarioDefinitionOrg: [],
       path: "/api/automation/create",
+      repositoryPath: "/repository/api/automation/create",
       debugData: {},
       reportId: "",
       enableCookieShare: false,
@@ -531,7 +533,8 @@ export default {
       newScenarioDefinition: [],
       oldScenarioDefinition: [],
       currentItem: {},
-      pluginDelStep: false
+      pluginDelStep: false,
+      showXpackCompnent: false
     }
   },
   watch: {
@@ -561,6 +564,9 @@ export default {
 
     if (hasLicense()) {
       this.getVersionHistory();
+    }
+    if (requireComponent != null && JSON.stringify(workspaceRepository) != '{}') {
+      this.showXpackCompnent = true;
     }
   },
   mounted() {
@@ -1372,9 +1378,16 @@ export default {
                 this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
               }
             }
+            if (this.path.endsWith("/create") && this.showXpackCompnent) {
+              this.path = this.repositoryPath;
+            }
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
-              this.path = "/api/automation/update";
+              if (this.showXpackCompnent) {
+                this.path = "/repository/api/automation/update";
+              } else {
+                this.path = "/api/automation/update";
+              }
               this.$store.state.pluginFiles = [];
               if (response.data) {
                 this.currentScenario.id = response.data.id;

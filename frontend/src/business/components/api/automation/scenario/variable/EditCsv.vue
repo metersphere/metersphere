@@ -15,7 +15,49 @@
     </el-form-item>
     <el-tabs v-model="activeName" @tab-click="handleClick" style="margin-left: 40px">
       <el-tab-pane :label="$t('variables.config')" name="config">
-        <el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="showXpackCompnent">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.file_resource')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-radio v-model="editData.fileResource" label="local">{{$t('variables.local_file')}}</el-radio>
+            <el-radio v-model="editData.fileResource" label="repository">{{$t('variables.git_repository')}}</el-radio>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="showXpackCompnent && editData.fileResource == 'repository'">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.git_repository')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-select v-model="editData.repositoryId"
+                       :placeholder="$t('variables.choose_git_repository')" filterable size="small"
+                       class="ms-scenario-input">
+              <el-option
+                v-for="item in repositoryOptions"
+                :key="item.repositoryName"
+                :label="item.repositoryName"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="showXpackCompnent && editData.fileResource == 'repository'">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.git_branch')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-input v-model="editData.repositoryBranch" size="small" :placeholder="$t('variables.git_branch_placeholder')"/>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="showXpackCompnent && editData.fileResource == 'repository'">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.git_file_path')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-input v-model="editData.repositoryFilePath" size="small" :placeholder="$t('variables.git_file_path_placeholder')"/>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-if="!editData.fileResource || editData.fileResource === 'local'">
           <el-col :span="5" style="margin-top: 5px">
             <span>{{$t('variables.add_file')}}</span>
           </el-col>
@@ -80,6 +122,10 @@
 
 <script>
   import MsCsvFileUpload from "./CsvFileUpload";
+  import {getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
+
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const workspaceRepository = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./repository/WorkspaceRepository.vue") : {};
 
   export default {
     name: "MsEditCsv",
@@ -104,6 +150,9 @@
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
           ],
         },
+        repositoryOptions: [],
+        queryRepositoryPath: "/repository/list",
+        showXpackCompnent: false,
       }
     },
     computed: {
@@ -125,15 +174,19 @@
         this.loading = false;
       },
       step(results, parser) {
-        if(this.allData.length < 2000) {
+        if (this.allData.length < 2000) {
           this.allData.push(results.data);
-        }else{
+        } else {
           this.showMessage = true;
         }
       },
 
       handleClick() {
-        let config = {complete: this.complete, step: this.step, delimiter: this.editData.delimiter ? this.editData.delimiter : ","};
+        let config = {
+          complete: this.complete,
+          step: this.step,
+          delimiter: this.editData.delimiter ? this.editData.delimiter : ","
+        };
         this.allData = [];
         // 本地文件
         if (this.editData.files && this.editData.files.length > 0 && this.editData.files[0].file) {
@@ -164,12 +217,37 @@
       },
 
       querySearch(queryString, cb) {
-        let restaurants = [{value: "UTF-8"}, {value: "UTF-16"},{value: "GB2312"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
+        let restaurants = [{value: "UTF-8"}, {value: "UTF-16"}, {value: "GB2312"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
         let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
         // 调用 callback 返回建议列表的数据
         cb(results);
       },
 
+      loadWorkspaceReposiroty() {
+        if (getCurrentWorkspaceId() === null) {
+          this.repositoryOptions = [];
+          return;
+        }
+        let param = {
+          workspaceId: getCurrentWorkspaceId()
+        };
+        this.$post(this.queryRepositoryPath, param, response => {
+          this.repositoryOptions = response.data;
+        });
+      },
+    },
+    mounted() {
+      console.log('222', this.showXpackCompnent);
+      if (this.showXpackCompnent) {
+        // 查询当前工作空间下的存储库信息
+        this.loadWorkspaceReposiroty();
+      }
+    },
+    created() {
+      if (requireComponent != null && JSON.stringify(workspaceRepository) != '{}') {
+        this.showXpackCompnent = true;
+        console.log('111', this.showXpackCompnent);
+      }
     }
   }
 </script>
