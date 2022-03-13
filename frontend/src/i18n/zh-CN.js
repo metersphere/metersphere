@@ -3084,5 +3084,8 @@ export default {
     elementLocator: "元素定位",
     elementType: "所属分类",
     not_selected: "(未选择元素)",
+    not_selected_location: "(未选择元素定位)",
+    location: "定位",
+    run: "运行",
   }
 };
