@@ -439,7 +439,11 @@ export default {
     sync_other_info: "Copy other config",
     delete_current_version: 'Current version',
     delete_all_version: 'All versions',
-    change_password_tips: 'Your password is the initial system password, please change it as soon as possible'
+    change_password_tips: 'Your password is the initial system password, please change it as soon as possible',
+    git_repository: 'Git Repository',
+    repositoryUrl: 'Git Repository Url',
+    repositoryName: 'Git Repository Name',
+    repositoryUsername: 'User name'
   },
   login: {
     normal_Login: "Normal Login",
@@ -563,6 +567,7 @@ export default {
     template_manage: "Template Manage",
     case_template_manage: "Case Template",
     issue_template_manage: "Issue Template",
+    system_setting_git_repository: 'MS sets up git repositories at the system level',
     custom_filed: {
       input: 'Input',
       textarea: 'Textarea',
@@ -830,6 +835,19 @@ export default {
     org_remove_member: 'Removing the user from the organization will also remove permissions from all workspaces under the organization. Are you sure you want to remove the member ?',
     input_id_or_email: 'Please enter user ID, or user Email',
     no_such_user: 'Without this user information, please enter the correct user ID or user Email!',
+  },
+  repository: {
+    create: 'Add the repository',
+    modify: 'Modifying the repository',
+    delete_confirm: 'Are you sure you want to delete this repository?',
+    please_choose_repository: 'Select the repository',
+    search_by_name: 'Search by name',
+    modify_repository_info: 'Modify repository information',
+    input_repository_name: 'Please enter a repository name',
+    special_characters_are_not_supported: 'Special characters are not supported',
+    input_repository_url: 'Please enter the repository address',
+    input_username: 'Please enter a user name',
+    input_password: 'Please enter your password',
   },
   user: {
     id: 'User ID',
@@ -2633,6 +2651,14 @@ export default {
     delimiter: "Delimiter",
     format: "Output format",
     quoted_data: "Whether to allow quotes",
+    file_resource: "Source file",
+    local_file: "The local file",
+    git_repository: "Git repository",
+    git_branch: "Git branch",
+    git_branch_placeholder: "Git branch name, case sensitive",
+    git_file_path: "The file path",
+    git_file_path_placeholder: "Path to the CSV file in the repository",
+    choose_git_repository: "Select the Git repository"
   },
   auth_source: {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
@@ -3068,7 +3094,14 @@ export default {
       performance: "Performance",
       project: "Project",
       report: "Report Statistics"
-    }
+    },
+    workspace_repository: {
+      name: "Git repository",
+      read: "Querying the repository",
+      create: "Adding a repository",
+      edit: "Edit repository",
+      delete: "Deleting a repository",
+    },
   },
   env_options: {
     all_assertions: "Assertions"
