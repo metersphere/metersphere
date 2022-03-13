@@ -442,6 +442,10 @@ export default {
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
     change_password_tips: '您的密碼是系統初始密碼，請盡快修改密碼',
+    git_repository: 'Git存儲庫',
+    repositoryUrl: 'Git存儲庫地址',
+    repositoryName: 'Git存儲庫名稱',
+    repositoryUsername: '用戶名'
   },
   login: {
     normal_Login: "普通登錄",
@@ -565,6 +569,7 @@ export default {
     template_manage: "模版管理",
     case_template_manage: "用例模版",
     issue_template_manage: "缺陷模版",
+    system_setting_git_repository: 'MS在系統級別設置git倉庫',
     custom_filed: {
       input: '輸入框',
       textarea: '文本框',
@@ -834,6 +839,19 @@ export default {
     org_remove_member: '將該用戶從組織中移除，將同時移除該組織下所有工作空間的權限，確定要移除該成員嗎？',
     input_id_or_email: '請輸入用戶 ID, 或者 用戶郵箱',
     no_such_user: '無此用戶信息, 請輸入正確的用戶 ID 或者 用戶郵箱！',
+  },
+  repository: {
+    create: '添加存儲庫',
+    modify: '修改存儲庫',
+    delete_confirm: '確定要刪除這個存儲庫嗎?',
+    please_choose_repository: '請選擇存儲庫',
+    search_by_name: '根據名稱搜索',
+    modify_repository_info: '修改存儲庫信息',
+    input_repository_name: '請輸入存儲庫名稱',
+    special_characters_are_not_supported: '不支持特殊字符',
+    input_repository_url: '請輸入存儲庫地址',
+    input_username: '請輸入用戶名',
+    input_password: '請輸入密碼',
   },
   user: {
     id: '用戶ID',
@@ -2635,6 +2653,14 @@ export default {
     delimiter: "分隔符",
     format: "輸出格式",
     quoted_data: "是否允許帶引號",
+    file_resource: "文件來源",
+    local_file: "本地文件",
+    git_repository: "Git存儲庫",
+    git_branch: "Git分支",
+    git_branch_placeholder: "Git分支名，區分大小寫",
+    git_file_path: "文件路徑",
+    git_file_path_placeholder: "存儲庫中的CSV文件的所在路徑",
+    choose_git_repository: "請選擇Git存儲庫"
   },
   auth_source: {
     delete_prompt: '此操作會刪除認證源，是否繼續？',
@@ -3071,7 +3097,14 @@ export default {
       performance: "性能測試",
       project: "項目設置",
       report: "報表統計"
-    }
+    },
+    workspace_repository: {
+      name: "Git存儲庫",
+      read: "查詢存儲庫",
+      create: "添加存儲庫",
+      edit: "編輯存儲庫",
+      delete: "刪除存儲庫",
+    },
   },
   env_options: {
     all_assertions: "全局斷言"

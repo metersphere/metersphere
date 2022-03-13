@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.WorkspaceRepositoryFileVersionMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.WorkspaceRepositoryFileVersion">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="repository_id" jdbcType="VARCHAR" property="repositoryId" />
+    <result column="branch" jdbcType="VARCHAR" property="branch" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="commit_id" jdbcType="VARCHAR" property="commitId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, repository_id, branch, `path`, scenario_id, create_time, update_time, create_user, 
+    commit_id
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersionExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from workspace_repository_file_version
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from workspace_repository_file_version
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from workspace_repository_file_version
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersionExample">
+    delete from workspace_repository_file_version
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersion">
+    insert into workspace_repository_file_version (id, repository_id, branch, 
+      `path`, scenario_id, create_time, 
+      update_time, create_user, commit_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{repositoryId,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR}, 
+      #{path,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{commitId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersion">
+    insert into workspace_repository_file_version
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="repositoryId != null">
+        repository_id,
+      </if>
+      <if test="branch != null">
+        branch,
+      </if>
+      <if test="path != null">
+        `path`,
+      </if>
+      <if test="scenarioId != null">
+        scenario_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="commitId != null">
+        commit_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="repositoryId != null">
+        #{repositoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null">
+        #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null">
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioId != null">
+        #{scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="commitId != null">
+        #{commitId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersionExample" resultType="java.lang.Long">
+    select count(*) from workspace_repository_file_version
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update workspace_repository_file_version
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.repositoryId != null">
+        repository_id = #{record.repositoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.branch != null">
+        branch = #{record.branch,jdbcType=VARCHAR},
+      </if>
+      <if test="record.path != null">
+        `path` = #{record.path,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scenarioId != null">
+        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.commitId != null">
+        commit_id = #{record.commitId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update workspace_repository_file_version
+    set id = #{record.id,jdbcType=VARCHAR},
+      repository_id = #{record.repositoryId,jdbcType=VARCHAR},
+      branch = #{record.branch,jdbcType=VARCHAR},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      commit_id = #{record.commitId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersion">
+    update workspace_repository_file_version
+    <set>
+      <if test="repositoryId != null">
+        repository_id = #{repositoryId,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null">
+        branch = #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null">
+        `path` = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioId != null">
+        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="commitId != null">
+        commit_id = #{commitId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.WorkspaceRepositoryFileVersion">
+    update workspace_repository_file_version
+    set repository_id = #{repositoryId,jdbcType=VARCHAR},
+      branch = #{branch,jdbcType=VARCHAR},
+      `path` = #{path,jdbcType=VARCHAR},
+      scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      commit_id = #{commitId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
