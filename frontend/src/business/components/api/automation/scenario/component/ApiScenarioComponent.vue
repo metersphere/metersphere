@@ -68,8 +68,7 @@ import MsDubboBasisParameters from "../../../definition/components/request/dubbo
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
-import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
-import {KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
+import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiScenarioComponent",
@@ -149,7 +148,7 @@ export default {
   },
   methods: {
     run() {
-      if(!this.scenario.enable){
+      if (!this.scenario.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return;
       }
