@@ -909,6 +909,7 @@ export default {
   report: {
     id: '報告ID',
     api_test_report: '接口測試報告',
+    scenario_test_report: '場景測試報告',
     load_test_report: '性能測試報告',
     test_plan_report: '測試計劃報告',
     report_sharing_link: '報告分享鏈接',
