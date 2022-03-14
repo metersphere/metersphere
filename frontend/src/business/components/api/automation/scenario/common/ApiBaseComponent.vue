@@ -58,7 +58,8 @@
     <!--最大化不显示具体内容-->
     <div class="header" v-if="!isMax">
       <el-collapse-transition>
-        <div v-show="data.active && showCollapse" :draggable="draggable">
+        <!-- 这里的组件默认不展开时不加载 -->
+        <div v-if="data.active && showCollapse" :draggable="draggable">
           <el-divider></el-divider>
           <fieldset :disabled="data.disabled" class="ms-fieldset">
             <!--四种协议请求内容-->
@@ -260,18 +261,6 @@ export default {
   margin-right: 10px;
 }
 
-.ms-step-name {
-  display: inline-block;
-  font-size: 13px;
-  margin: 0 5px;
-  overflow-x: hidden;
-  padding-bottom: 0;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 140px;
-}
-
 .scenario-version {
   display: inline-block;
   font-size: 13px;
@@ -396,11 +385,6 @@ fieldset {
   vertical-align: middle;
   white-space: nowrap;
   width: 60px;
-}
-
-.ms-step-selected {
-  cursor: pointer;
-  border-color: #783887;
 }
 
 </style>

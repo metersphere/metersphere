@@ -71,9 +71,8 @@
       </template>
       <!--请求内容-->
       <template v-slot:request>
-        <legend style="width: 100%">
+        <legend>
           <div v-if="!ifFromVariableAdvance">
-
             <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
             <ms-api-request-form
@@ -156,18 +155,7 @@
 </template>
 
 <script>
-import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-import MsTcpFormatParameters from "../../../definition/components/request/tcp/TcpFormatParameters";
-import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
-import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
-import MsRun from "../../../definition/components/Run";
-import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-import {ENV_TYPE} from "@/common/js/constants";
+import {getUUID, getCurrentProjectID} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -210,10 +198,16 @@ export default {
     },
   },
   components: {
-    TemplateComponent,
-    CustomizeReqInfo,
-    ApiBaseComponent, ApiResponseComponent,
-    MsSqlBasisParameters, MsTcpFormatParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+    TemplateComponent: () => import("@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent"),
+    CustomizeReqInfo: () => import("@/business/components/api/automation/scenario/common/CustomizeReqInfo"),
+    ApiBaseComponent: () => import("../common/ApiBaseComponent"),
+    ApiResponseComponent: () => import("./ApiResponseComponent"),
+    MsSqlBasisParameters: () => import("../../../definition/components/request/database/BasisParameters"),
+    MsTcpFormatParameters: () => import("../../../definition/components/request/tcp/TcpFormatParameters"),
+    MsDubboBasisParameters: () => import("../../../definition/components/request/dubbo/BasisParameters"),
+    MsApiRequestForm: () => import("../../../definition/components/request/http/ApiHttpRequestForm"),
+    MsRequestResultTail: () => import("../../../definition/components/response/RequestResultTail"),
+    MsRun: () => import("../../../definition/components/Run"),
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default
   },
@@ -232,7 +226,7 @@ export default {
       environmentMap: this.envMap,
       isShowNum: false,
       response: {},
-      dataWorkspaceId:'',
+      dataWorkspaceId: '',
     }
   },
   created() {
@@ -251,7 +245,6 @@ export default {
 
     if (this.request.num) {
       this.isShowNum = true;
-      this.getWorkspaceId(this.request.projectId);
       this.request.root = true;
       if (this.request.id && this.request.referenced === 'REF') {
         this.request.disabled = true;
@@ -702,7 +695,7 @@ export default {
             dataSelectRange: 'edit:' + resource.id,
             projectId: resource.projectId,
             type: resource.protocol,
-            workspaceId:this.dataWorkspaceId,
+            workspaceId: this.dataWorkspaceId,
           }
         });
         window.open(definitionData.href, '_blank');

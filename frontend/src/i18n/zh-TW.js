@@ -2229,6 +2229,7 @@ export default {
       name: "模塊名稱",
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
+      delete_batch_confirm: "確認批量刪除勾選的場景步驟？",
       module: "模塊",
       title: "標題",
       status: "狀態",
