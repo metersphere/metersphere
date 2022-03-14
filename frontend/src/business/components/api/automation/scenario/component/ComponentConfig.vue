@@ -14,6 +14,7 @@
         :extract="scenario"
         :jsr223-processor="scenario"
         :request="scenario"
+        :command="scenario"
         :currentScenario="currentScenario"
         :currentEnvironmentId="currentEnvironmentId"
         :node="node"
@@ -54,6 +55,9 @@ import MsLoopController from "./LoopController";
 import MsApiScenarioComponent from "./ApiScenarioComponent";
 import JmeterElementComponent from "./JmeterElementComponent";
 import PluginComponent from "./PluginComponent";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const MsUiCommand = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/scenario/component/MsUiCommandComponent.vue") : {};
+const MsUiScenarioComponent = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/scenario/component/MsUiScenarioComponent.vue") : {};
 
 export default {
   name: "ComponentConfig",
@@ -70,11 +74,15 @@ export default {
     MsApiAssertions: () => import("../../../definition/components/assertion/ApiAssertions"),
     MsApiExtract: () => import("../../../definition/components/extract/ApiExtract"),
     MsJdbcProcessor: () => import("@/business/components/api/automation/scenario/component/JDBCProcessor"),
+    // MsUiCommand: () => import("@/business/components/xpack/ui/automation/scenario/component/MsUiCommandComponent")
+    'MsUiCommand': MsUiCommand.default,
+    'MsUiScenarioComponent': MsUiScenarioComponent.default,
   },
   props: {
     type: String,
     message: String,
     scenario: {},
+    command: {},
     draggable: {
       type: Boolean,
       default: true,
@@ -174,6 +182,9 @@ export default {
           break;
         case "TCPSampler":
           name = "MsApiComponent";
+          break;
+        case "MsUiCommand":
+          name = "MsUiCommand";
           break;
         default:
           name = this.getComponent(ELEMENT_TYPE.Plugin);

@@ -1,6 +1,7 @@
 import {getUUID} from "@/common/js/utils";
 import {getUploadConfig, request} from "@/common/js/ajax";
 import {basePost} from "@/network/base-network";
+import {ELEMENT_TYPE} from "@/business/components/api/automation/scenario/Setting";
 
 function buildBodyFile(item, bodyUploadFiles, obj, bodyParam) {
   if (bodyParam) {
@@ -121,4 +122,81 @@ export function savePreciseEnvProjectIds(projectIds, envMap) {
       }
     }
   }
+}
+
+
+export function scenarioSort(_this) {
+  for (let i in _this.scenarioDefinition) {
+    // 排序
+    _this.scenarioDefinition[i].index = Number(i) + 1;
+    // 设置循环控制
+    if (_this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && _this.scenarioDefinition[i].hashTree
+      && _this.scenarioDefinition[i].hashTree.length > 1) {
+      _this.scenarioDefinition[i].countController.proceed = true;
+    }
+    // 设置项目ID
+    if (!_this.scenarioDefinition[i].projectId) {
+      _this.scenarioDefinition[i].projectId = _this.projectId;
+    }
+
+    if (_this.scenarioDefinition[i].hashTree != undefined && _this.scenarioDefinition[i].hashTree.length > 0) {
+      recursiveSorting(_this, _this.scenarioDefinition[i].hashTree, _this.scenarioDefinition[i].projectId);
+    }
+    // 添加debug结果
+    if (_this.debugResult && _this.debugResult.get(_this.scenarioDefinition[i].id + _this.scenarioDefinition[i].name)) {
+      _this.scenarioDefinition[i].requestResult = _this.debugResult.get(_this.scenarioDefinition[i].id + _this.scenarioDefinition[i].name);
+    }
+  }
+}
+
+export function recursiveSorting(_this, arr, scenarioProjectId) {
+  for (let i in arr) {
+    arr[i].index = Number(i) + 1;
+    if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
+      arr[i].countController.proceed = true;
+    }
+    if (!arr[i].projectId) {
+      arr[i].projectId = scenarioProjectId ? scenarioProjectId : _this.projectId;
+    }
+    if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+      recursiveSorting(arr[i].hashTree, arr[i].projectId);
+    }
+    // 添加debug结果
+    if (_this.debugResult && _this.debugResult.get(arr[i].id + arr[i].name)) {
+      arr[i].requestResult = _this.debugResult.get(arr[i].id + arr[i].name);
+    }
+  }
+}
+
+
+export function copyScenarioRow(row, node) {
+  if (!row || !node) {
+    return;
+  }
+  const parent = node.parent
+  const hashTree = parent.data.hashTree || parent.data;
+  // 深度复制
+  let obj = JSON.parse(JSON.stringify(row));
+  if (obj.hashTree && obj.hashTree.length > 0) {
+    resetResourceId(obj.hashTree);
+  }
+  obj.resourceId = getUUID();
+  if (obj.name) {
+    obj.name = obj.name + '_copy';
+  }
+  const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
+  if (index != -1) {
+    hashTree.splice(index + 1, 0, obj);
+  } else {
+    hashTree.push(obj);
+  }
+}
+
+export function resetResourceId(hashTree) {
+  hashTree.forEach(item => {
+    item.resourceId = getUUID();
+    if (item.hashTree && item.hashTree.length > 0) {
+      resetResourceId(item.hashTree);
+    }
+  })
 }
