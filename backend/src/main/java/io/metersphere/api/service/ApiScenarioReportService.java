@@ -365,7 +365,12 @@ public class ApiScenarioReportService {
             }
 
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            if(requestResults.size() == 0){
+                scenario.setPassRate("0%");
+            }else {
+                scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            }
+
             scenario.setReportId(dto.getReportId());
             int executeTimes = 0;
             if (scenario.getExecuteTimes() != null) {
