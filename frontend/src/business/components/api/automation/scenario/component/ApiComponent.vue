@@ -14,16 +14,15 @@
       :show-version="showVersion"
       :title="displayTitle"
       :if-from-variable-advance="ifFromVariableAdvance">
-
       <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
         <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
         <span v-else>
-          <el-tooltip class="ms-num" effect="dark"
-                      :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')"
-                      placement="top">
-            <i class="el-icon-warning"/>
-          </el-tooltip>
-        </span>
+                      <el-tooltip class="ms-num" effect="dark"
+                                  :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')"
+                                  placement="top">
+                        <i class="el-icon-warning"/>
+                      </el-tooltip>
+                    </span>
         <span v-xpack v-if="request.versionEnable&&showVersion">{{ $t('project.version.name') }}: {{
             request.versionName
           }}</span>
@@ -41,20 +40,20 @@
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
-         <span v-if="request.testing" class="ms-test-running">
-           <i class="el-icon-loading" style="font-size: 16px"/>
-           {{ $t('commons.testing') }}
-         </span>
+               <span v-if="request.testing" class="ms-test-running">
+                 <i class="el-icon-loading" style="font-size: 16px"/>
+                 {{ $t('commons.testing') }}
+               </span>
         <!--  场景调试步骤增加误报判断  -->
         <span class="ms-step-debug-code" :class="'ms-req-error-report'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult && request.requestResult[0].status==='errorReportResult'">
-          {{ $t("error_report_library.option.name") }}
-        </span>
+                {{ $t("error_report_library.option.name") }}
+              </span>
         <span class="ms-step-debug-code"
               @click="active"
               :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'"
               v-else-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
-          {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
-        </span>
+                {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
+              </span>
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
@@ -155,18 +154,7 @@
 </template>
 
 <script>
-import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-import MsTcpFormatParameters from "../../../definition/components/request/tcp/TcpFormatParameters";
-import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
-import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
-import MsRun from "../../../definition/components/Run";
 import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-import {ENV_TYPE} from "@/common/js/constants";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -210,10 +198,16 @@ export default {
     },
   },
   components: {
-    TemplateComponent,
-    CustomizeReqInfo,
-    ApiBaseComponent, ApiResponseComponent,
-    MsSqlBasisParameters, MsTcpFormatParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+    TemplateComponent: () => import("@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent"),
+    CustomizeReqInfo: () => import("@/business/components/api/automation/scenario/common/CustomizeReqInfo"),
+    ApiBaseComponent: () => import("../common/ApiBaseComponent"),
+    ApiResponseComponent: () => import("./ApiResponseComponent"),
+    MsSqlBasisParameters: () => import("../../../definition/components/request/database/BasisParameters"),
+    MsTcpFormatParameters: () => import("../../../definition/components/request/tcp/TcpFormatParameters"),
+    MsDubboBasisParameters: () => import("../../../definition/components/request/dubbo/BasisParameters"),
+    MsApiRequestForm: () => import("../../../definition/components/request/http/ApiHttpRequestForm"),
+    MsRequestResultTail: () => import("../../../definition/components/response/RequestResultTail"),
+    MsRun: () => import("../../../definition/components/Run"),
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default
   },
@@ -254,7 +248,6 @@ export default {
       if (this.request.id && this.request.referenced === 'REF') {
         this.request.disabled = true;
       }
-      this.getWorkspaceId(this.request.projectId);
     } else {
       this.isShowNum = false;
     }
@@ -634,7 +627,7 @@ export default {
           }
         }
       }
-      if(!this.request.enable){
+      if (!this.request.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return false;
       }

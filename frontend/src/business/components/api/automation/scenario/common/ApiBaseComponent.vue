@@ -53,7 +53,8 @@
     <!--最大化不显示具体内容-->
     <div class="header" v-if="!isMax">
       <el-collapse-transition>
-        <div v-show="data.active && showCollapse" :draggable="draggable">
+        <!-- 这里的组件默认不展开时不加载 -->
+        <div v-if="data.active && showCollapse" :draggable="draggable">
           <el-divider></el-divider>
           <fieldset :disabled="data.disabled" class="ms-fieldset">
             <!--四种协议请求内容-->
