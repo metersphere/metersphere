@@ -22,7 +22,4 @@ public class QueryAPIReportRequest {
     private Map<String, Object> combine;
 
     private String limit;
-
-    private Integer goPage;
-    private Integer pageSize;
 }

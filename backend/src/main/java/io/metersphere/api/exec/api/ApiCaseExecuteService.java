@@ -13,7 +13,10 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.base.mapper.TestPlanApiCaseMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
@@ -58,8 +61,6 @@ public class ApiCaseExecuteService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     ApiScenarioReportStructureService apiScenarioReportStructureService;
-    @Resource
-    private ApiDefinitionScenarioRelevanceMapper apiDefinitionScenarioRelevanceMapper;
 
     /**
      * 测试计划case执行
@@ -221,10 +222,7 @@ public class ApiCaseExecuteService {
             request.getConfig().setAmassReport(serialReportId);
             report.setStatus(APITestStatus.Running.name());
             apiScenarioReportMapper.insert(report);
-            //生成关系数据
-            ApiDefinitionScenarioRelevance apiDefinitionScenarioRelevance = new ApiDefinitionScenarioRelevance();
-            apiDefinitionScenarioRelevance.setReportId(report.getId());
-            apiDefinitionScenarioRelevanceMapper.insert(apiDefinitionScenarioRelevance);
+
             apiScenarioReportStructureService.save(serialReportId, new ArrayList<>());
         }
 

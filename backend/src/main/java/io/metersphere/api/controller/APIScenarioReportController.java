@@ -9,8 +9,6 @@ import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -29,10 +27,6 @@ public class APIScenarioReportController {
 
     @Resource
     private ApiScenarioReportService apiReportService;
-    @Resource
-    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
-    @Resource
-    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
 
     @GetMapping("/get/{reportId}")
     public APIScenarioReportResult get(@PathVariable String reportId) {
@@ -41,12 +35,9 @@ public class APIScenarioReportController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<APIScenarioReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
-        Page<Object> page = new Page(goPage, pageSize*2, true);
-        long scenarioCount = extApiScenarioReportMapper.selectCountByRequest(request);
-        long definitionCount = extApiDefinitionExecResultMapper.selectCountByRequest(request);
-        long totalCount = scenarioCount + definitionCount;
-        page.setTotal(totalCount);
-        return PageUtils.setPageInfo(page, apiReportService.list(goPage,pageSize*2,request));
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setLimit("LIMIT " + (goPage - 1) * pageSize + "," + pageSize * 50);
+        return PageUtils.setPageInfo(page, apiReportService.list(request));
     }
 
     @PostMapping("/update")

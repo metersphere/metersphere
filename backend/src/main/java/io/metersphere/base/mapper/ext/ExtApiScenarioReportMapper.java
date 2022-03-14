@@ -3,13 +3,11 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.SelectProvider;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,10 +41,7 @@ public interface ExtApiScenarioReportMapper {
 
     void update(@Param("ids") List<String> ids);
 
-    long selectCountByRequest(@Param("request") QueryAPIReportRequest request);
-
     @InsertProvider(type = ExtApiScenarioReportProvider.class, method = "insertListSql")
     void sqlInsert(List<APIScenarioReportResult> list);
-
 
 }

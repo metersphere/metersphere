@@ -20,7 +20,6 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.TcpApiParamService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiDefinitionScenarioRelevanceMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
@@ -61,8 +60,6 @@ public class ApiExecuteService {
     private TcpApiParamService tcpApiParamService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
-    @Resource
-    private ApiDefinitionScenarioRelevanceMapper apiDefinitionScenarioRelevanceMapper;
 
     public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
         ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -88,10 +85,6 @@ public class ApiExecuteService {
         report.setType(ApiRunMode.JENKINS.name());
         report.setProjectId(caseWithBLOBs.getProjectId());
         apiDefinitionExecResultMapper.insert(report);
-        //生成关系数据
-        ApiDefinitionScenarioRelevance apiDefinitionScenarioRelevance = new ApiDefinitionScenarioRelevance();
-        apiDefinitionScenarioRelevance.setReportId(report.getId());
-        apiDefinitionScenarioRelevanceMapper.insert(apiDefinitionScenarioRelevance);
         //更新接口案例的最后执行状态等信息
         caseWithBLOBs.setLastResultId(report.getId());
         caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
