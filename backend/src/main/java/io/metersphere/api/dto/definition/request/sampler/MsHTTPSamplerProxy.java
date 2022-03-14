@@ -190,6 +190,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
             if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
                 sampler.setDoMultipart(true);
+                this.body.getKvs().forEach(files -> {
+                    if (StringUtils.isNotEmpty(files.getName()) && "file".equals(files.getType()) && CollectionUtils.isNotEmpty(files.getFiles())) {
+                        sampler.setDoBrowserCompatibleMultipart(true);
+                    }
+                });
             }
             if (CollectionUtils.isNotEmpty(bodyParams)) {
                 Arguments arguments = httpArguments(bodyParams);
