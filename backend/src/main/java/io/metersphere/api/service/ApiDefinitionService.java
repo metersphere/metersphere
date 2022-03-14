@@ -1173,7 +1173,7 @@ public class ApiDefinitionService {
                         .build();
                 noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException(Translator.get("user_import_format_wrong"));
         }
@@ -1810,12 +1810,13 @@ public class ApiDefinitionService {
     public ApiDefinitionResult getById(String id) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setId(id);
-        List<ApiDefinitionResult> list = list(request);
+        List<ApiDefinitionResult> list = extApiDefinitionMapper.list(request);
         if (CollectionUtils.isNotEmpty(list)) {
             return list.get(0);
         }
         return null;
     }
+
 
     public long countEffectiveByProjectId(String projectId) {
         if (StringUtils.isEmpty(projectId)) {
