@@ -48,7 +48,7 @@
       <div class="split"></div>
       <!-- 场景统计 -->
       <div style="width: 50%">
-          <el-row type="flex" justify="center" align="middle">
+          <el-row type="flex" justify="center" align="middle" v-if="report.reportType !== 'API_INTEGRATED'">
             <div class="metric-box">
               <div class="value">{{ content.scenarioTotal ? content.scenarioTotal : 0}}</div>
               <div class="name">{{ $t('api_test.scenario.scenario') }}</div>
@@ -69,7 +69,7 @@
               <div class="name">{{ $t('error_report_library.option.name') }}</div>
             </div>
           </el-row>
-          <el-divider></el-divider>
+          <el-divider v-if="report.reportType !== 'API_INTEGRATED'"/>
           <el-row type="flex" justify="center" align="middle">
             <el-row type="flex" justify="center" align="middle">
               <div class="metric-box">
@@ -131,6 +131,7 @@
     name: "MsMetricChart",
     components: {MsChart},
     props: {
+      report: Object,
       content: Object,
       totalTime: Number,
       isExport:{
