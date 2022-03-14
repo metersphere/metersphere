@@ -469,6 +469,10 @@ export default {
       } else {
         this.activeName = "default";
       }
+      let index = this.tabs.findIndex(item => item.name === targetName);
+      if (index !== -1) {
+        this.tabs.splice(index, 1);
+      }
     },
     setTabLabel(data) {
       for (const tab of this.tabs) {
