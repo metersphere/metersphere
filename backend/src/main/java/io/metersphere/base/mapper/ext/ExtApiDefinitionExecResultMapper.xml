@@ -121,6 +121,153 @@
             #{id}
         </foreach>
     </select>
+    <select id="list" resultType="io.metersphere.base.domain.ApiDefinitionExecResultExpand">
+        SELECT a_r.name AS test_name,
+        a_r.end_time,
+        a_r.user_id,
+        a_r.name,
+        a_r.id,
+        a_r.project_id,
+        a_r.create_time,
+        a_r.create_time as update_time,
+        a_r.status,
+        a_r.trigger_mode,
+        a_r.report_type,
+        'Saved' as execute_type
+        from api_definition_exec_result a_r
+        where (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
+        <if test="request.combine != null">
+            <include refid="listCombine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+            </include>
+        </if>
+
+        <if test="request.name != null">
+            and a_r.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.userId != null">
+            AND a_r.user_id = #{request.userId,jdbcType=VARCHAR}
+        </if>
+        <if test="request.projectId != null">
+            AND a_r.project_id = #{request.projectId}
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and a_r.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='trigger_mode'">
+                            and a_r.trigger_mode in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='report_type'">
+                            and a_r.report_type in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                ${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <sql id="listCombine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and `name`
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and `name`
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
 
     <update id="update" parameterType="java.util.List">
         update api_definition_exec_result set status="STOP" where id in

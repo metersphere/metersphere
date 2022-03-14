@@ -6,6 +6,14 @@
           <ms-table-header :condition.sync="condition" @search="search"
                            :show-create="false"/>
         </template>
+        <ms-tab-button
+          :active-dom.sync="trashActiveDom"
+          :left-tip="$t('report.api_test_report')"
+          :right-tip="$t('report.scenario_test_report')"
+          :middle-button-enable="false"
+          left-content="CASE"
+          :right-content="$t('commons.scenario')"
+        ></ms-tab-button>
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @select-all="handleSelectAll"
                   @select="handleSelect"
@@ -133,6 +141,7 @@ import {_filter, _sort} from "@/common/js/tableUtils";
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsRequestResultTail from "../../../api/definition/components/response/RequestResultTail";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
 
 export default {
   components: {
@@ -146,6 +155,7 @@ export default {
     ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn"),
     MsRenameReportDialog,
     MsTableColumn,
+    MsTabButton,
     MsRequestResultTail,
   },
   data() {
@@ -175,9 +185,12 @@ export default {
         {text: 'Success', value: 'Success'},
         {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
       ],
-      reportTypeFilters: [
+      reportTypeFilters:[],
+      reportScenarioFilters: [
         {text: this.$t('api_test.scenario.independent') + this.$t('commons.scenario'), value: 'SCENARIO_INDEPENDENT'},
-        {text: this.$t('api_test.scenario.integrated') + this.$t('commons.scenario'), value: 'SCENARIO_INTEGRATED'},
+        {text: this.$t('api_test.scenario.integrated') + this.$t('commons.scenario'), value: 'SCENARIO_INTEGRATED'}
+      ],
+      reportCaseFilters: [
         {text: this.$t('api_test.scenario.independent') + 'case', value: 'API_INDEPENDENT'},
         {text: this.$t('api_test.scenario.integrated') + 'case', value: 'API_INTEGRATED'},
       ],
@@ -200,10 +213,15 @@ export default {
       unSelection: [],
       selectDataCounts: 0,
       screenHeight: 'calc(100vh - 200px)',
+      trashActiveDom:'left'
     }
   },
   watch: {
     '$route': 'init',
+    trashActiveDom(value){
+      this.condition.filters.report_type = [];
+      this.search();
+    }
   },
 
   methods: {
@@ -215,7 +233,14 @@ export default {
       this.selectAll = false;
       this.unSelection = [];
       this.selectDataCounts = 0;
-      let url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
+      let url = ''
+      if(this.trashActiveDom==='right'){
+        this.reportTypeFilters =this.reportScenarioFilters;
+        url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
+      }else{
+        this.reportTypeFilters =this.reportCaseFilters;
+        url = "/api/execute/result/list/" + this.currentPage + "/" + this.pageSize;
+      }
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
