@@ -168,6 +168,7 @@ public class PerformanceTestController {
 
     @PostMapping("/delete/batch")
     @CacheNode
+    @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.DELETE, beforeEvent = "#msClass.deleteBatchLog(#request)", msClass = PerformanceTestService.class)
     public void deleteBatch(@RequestBody DeletePerformanceRequest request) {
         performanceTestService.deleteBatch(request);
     }
