@@ -905,6 +905,7 @@ export default {
   report: {
     id: 'Report ID',
     api_test_report: 'Api Test Report',
+    scenario_test_report: 'Scenario Test Report',
     load_test_report: 'Load Test Report',
     test_plan_report: 'Test Plan Report',
     report_sharing_link: 'Report Sharing Link',

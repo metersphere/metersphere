@@ -38,5 +38,7 @@ public class ApiDefinitionExecResult implements Serializable {
 
     private String content;
 
+    private String reportType;
+
     private static final long serialVersionUID = 1L;
 }
