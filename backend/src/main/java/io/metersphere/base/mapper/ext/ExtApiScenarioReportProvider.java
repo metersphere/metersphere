@@ -1,27 +1,16 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 
 import java.util.List;
 
 public class ExtApiScenarioReportProvider {
     public String insertListSql(List<APIScenarioReportResult> list) {
-        StringBuffer rsqlList = new StringBuffer();
-        rsqlList.append(";").append("insert into api_definition_scenario_relevance ( report_id ) values ");
         StringBuffer sqlList = new StringBuffer();
         sqlList.append("INSERT INTO api_scenario_report (id, project_id, `name`, create_time, update_time, `status`, user_id, trigger_mode," +
                 " execute_type, scenario_name, scenario_id, create_user, actuator, end_time, report_version, version_id, description,report_type) VALUES ");
         for (int i = 0; i < list.size(); i++) {
             APIScenarioReportResult result = list.get(i);
-            rsqlList.append(" (")
-                    .append("'")
-                    .append(result.getId())
-                    .append("'")
-                    .append(")");
-            if (i < list.size() - 1) {
-                rsqlList.append(",");
-            }
             sqlList.append(" (")
                     .append("'")
                     .append(result.getId())
@@ -65,12 +54,6 @@ public class ExtApiScenarioReportProvider {
                 sqlList.append(",");
             }
         }
-        rsqlList.append(";");
-        sqlList.append(";");
-        sqlList.append(rsqlList);
         return sqlList.toString();
     }
-
-
-
 }

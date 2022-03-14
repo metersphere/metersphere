@@ -15,11 +15,9 @@ import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
 import io.metersphere.api.service.TcpApiParamService;
-import io.metersphere.base.domain.ApiDefinitionScenarioRelevance;
 import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiScenario;
-import io.metersphere.base.mapper.ApiDefinitionScenarioRelevanceMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
@@ -88,9 +86,6 @@ public class ApiScenarioExecuteService {
     private TcpApiParamService tcpApiParamService;
     @Resource
     private JMeterService jMeterService;
-    @Resource
-    private ApiDefinitionScenarioRelevanceMapper apiDefinitionScenarioRelevanceMapper;
-
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
         if (LoggerUtil.getLogger().isDebugEnabled()) {
@@ -164,9 +159,6 @@ public class ApiScenarioExecuteService {
             request.getConfig().setAmassReport(serialReportId);
             report.setStatus(APITestStatus.Running.name());
             apiScenarioReportMapper.insert(report);
-            ApiDefinitionScenarioRelevance apiDefinitionScenarioRelevance = new ApiDefinitionScenarioRelevance();
-            apiDefinitionScenarioRelevance.setReportId(report.getId());
-            apiDefinitionScenarioRelevanceMapper.insert(apiDefinitionScenarioRelevance);
 
             responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
             reportStructureService.save(apiScenarios, serialReportId, request.getConfig().getReportType());
@@ -369,11 +361,6 @@ public class ApiScenarioExecuteService {
                 }
             }
             apiScenarioReportMapper.insert(report);
-            if(report.getExecuteType().equals(ExecuteType.Saved.name())){
-                ApiDefinitionScenarioRelevance apiDefinitionScenarioRelevance = new ApiDefinitionScenarioRelevance();
-                apiDefinitionScenarioRelevance.setReportId(report.getId());
-                apiDefinitionScenarioRelevanceMapper.insert(apiDefinitionScenarioRelevance);
-            }
         }
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         // 调用执行方法
