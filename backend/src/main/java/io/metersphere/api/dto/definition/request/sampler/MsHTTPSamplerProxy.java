@@ -633,7 +633,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             });
         }
         try {
-            Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
+            Pattern p = Pattern.compile("(\\{)([\\w-]+)(\\})");
             Matcher m = p.matcher(path);
             while (m.find()) {
                 String group = m.group(2);
