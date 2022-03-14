@@ -138,7 +138,6 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        select * from (
             SELECT s_r.name AS test_name,
             s_r.end_time,
             s_r.user_id,
@@ -196,80 +195,13 @@
                 </foreach>
             </if>
             AND s_r.execute_type = 'Saved'
+            <if test="request.orders != null and request.orders.size() > 0">
+                order by
+                <foreach collection="request.orders" separator="," item="order">
+                    s_r.${order.name} ${order.type}
+                </foreach>
+            </if>
         </where>
-        union all
-        select a_r.name as test_name,
-            a_r.end_time,
-            a_r.user_id,
-            a_r.name,
-            a_r.id,
-            a_r.project_id,
-            a_r.create_time,
-            a_r.create_time as update_time,
-            a_r.status,
-            a_r.trigger_mode,
-            'Saved' as execute_type,
-            'API_INDEPENDENT' as report_type
-        from api_definition_exec_result a_r
-        where (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
-        <if test="request.combine != null">
-            <include refid="listCombine">
-                <property name="condition" value="request.combine"/>
-                <property name="name" value="request.name"/>
-            </include>
-        </if>
-
-        <if test="request.name != null">
-            and a_r.name like CONCAT('%', #{request.name},'%')
-        </if>
-        <if test="request.userId != null">
-            AND a_r.user_id = #{request.userId,jdbcType=VARCHAR}
-        </if>
-        <if test="request.projectId != null">
-            AND a_r.project_id = #{request.projectId}
-        </if>
-        <if test="request.filters != null and request.filters.size() > 0">
-            <foreach collection="request.filters.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key=='status'">
-                            and a_r.status in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                        <when test="key=='trigger_mode'">
-                            and a_r.trigger_mode in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                    </choose>
-                </if>
-            </foreach>
-        </if>
-        ) r
-        where 1 = 1
-        <if test="request.filters != null and request.filters.size() > 0">
-            <foreach collection="request.filters.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key=='report_type'">
-                            and r.report_type in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                    </choose>
-                </if>
-            </foreach>
-        </if>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                r.${order.name} ${order.type}
-            </foreach>
-        </if>
     </select>
 
     <select id="idList" resultType="java.lang.String">

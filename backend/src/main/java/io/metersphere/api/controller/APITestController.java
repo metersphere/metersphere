@@ -12,10 +12,7 @@ import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.ApiTest;
-import io.metersphere.base.domain.Schedule;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.BaseQueryRequest;
@@ -407,6 +404,14 @@ public class APITestController {
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
     public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) throws Exception {
         return apiTestService.getJmxInfoDTO(runRequest, bodyFiles);
+    }
+
+
+    @PostMapping("/execute/result/list/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionExecResultExpand>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setLimit("LIMIT " + (goPage - 1) * pageSize + "," + pageSize * 50);
+        return PageUtils.setPageInfo(page, apiDefinitionExecResultService.exceReportlist(request));
     }
 
 }
