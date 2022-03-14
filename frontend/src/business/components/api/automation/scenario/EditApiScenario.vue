@@ -1785,11 +1785,18 @@ export default {
       this.stepStatus(resourceIds, this.scenarioDefinition);
     },
     handleDeleteBatch() {
-      this.getAllResourceIds().forEach(item => {
-        this.recursionDelete(item, this.scenarioDefinition);
+      this.$alert(this.$t('test_track.module.delete_batch_confirm'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.getAllResourceIds().forEach(item => {
+              this.recursionDelete(item, this.scenarioDefinition);
+            });
+            this.sort();
+            this.forceRerender();
+          }
+        }
       });
-      this.sort();
-      this.forceRerender();
     },
     recursionDelete(resourceId, nodes) {
       for (let i in nodes) {

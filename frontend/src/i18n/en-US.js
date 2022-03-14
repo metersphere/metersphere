@@ -2225,6 +2225,7 @@ export default {
       name: "Name",
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
+      delete_batch_confirm: "Steps to confirm batch deletion of selected scenarios？",
       module: "Module",
       title: "Title",
       describe: "Describe",

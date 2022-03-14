@@ -50,7 +50,7 @@
         </el-tab-pane>
 
         <!--请求体-->
-        <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body" style="overflow: auto">
+        <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body">
           <ms-api-body @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
         </el-tab-pane>
 
