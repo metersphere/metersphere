@@ -31,7 +31,7 @@ export function findThreadGroup(jmxContent, handler) {
   let threadGroups = [], relateFiles = [];
   travel(jmxJson.elements, threadGroups, relateFiles);
 
-  let csvFiles = [];
+  let csvFiles = new Set;
   relateFiles.forEach(f => {
     if (f.attributes.enabled === 'false') {
       return;
@@ -46,7 +46,7 @@ export function findThreadGroup(jmxContent, handler) {
           let split = filename.split('/');
           filename = split[split.length - 1];
         }
-        csvFiles.push(filename);
+        csvFiles.add(filename);
       }
     });
   });
@@ -61,7 +61,7 @@ export function findThreadGroup(jmxContent, handler) {
     tg.handler = handler;
     tg.enabled = tg.attributes.enabled;
     tg.tgType = tg.name;
-    tg.csvFiles = csvFiles;
+    tg.csvFiles = [...csvFiles];
     tg.strategy = 'auto';
     tg.resourceNodeIndex = 0;
     tg.ratios = '';
