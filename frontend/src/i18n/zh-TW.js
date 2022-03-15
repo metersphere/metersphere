@@ -2605,7 +2605,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上傳CSV文件",
-    csv_message: "默認展示2000條，完整的內容可點擊下載查看。",
+    csv_message: "默認展示500條，完整的內容可點擊下載查看。",
     end: "結束",
     start: "開始",
     increment: "增量",
