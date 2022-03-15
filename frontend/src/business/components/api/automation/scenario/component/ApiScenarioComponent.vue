@@ -119,7 +119,6 @@ export default {
   created() {
     if (this.scenario.num) {
       this.isShowNum = true;
-      this.getWorkspaceId(this.scenario.projectId);
     } else {
       this.isShowNum = false;
     }
@@ -134,7 +133,6 @@ export default {
       isShowInput: false,
       isShowNum: false,
       stepFilter: new STEP,
-      dataWorkspaceId: '',
     }
   },
   computed: {
@@ -142,9 +140,6 @@ export default {
       return this.scenario.referenced !== undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF';
 
     },
-    /*projectId() {
-      return getCurrentProjectID();
-    },*/
   },
   methods: {
     run() {
@@ -261,19 +256,32 @@ export default {
 
     },
     clickResource(resource) {
+      let workspaceId;
+      let isTurnSpace = true
+      if(resource.projectId!==getCurrentProjectID()){
+        isTurnSpace = false;
+        this.$get("/project/get/" + resource.projectId, response => {
+          if (response.data) {
+            workspaceId  = response.data.workspaceId;
+            isTurnSpace = true;
+            this.gotoTurn(resource,workspaceId,isTurnSpace);
+          }
+        });
+      }else {
+        this.gotoTurn(resource,workspaceId,isTurnSpace);
+      }
+
+    },
+    gotoTurn(resource,workspaceId,isTurnSpace){
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: this.dataWorkspaceId}
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
       });
-      window.open(automationData.href, '_blank');
-    },
-    getWorkspaceId(projectId) {
-      this.$get("/project/get/" + projectId, response => {
-        if (response.data) {
-          this.dataWorkspaceId = response.data.workspaceId;
-        }
-      });
+      if(isTurnSpace){
+        window.open(automationData.href, '_blank');
+      }
     }
+
   }
 }
 </script>
