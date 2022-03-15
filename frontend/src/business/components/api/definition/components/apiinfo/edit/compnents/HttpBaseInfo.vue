@@ -1,10 +1,8 @@
 <template>
 
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      <slot name="msOptBtnLeft"></slot>
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-      <slot name="msOptBtnRight"></slot>
+    <div v-if="versionEnable">
+      <slot name="rightHeader"></slot>
     </div>
     <el-card class="card-content">
 
@@ -12,7 +10,7 @@
 
         <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
         <!-- 请求方法 -->
-        <el-form-item :label="$t('api_report.request')" prop="method">
+        <el-form-item :label="$t('api_report.request')" prop="request.method">
           <el-select v-model="api.request.method" style="width: 100px" size="small">
             <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
           </el-select>
@@ -24,7 +22,7 @@
         </el-form-item>
 
         <!-- 请求地址 -->
-        <el-form-item prop="path">
+        <el-form-item prop="request.path">
           <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path"
                     class="ms-htt-width"
                     size="small" :disabled="false"/>
@@ -32,10 +30,16 @@
 
         <!-- 操作按钮 -->
         <el-form-item>
-          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                       @command="handleCommand" size="small" v-if="!runLoading">
+          <!--新建接口-->
+          <el-button size="small" type="primary" v-if="apiData.operationType==='create'||apiData.operationType==='edit'"
+                     @click="runTest">
             {{ $t('commons.test') }}
-            <el-dropdown-menu slot="dropdown">
+          </el-button>
+          <!--编辑接口-->
+          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+                       @command="handleCommand" size="small" v-else-if="!runLoading">
+            {{ $t('commons.test') }}
+            <el-dropdown-menu slot="dropdown" v-if="isEdit">
               <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
               </el-dropdown-item>
               <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
@@ -45,6 +49,10 @@
                 }}
               </el-dropdown-item>
               <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
+            </el-dropdown-menu>
+            <el-dropdown-menu slot="dropdown" v-else>
+              <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
 
@@ -63,15 +71,23 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :response="responseData"
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers"
+                             :response="responseData"
                              v-if="loadRequest"
+                             :show-script="false"
                              :request="api.request" ref="apiRequestForm"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail :response="responseData" ref="runResult"/>
+        <div v-if="isEdit">
+          <ms-form-divider :title="$t('api_test.definition.request.res_param')"/>
+          <ms-response-text :response="api.response"/>
+        </div>
+        <div v-else>
+          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+          <ms-request-result-tail :response="responseData" ref="runResult"/>
+        </div>
       </div>
-
+      <api-other-info :api="api" ref="apiOtherInfo"/>
     </el-card>
 
     <!-- 加载用例 -->
@@ -90,18 +106,21 @@
 </template>
 
 <script>
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
-import MsApiCaseList from "../case/ApiCaseList";
-import MsContainer from "../../../../common/components/MsContainer";
-import MsRequestResultTail from "../response/RequestResultTail";
-import MsRun from "../Run";
-import {REQ_METHOD} from "../../model/JsonData";
-import EnvironmentSelect from "../environment/EnvironmentSelect";
+import MsApiRequestForm from "@/business/components/api/definition/components/request/http/ApiHttpRequestForm";
+import {getCurrentUser, getUUID, hasLicense, hasPermission} from "@/common/js/utils";
+import MsApiCaseList from "@/business/components/api/definition/components/case/ApiCaseList";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsRequestResultTail from "@/business/components/api/definition/components/response/RequestResultTail";
+import MsRun from "@/business/components/api/definition/components/Run";
+import {REQ_METHOD} from "@/business/components/api/definition/model/JsonData";
+import EnvironmentSelect from "@/business/components/api/definition/components/environment/EnvironmentSelect";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import MsResponseText from "@/business/components/api/definition/components/response/ResponseText";
+import MsFormDivider from "@/business/components/common/components/MsFormDivider";
+import ApiOtherInfo from "@/business/components/api/definition/components/complete/ApiOtherInfo";
 
 export default {
-  name: "RunTestHTTPPage",
+  name: "HttpBaseInfo",
   components: {
     EnvironmentSelect,
     MsApiRequestForm,
@@ -109,6 +128,9 @@ export default {
     MsContainer,
     MsRequestResultTail,
     MsRun,
+    MsResponseText,
+    MsFormDivider,
+    ApiOtherInfo,
   },
   data() {
     return {
@@ -123,9 +145,8 @@ export default {
       responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
       reqOptions: REQ_METHOD,
       rules: {
-        method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
-        environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
+        'request.method': [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
+        'request.path': [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
       },
       runData: [],
       reportId: "",
@@ -134,7 +155,7 @@ export default {
       versionEnable: false,
     }
   },
-  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String, isEdit: Boolean},
   computed: {
     'api.environmentId'() {
       return this.$store.state.useEnvironment;
@@ -143,6 +164,9 @@ export default {
   watch: {
     '$store.state.useEnvironment': function () {
       this.api.environmentId = this.$store.state.useEnvironment;
+    },
+    responseData() {
+      this.updateRequest();
     }
   },
   methods: {
@@ -205,7 +229,7 @@ export default {
         case "load_case":
           return this.loadCase();
         case "save_as_case":
-          return this.saveAsCase();
+          return this.saveAsNewCase();
         case "update_api":
           return this.updateApi();
         case "save_as_api":
@@ -214,7 +238,65 @@ export default {
           return this.runTest();
       }
     },
+    updateRequest() {
+      if (this.responseData) {
+        let result = this.responseData.responseResult;
+        if (!result) {
+          return;
+        }
+        //解析返回编码
+        if (result.responseCode) {
+          let statusCodeArr = [{
+            enable: true,
+            file: false,
+            name: result.responseCode,
+            required: true,
+            value: result.responseCode
+          }];
+          this.api.response.statusCode = statusCodeArr;
+        }
+        //解析返回请求头
+        if (result.headers) {
+          let headers = result.headers.split("\n");
+          let headerArr = [];
+          headers.forEach(item => {
+            let headerRow = item.split(":");
+            if (headerRow.length >= 2) {
+              let headerKey = headerRow[0];
+              let headerValue = "";
+              for (let i = 1; i < headerRow.length; i++) {
+                headerValue += headerRow[i];
+                if (i !== (headerRow.length - 1)) {
+                  headerValue += ":";
+                }
+              }
+              let headerItem = {enable: true, file: false, name: headerKey, required: true, value: headerValue};
+              headerArr.push(headerItem);
+            }
+          });
+          if (headerArr.length > 0) {
+            this.api.response.headers = headerArr;
+          }
+        }
+        //解析返回体（raw格式）
+        if (this.api.response.body) {
+          this.api.response.body.type = "Raw";
+          this.api.response.body.raw = result.body;
+        }
+      }
+    },
+    validateForm() {
+      let validResult = false;
+      this.$refs['apiData'].validate((valid) => {
+        validResult = valid;
+      });
+      return validResult;
+    },
     runTest() {
+      if (!this.api.environmentId || this.api.environmentId === '') {
+        this.$error(this.$t('workspace.env_group.please_select_env'));
+        return false;
+      }
       this.$refs['apiData'].validate((valid) => {
         if (valid) {
           this.runLoading = true;
@@ -227,6 +309,26 @@ export default {
           this.runData.push(this.api.request);
           /*触发执行操作*/
           this.reportId = getUUID().substring(0, 8);
+        }
+      })
+    },
+    saveAsNewCase() {
+      this.$refs['apiData'].validate((valid) => {
+        if (valid) {
+          let request = this.api.request;
+          request.id = getUUID();
+          this.protocol = this.currentProtocol;
+          this.api.path = request.path;
+          this.api.method = request.method;
+          this.api.id = request.id;
+          this.api.request = request;
+          this.api.userId = getCurrentUser().id;
+          this.api.status = "Underway";
+          this.api.protocol = this.currentProtocol;
+          this.api.saved = true;
+          this.$emit("saveApiAndCase", this.api)
+        } else {
+          return false;
         }
       })
     },
@@ -377,6 +479,9 @@ export default {
       }
       this.runLoading = false;
       this.checkVersionEnable();
+    },
+    getApi() {
+      return this.api;
     }
   },
   created() {
