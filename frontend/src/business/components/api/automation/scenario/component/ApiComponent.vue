@@ -226,7 +226,6 @@ export default {
       environmentMap: this.envMap,
       isShowNum: false,
       response: {},
-      dataWorkspaceId: '',
     }
   },
   created() {
@@ -683,36 +682,20 @@ export default {
     },
 
     clickResource(resource) {
-      if (resource.refType && resource.refType === 'API') {
-        if (resource.protocol === 'dubbo://') {
-          resource.protocol = 'DUBBO'
-        }
-        let definitionData = this.$router.resolve({
-          name: 'ApiDefinition',
-          params: {
-            redirectID: getUUID(),
-            dataType: "api",
-            dataSelectRange: 'edit:' + resource.id,
-            projectId: resource.projectId,
-            type: resource.protocol,
-            workspaceId: this.dataWorkspaceId,
-          }
-        });
-        window.open(definitionData.href, '_blank');
-      } else if (resource.refType && resource.refType === 'CASE') {
-        this.$get("/api/testcase/findById/" + resource.id, response => {
+      let workspaceId;
+      let isTurnSpace = true
+      if(resource.projectId!==getCurrentProjectID()){
+        isTurnSpace = false;
+        this.$get("/project/get/" + resource.projectId, response => {
           if (response.data) {
-            response.data.sourceId = resource.resourceId;
-            response.data.type = resource.type;
-            response.data.refType = resource.refType;
-            response.data.workspaceId = this.dataWorkspaceId;
-            this.clickCase(response.data)
-          } else {
-            this.$error("接口用例场景场景已经被删除");
+            workspaceId  = response.data.workspaceId;
+            isTurnSpace = true;
+            this.gotoTurn(resource,workspaceId,isTurnSpace);
           }
         });
+      }else{
+        this.gotoTurn(resource,workspaceId,isTurnSpace);
       }
-
     },
     clickCase(resource) {
       let uri = getUrl(resource);
@@ -739,16 +722,44 @@ export default {
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
     },
-    getWorkspaceId(projectId) {
-      this.$get("/project/get/" + projectId, response => {
-        if (response.data) {
-          this.dataWorkspaceId = response.data.workspaceId
-        }
-      });
-    },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
     },
+    gotoTurn(resource, workspaceId, isTurnSpace) {
+      if (resource.refType && resource.refType === 'API') {
+        if (resource.protocol === 'dubbo://') {
+          resource.protocol = 'DUBBO'
+        }
+        let definitionData = this.$router.resolve({
+          name: 'ApiDefinition',
+          params: {
+            redirectID: getUUID(),
+            dataType: "api",
+            dataSelectRange: 'edit:' + resource.id,
+            projectId: resource.projectId,
+            type: resource.protocol,
+            workspaceId: workspaceId,
+          }
+        });
+        if(isTurnSpace){
+          window.open(definitionData.href, '_blank');
+        }
+      } else if (resource.refType && resource.refType === 'CASE') {
+        this.$get("/api/testcase/findById/" + resource.id, response => {
+          if (response.data) {
+            response.data.sourceId = resource.resourceId;
+            response.data.type = resource.type;
+            response.data.refType = resource.refType;
+            response.data.workspaceId = workspaceId;
+            if(isTurnSpace){
+              this.clickCase(response.data)
+            }
+          } else {
+            this.$error("接口用例场景场景已经被删除");
+          }
+        });
+      }
+    }
   }
 }
 </script>
