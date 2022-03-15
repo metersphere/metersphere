@@ -213,7 +213,7 @@
         :total="total"/>
     </span>
 
-    <api-case-list @showExecResult="showExecResult" @refreshCase="setRunning" :currentApi="selectCase" ref="caseList"
+    <api-case-list @showExecResult="showExecResult" @refreshCase="setRunning" :currentApi="selectCase" ref="caseList" :test-users="testUsers" :use-external-users="useExternalUsers"
                    @stop="stop" @reLoadCase="initTable"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0"
@@ -445,6 +445,8 @@ export default {
     };
   },
   props: {
+    testUsers:Array,
+    useExternalUsers:Boolean,
     currentProtocol: String,
     currentVersion: String,
     apiDefinitionId: String,

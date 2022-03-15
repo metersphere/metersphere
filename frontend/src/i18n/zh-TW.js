@@ -1265,6 +1265,7 @@ export default {
         extract_param: "提取參數",
         add_module: "創建模塊",
         edit_api: "編輯接口",
+        show_api: "查看接口",
         test_plan_select: "請選擇測試計劃",
         create_info: '創建',
         update_info: '更新',

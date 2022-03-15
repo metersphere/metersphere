@@ -1259,6 +1259,7 @@ export default {
         extract_param: "Extract parameters",
         add_module: "Add module",
         edit_api: "Edit Api",
+        show_api: "Api Info",
         test_plan_select: "Please select test plan",
         create_info: 'Create',
         update_info: 'Update',

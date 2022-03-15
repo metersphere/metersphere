@@ -42,6 +42,12 @@ export default {
     {
       path: "definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?",
       name: "ApiDefinition",
+      // component: () => import('@/business/components/api/definition/ApiDefinition'),
+      component: () => import('@/business/components/api/definition/ApiDefinitionBaseView'),
+    },
+    {
+      path: "oldDefinition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?",
+      name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
