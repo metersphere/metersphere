@@ -20,7 +20,7 @@ CREATE TABLE `ui_scenario_module`
     `pos`          double       DEFAULT NULL,
     `create_user` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE `ui_scenario`
 (
@@ -62,7 +62,7 @@ CREATE TABLE `ui_scenario`
     PRIMARY KEY (`id`),
     KEY                     `ui_scenario_ref_id_index` (`ref_id`),
     KEY                     `ui_scenario_version_id_index` (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE `ui_element_module`
 (
@@ -76,7 +76,7 @@ CREATE TABLE `ui_element_module`
     `pos`          double       DEFAULT NULL,
     `create_user` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE `ui_element` (
   `id` varchar(50) NOT NULL COMMENT 'Ui element ID',
@@ -96,7 +96,7 @@ CREATE TABLE `ui_element` (
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   PRIMARY KEY (`id`),
   KEY `ui_element_order_index` (`order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- ui 自动化引用关系表
 CREATE TABLE `ui_scenario_reference` (
@@ -109,4 +109,4 @@ CREATE TABLE `ui_scenario_reference` (
  `data_type` varchar(255) DEFAULT NULL,
  PRIMARY KEY (`id`),
  KEY `ui_scenario_id_idx` (`ui_scenario_id`)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
