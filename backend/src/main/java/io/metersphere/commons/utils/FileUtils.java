@@ -5,6 +5,7 @@ import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.JarConfigService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.CSVDataSet;
@@ -117,6 +118,64 @@ public class FileUtils {
             });
         }
     }
+
+
+    public static void copyBodyFiles(String sourceId, String targetId) {
+        try {
+            String sourcePath = BODY_FILE_DIR + "/" + sourceId;
+            String targetPath = BODY_FILE_DIR + "/" + targetId;
+            copyFolder(sourcePath, targetPath);
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        }
+    }
+
+    /**
+     * 复制文件夹(使用缓冲字节流)
+     *
+     * @param sourcePath 源文件夹路径
+     * @param targetPath 目标文件夹路径
+     */
+    public static void copyFolder(String sourcePath, String targetPath) {
+        //源文件夹路径
+        File sourceFile = new File(sourcePath);
+        //目标文件夹路径
+        File targetFile = new File(targetPath);
+
+        if (!sourceFile.exists() || !sourceFile.isDirectory()) {
+            return;
+        }
+        if (!targetFile.exists()) {
+            targetFile.mkdirs();
+        }
+
+        File[] files = sourceFile.listFiles();
+        if (files == null || files.length == 0) {
+            return;
+        }
+
+        for (File file : files) {
+            //文件要移动的路径
+            String movePath = targetFile + File.separator + file.getName();
+            if (file.isDirectory()) {
+                //如果是目录则递归调用
+                copyFolder(file.getAbsolutePath(), movePath);
+            } else {
+                //如果是文件则复制文件
+                try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+                     BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(movePath))) {
+                    byte[] b = new byte[1024];
+                    int temp = 0;
+                    while ((temp = in.read(b)) != -1) {
+                        out.write(b, 0, temp);
+                    }
+                } catch (Exception e) {
+                    LoggerUtil.error(e);
+                }
+            }
+        }
+    }
+
 
     public static File getFileByName(String name) {
         String path = BODY_FILE_DIR + "/" + name;
