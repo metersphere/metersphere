@@ -660,8 +660,8 @@ ALTER TABLE api_definition_exec_result
     ADD report_type varchar(100) DEFAULT 'API_INDEPENDENT' NOT NULL COMMENT '报告类型';
 
 insert into api_definition_exec_result(id, name,resource_id,create_time,status,user_id,trigger_mode,start_time,end_time,actuator,report_type,version_id,project_id)
-select id, name, id ,create_time,status,user_id,trigger_mode,create_time,end_time,actuator,report_type,version_id,project_id
-from api_scenario_report where execute_type = 'Saved' and report_type = 'API_INTEGRATED';
+select id, name, id ,create_time,status,user_id,trigger_mode,create_time,IF(end_time is null,update_time,end_time),actuator,report_type,version_id,project_id
+from api_scenario_report where execute_type = 'Saved' and report_type = 'API_INTEGRATED' and end_time is not null ;
 
 
 delete from api_scenario_report where report_type = 'API_INTEGRATED';
