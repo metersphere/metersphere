@@ -226,7 +226,7 @@ export default {
       let expect = jsonItem.expect;
       if (expect) {
         expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
-          .replaceAll('+', "\\+").replaceAll('.', "\\.").replaceAll('[', "\\[").replaceAll(']', "\\]")
+          .replaceAll('+', "\\+").replaceAll('[', "\\[").replaceAll(']', "\\]")
           .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
           .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
       }
