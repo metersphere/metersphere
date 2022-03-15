@@ -13,7 +13,7 @@
 
       <ms-table
         v-loading="result.loading"
-        :data="mockConfigData.mockExpectConfigList.filter(data=>!tableSearch || data.name.toLowerCase().includes(tableSearch.toLowerCase()))"
+        :data="filterMockData()"
         :operators="operators"
         :page-size="pageSize"
         :showSelectAll="false"
@@ -72,9 +72,10 @@
         </ms-table-column>
       </ms-table>
     </div>
-    <mock-edit-drawer :is-tcp="isTcp" :api-id="this.baseMockConfigData.mockConfig.apiId"
+    <mock-edit-drawer :is-tcp="isTcp" :api-id="apiId"
                       :api-params="apiParams"
                       @refreshMockInfo="refreshMockInfo"
+                      v-if="mockConfigData && mockConfigData.mockConfig && mockConfigData.mockConfig.id"
                       :mock-config-id="mockConfigData.mockConfig.id" ref="mockEditDrawer"/>
   </div>
 </template>
@@ -95,7 +96,8 @@ export default {
   },
   props: {
     baseMockConfigData: {},
-    versionName:String,
+    versionName: String,
+    apiId: String,
     isTcp: {
       type: Boolean,
       default: false,
@@ -151,6 +153,14 @@ export default {
     },
   },
   methods: {
+    filterMockData() {
+      if (this.mockConfigData && this.mockConfigData.mockExpectConfigList) {
+        return this.mockConfigData.mockExpectConfigList.filter(
+          data => !this.tableSearch || data.name.toLowerCase().includes(this.tableSearch.toLowerCase()))
+      } else {
+        return [];
+      }
+    },
     redirectToTest(row) {
       let requestParam = null;
       if (row && row.request) {
