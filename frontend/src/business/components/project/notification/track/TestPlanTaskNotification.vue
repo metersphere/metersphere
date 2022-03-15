@@ -268,7 +268,7 @@ export default {
           label: this.$t('report.plan_share_url'),
           value: 'planShareUrl',
         },
-      ]
+      ],
     };
   },
   activated() {
