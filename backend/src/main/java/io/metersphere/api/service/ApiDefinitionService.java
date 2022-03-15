@@ -304,8 +304,13 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
+        if (StringUtils.isNotEmpty(request.getSourceId())) {
+            // 检查附件复制出附件
+            FileUtils.copyBodyFiles(request.getSourceId(), request.getId());
+        } else {
+            FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        }
         ApiDefinitionWithBLOBs returnModel = createTest(request);
-        FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         return returnModel;
     }
 
@@ -1986,6 +1991,7 @@ public class ApiDefinitionService {
         try {
             for (int i = 0; i < apis.size(); i++) {
                 ApiDefinitionWithBLOBs api = apis.get(i);
+                String sourceId = api.getId();
                 api.setId(UUID.randomUUID().toString());
                 api.setName(ServiceUtils.getCopyName(api.getName()));
                 api.setModuleId(request.getModuleId());
@@ -1995,6 +2001,9 @@ public class ApiDefinitionService {
                 api.setCreateTime(System.currentTimeMillis());
                 api.setUpdateTime(System.currentTimeMillis());
                 api.setRefId(api.getId());
+                // 检查附件复制出附件
+                FileUtils.copyBodyFiles(sourceId, api.getId());
+
                 mapper.insert(api);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
