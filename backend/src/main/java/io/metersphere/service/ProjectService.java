@@ -278,6 +278,7 @@ public class ProjectService {
     /**
      * 把原来为系统模板的项目模板设置成新的模板
      * 只设置改工作空间下的
+     *
      * @param originId
      * @param templateId
      * @param workspaceId
@@ -312,10 +313,10 @@ public class ProjectService {
             }
         });
         //删除分享报告时间
-        delReportTime(projectId,"PERFORMANCE");
+        delReportTime(projectId, "PERFORMANCE");
     }
 
-    private void delReportTime(String projectId,String type) {
+    private void delReportTime(String projectId, String type) {
         ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
         projectApplicationExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
         projectApplicationMapper.deleteByExample(projectApplicationExample);
@@ -330,7 +331,7 @@ public class ProjectService {
         }
         testCaseService.deleteTestCaseByProjectId(projectId);
         //删除分享报告时间
-        delReportTime(projectId,"TRACK");
+        delReportTime(projectId, "TRACK");
     }
 
     private void deleteAPIResourceByProjectId(String projectId) {
@@ -343,8 +344,6 @@ public class ProjectService {
             apiTestService.delete(deleteAPITestRequest);
         });
     }
-
-
 
 
     public void updateProject(Project project) {
@@ -529,7 +528,7 @@ public class ProjectService {
 
     public Project getProjectById(String id) {
         Project project = projectMapper.selectByPrimaryKey(id);
-        if(project != null){
+        if (project != null) {
             String createUser = project.getCreateUser();
             if (StringUtils.isNotBlank(createUser)) {
                 User user = userMapper.selectByPrimaryKey(createUser);
@@ -894,10 +893,10 @@ public class ProjectService {
 
     public void checkProjectIsRepeatable(String projectId) {
         Project project = this.getProjectById(projectId);
-        if(project == null){
+        if (project == null) {
             MSException.throwException(Translator.get("cannot_find_project"));
-        }else {
-            if(!project.getRepeatable()){
+        } else {
+            if (project.getRepeatable() == null || !project.getRepeatable()) {
                 MSException.throwException(Translator.get("project_repeatable_is_false"));
             }
         }
