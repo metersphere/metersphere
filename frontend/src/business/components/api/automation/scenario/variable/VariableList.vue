@@ -354,7 +354,7 @@
         this.$emit('setVariables', saveVariables, this.headers);
       },
       addVariable() {
-        this.editData = {delimiter: ",", quotedData: 'false', files: []};
+        this.editData = {delimiter: ",", quotedData: 'false', files: [], fileResource: 'local', repositoryBranch: 'master'};
         this.editData.type = this.selectType;
         this.showDelete = false;
         this.$refs.variableTable.cancelCurrentRow();
