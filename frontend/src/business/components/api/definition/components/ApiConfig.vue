@@ -270,6 +270,7 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.reqUrl = "/api/definition/update";
         this.currentApi.isCopy = false;
+        this.currentApi.sourceId = "";
         // 创建了新版本的api，之后id变了，ref_id 保存了原始id
         data.id = response.data.id;
         data.remark = response.data.remark;
@@ -302,7 +303,9 @@ export default {
         data.request.protocol = this.currentProtocol;
       }
       if (data.isCopy) {
+        data.sourceId = data.id;
         data.id = getUUID();
+        data.request.id = data.id;
       } else {
         if (data.id) {
           data.request.id = data.id;
