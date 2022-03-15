@@ -86,7 +86,7 @@
 <!--            <ignoreColumn column="clean_load_report_expr"/>-->
 <!--            <ignoreColumn column="repeatable"/>-->
 <!--        </table>-->
-        <table tableName="api_test_environment">
+        <table tableName="api_definition_exec_result">
 
         </table>
         <!--<table tableName="enterprise_test_report_send_record"/>-->

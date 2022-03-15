@@ -17,6 +17,7 @@
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="integrated_report_id" jdbcType="VARCHAR" property="integratedReportId" />
+    <result column="report_type" jdbcType="VARCHAR" property="reportType" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionExecResult">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -81,7 +82,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, resource_id, `status`, user_id, start_time, end_time, create_time, `type`, 
-    actuator, trigger_mode, error_code, version_id, project_id, integrated_report_id
+    actuator, trigger_mode, error_code, version_id, project_id, integrated_report_id, 
+    report_type
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -140,13 +142,13 @@
       end_time, create_time, `type`, 
       actuator, trigger_mode, error_code, 
       version_id, project_id, integrated_report_id, 
-      content)
+      report_type, content)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, 
       #{actuator,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{errorCode,jdbcType=VARCHAR}, 
       #{versionId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{integratedReportId,jdbcType=VARCHAR}, 
-      #{content,jdbcType=LONGVARCHAR})
+      #{reportType,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result
@@ -195,6 +197,9 @@
       </if>
       <if test="integratedReportId != null">
         integrated_report_id,
+      </if>
+      <if test="reportType != null">
+        report_type,
       </if>
       <if test="content != null">
         content,
@@ -245,6 +250,9 @@
       </if>
       <if test="integratedReportId != null">
         #{integratedReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportType != null">
+        #{reportType,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -305,6 +313,9 @@
       <if test="record.integratedReportId != null">
         integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR},
       </if>
+      <if test="record.reportType != null">
+        report_type = #{record.reportType,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -330,6 +341,7 @@
       version_id = #{record.versionId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR},
+      report_type = #{record.reportType,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -351,7 +363,8 @@
       error_code = #{record.errorCode,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR}
+      integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR},
+      report_type = #{record.reportType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -401,6 +414,9 @@
       <if test="integratedReportId != null">
         integrated_report_id = #{integratedReportId,jdbcType=VARCHAR},
       </if>
+      <if test="reportType != null">
+        report_type = #{reportType,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -423,6 +439,7 @@
       version_id = #{versionId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       integrated_report_id = #{integratedReportId,jdbcType=VARCHAR},
+      report_type = #{reportType,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -441,7 +458,8 @@
       error_code = #{errorCode,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
-      integrated_report_id = #{integratedReportId,jdbcType=VARCHAR}
+      integrated_report_id = #{integratedReportId,jdbcType=VARCHAR},
+      report_type = #{reportType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

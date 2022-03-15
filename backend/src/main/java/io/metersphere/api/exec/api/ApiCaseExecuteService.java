@@ -2,8 +2,6 @@ package io.metersphere.api.exec.api;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ApiCaseRunRequest;
-import io.metersphere.api.dto.automation.APIScenarioReportResult;
-import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
@@ -18,7 +16,10 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ReportTypeConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -211,19 +212,16 @@ public class ApiCaseExecuteService {
         if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
                 && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             serialReportId = UUID.randomUUID().toString();
-            APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), null, request.getConfig().getReportName(),
-                    ReportTriggerMode.BATCH.name(), ExecuteType.Saved.name(), request.getProjectId(),
-                    null, request.getConfig());
-            report.setVersionId(caseList.get(0).getVersionId());
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(null, APITestStatus.Running.name(), serialReportId, request.getConfig());
             report.setName(request.getConfig().getReportName());
-            report.setTestName(request.getConfig().getReportName());
-            report.setId(serialReportId);
+            report.setProjectId(request.getProjectId());
             report.setReportType(ReportTypeConstants.API_INTEGRATED.name());
-            request.getConfig().setAmassReport(serialReportId);
-            report.setStatus(APITestStatus.Running.name());
-            apiScenarioReportMapper.insert(report);
+            report.setVersionId(caseList.get(0).getVersionId());
+            Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
+            executeQueue.put(serialReportId, report);
 
             apiScenarioReportStructureService.save(serialReportId, new ArrayList<>());
+            apiCaseResultService.batchSave(executeQueue);
         }
 
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
