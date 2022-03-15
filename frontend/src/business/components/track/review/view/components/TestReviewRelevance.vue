@@ -1,9 +1,15 @@
 <template>
   <div>
     <el-dialog :title="$t('test_track.review_view.relevance_case')" :visible.sync="dialogFormVisible" @close="close"
-               width="60%"
+               width="75%"
                :close-on-click-modal="false"
-               top="50px">
+               top="50px" :destroy-on-close="true"
+               append-to-body>
+
+      <template slot="title" :slot-scope="$t('test_track.review_view.relevance_case')" v-if="!$slots.headerBtn">
+        <ms-dialog-header :title="$t('test_track.review_view.relevance_case')" @cancel="dialogFormVisible = false"
+                          @confirm="saveReviewRelevance"/>
+      </template>
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="270px">
@@ -29,15 +35,16 @@
                 <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
               </template>
             </ms-table-header>
-            <el-table :data="testReviews" @mouseleave.passive="leave" v-el-table-infinite-scroll="scrollLoading"
+            <ms-table :data="testReviews"
                       @filter-change="filter" row-key="id"
-                      @select-all="handleSelectAll"
-                      @select="handleSelectionChange"
                       v-loading="result.loading"
-                      height="50vh"
+                      height="100vh - 270px"
+                      :total="total"
+                      :page-size.sync="pageSize"
+                      @handlePageChange="getReviews"
+                      @refresh="getReviews"
+                      :condition="condition"
                       ref="table">
-
-              <el-table-column type="selection"/>
 
               <el-table-column
                 prop="name"
@@ -92,16 +99,14 @@
                 </template>
               </el-table-column>
 
-            </el-table>
-            <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
-            <div style="text-align: center">{{$t('test_track.total_size', [total])}}</div>
+            </ms-table>
+            <ms-table-pagination :change="getReviews" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                                 :total="total"/>
+
           </el-main>
         </el-container>
       </el-container>
 
-      <template v-slot:footer>
-        <ms-dialog-footer @cancel="dialogFormVisible = false" @confirm="saveReviewRelevance"/>
-      </template>
 
     </el-dialog>
 
@@ -124,8 +129,12 @@ import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-com
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import elTableInfiniteScroll from 'el-table-infinite-scroll';
 import SelectMenu from "../../../common/SelectMenu";
-import {_filter} from "@/common/js/tableUtils";
+import {_filter, initCondition} from "@/common/js/tableUtils";
 import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
+import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
+import MsTable from "@/business/components/common/components/table/MsTable";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
@@ -144,6 +153,9 @@ export default {
     SwitchProject,
     ReviewStatus,
     'VersionSelect': VersionSelect.default,
+    MsTablePagination,
+    MsDialogHeader,
+    MsTable
   },
   directives: {
     'el-table-infinite-scroll': elTableInfiniteScroll
@@ -165,7 +177,7 @@ export default {
       projectId: '',
       projectName: '',
       projects: [],
-      pageSize: 50,
+      pageSize: 10,
       currentPage: 1,
       total: 0,
       lineStatus: true,
@@ -225,17 +237,18 @@ export default {
     openTestReviewRelevanceDialog() {
       this.getProject();
       this.dialogFormVisible = true;
+      this.getProjectNode(this.projectId);
     },
     saveReviewRelevance() {
       let param = {};
       param.reviewId = this.reviewId;
-      param.testCaseIds = [...this.selectIds];
+      param.testCaseIds = this.$refs.table.selectIds;
       param.request = this.condition;
       /*
               param.checked = this.checked;
       */
       // 选择全选则全部加入到评审，无论是否加载完全部
-      if (this.testReviews.length === param.testCaseIds.length) {
+      if (this.condition.selectAll) {
         param.testCaseIds = ['all'];
       }
       this.result = this.$post('/test/case/review/relevance', param, () => {
@@ -257,51 +270,18 @@ export default {
       } else {
         this.condition.nodeIds = [];
       }
+      initCondition(this.condition, this.condition.selectAll);
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.result = this.$post(this.buildPagePath('/test/case/reviews/case'), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
-          let tableData = data.listObject;
-          tableData.forEach(item => {
-            item.checked = false;
-          });
-          flag ? this.testReviews = tableData : this.testReviews = this.testReviews.concat(tableData);
-          // 去重处理
-          let hash = {}
-          this.testReviews = this.testReviews.reduce((item, next) => {
-            if (!hash[next.id]) {
-              hash[next.id] = true
-              item.push(next)
-            }
-            return item
-          }, [])
-          this.lineStatus = tableData.length === 50 && this.testReviews.length < this.total;
-
+          this.testReviews = data.listObject;
         });
       }
 
     },
-    handleSelectAll(selection) {
-      if (selection.length > 0) {
-        this.testReviews.forEach(item => {
-          this.selectIds.add(item.id);
-        });
-      } else {
-        this.testReviews.forEach(item => {
-          if (this.selectIds.has(item.id)) {
-            this.selectIds.delete(item.id);
-          }
-        });
-      }
-    },
-    handleSelectionChange(selection, row) {
-      if (this.selectIds.has(row.id)) {
-        this.selectIds.delete(row.id);
-      } else {
-        this.selectIds.add(row.id);
-      }
-    },
+
     nodeChange(node, nodeIds, nodeNames) {
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
@@ -325,6 +305,7 @@ export default {
       this.selectIds.clear();
       this.selectNodeIds = [];
       this.selectNodeNames = [];
+      this.dialogFormVisible = false;
     },
     filter(filters) {
       _filter(filters, this.condition);
@@ -362,12 +343,6 @@ export default {
     },
     switchProject() {
       this.$refs.switchProject.open({id: this.reviewId, url: '/test/case/review/project/', type: 'review'});
-    },
-    scrollLoading() {
-      if (this.dialogFormVisible && this.lineStatus) {
-        this.currentPage += 1;
-        this.getReviews();
-      }
     },
     search() {
       this.currentPage = 1;
