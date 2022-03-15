@@ -664,25 +664,24 @@ export default {
     },
     stop() {
       if (this.reportId) {
+        this.debugLoading = false;
+        try {
+          if (this.messageWebSocket) {
+            this.messageWebSocket.close();
+          }
+          if (this.websocket) {
+            this.websocket.close();
+          }
+        } catch (e) {
+          this.debugLoading = false;
+        }
+        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+        this.clearDebug();
+        this.runScenario = undefined;
+        this.$success(this.$t('report.test_stop_success'));
         let url = "/api/automation/stop/" + this.reportId;
         this.$get(url, response => {
-          this.debugLoading = false;
-          try {
-            if (this.websocket) {
-              this.websocket.close();
-            }
-            if (this.messageWebSocket) {
-              this.messageWebSocket.close();
-            }
-            this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
-            this.clearDebug();
-            this.$success(this.$t('report.test_stop_success'));
-            this.showHide();
-          } catch (e) {
-            this.debugLoading = false;
-          }
         });
-        this.runScenario = undefined;
       }
     },
     clearDebug() {
@@ -1492,7 +1491,6 @@ export default {
             });
           }
           this.loading = false;
-          this.setDomain();
           this.sort();
           // 初始化resourceId
           if (this.scenarioDefinition) {
