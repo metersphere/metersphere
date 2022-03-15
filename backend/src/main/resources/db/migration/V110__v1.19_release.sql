@@ -21,6 +21,7 @@ BEGIN
     #遍历游标
     REPEAT
         #利用取到的值进行数据库的操作
+        DELETE FROM project_application WHERE project_id = projectId AND type = 'API_SHARE_REPORT_TIME';
         INSERT INTO project_application (project_id, type, type_value)
         VALUES (projectId, 'API_SHARE_REPORT_TIME', '24H');
         # 将游标中的值再赋值给变量，供下次循环使用
