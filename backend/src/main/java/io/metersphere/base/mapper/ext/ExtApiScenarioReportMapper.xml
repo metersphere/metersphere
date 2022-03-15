@@ -112,22 +112,25 @@
             s_r.trigger_mode,
             s_r.execute_type,
             s_r.report_type
-        FROM api_scenario_report s_r
-        union
-            select a_r.name as test_name,
-            a_r.end_time,
-            a_r.user_id,
-            a_r.name,
-            a_r.id,
-            a_r.project_id,
-            a_r.create_time,
-            a_r.create_time as update_time,
-            a_r.status,
-            a_r.trigger_mode,
-            'Saved' as execute_type,
-            'API_INDEPENDENT' as report_type
-            from api_definition_exec_result a_r
-            where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
+            FROM api_scenario_report s_r
+
+            <if test="request.reportType == null || request.reportType == ''">
+                union
+                select a_r.name as test_name,
+                a_r.end_time,
+                a_r.user_id,
+                a_r.name,
+                a_r.id,
+                a_r.project_id,
+                a_r.create_time,
+                a_r.create_time as update_time,
+                a_r.status,
+                a_r.trigger_mode,
+                'Saved' as execute_type,
+                'API_INDEPENDENT' as report_type
+                from api_definition_exec_result a_r
+                where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
+            </if>
         ) r
         <where>
             <if test="request.combine != null">
@@ -146,6 +149,11 @@
             <if test="request.projectId != null">
                 AND r.project_id = #{request.projectId}
             </if>
+
+            <if test="request.reportType != null and request.reportType != ''">
+                and r.report_type like CONCAT(#{request.reportType},'%')
+            </if>
+
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">

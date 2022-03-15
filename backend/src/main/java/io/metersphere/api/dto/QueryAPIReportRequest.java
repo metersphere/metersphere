@@ -16,6 +16,7 @@ public class QueryAPIReportRequest {
     private String name;
     private String workspaceId;
     private String userId;
+    private String reportType;
     private boolean recent = false;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;

@@ -148,6 +148,9 @@ export default {
     MsTableColumn,
     MsRequestResultTail,
   },
+  props: {
+    reportType: String
+  },
   data() {
     return {
       result: {},
@@ -205,7 +208,11 @@ export default {
   watch: {
     '$route': 'init',
   },
-
+  computed: {
+    isUI() {
+      return this.reportType && this.reportType === 'UI';
+    }
+  },
   methods: {
     search() {
       if (this.testId !== 'all') {
@@ -215,6 +222,9 @@ export default {
       this.selectAll = false;
       this.unSelection = [];
       this.selectDataCounts = 0;
+
+      this.condition.reportType = this.reportType;
+
       let url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;
