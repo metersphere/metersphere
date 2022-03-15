@@ -16,6 +16,7 @@
             <ms-metric-chart
               :content="content"
               :totalTime="totalTime"
+              :report="report"
               v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
