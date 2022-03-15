@@ -2621,7 +2621,7 @@ export default {
   },
   variables: {
     ƒ: "Only CSV files can be uploaded",
-    csv_message: "2000 items are displayed by default, and the complete content can be downloaded and viewed.",
+    csv_message: "500 items are displayed by default, and the complete content can be downloaded and viewed.",
     end: "end",
     start: "start",
     increment: "increment",
