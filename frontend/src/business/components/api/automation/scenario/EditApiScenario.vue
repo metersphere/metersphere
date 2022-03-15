@@ -144,7 +144,7 @@
                                  @setProjectEnvMap="setProjectEnvMap" @setEnvGroup="setEnvGroup"
                                  @showPopover="showPopover" :has-option-group="true"
                                  ref="envPopover" class="ms-message-right"/>
-                    <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
+                    <el-tooltip v-if="!debugLoading && showDebug" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                         {{ $t('api_test.request.debug') }}
                         <el-dropdown-menu slot="dropdown">
@@ -152,7 +152,7 @@
                         </el-dropdown-menu>
                       </el-dropdown>
                     </el-tooltip>
-                    <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+                    <el-button size="mini" type="primary" v-else-if="showDebug" @click="stop">{{ $t('report.stop_btn') }}</el-button>
                     <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
                       <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
                                  v-prevent-re-click @click="getApiScenario"></el-button>
@@ -482,7 +482,8 @@ export default {
       scenarioDefinition: [],
       scenarioDefinitionOrg: [],
       path: "/api/automation/create",
-      repositoryPath: "/repository/api/automation/create",
+      repositoryCreatePath: "/repository/api/automation/create",
+      repositoryUpdatePath: "/repository/api/automation/update",
       debugData: {},
       reportId: "",
       enableCookieShare: false,
@@ -534,7 +535,8 @@ export default {
       oldScenarioDefinition: [],
       currentItem: {},
       pluginDelStep: false,
-      showXpackCompnent: false
+      showXpackCompnent: false,
+      showDebug: true
     }
   },
   watch: {
@@ -965,11 +967,16 @@ export default {
       return index - 0.33
     },
     setVariables(v, headers) {
+      if (this.showXpackCompnent) {
+        this.showDebug = false;
+      }
       this.currentScenario.variables = v;
       this.currentScenario.headers = headers;
       if (this.path.endsWith("/update")) {
         // 直接更新场景防止编辑内容丢失
         this.editScenario();
+      } else {
+        this.showDebug = true;
       }
       if (this.$refs.maximizeHeader) {
         this.$refs.maximizeHeader.getVariableSize();
@@ -1378,8 +1385,11 @@ export default {
                 this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
               }
             }
+            if (this.path.endsWith("/update") && this.showXpackCompnent) {
+              this.path = this.repositoryUpdatePath;
+            }
             if (this.path.endsWith("/create") && this.showXpackCompnent) {
-              this.path = this.repositoryPath;
+              this.path = this.repositoryCreatePath;
             }
             saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
@@ -1399,6 +1409,7 @@ export default {
               }
               this.$emit('refresh', this.currentScenario);
               this.pluginDelStep = false;
+              this.showDebug = true;
               resolve();
             });
           }
