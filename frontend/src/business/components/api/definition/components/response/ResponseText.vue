@@ -56,7 +56,6 @@
         this.isActive = !this.isActive;
       },
     },
-
     mounted() {
       if (!this.response.headers) {
         return;
