@@ -664,3 +664,5 @@ from api_scenario_report where execute_type = 'Saved' and report_type = 'API_INT
 
 
 delete from api_scenario_report where report_type = 'API_INTEGRATED';
+
+ALTER TABLE api_definition MODIFY COLUMN path varchar(1000);
