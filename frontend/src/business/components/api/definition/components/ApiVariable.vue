@@ -318,7 +318,7 @@ export default {
 }
 
 .kv-select {
-  width: 50%;
+  width: 30%;
 }
 
 .el-autocomplete {
