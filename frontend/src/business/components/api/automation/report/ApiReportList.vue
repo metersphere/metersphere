@@ -3,17 +3,26 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search"
-                           :show-create="false"/>
+          <ms-table-header :condition.sync="condition" @search="search" :show-create="false">
+            <template v-slot:button>
+              <el-button-group>
+
+                <el-tooltip class="item" effect="dark" content="left" :disabled="true" placement="left">
+                  <el-button plain :class="{active: leftActive}" @click="changeTab('left')">{{$t('commons.scenario')}}</el-button>
+                </el-tooltip>
+
+                <el-tooltip class="item" effect="dark" content="right" :disabled="true" placement="right">
+                  <el-button plain :class="{active: rightActive}" @click="changeTab('right')">
+                    {{$t('api_test.definition.request.case')}}
+                  </el-button>
+                </el-tooltip>
+
+              </el-button-group>
+            </template>
+          </ms-table-header>
         </template>
-        <ms-tab-button
-          :active-dom.sync="trashActiveDom"
-          :left-tip="$t('report.api_test_report')"
-          :right-tip="$t('report.scenario_test_report')"
-          :middle-button-enable="false"
-          left-content="CASE"
-          :right-content="$t('commons.scenario')"
-        ></ms-tab-button>
+
+
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @select-all="handleSelectAll"
                   @select="handleSelect"
@@ -158,6 +167,14 @@ export default {
     MsTabButton,
     MsRequestResultTail,
   },
+  computed: {
+    leftActive() {
+      return this.trashActiveDom === 'left';
+    },
+    rightActive() {
+      return this.trashActiveDom === 'right';
+    },
+  },
   data() {
     return {
       result: {},
@@ -234,7 +251,7 @@ export default {
       this.unSelection = [];
       this.selectDataCounts = 0;
       let url = ''
-      if(this.trashActiveDom==='right'){
+      if(this.trashActiveDom==='left'){
         this.reportTypeFilters =this.reportScenarioFilters;
         url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
       }else{
@@ -386,7 +403,10 @@ export default {
         this.init();
         this.$refs.renameDialog.close();
       });
-    }
+    },
+    changeTab(tabType){
+      this.trashActiveDom = tabType;
+    },
   },
 
   created() {
@@ -398,5 +418,16 @@ export default {
 <style scoped>
 .table-content {
   width: 100%;
+}
+.active {
+  border: solid 1px #6d317c!important;
+  background-color: var(--primary_color)!important;
+  color: #FFFFFF!important;
+}
+
+.item{
+  height: 32px;
+  padding: 5px 8px;
+  border: solid 1px var(--primary_color);
 }
 </style>
