@@ -78,6 +78,16 @@
                 <property name="object" value="${condition}.reviewStatus"/>
             </include>
         </if>
+        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                and test_case.id in (
+                    select resource_id from custom_field_test_case where field_id = #{custom.id}
+                    and trim(both '"' from value)
+                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                        <property name="object" value="custom"/>
+                    </include>)
+            </foreach>
+        </if>
     </sql>
     <update id="updateTestCaseCustomNumByProjectId">
         update test_case set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
