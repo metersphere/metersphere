@@ -611,7 +611,9 @@ export default {
             let data = JSON.parse(res.data);
             if (data.hashTree) {
               this.sort(data.hashTree);
-              this.scenarioDefinition = data.hashTree;
+              let domainMap = new Map();
+              this.getEnvDomain(data.hashTree, domainMap);
+              this.margeDomain(this.scenarioDefinition, domainMap);
               if (this.$store.state.currentApiCase) {
                 this.$store.state.currentApiCase.resetDataSource = getUUID();
               } else {
@@ -621,6 +623,27 @@ export default {
           }
         })
       }
+    },
+    margeDomain(array, map) {
+      array.forEach(item => {
+        if (item && map.has(item.resourceId)) {
+          item.domain = map.get(item.resourceId);
+          item.resourceId = getUUID();
+        }
+        if (item && item.hashTree && item.hashTree.length > 0) {
+          this.margeDomain(item.hashTree, map);
+        }
+      })
+    },
+    getEnvDomain(array, map) {
+      array.forEach(item => {
+        if (item && item.resourceId && item.domain) {
+          map.set(item.resourceId, item.domain);
+        }
+        if (item && item.hashTree && item.hashTree.length > 0) {
+          this.getEnvDomain(item.hashTree, map);
+        }
+      })
     },
     initPlugins() {
       if (this.plugins) {
