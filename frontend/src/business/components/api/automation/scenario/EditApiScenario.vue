@@ -692,7 +692,9 @@ export default {
             let data = JSON.parse(res.data);
             if (data.hashTree) {
               this.sort(data.hashTree);
-              Object.assign(this.scenarioDefinition, data.hashTree)
+              let domainMap = new Map();
+              this.getEnvDomain(data.hashTree, domainMap);
+              this.margeDomain(this.scenarioDefinition, domainMap);
               this.cancelBatchProcessing();
               if (this.$store.state.currentApiCase) {
                 this.$store.state.currentApiCase.resetDataSource = getUUID();
@@ -703,6 +705,27 @@ export default {
           }
         })
       }
+    },
+    margeDomain(array, map) {
+      array.forEach(item => {
+        if (item && map.has(item.resourceId)) {
+          item.domain = map.get(item.resourceId);
+          item.resourceId = getUUID();
+        }
+        if (item && item.hashTree && item.hashTree.length > 0) {
+          this.margeDomain(item.hashTree, map);
+        }
+      })
+    },
+    getEnvDomain(array, map) {
+      array.forEach(item => {
+        if (item && item.resourceId && item.domain) {
+          map.set(item.resourceId, item.domain);
+        }
+        if (item && item.hashTree && item.hashTree.length > 0) {
+          this.getEnvDomain(item.hashTree, map);
+        }
+      })
     },
     initPlugins() {
       if (this.plugins) {
@@ -746,25 +769,25 @@ export default {
     },
     stop() {
       if (this.reportId) {
+        this.debugLoading = false;
+        try {
+          if (this.messageWebSocket) {
+            this.messageWebSocket.close();
+          }
+          if (this.websocket) {
+            this.websocket.close();
+          }
+          this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+          this.clearDebug();
+          this.$success(this.$t('report.test_stop_success'));
+        } catch (e) {
+          this.debugLoading = false;
+        }
+        this.runScenario = undefined;
+        // 停止jmeter执行
         let url = "/api/automation/stop/" + this.reportId;
         this.$get(url, response => {
-          this.debugLoading = false;
-          try {
-            if (this.websocket) {
-              this.websocket.close();
-            }
-            if (this.messageWebSocket) {
-              this.messageWebSocket.close();
-            }
-            this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
-            this.clearDebug();
-            this.$success(this.$t('report.test_stop_success'));
-            this.forceRerender();
-          } catch (e) {
-            this.debugLoading = false;
-          }
         });
-        this.runScenario = undefined;
       }
     },
     clearDebug() {
