@@ -312,7 +312,7 @@ public class ApiScenarioReportStructureService {
         return resultVos;
     }
 
-    private ApiScenarioReportDTO apiIntegratedReport(String reportId) {
+    public ApiScenarioReportDTO apiIntegratedReport(String reportId) {
         List<StepTreeDTO> stepList = new LinkedList<>();
         List<ApiDefinitionExecResultVo> reportResults = this.formatApiReport(reportId, stepList);
         ApiScenarioReportDTO reportDTO = new ApiScenarioReportDTO();

@@ -6,6 +6,7 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
@@ -33,6 +34,7 @@ public class ApiDefinitionExecResultUtil {
         }
         apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         apiResult.setResourceId(resourceId);
+        apiResult.setReportType(ReportTypeConstants.API_INDEPENDENT.name());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());
         apiResult.setStatus(status);
@@ -45,6 +47,7 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
+        apiResult.setReportType(ReportTypeConstants.API_INDEPENDENT.name());
         ApiTestCaseWithBLOBs caseWithBLOBs = CommonBeanFactory.getBean(ApiTestCaseMapper.class).selectByPrimaryKey(key.getApiCaseId());
         if (caseWithBLOBs != null) {
             apiResult.setName(caseWithBLOBs.getName());
@@ -79,6 +82,7 @@ public class ApiDefinitionExecResultUtil {
         } else {
             apiResult.setId(reportId);
         }
+        apiResult.setReportType(ReportTypeConstants.API_INDEPENDENT.name());
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());

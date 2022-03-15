@@ -1123,6 +1123,76 @@ public class ApiDefinitionExecResultExample {
             addCriterion("integrated_report_id not between", value1, value2, "integratedReportId");
             return (Criteria) this;
         }
+
+        public Criteria andReportTypeIsNull() {
+            addCriterion("report_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeIsNotNull() {
+            addCriterion("report_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeEqualTo(String value) {
+            addCriterion("report_type =", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeNotEqualTo(String value) {
+            addCriterion("report_type <>", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeGreaterThan(String value) {
+            addCriterion("report_type >", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("report_type >=", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeLessThan(String value) {
+            addCriterion("report_type <", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeLessThanOrEqualTo(String value) {
+            addCriterion("report_type <=", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeLike(String value) {
+            addCriterion("report_type like", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeNotLike(String value) {
+            addCriterion("report_type not like", value, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeIn(List<String> values) {
+            addCriterion("report_type in", values, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeNotIn(List<String> values) {
+            addCriterion("report_type not in", values, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeBetween(String value1, String value2) {
+            addCriterion("report_type between", value1, value2, "reportType");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportTypeNotBetween(String value1, String value2) {
+            addCriterion("report_type not between", value1, value2, "reportType");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
