@@ -125,7 +125,7 @@
         this.loading = false;
       },
       step(results, parser) {
-        if(this.allData.length < 2000) {
+        if(this.allData.length < 500) {
           this.allData.push(results.data);
         }else{
           this.showMessage = true;
