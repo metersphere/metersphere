@@ -7,6 +7,7 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.information.ApiDetailedInformationDTO;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
 import io.metersphere.api.dto.scenario.Body;
@@ -175,6 +176,12 @@ public class ApiDefinitionController {
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public ApiDefinitionResult getApiDefinitionResult(@PathVariable String id) {
         return apiDefinitionService.getById(id);
+    }
+
+    @GetMapping("/get/apiDetail/{id}")
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    public ApiDetailedInformationDTO getApiDetail(@PathVariable String id) {
+        return apiDefinitionService.getApiDetail(id);
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})

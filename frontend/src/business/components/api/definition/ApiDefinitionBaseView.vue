@@ -1,39 +1,34 @@
 <template>
   <div>
-    <ms-container v-if="renderComponent">
-      <ms-aside-container>
-        <ms-api-module
-          :show-operator="true"
-          @nodeSelectEvent="nodeChange"
-          @protocolChange="handleProtocolChange"
-          @refreshTable="refresh"
-          @exportAPI="exportAPI"
-          @debug="debug"
-          @saveAsEdit="editApi"
-          @setModuleOptions="setModuleOptions"
-          @setNodeTree="setNodeTree"
-          @enableTrash="enableTrash"
-          @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
-          :type="'edit'"
-          page-source="definition"
-          :total='total'
-          :current-version="currentVersion"
-          ref="nodeTree"/>
-      </ms-aside-container>
-
-      <ms-main-container>
-        <ms-environment-select
-          :project-id="projectId"
-          :is-read-only="false"
-          :useEnvironment='useEnvironment'
-          @setEnvironment="setEnvironment"
-          class="ms-api-button"
-          ref="environmentSelect"/>
-        <!-- 主框架列表 -->
-        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab">
-          <el-tab-pane
-            name="trash"
-            :label="$t('commons.trash')" v-if="trashEnable">
+    <ms-environment-select
+      :project-id="projectId"
+      :is-read-only="false"
+      :useEnvironment='useEnvironment'
+      @setEnvironment="setEnvironment"
+      class="ms-api-button"
+      ref="environmentSelect"/>
+    <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" class="api-base-view-tab" @tab-click="addTab">
+      <el-tab-pane name="trash" :label="$t('commons.trash')" v-show="trashEnable">
+        <api-test-base-container>
+          <ms-api-module
+            slot="aside"
+            :show-operator="true"
+            @nodeSelectEvent="nodeChange"
+            @protocolChange="handleProtocolChange"
+            @refreshTable="refresh"
+            @exportAPI="exportAPI"
+            @debug="debug"
+            @saveAsEdit="editApi"
+            @setModuleOptions="setModuleOptions"
+            @setNodeTree="setNodeTree"
+            @enableTrash="enableTrash"
+            @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
+            :type="'edit'"
+            page-source="definition"
+            :total='total'
+            :current-version="currentVersion"
+            ref="nodeTree"/>
+          <div slot="mainContainer">
             <ms-tab-button
               v-if="this.trashTabInfo.type === 'list'"
               :active-dom.sync="trashActiveDom"
@@ -44,7 +39,8 @@
               right-content="CASE"
             >
               <template v-slot:version>
-                <version-select v-xpack :project-id="projectId" :version-id="trashVersion" @changeVersion="changeVersion"/>
+                <version-select v-xpack :project-id="projectId" :version-id="trashVersion"
+                                @changeVersion="changeVersion"/>
               </template>
               <!-- 列表集合 -->
               <ms-api-list
@@ -88,15 +84,32 @@
                 @showExecResult="showExecResult"
                 ref="trashCaseList"/>
             </ms-tab-button>
-          </el-tab-pane>
+          </div>
+        </api-test-base-container>
+      </el-tab-pane>
 
-          <el-tab-pane v-for="(item) in apiTabs"
-                       :key="item.name"
-                       :label="item.title"
-                       :closable="item.closable"
-                       :name="item.name">
+      <el-tab-pane name="default" :label="$t('api_test.definition.api_title')">
+        <api-test-base-container>
+          <ms-api-module
+            slot="aside"
+            :show-operator="true"
+            @nodeSelectEvent="nodeChange"
+            @protocolChange="handleProtocolChange"
+            @refreshTable="refresh"
+            @exportAPI="exportAPI"
+            @debug="debug"
+            @saveAsEdit="editApi"
+            @setModuleOptions="setModuleOptions"
+            @setNodeTree="setNodeTree"
+            @enableTrash="enableTrash"
+            @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
+            :type="'edit'"
+            page-source="definition"
+            :total='total'
+            :current-version="currentVersion"
+            ref="nodeTree"/>
+          <div slot="mainContainer">
             <ms-tab-button
-              v-if="item.type === 'list'"
               :active-dom.sync="activeDom"
               :left-tip="$t('api_test.definition.api_title')"
               :right-tip="$t('api_test.definition.doc_title')"
@@ -109,7 +122,6 @@
               <template v-slot:version>
                 <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
               </template>
-              <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
                 @getTrashApi="getTrashApi"
@@ -129,6 +141,7 @@
                 @refreshTree="refreshTree"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @editApi="editApi"
+                @showApi="showApi"
                 @copyApi="copyApi"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
@@ -161,158 +174,87 @@
                 :module-ids="selectNodeIds"
                 ref="documentsPage"/>
             </ms-tab-button>
-            <!-- 添加/编辑测试窗口-->
-            <div v-if="item.type=== 'ADD' ||item.type === 'TEST'" class="ms-api-div">
-              <ms-edit-complete-container
-                :syncTabs="syncTabs"
-                @runTest="runTest"
-                @saveApi="saveApi"
-                @createRootModel="createRootModel"
-                @editApi="editApi"
-                @refresh="refresh"
-                :current-api="item.api"
-                :project-id="projectId"
-                :currentProtocol="currentProtocol"
-                :moduleOptions="moduleOptions"
-                :activeDom="activeTab"
-                @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                @handleCase="handleCase"
-                @showExecResult="showExecResult"
-
-                ref="apiConfig"
-              />
-            </div>
-            <!-- 快捷调试 -->
-            <div v-else-if="item.type=== 'debug'" class="ms-api-div">
-              <ms-debug-http-page
-                :currentProtocol="currentProtocol"
-                :testCase="item.api"
-                @saveAs="editApi"
-                @refreshModule="refreshModule"
-                v-if="currentProtocol==='HTTP'"/>
-              <ms-debug-jdbc-page
-                :currentProtocol="currentProtocol"
-                :testCase="item.api"
-                @saveAs="editApi"
-                @refreshModule="refreshModule"
-                v-if="currentProtocol==='SQL'"/>
-              <ms-debug-tcp-page
-                :currentProtocol="currentProtocol"
-                :testCase="item.api"
-                @saveAs="editApi"
-                @refreshModule="refreshModule"
-                v-if="currentProtocol==='TCP'"/>
-              <ms-debug-dubbo-page
-                :currentProtocol="currentProtocol"
-                :testCase="item.api"
-                @saveAs="editApi"
-                @refreshModule="refreshModule"
-                v-if="currentProtocol==='DUBBO'"/>
-            </div>
-
-            <!-- 定时任务 -->
-            <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
-              <api-schedule :param="param" :module-options="nodeTree" ref="apiSchedules"/>
-            </div>
-          </el-tab-pane>
-
-          <el-tab-pane name="add" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
-            <template v-slot:label>
-              <el-dropdown @command="handleCommand">
-                <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="debug" v-permission="['PROJECT_API_DEFINITION:READ+DEBUG']">
-                    {{ $t('api_test.definition.request.fast_debug') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item command="ADD" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']">
-                    {{ $t('api_test.definition.request.title') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </template>
-          </el-tab-pane>
-        </el-tabs>
+          </div>
+        </api-test-base-container>
+      </el-tab-pane>
 
 
-      </ms-main-container>
-    </ms-container>
+      <el-tab-pane v-for="(item) in apiTabs"
+                   :key="item.name"
+                   :label="item.title"
+                   :closable="item.closable"
+                   :name="item.name">
+        <template v-slot:version>
+          <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+        </template>
+        <!-- 列表集合 -->
 
+        <!-- 添加/编辑测试窗口-->
+        <div v-if="item.type=== 'ADD' ||item.type=== 'Case' ||item.type === 'TEST'||item.type === 'debug'"
+             class="ms-api-div">
+          <api-info-container :api-id="item.api.id" :current-api="item.api" :project-id="projectId"
+                              :module-options="moduleOptions" :current-protocol="currentProtocol"
+                              @saveApi="saveApi" @updateApiStatus="updateApiStatus" @saveApiAndCase="saveApiAndCase" @saveCaseCallback="saveCaseCallback"
+                              :operation-type="item.api.operationType"></api-info-container>
+        </div>
+        <!-- 定时任务 -->
+        <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
+          <api-schedule :param="param" :module-options="nodeTree" ref="apiSchedules"/>
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane name="add" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
+        <template v-slot:label>
+          <el-dropdown @command="handleCommand">
+            <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="debug" v-permission="['PROJECT_API_DEFINITION:READ+DEBUG']">
+                {{ $t('api_test.definition.request.fast_debug') }}
+              </el-dropdown-item>
+              <el-dropdown-item command="ADD" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']">
+                {{ $t('api_test.definition.request.title') }}
+              </el-dropdown-item>
+              <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 <script>
-import MsApiList from './components/list/ApiList';
-import MsContainer from "../../common/components/MsContainer";
-import MsMainContainer from "../../common/components/MsMainContainer";
-import MsAsideContainer from "../../common/components/MsAsideContainer";
+
+import MsApiModule from "@/business/components/api/definition/components/module/ApiModule";
+import ApiTestBaseContainer from "@/business/components/common/layout/ApiTestBaseContainer";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getUUID, hasPermission} from "@/common/js/utils";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsApiList from "@/business/components/api/definition/components/list/ApiList";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
+import VersionSelect from "@/business/components/xpack/version/VersionSelect";
+import MsEditCompleteContainer from "@/business/components/api/definition/components/EditCompleteContainer";
+import ApiInfoContainer from "@/business/components/api/definition/components/apiinfo/ApiInfoContainer";
+import ApiCaseSimpleList from "@/business/components/api/definition/components/list/ApiCaseSimpleList";
+import MsEnvironmentSelect from "@/business/components/api/definition/components/case/MsEnvironmentSelect";
+
 import MsDebugHttpPage from "./components/debug/DebugHttpPage";
 import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
 import MsDebugTcpPage from "./components/debug/DebugTcpPage";
 import MsDebugDubboPage from "./components/debug/DebugDubboPage";
-
 import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getUUID, hasPermission} from "@/common/js/utils";
-import MsApiModule from "./components/module/ApiModule";
-import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
-
-import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
-import MsTableButton from "@/business/components/common/components/MsTableButton";
-import MsTabButton from "@/business/components/common/components/MsTabButton";
-
-import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
-import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
-import MsEditCompleteContainer from "./components/EditCompleteContainer";
-import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
-import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
-
-
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 
 
 export default {
-  name: "ApiDefinition",
-  computed: {
-    queryDataType: function () {
-      let routeParam = this.$route.params.dataType;
-      let redirectIDParam = this.$route.params.redirectID;
-      this.changeRedirectParam(redirectIDParam);
-      return routeParam;
-    },
-    isReadOnly() {
-      return false;
-    },
-    projectId() {
-      return getCurrentProjectID();
-    },
-  },
+  name: "ApiDefinitionBaseView",
   components: {
-    'VersionSelect': VersionSelect.default,
-    ApiSchedule,
-    MsTabButton,
-    MsTableButton,
-    ApiCaseSimpleList,
-    MsApiModule,
-    MsApiList,
-    MsMainContainer,
-    MsContainer,
-    MsAsideContainer,
-    MsDebugHttpPage,
-    MsRunTestHttpPage,
-    MsDebugJdbcPage,
-    MsDebugTcpPage,
-    MsDebugDubboPage,
-    MsRunTestTcpPage,
-    MsRunTestSqlPage,
-    MsRunTestDubboPage,
-    ApiDocumentsPage,
-    MockConfig,
-    MsEditCompleteContainer,
-    MsEnvironmentSelect
+    MsApiModule, ApiTestBaseContainer, MsContainer, MsApiList, MsTabButton, VersionSelect, MsEditCompleteContainer,
+    MsDebugHttpPage, MsDebugJdbcPage, MsDebugTcpPage, MsDebugDubboPage,
+    MsRunTestHttpPage, MsRunTestTcpPage, MsRunTestSqlPage, MsRunTestDubboPage,
+    ApiInfoContainer, ApiCaseSimpleList, MsEnvironmentSelect
   },
   props: {
     visible: {
@@ -337,12 +279,7 @@ export default {
       currentApi: {},
       moduleOptions: [],
       trashEnable: false,
-      apiTabs: [{
-        title: this.$t('api_test.definition.api_title'),
-        name: 'default',
-        type: "list",
-        closable: false
-      }],
+      apiTabs: [],
       trashTabInfo: {
         title: this.$t('api_test.definition.api_title'),
         name: 'default',
@@ -361,34 +298,10 @@ export default {
       activeTab: "api",
       currentVersion: null,
       trashVersion: null,
+      project: null,
     };
   },
   activated() {
-    this.selectNodeIds = [];
-    let dataRange = this.$route.params.dataSelectRange;
-    if (dataRange && dataRange.length > 0) {
-      this.activeDom = 'middle';
-    }
-    let dataType = this.$route.params.dataType;
-    if (dataType) {
-      if (dataType === "api") {
-        this.activeDom = 'left';
-      } else {
-        this.activeDom = 'middle';
-      }
-    }
-
-    if (this.$route.params.dataSelectRange) {
-      let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
-      if (item !== undefined) {
-        let type = item.taskGroup.toString();
-        if (type === "SWAGGER_IMPORT") {
-          this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
-          this.param = item;
-        }
-      }
-
-    }
   },
   watch: {
     currentProtocol() {
@@ -418,29 +331,33 @@ export default {
     },
   },
   created() {
-    if (this.$route.query.workspaceId) {
-      sessionStorage.setItem(WORKSPACE_ID, this.$route.query.workspaceId);
-    }
-    let projectId = this.$route.params.projectId;
-    if (projectId) {
-      sessionStorage.setItem(PROJECT_ID, projectId);
-    }
-    if (this.$route.query.projectId) {
-      sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
-    }
-    this.getEnv();
-    // 通知过来的数据跳转到编辑
-    if (this.$route.query.caseId) {
-      this.activeDom = 'middle';
-      // this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
-      //   this.edit(response.data);
-      // });
-    }
+    this.initBaseData();
   },
   mounted() {
-    this.init();
+  },
+  computed: {
+    queryDataType: function () {
+      let routeParam = this.$route.params.dataType;
+      let redirectIDParam = this.$route.params.redirectID;
+      this.changeRedirectParam(redirectIDParam);
+      return routeParam;
+    },
+    isReadOnly() {
+      return false;
+    },
+    projectId() {
+      return getCurrentProjectID();
+    },
   },
   methods: {
+    initBaseData() {
+      this.$get('/project/get/' + this.projectId, res => {
+        let projectData = res.data;
+        if (projectData) {
+          this.project = projectData;
+        }
+      })
+    },
     setEnvironment(data) {
       if (data) {
         this.useEnvironment = data.id;
@@ -456,6 +373,20 @@ export default {
       this.$get("/api/module/trashCount/" + this.projectId + "/" + this.currentProtocol, response => {
         this.total = response.data;
       });
+    },
+    updateApiStatus(operationType, apiName) {
+      for (let index in this.apiTabs) {
+        let tab = this.apiTabs[index];
+        if (tab.name === this.apiDefaultTab) {
+          tab.api.operationType = operationType;
+          if (operationType === 'edit') {
+            tab.title = this.$t('api_test.definition.request.edit_api') + "-" + apiName;
+          } else {
+            tab.title = this.$t('api_test.definition.request.show_api') + "-" + apiName;
+          }
+          break;
+        }
+      }
     },
     getEnv() {
       this.$get("/api/definition/env/get/" + getCurrentUserId() + "/" + getCurrentProjectID(), response => {
@@ -488,20 +419,56 @@ export default {
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
     },
+    createApiStruct() {
+      let request = {};
+      let method = this.currentProtocol;
+      let response = {};
+      if (this.currentProtocol === 'HTTP') {
+        method = "GET";
+        request = createComponent("HTTPSamplerProxy");
+        if (!request.path) {
+          request.path = "";
+        }
+        response.type = "HTTP";
+        response.headers = [];
+        response.statusCode = [];
+        response.body = {
+          "binary": [],
+          "json": false,
+          "kV": false,
+          "kvs": [],
+          "oldKV": true,
+          "type": "KeyValue",
+          "valid": false,
+          "xml": false
+        };
+      } else if (this.currentProtocol === 'TCP') {
+        request = createComponent("TCPSampler");
+      } else if (this.currentProtocol === 'JDBC' || this.currentProtocol === 'SQL') {
+        request = createComponent("JDBCSampler");
+      } else if (this.currentProtocol === 'DUBBO') {
+        request = createComponent("DubboSampler");
+      }
+      let newApi = {
+        id: getUUID(),
+        operationType: 'debug',
+        protocol: this.currentProtocol,
+        environmentId: "",
+        path: "",
+        method: method,
+        request: request,
+        response: response,
+      };
+      return newApi;
+    },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.result = this.$get('/project_application/get/config/' + this.projectId +"/API_QUICK_MENU", res => {
-          let projectData = res.data;
-          if (projectData && projectData.apiQuickMenu === 'api') {
-            this.handleTabAdd("ADD");
-          } else {
-            let newApi = {
-
-            };
-            this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
-          }
-        })
-
+        if (this.project && this.project.apiQuick === 'api') {
+          this.handleTabAdd("ADD");
+        } else {
+          let newApiStruct = this.createApiStruct();
+          this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", newApiStruct);
+        }
       } else if (tab.name === 'trash') {
         if (this.$refs.trashApiList) {
           this.$refs.trashApiList.initTable();
@@ -509,6 +476,8 @@ export default {
         if (this.$refs.trashCaseList) {
           this.$refs.trashCaseList.initTable();
         }
+      } else if (tab.name === 'default') {
+        this.refresh();
       }
       if (this.$refs.apiConfig) {
         this.$refs.apiConfig.forEach(item => {
@@ -539,21 +508,73 @@ export default {
           break;
       }
     },
+    handleApiAndCaseTabAdd(e, api) {
+      if (!this.projectId) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
+      this.currentModulePath = "";
+      if (this.nodeTree && this.nodeTree.length > 0) {
+        api.moduleId = this.nodeTree[0].id;
+        this.getPath(this.nodeTree[0].id, this.moduleOptions);
+        api.modulePath = this.currentModulePath;
+      }
+      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+        api.moduleId = this.selectNodeIds[0];
+        this.getPath(this.selectNodeIds[0], this.moduleOptions);
+        api.modulePath = this.currentModulePath;
+      }
+      this.handleTabsEdit(this.$t('test_track.case.create_case'), e, api);
+    },
     handleTabAdd(e) {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
+
+      let request = {};
+      let method = this.currentProtocol;
+      let response = {};
+      if (this.currentProtocol === 'HTTP') {
+        method = "GET";
+        request = createComponent("HTTPSamplerProxy");
+        if (!request.path) {
+          request.path = "";
+        }
+        response.type = "HTTP";
+        response.headers = [];
+        response.statusCode = [];
+        response.body = {
+          "binary": [],
+          "json": false,
+          "kV": false,
+          "kvs": [],
+          "oldKV": true,
+          "type": "KeyValue",
+          "valid": false,
+          "xml": false
+        };
+      } else if (this.currentProtocol === 'TCP') {
+        request = createComponent("TCPSampler");
+      } else if (this.currentProtocol === 'JDBC' || this.currentProtocol === 'SQL') {
+        request = createComponent("JDBCSampler");
+      } else if (this.currentProtocol === 'DUBBO') {
+        request = createComponent("DubboSampler");
+      }
       let api = {
         status: "Underway",
-        method: "GET",
+        method: method,
         userId: getCurrentUser().id,
         url: "",
+        id: getUUID(),
         protocol: this.currentProtocol,
         environmentId: "",
         remark: "",
+        operationType: "create",
         moduleId: 'default-module',
-        modulePath: "/" + this.$t("commons.module_title")
+        modulePath: "/" + this.$t("commons.module_title"),
+        request: request,
+        response: response
       };
       this.currentModulePath = "";
       if (this.nodeTree && this.nodeTree.length > 0) {
@@ -570,7 +591,6 @@ export default {
       this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
     },
     handleTabClose() {
-      let tabs = this.apiTabs[0];
       let message = "";
       let tab = this.apiTabs;
       delete tab[0];
@@ -588,16 +608,13 @@ export default {
             if (action === 'confirm') {
               this.$store.state.apiMap.clear();
               this.apiTabs = [];
-              this.apiDefaultTab = tabs.name;
-              this.apiTabs.push(tabs);
             }
           }
         });
       } else {
         this.apiTabs = [];
-        this.apiDefaultTab = tabs.name;
-        this.apiTabs.push(tabs);
       }
+      this.apiDefaultTab = "default";
     },
     closeConfirm(targetName) {
       let tab = this.apiTabs;
@@ -632,6 +649,8 @@ export default {
             let nextTab = tabs[index + 1] || tabs[index - 1];
             if (nextTab) {
               activeName = nextTab.name;
+            } else {
+              activeName = "default";
             }
           }
         });
@@ -663,6 +682,9 @@ export default {
       this.apiDefaultTab = newTabName;
     },
     handleTabsEdit(targetName, action, api) {
+      if (action === "debug" && !api) {
+        api = this.createApiStruct();
+      }
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -671,6 +693,9 @@ export default {
         targetName = this.$t('api_test.definition.request.title');
       }
       let newTabName = getUUID();
+      if(action === "Case"){
+        newTabName = api.id;
+      }
       this.apiTabs.push({
         title: targetName,
         name: newTabName,
@@ -705,7 +730,10 @@ export default {
         }
       }
     },
-    editApi(row) {
+    showApi(row) {
+      this.editApi(row, true);
+    },
+    editApi(row, isShowApi) {
       const index = this.apiTabs.find(p => p.api && p.api.id === row.id);
       if (!index) {
         let name = "";
@@ -714,17 +742,26 @@ export default {
           row.name = "copy" + "_" + row.name;
         } else {
           if (row.name) {
-            name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+            if (isShowApi) {
+              name = this.$t('api_test.definition.request.show_api') + "-" + row.name;
+            } else {
+              name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+            }
           } else {
             name = this.$t('api_test.definition.request.title');
           }
         }
         this.activeTab = "api";
-        if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
+        if (row !== null && row.tags !== 'null' && row.tags !== '' && row.tags !== undefined) {
           if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
             && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
             row.tags = JSON.parse(row.tags);
           }
+        }
+        if (isShowApi) {
+          row.operationType = "show";
+        } else {
+          row.operationType = "edit";
         }
         this.handleTabsEdit(name, "ADD", row);
       } else {
@@ -776,8 +813,12 @@ export default {
       if (this.$refs.nodeTree) {
         this.$refs.nodeTree.list();
       }
-      if (this.$refs.apiDefList && this.$refs.apiDefList[0]) {
-        this.$refs.apiDefList[0].initTable();
+      if (this.$refs.apiDefList) {
+        if (this.$refs.apiDefList[0]) {
+          this.$refs.apiDefList[0].initTable();
+        } else {
+          this.$refs.apiDefList.initTable();
+        }
       }
       if (this.$refs.documentsPage && this.$refs.documentsPage[0]) {
         this.$refs.documentsPage[0].initApiDocSimpleList();
@@ -791,7 +832,11 @@ export default {
       for (let index in this.apiTabs) {
         let tab = this.apiTabs[index];
         if (tab.name === this.apiDefaultTab) {
-          tab.title = this.$t('api_test.definition.request.edit_api') + "-" + data.name;
+          tab.api.operationType = "show";
+          tab.api.request = JSON.stringify(data.request);
+          tab.api.response = JSON.stringify(data.response);
+          tab.api.method = data.method;
+          tab.title = this.$t('api_test.definition.request.show_api') + "-" + data.name;
           break;
         }
       }
@@ -823,7 +868,6 @@ export default {
     },
     saveApi(data) {
       this.setTabTitle(data);
-      this.refresh(data);
     },
 
     showExecResult(row) {
@@ -862,6 +906,14 @@ export default {
     changeVersion(currentVersion) {
       this.trashVersion = null;
       this.currentVersion = currentVersion || null;
+    },
+    saveApiAndCase(apiStruct) {
+      apiStruct.operationType = "addApiAndCase";
+      apiStruct.id = getUUID();
+      this.handleApiAndCaseTabAdd("Case", apiStruct);
+    },
+    saveCaseCallback(apiStruct){
+      this.closeConfirm(apiStruct.id);
     }
   }
 };
@@ -878,17 +930,16 @@ export default {
   overflow: hidden;
 }
 
-/deep/ .el-tabs__header {
-  margin: 0 0 0px;
+/deep/ .api-base-view-tab > .el-tabs__header {
+  width: calc(100% - 230px);
+  margin: 0px 5px 0px 5px
 }
 
-/deep/ .el-tabs__nav-scroll {
-  width: calc(100% - 200px);
+/deep/ .api-base-view-tab > .el-tabs__nav-scroll {
+  width: calc(100% - 10px);
 }
 
 /deep/ .el-card {
-  /*border: 1px solid #EBEEF5;*/
-  /*border-style: none;*/
   border-top: none;
 }
 
