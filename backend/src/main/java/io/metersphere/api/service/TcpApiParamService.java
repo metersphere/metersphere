@@ -1,16 +1,12 @@
 package io.metersphere.api.service;
 
-import com.alibaba.fastjson.JSONArray;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
-import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,11 +52,7 @@ public class TcpApiParamService {
             if (testElement instanceof MsTCPSampler) {
                 tcpSampler = (MsTCPSampler) testElement;
                 String reportType = tcpSampler.getReportType();
-                if (CollectionUtils.isNotEmpty(tcpSampler.getEsbDataStruct())) {
-                    EsbApiParamService esbApiParamService = CommonBeanFactory.getBean(EsbApiParamService.class);
-                    List<KeyValue> keyValueList = esbApiParamService.genKeyValueListByDataStruct(tcpSampler, JSONArray.toJSONString(tcpSampler.getEsbDataStruct()));
-                    tcpSampler.setParameters(keyValueList);
-                }else if (StringUtils.isNotEmpty(reportType)) {
+                if (StringUtils.isNotEmpty(reportType)) {
                     switch (reportType) {
                         case "raw":
                             tcpSampler.setRequest(tcpSampler.getRawDataStruct());
