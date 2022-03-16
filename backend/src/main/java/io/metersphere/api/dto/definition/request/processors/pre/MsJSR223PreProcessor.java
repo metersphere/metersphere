@@ -64,7 +64,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
             script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
         }
         if (config.isOperating()) {
-            if (script.startsWith(JMeterVars.class.getCanonicalName())) {
+            if (StringUtils.isNotEmpty(script) && script.startsWith(JMeterVars.class.getCanonicalName())) {
                 return;
             }
         }
