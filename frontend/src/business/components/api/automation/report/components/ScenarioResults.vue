@@ -62,7 +62,11 @@ export default {
           if (data.errorCode && data.errorCode !== "") {
             return true;
           }
-        } else {
+        } if (value === 'unexecute') {
+          if(data.value.status === 'unexecute'){
+            return true;
+          }
+        }else {
           if (!data.errorCode || data.errorCode === "") {
             return data.value.error > 0;
           }

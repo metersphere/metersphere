@@ -432,9 +432,6 @@ export default {
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.activeDom = 'middle';
-      // this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
-      //   this.edit(response.data);
-      // });
     }
   },
   mounted() {
