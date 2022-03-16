@@ -293,8 +293,12 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             HashSet<String> refSet = new HashSet<>();
             Model model = getRefModelType(schema, refSet);
             item.setType("object");
-            if (model != null)
+            if (model != null){
                 item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+                if(((AbstractModel) model).getRequired()!=null){
+                    item.setRequired(((AbstractModel) model).getRequired());
+                }
+            }
         } else if (schema instanceof ArrayModel) {
             //模型数组
             ArrayModel arrayModel = (ArrayModel) schema;
@@ -303,8 +307,21 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         } else if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
             item.setType("object");
-            if (model != null)
+            if (model != null){
                 item.setProperties(parseSchemaProperties(model.getProperties(), new HashSet<>()));
+                if(model.getRequired()!=null){
+                    item.setRequired(model.getRequired());
+                }
+            }
+        }else if(schema instanceof AbstractModel){
+            AbstractModel abstractModel = (AbstractModel) schema;
+            HashSet<String> refSet = new HashSet<>();
+            item.setType("object");
+            if (abstractModel != null)
+                item.setProperties(parseSchemaProperties(abstractModel.getProperties(), refSet));
+            if(abstractModel.getRequired()!=null){
+                item.setRequired(abstractModel.getRequired());
+            }
         }
         if (schema.getExample() != null) {
             item.getMock().put("mock", schema.getExample());
@@ -399,6 +416,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         Model model = this.definitions.get(simpleRef);
         if (model != null) {
             item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+            if(((AbstractModel) model).getRequired()!=null){
+                item.setRequired(((AbstractModel) model).getRequired());
+            }
         }
     }
 
