@@ -58,7 +58,16 @@
     </div>
     <div class="assertion-item-editing response-time" v-if="isDocument">
       <div>
-        {{ assertions.document.type }}-{{ $t("api_test.definition.request.document_structure") }}
+        <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+          <el-col>
+            {{ assertions.document.type }}-{{ $t("api_test.definition.request.document_structure") }}
+          </el-col>
+          <el-col class="assertion-remove-btn">
+            <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
+              <el-button icon="el-icon-delete" type="danger" size="mini" circle @click="remove()"/>
+            </el-tooltip>
+          </el-col>
+        </el-row>
       </div>
       <ms-document-body :document="assertions.document" :apiId="apiId" :isReadOnly="isReadOnly" @remove="remove"/>
     </div>
@@ -157,5 +166,8 @@ export default {
   margin-top: 10px;
 }
 
-
+.assertion-remove-btn {
+  text-align: center;
+  width: 40px;
+}
 </style>

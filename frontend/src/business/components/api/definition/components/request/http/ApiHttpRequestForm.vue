@@ -490,7 +490,7 @@ export default {
 }
 
 .request-tabs {
-  margin: 20px;
+  margin: 10px;
   min-height: 200px;
 }
 

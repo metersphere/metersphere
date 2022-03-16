@@ -11,9 +11,6 @@
              <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
           </span>
         </el-col>
-        <el-col class="assertion-btn">
-          <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="removeDoc" style="float: right"/>
-        </el-col>
       </el-row>
     </div>
     <el-table
@@ -25,7 +22,7 @@
       row-key="id"
       border
       default-expand-all
-      :height="400"
+      :height="300"
       v-loading="loading">
 
       <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
