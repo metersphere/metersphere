@@ -2,9 +2,7 @@
 
   <div class="card-container">
     <div class="ms-opt-btn" v-if="versionEnable">
-      <slot name="msOptBtnLeft"></slot>
       {{ $t('project.version.name') }}: {{ apiData.versionName }}
-      <slot name="msOptBtnRight"></slot>
     </div>
     <el-card class="card-content">
 
