@@ -17,7 +17,6 @@ public class ApiDocumentInfoDTO {
     private String uri;
     private String name;
     private String status;
-    private String protocol;
 
     private String tags;
     private String modules;
