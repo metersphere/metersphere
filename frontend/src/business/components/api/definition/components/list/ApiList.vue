@@ -51,8 +51,8 @@
             sortable>
 
             <template slot-scope="scope">
-              <el-tooltip :content="$t('commons.view')">
-                <a style="cursor:pointer" @click="showApi(scope.row)"> {{ scope.row.num }} </a>
+              <el-tooltip content="编辑">
+                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
           </ms-table-column>
@@ -63,13 +63,7 @@
           sortable="custom"
           :fields-width="fieldsWidth"
           min-width="120"
-          :field="item">
-          <template slot-scope="scope">
-              <el-tooltip :content="$t('commons.view')">
-                <a style="cursor:pointer" @click="showApi(scope.row)"> {{ scope.row.name }} </a>
-              </el-tooltip>
-            </template>
-        </ms-table-column>
+          :field="item"/>
 
         <ms-table-column
           prop="status"
@@ -682,9 +676,6 @@ export default {
 
     editApi(row) {
       this.$emit('editApi', row);
-    },
-    showApi(row) {
-      this.$emit('showApi', row);
     },
     handleCopy(row) {
       let obj = JSON.parse(JSON.stringify(row));

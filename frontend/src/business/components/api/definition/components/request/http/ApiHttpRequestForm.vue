@@ -5,8 +5,7 @@
       <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
         <!-- 请求头-->
         <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
-                      slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
               <span>{{ $t('api_test.request.headers') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length>1">
                   <div class="el-step__icon-inner">{{ headers.length - 1 }}</div>
@@ -14,20 +13,14 @@
               </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{
-                $t("commons.batch_add")
-              }}
-            </el-link>
+            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
           </el-row>
-          <ms-api-key-value @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition"
-                            :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
-                            :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
+          <ms-api-key-value @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
         </el-tab-pane>
 
         <!--query 参数-->
         <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')"
-                      placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
               <span>{{ $t('api_test.definition.request.query_param') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.arguments.length>1">
                   <div class="el-step__icon-inner">{{ request.arguments.length - 1 }}</div>
@@ -35,20 +28,14 @@
               </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{
-                $t("commons.batch_add")
-              }}
-            </el-link>
+            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
           </el-row>
-          <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition"
-                           :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
-                           :parameters="request.arguments"/>
+          <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
         </el-tab-pane>
 
         <!--REST 参数-->
         <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')"
-                      placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
               <span>
                 {{ $t('api_test.definition.request.rest_param') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.rest.length>1">
@@ -57,14 +44,9 @@
               </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{
-                $t("commons.batch_add")
-              }}
-            </el-link>
+            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
           </el-row>
-          <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition"
-                           :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
-                           :parameters="request.rest"/>
+          <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
         </el-tab-pane>
 
         <!--请求体-->
@@ -74,8 +56,7 @@
 
         <!-- 认证配置 -->
         <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')"
-                      placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')" placement="top-start" slot="label">
             <span>{{ $t('api_test.definition.request.auth_config') }}</span>
           </el-tooltip>
 
@@ -112,8 +93,7 @@
               <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
             </div>
           </span>
-          <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
-                       :tab-type="'assertionsRule'" ref="assertionsRule"/>
+          <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody" :tab-type="'assertionsRule'" ref="assertionsRule"/>
         </el-tab-pane>
 
       </el-tabs>

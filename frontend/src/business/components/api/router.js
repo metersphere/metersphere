@@ -13,11 +13,6 @@ export default {
       name: 'fucHome',
       component: () => import('@/business/components/api/homepage/ApiTestHomePage'),
     },
-    // {
-    //   path: "project/:type",
-    //   name: "fucProject",
-    //   component: MsProject,
-    // },
     {
       path: "report/list/:testId",
       name: "ApiReports",
@@ -41,12 +36,6 @@ export default {
     },
     {
       path: "definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?",
-      name: "ApiDefinition",
-      // component: () => import('@/business/components/api/definition/ApiDefinition'),
-      component: () => import('@/business/components/api/definition/ApiDefinitionBaseView'),
-    },
-    {
-      path: "oldDefinition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?",
       name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },

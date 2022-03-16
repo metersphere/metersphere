@@ -65,7 +65,7 @@ public class ShareInfoController {
                     model.setId(id);
                     model.setName(id);
                 }
-                ApiDocumentInfoDTO returnDTO = apiDefinitionService.conversionModelToDTO(model,userIdMap);
+                ApiDocumentInfoDTO returnDTO = shareInfoService.conversionModelToDTO(model,userIdMap);
                 returnList.add(returnDTO);
             }
         }
@@ -78,7 +78,7 @@ public class ShareInfoController {
         ApiDocumentInfoDTO returnDTO = new ApiDocumentInfoDTO();
         try {
             Map<String, User> userIdMap = userService.queryName();
-            returnDTO = apiDefinitionService.conversionModelToDTO(apiModel,userIdMap);
+            returnDTO = shareInfoService.conversionModelToDTO(apiModel,userIdMap);
         } catch (Exception e) {
             LogUtil.error(e);
         }
