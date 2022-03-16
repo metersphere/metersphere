@@ -322,6 +322,13 @@
             <groupId>com.google.guava</groupId>
             <version>31.0.1-jre</version>
         </dependency>
+
+        <!--java json schema json格式校验-->
+        <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>2.2.14</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -409,38 +416,38 @@
                 <version>2.6</version>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-antrun-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>main-class-placement</id>-->
-<!--                        <phase>generate-resources</phase>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <move todir="src/main/resources/static">-->
-<!--                                    <fileset dir="../frontend/dist">-->
-<!--                                        <exclude name="*.html"/>-->
-<!--                                    </fileset>-->
-<!--                                </move>-->
-<!--                                <move todir="src/main/resources/public">-->
-<!--                                    <fileset dir="../frontend/dist">-->
-<!--                                        <include name="*.html"/>-->
-<!--                                    </fileset>-->
-<!--                                </move>-->
-<!--                                <copy todir="src/main/resources/static/css">-->
-<!--                                    <fileset dir="../frontend/src/assets/theme">-->
-<!--                                        <include name="index.css"/>-->
-<!--                                    </fileset>-->
-<!--                                </copy>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-antrun-plugin</artifactId>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>main-class-placement</id>-->
+            <!--                        <phase>generate-resources</phase>-->
+            <!--                        <configuration>-->
+            <!--                            <target>-->
+            <!--                                <move todir="src/main/resources/static">-->
+            <!--                                    <fileset dir="../frontend/dist">-->
+            <!--                                        <exclude name="*.html"/>-->
+            <!--                                    </fileset>-->
+            <!--                                </move>-->
+            <!--                                <move todir="src/main/resources/public">-->
+            <!--                                    <fileset dir="../frontend/dist">-->
+            <!--                                        <include name="*.html"/>-->
+            <!--                                    </fileset>-->
+            <!--                                </move>-->
+            <!--                                <copy todir="src/main/resources/static/css">-->
+            <!--                                    <fileset dir="../frontend/src/assets/theme">-->
+            <!--                                        <include name="index.css"/>-->
+            <!--                                    </fileset>-->
+            <!--                                </copy>-->
+            <!--                            </target>-->
+            <!--                        </configuration>-->
+            <!--                        <goals>-->
+            <!--                            <goal>run</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
