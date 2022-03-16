@@ -431,6 +431,7 @@ export default {
       selectDataCounts: 0,
       projectName: "",
       versionEnable: false,
+      isFirstInitTable:true,
     };
   },
   props: {
@@ -636,7 +637,11 @@ export default {
         });
       }
       if (this.needRefreshModule()) {
-        this.$emit("refreshTree");
+        if(this.isFirstInitTable){
+          this.isFirstInitTable = false;
+        }else {
+          this.$emit("refreshTree");
+        }
       }
     },
     getMaintainerOptions() {
