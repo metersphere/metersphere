@@ -333,7 +333,7 @@ export default {
       resourcePoolType: null,
       activeNames: ["0"],
       threadGroups: [],
-      maxThreadNumbers: 5000,
+      maxThreadNumbers: 500000,
       serializeThreadGroups: false,
       autoStop: false,
       autoStopDelay: 30,
