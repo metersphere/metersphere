@@ -559,10 +559,10 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.addListener();
+      if (!this.currentScenario.name && this.$refs.refFab) {
+        this.$refs.refFab.openMenu();
+      }
     });
-    if (!this.currentScenario.name && this.$refs.refFab) {
-      this.$refs.refFab.openMenu();
-    }
   },
   directives: {OutsideClick},
   computed: {
