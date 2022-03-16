@@ -274,6 +274,7 @@
       <foreach collection="ids" item="id" separator="," open="(" close=")">
         #{id}
       </foreach>
+        ORDER BY t.order DESC
     </select>
 
   <select id="getUnderwaySteps" resultType="java.lang.Integer">
