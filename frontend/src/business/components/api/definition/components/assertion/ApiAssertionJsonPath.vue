@@ -116,6 +116,5 @@
   .assertion-btn {
     text-align: center;
     width: 60px;
-    margin-right: 14px;
   }
 </style>
