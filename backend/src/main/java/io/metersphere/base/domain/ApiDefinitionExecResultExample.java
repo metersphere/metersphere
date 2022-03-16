@@ -1149,11 +1149,6 @@ public class ApiDefinitionExecResultExample {
             return (Criteria) this;
         }
 
-        public Criteria andErrorCodeLike(String value) {
-            addCriterion("error_code like", value, "errorCode");
-            return (Criteria) this;
-        }
-
         public Criteria andReportTypeLessThan(String value) {
             addCriterion("report_type <", value, "reportType");
             return (Criteria) this;
