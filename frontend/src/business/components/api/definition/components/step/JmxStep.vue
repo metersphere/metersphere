@@ -18,7 +18,7 @@
           :value="item.id">
         </el-option>
       </el-select>
-      <el-button size="mini" @click="add" type="primary" v-if="tabType !== 'assertionsRule'">
+      <el-button size="mini" @click="add" type="primary" v-if="tabType !== 'assertionsRule'" :disabled="request.disabled">
         {{ $t('api_test.request.assertions.add') }}
       </el-button>
     </p>
@@ -340,6 +340,7 @@ export default {
     copyRow(row) {
       let obj = JSON.parse(JSON.stringify(row));
       obj.id = getUUID();
+      obj.resourceId = getUUID();
       const index = this.request.hashTree.findIndex(d => d.id === row.id);
       if (index !== -1) {
         this.request.hashTree.splice(index, 0, obj);
