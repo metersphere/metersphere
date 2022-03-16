@@ -747,7 +747,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 parsedParam.put("type", "boolean");
                 setCommonJsonSchemaParam(parsedParam, requestBody);
             } else if (StringUtils.equals(type, "number")) {  //  double 类型会被 fastJson 转换为 BigDecimal
-                parsedParam.put("type", "double");
+                parsedParam.put("type", "number");
                 setCommonJsonSchemaParam(parsedParam, requestBody);
             } else {
                 parsedParam.put("type", "string");
