@@ -49,43 +49,36 @@
                 </div>
               </el-tab-pane>
 
-              <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="script" v-if="showPreScript">
-                <jsr233-processor-content
-                  :jsr223-processor="request.tcpPreProcessor"
-                  :is-pre-processor="true"
-                  :is-read-only="isReadOnly"/>
-              </el-tab-pane>
-
               <!-- 脚本步骤/断言步骤 -->
               <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
-          <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.pre_operation') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
-              <div class="el-step__icon-inner">{{ request.preSize }}</div>
-            </div>
-          </span>
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                  {{ $t('api_test.definition.request.pre_operation') }}
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+                    <div class="el-step__icon-inner">{{ request.preSize }}</div>
+                  </div>
+                </span>
                 <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'"
                              ref="preStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
                            v-if="showScript">
-            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.post_operation') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
-              <div class="el-step__icon-inner">{{ request.postSize }}</div>
-            </div>
-          </span>
+                  <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                  {{ $t('api_test.definition.request.post_operation') }}
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+                    <div class="el-step__icon-inner">{{ request.postSize }}</div>
+                  </div>
+                </span>
                 <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'"
                              ref="postStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
                            v-if="showScript">
-            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.assertions_rule') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
-              <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
-            </div>
-          </span>
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                  {{ $t('api_test.definition.request.assertions_rule') }}
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+                    <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
+                  </div>
+                </span>
                 <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
@@ -164,9 +157,7 @@
             </el-tabs>
           </el-form>
         </div>
-
       </el-col>
-
     </el-row>
   </div>
 </template>
@@ -178,8 +169,6 @@ import MsApiExtract from "../../extract/ApiExtract";
 import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
 import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
 import MsApiScenarioVariables from "../../ApiScenarioVariables";
-import {createComponent} from "../../jmeter/components";
-import {Assertions, Extract} from "../../../model/ApiTestModel";
 import {parseEnvironment} from "../../../model/EnvironmentModel";
 import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
 import {API_STATUS} from "../../../model/JsonData";
@@ -188,7 +177,6 @@ import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsApiVariable from "../../ApiVariable";
 import MsInstructionsIcon from "../../../../../common/components/MsInstructionsIcon";
 import Jsr233ProcessorContent from "../../../../automation/scenario/common/Jsr233ProcessorContent";
-import JSR223PreProcessor from "../../jmeter/components/pre-processors/jsr223-pre-processor";
 import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
 import TcpXmlTable from "@/business/components/api/definition/components/complete/table/TcpXmlTable";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
@@ -276,8 +264,9 @@ export default {
       this.$set(this.request, 'parameters', []);
       this.request.parameters = [];
     }
-    if (!this.request.tcpPreProcessor) {
-      this.$set(this.request, 'tcpPreProcessor', new JSR223PreProcessor())
+    if (this.request.tcpPreProcessor && this.request.tcpPreProcessor.script) {
+      this.request.hashTree.push(this.request.tcpPreProcessor);
+      this.request.tcpPreProcessor = undefined;
     }
     if (this.request.tcpPreProcessor) {
       this.request.tcpPreProcessor.clazzName = TYPE_TO_C.get(this.request.tcpPreProcessor.type);
@@ -584,7 +573,7 @@ export default {
 }
 
 .request-tabs {
-  margin: 20px;
+  margin: 10px;
   min-height: 200px;
 }
 

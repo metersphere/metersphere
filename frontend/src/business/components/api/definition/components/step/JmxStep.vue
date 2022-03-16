@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loaded">
+  <div>
     <p>
       <el-select v-model="preOperate" size="mini" class="ms-select-step" v-if="tabType === 'pre'">
         <el-option
@@ -153,11 +153,6 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
-    }
-  },
-  watch: {
-    'request.body.typeChange'() {
-      this.showHide();
     }
   },
   data() {
@@ -346,7 +341,7 @@ export default {
       let obj = JSON.parse(JSON.stringify(row));
       obj.id = getUUID();
       const index = this.request.hashTree.findIndex(d => d.id === row.id);
-      if (index !==-1) {
+      if (index !== -1) {
         this.request.hashTree.splice(index, 0, obj);
       } else {
         this.request.hashTree.push(obj);
@@ -378,12 +373,6 @@ export default {
       this.isReloadData = true
       this.$nextTick(() => {
         this.isReloadData = false
-      })
-    },
-    showHide() {
-      this.loaded = false
-      this.$nextTick(() => {
-        this.loaded = true
       })
     },
     init() {
@@ -566,12 +555,8 @@ export default {
 }
 
 .ms-select-step {
-  margin-left: 15px;
+  margin-left: 10px;
   margin-right: 10px;
   width: 200px;
-}
-
-.ms-assertions-button {
-  margin-left: 18px;
 }
 </style>
