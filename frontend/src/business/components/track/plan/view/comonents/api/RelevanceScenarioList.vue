@@ -224,7 +224,7 @@
         this.envGroupId = id;
       },
       getWsProjects() {
-        this.$get("/project/getOwnerProjectIds", res => {
+        this.$get("/project/getOwnerProjects", res => {
           this.projectList = res.data;
         })
       },
