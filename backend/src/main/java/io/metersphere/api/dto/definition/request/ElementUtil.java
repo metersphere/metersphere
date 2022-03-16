@@ -51,7 +51,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ElementUtil {
-
+    private static final String PRE = "PRE";
+    private static final String POST = "POST";
+    private static final String ASSERTIONS = "ASSERTIONS";
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public static Arguments addArguments(ParameterConfig config, String projectId, String name) {
@@ -649,26 +651,26 @@ public class ElementUtil {
             Map<String, List<MsTestElement>> groupMap = new LinkedHashMap<>();
             elements.forEach(item -> {
                 if ("Assertions".equals(item.getType())) {
-                    if (groupMap.containsKey("Assertions")) {
-                        groupMap.get("Assertions").add(item);
+                    if (groupMap.containsKey(ASSERTIONS)) {
+                        groupMap.get(ASSERTIONS).add(item);
                     } else {
-                        groupMap.put("Assertions", new LinkedList<MsTestElement>() {{
+                        groupMap.put(ASSERTIONS, new LinkedList<MsTestElement>() {{
                             this.add(item);
                         }});
                     }
                 } else if (preOperates.contains(item.getType())) {
-                    if (groupMap.containsKey("PreOperate")) {
-                        groupMap.get("PreOperate").add(item);
+                    if (groupMap.containsKey(PRE)) {
+                        groupMap.get(PRE).add(item);
                     } else {
-                        groupMap.put("PreOperate", new LinkedList<MsTestElement>() {{
+                        groupMap.put(PRE, new LinkedList<MsTestElement>() {{
                             this.add(item);
                         }});
                     }
                 } else if (postOperates.contains(item.getType())) {
-                    if (groupMap.containsKey("PostOperate")) {
-                        groupMap.get("PostOperate").add(item);
+                    if (groupMap.containsKey(POST)) {
+                        groupMap.get(POST).add(item);
                     } else {
-                        groupMap.put("PostOperate", new LinkedList<MsTestElement>() {{
+                        groupMap.put(POST, new LinkedList<MsTestElement>() {{
                             this.add(item);
                         }});
                     }
@@ -676,9 +678,9 @@ public class ElementUtil {
                     elementList.add(item);
                 }
             });
-            elementList.addAll(groupMap.get("PreOperate").stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
-            elementList.addAll(groupMap.get("PostOperate").stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
-            elementList.addAll(groupMap.get("Assertions").stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            elementList.addAll(groupMap.get(PRE).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            elementList.addAll(groupMap.get(POST).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            elementList.addAll(groupMap.get(ASSERTIONS).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
         }
         return elementList;
     }
