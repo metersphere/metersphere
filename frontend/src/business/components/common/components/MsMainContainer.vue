@@ -1,29 +1,20 @@
 <template>
-  <el-main class="ms-main-container" :style="{
-              'height': calHeight,
-             }">
+  <el-main class="ms-main-container">
     <slot></slot>
   </el-main>
 </template>
 
 <script>
-export default {
-  name: "MsMainContainer",
-  props: {
-    enableAutoHeight: Boolean
-  },
-  computed: {
-    calHeight() {
-      return this.enableAutoHeight ? null : 'calc(100vh - 80px)';
-    },
-  },
-}
+  export default {
+    name: "MsMainContainer"
+  }
 </script>
 
 <style scoped>
 
-.ms-main-container {
-  padding: 5px 10px;
-}
+  .ms-main-container {
+    padding: 5px 10px;
+    height: calc(100vh - 80px);
+  }
 
 </style>

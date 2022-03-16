@@ -93,7 +93,7 @@ export default {
             arguments: [],
             rest: [],
             body: {
-              type: 'Raw',
+              type: 'Form Data',
               binary: [],
               kvs: [],
             }

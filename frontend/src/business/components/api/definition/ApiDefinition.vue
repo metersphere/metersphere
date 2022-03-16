@@ -495,9 +495,6 @@ export default {
           if (projectData && projectData.apiQuickMenu === 'api') {
             this.handleTabAdd("ADD");
           } else {
-            let newApi = {
-
-            };
             this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
           }
         })

@@ -1,7 +1,6 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -11,7 +10,6 @@ import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.definition.information.ApiDetailedInformationDTO;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.api.dto.definition.parse.Swagger3Parser;
@@ -21,7 +19,6 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.RequestType;
-import io.metersphere.api.dto.share.ApiDocumentInfoDTO;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.api.ApiExecuteService;
@@ -32,7 +29,6 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.json.JSONSchemaToDocumentUtils;
 import io.metersphere.commons.json.JSONToDocumentUtils;
 import io.metersphere.commons.utils.*;
@@ -124,8 +120,6 @@ public class ApiDefinitionService {
     private RelationshipEdgeService relationshipEdgeService;
     @Resource
     private ApiDefinitionFollowMapper apiDefinitionFollowMapper;
-    @Resource
-    private UserService userService;
     @Resource
     @Lazy
     private TestPlanService testPlanService;
@@ -2039,345 +2033,4 @@ public class ApiDefinitionService {
         }
     }
 
-    public ApiDetailedInformationDTO getApiDetail(String id) {
-        ApiDetailedInformationDTO informationDTO = new ApiDetailedInformationDTO();
-
-        ApiDefinitionResult result = this.getById(id);
-
-        ApiDocumentInfoDTO returnDTO = new ApiDocumentInfoDTO();
-        try {
-            Map<String, User> userIdMap = userService.queryName();
-            ApiDefinitionWithBLOBs definition = apiDefinitionMapper.selectByPrimaryKey(id);
-            returnDTO = this.conversionModelToDTO(definition,userIdMap);
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-
-        informationDTO.setApiDefinition(result);
-        informationDTO.setApiInfo(returnDTO);
-        return informationDTO;
-    }
-
-    public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel, Map<String,User> userIdMap) {
-        ApiDocumentInfoDTO apiInfoDTO = new ApiDocumentInfoDTO();
-        JSONArray previewJsonArray = new JSONArray();
-        if (apiModel != null) {
-            apiInfoDTO.setId(apiModel.getId());
-            apiInfoDTO.setName(apiModel.getName());
-            apiInfoDTO.setMethod(apiModel.getMethod());
-            apiInfoDTO.setUri(apiModel.getPath());
-            apiInfoDTO.setStatus(apiModel.getStatus());
-            apiInfoDTO.setProtocol(apiModel.getProtocol());
-
-            if(StringUtils.isNotEmpty(apiModel.getTags())){
-                JSONArray tagsArr = JSONArray.parseArray(apiModel.getTags());
-                List<String> tagList = new ArrayList<>();
-                for(int i = 0;i < tagsArr.size();i ++){
-                    tagList.add(tagsArr.getString(i));
-                }
-                if(!tagList.isEmpty()){
-                    apiInfoDTO.setTags(StringUtils.join(tagList,","));
-                }
-            }
-
-            apiInfoDTO.setResponsibler(userIdMap.get(apiModel.getUserId()) == null? apiModel.getUserId() : userIdMap.get(apiModel.getUserId()).getName());
-            apiInfoDTO.setCreateUser(userIdMap.get(apiModel.getCreateUser()) == null? apiModel.getCreateUser() : userIdMap.get(apiModel.getCreateUser()).getName());
-            apiInfoDTO.setDesc(apiModel.getDescription());
-            ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-            apiInfoDTO.setModules(apiModuleService.getModuleNameById(apiModel.getModuleId()));
-
-            if (apiModel.getRequest() != null) {
-                JSONObject requestObj = this.genJSONObject(apiModel.getRequest());
-                if (requestObj != null) {
-                    if (requestObj.containsKey("headers")) {
-                        JSONArray requestHeadDataArr = new JSONArray();
-                        //head赋值
-                        JSONArray headArr = requestObj.getJSONArray("headers");
-                        for (int index = 0; index < headArr.size(); index++) {
-                            JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj != null && headObj.containsKey("name") && headObj.containsKey("value")) {
-                                requestHeadDataArr.add(headObj);
-                            }
-                        }
-                        apiInfoDTO.setRequestHead(requestHeadDataArr.toJSONString());
-                    }
-                    //url参数赋值
-                    JSONArray urlParamArr = new JSONArray();
-                    if (requestObj.containsKey("arguments")) {
-                        try {
-                            JSONArray headArr = requestObj.getJSONArray("arguments");
-                            for (int index = 0; index < headArr.size(); index++) {
-
-                                JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name") && headObj.containsKey("value")) {
-                                    urlParamArr.add(headObj);
-                                }
-                            }
-                        } catch (Exception e) {
-                        }
-                    }
-                    //rest参数设置
-                    JSONArray restParamArr = new JSONArray();
-                    if (requestObj.containsKey("rest")) {
-                        try {
-                            //urlParam -- rest赋值
-                            JSONArray headArr = requestObj.getJSONArray("rest");
-                            for (int index = 0; index < headArr.size(); index++) {
-                                JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name")) {
-                                    restParamArr.add(headObj);
-                                }
-                            }
-                        } catch (Exception e) {
-                        }
-                    }
-                    apiInfoDTO.setUrlParams(urlParamArr.toJSONString());
-                    apiInfoDTO.setRestParams(restParamArr.toJSONString());
-                    //请求体参数类型
-                    if (requestObj.containsKey("body")) {
-                        try {
-                            JSONObject bodyObj = requestObj.getJSONObject("body");
-                            if (bodyObj.containsKey("type")) {
-                                String type = bodyObj.getString("type");
-                                if (StringUtils.equals(type, "WWW_FORM")) {
-                                    apiInfoDTO.setRequestBodyParamType("x-www-from-urlencoded");
-                                } else if (StringUtils.equals(type, "Form Data")) {
-                                    apiInfoDTO.setRequestBodyParamType("form-data");
-                                } else {
-                                    apiInfoDTO.setRequestBodyParamType(type);
-                                }
-
-                                if (StringUtils.equals(type, "JSON")) {
-                                    //判断是否是JsonSchema
-                                    boolean isJsonSchema = false;
-                                    if (bodyObj.containsKey("format")) {
-                                        String foramtValue = String.valueOf(bodyObj.get("format"));
-                                        if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
-                                            isJsonSchema = true;
-                                        }
-                                    }
-                                    if (isJsonSchema) {
-                                        apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
-                                        apiInfoDTO.setJsonSchemaBody(bodyObj);
-                                        if (bodyObj.containsKey("jsonSchema")) {
-                                            JSONObject jsonSchemaObj = bodyObj.getJSONObject("jsonSchema");
-                                            apiInfoDTO.setRequestPreviewData(JSON.parse(JSONSchemaGenerator.getJson(jsonSchemaObj.toJSONString())));
-                                        }
-                                    } else {
-                                        if (bodyObj.containsKey("raw")) {
-                                            String raw = bodyObj.getString("raw");
-                                            apiInfoDTO.setRequestBodyStrutureData(raw);
-                                            //转化jsonObje 或者 jsonArray
-                                            this.setPreviewData(previewJsonArray, raw);
-                                        }
-                                    }
-                                } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
-                                    if (bodyObj.containsKey("raw")) {
-                                        String raw = bodyObj.getString("raw");
-                                        apiInfoDTO.setRequestBodyStrutureData(raw);
-                                        this.setPreviewData(previewJsonArray, raw);
-                                    }
-                                } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
-                                    if (bodyObj.containsKey("kvs")) {
-                                        JSONArray bodyParamArr = new JSONArray();
-                                        JSONArray kvsArr = bodyObj.getJSONArray("kvs");
-                                        Map<String, String> previewObjMap = new LinkedHashMap<>();
-                                        for (int i = 0; i < kvsArr.size(); i++) {
-                                            JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("name")) {
-                                                String value = "";
-                                                if (kv.containsKey("value")) {
-                                                    value = String.valueOf(kv.get("value"));
-                                                }
-                                                bodyParamArr.add(kv);
-                                                previewObjMap.put(String.valueOf(kv.get("name")), value);
-                                            }
-                                        }
-                                        this.setPreviewData(previewJsonArray, JSONObject.toJSONString(previewObjMap));
-                                        apiInfoDTO.setRequestBodyFormData(bodyParamArr.toJSONString());
-                                    }
-                                } else if (StringUtils.equals(type, "BINARY")) {
-                                    if (bodyObj.containsKey("binary")) {
-                                        List<Map<String, String>> bodyParamList = new ArrayList<>();
-                                        JSONArray kvsArr = bodyObj.getJSONArray("binary");
-
-                                        Map<String, String> previewObjMap = new LinkedHashMap<>();
-                                        for (int i = 0; i < kvsArr.size(); i++) {
-                                            JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("description") && kv.containsKey("files")) {
-                                                Map<String, String> bodyMap = new HashMap<>();
-                                                String name = kv.getString("description");
-                                                JSONArray fileArr = kv.getJSONArray("files");
-                                                String value = "";
-                                                for (int j = 0; j < fileArr.size(); j++) {
-                                                    JSONObject fileObj = fileArr.getJSONObject(j);
-                                                    if (fileObj.containsKey("name")) {
-                                                        value += fileObj.getString("name") + " ;";
-                                                    }
-                                                }
-                                                bodyMap.put("name", name);
-                                                bodyMap.put("value", value);
-                                                bodyMap.put("contentType", "File");
-                                                bodyParamList.add(bodyMap);
-
-                                                previewObjMap.put(String.valueOf(name), String.valueOf(value));
-
-                                            }
-                                        }
-                                        this.setPreviewData(previewJsonArray, JSONObject.toJSONString(previewObjMap));
-                                        apiInfoDTO.setRequestBodyFormData(JSONArray.toJSONString(bodyParamList));
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-
-                        }
-
-                    }
-                }
-            }
-
-            //赋值响应头
-            if (apiModel.getResponse() != null) {
-                JSONObject responseJsonObj = this.genJSONObject(apiModel.getResponse());
-                if (responseJsonObj != null && responseJsonObj.containsKey("headers")) {
-                    try {
-                        JSONArray responseHeadDataArr = new JSONArray();
-                        JSONArray headArr = responseJsonObj.getJSONArray("headers");
-                        for (int index = 0; index < headArr.size(); index++) {
-                            JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj.containsKey("name") && headObj.containsKey("value")) {
-                                responseHeadDataArr.add(headObj);
-                            }
-                        }
-                        apiInfoDTO.setResponseHead(responseHeadDataArr.toJSONString());
-                    } catch (Exception e) {
-
-                    }
-                }
-                // 赋值响应体
-                if (responseJsonObj != null && responseJsonObj.containsKey("body")) {
-                    try {
-                        JSONObject bodyObj = responseJsonObj.getJSONObject("body");
-                        if (bodyObj.containsKey("type")) {
-                            String type = bodyObj.getString("type");
-                            if (StringUtils.equals(type, "WWW_FORM")) {
-                                apiInfoDTO.setResponseBodyParamType("x-www-from-urlencoded");
-                            } else if (StringUtils.equals(type, "Form Data")) {
-                                apiInfoDTO.setResponseBodyParamType("form-data");
-                            } else {
-                                apiInfoDTO.setResponseBodyParamType(type);
-                            }
-                            if (StringUtils.equalsAny(type, "JSON", "XML", "Raw")) {
-
-                                //判断是否是JsonSchema
-                                boolean isJsonSchema = false;
-                                if (bodyObj.containsKey("format")) {
-                                    String foramtValue = String.valueOf(bodyObj.get("format"));
-                                    if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
-                                        isJsonSchema = true;
-                                    }
-                                }
-                                if (isJsonSchema) {
-//                                    apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
-                                    apiInfoDTO.setResponseBodyParamType("JSON-SCHEMA");
-                                    apiInfoDTO.setJsonSchemaResponseBody(bodyObj);
-//                                    apiInfoDTO.setJsonSchemaBody(bodyObj);
-                                } else {
-                                    if (bodyObj.containsKey("raw")) {
-                                        String raw = bodyObj.getString("raw");
-                                        apiInfoDTO.setResponseBodyStrutureData(raw);
-                                        //转化jsonObje 或者 jsonArray
-                                        this.setPreviewData(previewJsonArray, raw);
-                                    }
-                                }
-                            } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
-                                if (bodyObj.containsKey("kvs")) {
-                                    JSONArray bodyParamArr = new JSONArray();
-                                    JSONArray kvsArr = bodyObj.getJSONArray("kvs");
-                                    for (int i = 0; i < kvsArr.size(); i++) {
-                                        JSONObject kv = kvsArr.getJSONObject(i);
-                                        if (kv.containsKey("name")) {
-                                            bodyParamArr.add(kv);
-                                        }
-                                    }
-                                    apiInfoDTO.setResponseBodyFormData(bodyParamArr.toJSONString());
-                                }
-                            } else if (StringUtils.equals(type, "BINARY")) {
-                                if (bodyObj.containsKey("binary")) {
-                                    List<Map<String, String>> bodyParamList = new ArrayList<>();
-                                    JSONArray kvsArr = bodyObj.getJSONArray("kvs");
-                                    for (int i = 0; i < kvsArr.size(); i++) {
-                                        JSONObject kv = kvsArr.getJSONObject(i);
-                                        if (kv.containsKey("description") && kv.containsKey("files")) {
-                                            Map<String, String> bodyMap = new HashMap<>();
-
-                                            String name = kv.getString("description");
-                                            JSONArray fileArr = kv.getJSONArray("files");
-                                            String value = "";
-                                            for (int j = 0; j < fileArr.size(); j++) {
-                                                JSONObject fileObj = fileArr.getJSONObject(j);
-                                                if (fileObj.containsKey("name")) {
-                                                    value += fileObj.getString("name") + " ;";
-                                                }
-                                            }
-                                            bodyMap.put("name", name);
-                                            bodyMap.put("value", value);
-                                            bodyParamList.add(bodyMap);
-                                        }
-                                    }
-                                    apiInfoDTO.setResponseBodyFormData(JSONArray.toJSONString(bodyParamList));
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-
-                    }
-
-                }
-                // 赋值响应码
-                if (responseJsonObj != null && responseJsonObj.containsKey("statusCode")) {
-                    try {
-                        JSONArray responseStatusDataArr = new JSONArray();
-                        JSONArray statusArr = responseJsonObj.getJSONArray("statusCode");
-                        for (int index = 0; index < statusArr.size(); index++) {
-                            JSONObject statusObj = statusArr.getJSONObject(index);
-                            if (statusObj.containsKey("name") && statusObj.containsKey("value")) {
-                                responseStatusDataArr.add(statusObj);
-                            }
-                        }
-                        apiInfoDTO.setResponseCode(responseStatusDataArr.toJSONString());
-                    } catch (Exception e) {
-
-                    }
-                }
-            }
-        }
-        if (!previewJsonArray.isEmpty()) {
-            apiInfoDTO.setRequestPreviewData(previewJsonArray);
-        }
-        apiInfoDTO.setSelectedFlag(true);
-        return apiInfoDTO;
-    }
-
-    private void setPreviewData(JSONArray previewArray, String data) {
-        try {
-            JSONObject previewObj = JSONObject.parseObject(data);
-            previewArray.add(previewObj);
-        } catch (Exception e) {
-        }
-        try {
-            previewArray = JSONArray.parseArray(data);
-        } catch (Exception e) {
-        }
-    }
-
-    private JSONObject genJSONObject(String request) {
-        JSONObject returnObj = null;
-        try {
-            returnObj = JSONObject.parseObject(request);
-        } catch (Exception e) {
-        }
-        return returnObj;
-    }
 }
