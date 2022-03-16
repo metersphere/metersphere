@@ -84,6 +84,11 @@ public class ApiScenarioReportService {
         apiScenarioReportResultService.save(dto.getReportId(), requestResults);
     }
 
+    public void saveUiResult(List<RequestResult> requestResults, ResultDTO dto) {
+        // 报告详情内容
+        apiScenarioReportResultService.uiSave(dto.getReportId(), requestResults);
+    }
+
     public ApiScenarioReport testEnded(ResultDTO dto) {
         if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             // 更新控制台信息

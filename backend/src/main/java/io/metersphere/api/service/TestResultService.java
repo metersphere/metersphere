@@ -72,6 +72,8 @@ public class TestResultService {
             apiDefinitionExecResultService.saveApiResult(requestResults, dto);
         } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             apiScenarioReportService.saveResult(requestResults, dto);
+        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.UI_SCENARIO.name(), ApiRunMode.UI_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name(), ApiRunMode.UI_SCHEDULE_SCENARIO.name(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name())) {
+            apiScenarioReportService.saveUiResult(requestResults, dto);
         }
         updateTestCaseStates(requestResults, dto.getRunMode());
     }

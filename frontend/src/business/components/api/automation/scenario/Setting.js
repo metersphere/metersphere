@@ -50,6 +50,7 @@ export const ELEMENT_TYPE = {
 
 export const TYPE_TO_C = new Map([
   ['scenario', 'io.metersphere.api.dto.definition.request.MsScenario'],
+  ['UiScenario', 'io.metersphere.xpack.ui.hashtree.MsUiScenario'],
   ['HTTPSamplerProxy', 'io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy'],
   ['DubboSampler', 'io.metersphere.api.dto.definition.request.sampler.MsDubboSampler'],
   ['JDBCSampler', 'io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler'],

@@ -37,6 +37,14 @@ public class ApiScenarioReportResultService {
         }
     }
 
+    public void uiSave(String reportId, List<RequestResult> queue) {
+        if (CollectionUtils.isNotEmpty(queue)) {
+            queue.forEach(item -> {
+                apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+            });
+        }
+    }
+
     private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult result) {
         ApiScenarioReportResult report = new ApiScenarioReportResult();
         //解析误报内容

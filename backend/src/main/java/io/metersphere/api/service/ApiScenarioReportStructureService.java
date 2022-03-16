@@ -54,9 +54,28 @@ public class ApiScenarioReportStructureService {
         this.save(reportId, dtoList);
     }
 
+    public void saveUi(List<UiScenarioWithBLOBs> uiScenarios, String reportId, String reportType) {
+        List<StepTreeDTO> dtoList = new LinkedList<>();
+        for (UiScenarioWithBLOBs bos : uiScenarios) {
+            StepTreeDTO dto = dataFormatting(bos, reportType);
+            dtoList.add(dto);
+        }
+        if (LoggerUtil.getLogger().isDebugEnabled()) {
+            LoggerUtil.debug("UI Scenario run-执行脚本装载-生成场景报告结构：" + JSON.toJSONString(dtoList));
+        }
+        this.save(reportId, dtoList);
+    }
+
     public void save(ApiScenarioWithBLOBs apiScenario, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
         StepTreeDTO dto = dataFormatting(apiScenario, reportType);
+        dtoList.add(dto);
+        this.save(reportId, dtoList);
+    }
+
+    public void save(UiScenarioWithBLOBs uiScenario, String reportId, String reportType) {
+        List<StepTreeDTO> dtoList = new LinkedList<>();
+        StepTreeDTO dto = dataFormatting(uiScenario, reportType);
         dtoList.add(dto);
         this.save(reportId, dtoList);
     }
@@ -81,7 +100,15 @@ public class ApiScenarioReportStructureService {
     }
 
     public static StepTreeDTO dataFormatting(ApiScenarioWithBLOBs apiScenario, String reportType) {
-        JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
+        return dataFormatting(apiScenario.getId(), apiScenario.getName(), apiScenario.getScenarioDefinition(), reportType);
+    }
+
+    public static StepTreeDTO dataFormatting(UiScenarioWithBLOBs uiScenario, String reportType) {
+        return dataFormatting(uiScenario.getId(), uiScenario.getName(), uiScenario.getScenarioDefinition(), reportType);
+    }
+
+    public static StepTreeDTO dataFormatting(String id, String name, String scenarioDefinition, String reportType) {
+        JSONObject element = JSON.parseObject(scenarioDefinition);
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
             element = getRefElement(element);
@@ -89,15 +116,15 @@ public class ApiScenarioReportStructureService {
                     ? element.getString("id") : element.getString("resourceId");
 
             if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
-                if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(apiScenario.getId()) && !resourceId.contains(apiScenario.getId())) {
-                    resourceId = apiScenario.getId() + "=" + resourceId;
+                if (StringUtils.isNotEmpty(resourceId) && StringUtils.isNotEmpty(id) && !resourceId.contains(id)) {
+                    resourceId = id + "=" + resourceId;
                 }
             }
-            dto = new StepTreeDTO(apiScenario.getName(), resourceId, element.getString("type"), 1);
+            dto = new StepTreeDTO(name, resourceId, element.getString("type"), 1);
             dto.setAllIndex(null);
             if (element.containsKey("hashTree") && !requests.contains(dto.getType())) {
                 JSONArray elementJSONArray = element.getJSONArray("hashTree");
-                dataFormatting(elementJSONArray, dto, apiScenario.getId(), reportType);
+                dataFormatting(elementJSONArray, dto, id, reportType);
             }
         }
         return dto;
