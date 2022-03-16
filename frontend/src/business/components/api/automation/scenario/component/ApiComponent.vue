@@ -71,7 +71,7 @@
       </template>
       <!--请求内容-->
       <template v-slot:request>
-        <legend>
+        <legend style="width: 100%;">
           <div v-if="!ifFromVariableAdvance">
             <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -89,24 +89,30 @@
               v-if="showXpackCompnent&&request.esbDataStruct!=null"
               v-xpack
               :request="request"
-              :showScript="false"
+              :response="response"
+              :showScript="true"
+              :show-pre-script="true"
               :is-read-only="isCompReadOnly" ref="esbDefinition"/>
             <ms-tcp-format-parameters
               v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
               :is-read-only="isCompReadOnly"
-              :show-script="false" :request="request"/>
+              :response="response"
+              :show-pre-script="true"
+              :show-script="true" :request="request"/>
 
             <ms-sql-basis-parameters
               v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
               :request="request"
+              :response="response"
               :is-read-only="isCompReadOnly"
-              :showScript="false"/>
+              :showScript="true"/>
 
             <ms-dubbo-basis-parameters
               v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
               :request="request"
+              :response="response"
               :is-read-only="isCompReadOnly"
-              :showScript="false"/>
+              :showScript="true"/>
 
           </div>
         </legend>
