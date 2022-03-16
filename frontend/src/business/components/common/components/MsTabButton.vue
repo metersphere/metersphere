@@ -118,4 +118,5 @@ export default {
   padding: 5px 8px;
   border: solid 1px var(--primary_color);
 }
+
 </style>

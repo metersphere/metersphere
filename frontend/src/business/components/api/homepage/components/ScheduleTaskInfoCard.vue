@@ -1,6 +1,6 @@
 <template>
   <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 16px;"
-           style="height: 360px;margin-top: 5px">
+           style="height: 350px;margin-top: 5px">
     <div slot="header">
       <span class="title">
         {{ $t('api_test.home_page.schedule_task_count_card.title') }}

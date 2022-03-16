@@ -1,6 +1,6 @@
 <template>
   <div style="margin-bottom: 50px;border-bottom-width: 2px" ref="baseDiv">
-    <div style="font-size: 18px; margin-left: 15px">
+    <div style="font-size: 17px">
       <el-popover
           v-if="projectId"
           placement="right"
@@ -16,12 +16,10 @@
       </el-popover>
       {{ apiInfo.name }}
       <span class="apiStatusTag">
-        <api-status :value="apiInfo.status"/>
-      </span>
-      <slot name="headerRight"></slot>
+              <api-status :value="apiInfo.status"/>
+            </span>
     </div>
-
-    <!--api基础信息-->
+    <!--api请求信息-->
     <el-row class="apiInfoRow">
       <div class="simpleFontClass">
         <el-tag size="medium"
@@ -42,16 +40,39 @@
         </el-row>
       </div>
     </el-row>
+    <!--api请求头-->
+    <api-info-collapse table-coloum-type="nameAndValue" :title="$t('api_test.definition.document.request_head')"
+                       :string-data="apiInfo.requestHead"/>
+    <!--QUERY参数-->
+    <api-info-collapse table-coloum-type="simple" :title="'QUERY'+$t('api_test.definition.document.request_param')"
+                       :string-data="apiInfo.urlParams"/>
+    <!--REST参数-->
+    <api-info-collapse table-coloum-type="simple" :title="'REST'+$t('api_test.definition.document.request_param')"
+                       :string-data="apiInfo.restParams"/>
+    <!--api请求体 以及表格-->
+    <api-info-collapse :is-request="true" :remarks="apiInfo.requestBodyParamType"
+                       :title="$t('api_test.definition.document.request_body')">
+      <api-request-info slot="request" :api-info="apiInfo"></api-request-info>
+    </api-info-collapse>
 
-    <http-information v-if="apiInfo.protocol==='HTTP'" :api-info="apiInfo"/>
-    <tcp-information v-else-if="apiInfo.protocol==='TCP'" :api="apiObject"/>
-    <sql-api-information v-else-if="apiInfo.protocol==='SQL'" :api="apiObject"/>
-    <dubbo-information v-else-if="apiInfo.protocol==='DUBBO'" :api="apiObject"/>
+    <!--响应头-->
+    <api-info-collapse table-coloum-type="nameAndValue" :title="$t('api_test.definition.document.response_head')"
+                       :string-data="apiInfo.responseHead"/>
+    <!--响应体-->
+    <api-info-collapse :is-response="true" :remarks="apiInfo.responseBodyParamType"
+                       :title="$t('api_test.definition.document.response_body')">
+      <api-response-info slot="response" :api-info="apiInfo"></api-response-info>
+    </api-info-collapse>
+
+    <!--响应状态码-->
+    <api-info-collapse :is-text="true" :string-data="getName(apiInfo.responseCode)"
+                       :title="$t('api_test.definition.document.response_code')"/>
     <el-divider></el-divider>
   </div>
 </template>
 
 <script>
+import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/JsonData";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
@@ -60,15 +81,7 @@ import {generateApiDocumentShareInfo} from "@/network/share";
 import ApiInfoCollapse from "@/business/components/api/definition/components/document/components/ApiInfoCollapse";
 import ApiRequestInfo from "@/business/components/api/definition/components/document/components/ApiRequestInfo";
 import ApiResponseInfo from "@/business/components/api/definition/components/document/components/ApiResponseInfo";
-import HttpInformation
-  from "@/business/components/api/definition/components/document/components/protocal/HttpInformation";
-import TcpInformation
-  from "@/business/components/api/definition/components/document/components/protocal/TcpInformation";
-import DubboInformation
-  from "@/business/components/api/definition/components/document/components/protocal/DubboInformation";
-import SqlApiInformation
-  from "@/business/components/api/definition/components/document/components/protocal/SqlApiInformation";
-import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/JsonData";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const apiDocumentBatchShare = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
 
@@ -78,12 +91,10 @@ export default {
     Api,
     MsJsonCodeEdit,
     ApiStatus, MsCodeEdit, ApiInfoCollapse, ApiRequestInfo, ApiResponseInfo,
-    HttpInformation,TcpInformation,DubboInformation,SqlApiInformation,
     "ApiDocumentBatchShare": apiDocumentBatchShare.default
   },
   data() {
     return {
-      apiObject:{},
       shareUrl: "",
       apiActiveInfoNames: ["info"],
       batchShareUrl: "",
@@ -91,7 +102,6 @@ export default {
       apiInfoArray: [],
       modes: ['text', 'json', 'xml', 'html'],
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
-      methodColorMap: new Map(API_METHOD_COLOUR),
       mockVariableFuncs: [],
       apiSearch: {
         name: "",
@@ -120,7 +130,7 @@ export default {
         responseBodyStrutureData: "无",
         responseCode: "无",
       },
-
+      methodColorMap: new Map(API_METHOD_COLOUR),
       maxCompnentSize: 5, //浏览器最多渲染的api信息体数量
       apiShowArray: [],//浏览器要渲染的api信息集合
       needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxCompnentSize时为true
@@ -130,13 +140,11 @@ export default {
   },
   props: {
     projectId: String,
-    apiInfo: Object,
-    api:Object,
+    apiInfo: Object
   },
   activated() {
   },
   created: function () {
-    this.apiObject = JSON.parse(JSON.stringify(this.api));
     if (requireComponent != null && JSON.stringify(apiDocumentBatchShare) != '{}') {
       this.showXpackCompnent = true;
     }
@@ -185,15 +193,33 @@ export default {
     getColor(enable, method) {
       return this.methodColorMap.get(method);
     },
+    getName(jsonString) {
+      let returnString = "无";
+      if (jsonString == '无' || jsonString == null) {
+        return returnString;
+      }
+
+      try {
+        let jsonArr = JSON.parse(jsonString);
+        //遍历，把必填项空的数据去掉
+        for (var index = 0; index < jsonArr.length; index++) {
+          var item = jsonArr[index];
+          if (item.name !== "") {
+            returnString = item.name;
+            break;
+          }
+        }
+      } catch (e) {
+        returnString = jsonString;
+      }
+
+      return returnString;
+    },
   },
 };
 </script>
 
 <style scoped>
-
-.apiStatusTag {
-  margin: 10px 10px;
-}
 .simpleFontClass {
   font-weight: normal;
   font-size: 14px;
@@ -207,60 +233,64 @@ export default {
 .apiInfoRow.el-row {
   margin: 10px 10px;
 }
+
+.apiStatusTag {
+  margin: 10px 10px;
+}
+
+/*
+步骤条中，已经完成后的节点样式和里面a标签的样式
+*/
+/deep/ .el-step {
+  flex-basis: 40px !important;
+}
+
+/deep/ .el-step__head.is-finish {
+  color: #C0C4CC;
+  border-color: #C0C4CC;
+}
+
+/deep/ .el-step__title.is-finish /deep/ .el-link.el-link--default {
+  color: #C0C4CC;
+}
+
+/*
+步骤条中，当前节点样式和当前a标签的样式
+*/
+/deep/ .el-step__head {
+  width: 20px;
+}
+
+/deep/ .el-step__head.is-process {
+  color: #783887;
+  border-color: #783887;
+  width: 20px;
+}
+
+/deep/ .el-step__title.is-process .el-link.el-link--default.is-underline {
+  color: #783887;
+}
+
+/deep/ .el-link--inner {
+  font-size: 12px;
+}
+
+/deep/ .el-step__icon-inner {
+  font-size: 12px;
+}
+
+/deep/ .el-step.is-vertical .el-step__line {
+  left: 9px;
+}
+
+/deep/ .el-step__icon {
+  width: 20px;
+  height: 20px;
+}
+
 .attacInfo {
   font-size: 12px;
   color: #A0A0A0;
   margin: 10px;
 }
-/*!**/
-/*步骤条中，已经完成后的节点样式和里面a标签的样式*/
-/**!*/
-/*/deep/ .el-step {*/
-/*  flex-basis: 40px !important;*/
-/*}*/
-
-/*/deep/ .el-step__head.is-finish {*/
-/*  color: #C0C4CC;*/
-/*  border-color: #C0C4CC;*/
-/*}*/
-
-/*/deep/ .el-step__title.is-finish /deep/ .el-link.el-link--default {*/
-/*  color: #C0C4CC;*/
-/*}*/
-
-/*!**/
-/*步骤条中，当前节点样式和当前a标签的样式*/
-/**!*/
-/*/deep/ .el-step__head {*/
-/*  width: 20px;*/
-/*}*/
-
-/*/deep/ .el-step__head.is-process {*/
-/*  color: #783887;*/
-/*  border-color: #783887;*/
-/*  width: 20px;*/
-/*}*/
-
-/*/deep/ .el-step__title.is-process .el-link.el-link--default.is-underline {*/
-/*  color: #783887;*/
-/*}*/
-
-/*/deep/ .el-link--inner {*/
-/*  font-size: 12px;*/
-/*}*/
-
-/*/deep/ .el-step__icon-inner {*/
-/*  font-size: 12px;*/
-/*}*/
-
-/*/deep/ .el-step.is-vertical .el-step__line {*/
-/*  left: 9px;*/
-/*}*/
-
-/*/deep/ .el-step__icon {*/
-/*  width: 20px;*/
-/*  height: 20px;*/
-/*}*/
-
-
 </style>

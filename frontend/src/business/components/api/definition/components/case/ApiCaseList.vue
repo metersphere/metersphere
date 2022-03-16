@@ -6,7 +6,7 @@
           :api="api"
           @setEnvironment="setEnvironment"
           @addCase="addCase"
-          @saveCase="saveCase"
+          @saveCase="saveCase(apiCaseList[0])"
           :condition="condition"
           :priorities="priorities"
           :project-id="projectId"
@@ -17,9 +17,8 @@
 
       <el-container v-if="!result.loading">
         <el-main>
-          <div v-for="item in apiCaseList" :key="item.id ? item.id : item.uuid">
           <api-case-item
-            :loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
+            :loading="singleLoading && singleRunId === apiCaseList[0].id || batchLoadingIds.indexOf(apiCaseList[0].id) > -1"
             @refresh="refresh"
             @singleRun="singleRun"
             @stop="stop"
@@ -28,8 +27,6 @@
             @showExecResult="showExecResult"
             @showHistory="showHistory"
             @reLoadCase="reLoadCase"
-            @saveCaseCallback="close"
-            @setSelectedCaseId="setSelectedCaseId"
             :environment="environment"
             :is-case-edit="isCaseEdit"
             :api="api"
@@ -37,8 +34,7 @@
             :loaded="loaded"
             :runResult="runResult"
             :maintainerOptions="maintainerOptions"
-            :api-case="item" ref="apiCaseItem"/>
-          </div>
+            :api-case="apiCaseList[0]" ref="apiCaseItem"/>
         </el-main>
       </el-container>
     </ms-drawer>
@@ -68,8 +64,6 @@ export default {
   },
   props: {
     createCase: String,
-    testUsers: Array,
-    useExternalUsers: Boolean,
     loaded: {
       type: Boolean,
       default: false
@@ -85,7 +79,6 @@ export default {
       environment: "",
       priorities: CASE_ORDER,
       apiCaseList: [],
-      selectCaseId:"",
       batchLoadingIds: [],
       singleLoading: false,
       singleRunId: "",
@@ -114,9 +107,6 @@ export default {
       this.api = this.currentApi;
       this.sysAddition();
     },
-    testUsers() {
-      this.maintainerOptions = this.testUsers;
-    }
   },
   created() {
     this.api = this.currentApi;
@@ -137,20 +127,13 @@ export default {
     },
   },
   methods: {
-    setSelectedCaseId(caseId){
-      this.selectCaseId = caseId;
-    },
     getMaintainerOptions() {
-      if (this.useExternalUsers) {
-        this.maintainerOptions = this.testUsers;
-      } else {
-        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-          this.maintainerOptions = response.data;
-        });
-      }
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
     },
-    close() {
-      if (this.$refs.testCaseDrawer) {
+    close(){
+      if(this.$refs.testCaseDrawer){
         this.$refs.testCaseDrawer.close();
       }
     },
@@ -213,17 +196,8 @@ export default {
       }
       this.visible = true;
     },
-    saveCase(hideAlert) {
-      let index = 0;
-      if(this.selectCaseId && this.selectCaseId !== ''){
-        for(let i = 0; i < this.apiCaseList.length; i++){
-          if(this.apiCaseList[i].id === this.selectCaseId){
-            index = i;
-          }
-        }
-      }
-      let item = this.apiCaseList[index];
-      this.$refs.apiCaseItem[index].saveTestCase(item, hideAlert);
+    saveCase(item, hideAlert) {
+      this.$refs.apiCaseItem.saveTestCase(item, hideAlert);
     },
     saveApiAndCase(api) {
       if (api && api.url) {
