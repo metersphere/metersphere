@@ -48,6 +48,13 @@
                   <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
                                        :treeData="fullTreeNodes" ref="errorReportTree"/>
                 </el-tab-pane>
+                <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
+                  <template slot="label">
+                    <span class="fail">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
+                  </template>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                                       :treeData="fullTreeNodes" ref="unExecuteTree"/>
+                </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
                     <span class="console">{{ $t('api_test.definition.request.console') }}</span>
@@ -201,6 +208,8 @@ export default {
         this.$refs.failsTree.filter(index);
       } else if (this.activeName === "errorReport") {
         this.$refs.errorReportTree.filter("errorReport");
+      } else if(this.activeName === "unExecute"){
+        this.$refs.unExecuteTree.filter("unexecute");
       }
     },
     handleClick(tab, event) {
