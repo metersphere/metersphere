@@ -653,6 +653,8 @@ export default {
         }
         if (item.hashTree && item.hashTree.length > 0) {
           this.commandTreeNode(item, item.hashTree);
+        } else {
+          item.isLeaf = true;
         }
       })
       if (node) {
