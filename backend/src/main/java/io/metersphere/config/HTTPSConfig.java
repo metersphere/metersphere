@@ -3,6 +3,8 @@ package io.metersphere.config;
 
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
+import io.undertow.server.handlers.DisallowedMethodsHandler;
+import io.undertow.util.HttpString;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
@@ -45,6 +47,11 @@ public class HTTPSConfig {
 //                            .setEmptyRoleSemantic(SecurityInfo.EmptyRoleSemantic.PERMIT))
 //                    .setConfidentialPortManager(exchange -> httpsPort);
 //        });
+        // 禁用 TRACE 和 TRACK
+        undertowFactory.addDeploymentInfoCustomizers(deploymentInfo -> deploymentInfo.addInitialHandlerChainWrapper(handler -> {
+            HttpString[] disallowedHttpMethods = {HttpString.tryFromString("TRACE"), HttpString.tryFromString("TRACK")};
+            return new DisallowedMethodsHandler(handler, disallowedHttpMethods);
+        }));
         return undertowFactory;
     }
 
