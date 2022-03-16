@@ -1149,6 +1149,11 @@ public class ApiDefinitionExecResultExample {
             return (Criteria) this;
         }
 
+        public Criteria andReportTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("report_type >=", value, "reportType");
+            return (Criteria) this;
+        }
+
         public Criteria andReportTypeLessThan(String value) {
             addCriterion("report_type <", value, "reportType");
             return (Criteria) this;
