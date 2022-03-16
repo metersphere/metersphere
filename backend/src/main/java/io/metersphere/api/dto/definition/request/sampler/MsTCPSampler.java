@@ -169,6 +169,7 @@ public class MsTCPSampler extends MsTestElement {
         HashTreeUtil hashTreeUtil = new HashTreeUtil();
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
+            hashTree = ElementUtil.order(hashTree);
             EnvironmentConfig finalEnvConfig = envConfig;
             hashTree.forEach(el -> {
                 if (el instanceof MsAssertions) {
