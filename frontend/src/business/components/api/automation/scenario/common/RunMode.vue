@@ -65,7 +65,7 @@
     </div>
 
     <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
-      <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
+      <span class="ms-mode-span-label">{{ $t("run_mode.report_name") }}：</span>
       <el-input
         v-model="runConfig.reportName"
         :placeholder="$t('commons.input_content')"
@@ -149,12 +149,12 @@ export default {
       this.$emit('close');
     },
     getWsProjects() {
-      this.$get("/project/listAll", res => {
+      this.$get("/project/getOwnerProjects", res => {
         this.projectList = res.data;
       })
     },
     handleRunBatch() {
-      if (this.runConfig.mode === 'serial' && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
+      if ((this.runConfig.mode === 'serial' || this.runConfig.mode === 'parallel') && this.runConfig.reportType === 'setReport' && this.runConfig.reportName.trim() === "") {
         this.$warning(this.$t('commons.input_name'));
         return;
       }
@@ -175,6 +175,7 @@ export default {
     showPopover() {
       this.projectIds.clear();
       let url = "/api/automation/env";
+
       this.$post(url, this.request, res => {
         let data = res.data;
         if (data) {
@@ -197,4 +198,12 @@ export default {
 .ms-mode-div {
   margin-top: 20px;
 }
+
+.ms-mode-span-label:before {
+  content: '*';
+  color: #F56C6C;
+  margin-right: 4px;
+  margin-left: 10px;
+}
+
 </style>

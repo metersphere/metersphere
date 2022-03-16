@@ -17,14 +17,14 @@
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('workspace.case_template_manage')" prop="caseTemplateId">
-          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
+          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate" :project-id="form.id"/>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth"
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
                            :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
-                           :platformOptions="issueOptions"
+                           :platformOptions="issueOptions" :project-id="form.id"
                            ref="issueTemplate"/>
 
           <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'"
@@ -34,23 +34,22 @@
 
         </el-form-item>
 
-        <el-form-item :label-width="labelWidth" label="TCP Mock Port">
-          <el-input-number v-model="form.mockTcpPort" :controls="false"
-                           style="width: 37%;margin-right: 30px"></el-input-number>
-          <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
-        </el-form-item>
-
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
+          <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
         </el-form-item>
 
-        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form"/>
-
+        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form">
+          <template #checkBtn>
+            <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
+          </template>
+        </project-jira-config>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+          <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
           <ms-instructions-icon effect="light">
             <template>
               禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
@@ -66,18 +65,6 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
           <el-input v-model="form.azureFilterId" autocomplete="off"/>
           <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable"
-                      v-if="this.isShowApp">
-          <el-switch v-model="form.repeatable"></el-switch>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum"
-                      v-if="this.isShowApp">
-          <el-switch v-model="form.customNum"></el-switch>
-        </el-form-item>
-        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum"
-                      v-if="this.isShowApp">
-          <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -97,7 +84,8 @@
 
 import {
   getCurrentProjectID,
-  getCurrentUser, getCurrentUserId,
+  getCurrentUser,
+  getCurrentUserId,
   getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
@@ -106,7 +94,7 @@ import {
 import {AZURE_DEVOPS, JIRA, PROJECT_ID, TAPD, ZEN_TAO} from "@/common/js/constants";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
-import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
+import TemplateSelect from "@/business/components/project/template/TemplateSelect";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
@@ -203,6 +191,15 @@ export default {
     this.createVisible = false;
   },
   methods: {
+    check() {
+      if (!this.form.id) {
+        this.$warning(this.$t("test_track.issue.save_project_first"));
+        return;
+      }
+      this.$post("/project/check/third/project", this.form, () => {
+        this.$success("OK");
+      });
+    },
     getOptions() {
       if (this.$refs.issueTemplate) {
         this.$refs.issueTemplate.getTemplateOptions();
@@ -325,5 +322,9 @@ pre {
 
 .el-input, .el-textarea {
   width: 80%;
+}
+
+.checkButton {
+  margin-left: 5px;
 }
 </style>

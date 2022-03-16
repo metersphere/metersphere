@@ -1065,9 +1065,9 @@ export default {
       this.$refs.batchEdit.open(this.condition.selectAll ? this.page.total : this.$refs.table.selectRows.size);
     },
     handleBatchAddPublic() {
-      this.$get('/project/get/' + getCurrentProjectID(), res => {
+      this.$get('/project_application/get/config/' + getCurrentProjectID() + "/CASE_PUBLIC", res => {
         let data = res.data;
-        if (data.casePublic) {
+        if (data && data.casePublic) {
           let param = {};
           param.ids = this.$refs.table.selectIds;
           param.casePublic = true;

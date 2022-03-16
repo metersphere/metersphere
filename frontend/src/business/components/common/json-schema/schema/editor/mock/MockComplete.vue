@@ -10,7 +10,7 @@
       value-key="name"
       highlight-first-item
       @select="change">
-      <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
+      <i slot="suffix" v-if="!disabled" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
     </el-autocomplete>
     <ms-api-variable-advance :show-mock-vars="showMockVars" :scenario-definition="scenarioDefinition" :current-item="mock" ref="variableAdvance"/>
 
@@ -67,8 +67,11 @@
     },
     methods: {
       funcSearch(queryString, cb) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        let results = [];
+        if(!this.showMockVars){
+          let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+          results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        }
         // 调用 callback 返回建议列表的数据
         cb(results);
       },

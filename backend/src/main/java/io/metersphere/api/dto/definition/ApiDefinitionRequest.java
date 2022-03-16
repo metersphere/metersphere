@@ -23,6 +23,8 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private String reviewId;
     private String refId;
     private String versionId;
+    private String path;
+    private String method;
 
     // 测试计划是否允许重复
     private boolean repeatCase;

@@ -6,14 +6,17 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
@@ -68,6 +71,8 @@ public class TestPlanTestCaseService {
     private TestCaseService testCaseService;
     @Resource
     private TestCaseIssueService testCaseIssueService;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public List<TestPlanTestCaseWithBLOBs> listAll() {
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
@@ -81,10 +86,6 @@ public class TestPlanTestCaseService {
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        List<TestPlanCaseDTO> testPlanCaseDTOList = extTestPlanTestCaseMapper.list(request);
-        testPlanCaseDTOList.forEach(item -> {
-            testCaseIssueService.updateIssuesCount(item.getId());
-        });
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setProjectId(request.getProjectId());
@@ -417,7 +418,9 @@ public class TestPlanTestCaseService {
                 cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
         cases.forEach(item -> {
             item.setProjectName(projectMap.get(item.getProjectId()).getName());
-            item.setIsCustomNum(projectMap.get(item.getProjectId()).getCustomNum());
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(item.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+            boolean customNum = config.getCaseCustomNum();
+            item.setIsCustomNum(customNum);
             item.setExecutorName(userNameMap.get(item.getExecutor()));
         });
         return cases;

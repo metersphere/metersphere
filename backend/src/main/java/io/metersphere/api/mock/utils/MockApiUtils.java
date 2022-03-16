@@ -146,7 +146,7 @@ public class MockApiUtils {
         return returnJson;
     }
 
-    public static JSONObject parseJsonSchema(JSONObject bodyReturnObj) {
+    public static JSONObject parseJsonSchema(JSONObject bodyReturnObj,boolean useJMeterFunc) {
         JSONObject returnObj = new JSONObject();
         if (bodyReturnObj == null) {
             return returnObj;
@@ -157,7 +157,7 @@ public class MockApiUtils {
             try {
                 JsonSchemaReturnObj obj = bodyReturnObj.getObject(key, JsonSchemaReturnObj.class);
                 if (StringUtils.equals("object", obj.getType())) {
-                    JSONObject itemObj = parseJsonSchema(obj.getProperties());
+                    JSONObject itemObj = parseJsonSchema(obj.getProperties(),useJMeterFunc);
                     if (!itemObj.isEmpty()) {
                         returnObj.put(key, itemObj);
                     }
@@ -167,13 +167,16 @@ public class MockApiUtils {
                         if (itemObj.containsKey("type")) {
                             if (StringUtils.equals("object", itemObj.getString("type")) && itemObj.containsKey("properties")) {
                                 JSONObject arrayObj = itemObj.getJSONObject("properties");
-                                JSONObject parseObj = parseJsonSchema(arrayObj);
+                                JSONObject parseObj = parseJsonSchema(arrayObj,useJMeterFunc);
                                 JSONArray array = new JSONArray();
                                 array.add(parseObj);
                                 returnObj.put(key, array);
                             } else if (StringUtils.equals("string", itemObj.getString("type")) && itemObj.containsKey("mock")) {
                                 JsonSchemaReturnObj arrayObj = JSONObject.toJavaObject(itemObj, JsonSchemaReturnObj.class);
-                                String value = getMockValues(arrayObj.getMockValue());
+                                String value = arrayObj.getMockValue();
+                                if(useJMeterFunc){
+                                    value = getMockValues(arrayObj.getMockValue());
+                                }
                                 JSONArray array = new JSONArray();
                                 array.add(value);
                                 returnObj.put(key, array);
@@ -184,7 +187,7 @@ public class MockApiUtils {
                     String values = obj.getMockValue();
                     if (StringUtils.isEmpty(values)) {
                         values = "";
-                    } else {
+                    } else if(useJMeterFunc){
                         try {
                             values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
                         } catch (Exception e) {
@@ -254,7 +257,7 @@ public class MockApiUtils {
                                     if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
                                         String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
                                         JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
-                                        JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj);
+                                        JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj,false);
                                         returnStr = returnObj.toJSONString();
                                     }
                                 } else {
@@ -379,7 +382,7 @@ public class MockApiUtils {
                         if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
                             String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
                             JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
-                            JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj);
+                            JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj,false);
                             returnStr = returnObj.toJSONString();
                         }
                     } else {
@@ -709,11 +712,13 @@ public class MockApiUtils {
     }
 
     public static boolean checkParamsCompliance(JSONArray jsonArray, List<MockConfigRequestParams> mockConfigRequestParamList, boolean isAllMatch) {
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject obj = jsonArray.getJSONObject(i);
-            boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList, isAllMatch);
-            if (isMatch) {
-                return true;
+        if (jsonArray != null) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                boolean isMatch = checkParamsCompliance(obj, mockConfigRequestParamList, isAllMatch);
+                if (isMatch) {
+                    return true;
+                }
             }
         }
         return false;

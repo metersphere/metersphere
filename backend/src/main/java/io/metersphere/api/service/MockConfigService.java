@@ -24,10 +24,12 @@ import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.ProjectApplicationService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +64,8 @@ public class MockConfigService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public MockConfigResponse findByApiIdList(List<String> apiIdList) {
         if (apiIdList.isEmpty()) {
@@ -782,139 +786,6 @@ public class MockConfigService {
         return returnStr;
     }
 
-    public String updateHttpServletResponse(List<ApiDefinitionWithBLOBs> apis, HttpServletResponse response) {
-        String returnStr = "";
-        try {
-            if (CollectionUtils.isEmpty(apis)) {
-                response.setStatus(404);
-            } else {
-                for (ApiDefinitionWithBLOBs api : apis) {
-                    int status = 404;
-                    if (api.getResponse() != null) {
-                        JSONObject respObj = JSONObject.parseObject(api.getResponse());
-                        if (respObj.containsKey("headers")) {
-                            JSONArray headersArr = respObj.getJSONArray("headers");
-                            for (int i = 0; i < headersArr.size(); i++) {
-                                JSONObject obj = headersArr.getJSONObject(i);
-                                if (obj.containsKey("name") && obj.containsKey("value") && StringUtils.isNotEmpty(obj.getString("name"))) {
-                                    response.setHeader(obj.getString("name"), obj.getString("value"));
-                                }
-                            }
-                        }
-                        if (respObj.containsKey("statusCode")) {
-                            JSONArray statusCodeArr = respObj.getJSONArray("statusCode");
-                            for (int i = 0; i < statusCodeArr.size(); i++) {
-                                JSONObject obj = statusCodeArr.getJSONObject(i);
-                                if (obj.containsKey("name") && obj.containsKey("value") && StringUtils.isNotEmpty(obj.getString("name"))) {
-//                                response.setHeader(obj.getString("name"), obj.getString("value"));
-                                    try {
-                                        status = Integer.parseInt(obj.getString("name"));
-                                    } catch (Exception e) {
-                                    }
-                                }
-                            }
-                        }
-                        if (respObj.containsKey("body")) {
-                            JSONObject bodyObj = respObj.getJSONObject("body");
-                            if (bodyObj.containsKey("type")) {
-                                String type = bodyObj.getString("type");
-                                if (StringUtils.equals(type, "JSON")) {
-                                    //判断是否是JsonSchema
-                                    boolean isJsonSchema = false;
-                                    if (bodyObj.containsKey("format")) {
-                                        String foramtValue = String.valueOf(bodyObj.get("format"));
-                                        if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
-                                            isJsonSchema = true;
-                                        }
-                                    }
-                                    if (isJsonSchema) {
-                                        if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
-                                            String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
-                                            JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
-                                            JSONObject returnObj = MockApiUtils.parseJsonSchema(bodyReturnObj);
-                                            returnStr = returnObj.toJSONString();
-                                        }
-                                    } else {
-                                        if (bodyObj.containsKey("raw")) {
-                                            returnStr = bodyObj.getString("raw");
-                                        }
-                                    }
-                                } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
-                                    if (bodyObj.containsKey("raw")) {
-                                        String raw = bodyObj.getString("raw");
-                                        returnStr = raw;
-                                    }
-                                } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
-                                    Map<String, String> paramMap = new LinkedHashMap<>();
-                                    if (bodyObj.containsKey("kvs")) {
-                                        JSONArray bodyParamArr = new JSONArray();
-                                        JSONArray kvsArr = bodyObj.getJSONArray("kvs");
-                                        for (int i = 0; i < kvsArr.size(); i++) {
-                                            JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("name")) {
-                                                String values = kv.getString("value");
-                                                if (StringUtils.isEmpty(values)) {
-                                                    values = "";
-                                                } else {
-                                                    try {
-                                                        values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
-                                                    } catch (Exception e) {
-                                                    }
-                                                }
-                                                paramMap.put(kv.getString("name"), values);
-                                            }
-                                        }
-                                    }
-                                    returnStr = JSONObject.toJSONString(paramMap);
-                                    //Binary的先不处理
-//                                } else if (StringUtils.equals(type, "BINARY")) {
-//                                    Map<String, String> paramMap = new LinkedHashMap<>();
-//                                    if (bodyObj.containsKey("binary")) {
-//                                        JSONArray kvsArr = bodyObj.getJSONArray("kvs");
-//                                        for (int i = 0; i < kvsArr.size(); i++) {
-//                                            JSONObject kv = kvsArr.getJSONObject(i);
-//                                            if (kv.containsKey("description") && kv.containsKey("files")) {
-//                                                String name = kv.getString("description");
-//                                                JSONArray fileArr = kv.getJSONArray("files");
-//                                                String allValue = "";
-//                                                for (int j = 0; j < fileArr.size(); j++) {
-//                                                    JSONObject fileObj = fileArr.getJSONObject(j);
-//                                                    if (fileObj.containsKey("name")) {
-//                                                        String values = fileObj.getString("name");
-//                                                        if (StringUtils.isEmpty(values)) {
-//                                                            values = "";
-//                                                        } else {
-//                                                            try {
-//                                                                values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
-//                                                            } catch (Exception e) {
-//                                                            }
-//                                                        }
-//
-//                                                        allValue += values + " ;";
-//                                                    }
-//                                                }
-//                                                paramMap.put(name, allValue);
-//                                            }
-//                                        }
-//                                    }
-//                                    returnStr = JSONObject.toJSONString(paramMap);
-                                }
-                            }
-                        }
-                    }
-                    if (StringUtils.isNotEmpty(returnStr) && status == 404) {
-                        status = 200;
-                    }
-                    response.setStatus(status);
-                }
-            }
-
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-        return returnStr;
-    }
-
     public MockExpectConfigWithBLOBs findMockExpectConfigById(String id) {
         return mockExpectConfigMapper.selectByPrimaryKey(id);
     }
@@ -1259,9 +1130,19 @@ public class MockConfigService {
     }
 
     public MockExpectConfigWithBLOBs matchTcpMockExpect(String message, int port) {
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andMockTcpPortEqualTo(port).andIsMockTcpOpenEqualTo(true);
-        List<Project> projectList = projectMapper.selectByExample(projectExample);
+        ProjectApplicationExample pae = new ProjectApplicationExample();
+        pae.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_OPEN.name())
+                .andTypeValueEqualTo(String.valueOf(true));
+        pae.or().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_PORT.name())
+                .andTypeValueEqualTo(String.valueOf(port));
+        List<ProjectApplication> projectApplications = projectApplicationService.selectByExample(pae);
+        List<String> projectIds = projectApplications.stream().map(ProjectApplication::getProjectId).collect(Collectors.toList());
+        List<Project> projectList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            ProjectExample projectExample = new ProjectExample();
+            projectExample.createCriteria().andIdIn(projectIds);
+            projectList = projectMapper.selectByExample(projectExample);
+        }
 
         boolean isJsonMessage = this.checkMessageIsJson(message);
         boolean isXMLMessage = this.checkMessageIsXml(message);

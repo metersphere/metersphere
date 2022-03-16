@@ -90,6 +90,13 @@ MeterSphere v1.10 版本为该项目的第一个LTS（Long Term Support）版本
 -   基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 -   测试引擎: [JMeter](https://jmeter.apache.org/)
 
+### 安全说明
+
+如果您在使用过程中发现任何安全问题，请通过以下方式直接联系我们：
+
+- 邮箱：support@fit2cloud.com 
+- 电话：400-052-0755
+
 ### 致谢
 
 -   [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路

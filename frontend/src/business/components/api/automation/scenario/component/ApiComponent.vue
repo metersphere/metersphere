@@ -15,7 +15,7 @@
       :title="displayTitle"
       :if-from-variable-advance="ifFromVariableAdvance">
 
-      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
+      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')">
         <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
         <span v-else>
           <el-tooltip class="ms-num" effect="dark"
@@ -71,9 +71,8 @@
       </template>
       <!--请求内容-->
       <template v-slot:request>
-        <legend style="width: 100%">
+        <legend style="width: 100%;">
           <div v-if="!ifFromVariableAdvance">
-
             <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
             <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
             <ms-api-request-form
@@ -81,6 +80,7 @@
               :scenario-definition="scenarioDefinition"
               @editScenarioAdvance="editScenarioAdvance"
               :isShowEnable="true"
+              :response="response"
               :referenced="true"
               :headers="request.headers "
               :is-read-only="isCompReadOnly"
@@ -89,24 +89,30 @@
               v-if="showXpackCompnent&&request.esbDataStruct!=null"
               v-xpack
               :request="request"
-              :showScript="false"
+              :response="response"
+              :showScript="true"
+              :show-pre-script="true"
               :is-read-only="isCompReadOnly" ref="esbDefinition"/>
             <ms-tcp-format-parameters
               v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
               :is-read-only="isCompReadOnly"
-              :show-script="false" :request="request"/>
+              :response="response"
+              :show-pre-script="true"
+              :show-script="true" :request="request"/>
 
             <ms-sql-basis-parameters
               v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
               :request="request"
+              :response="response"
               :is-read-only="isCompReadOnly"
-              :showScript="false"/>
+              :showScript="true"/>
 
             <ms-dubbo-basis-parameters
               v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
               :request="request"
+              :response="response"
               :is-read-only="isCompReadOnly"
-              :showScript="false"/>
+              :showScript="true"/>
 
           </div>
         </legend>
@@ -155,18 +161,7 @@
 </template>
 
 <script>
-import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-import MsTcpFormatParameters from "../../../definition/components/request/tcp/TcpFormatParameters";
-import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
-import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
-import MsRun from "../../../definition/components/Run";
-import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-import {ENV_TYPE} from "@/common/js/constants";
+import {getUUID, getCurrentProjectID} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -202,7 +197,6 @@ export default {
     message: String,
     environmentGroupId: String,
     environmentType: String,
-
     scenarioDefinition: Array,
     ifFromVariableAdvance: {
       type: Boolean,
@@ -210,10 +204,16 @@ export default {
     },
   },
   components: {
-    TemplateComponent,
-    CustomizeReqInfo,
-    ApiBaseComponent, ApiResponseComponent,
-    MsSqlBasisParameters, MsTcpFormatParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+    TemplateComponent: () => import("@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent"),
+    CustomizeReqInfo: () => import("@/business/components/api/automation/scenario/common/CustomizeReqInfo"),
+    ApiBaseComponent: () => import("../common/ApiBaseComponent"),
+    ApiResponseComponent: () => import("./ApiResponseComponent"),
+    MsSqlBasisParameters: () => import("../../../definition/components/request/database/BasisParameters"),
+    MsTcpFormatParameters: () => import("../../../definition/components/request/tcp/TcpFormatParameters"),
+    MsDubboBasisParameters: () => import("../../../definition/components/request/dubbo/BasisParameters"),
+    MsApiRequestForm: () => import("../../../definition/components/request/http/ApiHttpRequestForm"),
+    MsRequestResultTail: () => import("../../../definition/components/response/RequestResultTail"),
+    MsRun: () => import("../../../definition/components/Run"),
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default
   },
@@ -231,7 +231,7 @@ export default {
       envType: this.environmentType,
       environmentMap: this.envMap,
       isShowNum: false,
-      isSameSpace: true,
+      response: {},
     }
   },
   created() {
@@ -254,7 +254,6 @@ export default {
       if (this.request.id && this.request.referenced === 'REF') {
         this.request.disabled = true;
       }
-      this.getWorkspaceId(this.request.projectId);
     } else {
       this.isShowNum = false;
     }
@@ -389,6 +388,9 @@ export default {
           }
         })
       }
+      if (this.request.requestResult && this.request.requestResult.length > 0) {
+        this.response = this.request.requestResult[0];
+      }
     },
     initDataSource() {
       let databaseConfigsOptions = [];
@@ -481,7 +483,6 @@ export default {
             }
             if (response.data.num) {
               this.request.num = response.data.num;
-              this.getWorkspaceId(response.data.projectId);
             }
             this.request.id = response.data.id;
             this.request.disabled = true;
@@ -506,7 +507,6 @@ export default {
             if (response.data) {
               if (response.data.num) {
                 this.request.num = response.data.num;
-                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
               this.request.versionName = response.data.versionName;
@@ -518,7 +518,6 @@ export default {
             if (response.data) {
               if (response.data.num) {
                 this.request.num = response.data.num;
-                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
               this.request.versionName = response.data.versionName;
@@ -634,7 +633,7 @@ export default {
           }
         }
       }
-      if(!this.request.enable){
+      if (!this.request.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return false;
       }
@@ -669,6 +668,7 @@ export default {
       this.request.requestResult = [data];
       this.request.result = undefined;
       this.loading = false;
+      this.response = data;
       this.$emit('refReload', this.request, this.node);
     },
     setDomain() {
@@ -688,34 +688,20 @@ export default {
     },
 
     clickResource(resource) {
-      if (resource.refType && resource.refType === 'API') {
-        if (resource.protocol === 'dubbo://') {
-          resource.protocol = 'DUBBO'
-        }
-        let definitionData = this.$router.resolve({
-          name: 'ApiDefinition',
-          params: {
-            redirectID: getUUID(),
-            dataType: "api",
-            dataSelectRange: 'edit:' + resource.id,
-            projectId: resource.projectId,
-            type: resource.protocol
-          }
-        });
-        window.open(definitionData.href, '_blank');
-      } else if (resource.refType && resource.refType === 'CASE') {
-        this.$get("/api/testcase/findById/" + resource.id, response => {
+      let workspaceId;
+      let isTurnSpace = true
+      if(resource.projectId!==getCurrentProjectID()){
+        isTurnSpace = false;
+        this.$get("/project/get/" + resource.projectId, response => {
           if (response.data) {
-            response.data.sourceId = resource.resourceId;
-            response.data.type = resource.type;
-            response.data.refType = resource.refType;
-            this.clickCase(response.data)
-          } else {
-            this.$error("接口用例场景场景已经被删除");
+            workspaceId  = response.data.workspaceId;
+            isTurnSpace = true;
+            this.gotoTurn(resource,workspaceId,isTurnSpace);
           }
         });
+      }else{
+        this.gotoTurn(resource,workspaceId,isTurnSpace);
       }
-
     },
     clickCase(resource) {
       let uri = getUrl(resource);
@@ -742,20 +728,44 @@ export default {
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
     },
-    getWorkspaceId(projectId) {
-      this.$get("/project/get/" + projectId, response => {
-        if (response.data) {
-          if (response.data.workspaceId === getCurrentWorkspaceId()) {
-            this.isShowNum = true;
-          } else {
-            this.isSameSpace = false;
-          }
-        }
-      });
-    },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
     },
+    gotoTurn(resource, workspaceId, isTurnSpace) {
+      if (resource.refType && resource.refType === 'API') {
+        if (resource.protocol === 'dubbo://') {
+          resource.protocol = 'DUBBO'
+        }
+        let definitionData = this.$router.resolve({
+          name: 'ApiDefinition',
+          params: {
+            redirectID: getUUID(),
+            dataType: "api",
+            dataSelectRange: 'edit:' + resource.id,
+            projectId: resource.projectId,
+            type: resource.protocol,
+            workspaceId: workspaceId,
+          }
+        });
+        if(isTurnSpace){
+          window.open(definitionData.href, '_blank');
+        }
+      } else if (resource.refType && resource.refType === 'CASE') {
+        this.$get("/api/testcase/findById/" + resource.id, response => {
+          if (response.data) {
+            response.data.sourceId = resource.resourceId;
+            response.data.type = resource.type;
+            response.data.refType = resource.refType;
+            response.data.workspaceId = workspaceId;
+            if(isTurnSpace){
+              this.clickCase(response.data)
+            }
+          } else {
+            this.$error("接口用例场景场景已经被删除");
+          }
+        });
+      }
+    }
   }
 }
 </script>

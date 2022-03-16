@@ -25,7 +25,7 @@
         {{ $t('api_test.definition.request.body_binary') }}
       </el-radio>
     </el-radio-group>
-    <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
+    <div v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
       </el-row>

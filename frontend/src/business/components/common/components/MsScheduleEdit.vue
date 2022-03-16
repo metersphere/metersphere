@@ -41,16 +41,11 @@
 </template>
 
 <script>
-import {
-  getCurrentUser,
-  getCurrentWorkspaceId,
-  listenGoBack,
-  removeGoBackListener
-} from "@/common/js/utils";
+import {getCurrentUser, getCurrentWorkspaceId, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
-import ScheduleTaskNotification from "../../settings/workspace/components/ScheduleTaskNotification";
+import ScheduleTaskNotification from "../../project/notification/ScheduleTaskNotification";
 
 function defaultCustomValidate() {
   return {pass: true};

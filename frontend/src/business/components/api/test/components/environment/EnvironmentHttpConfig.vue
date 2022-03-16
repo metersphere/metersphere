@@ -43,12 +43,22 @@
         </div>
 
         <p>{{ $t('api_test.request.headers') }}</p>
+        <el-row>
+          <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+        </el-row>
         <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
         <div style="margin-top: 20px">
-          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">{{ $t('commons.add') }}</el-button>
+          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
+            {{ $t('commons.add') }}
+          </el-button>
           <div v-else>
-            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">{{ $t('commons.clear') }}</el-button>
-            <el-button type="primary" style="float: right" size="mini" @click="update">{{ $t('commons.update') }}</el-button>
+            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+              {{ $t('commons.clear') }}
+            </el-button>
+            <el-button type="primary" style="float: right" size="mini" @click="update">{{
+                $t('commons.update')
+              }}
+            </el-button>
           </div>
         </div>
       </el-form-item>
@@ -91,6 +101,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <batch-add-parameter @batchSave="batchSave" ref="batchAdd"/>
     </div>
   </el-form>
 </template>
@@ -104,10 +115,11 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import {getUUID} from "@/common/js/utils";
 import {KeyValue} from "../../../definition/model/ApiTestModel";
 import Vue from "vue";
+import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 
 export default {
   name: "MsEnvironmentHttpConfig",
-  components: {MsApiKeyValue, MsSelectTree, MsTableOperatorButton},
+  components: {MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter},
   props: {
     httpConfig: new HttpConfig(),
     projectId: String,
@@ -400,6 +412,49 @@ export default {
       });
       return isValidate;
     },
+    batchAdd() {
+      this.$refs.batchAdd.open();
+    },
+    _handleBatchVars(data) {
+      let params = data.split("\n");
+      let keyValues = [];
+      params.forEach(item => {
+        let line = item.split(/：|:/);
+        let required = false;
+        keyValues.unshift(new KeyValue({
+          name: line[0],
+          required: required,
+          value: line[1],
+          description: line[2],
+          type: "text",
+          valid: false,
+          file: false,
+          encode: true,
+          enable: true,
+          contentType: "text/plain"
+        }));
+      });
+      return keyValues;
+    },
+    batchSave(data) {
+      if (data) {
+        let keyValues = this._handleBatchVars(data);
+        keyValues.forEach(keyValue => {
+          let isAdd = true;
+          for (let i in this.condition.headers) {
+            let item = this.condition.headers[i];
+            if (item.name === keyValue.name) {
+              item.value = keyValue.value;
+              isAdd = false;
+            }
+          }
+          if (isAdd) {
+            this.condition.headers.unshift(keyValue);
+          }
+        })
+      }
+    },
+
   },
 };
 </script>
@@ -420,4 +475,10 @@ export default {
 .ms-el-form-item__content >>> .el-form-item__content {
   line-height: 20px;
 }
+
+.ms-el-link {
+  float: right;
+  margin-right: 45px;
+}
+
 </style>

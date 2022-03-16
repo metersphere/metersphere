@@ -14,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -87,7 +88,19 @@ public abstract class JiraAbstractClient extends BaseClient {
     }
 
     public List<JiraUser> getAssignableUser(String projectKey) {
-        String url = getBaseUrl() + "/user/assignable/search?project={1}";
+        List<JiraUser> list = new ArrayList<>();
+        int maxResults = 50, startAt = 0;
+        List<JiraUser> users;
+        do {
+            users = getAssignableUser(projectKey, startAt, maxResults);
+            list.addAll(users);
+            startAt += maxResults;
+        } while (users.size() >= maxResults);
+        return list;
+    }
+
+    private List<JiraUser> getAssignableUser(String projectKey, int startAt, int maxResults) {
+        String url = getBaseUrl() + "/user/assignable/search?project={1}&maxResults=" + maxResults + "&startAt=" + startAt;
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectKey);

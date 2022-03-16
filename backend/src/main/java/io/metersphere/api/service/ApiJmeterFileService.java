@@ -189,7 +189,7 @@ public class ApiJmeterFileService {
                 if (file != null && file.exists()) {
                     byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
-                        multipartFiles.put(file.getName(), fileByte);
+                        multipartFiles.put(file.getAbsolutePath(), fileByte);
                     }
                 }
             }
@@ -198,6 +198,7 @@ public class ApiJmeterFileService {
     }
 
     private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
+        String bodyFilePath = FileUtils.BODY_FILE_DIR;
         String fileName = testId + ".jmx";
         String jmx = new MsTestPlan().getJmx(hashTree);
         Map<String, byte[]> files = new HashMap<>();
@@ -208,7 +209,12 @@ public class ApiJmeterFileService {
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
             for (String k : multipartFiles.keySet()) {
                 byte[] v = multipartFiles.get(k);
-                files.put(k, v);
+                if(k.startsWith(bodyFilePath)){
+                    files.put(StringUtils.substringAfter(k,bodyFilePath), v);
+                }else {
+                    LogUtil.error("WARNING:Attachment path is not in body_file_path: " + k);
+                    files.put(k, v);
+                }
             }
         }
         return listBytesToZip(files);

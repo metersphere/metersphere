@@ -36,6 +36,7 @@ import io.metersphere.controller.request.RelationshipEdgeRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
@@ -124,6 +125,8 @@ public class ApiDefinitionService {
     private TestPlanService testPlanService;
     @Resource
     private ExtProjectVersionMapper extProjectVersionMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -304,8 +307,13 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
+        if (StringUtils.isNotEmpty(request.getSourceId())) {
+            // 检查附件复制出附件
+            FileUtils.copyBodyFiles(request.getSourceId(), request.getId());
+        } else {
+            FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        }
         ApiDefinitionWithBLOBs returnModel = createTest(request);
-        FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         return returnModel;
     }
 
@@ -325,7 +333,7 @@ public class ApiDefinitionService {
         return getBLOBs(returnModel.getId());
     }
 
-    private void checkQuota() {
+    public void checkQuota() {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
             quotaService.checkAPIDefinitionQuota();
@@ -489,7 +497,9 @@ public class ApiDefinitionService {
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId())
                     .andVersionIdEqualTo(request.getVersionId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            if (project != null && project.getRepeatable() != null && project.getRepeatable()) {
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
+            boolean urlRepeat = config.getUrlRepeatable();
+            if (project != null && urlRepeat) {
                 criteria.andNameEqualTo(request.getName());
                 if (apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_name_not_repeating"));
@@ -688,13 +698,7 @@ public class ApiDefinitionService {
         test.setVersionId(request.getVersionId());
         test.setLatest(true); // 新建一定是最新的
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
-            ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
-            List<ApiModule> modules = apiModuleMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(modules)) {
-                test.setModuleId(modules.get(0).getId());
-                test.setModulePath("/未规划接口");
-            }
+            initModulePathAndId(test.getProjectId(), test);
         }
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
@@ -791,7 +795,7 @@ public class ApiDefinitionService {
         return apiDefinition;
     }
 
-    private Long getImportNextOrder(String projectId) {
+    public Long getImportNextOrder(String projectId) {
         Long order = currentApiOrder.get();
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
@@ -801,7 +805,7 @@ public class ApiDefinitionService {
         return order;
     }
 
-    private Long getImportNextCaseOrder(String projectId) {
+    public Long getImportNextCaseOrder(String projectId) {
         Long order = currentApiCaseOrder.get();
         if (order == null) {
             order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
@@ -1136,6 +1140,7 @@ public class ApiDefinitionService {
                 String context = request.getSwaggerUrl() + "导入失败";
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
+                paramMap.put("projectId", request.getProjectId());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
                         .context(context)
@@ -1173,7 +1178,7 @@ public class ApiDefinitionService {
                         .build();
                 noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException(Translator.get("user_import_format_wrong"));
         }
@@ -1190,6 +1195,8 @@ public class ApiDefinitionService {
         ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
 
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
+        boolean urlRepeat = config.getUrlRepeatable();
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
@@ -1208,14 +1215,14 @@ public class ApiDefinitionService {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
                 request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
+                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), urlRepeat);
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), project.getRepeatable());
+                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), urlRepeat);
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
@@ -1808,12 +1815,13 @@ public class ApiDefinitionService {
     public ApiDefinitionResult getById(String id) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setId(id);
-        List<ApiDefinitionResult> list = list(request);
+        List<ApiDefinitionResult> list = extApiDefinitionMapper.list(request);
         if (CollectionUtils.isNotEmpty(list)) {
             return list.get(0);
         }
         return null;
     }
+
 
     public long countEffectiveByProjectId(String projectId) {
         if (StringUtils.isEmpty(projectId)) {
@@ -1984,6 +1992,7 @@ public class ApiDefinitionService {
         try {
             for (int i = 0; i < apis.size(); i++) {
                 ApiDefinitionWithBLOBs api = apis.get(i);
+                String sourceId = api.getId();
                 api.setId(UUID.randomUUID().toString());
                 api.setName(ServiceUtils.getCopyName(api.getName()));
                 api.setModuleId(request.getModuleId());
@@ -1993,6 +2002,9 @@ public class ApiDefinitionService {
                 api.setCreateTime(System.currentTimeMillis());
                 api.setUpdateTime(System.currentTimeMillis());
                 api.setRefId(api.getId());
+                // 检查附件复制出附件
+                FileUtils.copyBodyFiles(sourceId, api.getId());
+
                 mapper.insert(api);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
@@ -2002,4 +2014,23 @@ public class ApiDefinitionService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
+
+    public ApiDefinitionResult getApiDefinitionResult(ApiDefinitionRequest request) {
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
+        if(resList==null){
+            return null;
+        }
+        return resList.get(0);
+    }
+
+    public void initModulePathAndId(String projectId, ApiDefinitionWithBLOBs test) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
+        List<ApiModule> modules = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(modules)) {
+            test.setModuleId(modules.get(0).getId());
+            test.setModulePath("/未规划接口");
+        }
+    }
+
 }

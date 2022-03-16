@@ -2,20 +2,22 @@
   <div>
     <el-row>
       <el-col :span="12">
-        <el-tag>当前{{oldData.versionName }}</el-tag><span style="margin-left: 10px">{{oldData.userName}}</span><span style="margin-left: 10px">{{oldData.createTime | timestampFormatDate }}</span>
+        <el-tag>当前{{ oldData.versionName }}</el-tag>
+        <span style="margin-left: 10px">{{ oldData.userName }}</span><span style="margin-left: 10px">{{ oldData.createTime | timestampFormatDate }}</span>
       </el-col>
       <el-col :span="12">
-        <el-tag>{{ newData.versionName }}</el-tag><span style="margin-left: 10px">{{newData.userName}}</span><span style="margin-left: 10px">{{newData.createTime | timestampFormatDate }}</span>
+        <el-tag>{{ newData.versionName }}</el-tag>
+        <span style="margin-left: 10px">{{ newData.userName }}</span><span style="margin-left: 10px">{{ newData.createTime | timestampFormatDate }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
       <el-card ref="old" style="width: 50%">
         <el-card>
           <div class="card-content">
-            <div class="ms-main-div" @click="showAll" >
+            <div class="ms-main-div" @click="showAll">
 
               <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
-              <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules"  :disabled="true"
+              <el-form :model="oldData" label-position="right" label-width="80px" size="small" :rules="rules" :disabled="true"
                        ref="currentScenario" style="margin-right: 20px">
                 <!-- 基础信息 -->
                 <el-row>
@@ -130,10 +132,10 @@
                   <!-- 场景步骤内容 -->
                   <div ref="stepInfo" id="stepInfo">
                     <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
-                      <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('old')"/>
+                      <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left" @click="openExpansion('old')"/>
                     </el-tooltip>
                     <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
-                      <i class="el-icon-remove-outline ms-open-btn" size="mini"  @click="closeExpansion('old')"/>
+                      <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('old')"/>
                     </el-tooltip>
                     <el-tree node-key="resourceId" :props="props" :data="oldScenarioDefinition" class="ms-tree"
                              :default-expanded-keys="oldExpandedNode"
@@ -163,7 +165,7 @@
           </div>
         </el-card>
       </el-card>
-      <el-card  ref="new" style="width: 50%">
+      <el-card ref="new" style="width: 50%">
         <el-card>
           <div class="card-content">
             <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">
@@ -267,7 +269,7 @@
                         {{ $t('api_test.automation.step_total') }}：{{ newScenarioDefinition.length }}
                       </el-col>
                       <el-col :span="3" class="ms-col-one ms-font">
-                        <el-link class="head" >{{ $t('api_test.automation.scenario_total') }}
+                        <el-link class="head">{{ $t('api_test.automation.scenario_total') }}
                         </el-link>
                         ：{{ getNewVariableSize() }}
                       </el-col>
@@ -284,7 +286,7 @@
                   <!-- 场景步骤内容 -->
                   <div ref="newStepInfo">
                     <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
-                      <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left"  @click="openExpansion('new')"/>
+                      <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left" @click="openExpansion('new')"/>
                     </el-tooltip>
                     <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
                       <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion('new')"/>
@@ -296,7 +298,7 @@
                              @node-expand="nodeExpand(newScenarioDefinition,null,'new')"
                              @node-collapse="nodeCollapse(newScenarioDefinition,null,'new')"
                              @node-click="nodeClick"
-                             draggable ref="newStepTree" >
+                             draggable ref="newStepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -349,117 +351,189 @@ import {ENV_TYPE} from "@/common/js/constants";
 import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsComponentConfig from "@/business/components/api/automation/scenario/component/ComponentConfig";
 import ScenarioChildDiff from "@/business/components/api/automation/version/ScenarioChildDiff";
+import {objToStrMap} from "@/common/js/utils";
+
 const {diff} = require("@/business/components/performance/v_node_diff");
 const {KeyValue} = require("@/business/components/api/definition/model/ApiTestModel");
 const {getUUID} = require("@/common/js/utils");
-export default{
-  name:"ScenarioDiff",
-  props:{
-    oldData:{
-      type:Object
+export default {
+  name: "ScenarioDiff",
+  props: {
+    showFollow: {
+      type: Boolean
     },
-    newData:{
-      type:Object
-    },
-    showFollow:{
-      type:Boolean
-    },
-    newShowFollow:{
-      type:Boolean
+    newShowFollow: {
+      type: Boolean
     },
     customNum: {
       type: Boolean,
       default: false
     },
-    isTop:{
+    isTop: {
       type: Boolean,
       default: false
     },
-    rules:{
-      type:Object
+    rules: {
+      type: Object
     },
-    projectIds:{},
-    newScenarioDefinition:{
-      type: Array,
-    },
-    oldScenarioDefinition:{
-      type: Array,
-    },
-    oldVariableSize:{},
-    newVariableSize:{},
-    moduleOptions:{},
-    maintainerOptions:{},
-    newEnableCookieShare:{},
-    oldEnableCookieShare:{},
-    oldOnSampleError:{},
-    newOnSampleError:{},
+    projectIds: {},
+    oldVariableSize: {},
+    newVariableSize: {},
+    moduleOptions: {},
+    maintainerOptions: {},
+    oldEnableCookieShare: {},
+    oldOnSampleError: {},
     projectEnvMap: {},
-    newProjectEnvMap: {},
-    type:{},
-    projectList:{
+    type: {},
+    projectList: {
       type: Array,
     },
+    currentScenarioId: String,
+    dffScenarioId: String,
+    scenarioRefId: String,
   },
-  components:{
+  components: {
     ScenarioChildDiff,
     MsComponentConfig,
     MsSelectTree: () => import("@/business/components/common/select-tree/SelectTree"),
     MsInputTag: () => import("@/business/components/api/automation/scenario/MsInputTag"),
     EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
   },
-  watch:{
-    'dialogVisible'(){
-      if(this.dialogVisible===false){
+  watch: {
+    'dialogVisible'() {
+      if (this.dialogVisible === false) {
         this.leftChildData = {};
         this.leftChildNode = {};
-        this.leftChildVnode ={};
+        this.leftChildVnode = {};
         this.rightChildData = {};
         this.rightChildNode = {};
-        this.rightChildVnode ={};
+        this.rightChildVnode = {};
         this.currentRightChild = undefined;
         this.currentLeftChild = undefined;
       }
     }
   },
-  data(){
-   return{
-     options: API_STATUS,
-     levels: PRIORITY,
-     loading: false,
-     isReloadData:true,
-     moduleObj: {
-       id: 'id',
-       label: 'name',
-     },
-     oldEnvResult:{
-       loading: false
-     },
-     newEnvResult:{
-       loading: false
-     },
-     showHideTree: true,
-     environmentType: ENV_TYPE.JSON,
-     props: {
-       label: "label",
-       children: "hashTree"
-     },
-     oldExpandedNode:[],
-     newExpandedNode:[],
-     stepEnable:true,
-     currentLeftChild:undefined,
-     currentRightChild:undefined,
-     leftChildData:{},
-     rightChildData:{},
-     leftChildNode:{},
-     rightChildNode:{},
-     leftChildVnode:{},
-     rightChildVnode:{},
-     dialogVisible:false,
-     oldColor:"",
-     newColor:""
-   }
+  data() {
+    return {
+      options: API_STATUS,
+      levels: PRIORITY,
+      loading: false,
+      isReloadData: true,
+      moduleObj: {
+        id: 'id',
+        label: 'name',
+      },
+      oldEnvResult: {
+        loading: false
+      },
+      newEnvResult: {
+        loading: false
+      },
+      showHideTree: true,
+      environmentType: ENV_TYPE.JSON,
+      props: {
+        label: "label",
+        children: "hashTree"
+      },
+      oldExpandedNode: [],
+      newExpandedNode: [],
+      stepEnable: true,
+      currentLeftChild: undefined,
+      currentRightChild: undefined,
+      leftChildData: {},
+      rightChildData: {},
+      leftChildNode: {},
+      rightChildNode: {},
+      leftChildVnode: {},
+      rightChildVnode: {},
+      dialogVisible: false,
+      oldColor: "",
+      newColor: "",
+      newScenarioDefinition: [],
+      oldScenarioDefinition: [],
+      oldData: {},
+      newData: {},
+      newEnableCookieShare: {},
+      newOnSampleError: {},
+      newProjectEnvMap: new Map,
+    }
   },
   methods: {
+    getCurrentScenario() {
+      if (this.currentScenarioId) {
+        this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenarioId, response => {
+          if (response.data) {
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              if (obj) {
+                this.oldScenarioDefinition = obj.hashTree;
+              }
+            }
+            this.oldData = response.data;
+            this.$get('/api/automation/follow/' + this.currentScenarioId, response => {
+              this.oldData.follows = response.data;
+              for (let i = 0; i < response.data.length; i++) {
+                if (response.data[i] === this.currentUser().id) {
+                  this.showFollow = true;
+                  break;
+                }
+              }
+            });
+          }
+        })
+      }
+    },
+    getDffScenario() {
+      this.$get('/api/automation/get/' + this.dffScenarioId + "/" + this.scenarioRefId, response => {
+        this.$get("/api/automation/getApiScenario/" + response.data.id, res => {
+          if (res.data) {
+            if (res.data.scenarioDefinition != null) {
+              let obj = JSON.parse(res.data.scenarioDefinition);
+              if (obj) {
+                if (obj.hashTree) {
+                  for (let i = 0; i < obj.hashTree.length; i++) {
+                    if (!obj.hashTree[i].index) {
+                      obj.hashTree[i].index = i + 1;
+                    }
+                    obj.hashTree[i].disabled = true;
+                    if (!obj.hashTree[i].requestResult) {
+                      obj.hashTree[i].requestResult = [{responseResult: {}}];
+                    }
+                  }
+                  this.newEnableCookieShare = obj.enableCookieShare;
+                  if (obj.onSampleError === undefined) {
+                    this.newOnSampleError = true;
+                  } else {
+                    this.newOnSampleError = obj.onSampleError;
+                  }
+                }
+                this.newScenarioDefinition = obj.hashTree;
+                for (let i = 0; i < this.oldScenarioDefinition.length; i++) {
+                  this.oldScenarioDefinition[i].disabled = true;
+                }
+                if (response.data.environmentJson) {
+                  this.newProjectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
+                } else {
+                  // 兼容历史数据
+                  this.newProjectEnvMap.set(this.projectId, obj.environmentId);
+                }
+              }
+            }
+            res.data.userName = response.data.userName
+            this.dealWithTag(res.data);
+            this.newData = res.data;
+            this.closeExpansion()
+          }
+        });
+      })
+    },
+    dealWithTag(newScenario) {
+      if (newScenario.tags) {
+        if (Object.prototype.toString.call(newScenario.tags) === "[object String]") {
+          newScenario.tags = JSON.parse(newScenario.tags);
+        }
+      }
+    },
     getDiff() {
       let oldVnode = this.$refs.old
       let vnode = this.$refs.new
@@ -605,7 +679,6 @@ export default{
       this.rightChildNode = node
       this.rightChildVnode = source
       this.currentRightChild = source;
-      console.log(this.rightChildVnode)
       if (this.currentLeftChild) {
         this.dialogVisible = true;
       }
@@ -630,7 +703,7 @@ export default{
       }
       return size;
     },
-    getNewVariableSize(){
+    getNewVariableSize() {
       let size = 0;
       if (this.newData.variables) {
         size += this.newData.variables.length;
@@ -642,18 +715,20 @@ export default{
     }
   },
   created() {
+    this.getCurrentScenario();
+    this.getDffScenario();
   },
   mounted() {
     this.$nextTick(function () {
-      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)*1000)
+      setTimeout(this.getDiff, (this.$refs.old.$children.length + 1) * 5000);
     })
   }
 }
 
 </script>
 <style scoped>
-.compare-class{
+.compare-class {
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
 }
 </style>

@@ -3,12 +3,13 @@
     <div class="header" @click="active(data)">
       <slot name="beforeHeaderLeft">
         <div v-if="data.index" class="el-step__icon is-text enable-switch" :style="{'color': color, 'background-color': backgroundColor}">
-          <div class="el-step__icon-inner">{{ data.index }}</div>
+          <div class="el-step__icon-inner" :key="$store.state.forceRerenderIndex">{{ data.index }}</div>
         </div>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
-        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
+        <el-tag class="ms-left-btn" size="mini" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
       </slot>
-      <span>
+
+      <span v-show="!isMax">
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}" @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
           <span @click.stop v-if="isShowInput && isShowNameInput">
@@ -18,26 +19,30 @@
 
           <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout" @mouseenter="enter($event)" @mouseleave="leave($event)" v-else>
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
-               v-if="data.referenced!='REF' && !data.disabled"/>
-            <el-tooltip placement="top" :content="data.name">
+               v-show="data.referenced!='REF' && !data.disabled"/>
               <span>{{ data.name }}</span>
-            </el-tooltip>
             <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
             <slot name="afterTitle"/>
           </span>
         </slot>
       </span>
+      <span v-show="isMax">
+        <slot name="headerLeft">
+            <span style="font-size: 12px" class="ms-step-name-width">{{ data.name }}</span>
+        </slot>
+      </span>
 
       <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
-        <slot name="message"></slot>
+        <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="(data.disabled && !data.root) || !showVersion" style="width: 30px"/>
         </el-tooltip>
-        <slot name="button" v-if="showVersion"></slot>
-        <el-tooltip content="Copy" placement="top">
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="(data.disabled && !data.root) || !showVersion"/>
-        </el-tooltip>
+        <slot name="button"></slot>
+        <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"
+                   :disabled="(data.disabled && !data.root) || !showVersion "/>
+
+        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"/>
         <step-extend-btns style="display: contents"
                           :data="data"
                           :environmentType="environmentType"
@@ -46,14 +51,15 @@
                           @copy="copyRow"
                           @remove="remove"
                           @openScenario="openScenario"
-                          v-if="showBtn && (!data.disabled || data.root) &&showVersion"/>
+                          v-show="isMoreButton"/>
       </div>
 
     </div>
     <!--最大化不显示具体内容-->
     <div class="header" v-if="!isMax">
       <el-collapse-transition>
-        <div v-show="data.active && showCollapse" :draggable="draggable">
+        <!-- 这里的组件默认不展开时不加载 -->
+        <div v-if="data.active && showCollapse" :draggable="draggable">
           <el-divider></el-divider>
           <fieldset :disabled="data.disabled" class="ms-fieldset">
             <!--四种协议请求内容-->
@@ -86,6 +92,10 @@ export default {
   },
   props: {
     draggable: Boolean,
+    innerStep: {
+      type: Boolean,
+      default: false,
+    },
     isMax: {
       type: Boolean,
       default: false,
@@ -144,7 +154,7 @@ export default {
       } else {
         this.colorStyle = "";
       }
-    }
+    },
   },
   created() {
     if (!this.data.name) {
@@ -160,6 +170,20 @@ export default {
         this.data.method = this.data.protocol;
       }
     }
+  },
+  computed: {
+    isSingleButton() {
+      if (this.data.type === 'ConstantTimer') {
+        return (this.innerStep && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1)
+      }
+      return (this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1);
+    },
+    isMoreButton() {
+      if (this.data.type === 'ConstantTimer') {
+        return (!this.innerStep || this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+      }
+      return (this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+    },
   },
   methods: {
     active() {
@@ -203,8 +227,6 @@ export default {
         $event.currentTarget.className = "scenario-version"
       }
     }
-
-
   }
 }
 
@@ -225,9 +247,8 @@ export default {
 }
 
 .ms-left-btn {
-  font-size: 13px;
-  margin-right: 15px;
-  margin-left: 10px;
+  margin-right: 5px;
+  margin-left: 0px;
 }
 
 .header-right {
@@ -238,18 +259,6 @@ export default {
 
 .enable-switch {
   margin-right: 10px;
-}
-
-.ms-step-name {
-  display: inline-block;
-  font-size: 13px;
-  margin: 0 5px;
-  overflow-x: hidden;
-  padding-bottom: 0;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 140px;
 }
 
 .scenario-version {
@@ -369,18 +378,13 @@ fieldset {
 
 .ms-step-name-width {
   display: inline-block;
-  margin: 0 5px;
+  margin: 0 0px;
   overflow-x: hidden;
   padding-bottom: 0;
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 400px;
-}
-
-.ms-step-selected {
-  cursor: pointer;
-  border-color: #783887;
+  width: 60px;
 }
 
 </style>

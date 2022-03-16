@@ -161,12 +161,13 @@ import {buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
-import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
-import TestPlanCaseStepResultsItem from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
+import TestPlanCaseStepResultsItem
+  from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -216,7 +217,8 @@ export default {
       isCustomFiledActive: false,
       otherInfoActive: true,
       isReadOnly: false,
-      testCases: []
+      testCases: [],
+      originalStatus: ""
     };
   },
   props: {
@@ -271,6 +273,7 @@ export default {
       this.$emit('refreshTable');
     },
     statusChange(status) {
+      this.originalStatus = this.testCase.status;
       this.testCase.status = status;
       this.saveCase(true);
     },
@@ -325,6 +328,11 @@ export default {
         if (result.actualResult && result.actualResult.length > 300) {
           this.$warning(this.$t('test_track.plan_view.actual_result')
             + this.$t('test_track.length_less_than') + '300');
+          return;
+        }
+        if (result.executeResult === 'Failure' && this.testCase.status === 'Pass') {
+          this.$warning(this.$t('test_track.plan_view.execute_tip'));
+          this.testCase.status = this.originalStatus;
           return;
         }
         param.results.push(result);

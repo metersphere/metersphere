@@ -1,13 +1,17 @@
 <template>
   <div class="ms-border" style="margin-top: 10px">
     <div style="margin-bottom: 10px">
-      <span class="ms-import" @click="importData">
-         <i class="el-icon-edit-outline" style="font-size: 16px"/>
-         {{ $t('commons.import') }}
-       </span>
-      <span v-if="apiId!=='none'">
-         <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
-      </span>
+      <el-row :gutter="10" type="flex" justify="space-between" align="middle">
+        <el-col>
+           <span class="ms-import" @click="importData">
+             <i class="el-icon-edit-outline" style="font-size: 16px"/>
+             {{ $t('commons.import') }}
+           </span>
+          <span v-if="apiId!=='none'">
+             <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
+          </span>
+        </el-col>
+      </el-row>
     </div>
     <el-table
       :data="tableData"
@@ -18,7 +22,7 @@
       row-key="id"
       border
       default-expand-all
-      :height="400"
+      :height="300"
       v-loading="loading">
 
       <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
@@ -29,14 +33,14 @@
       </el-table-column>
 
       <el-table-column prop="include" width="78" :label="$t('api_test.request.assertions.must_contain')"
-                       :render-header="renderHeader">
+                       :scoped-slot="renderHeader">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked || scope.row.type==='array'"/>
         </template>
       </el-table-column>
 
       <el-table-column prop="typeVerification" width="100" :label="$t('api_test.request.assertions.type_verification')"
-                       :render-header="renderHeaderType">
+                       :scoped-slot="renderHeaderType">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked"/>
         </template>
@@ -68,7 +72,7 @@
       </el-table-column>
 
       <el-table-column prop="arrayVerification" width="140" :label="$t('api_test.request.assertions.check')"
-                       :render-header="renderHeaderArray">
+                       :scoped-slot="renderHeaderArray">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange"
                        v-if="scope.row.type==='array'" :disabled="checked"/>
@@ -112,6 +116,10 @@ export default {
     document: {},
     apiId: String,
     showOptionsButton: Boolean,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -162,6 +170,9 @@ export default {
     }
   },
   methods: {
+    removeDoc() {
+      this.$emit('remove');
+    },
     setJSONData(data) {
       this.checked = false;
       this.document.data.jsonFollowAPI = "";
@@ -527,5 +538,10 @@ export default {
 .ms-import:hover {
   cursor: pointer;
   border-color: #783887;
+}
+
+.assertion-btn {
+  text-align: center;
+  width: 60px;
 }
 </style>

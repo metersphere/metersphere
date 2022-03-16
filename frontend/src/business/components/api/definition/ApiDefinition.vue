@@ -267,7 +267,7 @@ import MockConfig from "@/business/components/api/definition/components/mock/Moc
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
-import {PROJECT_ID} from "@/common/js/constants";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -418,6 +418,9 @@ export default {
     },
   },
   created() {
+    if (this.$route.query.workspaceId) {
+      sessionStorage.setItem(WORKSPACE_ID, this.$route.query.workspaceId);
+    }
     let projectId = this.$route.params.projectId;
     if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
@@ -487,9 +490,9 @@ export default {
     },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.result = this.$get('/project/get/' + this.projectId, res => {
+        this.result = this.$get('/project_application/get/config/' + this.projectId +"/API_QUICK_MENU", res => {
           let projectData = res.data;
-          if (projectData && projectData.apiQuick === 'api') {
+          if (projectData && projectData.apiQuickMenu === 'api') {
             this.handleTabAdd("ADD");
           } else {
             this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");

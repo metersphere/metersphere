@@ -224,13 +224,13 @@
         this.envGroupId = id;
       },
       getWsProjects() {
-        this.$get("/project/listAll", res => {
+        this.$get("/project/getOwnerProjectIds", res => {
           this.projectList = res.data;
         })
       },
       getProject(projectId) {
         if (projectId) {
-          this.$get("/project/get/" + projectId, result => {
+          this.$get('/project_application/get/config/' + projectId + "/SCENARIO_CUSTOM_NUM", result => {
             let data = result.data;
             if (data) {
               this.customNum = data.scenarioCustomNum;

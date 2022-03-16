@@ -50,6 +50,19 @@
                     )
                 )
             </if>
+            <if test="request.projectId != null">
+                and (
+                cf.project_id = #{request.projectId}
+                or (
+                cf.global = 1 and
+                not exists (
+                select id
+                from custom_field cf_child
+                where cf_child.name = cf.name and cf_child.scene = cf.scene and cf_child.global != 1 and cf_child.project_id = #{request.projectId}
+                )
+                )
+                )
+            </if>
 
             <if test="request.ids != null and request.ids.size() > 0">
                 and cf.id in

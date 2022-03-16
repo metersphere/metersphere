@@ -34,4 +34,6 @@ public class TaskCenterDTO {
      * 执行模块/场景/接口/性能
      */
     private String executionModule;
+
+    private String reportType;
 }

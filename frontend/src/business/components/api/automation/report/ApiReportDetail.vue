@@ -7,7 +7,7 @@
                                      :debug="debug" :report="report" @reportExport="handleExport"
                                      @reportSave="handleSave"/>
           <main v-if="isNotRunning">
-            <ms-metric-chart :content="content" :totalTime="totalTime"/>
+            <ms-metric-chart :content="content" :totalTime="totalTime" :report="report"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
@@ -327,15 +327,21 @@ export default {
         this.buildReport();
       } else if (this.isShare) {
         getShareScenarioReport(this.shareId, this.reportId, (data) => {
+          this.checkReport(data);
           this.handleGetScenarioReport(data);
         });
       } else {
         getScenarioReport(this.reportId, (data) => {
+          this.checkReport(data);
           this.handleGetScenarioReport(data);
         });
       }
     },
-
+    checkReport(data) {
+      if (!data) {
+        this.$emit('reportNotExist');
+      }
+    },
     handleGetScenarioReport(data) {
       if (data) {
         this.report = data;

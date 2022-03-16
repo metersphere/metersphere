@@ -55,15 +55,6 @@
           </el-autocomplete>
         </el-col>
 
-        <el-col class="item">
-          <el-input v-model="item.description" size="small" maxlength="200"
-                    :placeholder="$t('commons.description')" show-word-limit>
-          </el-input>
-
-          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
-
-        </el-col>
 
         <el-col v-if="isActive && item.type === 'file'" class="item">
           <ms-api-body-file-upload :parameter="item"/>
@@ -97,7 +88,7 @@
 
     <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
-    <api-variable-setting :append-to-body="appendDialogToBody"
+    <api-variable-setting :append-to-body="appendDialogToBody" :suggestions="suggestions"
       ref="apiVariableSetting"/>
 
   </div>
@@ -327,7 +318,7 @@ export default {
 }
 
 .kv-select {
-  width: 50%;
+  width: 30%;
 }
 
 .el-autocomplete {

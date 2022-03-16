@@ -29,6 +29,11 @@
             <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
               {{ $t('commons.test') }}
             </el-button>
+            <el-button size="small" type="primary" @click.stop @click="generate"
+                       style="margin-left: 10px"
+                       v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
+              {{ $t('commons.generate_test_data') }}
+            </el-button>
           </div>
 
         </el-form-item>
@@ -36,14 +41,11 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true"  :headers="request.headers" :request="request" :response="responseData"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true"  :headers="request.headers" :request="request" :response="responseData" ref="apiRequestForm"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <ms-request-result-tail v-if="!loading" :response="responseData" ref="debugResult"/>
-
-        <ms-jmx-step :request="request" :response="responseData"/>
-
         <!-- 执行组件 -->
         <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
       </div>
@@ -61,13 +63,12 @@
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
 import MsResponseResult from "../response/ResponseResult";
 import MsRequestMetric from "../response/RequestMetric";
-import {getCurrentUser, getUUID} from "@/common/js/utils";
+import {getCurrentUser, getUUID, hasLicense, hasPermission} from "@/common/js/utils";
 import MsResponseText from "../response/ResponseText";
 import MsRun from "../Run";
 import {createComponent} from "../jmeter/components";
 import {REQ_METHOD} from "../../model/JsonData";
 import MsRequestResultTail from "../response/RequestResultTail";
-import MsJmxStep from "../step/JmxStep";
 import {KeyValue} from "../../model/ApiTestModel";
 import MsApiCaseList from "../case/ApiCaseList";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
@@ -81,7 +82,6 @@ export default {
     MsRequestMetric,
     MsResponseText,
     MsRun,
-    MsJmxStep,
     MsApiCaseList
   },
   props: {
@@ -152,6 +152,10 @@ export default {
     },
   },
   methods: {
+    hasPermission, hasLicense,
+    generate() {
+      this.$refs.apiRequestForm.generate();
+    },
     handleCommand(e) {
       if (e === "save_as") {
         this.saveAs();

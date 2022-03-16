@@ -36,7 +36,8 @@
         <!-- TCP 请求参数 -->
         <div v-if="api.method=='TCP'" v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-tcp-format-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+          <ms-tcp-format-parameters :request="api.request" @callback="runTest" :response="responseData"
+                                    ref="requestForm"/>
           <!--返回结果-->
           <!-- HTTP 请求返回数据 -->
           <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
@@ -48,8 +49,6 @@
                           @callback="runTest" ref="requestForm"/>
         </div>
       </el-form>
-
-      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
       <div v-if="api.method=='ESB'">
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
@@ -83,7 +82,6 @@ import MsRun from "../Run";
 import MsTcpFormatParameters from "@/business/components/api/definition/components/request/tcp/TcpFormatParameters";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
-import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -92,7 +90,6 @@ const esbDefinitionResponse = (requireComponent != null && requireComponent.keys
 export default {
   name: "RunTestTCPPage",
   components: {
-    MsJmxStep,
     EnvironmentSelect,
     MsApiRequestForm,
     MsApiCaseList,

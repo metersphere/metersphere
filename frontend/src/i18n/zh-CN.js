@@ -1,7 +1,7 @@
 export default {
   commons: {
     project_permission: '请先添加该项目权限',
-    no_permission:'暂无权限',
+    no_permission: '暂无权限',
     failure_continues: "失败继续",
     full_screen_editing: "全屏编辑",
     trash: "回收站",
@@ -232,6 +232,8 @@ export default {
     reference_settings: "场景设置",
     enable_scene_info: "启用场景环境：当前步骤使用场景原始环境配置运行",
     environment: "运行环境",
+    run: "运行",
+    delete_batch: "批量删除",
     run_success: "执行成功",
     run_completed: "执行完成",
     run_warning: "正在运行中，请稍后查看",
@@ -241,8 +243,8 @@ export default {
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
     type: "类型",
-    type_of_num:"请输入整数类型",
-    validity_period:'有效期',
+    type_of_num: "请输入整数类型",
+    validity_period: '有效期',
     please_select_a_deadline: "请选择截止时间",
     relationship: {
       name: '依赖关系',
@@ -925,9 +927,10 @@ export default {
   report: {
     id: '报告ID',
     api_test_report: '接口测试报告',
+    scenario_test_report: '场景测试报告',
     load_test_report: '性能测试报告',
     test_plan_report: '测试计划报告',
-    report_sharing_link:'报告分享链接',
+    report_sharing_link: '报告分享链接',
     recent: '我最近的报告',
     search_by_name: '根据名称搜索',
     batch_add_monitor_tips: '格式：名称,IP,Port,描述<br/>如：项目1,192.168.1.52,9100,测试',
@@ -1089,6 +1092,7 @@ export default {
     stopthread: '停止线程',
     stoptest: '停止测试',
     stoptestnow: '立即停止测试',
+    batch_delete_confirm: "确认批量删除性能测试",
     report: {
       diff: "对比",
       set_default: '恢复默认',
@@ -1173,14 +1177,14 @@ export default {
       rule: {
         input_code: "请输入 HTTP Code"
       },
-      range_type:{
+      range_type: {
         value_eq: "值-等于[value=]",
         value_not_eq: "值-不等于[value!=]",
-        value_contain:"值-包含[include=]",
+        value_contain: "值-包含[include=]",
         length_eq: "长度-等于[length=]",
         length_not_eq: "长度-不等于[length!=]",
-        length_large_than:"长度-大于[length>]",
-        length_shot_than:"长度-小于[length<]",
+        length_large_than: "长度-大于[length>]",
+        length_shot_than: "长度-小于[length<]",
         regular_match: "正则匹配",
       }
     },
@@ -1258,6 +1262,8 @@ export default {
         delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
+        pre_operation: "前置操作",
+        post_operation: "后置操作",
         response_header: "响应头",
         response_body: "响应体",
         response_template: "响应报文模版",
@@ -1300,6 +1306,8 @@ export default {
         esb_title: "可以在报文模板中使用${参数名} 或 ${父节点参数名.子节点参数名}来生成xml数据结构",
       },
       document: {
+        open: "展开",
+        close: "收起",
         order: "排序方式",
         create_time_sort: "按创建时间从后到前",
         edit_time_positive_sequence: "按更新时间从前到后",
@@ -1332,8 +1340,10 @@ export default {
       case_reduction_error_text: "请先恢复"
     },
     automation: {
-      open_expansion: "一键展开",
-      close_expansion: "一键收起",
+      open_expansion: "批量展开步骤",
+      close_expansion: "批量折叠步骤",
+      bulk_activation_steps: "批量启用步骤",
+      batch_disable_steps: "批量禁用步骤",
       all: "全部",
       constant: "常量",
       counter: "计数器",
@@ -1478,6 +1488,7 @@ export default {
       scenario_error: "不能引用或复制自身！",
       integrated: "集合",
       independent: "独立",
+      step_info: "在右侧添加场景步骤",
     },
     request: {
       debug: "调试",
@@ -1625,7 +1636,8 @@ export default {
         expected_results: '预期结果',
         check: '校验组内元素',
         add_check: '添加校验',
-        add_subfield: '添加子字段'
+        add_subfield: '添加子字段',
+        description: "添加断言规则校验响应结果是否符合预期",
       },
       extract: {
         label: "提取",
@@ -2236,6 +2248,7 @@ export default {
       add_module: "添加模块",
       name: "模块名称",
       delete_confirm: "确认删除模块: ",
+      delete_batch_confirm: "确认批量删除勾选的场景步骤？",
       delete_all_resource: "以及模块下所有子模块和测试用例",
       module: "模块",
       title: "标题",
@@ -2321,6 +2334,7 @@ export default {
       test_detail: "测试详情",
       failure_case: "失败用例",
       export_report: "导出报告",
+      share_report: "分享报告",
       no_case_relevance: "没有关联用例",
       automatically_update_status: "自动更新状态",
       automatically_update_status_tip: "当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态",
@@ -2329,6 +2343,7 @@ export default {
       performance_case_count: "性能测试用例数",
       running: "运行中",
       please_choose_test_case: "请选择测试用例！",
+      execute_tip: "步骤执行结果中含有 失败 结果，无法标记该用例为 通过 状态！"
     },
     issue: {
       issue: "缺陷",
@@ -2372,6 +2387,9 @@ export default {
       update_third_party_bugs: "更新第三方平台的缺陷",
       sync_bugs: "同步缺陷",
       save_before_open_comment: "请先保存缺陷再添加评论",
+      delete_tip: "确认删除缺陷：",
+      check_id_exist: "检查",
+      save_project_first: "请先保存项目"
     },
     report: {
       name: "测试计划报告",
@@ -2624,7 +2642,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上传CSV文件",
-    csv_message: "默认展示2000条，完整的内容可点击下载查看。",
+    csv_message: "默认展示500条，完整的内容可点击下载查看。",
     end: "结束",
     start: "开始",
     increment: "增量",
@@ -2841,12 +2859,12 @@ export default {
       read: "查询",
       edit: "编辑"
     },
-    workspace_message: {
+    project_message: {
       name: "消息设置",
       read: "查询",
       edit: "编辑"
     },
-    workspace_template: {
+    project_template: {
       name: "模版设置",
       read: "查询",
       case_template: "用例模版",
@@ -3065,8 +3083,8 @@ export default {
       delete: "删除",
       read: "查看脚本",
     },
-    personal_information:{
-      name:'设置',
+    personal_information: {
+      name: '设置',
       personal_setting: '个人设置',
       api_keys: 'API Keys',
       edit_password: "修改密码",
@@ -3093,6 +3111,7 @@ export default {
   error_report_library: {
     name: "误报库",
     assertion: "误报断言",
+    tips: "注：在\"项目设置-设置环境-全局断言\"中启用误报将进行以下规则匹配",
     use_error_report: "启用误报",
     use_desc: "失败断言与误报规则冲突时统一处理为误报",
     option: {

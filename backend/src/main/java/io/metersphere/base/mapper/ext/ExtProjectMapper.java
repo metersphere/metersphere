@@ -28,13 +28,15 @@ public interface ExtProjectMapper {
     @MapKey("id")
     Map<String, Project> queryNameByIds(@Param("ids") List<String> ids);
 
-    List<Integer> selectTcpPorts();
-
     Project selectProjectByResourceId(@Param("resourceId") String resourceId);
 
     long getProjectMemberSize(@Param("projectId") String projectId);
 
-    List<Project>getProjectByUserId(@Param("userId")String userId);
+    List<Project> getProjectByUserId(@Param("userId") String userId);
 
     int getProjectPlanBugSize(@Param("projectId") String projectId);
+
+    void setDefaultMessageTask(@Param("projectId") String projectId);
+
+    List<ProjectDTO> queryListByIds(@Param("ids") List<String> ids);
 }

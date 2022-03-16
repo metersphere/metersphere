@@ -232,6 +232,8 @@ export default {
     reference_settings: "场景设置",
     enable_scene_info: "啟用場景環境：當前步驟使用場景原始環境配置運行",
     environment: "運行環境",
+    run: "運行",
+    delete_batch: "批量刪除",
     run_success: "執行成功",
     run_completed: "執行完成",
     run_warning: "正在運行中，請稍後查看",
@@ -925,6 +927,7 @@ export default {
   report: {
     id: '報告ID',
     api_test_report: '接口測試報告',
+    scenario_test_report: '場景測試報告',
     load_test_report: '性能測試報告',
     test_plan_report: '測試計劃報告',
     report_sharing_link: '報告分享鏈接',
@@ -1089,6 +1092,7 @@ export default {
     stopthread: '停止線程',
     stoptest: '停止測試',
     stoptestnow: '立即停止測試',
+    batch_delete_confirm: "确认批量删除性能测试",
     report: {
       diff: "對比",
       set_default: '恢復默認',
@@ -1258,6 +1262,8 @@ export default {
         delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
         assertions_rule: "斷言規則",
+        pre_operation: "前置操作",
+        post_operation: "後置操作",
         response_header: "響應頭",
         response_body: "響應體",
         response_template: "響應報文模版",
@@ -1300,6 +1306,8 @@ export default {
         esb_title: "可以在報文模板中使用${參數名} 或 ${父節點參數名.子節點參數名}來生成xml數據結構",
       },
       document: {
+        open: "展開",
+        close: "收起",
         order: "排序方式",
         create_time_sort: "按創建時間從後到前",
         edit_time_positive_sequence: "按更新時間從前到後",
@@ -1332,8 +1340,10 @@ export default {
       case_reduction_error_text: "請先恢復"
     },
     automation: {
-      open_expansion: "一鍵展開",
-      close_expansion: "一鍵收起",
+      open_expansion: "批量展開步驟",
+      close_expansion: "批量折疊步驟",
+      bulk_activation_steps: "批量啟用步驟",
+      batch_disable_steps: "批量禁用步驟",
       all: "全部",
       constant: "常量",
       counter: "計數器",
@@ -1478,6 +1488,7 @@ export default {
       scenario_error: "不能引用或復製自身！",
       integrated: "集合",
       independent: "獨立",
+      step_info: "在右側添加場景步驟",
     },
     request: {
       debug: "調試",
@@ -1625,7 +1636,8 @@ export default {
         expected_results: '預期結果',
         check: '校驗組內元素',
         add_check: '添加校驗',
-        add_subfield: '添加子字段'
+        add_subfield: '添加子字段',
+        description: "添加斷言規則校驗響應結果是否符合預期",
       },
       extract: {
         label: "提取",
@@ -2236,6 +2248,7 @@ export default {
       name: "模塊名稱",
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
+      delete_batch_confirm: "確認批量刪除勾選的場景步驟？",
       module: "模塊",
       title: "標題",
       status: "狀態",
@@ -2320,6 +2333,7 @@ export default {
       test_detail: "測試詳情",
       failure_case: "失敗用例",
       export_report: "導出報告",
+      share_report: "分享報告",
       no_case_relevance: "沒有關聯用例",
       automatically_update_status: "自動更新狀態",
       automatically_update_status_tip: "當功能用例關聯的接口或性能用例在測試計劃執行後，自動更新功能用例的狀態",
@@ -2328,6 +2342,7 @@ export default {
       performance_case_count: "性能測試用例數",
       running: "運行中",
       please_choose_test_case: "请选择测试用例！",
+      execute_tip: "步驟執行結果中含有 失敗 結果，無法標記該用例為 通過 狀態！"
     },
     issue: {
       issue: "缺陷",
@@ -2371,6 +2386,9 @@ export default {
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷",
       save_before_open_comment: "請先保存缺陷再添加評論",
+      delete_tip: "確認刪除缺陷：",
+      check_id_exist: "檢查",
+      save_project_first: "請先保存項目"
     },
     report: {
       name: "測試計劃報告",
@@ -2623,7 +2641,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上傳CSV文件",
-    csv_message: "默認展示2000條，完整的內容可點擊下載查看。",
+    csv_message: "默認展示500條，完整的內容可點擊下載查看。",
     end: "結束",
     start: "開始",
     increment: "增量",
@@ -2840,12 +2858,12 @@ export default {
       read: "查詢",
       edit: "編輯"
     },
-    workspace_message: {
+    project_message: {
       name: "消息設置",
       read: "查詢",
       edit: "編輯"
     },
-    workspace_template: {
+    project_template: {
       name: "模版設置",
       read: "查詢",
       case_template: "用例模版",
@@ -3092,6 +3110,7 @@ export default {
   error_report_library: {
     name: "誤報庫",
     assertion: "誤報斷言",
+    tips:"注：在\"項目設置-設置環境-全局斷言\"中啟用誤報將進行以下規則匹配",
     use_error_report: "啟用誤報",
     use_desc: "失敗斷言與誤報規則衝突時統一處理為誤報",
     option: {

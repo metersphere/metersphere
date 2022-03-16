@@ -25,23 +25,13 @@ public class Project implements Serializable {
 
     private String azureDevopsId;
 
-    private Boolean repeatable;
-
     private String caseTemplateId;
 
     private String issueTemplateId;
 
-    private Boolean customNum;
-
-    private Boolean scenarioCustomNum;
-
     private String createUser;
 
     private String systemId;
-
-    private Integer mockTcpPort;
-
-    private Boolean isMockTcpOpen;
 
     private String azureFilterId;
 
@@ -49,23 +39,7 @@ public class Project implements Serializable {
 
     private Boolean thirdPartTemplate;
 
-    private Boolean casePublic;
-
-    private String apiQuick;
-
     private Boolean versionEnable;
-
-    private Boolean cleanTrackReport;
-
-    private String cleanTrackReportExpr;
-
-    private Boolean cleanApiReport;
-
-    private String cleanApiReportExpr;
-
-    private Boolean cleanLoadReport;
-
-    private String cleanLoadReportExpr;
 
     private String issueConfig;
 

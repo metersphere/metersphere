@@ -201,11 +201,13 @@ public class MsHashTreeService {
                 this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
             }
         } else {
-            ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.getString(ID));
-            if (definitionWithBLOBs != null) {
-                element.put(ID, definitionWithBLOBs.getId());
-                this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
-                isExist = true;
+            if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), "Copy")) {
+                ApiDefinitionResult definitionWithBLOBs = apiDefinitionService.getById(element.getString(ID));
+                if (definitionWithBLOBs != null) {
+                    element.put(ID, definitionWithBLOBs.getId());
+                    this.setElement(element, definitionWithBLOBs.getNum(), enable, definitionWithBLOBs.getVersionName(), definitionWithBLOBs.getVersionEnable());
+                    isExist = true;
+                }
             }
         }
         if (!isExist) {

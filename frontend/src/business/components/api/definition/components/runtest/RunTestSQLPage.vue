@@ -22,15 +22,13 @@
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <div v-loading="loading">
         <!-- TCP 请求参数 -->
-        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm" :response="responseData"/>
 
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
         <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
       </div>
-
-      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
     </el-card>
 
@@ -59,7 +57,6 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsRun from "../Run";
 import MsBasisParameters from "../request/database/BasisParameters";
 import {REQ_METHOD} from "../../model/JsonData";
-import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -71,8 +68,7 @@ export default {
     MsRequestResultTail,
     ApiEnvironmentConfig,
     MsRun,
-    MsBasisParameters,
-    MsJmxStep
+    MsBasisParameters
     },
     data() {
       return {

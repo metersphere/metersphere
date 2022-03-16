@@ -35,11 +35,11 @@
       <el-card style="float: left;width: 850px" v-if="size > 550 ">
         <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
-        <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
+        <ms-request-result-tail :response="response" ref="debugResult" v-if="executionModule === 'API' && reportType !=='API_INTEGRATED'"/>
 
-        <ms-api-report-detail :showCancelButton="false" :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
+        <ms-api-report-detail :showCancelButton="false" :reportId="reportId" v-if="executionModule === 'SCENARIO'|| reportType ==='API_INTEGRATED'"/>
 
-        <performance-report-view :perReportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
+        <performance-report-view :perReportId="reportId" v-if="executionModule === 'PERFORMANCE'"/>
       </el-card>
 
       <el-card style="width: 550px;float: right" v-loading="loading">
@@ -196,6 +196,7 @@ export default {
       websocket: Object,
       size: 550,
       reportId: "",
+      executionModule: "",
       reportType: "",
     };
   },
@@ -350,8 +351,9 @@ export default {
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
           this.size = 1400;
           this.reportId = row.id;
-          this.reportType = row.executionModule;
-          if (row.executionModule === "API") {
+          this.executionModule = row.executionModule;
+          this.reportType = row.reportType;
+          if (row.executionModule === "API" && row.reportType !== 'API_INTEGRATED') {
             this.getExecResult(row.id);
           }
         } else if (status === 'stop') {

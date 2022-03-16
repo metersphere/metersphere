@@ -57,7 +57,12 @@
         </el-card>
 
         <!-- 创建、编辑、复制环境时的对话框 -->
-        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" width="66%" top="50px">
+        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px">
+          <template #title>
+            <ms-dialog-header :title="dialogTitle"
+                              @cancel="dialogVisible = false"
+                              @confirm="save"/>
+          </template>
           <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
                             :project-id="currentProjectId" @refreshAfterSave="refresh">
           </environment-edit>
@@ -126,6 +131,7 @@ import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
+import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 
 export default {
   name: "EnvironmentList",
@@ -138,7 +144,7 @@ export default {
     MsAsideItem,
     EnvironmentEdit,
     ApiEnvironmentConfig,
-    MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader
+    MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader, MsDialogHeader
   },
   data() {
     return {
@@ -185,6 +191,9 @@ export default {
         this.conditions.push(condition);
       }
       this.domainVisible = true;
+    },
+    save(){
+      this.$refs.environmentEdit.save();
     },
     getName(row) {
       switch (row.type) {

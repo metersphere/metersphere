@@ -61,11 +61,13 @@
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
-      <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter"/>
+      <ms-tcp-format-parameters :show-pre-script="true" :show-script="false" :request="request"
+                                ref="tcpFormatParameter"/>
     </div>
     <div v-else-if="apiProtocol=='ESB'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-      <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="request" ref="esbDefinition"/>
+      <esb-definition v-xpack :show-pre-script="true" v-if="showXpackCompnent" :show-script="false" :request="request"
+                      ref="esbDefinition"/>
       <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
       <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true"
                                :request="request"/>

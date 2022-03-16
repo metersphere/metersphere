@@ -21,5 +21,6 @@ public class RequestUrl {
     private String buildsGet;
     private String fileUpload;
     private String replaceImgUrl;
+    private String productGet;
     private Pattern imgPattern;
 }

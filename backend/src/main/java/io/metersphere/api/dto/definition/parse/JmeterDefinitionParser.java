@@ -58,6 +58,7 @@ import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
@@ -75,6 +76,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
     private ApiModule apiModule;
     private String selectModulePath;
     private String planName = "default";
+    private static final Integer GROUP_GLOBAL = 1;
 
     @Override
     public ApiDefinitionImport parse(InputStream inputSource, ApiTestImportRequest request) {
@@ -166,6 +168,30 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                         dataPools.setDataSources(new HashMap<>());
                     }
                     dataPools.getDataSources().put(dataSourceElement.getPropertyAsString("dataSource"), newConfig);
+                }
+            } else if (key instanceof ThreadGroup) {
+                HashTree group = tree.get(key);
+                if (group != null) {
+                    List<Object> nk = new ArrayList<>();
+                    for (Object groupNode : group.keySet()) {
+                        if (groupNode instanceof HeaderManager) {
+                            nk.add(groupNode);
+                        }
+                    }
+                    if (CollectionUtils.isNotEmpty(nk)) {
+                        for (Object gn : group.keySet()) {
+                            if (gn instanceof HTTPSamplerProxy) {
+                                if (headerMap.containsKey(gn.hashCode() + GROUP_GLOBAL)) {
+                                    headerMap.get(gn.hashCode()).addAll(nk);
+                                } else {
+                                    List<Object> objects = new LinkedList<Object>() {{
+                                        this.addAll(nk);
+                                    }};
+                                    headerMap.put(gn.hashCode() + GROUP_GLOBAL, objects);
+                                }
+                            }
+                        }
+                    }
                 }
             } else if (key instanceof HTTPSamplerProxy) {
                 // 把HTTP 请求下的HeaderManager 取出来
@@ -637,6 +663,23 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 });
                 samplerProxy.setHeaders(keyValues);
             }
+            // 处理ThreadGroup组内请求头
+            if (headerMap.containsKey(key.hashCode() + GROUP_GLOBAL)) {
+                List<KeyValue> keyValues = new LinkedList<>();
+                headerMap.get(key.hashCode() + GROUP_GLOBAL).forEach(item -> {
+                    HeaderManager headerManager = (HeaderManager) item;
+                    if (headerManager.getHeaders() != null) {
+                        for (int i = 0; i < headerManager.getHeaders().size(); i++) {
+                            keyValues.add(new KeyValue(headerManager.getHeader(i).getName(), headerManager.getHeader(i).getValue()));
+                        }
+                    }
+                });
+                // 合并Header
+                if (CollectionUtils.isNotEmpty(samplerProxy.getHeaders())) {
+                    keyValues.addAll(samplerProxy.getHeaders());
+                }
+                samplerProxy.setHeaders(keyValues);
+            }
             // 初始化body
             Body body = new Body();
             body.init();
@@ -675,7 +718,20 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             String bodyType = this.getBodyType(samplerProxy.getHeaders());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
-                    samplerProxy.getBody().setType(Body.RAW);
+                    List<KeyValue> headers = samplerProxy.getHeaders();
+                    boolean jsonType = false;
+                    if (CollectionUtils.isNotEmpty(headers)) {
+                        for (KeyValue header : headers) {
+                            if (StringUtils.equals(header.getName(), "Content-Type") && StringUtils.equals(header.getValue(), "application/json")) {
+                                samplerProxy.getBody().setType(Body.JSON);
+                                jsonType = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!jsonType) {
+                        samplerProxy.getBody().setType(Body.RAW);
+                    }
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> samplerProxy.getBody().setRaw(v));
                     samplerProxy.getBody().initKvs();
                 } else if (StringUtils.isNotEmpty(bodyType) || ("POST".equalsIgnoreCase(source.getMethod()) && source.getArguments().getArgumentsAsMap().size() > 0)) {

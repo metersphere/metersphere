@@ -199,9 +199,9 @@ public class ApiTestCaseController {
 
     @PostMapping(value = "/batch/run")
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
-    public void batchRun(@RequestBody ApiCaseRunRequest request) {
+    public List<MsExecResponseDTO> batchRun(@RequestBody ApiCaseRunRequest request) {
         request.setTriggerMode(ReportTriggerMode.BATCH.name());
-        apiCaseExecuteService.run(request);
+        return apiCaseExecuteService.run(request);
     }
 
     @PostMapping(value = "/jenkins/run")

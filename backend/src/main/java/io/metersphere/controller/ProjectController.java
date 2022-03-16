@@ -105,7 +105,7 @@ public class ProjectController {
 
     @PostMapping("/update")
     @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = ProjectService.class)
-    public void updateProject(@RequestBody Project Project) {
+    public void updateProject(@RequestBody AddProjectRequest Project) {
         projectService.updateProject(Project);
     }
 
@@ -138,6 +138,11 @@ public class ProjectController {
         return checkPermissionService.getUserRelatedProjectIds();
     }
 
+    @GetMapping("/getOwnerProjects")
+    public List<ProjectDTO>  getOwnerProjects() {
+        return checkPermissionService.getOwnerProjects();
+    }
+
     @GetMapping("/genTcpMockPort/{id}")
     public String genTcpMockPort(@PathVariable String id){
         return projectService.genTcpMockPort(id);
@@ -146,5 +151,10 @@ public class ProjectController {
     @GetMapping("version/enable/{projectId}")
     public boolean isVersionEnable(@PathVariable String projectId) {
         return projectService.isVersionEnable(projectId);
+    }
+
+    @PostMapping("/check/third/project")
+    public void checkThirdProjectExist(@RequestBody Project project) {
+        projectService.checkThirdProjectExist(project);
     }
 }

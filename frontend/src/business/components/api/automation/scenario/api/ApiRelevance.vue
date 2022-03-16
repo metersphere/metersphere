@@ -1,5 +1,6 @@
 <template>
   <test-case-relevance-base
+    :is-across-space="isAcrossSpace"
     @setProject="setProject"
     :dialog-title="$t('api_test.definition.api_import')"
     ref="baseRelevance">
@@ -80,6 +81,14 @@ export default {
     RelevanceDialog,
     ScenarioRelevanceApiList,
     MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList
+  },
+  props:{
+    isAcrossSpace:{
+      type:Boolean,
+      default() {
+        return false;
+      }
+    }
   },
   data() {
     return {

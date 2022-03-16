@@ -14,6 +14,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -118,6 +119,16 @@ public class ApiScenarioReportService {
     }
 
     public APIScenarioReportResult get(String reportId) {
+        ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
+        if (result != null) {
+            APIScenarioReportResult reportResult = new APIScenarioReportResult();
+            BeanUtils.copyBean(reportResult, result);
+            reportResult.setReportVersion(2);
+            reportResult.setTestId(reportId);
+            ApiScenarioReportDTO dto = apiScenarioReportStructureService.apiIntegratedReport(reportId);
+            reportResult.setContent(JSON.toJSONString(dto));
+            return reportResult;
+        }
         APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         if (reportResult != null) {
             if (reportResult.getReportVersion() != null && reportResult.getReportVersion() > 1) {
@@ -323,27 +334,28 @@ public class ApiScenarioReportService {
     }
 
     public void margeReport(String reportId, String runMode) {
-        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-        if (report != null) {
-            // 更新场景状态
-            if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
-                ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
-                execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
-                long size = definitionExecResultMapper.countByExample(execResultExample);
-                report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
-            } else {
+        // 更新场景状态
+        if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
+            ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
+            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+            execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
+            long size = definitionExecResultMapper.countByExample(execResultExample);
+            result.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+            definitionExecResultMapper.updateByPrimaryKeySelective(result);
+        } else {
+            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+            if (report != null) {
                 ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
                 example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo(ScenarioStatus.Error.name());
                 long size = apiScenarioReportResultMapper.countByExample(example);
                 report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+                report.setEndTime(System.currentTimeMillis());
+                // 更新报告
+                apiScenarioReportMapper.updateByPrimaryKey(report);
             }
-            // 更新控制台信息
-            apiScenarioReportStructureService.update(reportId, FixedCapacityUtils.getJmeterLogger(reportId));
-
-            report.setEndTime(System.currentTimeMillis());
-            // 更新报告
-            apiScenarioReportMapper.updateByPrimaryKey(report);
         }
+        // 更新控制台信息
+        apiScenarioReportStructureService.update(reportId, FixedCapacityUtils.getJmeterLogger(reportId));
     }
 
     public ApiScenarioReport updateScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
@@ -365,7 +377,12 @@ public class ApiScenarioReportService {
             }
 
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            if(requestResults.size() == 0){
+                scenario.setPassRate("0%");
+            }else {
+                scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            }
+
             scenario.setReportId(dto.getReportId());
             int executeTimes = 0;
             if (scenario.getExecuteTimes() != null) {

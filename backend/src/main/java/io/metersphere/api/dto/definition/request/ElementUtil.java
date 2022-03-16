@@ -76,7 +76,7 @@ public class ElementUtil {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
-            if(StringUtils.isEmpty(projectId)){
+            if (StringUtils.isEmpty(projectId)) {
                 projectId = environment.getProjectId();
             }
             if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
@@ -630,5 +630,56 @@ public class ElementUtil {
                 ((HashTree) groupHashTree).add(key, objects.get(key));
             }
         }
+    }
+
+    private static final List<String> preOperates = new ArrayList<String>() {{
+        this.add("JSR223PreProcessor");
+        this.add("JDBCPreProcessor");
+        this.add("ConstantTimer");
+    }};
+    private static final List<String> postOperates = new ArrayList<String>() {{
+        this.add("JSR223PostProcessor");
+        this.add("JDBCPostProcessor");
+        this.add("Extract");
+    }};
+
+    public static List<MsTestElement> order(List<MsTestElement> elements) {
+        List<MsTestElement> elementList = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(elements)) {
+            Map<String, List<MsTestElement>> groupMap = new LinkedHashMap<>();
+            elements.forEach(item -> {
+                if ("Assertions".equals(item.getType())) {
+                    if (groupMap.containsKey("Assertions")) {
+                        groupMap.get("Assertions").add(item);
+                    } else {
+                        groupMap.put("Assertions", new LinkedList<MsTestElement>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else if (preOperates.contains(item.getType())) {
+                    if (groupMap.containsKey("PreOperate")) {
+                        groupMap.get("PreOperate").add(item);
+                    } else {
+                        groupMap.put("PreOperate", new LinkedList<MsTestElement>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else if (postOperates.contains(item.getType())) {
+                    if (groupMap.containsKey("PostOperate")) {
+                        groupMap.get("PostOperate").add(item);
+                    } else {
+                        groupMap.put("PostOperate", new LinkedList<MsTestElement>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else {
+                    elementList.add(item);
+                }
+            });
+            elementList.addAll(groupMap.get("PreOperate").stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            elementList.addAll(groupMap.get("PostOperate").stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            elementList.addAll(groupMap.get("Assertions").stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+        }
+        return elementList;
     }
 }

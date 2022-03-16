@@ -24,9 +24,9 @@
           row-key="id"
           :row-order-group-id="projectId"
           :row-order-func="editLoadTestCaseOrder"
-          operator-width="190px"
+          :batch-operators="batchButtons"
+          operator-width="120px"
           :screen-height="screenHeight"
-          :enable-selection="false"
           @refresh="search"
           :disable-header-config="true"
           ref="table">
@@ -83,8 +83,7 @@
           </el-table-column>
           <el-table-column
             prop="reportCount"
-            :label="$t('report.load_test_report')"
-            width="150">
+            :label="$t('commons.report')">
             <template v-slot:default="scope">
               <el-link v-if="scope.row.reportCount > 0" @click="reports(scope.row)">
                 {{ scope.row.reportCount }}
@@ -121,7 +120,7 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {getLastTableSortField} from "@/common/js/tableUtils";
+import {buildBatchParam, getLastTableSortField} from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editLoadTestCaseOrder} from "@/network/load-test";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
@@ -156,13 +155,27 @@ export default {
       loading: true,
       testId: null,
       enableOrderDrag: true,
+      batchButtons: [
+        {
+          name: this.$t('commons.delete_batch'),
+          handleClick: this.handleBatchDelete,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+DELETE']
+        }
+      ],
       operators: [
+        {
+          tip: this.$t('commons.run'), icon: "el-icon-video-play",
+          class: 'run-button',
+          exec: this.handleRun,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+RUN']
+        },
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']
-        }, {
-          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+        },
+        {
+          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "primary",
           exec: this.handleCopy,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']
         }, {
@@ -253,6 +266,26 @@ export default {
       this.result = this.$post("/performance/copy", {id: test.id}, () => {
         this.$success(this.$t('commons.copy_success'));
         this.search();
+      });
+    },
+    handleRun(test) {
+      this.result = this.$post("/performance/run", {id: test.id, triggerMode: 'MANUAL'}, (response) => {
+        let reportId = response.data;
+        this.$router.push({path: '/performance/report/view/' + reportId});
+      });
+    },
+    handleBatchDelete() {
+      this.$alert(this.$t('load_test.batch_delete_confirm') + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.result = this.$post("/performance/delete/batch", param, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTableData();
+            })
+          }
+        }
       });
     },
     handleDelete(test) {

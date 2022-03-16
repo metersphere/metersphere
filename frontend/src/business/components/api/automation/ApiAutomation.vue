@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
-    <ms-aside-container>
+    <ms-aside-container v-show="isAsideHidden">
       <ms-api-scenario-module
         :show-operator="true"
         @nodeSelectEvent="nodeChange"
@@ -106,7 +106,7 @@
 <script>
 
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
-import {PROJECT_ID} from "@/common/js/constants";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -161,11 +161,15 @@ export default {
       customNum: false,
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
-      isLeave: false,
-      isSave: false
+      isSave: false,
+      isAsideHidden: true,
     };
   },
   created() {
+    let workspaceId = this.$route.params.workspaceId;
+    if (workspaceId) {
+      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+    }
     let projectId = this.$route.params.projectId;
     if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
@@ -197,6 +201,7 @@ export default {
       this.activeName = "default";
     },
     activeName() {
+      this.isAsideHidden = this.activeName === 'default';
     }
   },
   methods: {
@@ -326,27 +331,10 @@ export default {
       let message = "";
       if (!this.isSave) {
         this.tabs.forEach(t => {
-          if (t.currentScenario.type !== "add") {
-            let v1 = t.currentScenario.scenarioDefinitionOrg;
-            let v2 = {
-              apiScenarioModuleId: t.currentScenario.apiScenarioModuleId,
-              name: t.currentScenario.name,
-              status: t.currentScenario.status,
-              principal: t.currentScenario.principal,
-              level: t.currentScenario.level,
-              tags: t.currentScenario.tags,
-              description: t.currentScenario.description,
-              scenarioDefinition: t.currentScenario.scenarioDefinition
-            };
-            this.deleteResourceIds(v1.scenarioDefinition);
-            this.deleteResourceIds(v2.scenarioDefinition);
-            let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
-            if (delta) {
-              this.isLeave = true;
-            }
-            if (t && this.isLeave) {
-              message += t.currentScenario.name + "，";
-            }
+          this.diff(t);
+          if (t && this.isSave) {
+            message += t.currentScenario.name + "，";
+            this.isSave = false;
           }
         });
         if (message !== "") {
@@ -357,10 +345,8 @@ export default {
               if (action === 'confirm') {
                 this.tabs = [];
                 this.activeName = "default";
-                this.refresh();
                 this.isSave = false;
               } else {
-                this.isLeave = false;
                 this.isSave = false;
               }
             }
@@ -370,14 +356,15 @@ export default {
           this.activeName = "default";
           this.refresh();
           this.isSave = false;
-          this.isLeave = false;
         }
       } else {
         this.tabs = [];
         this.activeName = "default";
         this.refresh();
         this.isSave = false;
-        this.isLeave = false;
+      }
+      if (this.tabs && this.tabs.length === 0) {
+        this.refreshAll();
       }
     },
     handleCommand(e) {
@@ -402,63 +389,139 @@ export default {
         this.activeName = "default";
       }
     },
+    diff(t) {
+      if (t.currentScenario.type !== "add") {
+        let v1 = t.currentScenario.scenarioDefinitionOrg;
+        let v2 = {
+          apiScenarioModuleId: t.currentScenario.apiScenarioModuleId,
+          name: t.currentScenario.name,
+          status: t.currentScenario.status,
+          principal: t.currentScenario.principal,
+          level: t.currentScenario.level,
+          tags: t.currentScenario.tags,
+          description: t.currentScenario.description,
+          scenarioDefinition: t.currentScenario.scenarioDefinition
+        };
+        let v3 = JSON.parse(JSON.stringify(v2));
+        this.deleteResourceIds(v1.scenarioDefinition);
+        this.deleteResourceIds(v3.scenarioDefinition);
+        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
+        if (delta) {
+          this.isSave = true;
+        }
+      }
+    },
     deleteResourceIds(array) {
       array.forEach(item => {
         if (item.resourceId) {
           delete item.resourceId;
         }
+        if (item.method) {
+          delete item.method;
+        }
+        if (item.timeout >= 0) {
+          delete item.timeout;
+        }
+        if (item.ctimeout >= 0) {
+          delete item.ctimeout;
+        }
+        if (item.rest && item.rest.length === 0) {
+          delete item.rest;
+        }
+        if (item.arguments && item.arguments.length === 0) {
+          delete item.arguments;
+        }
         if (item.id) {
           delete item.id;
         }
+        if (!item.checkBox) {
+          delete item.checkBox;
+        }
+        if (!item.isBatchProcess) {
+          delete item.isBatchProcess;
+        }
+        if (!item.isLeaf || item.isLeaf) {
+          delete item.isLeaf;
+        }
+        if (item.maxThreads) {
+          delete item.maxThreads;
+        }
+        if (item.parentIndex) {
+          delete item.parentIndex
+        }
+        if (item.connectTimeout) {
+          delete item.connectTimeout;
+        }
+        if (item.index) {
+          delete item.index;
+        }
+        if (item.postSize >= 0) {
+          delete item.postSize;
+        }
+        if (item.preSize >= 0) {
+          delete item.preSize;
+        }
+        if (item.requestResult) {
+          delete item.requestResult;
+        }
+        if (item.responseTimeout) {
+          delete item.responseTimeout;
+        }
+        if (item.root) {
+          delete item.root;
+        }
+        if (item.ruleSize >= 0) {
+          delete item.ruleSize;
+        }
+        if (item.body && item.body.kvs) {
+          item.body.kvs.forEach(v => {
+            if (v.files) {
+              delete v.files;
+            }
+          })
+        }
+        if (item.body && ((item.body.binary && item.body.binary.length === 0) || (item.body.kvs && item.body.kvs.length === 0))) {
+          delete item.body;
+        }
+        delete item.projectId;
         if (item.hashTree && item.hashTree.length > 0) {
           this.deleteResourceIds(item.hashTree);
         }
       })
     },
     closeConfirm(targetName) {
-      let t = this.tabs.filter(tab => tab.name === targetName);
-      if (!this.isSave && t[0].currentScenario.type !== 'add') {
-        let v1 = t[0].currentScenario.scenarioDefinitionOrg;
-        let v2 = {
-          apiScenarioModuleId: t[0].currentScenario.apiScenarioModuleId,
-          name: t[0].currentScenario.name,
-          status: t[0].currentScenario.status,
-          principal: t[0].currentScenario.principal,
-          level: t[0].currentScenario.level,
-          tags: t[0].currentScenario.tags,
-          description: t[0].currentScenario.description,
-          scenarioDefinition: t[0].currentScenario.scenarioDefinition
-        };
-        this.deleteResourceIds(v1.scenarioDefinition);
-        this.deleteResourceIds(v2.scenarioDefinition);
-        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
-        if (delta) {
-          this.isLeave = true;
-        }
-        if (this.isLeave) {
-          this.$alert(this.$t('commons.scenario') + " [ " + t[0].currentScenario.name + " ] " + this.$t('commons.confirm_info'), '', {
+      let message = "";
+      let tab = this.tabs.filter(tab => tab.name === targetName);
+      if (!this.isSave) {
+        tab.forEach(t => {
+          this.diff(t);
+          if (t && this.isSave) {
+            message += t.currentScenario.name + "，";
+          }
+        });
+        if (message !== "") {
+          this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
             confirmButtonText: this.$t('commons.confirm'),
             cancelButtonText: this.$t('commons.cancel'),
             callback: (action) => {
               if (action === 'confirm') {
-                this.isLeave = false;
                 this.removeTab(targetName);
                 this.isSave = false;
               } else {
-                this.isLeave = false;
                 this.isSave = false;
               }
             }
           });
         } else {
-          this.isLeave = false;
           this.isSave = false;
           this.removeTab(targetName);
         }
       } else {
-        this.isLeave = false;
         this.isSave = false;
         this.removeTab(targetName);
+      }
+      if (this.tabs && this.tabs.length === 0) {
+        this.refreshAll();
       }
     },
     removeTab(targetName) {
@@ -468,6 +531,10 @@ export default {
         this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
         this.activeName = "default";
+      }
+      let index = this.tabs.findIndex(item => item.name === targetName);
+      if (index !== -1) {
+        this.tabs.splice(index, 1);
       }
     },
     setTabLabel(data) {
@@ -490,15 +557,12 @@ export default {
     },
     refresh(data) {
       this.setTabTitle(data);
-      this.$refs.apiScenarioList.search(data);
-      if (this.$refs.apiTrashScenarioList) {
-        this.$refs.apiTrashScenarioList.search(data);
-      }
       this.isSave = true;
-      this.$refs.nodeTree.list();
     },
     refreshTree() {
-      this.$refs.nodeTree.list();
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.list();
+      }
     },
     refreshAll() {
       this.$refs.nodeTree.list();
@@ -510,7 +574,7 @@ export default {
     setTabTitle(data) {
       for (let index in this.tabs) {
         let tab = this.tabs[index];
-        if (tab.name === this.activeName) {
+        if (tab && tab.name === this.activeName) {
           tab.label = data.name;
           break;
         }
@@ -564,7 +628,7 @@ export default {
       });
     },
     getProject() {
-      this.$get("/project/get/" + this.projectId, result => {
+      this.$get('/project_application/get/config/' + this.projectId + "/SCENARIO_CUSTOM_NUM", result => {
         let data = result.data;
         if (data) {
           this.customNum = data.scenarioCustomNum;

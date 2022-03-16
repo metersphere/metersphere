@@ -18,7 +18,7 @@ export function getUrl(d) {
           url += "/api/definition?resourceId=" + resourceId;
         break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId;
+          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
         break;
       }
       break;
@@ -28,7 +28,7 @@ export function getUrl(d) {
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId;
+          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
           break;
       }
       break;
@@ -38,7 +38,7 @@ export function getUrl(d) {
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId;
+          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
           break;
       }
       break;
@@ -48,7 +48,7 @@ export function getUrl(d) {
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId;
+          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
           break;
       }
       break;
@@ -58,7 +58,7 @@ export function getUrl(d) {
           url += "/api/definition?resourceId=" + resourceId;
           break;
         case "CASE":
-          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId;
+          url += "/api/definition?caseId=" + d.id+"&projectId="+d.projectId+"&workspaceId="+d.workspaceId;
           break;
       }
       break;

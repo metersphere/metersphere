@@ -98,15 +98,11 @@ public class GenerateHashTreeUtil {
     }
 
     public static List<JvmInfoDTO> setPoolResource(String id) {
-        if (GenerateHashTreeUtil.isResourcePool(id).isPool()) {
-            if (GenerateHashTreeUtil.isResourcePool(id).isK8s()) {
-                LogUtil.info("K8S 暂时不做校验 ");
-            } else {
-                ResourcePoolCalculation resourcePoolCalculation = CommonBeanFactory.getBean(ResourcePoolCalculation.class);
-                return resourcePoolCalculation.getPools(id);
-            }
+        if (GenerateHashTreeUtil.isResourcePool(id).isPool() && !GenerateHashTreeUtil.isResourcePool(id).isK8s()) {
+            ResourcePoolCalculation resourcePoolCalculation = CommonBeanFactory.getBean(ResourcePoolCalculation.class);
+            return resourcePoolCalculation.getPools(id);
         }
-        return null;
+        return new LinkedList<>();
     }
 
     public static void setScenarioEnv(MsScenario scenario, ApiScenarioWithBLOBs apiScenarioWithBLOBs) {

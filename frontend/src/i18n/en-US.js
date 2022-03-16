@@ -1,7 +1,7 @@
 export default {
   commons: {
     project_permission: 'Please add the project permission first',
-    no_permission:'No permission yet',
+    no_permission: 'No permission yet',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
     trash: "Trash",
@@ -231,6 +231,8 @@ export default {
     enable_scene_info: "Enable scene environment: the current step uses the original environment configuration of the scene to run",
     edit_info: "Edit details",
     environment: "Environment",
+    run: "Run",
+    delete_batch: "Delete Batch",
     run_success: "Run Success",
     run_completed: "Run Completed",
     run_fail: "Run Fail",
@@ -241,8 +243,8 @@ export default {
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     type: "Type",
-    type_of_num:"Please enter an integer type",
-    validity_period:'Validity Period',
+    type_of_num: "Please enter an integer type",
+    validity_period: 'Validity Period',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
       name: 'Dependencies',
@@ -921,6 +923,7 @@ export default {
   report: {
     id: 'Report ID',
     api_test_report: 'Api Test Report',
+    scenario_test_report: 'Scenario Test Report',
     load_test_report: 'Load Test Report',
     test_plan_report: 'Test Plan Report',
     report_sharing_link: 'Report Sharing Link',
@@ -1084,6 +1087,7 @@ export default {
     stopthread: 'Stop thread',
     stoptest: 'Stop test',
     stoptestnow: 'Stop the test immediately',
+    batch_delete_confirm: "Confirm batch delete performance test",
     report: {
       diff: "Compare",
       set_default: 'Set to Default',
@@ -1167,14 +1171,14 @@ export default {
       rule: {
         input_code: "Please input HTTP Code"
       },
-      range_type:{
+      range_type: {
         value_eq: "value=",
         value_not_eq: "value!=",
-        value_contain:"include=",
+        value_contain: "include=",
         length_eq: "length=",
         length_not_eq: "length!=",
-        length_large_than:"length>",
-        length_shot_than:"length<",
+        length_large_than: "length>",
+        length_shot_than: "length<",
         regular_match: "Regular match",
       }
     },
@@ -1252,6 +1256,8 @@ export default {
         delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
+        pre_operation: "Pre operation",
+        post_operation: "Post operation",
         response_header: "Response header",
         response_body: "Response body",
         response_template: "Response template",
@@ -1295,6 +1301,8 @@ export default {
         esb_title: "You can use ${name} or ${parent name.child name} to generate xml struct in report template",
       },
       document: {
+        open: "Open",
+        close: "Close",
         order: "Order",
         create_time_sort: "From back to front by create time",
         edit_time_positive_sequence: "From front to back by update time",
@@ -1327,8 +1335,10 @@ export default {
       case_reduction_error_text: "Please restore first"
     },
     automation: {
-      open_expansion: "One-click expansion",
-      close_expansion: "One-click storage",
+      open_expansion: "Batch Folding Steps",
+      close_expansion: "Bulk Expand Steps",
+      bulk_activation_steps: "Bulk activation steps",
+      batch_disable_steps: "Batch disable steps",
       all: "all",
       constant: "constant",
       counter: "counter",
@@ -1474,6 +1484,7 @@ export default {
       scenario_error: "Cannot reference or copy itself！",
       integrated: "Integrated",
       independent: "Independent",
+      step_info: "Add a scene step on the right",
     },
     request: {
       debug: "Debug",
@@ -1620,7 +1631,8 @@ export default {
         expected_results: 'Expected results',
         check: 'Check the elements in the array',
         add_check: 'Add check',
-        add_subfield: 'Add subfield'
+        add_subfield: 'Add subfield',
+        description: "Add assertion rules to check whether the response result is as expected",
       },
       extract: {
         label: "Extract from response",
@@ -2232,6 +2244,7 @@ export default {
       name: "Name",
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
+      delete_batch_confirm: "Steps to confirm batch deletion of selected scenarios？",
       module: "Module",
       title: "Title",
       describe: "Describe",
@@ -2316,6 +2329,7 @@ export default {
       test_detail: "Test detail",
       failure_case: "Failure case",
       export_report: "Export Report",
+      share_report: "Share Report",
       no_case_relevance: "No related use cases",
       automatically_update_status: "Auto update status",
       allow_associated_repetitive_cases: "Repetitive Case",
@@ -2324,6 +2338,7 @@ export default {
       performance_case_count: "Performance Case Count",
       running: "Running",
       please_choose_test_case: "please select a test case！",
+      execute_tip: "The step execution result contains a Failed result, and the use case cannot be marked as Passed!"
     },
     issue: {
       issue: "Issue",
@@ -2367,6 +2382,9 @@ export default {
       update_third_party_bugs: "Update the defects of third-party platforms",
       sync_bugs: "Synchronization Issue",
       save_before_open_comment: "Please save issue before comment",
+      delete_tip: "Confirm Delete Issue：",
+      check_id_exist: "Check",
+      save_project_first: "Please save the project first"
     },
     report: {
       name: "Test Plan Report",
@@ -2621,7 +2639,7 @@ export default {
   },
   variables: {
     ƒ: "Only CSV files can be uploaded",
-    csv_message: "2000 items are displayed by default, and the complete content can be downloaded and viewed.",
+    csv_message: "500 items are displayed by default, and the complete content can be downloaded and viewed.",
     end: "end",
     start: "start",
     increment: "increment",
@@ -2838,12 +2856,12 @@ export default {
       read: "READ",
       edit: "EDIT",
     },
-    workspace_message: {
+    project_message: {
       name: "Message",
       read: "READ",
       edit: "EDIT",
     },
-    workspace_template: {
+    project_template: {
       name: "Template",
       read: "READ",
       case_template: "CASE TEMPLATE",
@@ -3061,8 +3079,8 @@ export default {
       delete: "DELETE",
       read: "READ",
     },
-    personal_information:{
-      name:'Setting',
+    personal_information: {
+      name: 'Setting',
       personal_setting: 'Personal Setting',
       api_keys: 'API Keys',
       edit_password: "EDIT PASSWORD",
@@ -3089,6 +3107,7 @@ export default {
   error_report_library: {
     name: "Error report",
     assertion: "Error code assertion",
+    tips:"Tips: Use error report in \"Project Settings - Project environment-Assertions\"",
     use_error_report: "Use error code",
     use_desc: "In case of conflict between error code and error assertions, it is treated as error code",
     option: {

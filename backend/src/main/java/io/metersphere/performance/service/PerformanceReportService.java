@@ -180,7 +180,19 @@ public class PerformanceReportService {
             return Collections.emptyList();
         }
         String reportValue = getContent(id, ReportKeys.RequestStatistics);
-        return JSON.parseArray(reportValue, Statistics.class);
+        // 确定顺序
+        List<Statistics> statistics = JSON.parseArray(reportValue, Statistics.class);
+        List<LoadTestExportJmx> jmxContent = getJmxContent(id);
+        String jmx = jmxContent.get(0).getJmx();
+        // 按照JMX顺序重新排序
+        statistics.sort(Comparator.comparingInt(a -> jmx.indexOf(a.getLabel())));
+        // 把 total 放到最后
+        List<Statistics> total = statistics.stream()
+                .filter(r -> StringUtils.equalsAnyIgnoreCase(r.getLabel(), "Total"))
+                .collect(Collectors.toList());
+        statistics.removeAll(total);
+        statistics.addAll(total);
+        return statistics;
     }
 
     public List<Errors> getReportErrors(String id) {

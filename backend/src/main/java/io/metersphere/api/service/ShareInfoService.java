@@ -3,9 +3,11 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.share.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.ShareType;
@@ -61,6 +63,9 @@ public class ShareInfoService {
     @Lazy
     @Resource
     TestPlanMapper testPlanMapper;
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+
 
     public List<ApiDocumentInfoDTO> findApiDocumentSimpleInfoByRequest(ApiDocumentRequest request) {
         if (this.isParamLegitimacy(request)) {
@@ -105,7 +110,7 @@ public class ShareInfoService {
         return true;
     }
 
-    public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel) {
+    public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel, Map<String,User> userIdMap) {
         ApiDocumentInfoDTO apiInfoDTO = new ApiDocumentInfoDTO();
         JSONArray previewJsonArray = new JSONArray();
         if (apiModel != null) {
@@ -114,6 +119,23 @@ public class ShareInfoService {
             apiInfoDTO.setMethod(apiModel.getMethod());
             apiInfoDTO.setUri(apiModel.getPath());
             apiInfoDTO.setStatus(apiModel.getStatus());
+
+            if(StringUtils.isNotEmpty(apiModel.getTags())){
+                JSONArray tagsArr = JSONArray.parseArray(apiModel.getTags());
+                List<String> tagList = new ArrayList<>();
+                for(int i = 0;i < tagsArr.size();i ++){
+                    tagList.add(tagsArr.getString(i));
+                }
+                if(!tagList.isEmpty()){
+                    apiInfoDTO.setTags(StringUtils.join(tagList,","));
+                }
+            }
+
+            apiInfoDTO.setResponsibler(userIdMap.get(apiModel.getUserId()) == null? apiModel.getUserId() : userIdMap.get(apiModel.getUserId()).getName());
+            apiInfoDTO.setCreateUser(userIdMap.get(apiModel.getCreateUser()) == null? apiModel.getCreateUser() : userIdMap.get(apiModel.getCreateUser()).getName());
+            apiInfoDTO.setDesc(apiModel.getDescription());
+            ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+            apiInfoDTO.setModules(apiModuleService.getModuleNameById(apiModel.getModuleId()));
 
             if (apiModel.getRequest() != null) {
                 JSONObject requestObj = this.genJSONObject(apiModel.getRequest());
@@ -145,6 +167,8 @@ public class ShareInfoService {
                         } catch (Exception e) {
                         }
                     }
+                    //rest参数设置
+                    JSONArray restParamArr = new JSONArray();
                     if (requestObj.containsKey("rest")) {
                         try {
                             //urlParam -- rest赋值
@@ -152,13 +176,14 @@ public class ShareInfoService {
                             for (int index = 0; index < headArr.size(); index++) {
                                 JSONObject headObj = headArr.getJSONObject(index);
                                 if (headObj.containsKey("name")) {
-                                    urlParamArr.add(headObj);
+                                    restParamArr.add(headObj);
                                 }
                             }
                         } catch (Exception e) {
                         }
                     }
                     apiInfoDTO.setUrlParams(urlParamArr.toJSONString());
+                    apiInfoDTO.setRestParams(restParamArr.toJSONString());
                     //请求体参数类型
                     if (requestObj.containsKey("body")) {
                         try {
@@ -545,6 +570,14 @@ public class ShareInfoService {
             TestPlanWithBLOBs testPlan = getTestPlan(shareInfo);
             if (testPlan != null){
                 projectId = testPlan.getProjectId();
+            };
+
+        }
+        if(shareInfo.getShareType().equals("API_REPORT")){
+            type = ProjectApplicationType.API_SHARE_REPORT_TIME.toString();
+            APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(shareInfo.getCustomData());
+            if (reportResult != null){
+                projectId = reportResult.getProjectId();
             };
 
         }

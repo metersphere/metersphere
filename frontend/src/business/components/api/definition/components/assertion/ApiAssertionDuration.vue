@@ -64,6 +64,6 @@
 <style scoped>
   .assertion-btn {
     text-align: center;
-    width: 60px;
+    width: 40px;
   }
 </style>

@@ -110,19 +110,14 @@
 import TemplateComponentEditHeader
   from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
-import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
-import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
+import CustomFieldFormList from "@/business/components/project/template/CustomFieldFormList";
+import CustomFieldRelateList from "@/business/components/project/template/CustomFieldRelateList";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
-import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-  getCurrentWorkspaceId,
-} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId,} from "@/common/js/utils";
 import {enableThirdPartTemplate, getIssuePartTemplateWithProject} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";

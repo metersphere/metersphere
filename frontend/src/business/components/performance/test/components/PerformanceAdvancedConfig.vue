@@ -522,12 +522,7 @@ export default {
       }
     },
     csvFiles() {
-      if (this.csvConfig && this.csvFiles) {
-        this.csvFiles.forEach(f => {
-          f.csvSplit = this.csvConfig[f.name]?.csvSplit;
-          f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
-        });
-      }
+      this.refreshCsv();
     }
   },
   methods: {
@@ -553,8 +548,17 @@ export default {
           this.properties = data.properties || [];
           this.systemProperties = data.systemProperties || [];
           this.csvConfig = data.csvConfig;
+          this.refreshCsv();
         }
       });
+    },
+    refreshCsv() {
+      if (this.csvConfig && this.csvFiles) {
+        this.csvFiles.forEach(f => {
+          f.csvSplit = this.csvConfig[f.name]?.csvSplit;
+          f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
+        });
+      }
     },
     add(dataName) {
       if (dataName === 'domains') {

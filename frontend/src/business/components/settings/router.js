@@ -29,21 +29,6 @@ export default {
       meta: {system: true, title: 'group.group_permission', permissions: ['SYSTEM_GROUP:READ', 'ORGANIZATION_GROUP:READ']}
     },
     {
-      path: 'workspace/template/field',
-      component: () => import('@/business/components/settings/workspace/template/CustomFieldList'),
-      meta: {workspaceTemplate: true, title: 'custom_field.name', permissions: ['WORKSPACE_TEMPLATE:READ+CUSTOM']},
-    },
-    {
-      path: 'workspace/template/case',
-      component: () => import('@/business/components/settings/workspace/template/TestCaseTemplateList'),
-      meta: {workspaceTemplate: true, title: 'workspace.case_template_manage', permissions: ['WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE']},
-    },
-    {
-      path: 'workspace/template/issues',
-      component: () => import('@/business/components/settings/workspace/template/IssuesTemplateList'),
-      meta: {workspaceTemplate: true, title: 'workspace.issue_template_manage', permissions: ['WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE']},
-    },
-    {
       path: 'testresourcepool',
       component: () => import('@/business/components/settings/system/TestResourcePool'),
       meta: {system: true, title: 'commons.test_resource_pool', permissions: ['SYSTEM_TEST_POOL:READ']}
@@ -64,11 +49,6 @@ export default {
       path: 'serviceintegration',
       component: () => import('@/business/components/settings/workspace/ServiceIntegration'),
       meta: {workspace: true, title: 'organization.service_integration', permissions: ['WORKSPACE_SERVICE:READ']}
-    },
-    {
-      path: 'messagesettings',
-      component: () => import('@/business/components/settings/workspace/MessageSettings'),
-      meta: {workspace: true, title: 'organization.message_settings', permissions: ['WORKSPACE_MESSAGE:READ']}
     },
     {
       path: 'personsetting',

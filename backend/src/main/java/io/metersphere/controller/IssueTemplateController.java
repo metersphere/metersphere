@@ -48,9 +48,9 @@ public class IssueTemplateController {
         issueTemplateService.update(request);
     }
 
-    @GetMapping("/option/{workspaceId}")
-    public List<IssueTemplate> list(@PathVariable String workspaceId) {
-        return issueTemplateService.getOption(workspaceId);
+    @GetMapping({"/option/{projectId}", "/option"})
+    public List<IssueTemplate> list(@PathVariable(required = false) String projectId) {
+        return issueTemplateService.getOption(projectId);
     }
 
     @GetMapping("/get/relate/{projectId}")

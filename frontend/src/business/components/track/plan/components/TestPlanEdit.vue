@@ -237,7 +237,9 @@ export default {
           }
           param.tags = this.form.tags;
           this.result = this.$post('/test/plan/' + this.operationType, param, response => {
-            this.$success(this.$t('commons.save_success'));
+            if (this.operationType === 'add') {
+              this.$success(this.$t('commons.save_success'));
+            }
             this.dialogFormVisible = false;
             this.$router.push('/track/plan/view/' + response.data.id);
           });

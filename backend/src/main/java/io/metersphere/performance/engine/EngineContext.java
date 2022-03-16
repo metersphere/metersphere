@@ -15,6 +15,7 @@ public class EngineContext {
     private double[] ratios;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, byte[]> testResourceFiles = new HashMap<>();
+    private Map<String, Boolean> splitFlag = new HashMap<>();
 
     public String getTestId() {
         return testId;
@@ -107,5 +108,13 @@ public class EngineContext {
 
     public void setTestResourceFiles(Map<String, byte[]> testResourceFiles) {
         this.testResourceFiles = testResourceFiles;
+    }
+
+    public Map<String, Boolean> getSplitFlag() {
+        return splitFlag;
+    }
+
+    public void setSplitFlag(Map<String, Boolean> splitFlag) {
+        this.splitFlag = splitFlag;
     }
 }
