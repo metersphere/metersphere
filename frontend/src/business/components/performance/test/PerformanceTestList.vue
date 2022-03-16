@@ -165,6 +165,7 @@ export default {
       operators: [
         {
           tip: this.$t('commons.run'), icon: "el-icon-video-play",
+          class: 'run-button',
           exec: this.handleRun,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+RUN']
         },
@@ -174,7 +175,7 @@ export default {
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']
         },
         {
-          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "primary",
           exec: this.handleCopy,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']
         }, {
