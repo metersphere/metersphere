@@ -21,23 +21,30 @@
           <el-row type="flex" justify="center" align="middle" style="width: 150px">
             <div>
               <div class="metric-icon-box" style="height: 26px">
-                <span class="ms-point-success" style="margin: 7px"/>
+                <span class="ms-point-success" style="margin: 7px;float: left;"/>
                 <div class="metric-box">
                   <div class="value" style="font-size: 12px">{{ content.success }} {{ $t('api_report.success') }}</div>
                 </div>
               </div>
               <el-divider></el-divider>
               <div class="metric-icon-box" style="height: 26px">
-                <span class="ms-point-error" style="margin: 7px"/>
+                <span class="ms-point-error" style="margin: 7px;float: left;"/>
                 <div class="metric-box">
                   <div class="value" style="font-size: 12px">{{ content.error }} {{ $t('api_report.fail') }}</div>
                 </div>
               </div>
               <el-divider v-if="content.errorCode > 0"></el-divider>
-              <div class="metric-icon-box" style="height: 26px">
-                <span class="ms-point-error-code" v-if="content.errorCode > 0" style="margin: 7px"/>
+              <div class="metric-icon-box" v-if="content.errorCode > 0" style="height: 26px">
+                <span class="ms-point-error-code"  style="margin: 7px;float: left;"/>
                 <div class="metric-box" v-if="content.errorCode > 0">
                   <div class="value" style="font-size: 12px">{{ content.errorCode }} {{ $t('error_report_library.option.name') }}</div>
+                </div>
+              </div>
+              <el-divider v-if="content.unExecute > 0"></el-divider>
+              <div class="metric-icon-box" v-if="content.unExecute > 0" style="height: 26px">
+                <span class="ms-point-unexecute"  style="margin: 7px;float: left;"/>
+                <div class="metric-box" v-if="content.unExecute > 0">
+                  <div class="value" style="font-size: 12px">{{ content.unExecute }} {{ $t('api_test.home_page.detail_card.unexecute') }}</div>
                 </div>
               </div>
             </div>
@@ -68,6 +75,11 @@
               <div class="value">{{ content.scenarioErrorReport ? content.scenarioErrorReport : 0 }}</div>
               <div class="name">{{ $t('error_report_library.option.name') }}</div>
             </div>
+            <span class="ms-point-unexecute" v-if="content.unExecute > 0 || content.unExecute > 0 "/>
+            <div class="metric-box"  v-if="content.unExecute > 0 || content.unExecute > 0 ">
+              <div class="value">{{ content.scenarioUnExecute ? content.scenarioUnExecute : 0 }}</div>
+              <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
+            </div>
           </el-row>
           <el-divider v-if="report.reportType !== 'API_INTEGRATED'"/>
           <el-row type="flex" justify="center" align="middle">
@@ -90,6 +102,11 @@
               <div class="metric-box"  v-if="content.scenarioErrorReport > 0 || content.scenarioStepErrorReport > 0 ">
                 <div class="value">{{ content.scenarioStepErrorReport ? content.scenarioStepErrorReport : 0 }}</div>
                 <div class="name">{{ $t('error_report_library.option.name') }}</div>
+              </div>
+              <span class="ms-point-unexecute" v-if="content.unExecute > 0 || content.unExecute > 0 "/>
+              <div class="metric-box"  v-if="content.unExecute > 0 || content.unExecute > 0 ">
+                <div class="value">{{ content.scenarioStepUnExecuteReport ? content.scenarioStepUnExecuteReport : 0 }}</div>
+                <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
               </div>
             </el-row>
           </el-row>
@@ -391,5 +408,16 @@
     margin-left: 20px;
     margin-right: 20px;
     background-color : #F6972A;
+  }
+
+  .ms-point-unexecute {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color : #9C9B9A;
   }
 </style>
