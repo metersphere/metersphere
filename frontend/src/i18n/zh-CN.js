@@ -1373,6 +1373,8 @@ export default {
       reference_info: "请选择接口或用例",
       scenario_test: "场景",
       scenario_list: "场景列表",
+      unplanned_scenario: '未规划场景',
+      all_scenario: '全部场景',
       add_scenario: "创建场景",
       scenario_name: "场景名称",
       case_level: "用例等级",
@@ -1960,6 +1962,7 @@ export default {
     date: "日期"
   },
   test_track: {
+    unplanned_case: '未规划用例',
     sync_add_api_load: '同步添加关联的接口和性能测试',
     next: '下一条',
     total_size: '共 {0} 条',

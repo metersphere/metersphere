@@ -168,7 +168,7 @@ public class TestCaseService {
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
-            example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("未规划用例");
+            example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("UNPLANNED");
             List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(nodes)) {
                 testCase.setNodeId(nodes.get(0).getId());

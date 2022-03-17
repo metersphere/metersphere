@@ -1373,6 +1373,8 @@ export default {
       reference_info: "請選擇接口或用例",
       scenario_test: "場景",
       scenario_list: "場景列表",
+      all_scenario: '全部場景',
+      unplanned_scenario: '未規劃場景',
       add_scenario: "創建場景",
       scenario_name: "場景名稱",
       case_level: "用例等級",
@@ -1960,6 +1962,7 @@ export default {
     date: "日期"
   },
   test_track: {
+    unplanned_case: '未規劃用例',
     sync_add_api_load: '同步添加關聯的接口和性能測試',
     next: '下一條',
     total_size: '共 {0} 條',
