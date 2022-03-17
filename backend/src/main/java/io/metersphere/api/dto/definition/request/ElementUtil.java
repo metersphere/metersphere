@@ -678,9 +678,15 @@ public class ElementUtil {
                     elementList.add(item);
                 }
             });
-            elementList.addAll(groupMap.get(PRE).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
-            elementList.addAll(groupMap.get(POST).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
-            elementList.addAll(groupMap.get(ASSERTIONS).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            if (CollectionUtils.isNotEmpty(groupMap.get(PRE))) {
+                elementList.addAll(groupMap.get(PRE).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            }
+            if (CollectionUtils.isNotEmpty(groupMap.get(POST))) {
+                elementList.addAll(groupMap.get(POST).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            }
+            if (CollectionUtils.isNotEmpty(groupMap.get(ASSERTIONS))) {
+                elementList.addAll(groupMap.get(ASSERTIONS).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+            }
         }
         return elementList;
     }
