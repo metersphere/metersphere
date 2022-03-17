@@ -560,7 +560,7 @@ export default {
     if (hasLicense()) {
       this.getVersionHistory();
     }
-    if (requireComponent != null && JSON.stringify(workspaceRepository) != '{}') {
+    if (requireComponent !== null && JSON.stringify(workspaceRepository) !== '{}') {
       this.showXpackCompnent = true;
     }
   },

@@ -394,15 +394,13 @@
       },
       validateRepository(callback) {
         // 校验所选的Git仓库、Git分支下有没有对应的文件
-        if (this.editData.type == 'CSV' && this.editData.fileResource && this.editData.fileResource == 'repository') {
-          console.log("editData:", this.editData);
+        if (this.editData.type === 'CSV' && this.editData.fileResource && this.editData.fileResource === 'repository') {
           let param = {
             repositoryId: this.editData.repositoryId,
             repositoryBranch: this.editData.repositoryBranch,
             repositoryFilePath: this.editData.repositoryFilePath,
           };
           this.$post(this.validateRepositoryPath, param, response => {
-            console.log('response', response);
             if (!response.data.success) {
               this.$error(response.data.message);
               callback(false);
@@ -527,7 +525,7 @@
       }
     },
     created() {
-      if (requireComponent != null && JSON.stringify(workspaceRepository) != '{}') {
+      if (requireComponent !== null && JSON.stringify(workspaceRepository) !== '{}') {
         this.showXpackCompnent = true;
       }
     }

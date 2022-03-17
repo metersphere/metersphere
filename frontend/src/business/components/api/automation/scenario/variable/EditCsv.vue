@@ -237,16 +237,14 @@
       },
     },
     mounted() {
-      console.log('222', this.showXpackCompnent);
       if (this.showXpackCompnent) {
         // 查询当前工作空间下的存储库信息
         this.loadWorkspaceReposiroty();
       }
     },
     created() {
-      if (requireComponent != null && JSON.stringify(workspaceRepository) != '{}') {
+      if (requireComponent !== null && JSON.stringify(workspaceRepository) !== '{}') {
         this.showXpackCompnent = true;
-        console.log('111', this.showXpackCompnent);
       }
     }
   }
