@@ -195,7 +195,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable :key="reloadKey" ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -437,6 +437,7 @@ export default {
       onSampleError: true,
       newOnSampleError: true,
       showConfigButtonWithOutPermission: false,
+      reloadKey: "",
       props: {
         label: "label",
         children: "hashTree"
@@ -1703,7 +1704,7 @@ export default {
       this.expandedStatus = false;
       this.expandedNode = [];
       this.changeNodeStatus(this.scenarioDefinition);
-      this.showHide();
+      this.reloadKey = getUUID();
     },
     stepStatus(nodes) {
       for (let i in nodes) {
