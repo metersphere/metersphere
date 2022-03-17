@@ -106,6 +106,8 @@ export default {
             } else {
               this.$message.error(this.$t('commons.save_failed'));
             }
+          }, error => {
+            this.edit();
           });
         } else {
           return false;
@@ -125,8 +127,8 @@ export default {
 
 <style scoped>
 
-  .el-form {
-    min-height: 300px;
-  }
+.el-form {
+  min-height: 300px;
+}
 
 </style>
