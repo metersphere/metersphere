@@ -179,6 +179,7 @@ export default {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
             this.data.forEach(node => {
+              node.name === 'UNPLANNED' ? node.name = this.$t('api_test.definition.unplanned_api') : node.name
               buildTree(node, {path: ''});
             });
             this.$emit('setModuleOptions', this.data);
