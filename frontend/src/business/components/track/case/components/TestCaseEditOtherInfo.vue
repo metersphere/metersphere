@@ -9,7 +9,7 @@
       <test-case-test-relate :read-only="readOnly" :case-id="caseId" :version-enable="versionEnable" ref="relateTest"/>
     </el-tab-pane>
 
-    <el-tab-pane :label="$t('test_track.related_requirements')" name="demand">
+    <el-tab-pane :label="$t('test_track.related_requirements')" :disabled="readOnly" name="demand">
       <el-col :span="7">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
@@ -25,7 +25,7 @@
       </el-col>
     </el-tab-pane>
 
-    <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
+    <el-tab-pane :label="$t('test_track.case.relate_issue')" :disabled="readOnly" name="bug">
       <test-case-issue-relate
         v-if="tabActiveName === 'bug'"
         :plan-id="planId"

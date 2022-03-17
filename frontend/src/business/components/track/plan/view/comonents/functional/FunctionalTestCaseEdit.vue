@@ -48,7 +48,7 @@
                   <el-row class="head-bar">
                     <el-col>
                       <el-divider content-position="left">
-                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.num }}-{{ testCase.name }}</el-button>
                       </el-divider>
                     </el-col>
                   </el-row>
