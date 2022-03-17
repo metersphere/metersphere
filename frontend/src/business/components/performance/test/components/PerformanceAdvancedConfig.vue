@@ -696,6 +696,16 @@ export default {
         if (line.length < 3) {
           return;
         }
+        let ipRe = new RegExp("^[0-9a-zA-Z,\.]*$");
+        if(!ipRe.test(line[1])){
+          this.$message.warning("ip"+this.$t("commons.formatErr"));
+          return;
+        }
+        let numRe = new RegExp("^[0-9]*$");
+        if(!numRe.test(line[2])){
+          this.$message.warning("Port"+this.$t("commons.type_of_num"));
+          return;
+        }
         keyValues.push({
           name: line[0],
           ip: line[1],
