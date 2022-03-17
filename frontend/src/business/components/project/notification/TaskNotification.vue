@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import JenkinsNotification from "@/business/components/project/notification/jenkins/JenkinsNotification";
 import TestPlanTaskNotification from "@/business/components/project/notification/track/TestPlanTaskNotification";
 import TestReviewNotification from "@/business/components/project/notification/track/TestReviewNotification";
@@ -160,7 +160,7 @@ export default {
     },
 
     initUserList() {
-      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
+      this.result = this.$post('/user/project/member/list', {projectId: getCurrentProjectID()}, response => {
         this.jenkinsReceiverOptions = response.data;
         this.reviewReceiverOptions = response.data;
         this.defectReceiverOptions = response.data;
