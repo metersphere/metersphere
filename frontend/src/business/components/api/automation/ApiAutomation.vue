@@ -460,6 +460,10 @@ export default {
         this.isSave = false;
         this.removeTab(targetName);
       }
+      if (t) {
+        t.splice(0, 1);
+        t = undefined;
+      }
     },
     removeTab(targetName) {
       this.tabs = this.tabs.filter(tab => tab.name !== targetName);
