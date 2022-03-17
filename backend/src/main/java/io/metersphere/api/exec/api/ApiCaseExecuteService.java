@@ -29,6 +29,7 @@ import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -205,7 +206,9 @@ public class ApiCaseExecuteService {
         List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
         LoggerUtil.debug("查询到执行数据：" + caseList.size());
         // 环境检查
-        this.checkEnv(caseList);
+        if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
+            this.checkEnv(caseList);
+        }
         // 集合报告设置
         String serialReportId = null;
         if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
