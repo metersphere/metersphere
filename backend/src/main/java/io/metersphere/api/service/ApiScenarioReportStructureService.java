@@ -395,7 +395,7 @@ public class ApiScenarioReportStructureService {
             AtomicLong stepErrorCode = new AtomicLong();
             AtomicLong stepUnExecute = new AtomicLong();
             calculateStep(stepList, stepError, stepTotal, stepErrorCode, stepUnExecute, false);
-            reportDTO.setScenarioStepSuccess((stepTotal.longValue() - stepError.longValue() - stepErrorCode.longValue()));
+            reportDTO.setScenarioStepSuccess((stepTotal.longValue() - stepError.longValue() - stepErrorCode.longValue() -stepUnExecute.longValue()));
             reportDTO.setScenarioStepTotal(stepTotal.longValue());
             reportDTO.setScenarioStepError(stepError.longValue());
             reportDTO.setScenarioStepErrorReport(stepErrorCode.longValue());

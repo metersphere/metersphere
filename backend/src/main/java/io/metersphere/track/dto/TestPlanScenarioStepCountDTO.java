@@ -15,5 +15,6 @@ public class TestPlanScenarioStepCountDTO {
     private int scenarioStepErrorReport;
     private List<String> underwayIds = new ArrayList<>();
     private int scenarioStepUnderway;
+    private int scenarioStepUnExecute;
 }
 
