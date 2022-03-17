@@ -307,15 +307,7 @@ public class MsScenario extends MsTestElement {
         arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        // 环境通用变量
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-            // 清空变量，防止重复添加
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
-        }
+        // 场景变量
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             this.getVariables().stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
@@ -328,6 +320,15 @@ public class MsScenario extends MsTestElement {
                     arguments.addArgument(item.getName() + "_" + (i + 1), arrays[i], "=");
                 }
             });
+        }
+        // 环境通用变量
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
         }
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
             return arguments;
