@@ -3087,5 +3087,6 @@ export default {
     not_selected_location: "(未选择元素定位)",
     location: "定位",
     run: "运行",
+    locate_type: "定位方式",
   }
 };
