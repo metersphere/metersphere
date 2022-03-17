@@ -245,7 +245,8 @@ export default {
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     type: "Type",
-    type_of_num: "Please enter an integer type",
+    type_of_num: "Please enter an number type",
+    type_of_integer: "Please enter an integer type",
     validity_period: 'Validity Period',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
