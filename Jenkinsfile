@@ -14,6 +14,7 @@ pipeline {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh 'export JAVA_HOME=/opt/jdk-11;export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH;export PATH=$JAVA_HOME/bin:$PATH'
+                    sh 'java -version'
                     sh "./mvnw clean package --settings ./settings.xml"
                     sh "mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)"
                 }
