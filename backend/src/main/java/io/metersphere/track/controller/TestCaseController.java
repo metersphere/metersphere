@@ -253,7 +253,7 @@ public class TestCaseController {
 
 
     @PostMapping("/import")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.IMPORT, project = "#projectId")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.IMPORT, project = "#request.projectId")
     public ExcelResponse testCaseImport(@RequestPart("request") TestCaseImportRequest request, @RequestPart("file") MultipartFile file, HttpServletRequest httpRequest) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.testCaseImport(file, request, httpRequest);
