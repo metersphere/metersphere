@@ -477,7 +477,7 @@ public class ShareInfoService {
         ShareInfo shareInfo = new ShareInfo();
         shareInfo.setId(UUID.randomUUID().toString());
         shareInfo.setCustomData(request.getCustomData());
-        shareInfo.setCreateUserId(SessionUtils.getUserId());
+        shareInfo.setCreateUserId(request.getCreateUserId());
         shareInfo.setCreateTime(createTime);
         shareInfo.setUpdateTime(createTime);
         shareInfo.setShareType(request.getShareType());
@@ -511,10 +511,11 @@ public class ShareInfoService {
         return returnDTO;
     }
 
-    public String getTestPlanShareUrl(String testPlanReportId) {
+    public String getTestPlanShareUrl(String testPlanReportId, String userId) {
         ShareInfo shareRequest = new ShareInfo();
         shareRequest.setCustomData(testPlanReportId);
         shareRequest.setShareType(ShareType.PLAN_DB_REPORT.name());
+        shareRequest.setCreateUserId(userId);
         ShareInfo shareInfo = generateShareInfo(shareRequest);
         return conversionShareInfoToDTO(shareInfo).getShareUrl();
     }
