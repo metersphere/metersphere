@@ -121,13 +121,13 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public TestCaseNode getDefaultNode(String projectId) {
         TestCaseNodeExample example = new TestCaseNodeExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("未规划用例").andParentIdIsNull();;
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("UNPLANNED").andParentIdIsNull();
         List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             NodeNumDTO record = new NodeNumDTO();
             record.setId(UUID.randomUUID().toString());
             record.setCreateUser(SessionUtils.getUserId());
-            record.setName("未规划用例");
+            record.setName("UNPLANNED");
             record.setPos(1.0);
             record.setLevel(1);
             record.setCreateTime(System.currentTimeMillis());
@@ -420,6 +420,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             Iterator<String> itemIterator = nodeNameList.iterator();
             Boolean hasNode = false;
             String rootNodeName;
+            String path;
 
             if (nodeNameList.size() <= 1) {
                 throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + item);
@@ -427,14 +428,18 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 itemIterator.next();
                 itemIterator.remove();
                 rootNodeName = itemIterator.next().trim();
+                path = "/" + rootNodeName;
+                if (StringUtils.equals(rootNodeName, Translator.get("unplanned_case"))) {
+                    rootNodeName = "UNPLANNED";
+                    path = "/未规划用例";
+                }
                 //原来没有，新建的树nodeTrees也不包含
                 for (TestCaseNodeDTO nodeTree : nodeTrees) {
                     if (StringUtils.equals(rootNodeName, nodeTree.getName())) {
                         hasNode = true;
-                        createNodeByPathIterator(itemIterator, "/" + rootNodeName, nodeTree,
+                        createNodeByPathIterator(itemIterator, path, nodeTree,
                                 pathMap, projectId, 2);
                     }
-                    ;
                 }
             }
             if (!hasNode) {
@@ -691,11 +696,14 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         TestCaseNode testCaseNode = testCaseNodeMapper.selectByPrimaryKey(moduleId);
         LinkedList<TestCaseNode> returnList = new LinkedList<>();
 
-        while (testCaseNode != null){
+        if (StringUtils.equals(testCaseNode.getName(), "UNPLANNED")) {
+            testCaseNode.setName("未规划用例");
+        }
+        while (testCaseNode != null) {
             returnList.addFirst(testCaseNode);
-            if(testCaseNode.getParentId() == null){
+            if (testCaseNode.getParentId() == null) {
                 testCaseNode = null;
-            }else {
+            } else {
                 testCaseNode = testCaseNodeMapper.selectByPrimaryKey(testCaseNode.getParentId());
             }
         }
