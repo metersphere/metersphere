@@ -39,10 +39,37 @@ public class ApiScenarioReportResultService {
 
     public void uiSave(String reportId, List<RequestResult> queue) {
         if (CollectionUtils.isNotEmpty(queue)) {
+            String idPrefix = "Ui-Result-";
             queue.forEach(item -> {
-                apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                String headers = item.getHeaders();
+                if (StringUtils.isNoneBlank(headers)) {
+                    String[] headerItems = headers.split("\n");
+                    for (String header : headerItems) {
+                        if (header.contains(idPrefix)) {
+                            String[] split = header.split(":");
+                            String resourceId = split[1];
+                            resourceId = resourceId.substring(resourceId.indexOf(idPrefix)).trim();
+                            String value = split[2].trim();
+                            apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, value));
+                        }
+                    }
+                }
             });
         }
+    }
+
+    private ApiScenarioReportResult newUiScenarioReportResult(String reportId, String resourceId, String value) {
+        ApiScenarioReportResult report = new ApiScenarioReportResult();
+        report.setId(UUID.randomUUID().toString());
+        report.setResourceId(resourceId);
+        report.setReportId(reportId);
+//        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
+//        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
+        report.setCreateTime(System.currentTimeMillis());
+        String status = value.equals("ok") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        report.setStatus(status);
+        report.setContent(value.getBytes(StandardCharsets.UTF_8));
+        return report;
     }
 
     private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult result) {
