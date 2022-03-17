@@ -1,6 +1,6 @@
 <template>
   <el-form-item :label="form.stepModel === 'STEP' ? $t('test_track.case.step_describe') : $t('test_track.case.text_describe')" :label-width="labelWidth">
-    <el-dropdown placement="bottom-start" @command="handleCommand">
+    <el-dropdown placement="bottom-start" @command="handleCommand" v-if="!disable">
                   <span class="el-dropdown-link">
                     {{ $t('test_track.case.change_type') }} <i class="el-icon-arrow-down el-icon--right"/>
                   </span>
