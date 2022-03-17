@@ -102,10 +102,13 @@ public class ExecThreadPoolExecutor {
         }
     }
 
-    public void setCorePoolSize(int corePoolSize) {
+    public void setCorePoolSize(int maximumPoolSize) {
         try {
-            threadPool.setCorePoolSize(corePoolSize);
-            threadPool.setMaximumPoolSize(corePoolSize);
+            int corePoolSize = maximumPoolSize > 1000 ? 1000 : maximumPoolSize;
+            if (corePoolSize > CORE_POOL_SIZE) {
+                threadPool.setCorePoolSize(corePoolSize);
+            }
+            threadPool.setMaximumPoolSize(maximumPoolSize);
             threadPool.allowCoreThreadTimeOut(true);
             LoggerUtil.info("AllCoreThreads: " + threadPool.prestartAllCoreThreads());
         } catch (Exception e) {
