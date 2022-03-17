@@ -703,14 +703,29 @@ CREATE TABLE IF NOT EXISTS `workspace_repository`
 
 DROP TABLE IF EXISTS `workspace_repository_file_version`;
 CREATE TABLE `workspace_repository_file_version` (
-     `id` varchar(50) NOT NULL COMMENT 'ID',
-     `repository_id` varchar(50) NOT NULL COMMENT '存储库ID',
-     `branch` varchar(100) NOT NULL COMMENT '存储库分支',
-     `path` varchar(500) NOT NULL COMMENT '文件路径',
-     `scenario_id` varchar(100) NOT NULL COMMENT '场景ID',
-     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
-     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
-     `create_user` varchar(100) DEFAULT NULL COMMENT '创建人',
-     `commit_id` varchar(100) NOT NULL COMMENT '文件commentId',
-     PRIMARY KEY (`id`)
+                                                     `id`            varchar(50)  NOT NULL COMMENT 'ID',
+                                                     `repository_id` varchar(50)  NOT NULL COMMENT '存储库ID',
+                                                     `branch`        varchar(100) NOT NULL COMMENT '存储库分支',
+                                                     `path`          varchar(500) NOT NULL COMMENT '文件路径',
+                                                     `scenario_id`   varchar(100) NOT NULL COMMENT '场景ID',
+                                                     `create_time`   bigint(13) NOT NULL COMMENT 'Create timestamp',
+                                                     `update_time`   bigint(13) NOT NULL COMMENT 'Update timestamp',
+                                                     `create_user`   varchar(100) DEFAULT NULL COMMENT '创建人',
+                                                     `commit_id`     varchar(100) NOT NULL COMMENT '文件commentId',
+                                                     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+update api_scenario_module
+set name = 'UNPLANNED'
+where name = '未规划场景'
+  and `level` = 1;
+
+update api_module
+set name = 'UNPLANNED'
+where name = '未规划接口'
+  and `level` = 1;
+
+update test_case_node
+set name = 'UNPLANNED'
+where name = '未规划用例'
+  and `level` = 1;
