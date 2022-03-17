@@ -495,6 +495,7 @@ public class TestPlanScenarioCaseService {
                     stepCount.setScenarioStepSuccess(stepCount.getScenarioStepSuccess() + jsonObject.getIntValue("scenarioStepSuccess"));
                     stepCount.setScenarioStepError(stepCount.getScenarioStepError() + jsonObject.getIntValue("scenarioStepError"));
                     stepCount.setScenarioStepErrorReport(stepCount.getScenarioStepErrorReport() + jsonObject.getIntValue("scenarioStepErrorReport"));
+                    stepCount.setScenarioStepUnExecute(stepCount.getScenarioStepUnExecute() + jsonObject.getIntValue("scenarioStepUnExecuteReport"));
                 }
             }
         } else {
