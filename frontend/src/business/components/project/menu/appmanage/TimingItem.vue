@@ -113,7 +113,7 @@ export default {
       }
       if(val && this.selfQuantity){
         if(typeof this.selfQuantity!=='number'&&isNaN(parseInt(this.selfQuantity))){
-          this.$warning(this.$t('api_test.request.time')+this.$t('commons.type_of_num'));
+          this.$warning(this.$t('api_test.request.time')+this.$t('commons.type_of_integer'));
           this.selfChoose = false;
           return false;
         }
@@ -123,7 +123,7 @@ export default {
           return false;
         }
         if(Number(this.selfQuantity)>parseInt(this.selfQuantity)){
-          this.$warning(this.$t('api_test.request.time')+this.$t('commons.type_of_num'));
+          this.$warning(this.$t('api_test.request.time')+this.$t('commons.type_of_integer'));
           this.selfChoose = false;
           return false;
         }
