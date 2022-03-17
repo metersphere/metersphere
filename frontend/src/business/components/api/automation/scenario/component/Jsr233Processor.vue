@@ -18,6 +18,7 @@
         :jsr223-processor="jsr223Processor"
         :is-pre-processor="isPreProcessor"
         :node="node"
+        :protocol="protocol"
         :is-read-only="this.jsr223Processor.disabled"/>
     </legend>
     <template v-slot:debugStepCode>
@@ -83,6 +84,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    protocol:String,
     isReadOnly: {
       type: Boolean,
       default:
