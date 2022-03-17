@@ -38,7 +38,6 @@
             <ms-table :data="testReviews"
                       @filter-change="filter" row-key="id"
                       v-loading="result.loading"
-                      screen-height="100vh -400px"
                       :total="total"
                       :page-size.sync="pageSize"
                       @handlePageChange="getReviews"
