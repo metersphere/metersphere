@@ -41,7 +41,13 @@
 </template>
 
 <script>
-import {getCurrentUser, getCurrentWorkspaceId, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentWorkspaceId,
+  listenGoBack,
+  removeGoBackListener
+} from "@/common/js/utils";
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
@@ -112,7 +118,7 @@ export default {
     initUserList() {
 
 
-      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
+      this.result = this.$post('/user/project/member/list', {projectId: getCurrentProjectID()}, response => {
         this.scheduleReceiverOptions = response.data;
       });
 
