@@ -11,6 +11,7 @@ import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
 import io.metersphere.base.domain.ShareInfo;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.reportstatistics.dto.ReportStatisticsSaveRequest;
 import io.metersphere.reportstatistics.service.ReportStatisticsService;
 import io.metersphere.service.UserService;
@@ -88,6 +89,7 @@ public class ShareInfoController {
 
     @PostMapping("/generateApiDocumentShareInfo")
     public ShareInfoDTO generateApiDocumentShareInfo(@RequestBody ApiDocumentShareRequest request) {
+        request.setCreateUserId(SessionUtils.getUserId());
         ShareInfo apiShare = shareInfoService.generateApiDocumentShareInfo(request);
         ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;
@@ -95,6 +97,7 @@ public class ShareInfoController {
 
     @PostMapping("/generateShareInfoWithExpired")
     public ShareInfoDTO generateShareInfo(@RequestBody ShareInfo request) {
+        request.setCreateUserId(SessionUtils.getUserId());
         ShareInfo apiShare = shareInfoService.createShareInfo(request);
         ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;
