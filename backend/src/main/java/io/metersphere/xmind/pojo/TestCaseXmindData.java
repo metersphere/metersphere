@@ -65,7 +65,7 @@ public class TestCaseXmindData {
                 }
             }
             if (!matching) {
-                TestCaseXmindData child = new TestCaseXmindData(caseNode.getId(), caseNode.getName());
+                TestCaseXmindData child = new TestCaseXmindData(caseNode.getId(), dataList.get(0).getNodePath());
                 child.setTestCaseList(dataList);
                 this.children.add(child);
             }

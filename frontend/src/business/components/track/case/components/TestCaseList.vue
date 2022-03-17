@@ -775,6 +775,7 @@ export default {
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
           this.page.data.forEach(item => {
+            (item.nodePath === '/未规划用例' || item.nodePath === '/Unplanned Case' || item.nodePath === '/未規劃用例') ? item.nodePath = "/" + this.$t('test_track.unplanned_case') : item.nodePath
             if (item.customFields) {
               item.customFields = JSON.parse(item.customFields);
             }
