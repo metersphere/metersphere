@@ -248,7 +248,7 @@ export default {
     },
 
     initUserList() {
-      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
+      this.result = this.$post('/user/project/member/list', {projectId: getCurrentProjectID()},response => {
         this.scheduleReceiverOptions = response.data;
       });
     },
