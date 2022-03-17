@@ -327,8 +327,8 @@ export default {
     },
     monitor: "Monitor",
     all_label: {
-      case: "all",
-      review: "all"
+      case: "All Case",
+      review: "All Review"
     },
     image: 'Image',
     tag: 'Tag',
@@ -1350,6 +1350,8 @@ export default {
       reference_info: "Reference info",
       scenario_test: "Scenario test",
       scenario_list: "Scenario List",
+      all_scenario: 'All Scenario',
+      unplanned_scenario: 'Unplanned Scenario',
       add_scenario: "Add scenario",
       scenario_name: "Scenario Name",
       case_level: "Case Level",
@@ -1937,6 +1939,7 @@ export default {
     date: "Date"
   },
   test_track: {
+    unplanned_case: 'Unplanned Case',
     sync_add_api_load: 'Synchronously add associated api and load tests',
     next: 'Next',
     total_size: 'Total {0}',

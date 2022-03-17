@@ -755,6 +755,9 @@ export default {
       param.nodeId = this.form.module;
       if (!this.publicEnable) {
         param.nodePath = getNodePath(this.form.module, this.moduleOptions);
+        if (param.nodePath === '/未规划用例' || param.nodePath === '/Unplanned Case' || param.nodePath === '/未規劃用例') {
+          param.nodePath = '/未规划用例';
+        }
         if (this.projectId) {
           param.projectId = this.projectId;
         }
