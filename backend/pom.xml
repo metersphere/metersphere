@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shiro.version>1.8.0</shiro.version>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <flyway.version>7.15.0</flyway.version>
     </properties>
 
@@ -405,8 +405,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
 

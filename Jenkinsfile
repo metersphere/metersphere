@@ -13,9 +13,7 @@ pipeline {
         stage('Build/Test') {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
-//                     sh "cd frontend"
-//                     sh "yarn install"
-//                     sh "cd .."
+                    sh 'export JAVA_HOME=/usr/local/jdk-11;export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH;export PATH=$JAVA_HOME/bin:$PATH'
                     sh "./mvnw clean package --settings ./settings.xml"
                     sh "mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)"
                 }
