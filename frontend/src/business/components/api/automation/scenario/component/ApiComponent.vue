@@ -192,7 +192,6 @@ export default {
     },
     currentEnvironmentId: String,
     projectList: Array,
-    expandedNode: Array,
     envMap: Map,
     message: String,
     environmentGroupId: String,
@@ -607,13 +606,6 @@ export default {
       this.request.active = !this.request.active;
       if (this.node) {
         this.node.expanded = this.request.active;
-      }
-      if (this.node.expanded && this.expandedNode && this.expandedNode.indexOf(this.request.resourceId) === -1) {
-        this.expandedNode.push(this.request.resourceId);
-      } else {
-        if (this.expandedNode && this.expandedNode.indexOf(this.request.resourceId) !== -1) {
-          this.expandedNode.splice(this.expandedNode.indexOf(this.request.resourceId), 1);
-        }
       }
       this.apiActive = this.request.active;
       this.reload();
