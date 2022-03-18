@@ -378,7 +378,7 @@ export default {
         return;
       }
       const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
-      let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(this.condition.headers)), domain: row.domain, time: new Date().getTime()};
+      let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(row.headers)), domain: row.domain, time: new Date().getTime()};
       if (index != -1) {
         this.httpConfig.conditions.splice(index, 0, obj);
       } else {
