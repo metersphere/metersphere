@@ -210,6 +210,11 @@ public class ApiScenarioReportStructureService {
                 } else {
                     totalTime.set((totalTime.longValue() + (step.getValue().getEndTime() - step.getValue().getStartTime())));
                 }
+                //判断是否是未执行
+                if (step.getValue() instanceof RequestResultExpandDTO
+                        && StringUtils.equalsIgnoreCase(((RequestResultExpandDTO) step.getValue()).getStatus(), "unexecute")) {
+                    unExecute.set(unExecute.longValue() + 1);
+                }
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 calculate(step.getChildren(), totalScenario, scenarioError, totalTime, errorReport, unExecute, isErrorFirst);
@@ -328,7 +333,8 @@ public class ApiScenarioReportStructureService {
         // 组装报告
         if (CollectionUtils.isNotEmpty(reportResults)) {
             reportDTO.setTotal(reportResults.size());
-            reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "Error", "STOP")).collect(Collectors.toList()).size());
+            reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "Error")).collect(Collectors.toList()).size());
+            reportDTO.setUnExecute(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "STOP")).collect(Collectors.toList()).size());
             reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.isNotEmpty(e.getErrorCode())).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
@@ -338,6 +344,7 @@ public class ApiScenarioReportStructureService {
             //统计步骤数据
             reportDTO.setScenarioStepTotal(reportResults.size());
             reportDTO.setScenarioStepError(reportDTO.getError());
+            reportDTO.setScenarioStepUnExecuteReport(reportDTO.getUnExecute());
             reportDTO.setScenarioStepErrorReport(0);
 
             ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
