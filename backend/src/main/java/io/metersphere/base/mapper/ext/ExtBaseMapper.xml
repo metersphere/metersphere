@@ -11,6 +11,9 @@
                     <when test="order.prefix != null and order.prefix != ''">
                         ${order.prefix}.`${order.name}` ${order.type}
                     </when>
+                    <when test="order.name ==  'user_name' ">
+                        `user_id` ${order.type}
+                    </when>
                     <otherwise>
                         `${order.name}` ${order.type}
                     </otherwise>
