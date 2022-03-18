@@ -11,7 +11,10 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.service.*;
+import io.metersphere.api.service.ApiExecutionQueueService;
+import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiScenarioReportStructureService;
+import io.metersphere.api.service.TcpApiParamService;
 import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -24,7 +27,10 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -45,7 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -303,17 +308,6 @@ public class ApiScenarioExecuteService {
 
     public void testElement(RunDefinitionRequest request) {
         if (request.getTestElement() != null) {
-            // 添加csv版本控制台打印信息
-            try {
-                if (Class.forName("io.metersphere.xpack.repository.service.GitRepositoryService") != null) {
-                    Class clazz = Class.forName("io.metersphere.xpack.repository.service.GitRepositoryService");
-                    Method method = clazz.getMethod("getCsvVersionScriptProcess",String.class, MsTestElement.class);
-                    method.invoke(CommonBeanFactory.getBean("gitRepositoryService"),request.getScenarioId(), request.getTestElement());
-                }
-            } catch (Exception exception) {
-                LoggerUtil.error("不存在GitRepositoryService类");
-            }
-
             tcpApiParamService.checkTestElement(request.getTestElement());
         }
     }
