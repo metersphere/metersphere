@@ -112,6 +112,10 @@ public class MsAssertions extends MsTestElement {
         assertion.setAssumeSuccess(assertionRegex.isAssumeSuccess());
         assertion.addTestString(assertionRegex.getExpression());
         assertion.setToContainsType();
+        if(assertionRegex.getTestType() != 2){
+            assertion.setProperty("Assertion.test_type",assertionRegex.getTestType());
+        }
+
         switch (assertionRegex.getSubject()) {
             case "Response Code":
                 assertion.setTestFieldResponseCode();
