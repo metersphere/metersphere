@@ -2,28 +2,28 @@
   <div class="text-container" v-if="responseResult">
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-sql-result-table v-if="isSqlType" :body="responseResult.body"/>
-        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow" :mode="mode" :read-only="true" :modes="modes" :data.sync="responseResult.body" ref="codeEdit"/>
+        <ms-sql-result-table v-if="isSqlType && activeName === 'body'" :body="responseResult.body"/>
+        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'" :mode="mode" :read-only="true" :modes="modes" :data.sync="responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.headers"/>
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.headers" v-if="activeName === 'headers'"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console"/>
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console" v-if="activeName === 'console'"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-        <ms-assertion-results :assertions="responseResult.assertions"/>
+        <ms-assertion-results :assertions="responseResult.assertions" v-if="activeName === 'assertions'"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.vars"/>
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.vars" v-if="activeName === 'label'"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages"/>
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages" v-if="activeName === 'request_body'"/>
       </el-tab-pane>
 
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">

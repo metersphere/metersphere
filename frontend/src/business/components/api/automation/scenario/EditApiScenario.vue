@@ -629,11 +629,6 @@ export default {
     },
     openOrClose(node) {
       node.expanded = !node.expanded;
-      if (node.expanded) {
-        this.nodeExpand(node.data);
-      } else {
-        this.nodeCollapse(node.data);
-      }
     },
     hideNode(node) {
       node.isLeaf = true;
