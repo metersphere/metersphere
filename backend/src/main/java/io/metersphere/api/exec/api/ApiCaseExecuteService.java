@@ -145,7 +145,7 @@ public class ApiCaseExecuteService {
                 if ("HTTPSamplerProxy".equals(apiCaseNew.getString("type"))) {
                     try {
                         String environmentId = apiCaseNew.getString("useEnvironment");
-                        if (!StringUtils.isNotEmpty(environmentId)) {
+                        if (StringUtils.isEmpty(environmentId)) {
                             builderHttp.append(apiCase.getName()).append("; ");
                         }
                     } catch (Exception e) {
@@ -171,12 +171,18 @@ public class ApiCaseExecuteService {
                             }
                         }
                         if (dataSource == null) {
-                            MSException.throwException("用例：" + builderTcp.append(apiCase.getName()).append("; "));
+                            builderTcp.append(apiCase.getName()).append("; ");
                         }
                     } catch (Exception e) {
-                        MSException.throwException("用例数据源为空，请检查!");
+                        MSException.throwException("用例" + builderTcp.append(apiCase.getName()).append("; ") + "数据源为空，请检查!");
                     }
                 }
+            }
+            if (StringUtils.isNotEmpty(builderHttp)) {
+                MSException.throwException("用例：" + builderHttp + "运行环境为空！请检查");
+            }
+            if (StringUtils.isNotEmpty(builderTcp)) {
+                MSException.throwException("用例：" + builderTcp + "数据源为空！请检查");
             }
         }
     }
