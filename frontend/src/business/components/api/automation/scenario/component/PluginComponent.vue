@@ -280,10 +280,10 @@ export default {
     change(fileName) {
     },
     changeDisplay(fileName) {
-      if (fileName === 'number of received messages') {
+      if (fileName === 'number of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
         this.pluginForm.hidden(true, "conditionTime");
       }
-      if (fileName === 'specified elapsed time (ms)') {
+      if (fileName === 'specified elapsed time (ms)' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
         this.pluginForm.hidden(false, "conditionTime");
       }
     },
@@ -382,7 +382,9 @@ export default {
               this.pluginForm.setValue(this.request);
             }
             if (this.request.condition) {
-              this.changeDisplay(this.request.condition);
+              this.$nextTick(() => {
+                this.changeDisplay(this.request.condition);
+              });
             }
           } else {
             this.request.enable = false;
