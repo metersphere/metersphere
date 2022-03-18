@@ -1,5 +1,6 @@
 package io.metersphere.api.dto;
 
+import io.metersphere.dto.RequestResult;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -12,6 +13,7 @@ import java.util.List;
 @Setter
 public class ErrorReportLibraryParseDTO {
     public List<String> errorCodeList;
+    public RequestResult result;
 
     public ErrorReportLibraryParseDTO() {
         this.errorCodeList = new ArrayList<>();
