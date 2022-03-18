@@ -1935,26 +1935,10 @@ export default {
   width: 100%;
 }
 
-.ms-main-div {
-  background-color: white;
-}
-
 .ms-debug-div {
   border: 1px #DCDFE6 solid;
   border-radius: 4px;
   margin-right: 0px;
-}
-
-.ms-scenario-button {
-  margin-left: 20px;
-  padding: 7px;
-}
-
-.ms-api-col {
-  background-color: #7C3985;
-  border-color: #7C3985;
-  margin-right: 10px;
-  color: white;
 }
 
 .ms-font {
@@ -2017,12 +2001,6 @@ export default {
   font-size: 13px;
 }
 
-.ms-opt-btn {
-  position: fixed;
-  right: 50px;
-  z-index: 9;
-}
-
 .ms-tree >>> .el-tree-node__expand-icon.expanded {
   -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
@@ -2033,7 +2011,6 @@ export default {
 }
 
 .ms-tree >>> .el-icon-caret-right:before {
-  /*content: '\e723';*/
   padding: 0;
   content: "";
 }
@@ -2069,34 +2046,6 @@ export default {
   cursor: pointer;
 }
 
-.el-icon-more:hover {
-  color: #7C3985;
-  cursor: pointer;
-}
-
-.scenario-name {
-  display: inline-block;
-  margin: 0 5px;
-  overflow-x: hidden;
-  padding-bottom: 0;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 150px;
-}
-
-.ms-open-btn {
-  margin: 5px 5px 0px;
-  color: #6D317C;
-  font-size: 20px;
-}
-
-.ms-open-btn:hover {
-  background-color: #F2F9EE;
-  cursor: pointer;
-  color: #67C23A;
-}
-
 .ms-batch-btn {
   margin-left: 5px;
 }
@@ -2112,20 +2061,8 @@ export default {
   float: right;
 }
 
-.ms-open-btn-left {
-  margin-left: 35px;
-}
-
-
 .ms-message-right {
   margin-right: 10px;
-}
-
-.is-top {
-  position: fixed;
-  top: 125px;
-  background: white;
-  z-index: 999;
 }
 
 .custom-node_e {
@@ -2141,7 +2078,7 @@ export default {
 }
 
 .custom-tree-node-hide {
-  width: 2px;
+  width: 5px;
   padding: 0px;
   vertical-align: center;
 }
