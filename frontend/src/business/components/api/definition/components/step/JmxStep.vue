@@ -257,20 +257,22 @@ export default {
       return false;
     },
     filter() {
-      let vars = [];
-      if (this.tabType === 'pre') {
-        vars = ["JSR223PreProcessor", "JDBCPreProcessor", "ConstantTimer"];
-      } else if (this.tabType === 'post') {
-        vars = ["JSR223PostProcessor", "JDBCPostProcessor", "Extract"];
-      } else {
-        vars = ["Assertions"];
-      }
       this.$nextTick(() => {
-        if (this.$refs.generalSteps && this.$refs.generalSteps.filter) {
-          this.$refs.generalSteps.filter(vars);
+        let vars = [];
+        if (this.tabType === 'pre') {
+          vars = ["JSR223PreProcessor", "JDBCPreProcessor", "ConstantTimer"];
+        } else if (this.tabType === 'post') {
+          vars = ["JSR223PostProcessor", "JDBCPostProcessor", "Extract"];
+        } else {
+          vars = ["Assertions"];
         }
+        this.$nextTick(() => {
+          if (this.$refs.generalSteps && this.$refs.generalSteps.filter) {
+            this.$refs.generalSteps.filter(vars);
+          }
+        });
+        this.sort();
       });
-      this.sort();
     },
     addPre() {
       let jsr223PreProcessor = createComponent("JSR223PreProcessor");
