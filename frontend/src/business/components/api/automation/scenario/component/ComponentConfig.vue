@@ -5,7 +5,6 @@
       :isMax="isMax"
       :show-btn="showBtn"
       :show-version="showVersion"
-      :expandedNode="expandedNode"
       :scenario="scenario"
       :controller="scenario"
       :timer="scenario"
@@ -90,7 +89,6 @@ export default {
       default: true,
     },
     currentScenario: {},
-    expandedNode: Array,
     currentEnvironmentId: String,
     response: {},
     node: {},
