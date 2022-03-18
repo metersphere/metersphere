@@ -9,6 +9,7 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -24,6 +25,7 @@ public class AfterReturningNoticeSendService {
     @Resource
     private NoticeSendService noticeSendService;
 
+    @Async
     public void sendNotice(SendNotice sendNotice, Object retValue, SessionUser sessionUser, String currentProjectId) {
         //
         List<Map> resources = new ArrayList<>();
@@ -42,9 +44,9 @@ public class AfterReturningNoticeSendService {
             resources.add(new BeanMap(retValue));
         }
         // 有批量操作发送多次
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         for (Map resource : resources) {
             Map paramMap = new HashMap<>();
-            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             paramMap.put("url", baseSystemConfigDTO.getUrl());
             paramMap.put("operator", sessionUser.getName());
             paramMap.putAll(resource);
