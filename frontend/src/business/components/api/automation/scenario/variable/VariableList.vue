@@ -101,11 +101,6 @@
                   <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
                   <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
                   <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
-                  <div v-if="editData.type" style="float: right">
-                    <el-button size="small" style="margin-left: 10px" type="primary" @click="confirmVariable">{{ $t('commons.confirm') }}</el-button>
-                    <el-button size="small" style="margin-left: 10px" @click="cancelVariable">{{ $t('commons.cancel') }}</el-button>
-                    <el-button v-if="showDelete" size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}</el-button>
-                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -138,6 +133,11 @@
         </template>
       </el-collapse-transition>
     </fieldset>
+    <div v-if="editData.type" slot="footer" class="dialog-footer">
+      <el-button size="small"  type="primary" @click="confirmVariable">{{ $t('commons.confirm') }}</el-button>
+      <el-button size="small"  @click="cancelVariable" style="margin-left: 20px">{{ $t('commons.cancel') }}</el-button>
+      <el-button v-if="showDelete" size="small"  style="margin-left: 20px" @click="deleteVariable">{{ $t('commons.delete') }}</el-button>
+    </div>
   </el-dialog>
 </template>
 
