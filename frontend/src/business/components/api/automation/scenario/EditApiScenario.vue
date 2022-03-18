@@ -161,15 +161,12 @@
               <!-- 场景步骤内容 -->
               <div ref="stepInfo">
                 <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
-                         :default-expanded-keys="expandedNode"
                          :expand-on-click-node="false"
                          :allow-drop="allowDrop"
                          :empty-text="$t('api_test.scenario.step_info')"
                          highlight-current
                          :show-checkbox="isBatchProcess"
                          @check-change="chooseHeadsUp"
-                         @node-expand="nodeExpand"
-                         @node-collapse="nodeCollapse"
                          @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
 
                   <el-row class="custom-tree-node" :gutter="18" type="flex" align="middle" slot-scope="{node, data}" style="width: 100%">
@@ -191,7 +188,6 @@
                         :scenario="data"
                         :response="response"
                         :currentScenario="currentScenario"
-                        :expandedNode="expandedNode"
                         :currentEnvironmentId="currentEnvironmentId"
                         :node="node"
                         :project-list="projectList"
@@ -455,7 +451,6 @@ export default {
       operatingElements: [],
       selectedTreeNode: undefined,
       selectedNode: undefined,
-      expandedNode: [],
       scenarioDefinition: [],
       path: "/api/automation/create",
       repositoryCreatePath: "/repository/api/automation/create",
@@ -589,30 +584,35 @@ export default {
     },
     checkedAll(v) {
       if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
-        this.stepCheckedAll(v, this.$refs.stepTree.root.childNodes);
+        this.recursionChecked(v, this.$refs.stepTree.root.childNodes);
       }
     },
-    stepCheckedAll(v, array) {
+    recursionChecked(v, array) {
       if (array) {
         array.forEach(item => {
           if (item.childNodes && item.childNodes.length > 0) {
-            this.stepCheckedAll(v, item.childNodes);
+            this.recursionChecked(v, item.childNodes);
           }
           item.checked = v;
+          if (item.data && item.data.type === 'scenario' && item.data.referenced === 'REF') {
+            item.expanded = false;
+          }
         })
       }
     },
     batchProcessing() {
       this.isBatchProcess = true;
-      this.expandedNode = [];
       this.hideAllTreeNode(this.scenarioDefinition);
+      if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
+        this.recursionExpansion([], this.$refs.stepTree.root.childNodes);
+      }
       this.reloadTreeStatus();
     },
     cancelBatchProcessing() {
       this.isBatchProcess = false;
       this.isCheckedAll = false;
       if (this.$refs.stepTree && this.$refs.stepTree.root && this.$refs.stepTree.root.childNodes) {
-        this.stepCheckedAll(false, this.$refs.stepTree.root.childNodes);
+        this.recursionChecked(false, this.$refs.stepTree.root.childNodes);
       }
       this.selectDataCounts = 0;
       this.commandTreeNode();
@@ -641,12 +641,12 @@ export default {
     },
     hideAllTreeNode(array) {
       array.forEach(item => {
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.hideAllTreeNode(item.hashTree);
-        }
         item.isLeaf = this.isBatchProcess;
         item.isBatchProcess = this.isBatchProcess;
         item.checkBox = this.isBatchProcess;
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.hideAllTreeNode(item.hashTree);
+        }
       })
     },
     commandTreeNode(node, array) {
@@ -1452,16 +1452,6 @@ export default {
         this.forceRerender();
       }
     },
-    nodeExpand(data, node) {
-      if (data && data.resourceId && this.expandedNode.indexOf(data.resourceId) === -1) {
-        this.expandedNode.push(data.resourceId);
-      }
-    },
-    nodeCollapse(data, node) {
-      if (data && data.resourceId) {
-        this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
-      }
-    },
     editScenario() {
       if (!document.getElementById("inputDelay")) {
         return;
@@ -1771,11 +1761,8 @@ export default {
     },
     changeNodeStatus(resourceIds, nodes) {
       for (let i in nodes) {
-        if (nodes[i]) {
+        if (nodes[i] && !(nodes[i].type === 'scenario' && nodes[i].referenced === 'REF')) {
           if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
-            if (this.expandedStatus) {
-              this.expandedNode.push(nodes[i].resourceId);
-            }
             nodes[i].active = this.expandedStatus;
             if (this.stepSize > 35 && this.expandedStatus) {
               nodes[i].active = false;
@@ -1797,18 +1784,33 @@ export default {
       }
       return selectValueArr;
     },
+    recursionExpansion(resourceIds, array) {
+      if (array) {
+        array.forEach(item => {
+          if (item.data && item.data.type === 'scenario' && item.data.referenced === 'REF') {
+            item.expanded = false;
+          } else {
+            if (resourceIds.indexOf(item.data.resourceId) !== -1) {
+              item.expanded = this.expandedStatus;
+            }
+          }
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.recursionExpansion(resourceIds, item.childNodes);
+          }
+        })
+      }
+    },
     openExpansion() {
-      this.expandedNode = [];
       this.expandedStatus = true;
       let resourceIds = this.getAllResourceIds();
       this.changeNodeStatus(resourceIds, this.scenarioDefinition);
+      this.recursionExpansion(resourceIds, this.$refs.stepTree.root.childNodes);
     },
     closeExpansion() {
       this.expandedStatus = false;
-      this.expandedNode = [];
       let resourceIds = this.getAllResourceIds();
       this.changeNodeStatus(resourceIds, this.scenarioDefinition);
-      this.forceRerender();
+      this.recursionExpansion(resourceIds, this.$refs.stepTree.root.childNodes);
     },
     stepStatus(resourceIds, nodes) {
       for (let i in nodes) {
