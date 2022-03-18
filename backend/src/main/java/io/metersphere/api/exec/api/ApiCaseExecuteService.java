@@ -140,23 +140,19 @@ public class ApiCaseExecuteService {
         if (CollectionUtils.isNotEmpty(caseList)) {
             StringBuilder builderHttp = new StringBuilder();
             StringBuilder builderTcp = new StringBuilder();
-            for (ApiTestCaseWithBLOBs apiCase : caseList) {
+            for (int i = caseList.size() - 1; i >= 0; i--) {
+                ApiTestCaseWithBLOBs apiCase = caseList.get(i);
                 JSONObject apiCaseNew = new JSONObject(apiCase.getRequest());
-                if ("HTTPSamplerProxy".equals(apiCaseNew.getString("type"))) {
-                    try {
-                        String environmentId = apiCaseNew.getString("useEnvironment");
-                        if (!StringUtils.isNotEmpty(environmentId)) {
-                            builderHttp.append(apiCase.getName()).append("; ");
-                        }
-                    } catch (Exception e) {
-                        MSException.throwException("用例：" + builderHttp.append(apiCase.getName()).append("; ") + "运行环境为空！请检查");
+                if (apiCaseNew.has("type") && "HTTPSamplerProxy".equals(apiCaseNew.getString("type"))) {
+                    if (!apiCaseNew.has("useEnvironment") || StringUtils.isEmpty(apiCaseNew.getString("useEnvironment"))) {
+                        builderHttp.append(apiCase.getName()).append("; ");
                     }
                 }
-                if ("JDBCSampler".equals(apiCaseNew.getString("type"))) {
-                    try {
+                if (apiCaseNew.has("type") && "JDBCSampler".equals(apiCaseNew.getString("type"))) {
+                    DatabaseConfig dataSource = null;
+                    if (apiCaseNew.has("useEnvironment") && apiCaseNew.has("dataSourceId")) {
                         String environmentId = apiCaseNew.getString("useEnvironment");
                         String dataSourceId = apiCaseNew.getString("dataSourceId");
-                        DatabaseConfig dataSource = null;
                         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
                         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
                         EnvironmentConfig envConfig = null;
@@ -170,17 +166,20 @@ public class ApiCaseExecuteService {
                                 }
                             }
                         }
-                        if (dataSource == null) {
-                            MSException.throwException("用例：" + builderTcp.append(apiCase.getName()).append("; "));
-                        }
-                    } catch (Exception e) {
-                        MSException.throwException("用例数据源为空，请检查!");
+                    }
+                    if (dataSource == null) {
+                        builderTcp.append(apiCase.getName()).append("; ");
                     }
                 }
             }
+            if (StringUtils.isNotEmpty(builderHttp)) {
+                MSException.throwException("用例：" + builderHttp + "运行环境为空！请检查");
+            }
+            if (StringUtils.isNotEmpty(builderTcp)) {
+                MSException.throwException("用例：" + builderTcp + "数据源为空！请检查");
+            }
         }
     }
-
     /**
      * 接口定义case执行
      *
