@@ -14,29 +14,26 @@ import java.util.List;
  */
 public class ErrorReportLibraryUtil {
 
-    private static final String ERROR_CODE_START = "Error report:";
+
+    private static final String NEW_ERROR_CODE_STATE = "Check Error report:";
 
     public static ErrorReportLibraryParseDTO parseAssertions(RequestResult result) {
         ErrorReportLibraryParseDTO returnDTO = new ErrorReportLibraryParseDTO();
         if (result != null && result.getResponseResult() != null && CollectionUtils.isNotEmpty(result.getResponseResult().getAssertions())) {
             List<ResponseAssertionResult> errorReportAssertionList = new ArrayList<>();
-            boolean hasOtherErrorAssertion = false;
-            int otherAssertionCount = 0;
             for (ResponseAssertionResult assertion : result.getResponseResult().getAssertions()) {
-                if (StringUtils.startsWith(assertion.getContent(), ERROR_CODE_START)) {
+                if (StringUtils.startsWithAny(assertion.getContent(), NEW_ERROR_CODE_STATE)) {
                     errorReportAssertionList.add(assertion);
-                }else {
-                    otherAssertionCount ++;
-                    if(!assertion.isPass()){
-                        hasOtherErrorAssertion = true;
-                    }
                 }
             }
             if (CollectionUtils.isNotEmpty(errorReportAssertionList)) {
                 List<ResponseAssertionResult> unMatchErrorReportAssertions = new ArrayList<>();
+                int machedErrorPortAssertions = 0;
                 for (ResponseAssertionResult assertion : errorReportAssertionList) {
-                    if (assertion.isPass()) {
-                        String errorCode = StringUtils.substring(assertion.getContent(), ERROR_CODE_START.length());
+                    if (!assertion.isPass()) {
+                        assertion.setPass(true);
+                        machedErrorPortAssertions ++;
+                        String errorCode = StringUtils.substring(assertion.getContent(), NEW_ERROR_CODE_STATE.length());
                         returnDTO.getErrorCodeList().add(errorCode);
                     } else {
                         unMatchErrorReportAssertions.add(assertion);
@@ -45,21 +42,19 @@ public class ErrorReportLibraryUtil {
 
                 if (CollectionUtils.isNotEmpty(unMatchErrorReportAssertions)) {
                     // 未被误报断言匹配到的结果，清除该请求的误报断言记录，并将断言涉及到的统计结果恢复正常
-                    if (result.getResponseResult() != null
-                            && StringUtils.equalsIgnoreCase(result.getResponseResult().getResponseCode(), "200")
-                            && result.getError() > 0) {
-                        if(otherAssertionCount == 0 || !hasOtherErrorAssertion){
-                            result.setError(result.getError() - 1);
-                        }
-                    }
                     result.setTotalAssertions(result.getTotalAssertions() - unMatchErrorReportAssertions.size());
-                    result.getResponseResult().getAssertions().removeAll(unMatchErrorReportAssertions);
-                    if (result.getError() == 0 && !result.isSuccess()) {
-                        result.setSuccess(true);
+                    int passAssertionCountg = (result.getPassAssertions() - unMatchErrorReportAssertions.size() ) + machedErrorPortAssertions;
+                    if(passAssertionCountg< 0){
+                        result.setPassAssertions(0);
+                    }else {
+                        result.setPassAssertions(passAssertionCountg);
                     }
+
+                    result.getResponseResult().getAssertions().removeAll(unMatchErrorReportAssertions);
                 }
             }
         }
+        returnDTO.setResult(result);
         return returnDTO;
     }
 }

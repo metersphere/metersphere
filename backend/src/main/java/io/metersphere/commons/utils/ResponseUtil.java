@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class ResponseUtil {
 
-    public static RequestResultExpandDTO parseByRequestResult(RequestResult requestResult) {
+    public static RequestResultExpandDTO parseByRequestResult(RequestResult baseResult) {
         //解析是否含有误报库信息
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
-
+        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
+        RequestResult requestResult = errorCodeDTO.getResult();
         RequestResultExpandDTO expandDTO = new RequestResultExpandDTO();
         BeanUtils.copyBean(expandDTO, requestResult);
 

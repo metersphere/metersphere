@@ -64,10 +64,11 @@ public class ApiScenarioReportResultService {
         }
     }
 
-    private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult result) {
+    private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult baseResult) {
         ApiScenarioReportResult report = new ApiScenarioReportResult();
         //解析误报内容
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(result);
+        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
+        RequestResult result = errorCodeDTO.getResult();
         report.setId(UUID.randomUUID().toString());
         String resourceId = result.getResourceId();
         report.setResourceId(resourceId);
