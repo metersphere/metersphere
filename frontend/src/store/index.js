@@ -34,7 +34,9 @@ const state = {
   apiStatus: new Map(),
   testCaseMap: new Map(),
   curTabId: null,
-  testCaseDefaultValue: {}
+  testCaseDefaultValue: {},
+  selectCommand: {},
+  librarySelectElement: {}
 }
 
 const store = new Vuex.Store({

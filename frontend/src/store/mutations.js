@@ -19,6 +19,8 @@ const mutations = {
   setTestCaseTemplate: (state, value) => state.testCaseTemplate = value,
   setCurTabId: (state, value) => state.curTabId = value,
   setTestCaseDefaultValue: (state, value) => state.testCaseDefaultValue = value,
+  setSelectCommand: (state, value) => state.selectCommand = value,
+  setLibrarySelectElement: (state, value) => state.librarySelectElement = value,
 }
 
 export default mutations;
