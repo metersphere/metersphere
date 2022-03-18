@@ -40,15 +40,6 @@ public class ScenarioVariable {
      */
     private String minNumber;
     private String maxNumber;
-    /**
-     * repository csv
-     */
-    private String fileResource;
-    private String repositoryId;
-    private String repositoryBranch;
-    private String repositoryFilePath;
-
-
 
     public ScenarioVariable() {
 

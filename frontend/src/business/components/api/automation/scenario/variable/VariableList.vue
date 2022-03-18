@@ -101,6 +101,11 @@
                   <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
                   <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
                   <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
+                  <div v-if="editData.type" style="float: right">
+                    <el-button size="small" style="margin-left: 10px" type="primary" @click="confirmVariable">{{ $t('commons.confirm') }}</el-button>
+                    <el-button size="small" style="margin-left: 10px" @click="cancelVariable">{{ $t('commons.cancel') }}</el-button>
+                    <el-button v-if="showDelete" size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}</el-button>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -133,11 +138,6 @@
         </template>
       </el-collapse-transition>
     </fieldset>
-    <div v-if="editData.type" slot="footer" class="dialog-footer">
-      <el-button size="small"  type="primary" @click="confirmVariable">{{ $t('commons.confirm') }}</el-button>
-      <el-button size="small"  @click="cancelVariable" style="margin-left: 20px">{{ $t('commons.cancel') }}</el-button>
-      <el-button v-if="showDelete" size="small"  style="margin-left: 20px" @click="deleteVariable">{{ $t('commons.delete') }}</el-button>
-    </div>
   </el-dialog>
 </template>
 
@@ -162,9 +162,6 @@
     getCustomTableWidth,
     getCustomTableHeader
   } from "@/common/js/tableUtils";
-
-  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const workspaceRepository = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./repository/WorkspaceRepository.vue") : {};
 
   export default {
     name: "MsVariableList",
@@ -201,9 +198,7 @@
         selection: [],
         loading: false,
         currentPage: 1,
-        editData: {
-          fileResource: "local"
-        },
+        editData: {},
         pageSize: 10,
         total: 0,
         headerSuggestions: REQUEST_HEADERS,
@@ -220,8 +215,6 @@
             handleClick: this.handleDeleteBatch,
           },
         ],
-        validateRepositoryPath: "/repository/validate/exist",
-        showXpackCompnent: false,
       };
     },
     methods: {
@@ -317,7 +310,7 @@
         this.updateFiles();
         let datas = [];
         this.variables.forEach(item => {
-          if (item.id === v.id) {
+          if(item.id === v.id){
             item = v;
           }
           datas.push(item);
@@ -354,7 +347,7 @@
         this.$emit('setVariables', saveVariables, this.headers);
       },
       addVariable() {
-        this.editData = {delimiter: ",", quotedData: 'false', files: [], fileResource: 'local', repositoryBranch: 'master'};
+        this.editData = {delimiter: ",", quotedData: 'false',files:[]};
         this.editData.type = this.selectType;
         this.showDelete = false;
         this.$refs.variableTable.cancelCurrentRow();
@@ -364,53 +357,16 @@
           this.$warning("变量名不能为空");
           return;
         }
-        if (this.showXpackCompnent) {
-          this.validateRepository(res => {
-            if (res) {
-              // 更新场景，修改左边数据
-              if (this.showDelete) {
-                this.updateParameters(this.editData);
-              } else {
-                // 新增场景，往左边新加
-                this.addParameters(this.editData);
-                this.addVariable();
-                this.$refs.variableTable.cancelCurrentRow();
-              }
-              this.$success(this.$t('commons.save_success'));
-            }
-          });
-        } else {
-          // 更新场景，修改左边数据
-          if (this.showDelete) {
-            this.updateParameters(this.editData);
-          } else {
-            // 新增场景，往左边新加
-            this.addParameters(this.editData);
-            this.addVariable();
-            this.$refs.variableTable.cancelCurrentRow();
-          }
-          this.$success(this.$t('commons.save_success'));
+        // 更新场景，修改左边数据
+        if(this.showDelete){
+          this.updateParameters(this.editData);
+        }else{
+          // 新增场景，往左边新加
+          this.addParameters(this.editData);
+          this.addVariable();
+          this.$refs.variableTable.cancelCurrentRow();
         }
-      },
-      validateRepository(callback) {
-        // 校验所选的Git仓库、Git分支下有没有对应的文件
-        if (this.editData.type === 'CSV' && this.editData.fileResource && this.editData.fileResource === 'repository') {
-          let param = {
-            repositoryId: this.editData.repositoryId,
-            repositoryBranch: this.editData.repositoryBranch,
-            repositoryFilePath: this.editData.repositoryFilePath,
-          };
-          this.$post(this.validateRepositoryPath, param, response => {
-            if (!response.data.success) {
-              this.$error(response.data.message);
-              callback(false);
-            } else {
-              callback(true);
-            }
-          });
-        } else {
-          callback(true);
-        }
+        this.$success(this.$t('commons.save_success'));
       },
       cancelVariable() {
         this.$refs.variableTable.cancelCurrentRow();
@@ -498,7 +454,7 @@
           } else {
             item.hidden = undefined;
           }
-          if (this.searchType === 'ALL' && !((this.selectVariable && this.selectVariable != ""))) {
+          if(this.searchType === 'ALL' && !((this.selectVariable && this.selectVariable != ""))){
             item.hidden = undefined;
           }
           datas.push(item);
@@ -516,17 +472,12 @@
         this.updateFiles();
         this.showDelete = true;
       },
-      updateFiles() {
+      updateFiles(){
         this.variables.forEach(item => {
-          if (item.id === this.editData.id) {
+          if(item.id === this.editData.id){
             this.editData.files = item.files
           }
         });
-      }
-    },
-    created() {
-      if (requireComponent !== null && JSON.stringify(workspaceRepository) !== '{}') {
-        this.showXpackCompnent = true;
       }
     }
   };
