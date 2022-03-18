@@ -15,7 +15,15 @@
           <el-row>
             <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
           </el-row>
-          <ms-api-key-value @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
+          <ms-api-key-value
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            :show-desc="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :suggestions="headerSuggestions"
+            :items="headers"
+            :need-mock="true" v-if="activeName === 'headers'"/>
         </el-tab-pane>
 
         <!--query 参数-->
@@ -30,7 +38,15 @@
           <el-row>
             <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
           </el-row>
-          <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
+          <ms-api-variable
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            :with-mor-setting="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :parameters="request.arguments"
+            v-if="activeName === 'parameters'"
+          />
         </el-tab-pane>
 
         <!--REST 参数-->
@@ -46,12 +62,29 @@
           <el-row>
             <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
           </el-row>
-          <ms-api-variable @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
+          <ms-api-variable
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            :with-mor-setting="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :parameters="request.rest"
+            v-if="activeName === 'rest'"
+          />
         </el-tab-pane>
 
         <!--请求体-->
         <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body">
-          <ms-api-body @editScenarioAdvance="editScenarioAdvance" :scenario-definition="scenarioDefinition" @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
+          <ms-api-body
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            @headersChange="reloadBody"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :headers="headers"
+            :body="request.body"
+            v-if="activeName === 'body'"
+          />
         </el-tab-pane>
 
         <!-- 认证配置 -->
@@ -60,11 +93,19 @@
             <span>{{ $t('api_test.definition.request.auth_config') }}</span>
           </el-tooltip>
 
-          <ms-api-auth-config :is-read-only="isReadOnly" :request="request"/>
+          <ms-api-auth-config
+            :is-read-only="isReadOnly"
+            :request="request"
+            v-if="activeName === 'authConfig'"
+          />
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
-          <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
+          <ms-api-advanced-config
+            :is-read-only="isReadOnly"
+            :request="request"
+            v-if="activeName === 'advancedConfig'"
+          />
         </el-tab-pane>
 
         <!-- 脚本步骤/断言步骤 -->
@@ -75,7 +116,14 @@
               <div class="el-step__icon-inner">{{ request.preSize }}</div>
             </div>
           </span>
-          <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'" ref="preStep"/>
+          <ms-jmx-step
+            :request="request"
+            :apiId="request.id"
+            :response="response"
+            :tab-type="'pre'"
+            ref="preStep"
+            v-if="activeName === 'preOperate'"
+          />
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate" v-if="showScript">
             <span class="item-tabs" effect="dark" placement="top-start" slot="label">
@@ -84,7 +132,14 @@
               <div class="el-step__icon-inner">{{ request.postSize }}</div>
             </div>
           </span>
-          <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'" ref="postStep"/>
+          <ms-jmx-step
+            :request="request"
+            :apiId="request.id"
+            :response="response"
+            :tab-type="'post'"
+            ref="postStep"
+            v-if="activeName === 'postOperate'"
+          />
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule" v-if="showScript">
             <span class="item-tabs" effect="dark" placement="top-start" slot="label">
@@ -93,7 +148,14 @@
               <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
             </div>
           </span>
-          <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody" :tab-type="'assertionsRule'" ref="assertionsRule"/>
+          <ms-jmx-step
+            :request="request"
+            :apiId="request.id"
+            :response="response"
+            @reload="reloadBody"
+            :tab-type="'assertionsRule'"
+            ref="assertionsRule"
+            v-if="activeName === 'assertionsRule'"/>
         </el-tab-pane>
 
       </el-tabs>
@@ -239,15 +301,17 @@ export default {
     hasPermission,
     hasLicense,
     tabClick() {
-      if (this.activeName === 'preOperate') {
-        this.$refs.preStep.filter();
-      }
-      if (this.activeName === 'postOperate') {
-        this.$refs.postStep.filter();
-      }
-      if (this.activeName === 'assertionsRule') {
-        this.$refs.assertionsRule.filter();
-      }
+      this.$nextTick(() => {
+        if (this.activeName === 'preOperate' && this.$refs.preStep) {
+          this.$refs.preStep.filter();
+        }
+        if (this.activeName === 'postOperate' && this.$refs.postStep) {
+          this.$refs.postStep.filter();
+        }
+        if (this.activeName === 'assertionsRule' && this.$refs.assertionsRule) {
+          this.$refs.assertionsRule.filter();
+        }
+      });
     },
     generate() {
       if (this.request.body && (this.request.body.jsonSchema || this.request.body.raw)) {
