@@ -65,6 +65,4 @@ public class SaveApiScenarioRequest {
     private String environmentGroupId;
 
     private String versionId;
-
-    private List<String> repositoryFileIds;
 }
