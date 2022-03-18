@@ -520,6 +520,10 @@ export default {
         this.isSave = false;
         this.removeTab(targetName);
       }
+      if (tab) {
+        tab.splice(0, 1);
+        tab = undefined;
+      }
       if (this.tabs && this.tabs.length === 0) {
         this.refreshAll();
       }
