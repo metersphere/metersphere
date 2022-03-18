@@ -164,9 +164,9 @@ export default {
           label: "commons.adv_search.operators.is_not_empty",
           value: "is not empty",
         },
-        stepFilter: new STEP,
-        messageWebSocket: {},
       },
+      stepFilter: new STEP,
+      messageWebSocket: {},
     };
   },
   watch: {
