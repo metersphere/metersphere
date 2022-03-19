@@ -3088,5 +3088,6 @@ export default {
     location: "定位",
     run: "运行",
     locate_type: "定位方式",
+    coord: "坐标",
   }
 };
