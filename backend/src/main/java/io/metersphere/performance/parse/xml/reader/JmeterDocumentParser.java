@@ -287,7 +287,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
                 String line = tokenizer.nextToken();
                 csv.append(line).append("\n");
             } else {
-                if (index < offset) {
+                if (index <= offset) {
                     tokenizer.nextToken();
                     index++;
                     continue;
