@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
 import io.metersphere.base.domain.ApiScenarioReportResult;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
@@ -39,19 +40,12 @@ public class ApiScenarioReportResultService {
 
     public void uiSave(String reportId, List<RequestResult> queue) {
         if (CollectionUtils.isNotEmpty(queue)) {
-            String idPrefix = "Ui-Result-";
             queue.forEach(item -> {
-                String headers = item.getHeaders();
-                if (StringUtils.isNoneBlank(headers)) {
-                    String[] headerItems = headers.split("\n");
-                    for (String header : headerItems) {
-                        if (header.contains(idPrefix)) {
-                            String[] split = header.split(":");
-                            String resourceId = split[1];
-                            resourceId = resourceId.substring(resourceId.indexOf(idPrefix)).trim();
-                            String value = split[2].trim();
-                            apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, value));
-                        }
+                String header = item.getResponseResult().getHeaders();
+                if (StringUtils.isNoneBlank(header)) {
+                    JSONObject jsonObject = JSONObject.parseObject(header);
+                    for (String resourceId : jsonObject.keySet()) {
+                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.getString(resourceId)));
                     }
                 }
             });
@@ -63,10 +57,10 @@ public class ApiScenarioReportResultService {
         report.setId(UUID.randomUUID().toString());
         report.setResourceId(resourceId);
         report.setReportId(reportId);
-//        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
-//        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
+        report.setTotalAssertions(0L);
+        report.setPassAssertions(0L);
         report.setCreateTime(System.currentTimeMillis());
-        String status = value.equals("ok") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        String status = value.equalsIgnoreCase("OK") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
         report.setStatus(status);
         report.setContent(value.getBytes(StandardCharsets.UTF_8));
         return report;

@@ -259,7 +259,7 @@ export default {
         this.$warning(this.$t('commons.run_warning'))
         return;
       }
-      if (report.reportType.indexOf('SCENARIO') !== -1 || report.reportType === 'API_INTEGRATED') {
+      if (report.reportType.indexOf('SCENARIO') !== -1 || report.reportType.indexOf('UI_') !== -1 || report.reportType === 'API_INTEGRATED') {
         this.currentProjectId = report.projectId;
         this.$router.push({
           path: 'report/view/' + report.id,

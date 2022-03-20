@@ -5,6 +5,7 @@ import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.UiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -45,6 +46,8 @@ public class TestResultService {
     private ApiAutomationService apiAutomationService;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private UiScenarioMapper uiScenarioMapper;
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
@@ -87,20 +90,30 @@ public class TestResultService {
     }
 
     public void testEnded(ResultDTO dto) {
-        if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+        if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())
+                || dto.getRunMode().startsWith("UI")) {
             ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
             if (scenarioReport != null) {
-                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                 String environment = "";
                 //执行人
                 String userName = "";
                 //负责人
                 String principal = "";
-                if (apiScenario != null) {
-                    environment = apiScenarioReportService.getEnvironment(apiScenario);
-                    userName = apiAutomationService.getUser(apiScenario.getUserId());
-                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
+                if (dto.getRunMode().startsWith("UI")) {
+                    UiScenarioWithBLOBs uiScenario = uiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+                    if (uiScenario != null) {
+                        userName = apiAutomationService.getUser(uiScenario.getUserId());
+                        principal = apiAutomationService.getUser(uiScenario.getPrincipal());
+                    }
+                } else {
+                    ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+                    if (apiScenario != null) {
+                        environment = apiScenarioReportService.getEnvironment(apiScenario);
+                        userName = apiAutomationService.getUser(apiScenario.getUserId());
+                        principal = apiAutomationService.getUser(apiScenario.getPrincipal());
+                    }
                 }
+
                 //报告内容
                 ApiTestReportVariable reportTask = new ApiTestReportVariable();
                 reportTask.setStatus(scenarioReport.getStatus());
