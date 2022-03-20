@@ -35,7 +35,11 @@ const state = {
   testCaseMap: new Map(),
   curTabId: null,
   testCaseDefaultValue: {},
+  currentScenario: {},
+  scenarioDefinition: {},
   selectCommand: {},
+  //按照type分组的指令
+  groupedCmd: {},
   librarySelectElement: {}
 }
 
