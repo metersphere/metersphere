@@ -156,6 +156,13 @@ export default {
       if (this.reviewId) {
         this.result = this.$get("/case/node/list/review/" + this.reviewId, response => {
           this.treeNodes = response.data;
+          this.treeNodes.forEach(nodes => {
+            if (nodes.children && nodes.children.length > 0) {
+              nodes.children.forEach(node => {
+                node.name = node.name === 'UNPLANNED' ? this.$t('test_track.unplanned_case') : node.name
+              })
+            }
+          });
         });
       }
     },
