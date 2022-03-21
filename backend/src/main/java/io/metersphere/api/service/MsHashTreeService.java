@@ -186,6 +186,7 @@ public class MsHashTreeService {
                     element.put(REST, refElement.get(REST));
                     element.put(PATH, refElement.get(PATH));
                     element.put(BODY, refElement.get(BODY));
+                    element.put("active", false);
                     element.put(AUTH_MANAGER, refElement.get(AUTH_MANAGER));
                     element.put(ARGUMENTS, refElement.get(ARGUMENTS));
                     if (array != null) {
