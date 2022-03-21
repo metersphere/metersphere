@@ -142,7 +142,7 @@ export default {
       // testCaseId 不为空则为用例编辑页面
       this.testCaseId = testCaseId;
       this.condition = {components: API_CASE_CONFIGS};
-      this.getApiTest(true);
+      this.getApiTest(true,true);
       this.visible = true;
       this.$store.state.currentApiCase = undefined;
 
@@ -294,7 +294,7 @@ export default {
         })
       }
     },
-    getTestCase() {
+    getTestCase(openCase) {
       return new Promise((resolve) => {
         let commonUseEnvironment = this.$store.state.useEnvironment;
         this.environment = commonUseEnvironment ? commonUseEnvironment : "";
@@ -302,6 +302,9 @@ export default {
           let apiCase = response.data;
           if (apiCase) {
             this.formatCase(apiCase);
+            if(openCase){
+              apiCase.active = true;
+            }
             this.apiCaseList = [apiCase];
           }
           resolve();
@@ -323,11 +326,11 @@ export default {
         });
       }
     },
-    getApiTest(addCase) {
+    getApiTest(addCase,openCase) {
       if (this.loaded) {
         this.getApiLoadCase();
       } else {
-        this.getTestCase().then(() => {
+        this.getTestCase(openCase).then(() => {
           if (addCase && !this.loaded && this.apiCaseList.length === 0) {
             this.addCase();
           }
