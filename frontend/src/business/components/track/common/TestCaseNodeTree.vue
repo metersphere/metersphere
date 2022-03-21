@@ -175,7 +175,8 @@ export default {
         this.result = getTestCaseNodes(this.projectId, data => {
           this.treeNodes = data;
           this.treeNodes.forEach(node => {
-            node.name === 'UNPLANNED' ? node.name = this.$t('test_track.unplanned_case') : node.name
+            node.name === 'UNPLANNED' ? node.name = this.$t('test_track.unplanned_case') : node.name;
+            node.label === 'UNPLANNED' ? node.label = this.$t('test_track.unplanned_case') : node.label;
             buildTree(node, {path: ''});
           });
           this.setModuleOptions();
@@ -252,6 +253,7 @@ export default {
     setModuleOptions() {
       let moduleOptions = [];
       this.treeNodes.forEach(node => {
+        node.name === 'UNPLANNED' ? node.name = this.$t('test_track.unplanned_case') : node.name
         buildNodePath(node, {path: ''}, moduleOptions);
       });
       this.$store.commit('setTestCaseModuleOptions', moduleOptions);

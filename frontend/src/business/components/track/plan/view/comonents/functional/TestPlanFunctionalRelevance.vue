@@ -87,6 +87,9 @@ export default {
       vueObj.$refs.nodeTree.result = this.$post("/case/node/list/all/plan",
         {testPlanId: this.planId, projectId: vueObj.projectId}, response => {
           vueObj.treeNodes = response.data;
+          vueObj.treeNodes.forEach(node => {
+            node.name = node.name === 'UNPLANNED' ? this.$t('test_track.unplanned_case') : node.name
+          });
         });
       vueObj.selectNodeIds = [];
     }
