@@ -193,7 +193,7 @@ public class ApiScenarioReportStructureService {
                 scenarioError.set(scenarioError.longValue() + 1);
             } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
                 errorReport.set(errorReport.longValue() + 1);
-            } else {
+            } else if(!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")){
                 unExecute.set(unExecute.longValue() + 1);
             }
         }
@@ -388,6 +388,14 @@ public class ApiScenarioReportStructureService {
                 if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
                     treeDTO.setErrorCode(expandDTO.getAttachInfoMap().get("errorReportResult"));
                     treeDTO.setTotalStatus("errorCode");
+                }else if(StringUtils.isNotEmpty(expandDTO.getStatus())){
+                    treeDTO.setTotalStatus(expandDTO.getStatus());
+                }else {
+                    if(expandDTO.isSuccess()){
+                        treeDTO.setTotalStatus("success");
+                    }else {
+                        treeDTO.setTotalStatus("fail");
+                    }
                 }
             }
 
@@ -411,7 +419,7 @@ public class ApiScenarioReportStructureService {
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
 
             reportDTO = this.countReportNum(stepList, reportDTO);
-            long successStep = reportResults.size() - reportDTO.getError() - reportDTO.getScenarioErrorReport();
+            long successStep = reportResults.size() - reportDTO.getScenarioError() - reportDTO.getScenarioErrorReport() - reportDTO.getScenarioUnExecute();
             reportDTO.setScenarioStepSuccess(successStep > 0 ? successStep : 0);
             //统计步骤数据
             reportDTO.setScenarioStepTotal(reportResults.size());
