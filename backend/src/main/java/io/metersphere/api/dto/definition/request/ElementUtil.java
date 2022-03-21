@@ -645,6 +645,18 @@ public class ElementUtil {
         this.add("Extract");
     }};
 
+
+    public static void copyBean(JSONObject target, JSONObject source) {
+        if (source == null || target == null) {
+            return;
+        }
+        for (String key : target.keySet()) {
+            if (source.containsKey(key) && !StringUtils.equalsIgnoreCase(key, "hashTree")) {
+                target.put(key, source.get(key));
+            }
+        }
+    }
+
     public static List<MsTestElement> order(List<MsTestElement> elements) {
         List<MsTestElement> elementList = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(elements)) {

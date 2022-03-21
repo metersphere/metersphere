@@ -13,7 +13,6 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.commons.utils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -182,7 +181,7 @@ public class MsHashTreeService {
                     JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
                     ElementUtil.dataFormatting(refElement);
                     JSONArray array = refElement.getJSONArray(HASH_TREE);
-                    BeanUtils.copyBean(element, refElement);
+                    ElementUtil.copyBean(element, refElement);
                     element.put(HEADERS, refElement.get(HEADERS));
                     element.put(REST, refElement.get(REST));
                     element.put(PATH, refElement.get(PATH));
