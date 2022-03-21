@@ -363,7 +363,12 @@ public class ApiScenarioReportStructureService {
             ApiDefinitionExecResultVo vo = new ApiDefinitionExecResultVo();
             BeanUtils.copyBean(vo, item);
             if (StringUtils.isNotEmpty(item.getContent())) {
-                vo.setRequestResult(JSON.parseObject(item.getContent(), RequestResult.class));
+                try {
+                    RequestResultExpandDTO resultExpandDTO = JSON.parseObject(item.getContent(), RequestResultExpandDTO.class);
+                    vo.setRequestResult(resultExpandDTO);
+                } catch (Exception e) {
+                    vo.setRequestResult(JSON.parseObject(item.getContent(), RequestResult.class));
+                }
                 if (vo.getRequestResult() != null) {
                     vo.setPassAssertions(vo.getRequestResult().getPassAssertions());
                     vo.setTotalAssertions(vo.getRequestResult().getTotalAssertions());
@@ -378,6 +383,14 @@ public class ApiScenarioReportStructureService {
             }
             StepTreeDTO treeDTO = new StepTreeDTO(item.getName(), item.getResourceId(), "API", (i + 1));
             treeDTO.setValue(vo.getRequestResult());
+            if (vo.getRequestResult() != null && vo.getRequestResult() instanceof RequestResultExpandDTO) {
+                RequestResultExpandDTO expandDTO = (RequestResultExpandDTO) vo.getRequestResult();
+                if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
+                    treeDTO.setErrorCode(expandDTO.getAttachInfoMap().get("errorReportResult"));
+                    treeDTO.setTotalStatus("errorCode");
+                }
+            }
+
             stepList.add(treeDTO);
             resultVos.add(vo);
         }
@@ -398,12 +411,13 @@ public class ApiScenarioReportStructureService {
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
 
             reportDTO = this.countReportNum(stepList, reportDTO);
-            reportDTO.setScenarioStepSuccess((reportResults.size() - reportDTO.getError()));
+            long successStep = reportResults.size() - reportDTO.getError() - reportDTO.getScenarioErrorReport();
+            reportDTO.setScenarioStepSuccess(successStep > 0 ? successStep : 0);
             //统计步骤数据
             reportDTO.setScenarioStepTotal(reportResults.size());
             reportDTO.setScenarioStepError(reportDTO.getError());
             reportDTO.setScenarioStepUnExecuteReport(reportDTO.getUnExecute());
-            reportDTO.setScenarioStepErrorReport(0);
+            reportDTO.setScenarioStepErrorReport(reportDTO.getScenarioErrorReport());
 
             ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
             structureExample.createCriteria().andReportIdEqualTo(reportId);
