@@ -56,7 +56,7 @@
             background-color="#F9F1EA"/>
 
            <ms-constant-timer :inner-step="true" :timer="data" :node="node" v-if="data.type ==='ConstantTimer'"
-                              @remove="remove"/>
+                              @remove="remove" @copyRow="copyRow"/>
 
          </div>
         <div v-if="tabType ==='post'">
