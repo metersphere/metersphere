@@ -112,6 +112,10 @@ export default {
   computed: {
     language() {
       const user = getCurrentUser();
+      // 取值为空时默认中文，如：导出
+      if (!user) {
+        return 'zh_CN';
+      }
       const language = user.language;
       switch (language) {
         case 'zh_CN':
