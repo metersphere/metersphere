@@ -50,7 +50,7 @@ public class MsAssertions extends MsTestElement {
 
     private void addAssertions(HashTree hashTree) {
         // 增加JSON文档结构校验
-        if (this.getDocument() != null && this.getDocument().getType().equals("JSON")) {
+        if (this.getDocument() != null && this.getDocument().getType().equals("JSON") && this.getDocument().isEnable()) {
             if (StringUtils.isNotEmpty(this.getDocument().getData().getJsonFollowAPI()) && !this.getDocument().getData().getJsonFollowAPI().equals("false")) {
                 ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 this.getDocument().getData().setJson(apiDefinitionService.getDocument(this.getDocument().getData().getJsonFollowAPI(), "JSON"));
@@ -60,7 +60,9 @@ public class MsAssertions extends MsTestElement {
             }
         }
         // 增加XML文档结构校验
-        if (this.getDocument() != null && this.getDocument().getType().equals("XML") && CollectionUtils.isNotEmpty(this.getDocument().getData().getXml())) {
+        if (this.getDocument() != null && this.getDocument().getType().equals("XML")
+                && CollectionUtils.isNotEmpty(this.getDocument().getData().getXml())
+                && this.getDocument().isEnable()) {
             if (StringUtils.isNotEmpty(this.getDocument().getData().getXmlFollowAPI()) && !this.getDocument().getData().getXmlFollowAPI().equals("false")) {
                 ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 this.getDocument().getData().setXml(apiDefinitionService.getDocument(this.getDocument().getData().getXmlFollowAPI(), "XML"));
@@ -112,8 +114,8 @@ public class MsAssertions extends MsTestElement {
         assertion.setAssumeSuccess(assertionRegex.isAssumeSuccess());
         assertion.addTestString(assertionRegex.getExpression());
         assertion.setToContainsType();
-        if(assertionRegex.getTestType() != 2){
-            assertion.setProperty("Assertion.test_type",assertionRegex.getTestType());
+        if (assertionRegex.getTestType() != 2) {
+            assertion.setProperty("Assertion.test_type", assertionRegex.getTestType());
         }
 
         switch (assertionRegex.getSubject()) {
