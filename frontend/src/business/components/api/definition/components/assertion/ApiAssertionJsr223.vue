@@ -20,6 +20,9 @@
       <div class="assertion-item btn circle">
         <i class="el-icon-view el-button el-button--primary el-button--mini is-circle" circle @click="showPage"/>
         <el-button :disabled="isReadOnly" type="success" size="mini" icon="el-icon-edit" circle @click="detail"/>
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
+          <el-switch v-model="assertion.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin:0px 10px 0px 10px"/>
+        </el-tooltip>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"/>
       </div>
     </el-row>

@@ -44,6 +44,35 @@ export function getProtocolFilter(protocolType) {
   }
 }
 
+export function parse(item) {
+  if (item.jsonPath) {
+    item.jsonPath.forEach(node => {
+      node.enable = item.enable;
+    })
+  }
+  if (item.jsr223) {
+    item.jsr223.forEach(node => {
+      node.enable = item.enable;
+    })
+  }
+  if (item.regex) {
+    item.regex.forEach(node => {
+      node.enable = item.enable;
+    });
+  }
+  if (item.xpath2) {
+    item.xpath2.forEach(node => {
+      node.enable = item.enable;
+    })
+  }
+  if (item.duration && item.duration.value > 0) {
+    item.duration.enable = item.enable;
+  }
+  if (item.document && item.document.data && (item.document.data.json.length > 0 || item.document.data.xml.length > 0)) {
+    item.document.enable = item.enable;
+  }
+}
+
 export function hisDataProcessing(array, request) {
   let assertions = new Assertions({id: getUUID()});
   if (!request.hashTree) {
@@ -56,13 +85,23 @@ export function hisDataProcessing(array, request) {
       let item = array[index];
       if (item.type === "Assertions" && isOne) {
         assertions = JSON.parse(JSON.stringify(item));
+        parse(assertions);
         isOne = false;
         assertionsIndex.push(item);
       } else if (item.type === "Assertions") {
-        assertions.jsonPath.push(...item.jsonPath);
-        assertions.jsr223.push(...item.jsr223);
-        assertions.regex.push(...item.regex);
-        assertions.xpath2.push(...item.xpath2);
+        parse(item);
+        if (item.jsonPath) {
+          assertions.jsonPath.push(...item.jsonPath);
+        }
+        if (item.jsr223) {
+          assertions.jsr223.push(...item.jsr223);
+        }
+        if (item.regex) {
+          assertions.regex.push(...item.regex);
+        }
+        if (item.xpath2) {
+          assertions.xpath2.push(...item.xpath2);
+        }
         assertionsIndex.push(item);
         if (item.duration && item.duration.value > 0) {
           assertions.duration = item.duration;
