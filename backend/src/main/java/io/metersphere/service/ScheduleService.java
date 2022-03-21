@@ -180,6 +180,9 @@ public class ScheduleService {
             LogUtil.error(e);
             MSException.throwException("重置定时任务-删除旧定时任务时出现异常");
         }
+        if(!request.getEnable()){
+            return;
+        }
         try {
             scheduleManager.addCronJob(jobKey, triggerKey, clazz, request.getValue(),
                     scheduleManager.getDefaultJobDataMap(request, request.getValue(), SessionUtils.getUser().getId()));
