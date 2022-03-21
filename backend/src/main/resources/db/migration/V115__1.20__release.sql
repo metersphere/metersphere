@@ -110,3 +110,7 @@ CREATE TABLE `ui_scenario_reference` (
  PRIMARY KEY (`id`),
  KEY `ui_scenario_id_idx` (`ui_scenario_id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- module management
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.ui', 'ENABLE', 'text', 1);
