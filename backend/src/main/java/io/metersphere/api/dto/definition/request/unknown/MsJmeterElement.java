@@ -77,7 +77,13 @@ public class MsJmeterElement extends MsTestElement {
                         config.getCsvFilePaths().add(csvPath);
                     }
                 }
-
+                // 取出导入的测试计划中变量
+                if (scriptWrapper instanceof TestPlan) {
+                    TestPlan testPlan = (TestPlan) scriptWrapper;
+                    if (testPlan.getArguments() != null) {
+                        elementTree.add(testPlan.getArguments());
+                    }
+                }
                 if (config.isOperating()) {
                     elementTree = tree.add(scriptWrapper);
                 } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
