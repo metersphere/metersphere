@@ -174,7 +174,7 @@ export default {
         children: "hashTree"
       },
       preOperate: "script",
-      postOperate: "script",
+      postOperate: "extract",
       preOperates: [
         {id: 'script', name: this.$t('api_test.definition.request.pre_script')},
         {id: 'sql', name: this.$t('api_test.definition.request.pre_sql')},
