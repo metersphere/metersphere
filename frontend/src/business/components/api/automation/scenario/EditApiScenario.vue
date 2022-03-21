@@ -1759,7 +1759,7 @@ export default {
             nodes[i].active = this.expandedStatus;
           }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
-            this.changeNodeStatus(nodes[i].hashTree);
+            this.changeNodeStatus(resourceIds, nodes[i].hashTree);
           }
         }
       }
@@ -1809,7 +1809,7 @@ export default {
             nodes[i].enable = this.stepEnable;
           }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
-            this.stepStatus(nodes[i].hashTree);
+            this.stepStatus(resourceIds, nodes[i].hashTree);
           }
         }
       }
