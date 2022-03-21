@@ -212,6 +212,7 @@ public class ApiScenarioImportUtil {
         apiTestCase.setCreateTime(System.currentTimeMillis());
         apiTestCase.setUpdateTime(System.currentTimeMillis());
         apiTestCase.setVersionId(apiDefinition.getVersionId());
+        apiTestCase.setPriority("P0");
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
