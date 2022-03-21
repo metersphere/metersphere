@@ -331,15 +331,15 @@ public class ProjectService {
      *
      * @param originId
      * @param templateId
-     * @param workspaceId
+     * @param projectId
      */
-    public void updateCaseTemplate(String originId, String templateId, String workspaceId) {
+    public void updateCaseTemplate(String originId, String templateId, String projectId) {
         Project project = new Project();
         project.setCaseTemplateId(templateId);
         ProjectExample example = new ProjectExample();
         example.createCriteria()
                 .andCaseTemplateIdEqualTo(originId)
-                .andWorkspaceIdEqualTo(workspaceId);
+                .andIdEqualTo(projectId);
         projectMapper.updateByExampleSelective(project, example);
     }
 
