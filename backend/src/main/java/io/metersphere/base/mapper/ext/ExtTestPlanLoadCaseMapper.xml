@@ -297,7 +297,7 @@
            <if test="status != null">
                and tplc.status = 'error'
            </if>
-        where tplc.test_plan_id = #{planId}
+        where tplc.test_plan_id = #{planId} ORDER BY tplc.order DESC
     </select>
 
     <select id="getCasesByIds" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">

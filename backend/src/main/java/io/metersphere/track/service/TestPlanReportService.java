@@ -225,7 +225,6 @@ public class TestPlanReportService {
         }
         LoadCaseRequest loadCaseRequest = new LoadCaseRequest();
         loadCaseRequest.setTestPlanId(planId);
-        loadCaseRequest.setProjectId(projectID);
         List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(loadCaseRequest);
         for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
             performanceIdMap.put(dto.getId(), dto.getLoadCaseId());
