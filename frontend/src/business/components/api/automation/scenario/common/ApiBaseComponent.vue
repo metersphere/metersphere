@@ -214,7 +214,6 @@ export default {
     },
     enable() {
       this.data.enable = !this.data.enable;
-      this.$emit("enable");
     }
   }
 }
