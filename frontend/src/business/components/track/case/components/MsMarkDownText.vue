@@ -126,28 +126,31 @@ export default {
     }
   },
   mounted() {
-    // 点击编辑，失去焦点展示
-    let el = document.getElementById(this.id);
-    if (!this.autoReview) {
-      this.defaultOpen = null;
-    }
-    if (el) {
-      el.addEventListener('click', () => {
-        let imagePreview = el.getElementsByClassName('v-note-img-wrapper');
-        if (imagePreview.length > 0) { // 图片预览的时候不切换到编辑模式
+    if(!this.disabled){
+      // 点击编辑，失去焦点展示
+      let el = document.getElementById(this.id);
+      if (!this.autoReview) {
+        this.defaultOpen = null;
+      }
+      if (el) {
+        el.addEventListener('click', () => {
+          let imagePreview = el.getElementsByClassName('v-note-img-wrapper');
+          if (imagePreview.length > 0) { // 图片预览的时候不切换到编辑模式
+            if (this.autoReview)
+              this.defaultOpen = 'preview';
+          } else {
+            if (this.autoReview)
+              this.defaultOpen = null;
+          }
+        });
+        let input = el.getElementsByClassName('auto-textarea-input');
+        input[0].addEventListener('blur', () => {
           if (this.autoReview)
             this.defaultOpen = 'preview';
-        } else {
-          if (this.autoReview)
-            this.defaultOpen = null;
-        }
-      });
-      let input = el.getElementsByClassName('auto-textarea-input');
-      input[0].addEventListener('blur', () => {
-        if (this.autoReview)
-          this.defaultOpen = 'preview';
-      });
+        });
+      }
     }
+
   },
   methods: {
     imgAdd(pos, file){
