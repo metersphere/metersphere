@@ -255,6 +255,7 @@
         and t.last_result in ('Fail','Error')
     </if>
       where t.test_plan_id = #{planId}
+        ORDER BY t.order DESC
     </select>
 
     <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO">
