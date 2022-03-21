@@ -43,10 +43,10 @@
                   </div>
                 </div>
               </div>
-              <el-divider v-if="content.unExecute > 0"></el-divider>
-              <div class="metric-icon-box" v-if="content.unExecute > 0" style="height: 26px">
+              <el-divider ></el-divider>
+              <div class="metric-icon-box" style="height: 26px">
                 <span class="ms-point-unexecute" style="margin: 7px;float: left;"/>
-                <div class="metric-box" v-if="content.unExecute > 0">
+                <div class="metric-box" >
                   <div class="value" style="font-size: 12px">{{ content.unExecute }}
                     {{ $t('api_test.home_page.detail_card.unexecute') }}
                   </div>
@@ -81,8 +81,8 @@
             <div class="value">{{ content.scenarioErrorReport ? content.scenarioErrorReport : 0 }}</div>
             <div class="name">{{ $t('error_report_library.option.name') }}</div>
           </div>
-          <span class="ms-point-unexecute" v-if="content.unExecute > 0 || content.unExecute > 0 "/>
-          <div class="metric-box" v-if="content.unExecute > 0 || content.unExecute > 0 ">
+          <span class="ms-point-unexecute"/>
+          <div class="metric-box">
             <div class="value">{{ content.scenarioUnExecute ? content.scenarioUnExecute : 0 }}</div>
             <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
           </div>
@@ -92,7 +92,8 @@
           <el-row type="flex" justify="center" align="middle">
             <div class="metric-box">
               <div class="value">{{ content.scenarioStepTotal ? content.scenarioStepTotal : 0 }}</div>
-              <div class="name">{{ $t('test_track.plan_view.step') }}</div>
+              <div class="name" v-if="report.reportType === 'API_INTEGRATED'">{{$t('api_test.definition.request.case')}}</div>
+              <div class="name" v-else>{{ $t('test_track.plan_view.step') }}</div>
             </div>
             <span class="ms-point-success"/>
             <div class="metric-box">
@@ -110,8 +111,8 @@
               <div class="value">{{ content.scenarioStepErrorReport ? content.scenarioStepErrorReport : 0 }}</div>
               <div class="name">{{ $t('error_report_library.option.name') }}</div>
             </div>
-            <span class="ms-point-unexecute" v-if="content.unExecute > 0 || content.unExecute > 0 "/>
-            <div class="metric-box" v-if="content.unExecute > 0 || content.unExecute > 0 ">
+            <span class="ms-point-unexecute" />
+            <div class="metric-box">
               <div class="value">{{
                   content.scenarioStepUnExecuteReport ? content.scenarioStepUnExecuteReport : 0
                 }}
