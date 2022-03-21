@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.TapdClient;
@@ -171,6 +172,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<PlatformUser> getPlatformUser() {
+        Boolean exist = checkProjectExist(getProjectId(projectId));
+        if (!exist) {
+            MSException.throwException(Translator.get("tapd_project_not_exist"));
+        }
         List<PlatformUser> users = new ArrayList<>();
         JSONArray res = tapdClient.getPlatformUser(getProjectId(projectId));
         for (int i = 0; i < res.size(); i++) {
