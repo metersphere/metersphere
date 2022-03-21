@@ -412,17 +412,22 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> buildCaseInfo(List<TestPlanCaseDTO> cases) {
-        Map<String, Project> projectMap = ServiceUtils.getProjectMap(
-                cases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
-        Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
-                cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
-        cases.forEach(item -> {
-            item.setProjectName(projectMap.get(item.getProjectId()).getName());
-            ProjectConfig config = projectApplicationService.getSpecificTypeValue(item.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
-            boolean customNum = config.getCaseCustomNum();
-            item.setIsCustomNum(customNum);
-            item.setExecutorName(userNameMap.get(item.getExecutor()));
-        });
+        if(CollectionUtils.isNotEmpty(cases)){
+            Map<String, Project> projectMap = ServiceUtils.getProjectMap(
+                    cases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
+            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
+                    cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
+            cases.forEach(item -> {
+                if(projectMap.containsKey(item.getProjectId())){
+                    item.setProjectName(projectMap.get(item.getProjectId()).getName());
+                }
+                ProjectConfig config = projectApplicationService.getSpecificTypeValue(item.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+                boolean customNum = config.getCaseCustomNum();
+                item.setIsCustomNum(customNum);
+                item.setExecutorName(userNameMap.get(item.getExecutor()));
+            });
+        }
+
         return cases;
     }
 
