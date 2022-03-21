@@ -418,15 +418,23 @@ export default {
     },
   },
   created() {
-    if (this.$route.query.workspaceId) {
-      sessionStorage.setItem(WORKSPACE_ID, this.$route.query.workspaceId);
+    let workspaceId = this.$route.params.workspaceId;
+    if (workspaceId) {
+      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+    }else {
+      if(this.$route.query.workspaceId){
+        workspaceId = this.$route.query.workspaceId;
+        sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+      }
     }
     let projectId = this.$route.params.projectId;
     if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
-    }
-    if (this.$route.query.projectId) {
-      sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+    }else {
+      if (this.$route.query.projectId) {
+        projectId = this.$route.query.projectId;
+        sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+      }
     }
     this.getEnv();
     // 通知过来的数据跳转到编辑
