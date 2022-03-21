@@ -139,7 +139,7 @@
         SELECT MAX(system_id)
         FROM project
     </select>
-    <select id="queryNameByIds" resultType="java.util.Map">
+    <select id="queryNameByIds" resultType="io.metersphere.base.domain.Project">
         SELECT id, name
         FROM project
                 WHERE id IN
