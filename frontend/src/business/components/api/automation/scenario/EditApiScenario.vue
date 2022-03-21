@@ -176,10 +176,10 @@
                     </span>
                     <!-- 批量操作 -->
                     <span :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'" style="padding-left: 0px; padding-right: 0px;"
-                            v-show="(data.hashTree && data.hashTree.length === 0 )|| data.isLeaf">
-                      <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts" v-show="data.checkBox" style="margin-right: 3px"/>
+                          v-show="(data.hashTree && data.hashTree.length === 0 )|| data.isLeaf">
+                      <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts" v-show="data.checkBox" style="margin-right: 10px"/>
                     </span>
-                    <span style="width: calc(100% - 40px);">
+                    <span style="width: calc(100% - 30px);">
                       <!-- 步骤组件-->
                       <ms-component-config
                         :scenario-definition="scenarioDefinition"
@@ -1736,9 +1736,6 @@ export default {
         if (nodes[i] && !(nodes[i].type === 'scenario' && nodes[i].referenced === 'REF')) {
           if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
             nodes[i].active = this.expandedStatus;
-            if (this.stepSize > 35 && this.expandedStatus) {
-              nodes[i].active = false;
-            }
           }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
@@ -2071,14 +2068,14 @@ export default {
 }
 
 .custom-tree-node-col {
-  width: 20px;
+  width: 25px;
   padding: 0px;
   margin-left: 5px;
   vertical-align: center;
 }
 
 .custom-tree-node-hide {
-  width: 5px;
+  width: 15px;
   padding: 0px;
   vertical-align: center;
 }
