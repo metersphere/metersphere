@@ -694,7 +694,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         if (StringUtils.isNotBlank(keyValue.getContentType())) {
                             httpArgument.setContentType(keyValue.getContentType());
                         }
-                        arguments.addArgument(httpArgument);
+                        if(StringUtils.equalsIgnoreCase(this.method,"get")){
+                            if(StringUtils.isNotEmpty(httpArgument.getValue())){
+                                arguments.addArgument(httpArgument);
+                            }
+                        }else {
+                            arguments.addArgument(httpArgument);
+                        }
                     } catch (Exception e) {
 
                     }
