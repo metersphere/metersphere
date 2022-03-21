@@ -42,7 +42,8 @@
         <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"
                    :disabled="(data.disabled && !data.root) || !showVersion "/>
 
-        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"/>
+        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"
+                   :disabled="(data.disabled && !data.root) || !showVersion "/>
         <step-extend-btns style="display: contents"
                           :data="data"
                           :environmentType="environmentType"

@@ -1,9 +1,9 @@
 <template>
   <span class="json-path-suggest-button">
-    <el-button size="mini" type="primary" @click="$emit('open')" @click.stop>
+    <el-button size="mini" type="primary" @click="$emit('open')" @click.stop :disabled="isReadOnly">
       {{ openTip }}
     </el-button>
-    <el-button size="mini" type="danger" @click="$emit('clear')">
+    <el-button size="mini" type="danger" @click="$emit('clear')" :disabled="isReadOnly">
       {{ clearTip }}
     </el-button>
     </span>
@@ -12,7 +12,7 @@
 <script>
 export default {
   name: "ApiJsonPathSuggestButton",
-  props: ['openTip', 'clearTip']
+  props: ['openTip', 'clearTip','isReadOnly']
 }
 </script>
 
