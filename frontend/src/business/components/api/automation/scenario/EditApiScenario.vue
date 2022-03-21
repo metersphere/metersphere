@@ -1528,6 +1528,21 @@ export default {
                 if (obj.headers) {
                   this.currentScenario.headers = obj.headers;
                 }
+                let index = 1;
+                if (obj.variables) {
+                  obj.variables.forEach(item => {
+                    // 兼容历史数据
+                    if (item.name) {
+                      if (!item.type) {
+                        item.type = "CONSTANT";
+                        item.id = getUUID();
+                      }
+                      item.num = index;
+                      this.currentScenario.variables.push(item);
+                      index++;
+                    }
+                  })
+                }
                 this.enableCookieShare = obj.enableCookieShare;
                 if (obj.onSampleError === undefined) {
                   this.onSampleError = true;
