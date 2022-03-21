@@ -18,10 +18,10 @@
           {{ $t('api_test.request.assertions.ignore_status') }}
         </el-checkbox>
       </el-col>
-      <el-col class="assertion-btn">
+      <el-col :class="edit?'assertion-remove-btn':'assertion-btn'">
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
                    v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -104,6 +104,10 @@ export default {
 }
 
 .assertion-btn {
+  text-align: center;
+  width: 80px;
+}
+.assertion-remove-btn {
   text-align: center;
   width: 50px;
 }

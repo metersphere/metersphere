@@ -5,9 +5,9 @@
         <el-input :disabled="isReadOnly" v-model="xPath2.expression" maxlength="500" size="small" show-word-limit
                   :placeholder="$t('api_test.request.extract.xpath_expression')"/>
       </el-col>
-      <el-col class="assertion-btn">
+      <el-col :class="edit?'assertion-remove-btn':'assertion-btn'">
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -16,56 +16,61 @@
 </template>
 
 <script>
-  import {XPath2} from "../../model/ApiTestModel";
+import {XPath2} from "../../model/ApiTestModel";
 
-  export default {
-    name: "MsApiAssertionXPath2",
+export default {
+  name: "MsApiAssertionXPath2",
 
-    props: {
-      xPath2: {
-        default: () => {
-          return new XPath2();
-        }
-      },
-      edit: {
-        type: Boolean,
-        default: false
-      },
-      index: Number,
-      list: Array,
-      callback: Function,
-      isReadOnly: {
-        type: Boolean,
-        default: false
+  props: {
+    xPath2: {
+      default: () => {
+        return new XPath2();
       }
     },
-
-    methods: {
-      add: function () {
-        this.list.push(this.getXPath2());
-        this.callback();
-      },
-      remove: function () {
-        this.list.splice(this.index, 1);
-      },
-      getXPath2() {
-        return new XPath2(this.xPath2);
-      },
+    edit: {
+      type: Boolean,
+      default: false
+    },
+    index: Number,
+    list: Array,
+    callback: Function,
+    isReadOnly: {
+      type: Boolean,
+      default: false
     }
+  },
+
+  methods: {
+    add: function () {
+      this.list.push(this.getXPath2());
+      this.callback();
+    },
+    remove: function () {
+      this.list.splice(this.index, 1);
+    },
+    getXPath2() {
+      return new XPath2(this.xPath2);
+    },
   }
+}
 </script>
 
 <style scoped>
-  .assertion-select {
-    width: 250px;
-  }
+.assertion-select {
+  width: 250px;
+}
 
-  .assertion-item {
-    width: 100%;
-  }
+.assertion-item {
+  width: 100%;
+}
 
-  .assertion-btn {
-    text-align: center;
-    width: 40px;
-  }
+.assertion-btn {
+  text-align: center;
+  width: 80px;
+}
+
+.assertion-remove-btn {
+  text-align: center;
+  width: 40px;
+}
 </style>
