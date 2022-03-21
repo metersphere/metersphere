@@ -186,8 +186,14 @@
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
             this.data.forEach(node => {
-              node.name === 'UNPLANNED' ? node.name = this.$t('api_test.automation.unplanned_scenario') : node.name
+              node.name = node.name === 'UNPLANNED' ? this.$t('api_test.automation.unplanned_scenario') : node.name
+              node.label = node.label === 'UNPLANNED' ? this.$t('api_test.automation.unplanned_scenario') : node.label
               buildTree(node, {path: ''});
+              if (node.children && node.children.length > 0) {
+                node.children.forEach(node => {
+                  node.name = node.name === 'UNPLANNED' ? this.$t('api_test.automation.unplanned_scenario') : node.name
+                })
+              }
             });
             this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
