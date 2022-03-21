@@ -42,6 +42,9 @@
             <el-tag size="mini" v-else-if="row.status === 'Completed'">
               {{ row.status }}
             </el-tag>
+            <el-tag size="mini"  v-else-if="!row.status || row.status === '' ">
+              Prepare
+            </el-tag>
             <el-tag size="mini" v-else>
               {{ row.status }}
             </el-tag>
