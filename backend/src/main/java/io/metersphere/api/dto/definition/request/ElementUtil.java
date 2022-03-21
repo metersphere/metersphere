@@ -697,7 +697,7 @@ public class ElementUtil {
                 elementList.addAll(groupMap.get(POST).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
             }
             if (CollectionUtils.isNotEmpty(groupMap.get(ASSERTIONS))) {
-                elementList.addAll(groupMap.get(ASSERTIONS).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+                elementList.addAll(groupMap.get(ASSERTIONS));
             }
         }
         return elementList;
