@@ -749,7 +749,7 @@ public class ApiDefinitionService {
         apiDefinition.setDescription(apiDefinition.getDescription());
 
         List<ApiDefinition> sameRequest;
-        if (repeatable == null || repeatable == false) {
+        if (repeatable == null || !repeatable) {
             sameRequest = getSameRequest(saveReq);
         } else {
             // 如果勾选了允许重复，则判断更新要加上name字段
@@ -862,6 +862,9 @@ public class ApiDefinitionService {
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
+                if(sameRequest.get(0).getUserId()!=null){
+                    apiDefinition.setUserId(sameRequest.get(0).getUserId());
+                }
                 batchMapper.insert(apiDefinition);
             } else {
                 ApiDefinition existApi = apiOp.get();
@@ -871,6 +874,9 @@ public class ApiDefinitionService {
                 apiDefinition.setNum(existApi.getNum()); //id 不变
                 apiDefinition.setRefId(existApi.getRefId());
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
+                if(existApi.getUserId()!=null){
+                    apiDefinition.setUserId(existApi.getUserId());
+                }
                 // case 设置版本
                 cases.forEach(c -> {
                     c.setVersionId(apiDefinition.getVersionId());
