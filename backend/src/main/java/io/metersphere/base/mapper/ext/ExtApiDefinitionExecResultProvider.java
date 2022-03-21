@@ -15,7 +15,7 @@ public class ExtApiDefinitionExecResultProvider {
                     .append("'")
                     .append(result.getId())
                     .append("','")
-                    .append(result.getName())
+                    .append(result.getName().replace("\'", "\\'"))
                     .append("','")
                     .append(result.getResourceId())
                     .append("','")
