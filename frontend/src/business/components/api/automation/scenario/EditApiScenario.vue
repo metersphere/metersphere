@@ -169,17 +169,17 @@
                          @check-change="chooseHeadsUp"
                          @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
 
-                  <el-row class="custom-tree-node" :gutter="18" type="flex" align="middle" slot-scope="{node, data}" style="width: 100%">
-                    <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
+                  <el-row class="custom-tree-node" :gutter="10" type="flex" align="middle" slot-scope="{node, data}" style="width: 100%">
+                    <span class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                       <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e" @click="openOrClose(node)"/>
                       <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e" @click="openOrClose(node)"/>
-                    </el-col>
+                    </span>
                     <!-- 批量操作 -->
-                    <el-col :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'" style="padding-left: 0px; padding-right: 0px;"
+                    <span :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'" style="padding-left: 0px; padding-right: 0px;"
                             v-show="(data.hashTree && data.hashTree.length === 0 )|| data.isLeaf">
                       <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts" v-show="data.checkBox" style="margin-right: 3px"/>
-                    </el-col>
-                    <el-col>
+                    </span>
+                    <span style="width: calc(100% - 40px);">
                       <!-- 步骤组件-->
                       <ms-component-config
                         :scenario-definition="scenarioDefinition"
@@ -209,7 +209,7 @@
                       <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none;">
                         {{ hideNode(node) }}
                       </div>
-                    </el-col>
+                    </span>
                   </el-row>
                 </el-tree>
               </div>

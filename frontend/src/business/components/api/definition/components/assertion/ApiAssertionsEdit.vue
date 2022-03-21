@@ -64,7 +64,8 @@
           </el-col>
           <el-col class="assertion-remove-btn">
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
-              <el-button icon="el-icon-delete" type="danger" size="mini" circle @click="remove()"/>
+              <el-button icon="el-icon-delete" type="danger" size="mini" circle @click="remove()"
+                         :disabled="(assertions.disabled && !assertions.root)"/>
             </el-tooltip>
           </el-col>
         </el-row>

@@ -86,7 +86,7 @@
           <!--提取规则-->
            <ms-api-extract
              :response="response"
-             :is-read-only="isReadOnly"
+             :is-read-only="data.disabled"
              :extract="data"
              @copyRow="copyRow"
              @remove="remove"
@@ -103,7 +103,7 @@
             :response="response"
             :request="request"
             :apiId="apiId"
-            :is-read-only="isReadOnly"
+            :is-read-only="data.disabled"
             :assertions="data"/>
          </div>
        </span>

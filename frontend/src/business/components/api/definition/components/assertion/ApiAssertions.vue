@@ -6,6 +6,7 @@
         <api-json-path-suggest-button
           :open-tip="$t('api_test.request.assertions.json_path_suggest')"
           :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+          :isReadOnly="isReadOnly"
           @open="suggestJsonOpen"
           @clear="clearJson"/>
       </span>
@@ -69,7 +70,7 @@
             :callback="after"
             v-if="type === options.DOCUMENT"
           />
-          <el-button v-if="!type" :disabled="true" type="primary" size="small">
+          <el-button v-if="!type" :disabled="true" type="primary" size="mini">
             {{ $t('api_test.request.assertions.add') }}
           </el-button>
         </el-col>
