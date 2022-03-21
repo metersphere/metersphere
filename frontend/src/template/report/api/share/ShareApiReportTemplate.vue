@@ -1,5 +1,5 @@
 <template>
-  <ms-api-report :report-id="reportId" :share-id="shareId" :is-share="isShare" :is-plan="true" ></ms-api-report>
+  <ms-api-report :report-id="reportId" :share-id="shareId" :is-share="isShare" :is-plan="true" :show-cancel-button="false" ></ms-api-report>
 </template>
 
 <script>
