@@ -3089,5 +3089,8 @@ export default {
     run: "运行",
     locate_type: "定位方式",
     coord: "坐标",
+    enable_or_not: "启用/禁用",
+    enable: "启用",
+    disable: "禁用",
   }
 };

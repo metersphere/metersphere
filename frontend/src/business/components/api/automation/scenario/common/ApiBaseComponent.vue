@@ -31,11 +31,11 @@
       <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
         <slot name="message"></slot>
         <slot name="debugStepCode"></slot>
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn && showEnable">
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root&&!showVersion" style="width: 30px"/>
         </el-tooltip>
         <slot name="button" v-if="showVersion"></slot>
-        <el-tooltip content="Copy" placement="top" v-if="showVersion">
+        <el-tooltip content="Copy" placement="top" v-if="showVersion && showCopy">
           <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
         </el-tooltip>
         <step-extend-btns style="display: contents"
@@ -43,6 +43,7 @@
                           :environmentType="environmentType"
                           :environmentGroupId="environmentGroupId"
                           :envMap="envMap"
+                          @enable="enable"
                           @copy="copyRow"
                           @remove="remove"
                           @openScenario="openScenario"
@@ -136,6 +137,14 @@ export default {
     environmentType: String,
     environmentGroupId: String,
     envMap: Map,
+    showEnable : {
+      type: Boolean,
+      default : true
+    },
+    showCopy : {
+      type: Boolean,
+      default : true
+    },
   },
   watch: {
     '$store.state.selectStep': function () {
@@ -202,9 +211,11 @@ export default {
       } else {
         $event.currentTarget.className = "scenario-version"
       }
+    },
+    enable() {
+      this.data.enable = !this.data.enable;
+      this.$emit("enable");
     }
-
-
   }
 }
 
