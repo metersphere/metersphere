@@ -185,23 +185,23 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    private void calculate(List<StepTreeDTO> dtoList, AtomicLong totalScenario, AtomicLong scenarioError, AtomicLong totalTime, AtomicLong errorReport, AtomicLong unExecute, boolean isErrorFirst) {
+    private void calculateScenarios(List<StepTreeDTO> dtoList,
+                                    AtomicLong totalScenario, AtomicLong scenarioError, AtomicLong errorReport, AtomicLong unExecute) {
         for (StepTreeDTO step : dtoList) {
-            if (StringUtils.equals(step.getType(), "scenario")) {
-                totalScenario.set((totalScenario.longValue() + 1));
-                // 失败结果数量
-                AtomicLong error = new AtomicLong();
-                AtomicLong errorReportCode = new AtomicLong();
-                AtomicLong isUnExecute = new AtomicLong();
-                scenarioCalculate(step.getChildren(), error, errorReportCode, isUnExecute, isErrorFirst);
-                if (isUnExecute.longValue() > 0) {
-                    unExecute.set(unExecute.longValue() + 1);
-                } else if (error.longValue() > 0) {
-                    scenarioError.set((scenarioError.longValue() + 1));
-                } else if (errorReportCode.longValue() > 0) {
-                    errorReport.set((errorReport.longValue() + 1));
-                }
-            } else if (step.getValue() != null) {
+            totalScenario.set(totalScenario.longValue() + 1);
+            if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "fail")) {
+                scenarioError.set(scenarioError.longValue() + 1);
+            } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
+                errorReport.set(errorReport.longValue() + 1);
+            } else {
+                unExecute.set(unExecute.longValue() + 1);
+            }
+        }
+    }
+
+    private void calculate(List<StepTreeDTO> dtoList, AtomicLong totalTime) {
+        for (StepTreeDTO step : dtoList) {
+            if (!StringUtils.equals(step.getType(), "scenario") && step.getValue() != null) {
                 if (step.getValue().getStartTime() == 0 || step.getValue().getEndTime() == 0) {
                     totalTime.set(totalTime.longValue() + 0);
                 } else if (step.getValue().getStartTime() > step.getValue().getEndTime() && step.getValue().getResponseResult() != null) {
@@ -210,24 +210,26 @@ public class ApiScenarioReportStructureService {
                 } else {
                     totalTime.set((totalTime.longValue() + (step.getValue().getEndTime() - step.getValue().getStartTime())));
                 }
-                //判断是否是未执行
-                if (step.getValue() instanceof RequestResultExpandDTO
-                        && StringUtils.equalsIgnoreCase(((RequestResultExpandDTO) step.getValue()).getStatus(), "unexecute")) {
-                    unExecute.set(unExecute.longValue() + 1);
-                }
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                calculate(step.getChildren(), totalScenario, scenarioError, totalTime, errorReport, unExecute, isErrorFirst);
+                calculate(step.getChildren(), totalTime);
             }
         }
     }
 
-    private void calculateStep(List<StepTreeDTO> dtoList, AtomicLong stepError, AtomicLong stepTotal, AtomicLong stepErrorCode, AtomicLong stepUnExecute, boolean isErrorFirst) {
-        for (StepTreeDTO step : dtoList) {
-            // 失败结果数量
-            scenarioCalculate(step.getChildren(), stepError, stepErrorCode, stepUnExecute, isErrorFirst);
-            if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                stepTotal.set((stepTotal.longValue() + step.getChildren().size()));
+    private void calculateStep(List<StepTreeDTO> dtoList, AtomicLong stepTotal, AtomicLong stepError, AtomicLong stepErrorCode, AtomicLong stepUnExecute) {
+        for (StepTreeDTO root : dtoList) {
+            if (CollectionUtils.isNotEmpty(root.getChildren())) {
+                stepTotal.set((stepTotal.longValue() + root.getChildren().size()));
+                for (StepTreeDTO step : root.getChildren()) {
+                    if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "fail")) {
+                        stepError.set(stepError.longValue() + 1);
+                    } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
+                        stepErrorCode.set(stepErrorCode.longValue() + 1);
+                    } else {
+                        stepUnExecute.set(stepUnExecute.longValue() + 1);
+                    }
+                }
             }
         }
     }
@@ -259,12 +261,27 @@ public class ApiScenarioReportStructureService {
             if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null) {
                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
                 requestResultExpandDTO.setStatus("unexecute");
-
                 requestResultExpandDTO.setName(dto.getLabel());
+                dto.setTotalStatus("unexecute");
                 dto.setValue(requestResultExpandDTO);
+            } else {
+                if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty(((RequestResultExpandDTO) dto.getValue()).getStatus())) {
+                    dto.setTotalStatus(((RequestResultExpandDTO) dto.getValue()).getStatus());
+                } else if (dto.getValue() != null) {
+                    if (dto.getValue().getError() > 0) {
+                        dto.setTotalStatus("fail");
+                    } else {
+                        dto.setTotalStatus("success");
+                    }
+                }
             }
+            if (StringUtils.isNotEmpty(dto.getErrorCode())) {
+                dto.setTotalStatus("errorReport");
+            }
+
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
                 reportFormatting(dto.getChildren(), maps);
+
                 if (StringUtils.isEmpty(dto.getErrorCode())) {
                     //统计child的errorCode，合并到parent中
                     List<String> childErrorCodeList = new ArrayList<>();
@@ -278,6 +295,47 @@ public class ApiScenarioReportStructureService {
                     }
                 }
 
+                int failCount = 0;
+                int errorReportCount = 0;
+                int successCount = 0;
+                for (StepTreeDTO child : dto.getChildren()) {
+                    if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "fail")) {
+                        failCount++;
+                    } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "success")) {
+                        successCount++;
+                    } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "errorReport")) {
+                        errorReportCount++;
+                    }
+                }
+
+                //当有多个子步骤结果时，如果当前步骤不是场景，则：失败>误报>未执行>成功>未执行； 如果是场景：误报>失败>成功>未执行
+                if (failCount == 0 && errorReportCount == 0 && successCount == 0) {
+                    dto.setTotalStatus("unexecute");
+                } else if (successCount == dto.getChildren().size() || (successCount > 0 && errorReportCount == 0 && failCount == 0)) {
+                    dto.setTotalStatus("success");
+                } else {
+                    if (StringUtils.equalsIgnoreCase(dto.getType(), "scenario")) {
+                        if (failCount > 0) {
+                            dto.setTotalStatus("fail");
+                        } else if (errorReportCount > 0) {
+                            dto.setTotalStatus("errorReport");
+                        } else {
+                            dto.setTotalStatus("success");
+                        }
+                    } else {
+                        if (errorReportCount > 0) {
+                            dto.setTotalStatus("fail");
+                        } else if (failCount > 0) {
+                            dto.setTotalStatus("errorReport");
+                        } else {
+                            dto.setTotalStatus("success");
+                        }
+                    }
+                }
+
+            }
+            if (StringUtils.isEmpty(dto.getTotalStatus())) {
+                dto.setTotalStatus("unexecute");
             }
         }
         // 循环步骤请求从新排序
@@ -401,8 +459,9 @@ public class ApiScenarioReportStructureService {
             //统计步骤数据
             AtomicLong stepErrorCode = new AtomicLong();
             AtomicLong stepUnExecute = new AtomicLong();
-            calculateStep(stepList, stepError, stepTotal, stepErrorCode, stepUnExecute, false);
-            reportDTO.setScenarioStepSuccess((stepTotal.longValue() - stepError.longValue() - stepErrorCode.longValue() -stepUnExecute.longValue()));
+            calculateStep(stepList, stepTotal, stepError, stepErrorCode, stepUnExecute);
+
+            reportDTO.setScenarioStepSuccess((stepTotal.longValue() - stepError.longValue() - stepErrorCode.longValue() - stepUnExecute.longValue()));
             reportDTO.setScenarioStepTotal(stepTotal.longValue());
             reportDTO.setScenarioStepError(stepError.longValue());
             reportDTO.setScenarioStepErrorReport(stepErrorCode.longValue());
@@ -426,8 +485,8 @@ public class ApiScenarioReportStructureService {
                     allUnExecute.set(allUnExecute.longValue() + 1);
                 }
             }
-            if(CollectionUtils.isNotEmpty(step.getChildren())){
-                this.countAllUnexecute(step.getChildren(),allUnExecute);
+            if (CollectionUtils.isNotEmpty(step.getChildren())) {
+                this.countAllUnexecute(step.getChildren(), allUnExecute);
             }
         }
     }
@@ -440,7 +499,8 @@ public class ApiScenarioReportStructureService {
             AtomicLong totalTime = new AtomicLong();
             AtomicLong errorReport = new AtomicLong();
             AtomicLong unExecute = new AtomicLong();
-            calculate(stepList, totalScenario, scenarioError, totalTime, errorReport, unExecute, true);
+            calculateScenarios(stepList, totalScenario, scenarioError, errorReport, unExecute);
+            calculate(stepList, totalTime);
             reportDTO.setTotalTime(totalTime.longValue());
             reportDTO.setScenarioTotal(totalScenario.longValue());
             reportDTO.setScenarioError(scenarioError.longValue());
