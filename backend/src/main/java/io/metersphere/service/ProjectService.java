@@ -177,17 +177,25 @@ public class ProjectService {
             projectVersion.setStatus("open");
             projectVersionService.addProjectVersion(projectVersion);
         }
+        initProjectApplication(project.getId());
+        return project;
+    }
 
+    private void initProjectApplication(String projectId) {
         //创建新项目也创建相关新项目的应用（分测试跟踪，接口，性能）
         ProjectApplication projectApplication = new ProjectApplication();
-        projectApplication.setProjectId(project.getId());
+        projectApplication.setProjectId(projectId);
         //每个新项目都会有测试跟踪/性能报告分享链接的有效时间,默认时间24H
         projectApplication.setType(ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString());
         projectApplication.setTypeValue("24H");
         projectApplicationMapper.insert(projectApplication);
         projectApplication.setType(ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString());
         projectApplicationMapper.insert(projectApplication);
-        return project;
+        projectApplication.setType(ProjectApplicationType.API_SHARE_REPORT_TIME.toString());
+        projectApplicationMapper.insert(projectApplication);
+        projectApplication.setType(ProjectApplicationType.CASE_CUSTOM_NUM.toString());
+        projectApplication.setTypeValue(Boolean.FALSE.toString());
+        projectApplicationMapper.insert(projectApplication);
     }
 
     public void checkThirdProjectExist(Project project) {
