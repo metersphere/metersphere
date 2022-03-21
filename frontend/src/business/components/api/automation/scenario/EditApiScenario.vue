@@ -972,18 +972,18 @@ export default {
       }
       /*触发执行操作*/
       this.$refs['currentScenario'].validate(async (valid) => {
-        if (valid) {
-          this.debugLoading = true;
-          let definition = JSON.parse(JSON.stringify(this.currentScenario));
-          definition.hashTree = this.scenarioDefinition;
-          await this.getEnv(JSON.stringify(definition));
-          await this.$refs.envPopover.initEnv();
-          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
-          if (!sign) {
-            this.debugLoading = false;
-            return;
-          }
-          this.editScenario().then(() => {
+          if (valid) {
+            this.debugLoading = true;
+            let definition = JSON.parse(JSON.stringify(this.currentScenario));
+            definition.hashTree = this.scenarioDefinition;
+            await this.getEnv(JSON.stringify(definition));
+            await this.$refs.envPopover.initEnv();
+            const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
+            if (!sign) {
+              this.debugLoading = false;
+              return;
+            }
+            this.initParameter();
             this.debugData = {
               id: this.currentScenario.id,
               name: this.currentScenario.name,
@@ -999,9 +999,10 @@ export default {
             this.reportId = getUUID().substring(0, 8);
             this.debugLoading = false;
             this.pluginDelStep = false;
-          })
+            this.$emit('refresh');
+          }
         }
-      })
+      )
     },
     validatePluginData(steps) {
       steps.forEach(step => {
@@ -1621,7 +1622,7 @@ export default {
         }
       }
     },
-    async setParameter() {
+    initParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
       if (!this.currentScenario.projectId) {
         this.currentScenario.projectId = this.projectId;
@@ -1646,11 +1647,6 @@ export default {
         this.formatData(scenario.hashTree);
       }
       this.currentScenario.environmentType = this.environmentType;
-      let definition = JSON.parse(JSON.stringify(this.currentScenario));
-      definition.hashTree = this.scenarioDefinition;
-      await this.getEnv(JSON.stringify(definition));
-      // 保存时同步所需要的项目环境
-      savePreciseEnvProjectIds(this.projectIds, this.projectEnvMap);
       this.currentScenario.environmentJson = JSON.stringify(strMapToObj(this.projectEnvMap));
       this.currentScenario.environmentGroupId = this.envGroupId;
       this.currentScenario.scenarioDefinition = scenario;
@@ -1661,6 +1657,14 @@ export default {
         this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
+    },
+    async setParameter() {
+      this.initParameter();
+      let definition = JSON.parse(JSON.stringify(this.currentScenario));
+      definition.hashTree = this.scenarioDefinition;
+      await this.getEnv(JSON.stringify(definition));
+      // 保存时同步所需要的项目环境
+      savePreciseEnvProjectIds(this.projectIds, this.projectEnvMap);
     },
     runRefresh() {
       if (!this.debug) {
@@ -1679,6 +1683,7 @@ export default {
       this.runScenario = undefined;
       this.message = "stop";
       this.clearMessage = getUUID().substring(0, 8);
+      this.debugData = {};
     },
     showScenarioParameters() {
       this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
@@ -1726,6 +1731,7 @@ export default {
     },
     detailRefresh(result) {
       // 把执行结果分发给各个请求
+      this.debugData = {};
     },
     fullScreen() {
       this.drawer = true;

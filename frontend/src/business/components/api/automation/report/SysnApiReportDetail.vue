@@ -128,12 +128,17 @@ export default {
     this.isRequestResult = false;
   },
   created() {
-    if (this.scenario && this.scenario.scenarioDefinition) {
-      this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
-      this.initTree();
-      this.initMessageSocket();
-      this.clearDebug();
-    }
+
+  },
+  mounted() {
+    this.$nextTick(() => {
+      if (this.scenario && this.scenario.scenarioDefinition) {
+        this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
+        this.initTree();
+        this.initMessageSocket();
+        this.clearDebug();
+      }
+    });
   },
   props: {
     reportId: String,
@@ -208,7 +213,7 @@ export default {
         this.$refs.failsTree.filter(index);
       } else if (this.activeName === "errorReport") {
         this.$refs.errorReportTree.filter("errorReport");
-      } else if(this.activeName === "unExecute"){
+      } else if (this.activeName === "unExecute") {
         this.$refs.unExecuteTree.filter("unexecute");
       }
     },
