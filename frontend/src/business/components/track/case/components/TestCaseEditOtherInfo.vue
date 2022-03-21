@@ -9,7 +9,7 @@
       <test-case-test-relate :read-only="readOnly" :case-id="caseId" :version-enable="versionEnable" ref="relateTest"/>
     </el-tab-pane>
 
-    <el-tab-pane :label="$t('test_track.related_requirements')" :disabled="readOnly" name="demand">
+    <el-tab-pane :label="$t('test_track.related_requirements')" :disabled="readOnly && !isTestPlanEdit" name="demand">
       <el-col :span="7">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
@@ -25,7 +25,7 @@
       </el-col>
     </el-tab-pane>
 
-    <el-tab-pane :label="$t('test_track.case.relate_issue')" :disabled="readOnly" name="bug">
+    <el-tab-pane :label="$t('test_track.case.relate_issue')" :disabled="readOnly && !isTestPlanEdit" name="bug">
       <test-case-issue-relate
         v-if="tabActiveName === 'bug'"
         :plan-id="planId"
@@ -93,7 +93,7 @@ export default {
     DependenciesList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit'],
   data() {
     return {
       result: {},
