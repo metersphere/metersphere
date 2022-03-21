@@ -5,7 +5,10 @@
         <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" step="100" size="small" type="number" @change="change" @input="input" :min="0"
                   :placeholder="$t('api_test.request.assertions.response_in_time')"/>
       </el-col>
-      <el-col :class="edit?'assertion-remove-btn': 'assertion-btn'">
+      <el-col class="assertion-btn">
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
+          <el-switch v-model="duration.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right: 10px"/>
+        </el-tooltip>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
         <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
@@ -35,6 +38,7 @@ export default {
     add() {
       if (this.validate()) {
         this.duration.value = this.value;
+        this.duration.enable = true;
         this.callback();
       }
     },
@@ -62,10 +66,6 @@ export default {
 </script>
 
 <style scoped>
-.assertion-remove-btn {
-  text-align: center;
-  width: 40px;
-}
 
 .assertion-btn {
   text-align: center;

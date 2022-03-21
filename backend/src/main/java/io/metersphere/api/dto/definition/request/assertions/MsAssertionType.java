@@ -10,6 +10,7 @@ public class MsAssertionType {
     public final static String JSR223 = "JSR223";
     public final static String TEXT = "Text";
     public final static String XPATH2 = "XPath2";
+    private boolean enable = true;
 
     private String type;
 }

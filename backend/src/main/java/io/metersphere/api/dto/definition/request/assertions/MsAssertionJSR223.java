@@ -20,6 +20,6 @@ public class MsAssertionJSR223 extends MsAssertionType {
     }
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(script) && StringUtils.isNotBlank(scriptLanguage);
+        return StringUtils.isNotBlank(script) && StringUtils.isNotBlank(scriptLanguage) && isEnable();
     }
 }

@@ -18,6 +18,6 @@ public class MsAssertionRegex extends MsAssertionType {
     }
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(subject) && StringUtils.isNotBlank(expression);
+        return StringUtils.isNotBlank(subject) && StringUtils.isNotBlank(expression) && isEnable();
     }
 }

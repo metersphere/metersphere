@@ -833,7 +833,7 @@ export class AssertionJSR223 extends AssertionType {
     this.operator = undefined;
     this.value = undefined;
     this.desc = undefined;
-
+    this.enable = true;
     this.name = undefined;
     this.script = undefined;
     this.scriptLanguage = "beanshell";
@@ -903,6 +903,7 @@ export class Regex extends AssertionType {
     this.expression = undefined;
     this.description = undefined;
     this.assumeSuccess = false;
+    this.enable = true;
 
     this.set(options);
   }
@@ -936,6 +937,7 @@ export class XPath2 extends AssertionType {
     super(ASSERTION_TYPE.XPATH2);
     this.expression = undefined;
     this.description = undefined;
+    this.enable = true;
     this.set(options);
   }
 
