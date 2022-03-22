@@ -1,6 +1,6 @@
 package com.test;
 
-import com.google.gson.Gson;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.Application;
 import io.metersphere.xpack.ui.dto.SideDTO;
 import io.metersphere.xpack.ui.service.UiAutomationService;
@@ -33,7 +33,7 @@ public class UITest {
         // 读取文件内容
         String sideDefinition = TemplateUtils.readContent(sidePath);
         // 将 json 字符串转化成 SideDTO 对象，再调用 getFullWebDriverScript 方法翻译成最终的 webdriver 脚本
-        System.out.println(WebDriverSamplerHelper.getFullWebDriverScript(new Gson().fromJson(sideDefinition, SideDTO.class)));
+        System.out.println(WebDriverSamplerHelper.getFullWebDriverScript(JSONObject.parseObject(sideDefinition, SideDTO.class)));
     }
 
     @Test
