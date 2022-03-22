@@ -328,7 +328,7 @@ export default {
     monitor: "Monitor",
     all_label: {
       case: "All Case",
-      review: "All Review"
+      review: "all"
     },
     image: 'Image',
     tag: 'Tag',
@@ -1114,6 +1114,7 @@ export default {
     copied: "copied",
     key: "Key",
     value: "Value",
+    unplanned_case: "Unplanned Case",
     create_performance_test: "Create Performance Test",
     create_performance_test_batch: "Batch Create Performance Test",
     batch_copy: "Batch Copy",
@@ -1350,9 +1351,9 @@ export default {
       reference_info: "Reference info",
       scenario_test: "Scenario test",
       scenario_list: "Scenario List",
-      all_scenario: 'All Scenario',
-      unplanned_scenario: 'Unplanned Scenario',
       add_scenario: "Add scenario",
+      all_scenario: "All scenario",
+      unplanned_scenario: "Unplanned Scenario",
       scenario_name: "Scenario Name",
       case_level: "Case Level",
       tag: "Tag",
@@ -1939,7 +1940,6 @@ export default {
     date: "Date"
   },
   test_track: {
-    unplanned_case: 'Unplanned Case',
     sync_add_api_load: 'Synchronously add associated api and load tests',
     next: 'Next',
     total_size: 'Total {0}',
