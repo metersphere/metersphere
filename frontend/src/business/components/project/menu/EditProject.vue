@@ -7,7 +7,7 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth"
+        <el-form-item v-if="platformOptions.length >= 1" :label-width="labelWidth"
                       :label="$t('test_track.issue.third_party_integrated')"
                       prop="platform">
           <el-select filterable v-model="form.platform">
