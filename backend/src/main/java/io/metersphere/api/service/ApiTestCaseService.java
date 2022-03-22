@@ -133,10 +133,7 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
-        if (BooleanUtils.isTrue(request.isSelectEnvironment())) {
-            setCaseEnvironment(apiTestCases);
-        }
-        buildUserInfo(apiTestCases);
+        buildUserInfo(apiTestCases, request.isSelectEnvironment());
         return apiTestCases;
     }
 
@@ -202,16 +199,30 @@ public class ApiTestCaseService {
         return request;
     }
 
-    public void buildUserInfo(List<? extends ApiTestCaseDTO> apiTestCases) {
+    public void buildUserInfo(List<? extends ApiTestCaseDTO> apiTestCases, boolean isSelectEnvironment) {
         List<String> userIds = new ArrayList();
         userIds.addAll(apiTestCases.stream().map(ApiTestCaseDTO::getCreateUserId).collect(Collectors.toList()));
         userIds.addAll(apiTestCases.stream().map(ApiTestCaseDTO::getUpdateUserId).collect(Collectors.toList()));
+        List<String> ids = apiTestCases.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
+        List<ParamsDTO> passRateList = extApiTestCaseMapper.findPassRateByIds(ids);
+
+        Map<String, String> passRates = passRateList.stream()
+                .collect(Collectors.toMap(ParamsDTO::getId, ParamsDTO::getValue));
+        Map<String, String> envMap = null;
+        if (BooleanUtils.isTrue(isSelectEnvironment)) {
+            envMap = this.getApiCaseEnvironments(ids);
+        }
         if (!CollectionUtils.isEmpty(userIds)) {
             Map<String, User> userMap = userService.queryNameByIds(userIds);
+            Map<String, String> finalEnvMap = envMap;
             apiTestCases.forEach(caseResult -> {
+                caseResult.setPassRate(passRates.get(caseResult.getId()));
                 User createUser = userMap.get(caseResult.getCreateUserId());
                 if (createUser != null) {
                     caseResult.setCreateUser(createUser.getName());
+                }
+                if (finalEnvMap != null && finalEnvMap.containsKey(caseResult.getId())) {
+                    caseResult.setEnvironment(finalEnvMap.get(caseResult.getId()));
                 }
                 User updateUser = userMap.get(caseResult.getUpdateUserId());
                 if (updateUser != null) {
@@ -222,7 +233,6 @@ public class ApiTestCaseService {
     }
 
     public ApiTestCaseInfo get(String id) {
-//        ApiTestCaseWithBLOBs returnBlobs = apiTestCaseMapper.selectByPrimaryKey(id);
         ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
         if (model != null) {
             if (StringUtils.equalsIgnoreCase(model.getApiMethod(), "esb")) {
@@ -1047,6 +1057,35 @@ public class ApiTestCaseService {
             return apiTestEnvironmentMapper.selectByPrimaryKey(environmentId);
         } catch (Exception e) {
             LogUtil.error("api case environmentId incorrect parsing. api case id: " + caseId);
+        }
+        return null;
+    }
+
+    public Map<String, String> getApiCaseEnvironments(List<String> caseIds) {
+        List<ParamsDTO> environments = extApiTestCaseMapper.getApiCaseEnvironments(caseIds);
+        if (CollectionUtils.isEmpty(environments)) {
+            return null;
+        }
+        try {
+            List<String> envIds = environments.stream().map(ParamsDTO::getValue).collect(Collectors.toList());
+            ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+            example.createCriteria().andIdIn(envIds);
+            List<ApiTestEnvironment> environmentList = apiTestEnvironmentMapper.selectByExample(example);
+            if (CollectionUtils.isEmpty(environmentList)) {
+                return null;
+            }
+            Map<String, String> envMap = environmentList.stream()
+                    .collect(Collectors.toMap(ApiTestEnvironment::getId, ApiTestEnvironment::getName));
+
+            Map<String, String> caseEnvMap = environments.stream().collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getValue()), HashMap::putAll);
+            caseEnvMap.forEach((k, v) -> {
+                if (envMap.containsKey(v)) {
+                    caseEnvMap.put(k, envMap.get(v));
+                }
+            });
+            return caseEnvMap;
+        } catch (Exception e) {
+            LogUtil.error("api case environmentId incorrect parsing", e);
         }
         return null;
     }
