@@ -554,9 +554,6 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.addListener();
-      if (!this.currentScenario.name && this.$refs.refFab) {
-        this.$refs.refFab.openMenu();
-      }
     });
   },
   directives: {OutsideClick},
@@ -740,6 +737,11 @@ export default {
           if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
             this.buttonData.push(plugin);
           }
+          this.$nextTick(() => {
+            if (!this.currentScenario.name && this.$refs.refFab) {
+              this.$refs.refFab.openMenu();
+            }
+          });
         });
       }
     },

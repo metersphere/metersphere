@@ -822,14 +822,11 @@ public class ApiAutomationService {
                 }});
                 testPlan.getHashTree().add(group);
             }
-
+            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
         } catch (Exception ex) {
             LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
         }
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
-        // 检查hashTree 准确性
-
         return testPlan.getJmx(jmeterHashTree);
     }
 

@@ -130,7 +130,8 @@ public class MsJDBCPreProcessor extends MsTestElement {
                 this.initDataSource();
             }
             if (this.dataSource == null) {
-                MSException.throwException("数据源为空无法执行");
+                String message = "数据源为空请选择数据源";
+                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }
         }
         final HashTree samplerHashTree = tree.add(jdbcPreProcessor(config));

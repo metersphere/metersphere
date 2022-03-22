@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -145,7 +144,8 @@ public class MsJDBCSampler extends MsTestElement {
                 envConfig = this.initDataSource();
             }
             if (this.dataSource == null) {
-                MSException.throwException("数据源为空无法执行");
+                String message = "数据源为空请选择数据源";
+                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }
         }
         final HashTree samplerHashTree = tree.add(jdbcSampler(config));
