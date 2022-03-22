@@ -523,6 +523,15 @@ SET project.issue_template_id = issue_template.id
 WHERE issue_template_id IS NOT NULL
   AND issue_template.id LIKE CONCAT(issue_template_id, '%');
 
+
+UPDATE project JOIN test_case_template ON project.id = test_case_template.project_id
+SET case_template_id = test_case_template.id
+WHERE case_template_id IS NULL AND test_case_template.`system` = 1;
+
+UPDATE project JOIN issue_template ON project.id = issue_template.project_id
+SET issue_template_id = issue_template.id
+WHERE issue_template_id IS NULL AND issue_template.`system` = 1;
+
 -- 默认设置权限
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_TEMPLATE:READ+CASE_TEMPLATE', 'PROJECT_TEMPLATE');
