@@ -11,7 +11,7 @@
             <span v-else>
               {{ report.name }}
             </span>
-            <i class="el-icon-edit" style="cursor:pointer" @click="nameIsEdit = true" @click.stop/>
+            <i v-if="showCancelButton" class="el-icon-edit" style="cursor:pointer" @click="nameIsEdit = true" @click.stop/>
           </span>
         </span>
         <span v-if="report.endTime || report.createTime">
