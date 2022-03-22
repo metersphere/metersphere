@@ -18,6 +18,7 @@ import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
 import io.metersphere.track.issue.domain.ProjectIssueConfig;
+import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -527,4 +528,25 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     public Boolean checkProjectExist(String relateId) {
         return null;
     }
+
+    /**
+     * 移除缺陷的Parent关联
+     * @param request
+     */
+    @Override
+    public void removeIssueParentLink(IssuesUpdateRequest request) {
+        // 添加方法体逻辑可重写改方法
+    }
+
+    /**
+     * 更新需求与缺陷的关联关系
+     * @param testCase
+     * @param project
+     */
+    @Override
+    public void updateDemandIssueLink(EditTestCaseRequest testCase, Project project) {
+        // 添加方法体逻辑可重写改方法
+    }
+
+
 }

@@ -31,6 +31,16 @@ public class AzureDevopsWorkItemsBatchResponse {
             private String systemWorkItemType;
             @JSONField(name = "System.Title")
             private String systemTitle;
+            @JSONField(name = "System.State")
+            private String state;
+            @JSONField(name = "System.Description")
+            private String description;
+            @JSONField(name = "System.AssignedTo")
+            private String assignedTo;
+            @JSONField(name = "System.ChangedBy")
+            private String changedBy;
+            @JSONField(name = "System.CreatedBy")
+            private String createdBy;
         }
     }
 }

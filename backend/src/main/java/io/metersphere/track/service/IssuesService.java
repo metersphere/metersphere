@@ -288,6 +288,16 @@ public class IssuesService {
             testCaseIssuesMapper.deleteByExample(example);
             testCaseIssueService.updateIssuesCount(caseResourceId);
         } else {
+            IssuesUpdateRequest updateRequest = new IssuesUpdateRequest();
+            updateRequest.setId(request.getId());
+            updateRequest.setResourceId(request.getCaseResourceId());
+            updateRequest.setProjectId(request.getProjectId());
+            updateRequest.setWorkspaceId(request.getWorkspaceId());
+            List<AbstractIssuePlatform> platformList = getUpdatePlatforms(updateRequest);
+            platformList.forEach(platform -> {
+                platform.removeIssueParentLink(updateRequest);
+            });
+
             extIssuesMapper.deleteIssues(id, caseResourceId);
             TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
             testPlanTestCaseExample.createCriteria().andCaseIdEqualTo(caseResourceId);
