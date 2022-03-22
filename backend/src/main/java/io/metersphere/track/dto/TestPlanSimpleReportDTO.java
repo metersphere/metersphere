@@ -35,4 +35,6 @@ public class TestPlanSimpleReportDTO extends TestPlanReportContent {
     List<TestPlanLoadCaseDTO> loadFailureCases;
     List<TestPlanFailureApiDTO> errorReportCases;
     List<TestPlanFailureScenarioDTO> errorReportScenarios;
+    List<TestPlanFailureApiDTO> unExecuteCases;
+    List<TestPlanFailureScenarioDTO> unExecuteScenarios;
 }

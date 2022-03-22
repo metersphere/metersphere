@@ -70,9 +70,9 @@ import MethodTableItem from "../../../../../../common/tableItems/planview/Method
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
 import {
   getPlanApiAllCase, getPlanApiErrorReportCase,
-  getPlanApiFailureCase,
+  getPlanApiFailureCase, getPlanApiUnExecuteCase,
   getSharePlanApiAllCase, getSharePlanApiErrorReportCase,
-  getSharePlanApiFailureCase
+  getSharePlanApiFailureCase, getSharePlanApiUnExecuteCase
 } from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -97,6 +97,7 @@ export default {
     shareId: String,
     isAll: Boolean,
     isErrorReport: Boolean,
+    isUnExecute: Boolean,
     isDb: Boolean
   },
   data() {
@@ -122,19 +123,25 @@ export default {
   methods: {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
-        if(this.isErrorReport){
+        if (this.isErrorReport) {
           this.apiCases = this.report.errorReportCases ? this.report.errorReportCases : [];
-        }else if (this.isAll) {
+        } else if (this.isUnExecute) {
+          this.apiCases = this.report.unExecuteCases ? this.report.unExecuteCases : [];
+        } else if (this.isAll) {
           this.apiCases = this.report.apiAllCases ? this.report.apiAllCases : [];
         } else {
           this.apiCases = this.report.apiFailureCases ? this.report.apiFailureCases : [];
         }
       } else if (this.isShare) {
-        if(this.isErrorReport){
+        if (this.isErrorReport) {
           this.result = getSharePlanApiErrorReportCase(this.shareId, this.planId, (data) => {
             this.apiCases = data;
           });
-        }else if (this.isAll) {
+        } else if (this.isUnExecute) {
+          this.result = getSharePlanApiUnExecuteCase(this.shareId, this.planId, (data) => {
+            this.apiCases = data;
+          });
+        } else if (this.isAll) {
           this.result = getSharePlanApiAllCase(this.shareId, this.planId, (data) => {
             this.apiCases = data;
           });
@@ -144,11 +151,15 @@ export default {
           });
         }
       } else {
-        if(this.isErrorReport){
+        if (this.isErrorReport) {
           this.result = getPlanApiErrorReportCase(this.planId, (data) => {
             this.apiCases = data;
           });
-        }else if (this.isAll) {
+        } else if (this.isUnExecute) {
+          this.result = getPlanApiUnExecuteCase(this.planId, (data) => {
+            this.apiCases = data;
+          });
+        } else if (this.isAll) {
           this.result = getPlanApiAllCase(this.planId, (data) => {
             this.apiCases = data;
           });
