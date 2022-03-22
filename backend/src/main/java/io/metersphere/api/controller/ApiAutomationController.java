@@ -348,11 +348,15 @@ public class ApiAutomationController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ResponseEntity<byte[]> downloadBodyFiles(@RequestBody ApiScenarioBatchRequest request) {
-        byte[] bytes = apiAutomationService.exportZip(request);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "场景JMX文件集.zip")
-                .body(bytes);
+        try {
+            byte[] bytes = apiAutomationService.exportZip(request);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "场景JMX文件集.zip")
+                    .body(bytes);
+        } catch (Exception e) {
+            return ResponseEntity.status(509).body(e.getMessage().getBytes());
+        }
     }
 
     @PostMapping(value = "/export/jmx")

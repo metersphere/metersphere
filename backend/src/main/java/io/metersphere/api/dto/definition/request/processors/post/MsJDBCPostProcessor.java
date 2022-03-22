@@ -130,7 +130,8 @@ public class MsJDBCPostProcessor extends MsTestElement {
                 this.initDataSource();
             }
             if (this.dataSource == null) {
-                MSException.throwException("数据源为空无法执行");
+                String message = "数据源为空请选择数据源";
+                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }
         }
         final HashTree samplerHashTree = tree.add(jdbcPostProcessor(config));
@@ -241,7 +242,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
     private JDBCPostProcessor jdbcPostProcessor(ParameterConfig config) {
         JDBCPostProcessor jdbcPostProcessor = new JDBCPostProcessor();
         jdbcPostProcessor.setEnabled(this.isEnable());
-        jdbcPostProcessor.setName(this.getName() == null? "JDBCPostProcessor" : this.getName());
+        jdbcPostProcessor.setName(this.getName() == null ? "JDBCPostProcessor" : this.getName());
         jdbcPostProcessor.setProperty(TestElement.TEST_CLASS, JDBCPostProcessor.class.getName());
         jdbcPostProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
 
