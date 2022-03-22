@@ -721,7 +721,7 @@ public class ApiDefinitionService {
         return test;
     }
 
-    private int getNextNum(String projectId) {
+    public int getNextNum(String projectId) {
         ApiDefinition apiDefinition = extApiDefinitionMapper.getNextNum(projectId);
         if (apiDefinition == null || apiDefinition.getNum() == null) {
             return 100001;
@@ -2021,12 +2021,12 @@ public class ApiDefinitionService {
         }
     }
 
-    public ApiDefinitionResult getApiDefinitionResult(ApiDefinitionRequest request) {
-        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        if(resList==null){
+    public ApiDefinition getApiDefinition(ApiDefinitionExample apiDefinitionExample) {
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        if(apiDefinitions==null||apiDefinitions.size()==0){
             return null;
         }
-        return resList.get(0);
+        return apiDefinitions.get(0);
     }
 
     public void initModulePathAndId(String projectId, ApiDefinitionWithBLOBs test) {
