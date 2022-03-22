@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `api_scenario_report_structure`
 
 
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (UUID(), 'project_app_manager', 'PROJECT_APP_MANAGER:READ+EDIT', 'PROJECT_APP_MANAGER');
+VALUES (UUID(), 'project_admin', 'PROJECT_APP_MANAGER:READ+EDIT', 'PROJECT_APP_MANAGER');
 
 CREATE TABLE `issue_comment`
 (
