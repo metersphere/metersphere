@@ -657,6 +657,18 @@ public class ElementUtil {
         }
     }
 
+    private static List<MsTestElement> orderList(List<MsTestElement> list) {
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (int i = 0; i < list.size(); i++) {
+                if (StringUtils.isEmpty(list.get(i).getIndex())) {
+                    list.get(i).setIndex(String.valueOf(i));
+                }
+            }
+            return list.stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList());
+        }
+        return list;
+    }
+
     public static List<MsTestElement> order(List<MsTestElement> elements) {
         List<MsTestElement> elementList = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(elements)) {
@@ -666,7 +678,7 @@ public class ElementUtil {
                     if (groupMap.containsKey(ASSERTIONS)) {
                         groupMap.get(ASSERTIONS).add(item);
                     } else {
-                        groupMap.put(ASSERTIONS, new LinkedList<MsTestElement>() {{
+                        groupMap.put(ASSERTIONS, new LinkedList<>() {{
                             this.add(item);
                         }});
                     }
@@ -674,7 +686,7 @@ public class ElementUtil {
                     if (groupMap.containsKey(PRE)) {
                         groupMap.get(PRE).add(item);
                     } else {
-                        groupMap.put(PRE, new LinkedList<MsTestElement>() {{
+                        groupMap.put(PRE, new LinkedList<>() {{
                             this.add(item);
                         }});
                     }
@@ -682,7 +694,7 @@ public class ElementUtil {
                     if (groupMap.containsKey(POST)) {
                         groupMap.get(POST).add(item);
                     } else {
-                        groupMap.put(POST, new LinkedList<MsTestElement>() {{
+                        groupMap.put(POST, new LinkedList<>() {{
                             this.add(item);
                         }});
                     }
@@ -691,10 +703,10 @@ public class ElementUtil {
                 }
             });
             if (CollectionUtils.isNotEmpty(groupMap.get(PRE))) {
-                elementList.addAll(groupMap.get(PRE).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+                elementList.addAll(orderList(groupMap.get(PRE)));
             }
             if (CollectionUtils.isNotEmpty(groupMap.get(POST))) {
-                elementList.addAll(groupMap.get(POST).stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList()));
+                elementList.addAll(orderList(groupMap.get(POST)));
             }
             if (CollectionUtils.isNotEmpty(groupMap.get(ASSERTIONS))) {
                 elementList.addAll(groupMap.get(ASSERTIONS));
