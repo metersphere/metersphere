@@ -18,6 +18,7 @@
         <shiro.version>1.8.0</shiro.version>
         <java.version>11</java.version>
         <flyway.version>7.15.0</flyway.version>
+        <dubbo.version>2.7.15</dubbo.version>
     </properties>
 
     <dependencies>
@@ -161,6 +162,19 @@
                 <exclusion>
                     <artifactId>netty</artifactId>
                     <groupId>io.netty</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--  手动引入，不然会有 java.lang.NoClassDefFoundError: Could not initialize class org.apache.dubbo.config.ReferenceConfig      -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>${dubbo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-context</artifactId>
+                    <groupId>org.springframework</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
