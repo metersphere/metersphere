@@ -9,7 +9,7 @@
       :delete-permission="['PROJECT_TRACK_CASE:READ+DELETE']"
       :add-permission="['PROJECT_TRACK_CASE:READ+CREATE']"
       :update-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
-      :default-label="$t('test_track.unplanned_case')"
+      :default-label="$t('api_test.unplanned_case')"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -175,8 +175,7 @@ export default {
         this.result = getTestCaseNodes(this.projectId, data => {
           this.treeNodes = data;
           this.treeNodes.forEach(node => {
-            node.name === 'UNPLANNED' ? node.name = this.$t('test_track.unplanned_case') : node.name;
-            node.label === 'UNPLANNED' ? node.label = this.$t('test_track.unplanned_case') : node.label;
+            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
             buildTree(node, {path: ''});
           });
           this.setModuleOptions();
@@ -253,7 +252,6 @@ export default {
     setModuleOptions() {
       let moduleOptions = [];
       this.treeNodes.forEach(node => {
-        node.name === 'UNPLANNED' ? node.name = this.$t('test_track.unplanned_case') : node.name
         buildNodePath(node, {path: ''}, moduleOptions);
       });
       this.$store.commit('setTestCaseModuleOptions', moduleOptions);

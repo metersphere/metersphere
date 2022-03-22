@@ -282,9 +282,6 @@ export default {
         };
         this.result = this.$post("/case/node/list/all/plan", param, response => {
           this.treeNodes = response.data;
-          this.treeNodes.forEach(node => {
-            node.name = node.name === 'UNPLANNED' ? this.$t('test_track.unplanned_case') : node.name
-          });
         });
       }
     },

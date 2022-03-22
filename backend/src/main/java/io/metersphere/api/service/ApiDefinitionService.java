@@ -1114,7 +1114,7 @@ public class ApiDefinitionService {
     private void setModule(ApiDefinitionWithBLOBs item) {
         if (item != null && StringUtils.isEmpty(item.getModuleId()) || "default-module".equals(item.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("UNPLANNED");
+            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("未规划接口");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 item.setModuleId(modules.get(0).getId());
@@ -2031,7 +2031,7 @@ public class ApiDefinitionService {
 
     public void initModulePathAndId(String projectId, ApiDefinitionWithBLOBs test) {
         ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("UNPLANNED");
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
         List<ApiModule> modules = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(modules)) {
             test.setModuleId(modules.get(0).getId());
