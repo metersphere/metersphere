@@ -156,7 +156,10 @@ public class ApiScenarioReportStructureService {
                     }
                 }
                 StepTreeDTO children = new StepTreeDTO(element.getString("name"), resourceId, element.getString("type"), element.getIntValue("index"));
-                if (StringUtils.isNotEmpty(dto.getAllIndex())) {
+                if (StringUtils.isNotBlank(children.getType()) && children.getType().equals("MsUiCommand")) {
+                    children.setResourceId(resourceId);
+                    children.setLabel(element.getString("command"));
+                } else if (StringUtils.isNotEmpty(dto.getAllIndex())) {
                     children.setAllIndex(dto.getAllIndex() + "_" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
                 } else {
@@ -178,37 +181,43 @@ public class ApiScenarioReportStructureService {
          * 失败状态的优先级最高，其次是误报
          */
         for (StepTreeDTO step : dtoList) {
-            if (step.getValue() != null) {
-                if (StringUtils.isNotEmpty(step.getErrorCode())) {
-                    isErrorReport.set(isErrorReport.longValue() + 1);
-                } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
+            if (StringUtils.isNotBlank(step.getType()) && step.getType().equals("MsUiCommand")) {
+                if (step.getUiValue() != null && !step.getUiValue().equalsIgnoreCase("OK")) {
                     isError.set(isError.longValue() + 1);
                 }
-            } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                AtomicLong isChildrenError = new AtomicLong();
-                AtomicLong isChildrenErrorReport = new AtomicLong();
-                stepChildrenErrorCalculate(step.getChildren(), isChildrenError, isChildrenErrorReport);
-                if (errorIsFirst) {
-                    if (isChildrenError.longValue() > 0) {
-                        isError.set(isError.longValue() + 1);
-                    } else if (isChildrenErrorReport.longValue() > 0) {
+            } else {
+                if (step.getValue() != null) {
+                    if (StringUtils.isNotEmpty(step.getErrorCode())) {
                         isErrorReport.set(isErrorReport.longValue() + 1);
-                    }
-                } else {
-                    if (isChildrenErrorReport.longValue() > 0) {
-                        isErrorReport.set(isErrorReport.longValue() + 1);
-                    } else if (isChildrenError.longValue() > 0) {
+                    } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
                         isError.set(isError.longValue() + 1);
                     }
-                }
+                } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
+                    AtomicLong isChildrenError = new AtomicLong();
+                    AtomicLong isChildrenErrorReport = new AtomicLong();
+                    stepChildrenErrorCalculate(step.getChildren(), isChildrenError, isChildrenErrorReport);
+                    if (errorIsFirst) {
+                        if (isChildrenError.longValue() > 0) {
+                            isError.set(isError.longValue() + 1);
+                        } else if (isChildrenErrorReport.longValue() > 0) {
+                            isErrorReport.set(isErrorReport.longValue() + 1);
+                        }
+                    } else {
+                        if (isChildrenErrorReport.longValue() > 0) {
+                            isErrorReport.set(isErrorReport.longValue() + 1);
+                        } else if (isChildrenError.longValue() > 0) {
+                            isError.set(isError.longValue() + 1);
+                        }
+                    }
 
+                }
             }
         }
     }
 
     private void calculate(List<StepTreeDTO> dtoList, AtomicLong totalScenario, AtomicLong scenarioError, AtomicLong totalTime, AtomicLong errorReport, boolean isErrorFirst) {
         for (StepTreeDTO step : dtoList) {
-            if (StringUtils.equals(step.getType(), "scenario")) {
+            if (StringUtils.equalsAny(step.getType(), "scenario", "UiScenario")) {
                 totalScenario.set((totalScenario.longValue() + 1));
                 // 失败结果数量
                 AtomicLong error = new AtomicLong();
@@ -251,18 +260,18 @@ public class ApiScenarioReportStructureService {
                 if (reportResults.size() > 1) {
                     for (int i = 0; i < reportResults.size(); i++) {
                         if (i == 0) {
-                            dto.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
+                            setApiScenarioReportResultValue(dto, new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8));
                             dto.setErrorCode(reportResults.get(0).getErrorCode());
                         } else {
                             StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), (i + 1));
-                            step.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
+                            setApiScenarioReportResultValue(dto, new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8));
                             step.setErrorCode(reportResults.get(i).getErrorCode());
                             dtoList.add(step);
                         }
                     }
                 } else {
                     String content = new String(reportResults.get(0).getContent(), StandardCharsets.UTF_8);
-                    dto.setValue(JSON.parseObject(content, RequestResult.class));
+                    setApiScenarioReportResultValue(dto, content);
                     dto.setErrorCode(reportResults.get(0).getErrorCode());
                 }
             }
@@ -276,7 +285,7 @@ public class ApiScenarioReportStructureService {
                 dto.setValue(requestResultExpandDTO);
             }
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
-                reportFormatting(dto.getChildren(), maps);
+                 reportFormatting(dto.getChildren(), maps);
                 if (StringUtils.isEmpty(dto.getErrorCode())) {
                     //统计child的errorCode，合并到parent中
                     List<String> childErrorCodeList = new ArrayList<>();
@@ -300,6 +309,14 @@ public class ApiScenarioReportStructureService {
             }
             dtoList.clear();
             dtoList.addAll(list);
+        }
+    }
+
+    private static void setApiScenarioReportResultValue(StepTreeDTO dto, String content) {
+        if (StringUtils.isNotBlank(dto.getType()) && dto.getType().equals("MsUiCommand")) {
+            dto.setUiValue(content);
+        } else {
+            dto.setValue(JSON.parseObject(content, RequestResult.class));
         }
     }
 
@@ -437,15 +454,21 @@ public class ApiScenarioReportStructureService {
 
     private void stepChildrenErrorCalculate(List<StepTreeDTO> dtoList, AtomicLong isError, AtomicLong isErrorReport) {
         for (StepTreeDTO step : dtoList) {
-            if (step.getValue() != null) {
-                if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
+            if (StringUtils.isNotBlank(step.getType()) && step.getType().equals("MsUiCommand")) {
+                if (step.getUiValue() != null && !step.getUiValue().equalsIgnoreCase("OK")) {
                     isError.set(isError.longValue() + 1);
                 }
-                if (StringUtils.isNotEmpty(step.getErrorCode())) {
-                    isErrorReport.set(isErrorReport.longValue() + 1);
+            } else {
+                if (step.getValue() != null) {
+                    if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
+                        isError.set(isError.longValue() + 1);
+                    }
+                    if (StringUtils.isNotEmpty(step.getErrorCode())) {
+                        isErrorReport.set(isErrorReport.longValue() + 1);
+                    }
+                } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
+                    stepChildrenErrorCalculate(step.getChildren(), isError, isErrorReport);
                 }
-            } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                stepChildrenErrorCalculate(step.getChildren(), isError, isErrorReport);
             }
         }
     }

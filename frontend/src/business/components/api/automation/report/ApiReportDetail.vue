@@ -7,7 +7,9 @@
                                      :debug="debug" :report="report" @reportExport="handleExport"
                                      @reportSave="handleSave"/>
           <main v-if="isNotRunning">
-            <ms-metric-chart :content="content" :totalTime="totalTime"/>
+            <ms-metric-chart
+              :content="content"
+              :totalTime="totalTime"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
