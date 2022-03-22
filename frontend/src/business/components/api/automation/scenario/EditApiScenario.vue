@@ -534,6 +534,9 @@ export default {
     if (!this.currentScenario.apiScenarioModuleId) {
       this.currentScenario.apiScenarioModuleId = "";
     }
+    if (this.currentScenario.apiScenarioModuleId === 'default-module') {
+      this.currentScenario.apiScenarioModuleId = this.moduleOptions[0].id;
+    }
     this.debug = false;
     this.debugLoading = false;
     if (this.stepFilter) {

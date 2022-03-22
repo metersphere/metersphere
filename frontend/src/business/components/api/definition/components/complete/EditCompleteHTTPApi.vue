@@ -698,6 +698,9 @@ export default {
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = "";
     }
+    if (this.basisData.moduleId && this.basisData.moduleId === 'default-module') {
+      this.basisData.moduleId = this.moduleOptions[0].id;
+    }
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
     this.$get('/api/definition/follow/' + this.basisData.id, response => {
       this.httpForm.follows = response.data;
