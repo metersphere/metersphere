@@ -1599,11 +1599,14 @@ public class TestPlanService {
         if (!CollectionUtils.isEmpty(scenarios)) {
             List<TestPlanFailureScenarioDTO> failureScenarios = new ArrayList<>();
             List<TestPlanFailureScenarioDTO> errorReportScenarios = new ArrayList<>();
+            List<TestPlanFailureScenarioDTO> unExecuteScenarios = new ArrayList<>();
             for (TestPlanFailureScenarioDTO scenario : scenarios) {
                 if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "Fail", "Error")) {
                     failureScenarios.add(scenario);
                 } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.errorReportResult.name())) {
                     errorReportScenarios.add(scenario);
+                } else if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "stop","unexecute")) {
+                    unExecuteScenarios.add(scenario);
                 }
             }
             if (checkReportConfig(reportConfig, "api", "failure")) {
@@ -1612,6 +1615,9 @@ public class TestPlanService {
             if (checkReportConfig(reportConfig, "api", "errorReport")) {
                 report.setErrorReportScenarios(errorReportScenarios);
             }
+            if (checkReportConfig(reportConfig, "api", "unExecute")) {
+                report.setUnExecuteScenarios(unExecuteScenarios);
+            }
         }
     }
 
@@ -1619,11 +1625,14 @@ public class TestPlanService {
         if (!CollectionUtils.isEmpty(apiAllCases)) {
             List<TestPlanFailureApiDTO> apiFailureCases = new ArrayList<>();
             List<TestPlanFailureApiDTO> apiErrorReportCases = new ArrayList<>();
+            List<TestPlanFailureApiDTO> apiUnExecuteCases = new ArrayList<>();
             for (TestPlanFailureApiDTO apiDTO : apiAllCases) {
                 if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), "error")) {
                     apiFailureCases.add(apiDTO);
                 } else if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), ExecuteResult.errorReportResult.name())) {
                     apiErrorReportCases.add(apiDTO);
+                } else if (StringUtils.equalsAnyIgnoreCase(apiDTO.getExecResult(), "stop","unexecute")) {
+                    apiUnExecuteCases.add(apiDTO);
                 }
             }
 
@@ -1633,6 +1642,10 @@ public class TestPlanService {
             if (checkReportConfig(reportConfig, "api", "errorReport")) {
                 report.setErrorReportCases(apiErrorReportCases);
             }
+            if (checkReportConfig(reportConfig, "api", "unExecute")) {
+                report.setUnExecuteCases(apiUnExecuteCases);
+            }
+
         }
     }
 

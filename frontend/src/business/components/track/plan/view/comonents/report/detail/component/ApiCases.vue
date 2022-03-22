@@ -5,14 +5,14 @@
         <template v-slot:label>
           <tab-pane-count :title="$t('commons.api_case')" :count="apiSize"/>
         </template>
-        <api-case-failure-result :is-db="isDb" :is-all="isAll" :is-error-report="isErrorReport" :share-id="shareId" :is-share="isShare"
+        <api-case-failure-result :is-db="isDb" :is-all="isAll" :is-error-report="isErrorReport" :is-un-execute="isUnExecute" :share-id="shareId" :is-share="isShare"
                                  :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setApiSize"/>
       </el-tab-pane>
       <el-tab-pane>
         <template v-slot:label>
           <tab-pane-count :title="$t('commons.scenario_case')" :count="scenarioSize"/>
         </template>
-        <api-scenario-failure-result :is-db="isDb" :is-all="isAll" :is-error-report="isErrorReport" :share-id="shareId" :is-share="isShare"
+        <api-scenario-failure-result :is-db="isDb" :is-all="isAll" :is-error-report="isErrorReport" :is-un-execute="isUnExecute" :share-id="shareId" :is-share="isShare"
                                      :report="report" :is-template="isTemplate" :plan-id="planId"
                                      @setSize="setScenarioSize"/>
       </el-tab-pane>
@@ -46,6 +46,7 @@ export default {
     shareId: String,
     isAll: Boolean,
     isErrorReport: Boolean,
+    isUnExecute:Boolean,
     isDb: Boolean
   },
   data() {

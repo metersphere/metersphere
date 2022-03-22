@@ -18,7 +18,15 @@
         <api-cases :is-db="isDb" :is-error-report="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setErrorReportSize"/>
       </el-tab-pane>
-      <el-tab-pane style="min-height: 500px" name="fourth" v-if="allEnable">
+      <el-tab-pane style="min-height: 500px" name="fourth" v-if="unExecuteEnable">
+        <template v-slot:label>
+          <tab-pane-count :title="$t('api_test.home_page.detail_card.unexecute')" :count="unExecuteSize"/>
+        </template>
+        <api-cases :is-db="isDb" :is-un-execute="true" :share-id="shareId" :is-share="isShare" :report="report"
+                   :is-template="isTemplate" :plan-id="planId" @setSize="setUnExecuteSize"/>
+      </el-tab-pane>
+
+      <el-tab-pane style="min-height: 500px" name="fifth" v-if="allEnable">
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
         </template>
@@ -45,6 +53,7 @@ export default {
       activeName: 'first',
       failureSize: 0,
       errorReportSize: 0,
+      unExecuteSize:0,
       allSize: 0,
     };
   },
@@ -62,6 +71,10 @@ export default {
     },
     errorReportEnable() {
       let disable = this.report.config && this.report.config.api.children.errorReport && this.report.config.api.children.errorReport.enable === false;
+      return !disable;
+    },
+    unExecuteEnable() {
+      let disable = this.report.config && this.report.config.api.children.unExecute && this.report.config.api.children.unExecute.enable === false;
       return !disable;
     },
     allEnable() {
@@ -103,6 +116,9 @@ export default {
     },
     setErrorReportSize(size) {
       this.errorReportSize = size;
+    },
+    setUnExecuteSize(size){
+      this.unExecuteSize = size;
     },
     setAllSize(size) {
       this.allSize = size;

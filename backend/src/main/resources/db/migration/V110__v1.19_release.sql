@@ -689,3 +689,7 @@ ALTER TABLE api_definition MODIFY COLUMN path varchar (1000);
 #
 DELETE FROM user_group_permission
 WHERE group_id = 'project_app_manager';
+
+
+ALTER TABLE `test_plan_report_content` ADD COLUMN `un_execute_cases` LONGTEXT COMMENT '未执行状态接口用例';
+ALTER TABLE `test_plan_report_content` ADD COLUMN `un_execute_scenarios` LONGTEXT COMMENT '未执行状态场景用例';

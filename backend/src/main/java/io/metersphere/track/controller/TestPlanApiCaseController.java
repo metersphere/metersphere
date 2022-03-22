@@ -45,6 +45,10 @@ public class TestPlanApiCaseController {
     public List<TestPlanFailureApiDTO> getErrorReportList(@PathVariable String planId) {
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
+    @GetMapping("/list/unExecute/{planId}")
+    public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String planId) {
+        return testPlanApiCaseService.getUnExecuteCases(planId);
+    }
 
     @GetMapping("/list/all/{planId}")
     public List<TestPlanFailureApiDTO> getAllList(@PathVariable String planId) {
