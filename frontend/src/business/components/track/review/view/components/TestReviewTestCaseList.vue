@@ -387,15 +387,8 @@ export default {
           this.total = data.itemCount;
           this.tableData = data.listObject;
 
-          // 需要判断tableData数据，放回调里面
-          this.getPreData();
-
-          this.tableClear();
-          if (callback) {
-            callback();
-          }
         });
-        this.getNexPageData();
+        setTimeout(this.$refs.table.reloadTable(), 200);
       }
     },
     getNexPageData() {
