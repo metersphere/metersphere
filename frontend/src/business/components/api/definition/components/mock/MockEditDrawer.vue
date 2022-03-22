@@ -109,6 +109,7 @@ export default {
             arguments: [],
             rest: [],
             body: {
+              xmlHeader: 'version="1.0" encoding="UTF-8"',
               type: 'JSON',
               binary: []
             }
