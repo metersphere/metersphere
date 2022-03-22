@@ -143,6 +143,9 @@ public class ApiTestCaseService {
             if (environment != null) {
                 apiCase.setEnvironment(environment.getName());
             }
+            if(apiCase.getExecResult() == null && StringUtils.isNotEmpty(apiCase.getStatus()) && !StringUtils.equalsIgnoreCase(apiCase.getStatus(),"trash")){
+                apiCase.setExecResult(apiCase.getStatus());
+            }
         }
     }
 

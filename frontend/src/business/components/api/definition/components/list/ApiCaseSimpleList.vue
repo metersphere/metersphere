@@ -416,6 +416,7 @@ export default {
       statusFilters: [
         {text: this.$t('api_test.automation.success'), value: 'success'},
         {text: this.$t('api_test.automation.fail'), value: 'error'},
+        {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
         {text: this.$t('report.stop_btn'), value: 'STOP'},
         {text: this.$t('api_test.home_page.detail_card.unexecute'), value: ''},
         {text: this.$t('commons.testing'), value: 'Running'}
