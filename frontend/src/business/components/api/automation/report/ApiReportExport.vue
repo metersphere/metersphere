@@ -53,7 +53,18 @@
               </api-report-reqest-header-item>
 
               <api-report-reqest-header-item :title="$t('api_report.result')">
-                <el-tag size="mini" type="success" v-if="request.success">
+                <el-tag v-if="request.unexecute">{{
+                    $t('api_test.home_page.detail_card.unexecute')
+                  }}
+                </el-tag>
+                <el-tag v-else-if="!request.success && request.status && request.status==='unexecute'">{{
+                    $t('api_test.home_page.detail_card.unexecute')
+                  }}
+                </el-tag>
+                <el-tag v-else-if="request.errorCode" class="ms-test-error_code">
+                  {{ $t('error_report_library.option.name') }}
+                </el-tag>
+                <el-tag size="mini" type="success" v-else-if="request.success">
                   {{$t('api_report.success')}}
                 </el-tag>
                 <el-tag size="mini" type="danger" v-else>
@@ -138,6 +149,10 @@
   .request-top div {
     margin-top: 10px;
   }
-
+  .ms-test-error_code {
+    color: #F6972A;
+    background-color: #FDF5EA;
+    border-color: #FDF5EA;
+  }
 
 </style>

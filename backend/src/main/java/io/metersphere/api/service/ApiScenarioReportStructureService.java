@@ -227,7 +227,7 @@ public class ApiScenarioReportStructureService {
                         stepError.set(stepError.longValue() + 1);
                     } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
                         stepErrorCode.set(stepErrorCode.longValue() + 1);
-                    } else {
+                    } else if (!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")) {
                         stepUnExecute.set(stepUnExecute.longValue() + 1);
                     }
                 }
@@ -277,7 +277,7 @@ public class ApiScenarioReportStructureService {
                 }
             }
             if (StringUtils.isNotEmpty(dto.getErrorCode())) {
-                dto.setTotalStatus("errorReport");
+                dto.setTotalStatus("errorCode");
             }
 
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
@@ -304,7 +304,7 @@ public class ApiScenarioReportStructureService {
                         failCount++;
                     } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "success")) {
                         successCount++;
-                    } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "errorReport")) {
+                    } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "errorCode")) {
                         errorReportCount++;
                     }
                 }
@@ -319,7 +319,7 @@ public class ApiScenarioReportStructureService {
                         if (failCount > 0) {
                             dto.setTotalStatus("fail");
                         } else if (errorReportCount > 0) {
-                            dto.setTotalStatus("errorReport");
+                            dto.setTotalStatus("errorCode");
                         } else {
                             dto.setTotalStatus("success");
                         }
@@ -327,7 +327,7 @@ public class ApiScenarioReportStructureService {
                         if (errorReportCount > 0) {
                             dto.setTotalStatus("fail");
                         } else if (failCount > 0) {
-                            dto.setTotalStatus("errorReport");
+                            dto.setTotalStatus("errorCode");
                         } else {
                             dto.setTotalStatus("success");
                         }
@@ -427,7 +427,7 @@ public class ApiScenarioReportStructureService {
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "Error")).collect(Collectors.toList()).size());
             reportDTO.setUnExecute(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "STOP")).collect(Collectors.toList()).size());
-            reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.isNotEmpty(e.getErrorCode())).collect(Collectors.toList()).size());
+            reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "errorReportResult")).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
 
@@ -489,7 +489,7 @@ public class ApiScenarioReportStructureService {
             AtomicLong stepError = new AtomicLong();
             AtomicLong stepTotal = new AtomicLong();
 
-            reportDTO.setScenarioSuccess((reportDTO.getScenarioTotal() - reportDTO.getScenarioError() - reportDTO.getScenarioUnExecute()));
+            reportDTO.setScenarioSuccess((reportDTO.getScenarioTotal() - reportDTO.getScenarioError() - reportDTO.getScenarioUnExecute() -reportDTO.getScenarioErrorReport()));
 
             //统计步骤数据
             AtomicLong stepErrorCode = new AtomicLong();
