@@ -1124,6 +1124,7 @@ export default {
     create_performance_test_batch: "批量创建性能测试",
     batch_copy: "批量复制",
     export_config: "导出",
+    unplanned_case: "未规划用例",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
     please_select_case: "请选择用例",
@@ -1355,9 +1356,9 @@ export default {
       reference_info: "请选择接口或用例",
       scenario_test: "场景",
       scenario_list: "场景列表",
-      unplanned_scenario: '未规划场景',
-      all_scenario: '全部场景',
       add_scenario: "创建场景",
+      all_scenario: "全部场景",
+      unplanned_scenario: "未规划场景",
       scenario_name: "场景名称",
       case_level: "用例等级",
       tag: "标签",
@@ -1944,7 +1945,6 @@ export default {
     date: "日期"
   },
   test_track: {
-    unplanned_case: '未规划用例',
     sync_add_api_load: '同步添加关联的接口和性能测试',
     next: '下一条',
     total_size: '共 {0} 条',
