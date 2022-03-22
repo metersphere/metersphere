@@ -328,6 +328,7 @@ import {getGraphByCondition} from "@/network/graph";
 import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
+import {Message} from "element-ui";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -1231,7 +1232,16 @@ export default {
           link.click();
         }, error => {
           this.result.loading = false;
-          this.$error("导出JMX文件失败");
+          if (error.response && error.response.status === 509) {
+            let reader = new FileReader();
+            reader.onload = function (event) {
+              let content = reader.result;
+              Message.error({message: content, showClose: true});
+            };
+            reader.readAsText(error.response.data);
+          } else {
+            this.$error("导出JMX文件失败，请检查是否选择环境");
+          }
         });
     },
 
