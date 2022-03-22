@@ -1125,6 +1125,7 @@ export default {
     batch_copy: "批量復製",
     export_config: "導出",
     enable_validate_tip: "沒有可用請求",
+    unplanned_case: "未規劃用例",
     copy: "復製測試",
     please_select_case: "請選擇用例",
     fail_to_stop: "失敗停止",
@@ -1355,9 +1356,9 @@ export default {
       reference_info: "請選擇接口或用例",
       scenario_test: "場景",
       scenario_list: "場景列表",
-      all_scenario: '全部場景',
-      unplanned_scenario: '未規劃場景',
       add_scenario: "創建場景",
+      all_scenario: "全部場景",
+      unplanned_scenario: "未規劃場景",
       scenario_name: "場景名稱",
       case_level: "用例等級",
       tag: "標簽",
@@ -1944,7 +1945,6 @@ export default {
     date: "日期"
   },
   test_track: {
-    unplanned_case: '未規劃用例',
     sync_add_api_load: '同步添加關聯的接口和性能測試',
     next: '下一條',
     total_size: '共 {0} 條',

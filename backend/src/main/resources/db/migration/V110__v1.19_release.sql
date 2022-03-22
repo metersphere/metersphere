@@ -685,18 +685,3 @@ from api_scenario_report
 where report_type = 'API_INTEGRATED';
 
 ALTER TABLE api_definition MODIFY COLUMN path varchar (1000);
-
-update api_scenario_module
-set name = 'UNPLANNED'
-where name = '未规划场景'
-  and `level` = 1;
-
-update api_module
-set name = 'UNPLANNED'
-where name = '未规划接口'
-  and `level` = 1;
-
-update test_case_node
-set name = 'UNPLANNED'
-where name = '未规划用例'
-  and `level` = 1;
