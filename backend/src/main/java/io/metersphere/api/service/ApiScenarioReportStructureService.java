@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.utils.LoggerUtil;
@@ -193,7 +194,7 @@ public class ApiScenarioReportStructureService {
                 scenarioError.set(scenarioError.longValue() + 1);
             } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
                 errorReport.set(errorReport.longValue() + 1);
-            } else if(!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")){
+            } else if (!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")) {
                 unExecute.set(unExecute.longValue() + 1);
             }
         }
@@ -339,13 +340,25 @@ public class ApiScenarioReportStructureService {
             }
         }
         // 循环步骤请求从新排序
-        if (dtoList.stream().filter(e -> e.getValue() != null && e.getAllIndex() != null).collect(Collectors.toList()).size() == dtoList.size()) {
-            List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getIndex())).collect(Collectors.toList());
-            for (int index = 0; index < list.size(); index++) {
-                list.get(index).setIndex((index + 1));
+        try {
+            if (dtoList.stream().filter(e -> e.getValue() != null).collect(Collectors.toList()).size() == dtoList.size()) {
+                List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
+                        && StringUtils.equalsIgnoreCase(e.getTotalStatus(), "unexecute")).collect(Collectors.toList());
+                Map<String, Integer> map = unList.stream().collect(Collectors.toMap(StepTreeDTO::getResourceId, StepTreeDTO::getIndex));
+                List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
+                for (int index = 0; index < list.size(); index++) {
+                    if (map.containsKey(list.get(index).getResourceId())) {
+                        Collections.swap(list, index, (map.get(list.get(index).getResourceId()) - 1));
+                    }
+                }
+                for (int index = 0; index < list.size(); index++) {
+                    list.get(index).setIndex((index + 1));
+                }
+                dtoList.clear();
+                dtoList.addAll(list);
             }
-            dtoList.clear();
-            dtoList.addAll(list);
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 
@@ -388,12 +401,12 @@ public class ApiScenarioReportStructureService {
                 if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
                     treeDTO.setErrorCode(expandDTO.getAttachInfoMap().get("errorReportResult"));
                     treeDTO.setTotalStatus("errorCode");
-                }else if(StringUtils.isNotEmpty(expandDTO.getStatus())){
+                } else if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
                     treeDTO.setTotalStatus(expandDTO.getStatus());
-                }else {
-                    if(expandDTO.isSuccess()){
+                } else {
+                    if (expandDTO.isSuccess()) {
                         treeDTO.setTotalStatus("success");
-                    }else {
+                    } else {
                         treeDTO.setTotalStatus("fail");
                     }
                 }
