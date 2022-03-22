@@ -947,7 +947,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             } else if (bodyType.equalsIgnoreCase("RAW")) {
                 bodyInfo = new JSONObject();
                 ((JSONObject) bodyInfo).put("type", "string");
-                ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+                if (body != null && body.get("raw") != null) {
+                    ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+                }
             } else if (bodyType.equalsIgnoreCase("XML")) {
                 String xmlText = body.getString("raw");
                 JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
