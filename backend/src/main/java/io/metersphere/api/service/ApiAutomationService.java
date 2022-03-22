@@ -404,7 +404,7 @@ public class ApiAutomationService {
             JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
             JSONArray hashTree = element.getJSONArray("hashTree");
             ApiScenarioImportUtil.formatHashTree(hashTree);
-            setReferenced(hashTree,scenario.getVersionId(),scenario.getProjectId(),apiTestCaseMapper,apiDefinitionMapper);
+            setReferenced(hashTree,scenario.getVersionId(),scenario.getProjectId(),apiTestCaseMapper,apiDefinitionMapper,true);
             scenario.setScenarioDefinition(JSONObject.toJSONString(element));
         }
     }
@@ -1968,7 +1968,7 @@ public class ApiAutomationService {
         return strings;
     }
 
-    private void setReferenced(JSONArray hashTree,String versionId,String projectId, ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper) {
+    private void setReferenced(JSONArray hashTree,String versionId,String projectId, ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper,boolean isAdd) {
         // 将引用转成复制
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (int i = 0; i < hashTree.size(); i++) {
@@ -1978,8 +1978,8 @@ public class ApiAutomationService {
                     // 检测引用对象是否存在，若果不存在则改成复制对象
                     String refType = object.getString("refType");
                     if (StringUtils.isNotEmpty(refType)) {
-                        if (refType.equals("CASE")) {
-                            ApiScenarioImportUtil.checkCase(object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
+                        if (refType.equals("CASE")&&isAdd) {
+                            ApiScenarioImportUtil.checkCase(i,object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
                         } else {
                             checkAutomation(object);
                         }
@@ -1991,9 +1991,16 @@ public class ApiAutomationService {
                 if (environmentMap != null) {
                     object.put("environmentMap", new HashMap<>());
                 }
-                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
-                    setReferenced(object.getJSONArray("hashTree"),versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
+                if(StringUtils.isNotEmpty(object.getString("refType"))&&object.getString("refType").equals("CASE")){
+                    if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                        setReferenced(object.getJSONArray("hashTree"),versionId,projectId,apiTestCaseMapper,apiDefinitionMapper,true);
+                    }
+                }else {
+                    if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                        setReferenced(object.getJSONArray("hashTree"),versionId,projectId,apiTestCaseMapper,apiDefinitionMapper,false);
+                    }
                 }
+
             }
         }
     }
