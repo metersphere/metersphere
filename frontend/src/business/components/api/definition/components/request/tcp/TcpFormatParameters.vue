@@ -547,7 +547,8 @@ export default {
   background: #783887;
   color: white;
   height: 18px;
-  border-radius: 42%;
+  font-size: xx-small;
+  border-radius: 50%;
 }
 
 .ms-left-buttion {
