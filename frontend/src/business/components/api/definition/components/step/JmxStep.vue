@@ -30,7 +30,7 @@
              :filter-node-method="filterNode"
              @node-drag-end="allowDrag"
              draggable ref="generalSteps" class="ms-step-tree-cell">
-       <span class="custom-tree-node father" slot-scope="{node,data}" style="width: 100%">
+       <span class="custom-tree-node father" slot-scope="{node,data}" style="width: calc(100% - 20px);">
         <!--前置脚本-->
          <div v-if="tabType === 'pre'">
            <ms-jsr233-processor
