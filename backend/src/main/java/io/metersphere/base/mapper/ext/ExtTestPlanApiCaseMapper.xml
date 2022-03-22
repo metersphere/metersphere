@@ -302,7 +302,10 @@
         api_test_case c
         on t.api_case_id = c.id
       and t.test_plan_id = #{planId}
-       <if test="status != null">
+        <if test="status == 'unExecute'">
+            and (t.status in ('Stop','unExecute') or t.status IS NULL)
+        </if>
+       <if test="status != null and status != 'unExecute'">
          and t.status = #{status}
        </if>
       and (c.status != 'Trash' or c.status is null)

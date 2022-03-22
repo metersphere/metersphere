@@ -125,6 +125,12 @@ public class ShareController {
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
 
+    @GetMapping("/test/plan/api/case/list/unExecute/{shareId}/{planId}")
+    public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanApiCaseService.getUnExecuteCases(planId);
+    }
+
     @GetMapping("/test/plan/api/case/list/all/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
@@ -147,6 +153,12 @@ public class ShareController {
     public List<TestPlanFailureScenarioDTO> getScenarioErrorReportList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
         return testPlanScenarioCaseService.getErrorReportCases(planId);
+    }
+
+    @GetMapping("/test/plan/scenario/case/list/unExecute/{shareId}/{planId}")
+    public List<TestPlanFailureScenarioDTO> getUnExecuteScenarioCases(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanScenarioCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")

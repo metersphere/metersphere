@@ -46,6 +46,11 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.getErrorReportCases(planId);
     }
 
+    @GetMapping("/list/unExecute/{planId}")
+    public List<TestPlanFailureScenarioDTO> getUnExecuteCases(@PathVariable String planId) {
+        return testPlanScenarioCaseService.getUnExecuteCases(planId);
+    }
+
     @GetMapping("/list/all/{planId}")
     public List<TestPlanFailureScenarioDTO> getAllList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getAllCases(planId);

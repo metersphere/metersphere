@@ -209,6 +209,10 @@ export default {
               enable: true,
               name: this.$t('error_report_library.option.name'),
             },
+            unExecute: {
+              enable: true,
+              name: this.$t('api_test.home_page.detail_card.unexecute'),
+            },
             all: {
               enable: true,
               name: this.$t('test_track.report.all_case'),
