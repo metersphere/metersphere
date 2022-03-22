@@ -424,8 +424,10 @@ public class TestCaseService {
             criteria.andNameEqualTo(testCase.getName())
                     .andProjectIdEqualTo(testCase.getProjectId())
                     .andNodePathEqualTo(nodePath)
-                    .andTypeEqualTo(testCase.getType())
-                    .andPriorityEqualTo(testCase.getPriority());
+                    .andTypeEqualTo(testCase.getType());
+            if (StringUtils.isNotBlank(testCase.getPriority())) {
+                criteria.andPriorityEqualTo(testCase.getPriority());
+            }
 
             if (StringUtils.isNotBlank(testCase.getTestId())) {
                 criteria.andTestIdEqualTo(testCase.getTestId());
