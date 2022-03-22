@@ -199,6 +199,7 @@
               <ms-debug-tcp-page
                 :currentProtocol="currentProtocol"
                 :testCase="item.api"
+                :scenario="false"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
                 v-if="currentProtocol==='TCP'"/>
