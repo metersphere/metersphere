@@ -468,6 +468,9 @@ export default {
     formatExportApi(array, scenario) {
       array.forEach(item => {
         if (this.stepFilter && this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+          if(item.errorCode){
+            item.value.errorCode = item.errorCode;
+          }
           scenario.requestResults.push(item.value);
         }
         if (item.children && item.children.length > 0) {
