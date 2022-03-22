@@ -685,3 +685,7 @@ from api_scenario_report
 where report_type = 'API_INTEGRATED';
 
 ALTER TABLE api_definition MODIFY COLUMN path varchar (1000);
+
+#
+DELETE FROM user_group_permission
+WHERE group_id = 'project_app_manager';
