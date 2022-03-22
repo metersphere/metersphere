@@ -4,7 +4,8 @@
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
 
-          <el-form :model="request" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
+          <el-form :model="request" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px"
+                   class="ms-el-tabs__nav-scroll">
 
             <el-form-item :label="$t('api_test.request.dubbo.protocol')" prop="protocol">
               <el-select v-model="request.protocol" size="small">
@@ -39,38 +40,37 @@
 
               <!-- 脚本步骤/断言步骤 -->
               <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
-          <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.pre_operation') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+                 <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                 {{ $t('api_test.definition.request.pre_operation') }}
+              <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
               <div class="el-step__icon-inner">{{ request.preSize }}</div>
-            </div>
-          </span>
+              </div>
+                  </span>
                 <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'"
                              ref="preStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
                            v-if="showScript">
-            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.post_operation') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
-              <div class="el-step__icon-inner">{{ request.postSize }}</div>
-            </div>
-          </span>
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.post_operation') }}
+                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+                  <div class="el-step__icon-inner">{{ request.postSize }}</div>
+                 </div>
+                </span>
                 <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'"
                              ref="postStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
                            v-if="showScript">
-            <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-            {{ $t('api_test.definition.request.assertions_rule') }}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
-              <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
-            </div>
-          </span>
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.assertions_rule') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+                  <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
+                </div>
+              </span>
                 <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
-
             </el-tabs>
 
           </el-form>
@@ -248,4 +248,9 @@
   /deep/ .el-form-item {
     margin-bottom: 15px;
   }
+
+  .ms-el-tabs__nav-scroll >>> .el-tabs__nav-scroll {
+    width: calc(100% - 10px);
+  }
+
 </style>
