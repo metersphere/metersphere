@@ -57,6 +57,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -189,12 +190,19 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (this.body != null) {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
             if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
-                sampler.setDoMultipart(true);
+                AtomicBoolean kvIsEmpty = new AtomicBoolean(true);
                 this.body.getKvs().forEach(files -> {
                     if (StringUtils.isNotEmpty(files.getName()) && "file".equals(files.getType()) && CollectionUtils.isNotEmpty(files.getFiles())) {
                         sampler.setDoBrowserCompatibleMultipart(true);
                     }
+                    if (StringUtils.isNotEmpty(files.getName())) {
+                        kvIsEmpty.set(false);
+                    }
                 });
+                //值不为空时才会设置doMultiPart
+                if (!kvIsEmpty.get()) {
+                    sampler.setDoMultipart(true);
+                }
             }
             if (CollectionUtils.isNotEmpty(bodyParams)) {
                 Arguments arguments = httpArguments(bodyParams);
@@ -684,28 +692,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                    try {
-                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                        if (keyValue.getValue() == null) {
-                            httpArgument.setValue("");
-                        }
-                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                            httpArgument.setContentType(keyValue.getContentType());
-                        }
-                        if(StringUtils.equalsIgnoreCase(this.method,"get")){
-                            if(StringUtils.isNotEmpty(httpArgument.getValue())){
-                                arguments.addArgument(httpArgument);
-                            }
-                        }else {
-                            arguments.addArgument(httpArgument);
-                        }
-                    } catch (Exception e) {
+                            try {
+                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                                if (keyValue.getValue() == null) {
+                                    httpArgument.setValue("");
+                                }
+                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                                    httpArgument.setContentType(keyValue.getContentType());
+                                }
+                                if (StringUtils.equalsIgnoreCase(this.method, "get")) {
+                                    if (StringUtils.isNotEmpty(httpArgument.getValue())) {
+                                        arguments.addArgument(httpArgument);
+                                    }
+                                } else {
+                                    arguments.addArgument(httpArgument);
+                                }
+                            } catch (Exception e) {
 
-                    }
-                }
-        );
+                            }
+                        }
+                );
         return arguments;
     }
 

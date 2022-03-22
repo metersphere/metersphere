@@ -393,8 +393,10 @@ public class MockConfigService {
             if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM") && expectBodyObject.containsKey("kvs")) {
                 JSONArray kvsArr = expectBodyObject.getJSONArray("kvs");
                 List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(kvsArr);
-                if (!MockApiUtils.checkParamsCompliance(jsonArray, mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
-                    return false;
+                if(CollectionUtils.isNotEmpty(mockConfigRequestParams)){
+                    if (!MockApiUtils.checkParamsCompliance(jsonArray, mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
+                        return false;
+                    }
                 }
             } else {
                 JSON mockExpectJsonArray = MockApiUtils.getExpectBodyParams(expectBodyObject);
