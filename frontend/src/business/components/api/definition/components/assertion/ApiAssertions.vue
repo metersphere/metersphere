@@ -232,6 +232,7 @@ export default {
           .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
       }
       jsonItem.expect = expect;
+      jsonItem.enable = true;
       this.assertions.jsonPath.push(jsonItem);
     },
     clearJson() {
