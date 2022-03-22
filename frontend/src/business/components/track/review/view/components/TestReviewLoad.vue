@@ -92,13 +92,6 @@ export default {
       if (this.planId) {
         this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
           this.treeNodes = response.data;
-          this.treeNodes.forEach(nodes => {
-            if (nodes.children && nodes.children.length > 0) {
-              nodes.children.forEach(node => {
-                node.name = node.name === 'UNPLANNED' ? this.$t('test_track.unplanned_case') : node.name
-              })
-            }
-          });
           // 性能测试与模块无关，过滤项目下模块
           this.treeNodes.map(node => node.children = null);
         });

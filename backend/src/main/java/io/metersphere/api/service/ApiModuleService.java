@@ -527,12 +527,13 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public ApiModule getDefaultNode(String projectId,String protocol) {
         ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("UNPLANNED").andParentIdIsNull();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();
+        ;
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
             ApiModule record = new ApiModule();
             record.setId(UUID.randomUUID().toString());
-            record.setName("UNPLANNED");
+            record.setName("未规划接口");
             record.setProtocol(protocol);
             record.setPos(1.0);
             record.setLevel(1);
@@ -549,7 +550,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public ApiModule getDefaultNodeUnCreateNew(String projectId,String protocol) {
         ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("UNPLANNED").andParentIdIsNull();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();
+        ;
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
             return null;

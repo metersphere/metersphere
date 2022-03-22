@@ -179,14 +179,8 @@ export default {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
             this.data.forEach(node => {
-              node.name = node.name === 'UNPLANNED' ? this.$t('api_test.definition.unplanned_api') : node.name;
-              node.label = node.label === 'UNPLANNED' ? this.$t('api_test.definition.unplanned_api') : node.label
+              node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
               buildTree(node, {path: ''});
-              if (node.children && node.children.length > 0) {
-                node.children.forEach(node => {
-                  node.name = node.name === 'UNPLANNED' ? this.$t('api_test.definition.unplanned_api') : node.name
-                })
-              }
             });
             this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
