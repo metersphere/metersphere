@@ -13,33 +13,33 @@
                     :data="scenarioCases">
 
             <ms-table-column
-              :width="80"
-              :label="$t('commons.id')"
-              prop="customNum">
+                :width="80"
+                :label="$t('commons.id')"
+                prop="customNum">
             </ms-table-column>
             <ms-table-column
-              :label="$t('commons.name')"
-              prop="name">
+                :label="$t('commons.name')"
+                prop="name">
             </ms-table-column>
             <ms-table-column
-              :label="$t('test_track.report.list.creator')"
-              prop="creatorName"/>
+                :label="$t('test_track.report.list.creator')"
+                prop="creatorName"/>
             <ms-table-column
-              :label="$t('test_track.case.priority')"
-              :width="80">
+                :label="$t('test_track.case.priority')"
+                :width="80">
               <template v-slot:default="scope">
                 <priority-table-item :value="scope.row.level" ref="priority"/>
               </template>
             </ms-table-column>
             <ms-table-column
-              :width="70"
-              :label="$t('api_test.automation.step')"
-              prop="stepTotal">
+                :width="70"
+                :label="$t('api_test.automation.step')"
+                prop="stepTotal">
             </ms-table-column>
             <ms-table-column
-              :width="80"
-              :label="$t('test_track.plan_view.execute_result')"
-              prop="lastResult">
+                :width="80"
+                :label="$t('test_track.plan_view.execute_result')"
+                prop="lastResult">
               <template v-slot:default="{row}">
                 <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
                 <status-table-item v-else-if="row.lastResult === 'Fail'" :value="'Failure'"/>
@@ -58,15 +58,15 @@
     </ms-aside-container>
     <ms-main-container>
       <ms-api-report
-        v-if="showResponse"
-        :is-plan="true"
-        :share-id="shareId"
-        :is-share="isShare"
-        :template-report="response"
-        :is-template="isTemplate"
-        :infoDb="true"
-        :report-id="reportId"
-        @reportNotExist="showResponse = false"/>
+          v-if="showResponse"
+          :is-plan="true"
+          :share-id="shareId"
+          :is-share="isShare"
+          :template-report="response"
+          :is-template="isTemplate"
+          :infoDb="true"
+          :report-id="reportId"
+          @reportNotExist="showResponse = false"/>
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
@@ -83,7 +83,7 @@ import {
   getSharePlanScenarioAllCase,
   getSharePlanScenarioFailureCase,
   getPlanScenarioErrorReportCase,
-  getSharePlanScenarioErrorReportCase,
+  getSharePlanScenarioErrorReportCase, getPlanScenarioUnExecuteCase, getSharePlanScenarioUnExecuteCase,
 } from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -107,6 +107,7 @@ export default {
     shareId: String,
     isAll: Boolean,
     isErrorReport: Boolean,
+    isUnExecute: Boolean,
     isDb: Boolean
   },
   data() {
@@ -131,19 +132,25 @@ export default {
   methods: {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
-        if(this.isErrorReport){
+        if (this.isErrorReport) {
           this.scenarioCases = this.report.errorReportScenarios ? this.report.errorReportScenarios : [];
-        }else if (this.isAll) {
+        } else if (this.isUnExecute) {
+          this.scenarioCases = this.report.unExecuteScenarios ? this.report.unExecuteScenarios : [];
+        } else if (this.isAll) {
           this.scenarioCases = this.report.scenarioAllCases ? this.report.scenarioAllCases : [];
         } else {
           this.scenarioCases = this.report.scenarioFailureCases ? this.report.scenarioFailureCases : [];
         }
       } else if (this.isShare) {
-        if(this.isErrorReport){
+        if (this.isErrorReport) {
           this.result = getSharePlanScenarioErrorReportCase(this.shareId, this.planId, (data) => {
             this.scenarioCases = data;
           });
-        }else if (this.isAll) {
+        } else if (this.isUnExecute) {
+          this.result = getSharePlanScenarioUnExecuteCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else if (this.isAll) {
           this.result = getSharePlanScenarioAllCase(this.shareId, this.planId, (data) => {
             this.scenarioCases = data;
           });
@@ -153,11 +160,15 @@ export default {
           });
         }
       } else {
-        if(this.isErrorReport){
+        if (this.isErrorReport) {
           this.result = getPlanScenarioErrorReportCase(this.planId, (data) => {
             this.scenarioCases = data;
           });
-        }else if (this.isAll) {
+        } else if (this.isUnExecute) {
+          this.result = getPlanScenarioUnExecuteCase(this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else if (this.isAll) {
           this.result = getPlanScenarioAllCase(this.planId, (data) => {
             this.scenarioCases = data;
           });
@@ -176,7 +187,7 @@ export default {
           this.response = row.response;
         }
       } else {
-        if (row.reportId && row.lastResult !=="Running" && row.lastResult !== "Waiting") {
+        if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
           this.showResponse = true;
           this.reportId = row.reportId;
         }

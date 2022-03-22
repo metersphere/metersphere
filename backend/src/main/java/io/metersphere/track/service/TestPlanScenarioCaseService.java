@@ -596,4 +596,10 @@ public class TestPlanScenarioCaseService {
                 extTestPlanScenarioCaseMapper.getFailureList(planId, ExecuteResult.errorReportResult.name());
         return buildCases(apiTestCases);
     }
+
+    public List<TestPlanFailureScenarioDTO> getUnExecuteCases(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureList(planId, "unExecute");
+        return buildCases(apiTestCases);
+    }
 }
