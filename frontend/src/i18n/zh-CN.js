@@ -3092,5 +3092,6 @@ export default {
     enable_or_not: "启用/禁用",
     enable: "启用",
     disable: "禁用",
+    resolution: "分辨率",
   }
 };
