@@ -112,7 +112,7 @@ public class SendNoticeAspect {
                 Object v = titleExp.getValue(context, Object.class);
                 // 查询结果如果是null或者是{}，不使用这个值
                 String jsonObject = JSON.toJSONString(v);
-                if (v != null && !StringUtils.equals("{}", jsonObject)) {
+                if (v != null && !StringUtils.equals("{}", jsonObject) && !StringUtils.equals("[]", jsonObject)) {
                     Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
                     memberValues.put("source", JSON.toJSONString(v, WriteMapNullValue));
                 }
