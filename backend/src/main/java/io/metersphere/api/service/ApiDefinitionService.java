@@ -1645,18 +1645,9 @@ public class ApiDefinitionService {
         return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
     }
 
-//    public List<ApiDefinition> selectByProjectIdAndMethodAndUrl(String projectId, String method,String url) {
-//        ApiDefinitionExample example = new ApiDefinitionExample();
-//        ApiDefinitionExample.Criteria criteria = example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId);
-//        if(StringUtils.isNotEmpty(url)){
-//            criteria.andPathEqualTo(url);
-//        }
-//        return  apiDefinitionMapper.selectByExample(example);
-//    }
+    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix) {
 
-    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String urlSuffix) {
-
-        if (StringUtils.isEmpty(urlSuffix)) {
+        if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
@@ -1665,6 +1656,7 @@ public class ApiDefinitionService {
 
             List<String> apiIdList = new ArrayList<>();
             boolean urlSuffixEndEmpty = false;
+            String urlSuffix = baseUrlSuffix;
             if (urlSuffix.endsWith("/")) {
                 urlSuffixEndEmpty = true;
                 urlSuffix = urlSuffix + "testMock";
@@ -1674,29 +1666,33 @@ public class ApiDefinitionService {
                 urlParams[urlParams.length - 1] = "";
             }
             for (ApiDefinition api : apiList) {
-                String path = api.getPath();
-                if (StringUtils.isEmpty(path)) {
-                    continue;
-                }
-                if (path.startsWith("/")) {
-                    path = path.substring(1);
-                }
-                if (StringUtils.isNotEmpty(path)) {
-                    String[] pathArr = path.split("/");
-                    if (pathArr.length == urlParams.length) {
-                        boolean isFetch = true;
-                        for (int i = 0; i < urlParams.length; i++) {
-                            String pathItem = pathArr[i];
-                            if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
-                                if (!StringUtils.equals(pathArr[i], urlParams[i])) {
-                                    isFetch = false;
-                                    break;
+                if(StringUtils.equalsAny(api.getPath(),baseUrlSuffix,"/"+baseUrlSuffix)){
+                    apiIdList.add(api.getId());
+                }else {
+                    String path = api.getPath();
+                    if (StringUtils.isEmpty(path)) {
+                        continue;
+                    }
+                    if (path.startsWith("/")) {
+                        path = path.substring(1);
+                    }
+                    if (StringUtils.isNotEmpty(path)) {
+                        String[] pathArr = path.split("/");
+                        if (pathArr.length == urlParams.length) {
+                            boolean isFetch = true;
+                            for (int i = 0; i < urlParams.length; i++) {
+                                String pathItem = pathArr[i];
+                                if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
+                                    if (!StringUtils.equals(pathArr[i], urlParams[i])) {
+                                        isFetch = false;
+                                        break;
+                                    }
                                 }
-                            }
 
-                        }
-                        if (isFetch) {
-                            apiIdList.add(api.getId());
+                            }
+                            if (isFetch) {
+                                apiIdList.add(api.getId());
+                            }
                         }
                     }
                 }
