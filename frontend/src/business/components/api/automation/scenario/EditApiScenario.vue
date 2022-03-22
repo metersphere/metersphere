@@ -1758,7 +1758,7 @@ export default {
           if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
             nodes[i].active = this.expandedStatus;
           }
-          if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
+          if (nodes[i].hashTree && nodes[i].hashTree.length > 0 && resourceIds.length < 60) {
             this.changeNodeStatus(resourceIds, nodes[i].hashTree);
           }
         }
