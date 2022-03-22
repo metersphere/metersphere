@@ -746,6 +746,11 @@ public class ApiDefinitionService {
         } else {
             apiDefinition.setUserId(apiDefinition.getUserId());
         }
+        if(apiDefinition.getModuleId()==null){
+            if (StringUtils.isEmpty(apiDefinition.getModuleId()) || "default-module".equals(apiDefinition.getModuleId())) {
+                initModulePathAndId(apiDefinition.getProjectId(), apiDefinition);
+            }
+        }
         apiDefinition.setDescription(apiDefinition.getDescription());
 
         List<ApiDefinition> sameRequest;
