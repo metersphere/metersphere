@@ -19,6 +19,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.xpack.ui.impl.CommandConfig;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,11 @@ public class ParameterConfig extends MsParameter {
      * 环境配置
      */
     private Map<String, EnvironmentConfig> config;
+
+    /**
+     * UI 指令全局配置
+     */
+    private CommandConfig commandConfig;
     /**
      * 缓存同一批请求的认证信息
      */
