@@ -678,7 +678,7 @@ public class ElementUtil {
                     if (groupMap.containsKey(ASSERTIONS)) {
                         groupMap.get(ASSERTIONS).add(item);
                     } else {
-                        groupMap.put(ASSERTIONS, new LinkedList<>() {{
+                        groupMap.put(ASSERTIONS, new LinkedList<MsTestElement>() {{
                             this.add(item);
                         }});
                     }
@@ -686,7 +686,7 @@ public class ElementUtil {
                     if (groupMap.containsKey(PRE)) {
                         groupMap.get(PRE).add(item);
                     } else {
-                        groupMap.put(PRE, new LinkedList<>() {{
+                        groupMap.put(PRE, new LinkedList<MsTestElement>() {{
                             this.add(item);
                         }});
                     }
@@ -694,7 +694,7 @@ public class ElementUtil {
                     if (groupMap.containsKey(POST)) {
                         groupMap.get(POST).add(item);
                     } else {
-                        groupMap.put(POST, new LinkedList<>() {{
+                        groupMap.put(POST, new LinkedList<MsTestElement>() {{
                             this.add(item);
                         }});
                     }
