@@ -121,6 +121,9 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         String request = apiDefinition.getRequest();
         JSONObject requestObj = JSONObject.parseObject(request);
 //        requestObj.put("id", id);
+        if(requestObj.get("projectId")!=null){
+            requestObj.put("projectId", apiDefinition.getProjectId());
+        }
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
         apiDefinition.setCreateUser(SessionUtils.getUserId());
         apiDefinition.setUserId(SessionUtils.getUserId());
