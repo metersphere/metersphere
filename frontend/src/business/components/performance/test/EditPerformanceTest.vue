@@ -463,8 +463,14 @@ export default {
       return true;
     },
     durationValidate(intervalTime) {
-      let duration = this.$refs.pressureConfig.duration * 60 * 1000;
-      if (intervalTime < duration) {
+      let duration = 0;
+      this.$refs.pressureConfig.threadGroups.forEach(tg => {
+        let d = this.$refs.pressureConfig.getDuration(tg);
+        if (duration < d) {
+          duration = d;
+        }
+      });
+      if (intervalTime < duration * 1000) {
         return {
           pass: false,
           info: this.$t('load_test.schedule_tip')
