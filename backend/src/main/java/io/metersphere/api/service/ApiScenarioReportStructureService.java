@@ -239,9 +239,6 @@ public class ApiScenarioReportStructureService {
     public static void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResult>> maps) {
         for (int index = 0; index < dtoList.size(); index++) {
             StepTreeDTO dto = dtoList.get(index);
-            if(dto.getResourceId().equals("a1db7c43-9d07-4c35-b36e-d4498a1dc78a_19")){
-                System.out.println("-----");
-            }
             dto.setIndex((index + 1));
             List<ApiScenarioReportResult> reportResults = maps.get(dto.getResourceId());
             if (CollectionUtils.isNotEmpty(reportResults)) {

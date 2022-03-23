@@ -38,7 +38,9 @@ public class ApiScenarioReportResultService {
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(item.getSubRequestResults())) {
                     LoggerUtil.debug("合并事物请求暂不入库");
                 } else {
-                    apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                    if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
+                        apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                    }
                 }
             });
         }
