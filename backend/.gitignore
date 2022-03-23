@@ -26,6 +26,8 @@ yarn-error.log*
 
 src/main/resources/static
 src/main/resources/public
+src/main/resources/application.properties
+
 src/test/
 target
 .settings

@@ -79,7 +79,12 @@ export default {
         reqObj.variables = this.runData.variables;
       }
       this.$emit('runRefresh', {});
-      saveScenario('/api/automation/run/debug', reqObj, this.runData.hashTree, this, (response) => {
+
+      let url = '/api/automation/run/debug';
+      if (this.runData.type === 'UiScenario') {
+        url = '/ui/automation/run/debug';
+      }
+      saveScenario(url, reqObj, this.runData.hashTree, this, (response) => {
         this.runId = response.data;
       });
     },

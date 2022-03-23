@@ -444,6 +444,7 @@ export default {
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
     change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
+    ui: 'UI 测试',
   },
   login: {
     normal_Login: "普通登录",
@@ -3100,5 +3101,26 @@ export default {
     match_type: {
       text: "文本"
     }
+  },
+  ui: {
+    ui_automation: "UI 自动化",
+    ui_element: "元素库",
+    report: "测试报告",
+    scenario_list: "场景列表",
+    selenium_tip: "支持 Selenium-IDE 插件格式导入",
+    selenium_export_tip: "通过 MeterSphere 导出 side 文件",
+    elementObject: "元素对象",
+    elementLocator: "元素定位",
+    elementType: "所属分类",
+    not_selected: "(未选择元素)",
+    not_selected_location: "(未选择元素定位)",
+    location: "定位",
+    run: "运行",
+    locate_type: "定位方式",
+    coord: "坐标",
+    enable_or_not: "启用/禁用",
+    enable: "启用",
+    disable: "禁用",
+    resolution: "分辨率",
   }
 };

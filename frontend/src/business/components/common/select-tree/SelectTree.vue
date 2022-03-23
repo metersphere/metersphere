@@ -27,6 +27,7 @@
                  @click.native="selectClick"
                  @remove-tag="removeTag"
                  @clear="clean"
+                 :placeholder="placeholder"
                  class="ms-tree-select">
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
       </el-select>
@@ -136,6 +137,12 @@ export default {
       default() {
         return '300px';
       }
+    },
+    placeholder: {
+      type: String,
+      default() {
+        return this.$t('el.select.placeholder');
+      }
     }
   },
   //上面是父组件可传入参数
@@ -229,6 +236,9 @@ export default {
             return;
           }
         }
+      } else {
+        this.returnDataKeys = this.defaultKey;
+        this.setKey(this.defaultKey);
       }
     },
     //下拉框select点击[入口]
@@ -364,7 +374,9 @@ export default {
         for (let i = 0; i < data.length; i++) {
           const n = data[i];
           if (n[this.obj.pid] === id) {
-            n[this.obj.children] = fa(n[this.obj.id]);
+            if (this.obj.children) {
+              n[this.obj.children] = fa(n[this.obj.id]);
+            }
             temp.push(n);
           }
         }

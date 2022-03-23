@@ -1,6 +1,12 @@
 <template>
   <div class="scenario-result">
-    <div v-if="(node.children && node.children.length >0) || node.unsolicited
+    <div v-if="node.type === 'MsUiCommand'">
+      <ui-command-result
+        :index-number="node.index"
+        :command="node"
+        :result="node.value"/>
+    </div>
+    <div v-else-if="(node.children && node.children.length >0) || node.unsolicited
     || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
@@ -30,10 +36,11 @@
 <script>
 import MsRequestResult from "./RequestResult";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
+import UiCommandResult from "@/business/components/api/automation/report/components/UiCommandResult";
 
 export default {
   name: "MsScenarioResult",
-  components: {MsRequestResult},
+  components: {UiCommandResult, MsRequestResult},
   props: {
     scenario: Object,
     node: Object,

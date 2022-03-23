@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
 import io.metersphere.base.domain.ApiScenarioReportResult;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
@@ -62,6 +63,34 @@ public class ApiScenarioReportResultService {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
+    }
+
+    public void uiSave(String reportId, List<RequestResult> queue) {
+        if (CollectionUtils.isNotEmpty(queue)) {
+            queue.forEach(item -> {
+                String header = item.getResponseResult().getHeaders();
+                if (StringUtils.isNoneBlank(header)) {
+                    JSONObject jsonObject = JSONObject.parseObject(header);
+                    for (String resourceId : jsonObject.keySet()) {
+                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.get(resourceId).toString()));
+                    }
+                }
+            });
+        }
+    }
+
+    private ApiScenarioReportResult newUiScenarioReportResult(String reportId, String resourceId, String value) {
+        ApiScenarioReportResult report = new ApiScenarioReportResult();
+        report.setId(UUID.randomUUID().toString());
+        report.setResourceId(resourceId);
+        report.setReportId(reportId);
+        report.setTotalAssertions(0L);
+        report.setPassAssertions(0L);
+        report.setCreateTime(System.currentTimeMillis());
+        String status = value.equalsIgnoreCase("OK") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        report.setStatus(status);
+        report.setContent(value.getBytes(StandardCharsets.UTF_8));
+        return report;
     }
 
     private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult baseResult) {

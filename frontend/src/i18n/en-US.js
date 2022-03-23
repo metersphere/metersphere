@@ -441,7 +441,8 @@ export default {
     sync_other_info: "Copy other config",
     delete_current_version: 'Current version',
     delete_all_version: 'All versions',
-    change_password_tips: 'Your password is the initial system password, please change it as soon as possible'
+    change_password_tips: 'Your password is the initial system password, please change it as soon as possible',
+    ui: 'UI TEST',
   },
   login: {
     normal_Login: "Normal Login",
@@ -3096,5 +3097,10 @@ export default {
     match_type: {
       text: "TXT"
     }
+  },
+  ui: {
+    ui_automation: "UI Automation",
+    ui_element: "UI Element Library",
+    report: "Test Report",
   }
 };

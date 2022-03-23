@@ -36,6 +36,12 @@ const state = {
   curTabId: null,
   testCaseDefaultValue: {},
   forceRerenderIndex: "",
+  currentScenario: {},
+  scenarioDefinition: {},
+  selectCommand: {},
+  //按照type分组的指令
+  groupedCmd: {},
+  librarySelectElement: {}
 }
 
 const store = new Vuex.Store({

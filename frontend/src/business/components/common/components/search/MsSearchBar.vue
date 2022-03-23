@@ -1,6 +1,6 @@
 <template>
     <el-input class="ms-search-bar" :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
-      <template v-if="showOperator" v-slot:append>
+      <template v-if="showOperator && commands" v-slot:append>
         <el-dropdown>
           <el-button type="primary">
             <span class="tip-font">{{ $t('commons.more_operator') }}</span>
@@ -53,17 +53,7 @@ export default {
       }
     },
     showOperator: Boolean,
-    commands: {
-      type: Array,
-      default() {
-        return [
-          {
-            label: this.$t('api_test.api_import.label'),
-            callback: () => {}
-          }
-        ]
-      }
-    }
+    commands: Array
   },
   methods: {
     click(item) {

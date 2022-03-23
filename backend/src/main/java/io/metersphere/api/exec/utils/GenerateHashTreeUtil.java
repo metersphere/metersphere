@@ -27,6 +27,7 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.vo.BooleanPool;
+import io.metersphere.xpack.ui.hashtree.MsUiScenario;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 
@@ -48,6 +49,36 @@ public class GenerateHashTreeUtil {
     }
 
     public static void parse(String scenarioDefinition, MsScenario scenario) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            JSONObject element = JSON.parseObject(scenarioDefinition);
+            ElementUtil.dataFormatting(element);
+            // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                        new TypeReference<LinkedList<MsTestElement>>() {
+                        });
+                scenario.setHashTree(elements);
+            }
+            if (element != null && StringUtils.isNotEmpty(element.getString("variables"))) {
+                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<ScenarioVariable>>() {
+                        });
+                scenario.setVariables(variables);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
+
+    public static MsUiScenario parseUiScenario(String scenarioDefinition) {
+        MsUiScenario msUiScenario = JSONObject.parseObject(scenarioDefinition, MsUiScenario.class);
+        parseUiScenario(scenarioDefinition, msUiScenario);
+        return msUiScenario;
+    }
+
+    public static void parseUiScenario(String scenarioDefinition, MsUiScenario scenario) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {

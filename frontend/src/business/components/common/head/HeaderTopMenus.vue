@@ -22,6 +22,10 @@
                   v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
       {{ $t('commons.api') }}
     </el-menu-item>
+    <el-menu-item index="/ui" @click="active()" v-if="check('ui')" onselectstart="return false"
+                  v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
+      {{ $t('commons.ui') }}
+    </el-menu-item>
     <el-menu-item index="/performance" v-if="check('performance')"
                   onselectstart="return false"
                   v-permission="['PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']">

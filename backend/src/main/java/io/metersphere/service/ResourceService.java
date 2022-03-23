@@ -31,7 +31,18 @@ public class ResourceService {
         if (name.contains("/")) {
             MSException.throwException(Translator.get("invalid_parameter"));
         }
-        File file = new File(FileUtils.MD_IMAGE_DIR + "/" + name);
+        return getImage(FileUtils.MD_IMAGE_DIR + "/" + name);
+    }
+
+    public ResponseEntity<FileSystemResource> getUiResultImage(String name) {
+        if (name.contains("/")) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
+        return getImage(FileUtils.UI_IMAGE_DIR + "/" + name);
+    }
+
+    public ResponseEntity<FileSystemResource> getImage(String path) {
+        File file = new File(path);
         HttpHeaders headers = new HttpHeaders();
         String fileName = encodeFileName(file.getName());
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");

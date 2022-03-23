@@ -19,6 +19,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.xpack.ui.impl.CommandConfig;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,11 @@ public class ParameterConfig extends MsParameter {
      * 环境配置
      */
     private Map<String, EnvironmentConfig> config;
+
+    /**
+     * UI 指令全局配置
+     */
+    private CommandConfig commandConfig;
     /**
      * 缓存同一批请求的认证信息
      */
@@ -193,5 +199,33 @@ public class ParameterConfig extends MsParameter {
                 }
             }
         }
+    }
+
+    public void setHeader(String name, String value) {
+        if (StringUtils.isEmpty(name)) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(headers)) {
+            headers = new LinkedList<>();
+        }
+        for (KeyValue kv : headers) {
+            if (StringUtils.equalsIgnoreCase(kv.getName(), name)) {
+                kv.setValue(value);
+                return;
+            }
+        }
+        KeyValue kv = new KeyValue(name, value);
+        headers.add(kv);
+    }
+
+    public KeyValue getHeader(String name) {
+        if (StringUtils.isNotEmpty(name) && CollectionUtils.isNotEmpty(headers)) {
+            for (KeyValue kv : headers) {
+                if (StringUtils.equalsIgnoreCase(kv.getName(), name)) {
+                    return kv;
+                }
+            }
+        }
+        return null;
     }
 }
