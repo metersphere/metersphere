@@ -170,6 +170,8 @@ public class MsScenario extends MsTestElement {
                     el.setParent(this);
                     el.setMockEnvironment(this.isMockEnvironment());
                     if (this.isEnvironmentEnable()) {
+                        newConfig.setScenarioId(config.getScenarioId());
+                        newConfig.setReportType(config.getReportType());
                         el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
                     } else {
                         el.toHashTree(scenarioTree, el.getHashTree(), config);
