@@ -9,9 +9,11 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
-import io.metersphere.api.service.*;
+import io.metersphere.api.service.ApiCaseResultService;
+import io.metersphere.api.service.ApiExecutionQueueService;
+import io.metersphere.api.service.ApiScenarioReportStructureService;
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
@@ -57,10 +59,6 @@ public class ApiCaseExecuteService {
     private EnvironmentGroupProjectService environmentGroupProjectService;
     @Resource
     private ApiCaseResultService apiCaseResultService;
-    @Resource
-    private ApiScenarioReportService apiScenarioReportService;
-    @Resource
-    private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     ApiScenarioReportStructureService apiScenarioReportStructureService;
 
