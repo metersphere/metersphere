@@ -24,7 +24,7 @@
       <span>
         <slot name="searchBarBefore"></slot>
         <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip" v-if="haveSearch"/>
-        <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
+        <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine" ref="searchBar"/>
       </span>
     </el-row>
   </div>
@@ -147,6 +147,11 @@
       },
       changeVersion(type){
         this.$emit('changeVersion',type);
+      },
+      resetSearchData() {
+        if (this.$refs.searchBar) {
+          this.$refs.searchBar.reset();
+        }
       }
     },
     computed: {
