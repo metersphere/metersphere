@@ -19,7 +19,7 @@
           {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
         </div>
         <div v-if="response && response.attachInfoMap && response.attachInfoMap.errorReportResult">
-          <div class="ms-req-error-report-result">
+          <div class="node-title ms-req-error-report-result" style="margin-left: 0px;padding-left: 0px">
             {{ response.attachInfoMap.errorReportResult }}
           </div>
         </div>
