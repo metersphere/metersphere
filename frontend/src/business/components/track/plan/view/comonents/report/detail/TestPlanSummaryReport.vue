@@ -1,7 +1,7 @@
 <template>
   <test-plan-report-container id='summary' :title="$t('test_track.report.report_summary')">
     <template v-slot:title>
-      <el-link class="edit-link" v-if="!isTemplate && !isShare && !isEdit" @click="isEdit = true">
+      <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && !isEdit" @click="isEdit = true">
         {{ $t('commons.edit') }}
       </el-link>
       <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && isEdit" @click="saveSummary">
