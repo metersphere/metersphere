@@ -682,17 +682,17 @@ export default {
     clickResource(resource) {
       let workspaceId;
       let isTurnSpace = true
-      if(resource.projectId!==getCurrentProjectID()){
+      if (resource.projectId !== getCurrentProjectID()) {
         isTurnSpace = false;
         this.$get("/project/get/" + resource.projectId, response => {
           if (response.data) {
-            workspaceId  = response.data.workspaceId;
+            workspaceId = response.data.workspaceId;
             isTurnSpace = true;
-            this.gotoTurn(resource,workspaceId,isTurnSpace);
+            this.gotoTurn(resource, workspaceId, isTurnSpace);
           }
         });
-      }else{
-        this.gotoTurn(resource,workspaceId,isTurnSpace);
+      } else {
+        this.gotoTurn(resource, workspaceId, isTurnSpace);
       }
     },
     clickCase(resource) {
@@ -739,7 +739,7 @@ export default {
             workspaceId: workspaceId,
           }
         });
-        if(isTurnSpace){
+        if (isTurnSpace) {
           window.open(definitionData.href, '_blank');
         }
       } else if (resource.refType && resource.refType === 'CASE') {
@@ -749,7 +749,7 @@ export default {
             response.data.type = resource.type;
             response.data.refType = resource.refType;
             response.data.workspaceId = workspaceId;
-            if(isTurnSpace){
+            if (isTurnSpace) {
               this.clickCase(response.data)
             }
           } else {

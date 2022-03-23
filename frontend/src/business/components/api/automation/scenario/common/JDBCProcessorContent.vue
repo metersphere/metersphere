@@ -117,13 +117,10 @@ export default {
       rules: {},
     }
   },
-  watch: {
-    'request.dataSourceId'() {
-      this.setDataSource();
-    },
-  },
   created() {
-    this.getEnvironments();
+    this.$nextTick(() => {
+      this.getEnvironments();
+    });
   },
   computed: {
     projectId() {
@@ -172,13 +169,14 @@ export default {
         });
         let hasEnvironment = false;
         for (let i in this.environments) {
-          if (this.environments[i].id === this.request.environmentId) {
+          if (this.environments[i].id === this.request.environmentId &&
+            this.$store.state.scenarioEnvMap.get(this.projectId) === this.request.environmentId) {
             hasEnvironment = true;
             break;
           }
         }
         if (!hasEnvironment) {
-          this.request.environmentId = undefined;
+          this.request.environmentId = this.$store.state.scenarioEnvMap.get(this.projectId);
         }
         if (!this.request.environmentId) {
           this.request.dataSourceId = undefined;
@@ -200,13 +198,17 @@ export default {
       }
 
       this.databaseConfigsOptions = [];
-      if(environment.config&&environment.config.databaseConfigs){
+      if (environment.config && environment.config.databaseConfigs) {
         environment.config.databaseConfigs.forEach(item => {
           if (item.id === this.request.dataSourceId) {
             flag = true;
           }
           this.databaseConfigsOptions.push(item);
         });
+        if (!flag && environment.config.databaseConfigs.length > 0) {
+          this.request.dataSourceId = environment.config.databaseConfigs[0].id;
+          flag = true;
+        }
       }
       if (!flag) {
         this.request.dataSourceId = "";
