@@ -1,5 +1,5 @@
 <template>
-  <ms-chart v-if="visible && data.length > 0" :options="options" :autoresize ="true"  style="width: 100%"/>
+  <ms-chart v-if="visible && pieData.length > 0" :options="options" :autoresize ="true"  style="width: 100%"/>
 </template>
 
 <script>
@@ -43,7 +43,7 @@ export default {
             labelLine: {
               show: true
             },
-            data: this.data,
+            data: this.pieData,
             colorBy: "data"
           }
         ]
@@ -69,19 +69,13 @@ export default {
         return ['40%', '70%']
       }
     },
-    data: {
+    pieData: {
       type: Array,
       default() {
         return []
       }
     }
-  },
-  watch: {
-    data() {
-
-    }
-  },
-
+  }
 }
 </script>
 
