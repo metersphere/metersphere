@@ -367,7 +367,7 @@ export default {
               this.fullTreeNodes = report.steps;
               this.content.console = report.console;
               this.content.error = report.error;
-              this.content.success = (report.total - report.error - report.errorCode);
+              this.content.success = (report.total - report.error - report.errorCode  - report.unExecute);
               this.totalTime = report.totalTime;
             }
             this.loading = false;
