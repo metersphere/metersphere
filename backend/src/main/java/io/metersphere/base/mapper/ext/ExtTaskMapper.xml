@@ -6,7 +6,10 @@
         SELECT tt.* FROM (
             (select t.id,if(t.scenario_id like "[\"%\"]", t.name,t.scenario_name) as name ,'SCENARIO' as executionModule,t.report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.status as executionStatus
                 from api_scenario_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.actuator  = t2.id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id= #{request.projectId}
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id in
+                <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
                 <if test="request.triggerMode != null and request.triggerMode != ''">
                     and t.trigger_mode = #{request.triggerMode}
                 </if>
@@ -20,8 +23,12 @@
              UNION ALL
              (select t.id,t.name,'API' as executionModule, t.report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, ifnull(t.trigger_mode,'MANUAL') as triggerMode ,ifnull(t.status,'Saved') as executionStatus
                     from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id  left join test_resource_pool t2 on t.actuator  = t2.id
-                    where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.project_id =#{request.projectId}
-                <if test="request.triggerMode != null and request.triggerMode != ''">
+                    where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.project_id in
+                    <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                        #{id}
+                    </foreach>
+
+             <if test="request.triggerMode != null and request.triggerMode != ''">
                     and t.trigger_mode = #{request.triggerMode}
                 </if>
                 <if test="request.executionStatus != null and request.executionStatus != ''">
@@ -35,7 +42,10 @@
             UNION ALL
             (select t.id,t.name,'PERFORMANCE' as executionModule,'PERFORMANCE' as report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.`status` as executionStatus
                 from load_test_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.test_resource_pool_id  = t2.id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now())  and t.project_id= #{request.projectId}
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now())  and t.project_id in
+                <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
                 <if test="request.triggerMode != null and request.triggerMode != ''">
                     and t.trigger_mode = #{request.triggerMode}
                 </if>
@@ -70,20 +80,32 @@
         SELECT count(tt.id) FROM (
             (select t.id,t.create_time as executionTime
                 from api_scenario_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.actuator  = t2.id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id= #{request.projectId} and t.status not in ("saved","completed","success","error","STOP")
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id in
+                <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+                and t.status not in ("saved","completed","success","error","STOP")
             )
         UNION ALL
             (select t.id,t.create_time as executionTime
                 from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id  left join test_resource_pool t2 on t.actuator  = t2.id
                 where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now())
                 and (t.integrated_report_id is null or t.integrated_report_id='null')
-                and t.project_id =#{request.projectId}
+                and t.project_id in
+                <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
                 and t.status not in ("saved","completed","success","error","STOP")
             )
         UNION ALL
             (select t.id,t.create_time as executionTime
                 from load_test_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.test_resource_pool_id  = t2.id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now())  and t.project_id= #{request.projectId} and t.status not in ("saved","completed","success","error")
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now())  and
+                t.project_id in
+                <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+                and t.status not in ("saved","completed","success","error")
             )
         )tt ORDER BY tt.executionTime DESC;
     </select>
