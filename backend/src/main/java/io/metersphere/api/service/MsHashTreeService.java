@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MsHashTreeService {
@@ -190,7 +191,24 @@ public class MsHashTreeService {
                     element.put(AUTH_MANAGER, refElement.get(AUTH_MANAGER));
                     element.put(ARGUMENTS, refElement.get(ARGUMENTS));
                     if (array != null) {
-                        ElementUtil.mergeHashTree(element, refElement.getJSONArray(HASH_TREE));
+                        JSONArray sourceHashTree = element.getJSONArray("hashTree");
+                        Map<String, List<JSONObject>> groupMap = ElementUtil.group(sourceHashTree);
+                        Map<String, List<JSONObject>> targetGroupMap = ElementUtil.group(refElement.getJSONArray(HASH_TREE));
+
+                        List<JSONObject> pre = ElementUtil.mergeHashTree(groupMap.get("PRE"), targetGroupMap.get("PRE"));
+                        List<JSONObject> post = ElementUtil.mergeHashTree(groupMap.get("POST"), targetGroupMap.get("POST"));
+                        List<JSONObject> rules = ElementUtil.mergeHashTree(groupMap.get("ASSERTIONS"), targetGroupMap.get("ASSERTIONS"));
+                        JSONArray step = new JSONArray();
+                        if (CollectionUtils.isNotEmpty(pre)) {
+                            step.addAll(pre);
+                        }
+                        if (CollectionUtils.isNotEmpty(post)) {
+                            step.addAll(post);
+                        }
+                        if (CollectionUtils.isNotEmpty(rules)) {
+                            step.addAll(rules);
+                        }
+                        element.put("hashTree", step);
                     }
                     element.put(REFERENCED, REF);
                     element.put(DISABLED, true);
