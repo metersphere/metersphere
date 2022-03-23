@@ -19,6 +19,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,16 +59,32 @@ public class TaskService {
     private ExecThreadPoolExecutor execThreadPoolExecutor;
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
+
+    public List<String> getOwnerProjectIds(String userId) {
+        Set<String> userRelatedProjectIds = null;
+        if (StringUtils.isEmpty(userId)) {
+            userRelatedProjectIds = checkPermissionService.getUserRelatedProjectIds();
+        } else {
+            userRelatedProjectIds = checkPermissionService.getOwnerByUserId(userId);
+        }
+        if (CollectionUtils.isEmpty(userRelatedProjectIds)) {
+            return new ArrayList<>(0);
+        }
+        return new ArrayList<>(userRelatedProjectIds);
+    }
 
     public List<TaskCenterDTO> getTasks(TaskCenterRequest request) {
-        if (StringUtils.isEmpty(request.getProjectId())) {
+        if (CollectionUtils.isEmpty(request.getProjects())) {
             return new ArrayList<>();
         }
         return extTaskMapper.getTasks(request);
     }
 
     public int getRunningTasks(TaskCenterRequest request) {
-        if (StringUtils.isEmpty(request.getProjectId())) {
+        request.setProjects(this.getOwnerProjectIds(request.getUserId()));
+        if (CollectionUtils.isEmpty(request.getProjects())) {
             return 0;
         }
         return extTaskMapper.getRunningTasks(request);

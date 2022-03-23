@@ -128,12 +128,26 @@ public class CheckPermissionService {
             MSException.throwException(Translator.get("check_owner_review"));
         }
     }
-    public List<ProjectDTO>  getOwnerProjects() {
+
+    public List<ProjectDTO> getOwnerProjects() {
         Set<String> userRelatedProjectIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(userRelatedProjectIds)) {
             return new ArrayList<>(0);
         }
         List<String> projectIds = new ArrayList<>(userRelatedProjectIds);
         return extProjectMapper.queryListByIds(projectIds);
+    }
+
+    public Set<String> getOwnerByUserId(String userId) {
+        UserDTO userDTO = userService.getUserDTO(userId);
+        List<String> groupIds = userDTO.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.PROJECT))
+                .map(Group::getId)
+                .collect(Collectors.toList());
+        return userDTO.getUserGroups().stream()
+                .filter(ur -> groupIds.contains(ur.getGroupId()))
+                .map(UserGroup::getSourceId)
+                .collect(Collectors.toSet());
     }
 }

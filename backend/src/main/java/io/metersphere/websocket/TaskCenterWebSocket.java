@@ -13,7 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/task/center/count/running/{projectId}")
+@ServerEndpoint("/task/center/count/running/{projectId}/{userId}")
 @Component
 public class TaskCenterWebSocket {
     private static TaskService taskService;
@@ -28,9 +28,9 @@ public class TaskCenterWebSocket {
      * 开启连接的操作
      */
     @OnOpen
-    public void onOpen(@PathParam("projectId") String projectId, Session session) {
+    public void onOpen(@PathParam("projectId") String projectId, @PathParam("userId") String userId, Session session) {
         Timer timer = new Timer(true);
-        TaskCenterWebSocket.TaskCenter task = new TaskCenterWebSocket.TaskCenter(session, projectId);
+        TaskCenterWebSocket.TaskCenter task = new TaskCenterWebSocket.TaskCenter(session, projectId, userId);
         timer.schedule(task, 0, 10 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
@@ -51,7 +51,7 @@ public class TaskCenterWebSocket {
      * 推送消息
      */
     @OnMessage
-    public void onMessage(@PathParam("projectId") String projectId, Session session, String message) {
+    public void onMessage(@PathParam("projectId") String projectId, @PathParam("userId") String userId, Session session, String message) {
         int refreshTime = 10;
         try {
             refreshTime = Integer.parseInt(message);
@@ -62,7 +62,7 @@ public class TaskCenterWebSocket {
             timer.cancel();
 
             Timer newTimer = new Timer(true);
-            newTimer.schedule(new TaskCenterWebSocket.TaskCenter(session, projectId), 0, refreshTime * 1000L);
+            newTimer.schedule(new TaskCenterWebSocket.TaskCenter(session, projectId, userId), 0, refreshTime * 1000L);
             refreshTasks.put(session, newTimer);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -82,10 +82,11 @@ public class TaskCenterWebSocket {
         private Session session;
         private TaskCenterRequest request;
 
-        TaskCenter(Session session, String projectId) {
+        TaskCenter(Session session, String projectId, String userId) {
             this.session = session;
             TaskCenterRequest request = new TaskCenterRequest();
             request.setProjectId(projectId);
+            request.setUserId(userId);
             this.request = request;
         }
 

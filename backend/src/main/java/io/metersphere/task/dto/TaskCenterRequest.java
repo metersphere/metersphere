@@ -2,10 +2,15 @@ package io.metersphere.task.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TaskCenterRequest {
 
     private String projectId;
+
+    private String userId;
+
     /**
      * 触发方式
      */
@@ -22,4 +27,6 @@ public class TaskCenterRequest {
     private int goPage;
 
     private int pageSize;
+
+    List<String> projects;
 }
