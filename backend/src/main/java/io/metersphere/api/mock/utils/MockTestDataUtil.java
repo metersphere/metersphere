@@ -36,7 +36,7 @@ public class MockTestDataUtil {
         } else if (StringUtils.equals(MockApiUtils.parseCondition(request.getCondition()), MockParamConditionEnum.LENGTH_SHOT_THAN.name())) {
             int length = Integer.parseInt(request.getValue());
             if(length > 1){
-                return RandomStringUtils.randomAlphanumeric(length);
+                return RandomStringUtils.randomAlphanumeric(length-1);
             }else {
                 return "";
             }
