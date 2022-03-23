@@ -45,7 +45,7 @@ public class ApiScenarioReportResultService {
                 if (StringUtils.isNoneBlank(header)) {
                     JSONObject jsonObject = JSONObject.parseObject(header);
                     for (String resourceId : jsonObject.keySet()) {
-                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.getString(resourceId)));
+                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.get(resourceId).toString()));
                     }
                 }
             });

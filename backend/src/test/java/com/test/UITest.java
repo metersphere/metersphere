@@ -37,7 +37,6 @@ public class UITest {
         // 全局脚本配置
         CommandConfig globalConfig = new CommandConfig();
         globalConfig.setSecondsWaitWindowOnLoad(10);
-        globalConfig.setScreenShotAddress(CommandConfig.screenShotPath);
         String str = WebDriverSamplerHelper.getFullWebDriverScript(JSONObject.parseObject(sideDefinition, SideDTO.class), globalConfig);
         System.out.println(str);
     }

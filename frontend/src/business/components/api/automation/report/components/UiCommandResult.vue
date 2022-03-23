@@ -1,8 +1,8 @@
 <template>
-  <el-card class="ms-cards" v-if="result">
+  <el-card class="ms-cards">
     <div class="request-result">
       <div>
-        <el-row :gutter="18" type="flex" align="middle" class="info">
+        <el-row :gutter="16" type="flex" align="middle" class="info">
           <el-col class="ms-req-name-col" :span="18" v-if="indexNumber != undefined">
             <div class="method ms-req-name">
               <div class="el-step__icon is-text ms-api-col-create">
@@ -12,18 +12,36 @@
             </div>
           </el-col>
 
+          <el-col :span="3">
+            <span v-if="result" :style="!result.success ? 'color: #FE6F71' : ''">
+              {{ result.endTime - result.startTime }} ms
+            </span>
+          </el-col>
+
+          <el-col :span="3">
+            <el-popover
+              placement="right"
+              trigger="hover"
+              popper-class="issues-popover"
+              v-if="result">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src="'/resource/ui/get?fileName=' + result.url"
+                :preview-src-list="['/resource/ui/get?fileName=' + result.url]">
+              </el-image>
+              <el-button slot="reference" type="text">{{ $t('截图') }}</el-button>
+            </el-popover>
+          </el-col>
+
           <el-col :span="2">
             <div>
-              <el-tag size="mini" v-if="!result.uiValue">{{
-                  $t('api_test.home_page.detail_card.unexecute')
-                }}
+              <el-tag size="mini" v-if="!result">
+                {{ $t('api_test.home_page.detail_card.unexecute') }}
               </el-tag>
-<!--              <el-tag v-else-if="errorCode" class="ms-test-error_code" size="mini">-->
-<!--                {{ $t('error_report_library.option.name') }}-->
-<!--              </el-tag>-->
-              <el-tag size="mini" type="success" v-if="result.uiValue === 'OK'"> {{ $t('api_report.success') }}</el-tag>
-
-              <el-tooltip v-else :content="result.uiValue" placement="top">
+              <el-tag size="mini" type="success" v-else-if="result.success">
+                {{ $t('api_report.success') }}
+              </el-tag>
+              <el-tooltip v-else :content="result.body" placement="top">
                 <el-tag size="mini" type="danger" >
                   {{ $t('api_report.fail') }}
                 </el-tag>
@@ -44,11 +62,12 @@ export default {
   name: "UiCommandResult",
   props: {
     indexNumber: Number,
-    result: Object
+    result: Object,
+    command: Object
   },
   computed: {
     label() {
-      return commandDefinition[this.result.label].cnName;
+      return this.command.label ? commandDefinition[this.command.label].cnName : '';
     }
   },
   data() {

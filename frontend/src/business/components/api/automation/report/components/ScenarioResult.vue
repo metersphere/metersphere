@@ -3,7 +3,8 @@
     <div v-if="node.type === 'MsUiCommand'">
       <ui-command-result
         :index-number="node.index"
-        :result="node"/>
+        :command="node"
+        :result="node.value"/>
     </div>
     <div v-else-if="(node.children && node.children.length >0) || node.unsolicited
     || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
