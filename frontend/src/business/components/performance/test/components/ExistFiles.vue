@@ -204,11 +204,8 @@ export default {
           type: row.type.toUpperCase(),
           updateTime: row.lastModified,
         });
-      }
-      //
-      rows.forEach(row => {
         this.fileList.push(row);
-      });
+      }
 
       if (this.loadType === 'resource') {
         this.$success(this.$t('test_track.case.import.success'));
