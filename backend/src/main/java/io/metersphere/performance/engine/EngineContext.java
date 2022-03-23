@@ -16,6 +16,7 @@ public class EngineContext {
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, byte[]> testResourceFiles = new HashMap<>();
     private Map<String, Boolean> splitFlag = new HashMap<>();
+    private boolean checkBackendListener;
 
     public String getTestId() {
         return testId;
@@ -116,5 +117,13 @@ public class EngineContext {
 
     public void setSplitFlag(Map<String, Boolean> splitFlag) {
         this.splitFlag = splitFlag;
+    }
+
+    public boolean isCheckBackendListener() {
+        return checkBackendListener;
+    }
+
+    public void setCheckBackendListener(boolean checkBackendListener) {
+        this.checkBackendListener = checkBackendListener;
     }
 }

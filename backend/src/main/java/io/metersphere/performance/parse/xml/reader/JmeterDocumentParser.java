@@ -612,6 +612,10 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (checkLicense() && !BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
             return;
         }
+        // 已经添加过不再重复添加
+        if (context.isCheckBackendListener()) {
+            return;
+        }
 
         Element listenerParent = getNextSibling(element);
 
@@ -632,6 +636,8 @@ public class JmeterDocumentParser implements EngineSourceParser {
         backendListener.addAttribute("enabled", "true");
 
         listenerParent.addElement(HASH_TREE_ELEMENT);
+        // 标记已经添加上
+        context.setCheckBackendListener(true);
     }
 
     private boolean checkLicense() {
