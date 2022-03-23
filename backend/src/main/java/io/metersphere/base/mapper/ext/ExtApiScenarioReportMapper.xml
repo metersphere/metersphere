@@ -153,6 +153,9 @@
             <if test="request.reportType != null and request.reportType != ''">
                 and r.report_type like CONCAT(#{request.reportType},'%')
             </if>
+            <if test="request.reportType == null || request.reportType == ''">
+                and r.report_type not like 'UI%'
+            </if>
 
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
