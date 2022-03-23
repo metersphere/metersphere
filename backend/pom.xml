@@ -195,6 +195,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- jdk11 环境下有 Illegal reflective access   -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
 
         <!--   排除jmeter中的 xstream 解决bug     -->
         <dependency>
