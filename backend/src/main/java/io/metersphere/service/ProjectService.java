@@ -767,7 +767,7 @@ public class ProjectService {
         } else {
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
             Integer mockPort = config.getMockTcpPort();
-            if (mockPort == null || mockPort != 0) {
+            if (mockPort == null) {
                 MSException.throwException("Mock tcp port is not Found!");
             } else {
                 TCPPool.createTcp(mockPort);
@@ -791,7 +791,7 @@ public class ProjectService {
         } else {
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
             Integer mockPort = config.getMockTcpPort();
-            if (mockPort == null || mockPort != 0) {
+            if (mockPort == null) {
                 MSException.throwException("Mock tcp port is not Found!");
             } else {
                 this.closeMockTcp(mockPort);
