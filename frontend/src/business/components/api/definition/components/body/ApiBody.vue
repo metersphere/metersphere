@@ -256,7 +256,7 @@ export default {
     setContentType(value) {
       let isType = false;
       this.headers.forEach(item => {
-        if (item.name === "Content-Type") {
+        if (item.name === "Content-Type" || item.name == "contentType") {
           item.value = value;
           isType = true;
         }

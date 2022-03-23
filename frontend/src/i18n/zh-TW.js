@@ -444,6 +444,7 @@ export default {
     delete_current_version: '列表版本',
     delete_all_version: '全部版本',
     change_password_tips: '您的密碼是系統初始密碼，請盡快修改密碼',
+    ui: 'UI 測試',
   },
   login: {
     normal_Login: "普通登錄",
@@ -3099,5 +3100,10 @@ export default {
     match_type: {
       text: "文本"
     }
+  },
+  ui: {
+    ui_automation: "UI 自動化",
+    ui_element: "元素庫",
+    report: "測試報告",
   }
 };

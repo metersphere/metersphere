@@ -221,7 +221,7 @@ import {exportPdf, getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {handleCtrlSEvent} from "../../../../../../common/js/utils";
-import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {copyScenarioRow, saveScenario, scenarioSort} from "@/business/components/api/automation/api-automation";
 import {buttons, setComponent} from '../menu/Menu';
 import MsContainer from "../../../../common/components/MsContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
@@ -509,25 +509,6 @@ export default {
     apiListImport() {
       this.$refs.scenarioApiRelevance.open();
     },
-    recursiveSorting(arr, scenarioProjectId) {
-      for (let i in arr) {
-        arr[i].index = Number(i) + 1;
-        if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
-          arr[i].countController.proceed = true;
-        }
-        if (!arr[i].projectId) {
-          arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-        }
-        if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-          this.hideTreeNode(arr[i], arr[i].hashTree);
-          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
-        }
-        // 添加debug结果
-        if (this.debugResult && this.debugResult.get(arr[i].id + arr[i].name)) {
-          arr[i].requestResult = this.debugResult.get(arr[i].id + arr[i].name);
-        }
-      }
-    },
     openOrClose(node) {
       node.expanded = !node.expanded;
       if (node.expanded) {
@@ -553,28 +534,7 @@ export default {
       node.isLeaf = isLeaf;
     },
     sort() {
-      for (let i in this.scenarioDefinition) {
-        // 排序
-        this.scenarioDefinition[i].index = Number(i) + 1;
-        // 设置循环控制
-        if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
-          && this.scenarioDefinition[i].hashTree.length > 1) {
-          this.scenarioDefinition[i].countController.proceed = true;
-        }
-        // 设置项目ID
-        if (!this.scenarioDefinition[i].projectId) {
-          this.scenarioDefinition[i].projectId = this.projectId;
-        }
-
-        if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-          this.hideTreeNode(this.scenarioDefinition[i], this.scenarioDefinition[i].hashTree);
-          this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
-        }
-        // 添加debug结果
-        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
-          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
-        }
-      }
+      scenarioSort(this);
     },
     addCustomizeApi(request) {
       this.customizeVisible = false;
@@ -676,36 +636,9 @@ export default {
       });
     },
     copyRow(row, node) {
-      if (!row || !node) {
-        return;
-      }
-      const parent = node.parent
-      const hashTree = parent.data.hashTree || parent.data;
-      // 深度复制
-      let obj = JSON.parse(JSON.stringify(row));
-      if (obj.hashTree && obj.hashTree.length > 0) {
-        this.resetResourceId(obj.hashTree);
-      }
-      obj.resourceId = getUUID();
-      if (obj.name) {
-        obj.name = obj.name + '_copy';
-      }
-      const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
-      if (index != -1) {
-        hashTree.splice(index + 1, 0, obj);
-      } else {
-        hashTree.push(obj);
-      }
+      copyScenarioRow(row, node);
       this.sort();
       this.reload();
-    },
-    resetResourceId(hashTree) {
-      hashTree.forEach(item => {
-        item.resourceId = getUUID();
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.resetResourceId(item.hashTree);
-        }
-      })
     },
     showHide() {
       this.showHideTree = false

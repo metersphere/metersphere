@@ -25,6 +25,11 @@ public class ResourceController {
         return resourceService.getMdImage(fileName);
     }
 
+    @GetMapping(value = "/ui/get")
+    public ResponseEntity<FileSystemResource> getUiFile(@RequestParam ("fileName") String fileName) {
+        return resourceService.getUiResultImage(fileName);
+    }
+
     /**
      * 兼容旧版本
      * @param fileName

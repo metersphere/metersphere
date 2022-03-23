@@ -233,6 +233,18 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'description', key: '7', label: 'test_track.issue.description'},
     {id: 'caseCount', key: '9', label: 'api_test.definition.api_case_number'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
+  ],
+
+  //缺陷列表
+  ELEMENT_LIST: [
+    {id: 'num', key: '1', label: 'test_track.issue.id'},
+    {id: 'name', key: '2', label: '元素名称'},
+    {id: 'modulePath', key: '3', label: '所属页面'},
+    {id: 'locationType', key: '4', label: '定位类型'},
+    {id: 'location', key: '5', label: '元素定位'},
+    {id: 'creatorUser', key: '6', label: 'test_track.issue.issue_resource'},
+    {id: 'createTime', key: '7', label: 'commons.create_time'},
+    {id: 'updateTime', key: '8', label: 'commons.update_time'},
   ]
 
 }

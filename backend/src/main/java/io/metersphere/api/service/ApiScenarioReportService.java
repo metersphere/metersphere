@@ -60,6 +60,8 @@ public class ApiScenarioReportService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
+    private UiScenarioMapper uiScenarioMapper;
+    @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private NoticeSendService noticeSendService;
@@ -83,8 +85,14 @@ public class ApiScenarioReportService {
         apiScenarioReportResultService.save(dto.getReportId(), requestResults);
     }
 
+
     public void batchSaveResult(List<ResultDTO> dtos) {
         apiScenarioReportResultService.batchSave(dtos);
+    }
+
+    public void saveUiResult(List<RequestResult> requestResults, ResultDTO dto) {
+        // 报告详情内容
+        apiScenarioReportResultService.uiSave(dto.getReportId(), requestResults);
     }
 
     public ApiScenarioReport testEnded(ResultDTO dto) {
@@ -109,6 +117,8 @@ public class ApiScenarioReportService {
             scenarioReport = updatePlanCase(requestResults, dto);
         } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             scenarioReport = updateSchedulePlanCase(requestResults, dto);
+        } else if (dto.getRunMode().startsWith("UI")) {
+            scenarioReport = updateUiScenario(requestResults, dto);
         } else {
             scenarioReport = updateScenario(requestResults, dto);
         }
@@ -394,6 +404,42 @@ public class ApiScenarioReportService {
         if (scenario != null && report != null) {
             sendNotice(scenario, report);
         }
+        return report;
+    }
+
+    public ApiScenarioReport updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
+        long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
+        // 更新报告状态
+        String status = getStatus(requestResults, dto);
+
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        // 更新场景状态
+        UiScenarioWithBLOBs scenario = uiScenarioMapper.selectByPrimaryKey(dto.getTestId());
+        if (scenario == null) {
+            scenario = uiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
+        }
+        if (scenario != null) {
+            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
+                scenario.setLastResult(status);
+            } else {
+                scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+            }
+
+            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
+            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+            scenario.setReportId(dto.getReportId());
+            int executeTimes = 0;
+            if (scenario.getExecuteTimes() != null) {
+                executeTimes = scenario.getExecuteTimes().intValue();
+            }
+            scenario.setExecuteTimes(executeTimes + 1);
+            uiScenarioMapper.updateByPrimaryKey(scenario);
+        }
+
+//        // 发送通知
+//        if (scenario != null && report != null) {
+//            sendNotice(scenario, report);
+//        }
         return report;
     }
 

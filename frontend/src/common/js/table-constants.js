@@ -19,6 +19,17 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'multipleInput',text: 'workspace.custom_filed.multipleInput'}
 ];
 
+export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
+  {value: 'id',text: 'id'},
+  {value: 'name',text: 'name'},
+  {value: 'class',text: 'class'},
+  {value: 'tag',text: 'tag'},
+  {value: 'link',text: 'link'},
+  {value: 'plink',text: 'plink'},
+  {value: 'css',text: 'css'},
+  {value: 'xpath',text: 'xpath'}
+];
+
 export const CUSTOM_FIELD_SCENE_OPTION = [
   {value: 'TEST_CASE',text: 'workspace.case_template_manage'},
   {value: 'ISSUE',text: 'workspace.issue_template_manage'},
