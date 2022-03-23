@@ -45,6 +45,7 @@ export default {
     delete_cancelled: 'Delete cancelled',
     option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
+    space:'Space',
     current_workspace:"Current Workspace",
     organization: 'Organization',
     setting: 'Setting',
