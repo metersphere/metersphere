@@ -174,14 +174,8 @@ public class ApiDefinitionExecResultService {
                     .build();
 
             String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-            if (SessionUtils.getUser() != null
-                    && StringUtils.equals(SessionUtils.getCurrentProjectId(), apiTestCaseWithBLOBs.getProjectId())
-                    && StringUtils.isNotEmpty(SessionUtils.getCurrentWorkspaceId())) {
-                noticeSendService.send(taskType, noticeModel);
-            } else {
-                Project project = projectMapper.selectByPrimaryKey(apiTestCaseWithBLOBs.getProjectId());
-                noticeSendService.send(project, taskType, noticeModel);
-            }
+            Project project = projectMapper.selectByPrimaryKey(apiTestCaseWithBLOBs.getProjectId());
+            noticeSendService.send(project, taskType, noticeModel);
         } catch (Exception e) {
             LogUtil.error("消息发送失败：" + e.getMessage());
         }
