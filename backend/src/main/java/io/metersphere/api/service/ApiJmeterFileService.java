@@ -18,7 +18,9 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.PluginService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
@@ -69,10 +71,22 @@ public class ApiJmeterFileService {
                 scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
             }
         }
+
         ApiExecutionQueueDetail detail = executionQueueDetailMapper.selectByPrimaryKey(queueId);
+        if (detail == null) {
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andReportIdEqualTo(reportId);
+            List<ApiExecutionQueueDetail> list = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
+            if (CollectionUtils.isNotEmpty(list)) {
+                detail = list.get(0);
+            }
+        }
         Map<String, String> envMap = new LinkedHashMap<>();
         if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
             envMap = JSON.parseObject(detail.getEvnMap(), Map.class);
+        }
+        if (MapUtils.isEmpty(envMap)) {
+            LoggerUtil.info("测试资源：【" + remoteTestId + "】未找到可执行的环境 >>>>>>> ");
         }
         HashTree hashTree = null;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
@@ -209,9 +223,9 @@ public class ApiJmeterFileService {
         if (multipartFiles != null && !multipartFiles.isEmpty()) {
             for (String k : multipartFiles.keySet()) {
                 byte[] v = multipartFiles.get(k);
-                if(k.startsWith(bodyFilePath)){
-                    files.put(StringUtils.substringAfter(k,bodyFilePath), v);
-                }else {
+                if (k.startsWith(bodyFilePath)) {
+                    files.put(StringUtils.substringAfter(k, bodyFilePath), v);
+                } else {
                     LogUtil.error("WARNING:Attachment path is not in body_file_path: " + k);
                     files.put(k, v);
                 }

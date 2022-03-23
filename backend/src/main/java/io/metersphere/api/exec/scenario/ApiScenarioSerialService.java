@@ -182,6 +182,7 @@ public class ApiScenarioSerialService {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            LoggerUtil.error("生成JMX执行脚本失败：", ex);
         }
         return null;
     }
