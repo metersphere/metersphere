@@ -29,7 +29,7 @@ const state = {
   // 当前项目是否勾选自定义ID
   currentProjectIsCustomNum: false,
   testCaseTemplate: {},
-  scenarioMap: new Map(),
+  scenarioEnvMap: new Map(),
   apiMap: new Map(),
   apiStatus: new Map(),
   testCaseMap: new Map(),

@@ -278,6 +278,9 @@ export default {
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
+      if (this.request.disabled) {
+        jsr223PreProcessor.label = 'SCENARIO-REF-STEP';
+      }
       this.request.hashTree.push(jsr223PreProcessor);
       this.sort();
       this.reload();
@@ -286,6 +289,9 @@ export default {
       let jsr223PostProcessor = createComponent("JSR223PostProcessor");
       if (!this.request.hashTree) {
         this.request.hashTree = [];
+      }
+      if (this.request.disabled) {
+        jsr223PostProcessor.label = 'SCENARIO-REF-STEP';
       }
       this.request.hashTree.push(jsr223PostProcessor);
       this.sort();
@@ -296,6 +302,9 @@ export default {
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
+      if (this.request.disabled) {
+        jdbcPreProcessor.label = 'SCENARIO-REF-STEP';
+      }
       this.request.hashTree.push(jdbcPreProcessor);
       this.sort();
       this.reload();
@@ -304,6 +313,9 @@ export default {
       let jdbcPostProcessor = createComponent("JDBCPostProcessor");
       if (!this.request.hashTree) {
         this.request.hashTree = [];
+      }
+      if (this.request.disabled) {
+        jdbcPostProcessor.label = 'SCENARIO-REF-STEP';
       }
       this.request.hashTree.push(jdbcPostProcessor);
       this.sort();
@@ -314,6 +326,9 @@ export default {
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
+      if (this.request.disabled) {
+        constant.label = 'SCENARIO-REF-STEP';
+      }
       this.request.hashTree.push(constant);
       this.sort();
       this.reload();
@@ -323,6 +338,9 @@ export default {
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
+      if (this.request.disabled) {
+        assertions.label = 'SCENARIO-REF-STEP';
+      }
       this.request.hashTree.push(assertions);
       this.sort();
       this.reload();
@@ -331,6 +349,9 @@ export default {
       let jsonPostProcessor = new Extract({id: getUUID()});
       if (!this.request.hashTree) {
         this.request.hashTree = [];
+      }
+      if (this.request.disabled) {
+        jsonPostProcessor.label = 'SCENARIO-REF-STEP';
       }
       this.request.hashTree.push(jsonPostProcessor);
       this.sort();

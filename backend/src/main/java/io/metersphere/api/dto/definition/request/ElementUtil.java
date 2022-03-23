@@ -498,25 +498,15 @@ public class ElementUtil {
         }
     }
 
-    public static void mergeHashTree(JSONObject element, JSONArray targetHashTree) {
+    public static List<JSONObject> mergeHashTree(List<JSONObject> sourceHashTree, List<JSONObject> targetHashTree) {
         try {
-            JSONArray sourceHashTree = element.getJSONArray("hashTree");
-            if (CollectionUtils.isNotEmpty(sourceHashTree) && CollectionUtils.isNotEmpty(targetHashTree) && sourceHashTree.size() < targetHashTree.size()) {
-                element.put("hashTree", targetHashTree);
-                return;
-            }
             List<String> sourceIds = new ArrayList<>();
             List<String> delIds = new ArrayList<>();
             Map<String, JSONObject> updateMap = new HashMap<>();
-            if (CollectionUtils.isEmpty(sourceHashTree)) {
-                if (CollectionUtils.isNotEmpty(targetHashTree)) {
-                    element.put("hashTree", targetHashTree);
-                }
-                return;
-            }
+
             if (CollectionUtils.isNotEmpty(targetHashTree)) {
                 for (int i = 0; i < targetHashTree.size(); i++) {
-                    JSONObject item = targetHashTree.getJSONObject(i);
+                    JSONObject item = targetHashTree.get(i);
                     item.put("disabled", true);
                     if (StringUtils.isNotEmpty(item.getString("id"))) {
                         updateMap.put(item.getString("id"), item);
@@ -526,7 +516,7 @@ public class ElementUtil {
             // 找出待更新内容和源已经被删除的内容
             if (CollectionUtils.isNotEmpty(sourceHashTree)) {
                 for (int i = 0; i < sourceHashTree.size(); i++) {
-                    JSONObject source = sourceHashTree.getJSONObject(i);
+                    JSONObject source = sourceHashTree.get(i);
                     if (source != null) {
                         sourceIds.add(source.getString("id"));
                         if (!StringUtils.equals(source.getString("label"), "SCENARIO-REF-STEP") && StringUtils.isNotEmpty(source.getString("id"))) {
@@ -546,7 +536,7 @@ public class ElementUtil {
 
             // 删除多余的步骤
             for (int i = 0; i < sourceHashTree.size(); i++) {
-                JSONObject source = sourceHashTree.getJSONObject(i);
+                JSONObject source = sourceHashTree.get(i);
                 if (delIds.contains(source.getString("id"))) {
                     sourceHashTree.remove(i);
                 }
@@ -554,18 +544,16 @@ public class ElementUtil {
             // 补充新增的源引用步骤
             if (CollectionUtils.isNotEmpty(targetHashTree)) {
                 for (int i = 0; i < targetHashTree.size(); i++) {
-                    JSONObject item = sourceHashTree.getJSONObject(i);
+                    JSONObject item = sourceHashTree.get(i);
                     if (!sourceIds.contains(item.getString("id"))) {
                         sourceHashTree.add(item);
                     }
                 }
             }
-            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
-                element.put("hashTree", sourceHashTree);
-            }
         } catch (Exception e) {
-            element.put("hashTree", targetHashTree);
+            return targetHashTree;
         }
+        return sourceHashTree;
     }
 
     public static String hashTreeToString(HashTree hashTree) {
@@ -667,6 +655,41 @@ public class ElementUtil {
             return list.stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList());
         }
         return list;
+    }
+
+    public static Map<String, List<JSONObject>> group(JSONArray elements) {
+        Map<String, List<JSONObject>> groupMap = new LinkedHashMap<>();
+        if (CollectionUtils.isNotEmpty(elements)) {
+            for (int i = 0; i < elements.size(); i++) {
+                JSONObject item = elements.getJSONObject(i);
+                if ("Assertions".equals(item.getString("type"))) {
+                    if (groupMap.containsKey(ASSERTIONS)) {
+                        groupMap.get(ASSERTIONS).add(item);
+                    } else {
+                        groupMap.put(ASSERTIONS, new LinkedList<JSONObject>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else if (preOperates.contains(item.getString("type"))) {
+                    if (groupMap.containsKey(PRE)) {
+                        groupMap.get(PRE).add(item);
+                    } else {
+                        groupMap.put(PRE, new LinkedList<JSONObject>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else if (postOperates.contains(item.getString("type"))) {
+                    if (groupMap.containsKey(POST)) {
+                        groupMap.get(POST).add(item);
+                    } else {
+                        groupMap.put(POST, new LinkedList<JSONObject>() {{
+                            this.add(item);
+                        }});
+                    }
+                }
+            }
+        }
+        return groupMap;
     }
 
     public static List<MsTestElement> order(List<MsTestElement> elements) {
