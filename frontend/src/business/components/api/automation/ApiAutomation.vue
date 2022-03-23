@@ -409,7 +409,10 @@ export default {
         if (v3.scenarioDefinition) {
           this.deleteResourceIds(v3.scenarioDefinition);
         }
+        console.log(v1.scenarioDefinition);
+        console.log(v3.scenarioDefinition);
         let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
+        console.log(delta);
         if (delta) {
           this.isSave = true;
         }
@@ -476,6 +479,9 @@ export default {
         }
         if (item.ruleSize >= 0) {
           delete item.ruleSize;
+        }
+        if (item.delay) {
+          item.delay = Number(item.delay);
         }
         if (item.body && item.body.kvs) {
           item.body.kvs.forEach(v => {
