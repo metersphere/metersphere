@@ -169,14 +169,23 @@ export default {
         });
         let hasEnvironment = false;
         for (let i in this.environments) {
-          if (this.environments[i].id === this.request.environmentId &&
-            this.$store.state.scenarioEnvMap.get(this.projectId) === this.request.environmentId) {
-            hasEnvironment = true;
+          if (this.environments[i].id === this.request.environmentId) {
+            if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map) {
+              if (this.$store.state.scenarioEnvMap.has(this.projectId) &&
+                this.$store.state.scenarioEnvMap.get(this.projectId) === this.request.environmentId) {
+                hasEnvironment = true;
+              }
+            } else {
+              hasEnvironment = true;
+            }
             break;
           }
         }
         if (!hasEnvironment) {
-          this.request.environmentId = this.$store.state.scenarioEnvMap.get(this.projectId);
+          if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+            && this.$store.state.scenarioEnvMap.has(this.projectId)) {
+            this.request.environmentId = this.$store.state.scenarioEnvMap.get(this.projectId);
+          }
         }
         if (!this.request.environmentId) {
           this.request.dataSourceId = undefined;
