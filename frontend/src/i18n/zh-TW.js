@@ -44,6 +44,7 @@ export default {
     confirm_delete: '是否刪除',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
+    space:'空間',
     current_workspace:"當前工作空間",
     organization: '組織',
     setting: '設置',
