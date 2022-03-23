@@ -1895,16 +1895,15 @@ public class TestPlanService {
             this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), runModeConfig);
         }
 
-        ApiRunConfigDTO api = new ApiRunConfigDTO();
-        api.setMode(testplanRunRequest.getMode());
-        api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
-        api.setOnSampleError(Boolean.parseBoolean(testplanRunRequest.getOnSampleError()));
+        runModeConfig.setMode(testplanRunRequest.getMode());
+        runModeConfig.setResourcePoolId(testplanRunRequest.getResourcePoolId());
+        runModeConfig.setOnSampleError(Boolean.parseBoolean(testplanRunRequest.getOnSampleError()));
         if (StringUtils.isBlank(testplanRunRequest.getReportType())) {
-            api.setReportType("iddReport");
+            runModeConfig.setReportType("iddReport");
         } else {
-            api.setReportType(testplanRunRequest.getReportType());
+            runModeConfig.setReportType(testplanRunRequest.getReportType());
         }
-        String apiRunConfig = JSONObject.toJSONString(api);
+        String apiRunConfig = JSONObject.toJSONString(runModeConfig);
         return this.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(),
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
