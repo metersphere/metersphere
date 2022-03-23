@@ -569,6 +569,14 @@ export default {
     }
   },
   methods: {
+    recursiveSorting(arr) {
+      for (let i in arr) {
+        arr[i].disabled = true;
+        if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+          this.recursiveSorting(arr[i].hashTree);
+        }
+      }
+    },
     chooseHeadsUp() {
       if (this.$refs.stepTree) {
         this.selectDataCounts = this.$refs.stepTree.getCheckedNodes().length;
@@ -1238,6 +1246,9 @@ export default {
       if (!request.hashTree) {
         request.hashTree = [];
       }
+      if (referenced === 'REF' && request.hashTree) {
+        this.recursiveSorting(request.hashTree);
+      }
       if (this.selectedTreeNode !== undefined) {
         this.selectedTreeNode.hashTree.push(request);
       } else {
@@ -1526,6 +1537,7 @@ export default {
                   // 兼容历史数据
                   this.projectEnvMap.set(this.projectId, obj.environmentId);
                 }
+                this.$store.state.scenarioEnvMap = this.projectEnvMap;
                 this.envGroupId = response.data.environmentGroupId;
                 if (response.data.environmentType) {
                   this.environmentType = response.data.environmentType;
@@ -1717,6 +1729,7 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
+      this.$store.state.scenarioEnvMap = projectEnvMap;
       this.setDomain(true);
     },
     setEnvGroup(id) {
