@@ -477,6 +477,9 @@ export default {
         if (item.ruleSize >= 0) {
           delete item.ruleSize;
         }
+        if (item.delay) {
+          item.delay = Number(item.delay);
+        }
         if (item.body && item.body.kvs) {
           item.body.kvs.forEach(v => {
             if (v.files) {

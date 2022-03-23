@@ -200,6 +200,7 @@ export default {
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'},
         {text: 'Success', value: 'Success'},
+        {text: 'stopped', value: 'stop'},
         {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
       ],
       reportTypeFilters:[],
@@ -262,6 +263,11 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
+        this.tableData.forEach(item => {
+          if (item.status === 'STOP') {
+            item.status = 'stopped'
+          }
+        })
         this.selectRows.clear();
         this.unSelection = data.listObject.map(s => s.id);
       });
