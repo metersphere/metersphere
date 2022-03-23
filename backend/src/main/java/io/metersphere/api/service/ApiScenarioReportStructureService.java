@@ -42,6 +42,7 @@ public class ApiScenarioReportStructureService {
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
 
     private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");
+    private static final List<String> controls = Arrays.asList("Assertions","IfController","ConstantTimer");
 
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
@@ -238,6 +239,9 @@ public class ApiScenarioReportStructureService {
     public static void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResult>> maps) {
         for (int index = 0; index < dtoList.size(); index++) {
             StepTreeDTO dto = dtoList.get(index);
+            if(dto.getResourceId().equals("a1db7c43-9d07-4c35-b36e-d4498a1dc78a_19")){
+                System.out.println("-----");
+            }
             dto.setIndex((index + 1));
             List<ApiScenarioReportResult> reportResults = maps.get(dto.getResourceId());
             if (CollectionUtils.isNotEmpty(reportResults)) {
@@ -264,6 +268,12 @@ public class ApiScenarioReportStructureService {
                 requestResultExpandDTO.setStatus("unexecute");
                 requestResultExpandDTO.setName(dto.getLabel());
                 dto.setTotalStatus("unexecute");
+                dto.setValue(requestResultExpandDTO);
+            } else if(StringUtils.isNotEmpty(dto.getType()) && controls.contains(dto.getType()) && dto.getValue() == null){
+                RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
+                requestResultExpandDTO.setStatus("success");
+                requestResultExpandDTO.setName(dto.getLabel());
+                dto.setTotalStatus("success");
                 dto.setValue(requestResultExpandDTO);
             } else {
                 if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty(((RequestResultExpandDTO) dto.getValue()).getStatus())) {
@@ -324,9 +334,9 @@ public class ApiScenarioReportStructureService {
                             dto.setTotalStatus("success");
                         }
                     } else {
-                        if (errorReportCount > 0) {
+                        if (failCount > 0) {
                             dto.setTotalStatus("fail");
-                        } else if (failCount > 0) {
+                        } else if (errorReportCount > 0) {
                             dto.setTotalStatus("errorCode");
                         } else {
                             dto.setTotalStatus("success");
