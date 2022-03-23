@@ -1982,10 +1982,13 @@ public class ApiAutomationService {
                             ApiScenarioImportUtil.checkCase(i,object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
                         } else {
                             checkAutomation(object);
+                            object.put("projectId", projectId);
                         }
                     }else{
                         object.put("referenced", "Copy");
                     }
+                }else{
+                    object.put("projectId", projectId);
                 }
                 JSONObject environmentMap = object.getJSONObject("environmentMap");
                 if (environmentMap != null) {
