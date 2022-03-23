@@ -116,6 +116,7 @@ export const STATUS = {
     {label: "Saved", value: "Saved"}, {label: "Starting", value: "Starting"},
     {label: "Running", value: "Running"}, {label: "Reporting", value: "Reporting"},
     {label: "Completed", value: "Completed"}, {label: "Error", value: "Error"},
+    {label: "error_report_library.option.name", value: "errorReportResult"},
     {label: "Success", value: "Success"}
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
