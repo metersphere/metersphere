@@ -401,7 +401,9 @@ public class ApiScenarioReportStructureService {
                 if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
                     treeDTO.setErrorCode(expandDTO.getAttachInfoMap().get("errorReportResult"));
                     treeDTO.setTotalStatus("errorCode");
+                    vo.setStatus("errorReportResult");
                 } else if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
+                    vo.setStatus(expandDTO.getStatus());
                     treeDTO.setTotalStatus(expandDTO.getStatus());
                 } else {
                     if (expandDTO.isSuccess()) {
@@ -426,7 +428,7 @@ public class ApiScenarioReportStructureService {
         if (CollectionUtils.isNotEmpty(reportResults)) {
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "Error")).collect(Collectors.toList()).size());
-            reportDTO.setUnExecute(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "STOP")).collect(Collectors.toList()).size());
+            reportDTO.setUnExecute(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "STOP","unexecute")).collect(Collectors.toList()).size());
             reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "errorReportResult")).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
