@@ -33,18 +33,9 @@
           <el-table-column
             prop="num"
             label="ID"
-            width="100"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            v-if="versionEnable"
-            :label="$t('project.version.name')"
-            :filters="versionFilters"
-            column-key="versionId"
-            min-width="100px"
-            prop="versionId">
+            width="100">
             <template v-slot:default="scope">
-              <span>{{ scope.row.versionName }}</span>
+              <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.num }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -53,6 +44,16 @@
             show-overflow-tooltip>
             <template v-slot:default="scope">
               <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="versionEnable"
+            :label="$t('project.version.name')"
+            :filters="versionFilters"
+            column-key="versionId"
+            prop="versionId">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.versionName }}</span>
             </template>
           </el-table-column>
           <el-table-column
