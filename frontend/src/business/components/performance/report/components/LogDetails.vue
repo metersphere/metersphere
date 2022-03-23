@@ -100,7 +100,9 @@ export default {
     },
     handleGetLogResourceDetail(data, resourceId) {
       data.listObject.forEach(log => {
-        this.logContent[resourceId].push(log);
+        if (this.logContent[resourceId]) {
+          this.logContent[resourceId].push(log);
+        }
       });
       this.page[resourceId]++;
       this.loading = false;
