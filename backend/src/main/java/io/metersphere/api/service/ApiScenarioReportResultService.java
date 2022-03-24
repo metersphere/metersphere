@@ -74,14 +74,14 @@ public class ApiScenarioReportResultService {
                 if (StringUtils.isNoneBlank(header)) {
                     JSONObject jsonObject = JSONObject.parseObject(header);
                     for (String resourceId : jsonObject.keySet()) {
-                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.get(resourceId).toString()));
+                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.getJSONObject(resourceId)));
                     }
                 }
             });
         }
     }
 
-    private ApiScenarioReportResult newUiScenarioReportResult(String reportId, String resourceId, String value) {
+    private ApiScenarioReportResult newUiScenarioReportResult(String reportId, String resourceId, JSONObject value) {
         ApiScenarioReportResult report = new ApiScenarioReportResult();
         report.setId(UUID.randomUUID().toString());
         report.setResourceId(resourceId);
@@ -89,9 +89,9 @@ public class ApiScenarioReportResultService {
         report.setTotalAssertions(0L);
         report.setPassAssertions(0L);
         report.setCreateTime(System.currentTimeMillis());
-        String status = value.equalsIgnoreCase("OK") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        String status = value.getBooleanValue("success") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
         report.setStatus(status);
-        report.setContent(value.getBytes(StandardCharsets.UTF_8));
+        report.setContent(value.toJSONString().getBytes(StandardCharsets.UTF_8));
         return report;
     }
 

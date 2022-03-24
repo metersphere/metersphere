@@ -13,7 +13,7 @@
           </el-col>
 
           <el-col :span="3">
-            <span v-if="result" :style="!result.success ? 'color: #FE6F71' : ''">
+            <span v-if="!isUnexecute" :style="!result.success ? 'color: #FE6F71' : ''">
               {{ result.endTime - result.startTime }} ms
             </span>
           </el-col>
@@ -23,7 +23,7 @@
               placement="right"
               trigger="hover"
               popper-class="issues-popover"
-              v-if="result">
+              v-if="!isUnexecute">
               <el-image
                 style="width: 100px; height: 100px"
                 :src="'/resource/ui/get?fileName=' + result.url"
@@ -35,7 +35,7 @@
 
           <el-col :span="2">
             <div>
-              <el-tag size="mini" v-if="!result">
+              <el-tag size="mini" v-if="isUnexecute">
                 {{ $t('api_test.home_page.detail_card.unexecute') }}
               </el-tag>
               <el-tag size="mini" type="success" v-else-if="result.success">
@@ -68,6 +68,9 @@ export default {
   computed: {
     label() {
       return this.command.label ? commandDefinition[this.command.label].cnName : '';
+    },
+    isUnexecute() {
+      return this.result && this.result.status === 'unexecute';
     }
   },
   data() {
