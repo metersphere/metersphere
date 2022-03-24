@@ -360,7 +360,7 @@ export default {
       this.result.loading = true;
       this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, []);
       this.result.loading = false;
-      setTimeout(this.$refs.table.reloadTable(), 500);
+      setTimeout(this.$refs.table.reloadTable, 200);
     },
     customHeader() {
       const list = deepClone(this.tableLabel);
@@ -389,7 +389,7 @@ export default {
 
         });
       }
-      setTimeout(this.$refs.table.reloadTable(), 500);
+      setTimeout(this.$refs.table.reloadTable, 200);
     },
     getNexPageData() {
       getTestReviewTestCase(this.currentPage * this.pageSize + 1, 1, this.condition, (data) => {
