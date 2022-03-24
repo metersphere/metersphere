@@ -302,16 +302,21 @@ export default {
     hasLicense,
     tabClick() {
       this.$nextTick(() => {
-        if (this.activeName === 'preOperate' && this.$refs.preStep) {
-          this.$refs.preStep.filter();
-        }
-        if (this.activeName === 'postOperate' && this.$refs.postStep) {
-          this.$refs.postStep.filter();
-        }
-        if (this.activeName === 'assertionsRule' && this.$refs.assertionsRule) {
-          this.$refs.assertionsRule.filter();
-        }
+        setTimeout(() => {
+          this.filter(this.activeName);
+        });
       });
+    },
+    filter(activeName) {
+      if (activeName === 'preOperate' && this.$refs.preStep) {
+        this.$refs.preStep.filter();
+      }
+      if (activeName === 'postOperate' && this.$refs.postStep) {
+        this.$refs.postStep.filter();
+      }
+      if (activeName === 'assertionsRule' && this.$refs.assertionsRule) {
+        this.$refs.assertionsRule.filter();
+      }
     },
     generate() {
       if (this.request.body && (this.request.body.jsonSchema || this.request.body.raw)) {
