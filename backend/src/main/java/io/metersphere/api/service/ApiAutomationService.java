@@ -1970,6 +1970,7 @@ public class ApiAutomationService {
     private void setReferenced(JSONArray hashTree,String versionId,String projectId, ApiTestCaseMapper apiTestCaseMapper,ApiDefinitionMapper apiDefinitionMapper,boolean isAdd) {
         // 将引用转成复制
         if (CollectionUtils.isNotEmpty(hashTree)) {
+            Map<String,ApiDefinition>definitionMap = new HashMap<>();
             for (int i = 0; i < hashTree.size(); i++) {
                 JSONObject object = (JSONObject) hashTree.get(i);
                 String referenced = object.getString("referenced");
@@ -1978,7 +1979,7 @@ public class ApiAutomationService {
                     String refType = object.getString("refType");
                     if (StringUtils.isNotEmpty(refType)) {
                         if (refType.equals("CASE")&&isAdd) {
-                            ApiScenarioImportUtil.checkCase(i,object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper);
+                            ApiScenarioImportUtil.checkCase(i,object,versionId,projectId,apiTestCaseMapper,apiDefinitionMapper,definitionMap);
                         } else {
                             checkAutomation(object);
                             object.put("projectId", projectId);
