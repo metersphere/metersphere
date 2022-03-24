@@ -104,7 +104,7 @@ public class ExecThreadPoolExecutor {
 
     public void setCorePoolSize(int maximumPoolSize) {
         try {
-            int corePoolSize = maximumPoolSize > 1000 ? 1000 : maximumPoolSize;
+            int corePoolSize = maximumPoolSize > 500 ? 500 : maximumPoolSize;
             if (corePoolSize > CORE_POOL_SIZE) {
                 threadPool.setCorePoolSize(corePoolSize);
             }
