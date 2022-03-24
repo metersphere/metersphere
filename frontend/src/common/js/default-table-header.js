@@ -194,7 +194,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'tags', key: '4', label: 'commons.tag'},
     {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
-    {id: 'projectName', key: 'a', label: 'test_track.review.review_project'},
     {id: 'updateTime', key: '6', label: 'commons.update_time'},
     {id: 'createName', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
