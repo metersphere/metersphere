@@ -3,13 +3,13 @@
     <el-row>
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
-          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
+          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="request.disabled" style="margin: 10px">
             <el-row>
               <el-col :span="8">
                 <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
                   <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
-                             @change="environmentChange" clearable>
+                             @change="environmentChange" clearable :disabled="isReadOnly">
                     <el-option v-for="(environment, index) in environments" :key="index"
                                :label="environment.name"
                                :value="environment.id"/>
@@ -28,7 +28,7 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
-                  <el-select v-model="request.dataSourceId" size="small" @change="reload">
+                  <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
                     <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
                   </el-select>
                 </el-form-item>
@@ -36,7 +36,7 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
-                  <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+                  <el-input-number :disabled="request.disabled" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
                 </el-form-item>
               </el-col>
             </el-row>
