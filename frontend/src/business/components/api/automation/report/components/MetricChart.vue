@@ -217,7 +217,7 @@ export default {
         },
         title: [{
           text: (this.content.success + this.content.error +this.content.unExecute +this.content.errorCode),
-          subtext: this.$t('api_report.request'),
+          subtext: this.isUi ? '步骤' : this.$t('api_report.request'),
           top: 'center',
           left: 'center',
           textStyle: {
