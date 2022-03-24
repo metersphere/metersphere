@@ -18,6 +18,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,7 @@ public class ApiScenarioReportStructureService {
     @Resource
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
 
-    private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");
+    private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler", "MsUiCommand");
     private static final List<String> controls = Arrays.asList("Assertions","IfController","ConstantTimer");
 
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
@@ -307,7 +308,7 @@ public class ApiScenarioReportStructureService {
                 if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty(((RequestResultExpandDTO) dto.getValue()).getStatus())) {
                     dto.setTotalStatus(((RequestResultExpandDTO) dto.getValue()).getStatus());
                 } else if (dto.getValue() != null) {
-                    if (dto.getValue().getError() > 0) {
+                    if (dto.getValue().getError() > 0 || BooleanUtils.isNotTrue(dto.getValue().isSuccess())) {
                         dto.setTotalStatus("fail");
                     } else {
                         dto.setTotalStatus("success");
@@ -383,7 +384,20 @@ public class ApiScenarioReportStructureService {
                 List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
                         && StringUtils.equalsIgnoreCase(e.getTotalStatus(), "unexecute")).collect(Collectors.toList());
                 Map<String, Integer> map = unList.stream().collect(Collectors.toMap(StepTreeDTO::getResourceId, StepTreeDTO::getIndex));
-                List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
+
+                List<StepTreeDTO> list = dtoList.stream()
+                        .sorted(
+                                (x, y) -> {
+                                    // 如果开始时间是0，即未开始，则排后面
+                                    if (x.getValue().getStartTime() == 0) {
+                                        return -1;
+                                    } else {
+                                        return x.getValue().getStartTime() - y.getValue().getStartTime() > 0 ? 1 : -1;
+                                    }
+                                }
+                        )
+                        .collect(Collectors.toList());
+
                 for (int index = 0; index < list.size(); index++) {
                     if (map.containsKey(list.get(index).getResourceId())) {
                         Collections.swap(list, index, (map.get(list.get(index).getResourceId()) - 1));
