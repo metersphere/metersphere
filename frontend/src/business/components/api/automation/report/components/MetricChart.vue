@@ -216,7 +216,7 @@ export default {
           formatter: '{b}: {c} ({d}%)'
         },
         title: [{
-          text: (this.content.success + this.content.error +this.content.unExecute +this.content.errorCode),
+          text: (this.content.success + this.content.error  +this.content.errorCode),
           subtext: this.$t('api_report.request'),
           top: 'center',
           left: 'center',
