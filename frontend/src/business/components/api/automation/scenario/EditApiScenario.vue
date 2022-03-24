@@ -1571,6 +1571,8 @@ export default {
                 this.scenarioDefinition = obj.hashTree;
               }
             }
+
+            this.loading = false;
             if (this.currentScenario.copy) {
               this.path = "/api/automation/create";
             }
@@ -1584,11 +1586,10 @@ export default {
               }
             });
           }
-          this.loading = false;
-          // 初始化resourceId
-          if (this.scenarioDefinition) {
-            this.resetResourceId(this.scenarioDefinition);
-          }
+          this.sort();
+          this.$nextTick(() => {
+            this.cancelBatchProcessing();
+          });
           // 记录初始化数据
           let v1 = {
             apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
@@ -1603,10 +1604,6 @@ export default {
 
           this.currentScenario.scenarioDefinitionOrg = v1;
           this.currentScenario.scenarioDefinition = this.scenarioDefinition;
-          this.$nextTick(() => {
-            this.sort();
-            this.cancelBatchProcessing();
-          });
         })
       }
     },
