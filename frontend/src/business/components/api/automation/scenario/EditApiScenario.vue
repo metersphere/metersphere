@@ -12,7 +12,8 @@
           </el-form-item>
 
           <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-            <ms-select-tree size="small" :data="moduleOptions" :defaultKey="currentScenario.apiScenarioModuleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
+            <ms-select-tree size="small" :data="moduleOptions" :defaultKey="currentScenario.apiScenarioModuleId"
+                            @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
           </el-form-item>
 
           <el-form-item :label="$t('commons.status')" prop="status">
@@ -65,12 +66,15 @@
       <div class="ms-debug-div" @click="showAll" ref="debugHeader">
         <el-row style="margin: 5px">
           <el-col :span="1" class="ms-col-one ms-font" v-show="scenarioDefinition.length > 1">
-            <el-tooltip :content="$t('test_track.case.batch_operate')" placement="top" effect="light" v-show="!isBatchProcess">
-              <font-awesome-icon class="ms-batch-btn" :icon="['fa', 'bars']" v-prevent-re-click @click="batchProcessing"/>
+            <el-tooltip :content="$t('test_track.case.batch_operate')" placement="top" effect="light"
+                        v-show="!isBatchProcess">
+              <font-awesome-icon class="ms-batch-btn" :icon="['fa', 'bars']" v-prevent-re-click
+                                 @click="batchProcessing"/>
             </el-tooltip>
             <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll"/>
             <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
-              <font-awesome-icon class="ms-batch-btn" :icon="['fa', 'times']" v-prevent-re-click @click="cancelBatchProcessing"/>
+              <font-awesome-icon class="ms-batch-btn" :icon="['fa', 'times']" v-prevent-re-click
+                                 @click="cancelBatchProcessing"/>
             </el-tooltip>
           </el-col>
           <el-col :span="2" class="ms-col-one ms-font">
@@ -82,10 +86,13 @@
             ：{{ getVariableSize() }}
           </el-col>
           <el-col :span="2" class="ms-col-one ms-font">
-            <el-checkbox v-model="enableCookieShare"><span style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
+            <el-checkbox v-model="enableCookieShare"><span
+              style="font-size: 13px;">{{ $t('api_test.scenario.share_cookie') }}</span></el-checkbox>
           </el-col>
           <el-col :span="3" class="ms-col-one ms-font">
-            <el-checkbox v-model="onSampleError"><span style="font-size: 13px;">{{ $t('commons.failure_continues') }}</span></el-checkbox>
+            <el-checkbox v-model="onSampleError"><span style="font-size: 13px;">{{
+                $t('commons.failure_continues')
+              }}</span></el-checkbox>
           </el-col>
 
           <el-col :span="13">
@@ -98,7 +105,9 @@
                          @showPopover="showPopover" :has-option-group="true"
                          ref="envPopover" class="ms-message-right"/>
             <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
-              <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
+              <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini"
+                           @command="handleCommand"
+                           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                 {{ $t('api_test.request.debug') }}
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
@@ -108,7 +117,8 @@
             <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
 
             <el-button id="inputDelay" type="primary" size="mini" v-prevent-re-click @click="editScenario"
-                       title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
+                       title="ctrl + s"
+                       v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
               {{ $t('commons.save') }}
             </el-button>
 
@@ -122,12 +132,18 @@
             </el-link>
 
             <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-show="!showFollow">
-              <i class="el-icon-star-off" style="color: #783987; font-size: 22px; margin-right: 5px;cursor: pointer;position: relative; top: 3px; " @click="saveFollow"/>
+              <i class="el-icon-star-off"
+                 style="color: #783987; font-size: 22px; margin-right: 5px;cursor: pointer;position: relative; top: 3px; "
+                 @click="saveFollow"/>
             </el-tooltip>
             <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
-              <i class="el-icon-star-on" style="color: #783987; font-size: 22px; margin-right: 5px;cursor: pointer;position: relative; top: 3px; " @click="saveFollow"/>
+              <i class="el-icon-star-on"
+                 style="color: #783987; font-size: 22px; margin-right: 5px;cursor: pointer;position: relative; top: 3px; "
+                 @click="saveFollow"/>
             </el-tooltip>
-            <el-link type="primary" style="margin-right: 5px" @click="openHis" v-show="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
+            <el-link type="primary" style="margin-right: 5px" @click="openHis"
+                     v-show="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}
+            </el-link>
             <!--  版本历史 -->
             <ms-version-history v-xpack
                                 ref="versionHistory"
@@ -169,15 +185,21 @@
                          @check-change="chooseHeadsUp"
                          @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" :key="reloadTree">
 
-                  <el-row class="custom-tree-node" :gutter="10" type="flex" align="middle" slot-scope="{node, data}" style="width: 100%">
-                    <span class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
-                      <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e" @click="openOrClose(node)"/>
-                      <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e" @click="openOrClose(node)"/>
+                  <el-row class="custom-tree-node" :gutter="10" type="flex" align="middle" slot-scope="{node, data}"
+                          style="width: 100%">
+                    <span class="custom-tree-node-col" style="padding-left:0px;padding-right:0px"
+                          v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
+                      <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e"
+                            @click="openOrClose(node)"/>
+                      <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e"
+                            @click="openOrClose(node)"/>
                     </span>
                     <!-- 批量操作 -->
-                    <span :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'" style="padding-left: 0px; padding-right: 0px;"
+                    <span :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'"
+                          style="padding-left: 0px; padding-right: 0px;"
                           v-show="(data.hashTree && data.hashTree.length === 0 )|| data.isLeaf">
-                      <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts" v-show="data.checkBox" style="margin-right: 10px"/>
+                      <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts"
+                                     v-show="data.checkBox" style="margin-right: 10px"/>
                     </span>
                     <span style="width: calc(100% - 40px);">
                       <!-- 步骤组件-->
@@ -216,7 +238,8 @@
             </el-col>
             <!-- 按钮列表 -->
             <el-col :span="3">
-              <div @click="fabClick" v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
+              <div @click="fabClick"
+                   v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
                 <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                          :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                   <fab-item
@@ -243,7 +266,8 @@
                                  :scenario-definition="scenarioDefinition"/>
 
         <!--接口列表-->
-        <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance" :is-across-space="true" v-if="type!=='detail'"/>
+        <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance"
+                                :is-across-space="true" v-if="type!=='detail'"/>
 
         <!--自定义接口-->
         <el-drawer v-if="type!=='detail'" :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr"
@@ -252,19 +276,22 @@
           <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
         </el-drawer>
         <!--场景导入 -->
-        <scenario-relevance v-if="type!=='detail'" @save="addScenario" @close="setHideBtn" :is-across-space="true" ref="scenarioRelevance"/>
+        <scenario-relevance v-if="type!=='detail'" @save="addScenario" @close="setHideBtn" :is-across-space="true"
+                            ref="scenarioRelevance"/>
 
         <!-- 环境 -->
         <api-environment-config v-if="type!=='detail'" ref="environmentConfig" @close="environmentConfigClose"/>
 
         <!--执行组件-->
         <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="saved"
-                :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId" :executeType="executeType"
+                :run-data="debugData" :environment-type="environmentType" :environment-group-id="envGroupId"
+                :executeType="executeType"
                 @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
         <!-- 调试结果 -->
         <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                    :withHeader="true" :modal="false" size="90%">
-          <ms-api-report-detail :scenario="currentScenario" :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
+          <ms-api-report-detail :scenario="currentScenario" :report-id="reportId" :debug="true"
+                                :currentProjectId="projectId" @refresh="detailRefresh"/>
         </el-drawer>
 
         <!--场景公共参数-->
@@ -274,7 +301,8 @@
         <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
 
         <!--步骤最大化-->
-        <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden" v-if="drawer">
+        <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false"
+                   :is-show-close="false" style="overflow: hidden" v-if="drawer">
           <maximize-scenario
             :scenario-definition="scenarioDefinition"
             :projectIds.sync="projectIds"
@@ -1454,6 +1482,7 @@ export default {
       if (dropNode && draggingNode && dropType) {
         this.sort();
         this.forceRerender();
+        this.cancelBatchProcessing();
       }
     },
     editScenario() {
@@ -1618,7 +1647,10 @@ export default {
             stepArray[i].hashTree = [];
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i].hashTree.length > 0) {
             this.dataProcessing(stepArray[i].hashTree);
