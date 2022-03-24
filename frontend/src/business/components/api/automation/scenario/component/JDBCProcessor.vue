@@ -12,12 +12,11 @@
     :background-color="backgroundColor"
     :title="title" v-loading="loading">
 
-    <legend style="width: 100%">
+    <template v-slot:request>
       <jdbc-processor-content
         :showScript="false"
         :request="request"/>
-    </legend>
-
+    </template>
   </api-base-component>
 </template>
 
@@ -56,7 +55,7 @@ export default {
       default:
         false
     },
-    request:Object,
+    request: Object,
     title: String,
     color: String,
     backgroundColor: String,
