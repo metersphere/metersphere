@@ -91,4 +91,10 @@ export default {
 /deep/ .el-divider {
   margin-bottom: 10px;
 }
+
+.environment-button {
+  margin-left: 20px;
+  padding: 7px;
+}
+
 </style>
