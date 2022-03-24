@@ -113,7 +113,7 @@ export function hisDataProcessing(array, request) {
     }
   }
   assertionsIndex.forEach(item => {
-    const rmIndex = request.hashTree.findIndex((d) => d.id === item.id);
+    const rmIndex = request.hashTree.findIndex((d) => d.id === item.id&&d.resourceId===item.resourceId);
     request.hashTree.splice(rmIndex, 1);
   })
 
