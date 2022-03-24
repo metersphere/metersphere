@@ -1,13 +1,3 @@
-INSERT
-system_parameter
-VALUES
-	(
-		'metersphere.module.ui',
-		'ENABLE',
-		'text',
-		1
-	);
-
 CREATE TABLE `ui_scenario_module`
 (
     `id`           varchar(50) NOT NULL COMMENT 'ui scenario node ID',
