@@ -456,7 +456,8 @@ public class PerformanceTestService {
             // 保存测试里的配置
             testReport.setTestResourcePoolId(loadTest.getTestResourcePoolId());
             testReport.setLoadConfiguration(loadTest.getLoadConfiguration());
-
+            // 启动插入 report
+            testReport.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             String testPlanLoadId = request.getTestPlanLoadId();
             if (StringUtils.isNotBlank(testPlanLoadId)) {
                 // 设置本次报告中的压力配置信息
@@ -471,8 +472,6 @@ public class PerformanceTestService {
                     testReport.setTestResourcePoolId(testPlanLoadCase.getTestResourcePoolId());
                 }
             }
-            // 启动插入 report
-            testReport.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             testReport.setStatus(PerformanceTestStatus.Starting.name());
             testReport.setProjectId(loadTest.getProjectId());
             testReport.setTestName(loadTest.getName());
