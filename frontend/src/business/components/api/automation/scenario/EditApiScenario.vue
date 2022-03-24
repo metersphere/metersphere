@@ -1571,8 +1571,6 @@ export default {
                 this.scenarioDefinition = obj.hashTree;
               }
             }
-
-            this.loading = false;
             if (this.currentScenario.copy) {
               this.path = "/api/automation/create";
             }
@@ -1586,6 +1584,7 @@ export default {
               }
             });
           }
+          this.loading = false;
           this.sort();
           this.$nextTick(() => {
             this.cancelBatchProcessing();
