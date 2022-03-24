@@ -8,7 +8,7 @@
     trigger="click">
     <el-radio-group v-model="radio" style="margin-left: 20px;" @change="radioChange">
       <el-radio :label="ENV_TYPE.JSON">{{$t('workspace.env_group.env_list')}}</el-radio>
-      <el-radio :label="ENV_TYPE.GROUP">{{$t('workspace.env_group.name')}}</el-radio>
+      <el-radio v-if="showEnvGroup" :label="ENV_TYPE.GROUP">{{ $t('workspace.env_group.name') }}</el-radio>
     </el-radio-group>
     <env-select :project-ids="projectIds"
                 :result="result"
@@ -72,6 +72,12 @@ export default {
     },
     environmentType: String,
     isScenario: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    },
+    showEnvGroup: {
       type: Boolean,
       default() {
         return true;
