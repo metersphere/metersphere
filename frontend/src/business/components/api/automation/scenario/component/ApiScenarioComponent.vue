@@ -67,7 +67,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -249,7 +249,7 @@ export default {
       }
     },
     getProjectName(id) {
-      if (this.projectId !== id) {
+      if (id !== getCurrentProjectID()) {
         const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
