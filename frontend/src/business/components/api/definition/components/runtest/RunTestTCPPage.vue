@@ -6,7 +6,7 @@
     </div>
     <el-card class="card-content">
 
-      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
+      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right" style="height: 100%">
 
         <!-- 操作按钮 -->
         <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
@@ -31,7 +31,7 @@
           {{ $t('api_test.definition.request.run_env') }}：
           <environment-select :type="'TCP'" :current-data="api" :project-id="projectId" ref="environmentSelect"/>
         </el-form-item>
-
+      </el-form>
 
         <!-- TCP 请求参数 -->
         <div v-if="api.method=='TCP'" v-loading="loading">
@@ -48,7 +48,7 @@
           <esb-definition v-xpack v-if="showXpackCompnent" :show-script="true" :request="api.request"
                           @callback="runTest" ref="requestForm"/>
         </div>
-      </el-form>
+
 
       <div v-if="api.method=='ESB'">
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
