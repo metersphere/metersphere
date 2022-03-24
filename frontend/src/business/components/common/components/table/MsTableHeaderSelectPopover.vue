@@ -63,6 +63,9 @@
       watch:{
         total(){
           this.reload();
+        },
+        tableDataCountInPage() {
+          this.reload();
         }
       },
       created() {
