@@ -2032,7 +2032,7 @@ public class ApiDefinitionService {
 
     public void initModulePathAndId(String projectId, ApiDefinitionWithBLOBs test) {
         ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口").andLevelEqualTo(1);
         List<ApiModule> modules = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(modules)) {
             test.setModuleId(modules.get(0).getId());
