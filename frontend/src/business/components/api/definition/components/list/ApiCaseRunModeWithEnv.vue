@@ -17,6 +17,7 @@
                    @setEnvGroup="setEnvGroup"
                    @setProjectEnvMap="setProjectEnvMap"
                    @showPopover="showPopover"
+                   :show-env-group="false"
                    ref="envPopover" class="env-popover"/>
     </div>
     <div>
