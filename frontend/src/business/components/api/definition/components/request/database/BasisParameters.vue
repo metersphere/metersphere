@@ -344,6 +344,11 @@
     border-radius: 50%;
   }
 
+  .environment-button {
+    margin-left: 20px;
+    padding: 7px;
+  }
+
   .ms-left-buttion {
     margin: 6px 0px 8px 30px;
   }
