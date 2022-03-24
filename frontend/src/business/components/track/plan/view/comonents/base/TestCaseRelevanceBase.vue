@@ -17,7 +17,7 @@
     </template>
 
     <template v-slot:aside>
-      <span class="menu-title">{{'[' + $t('project.version.checkout') +  $t('commons.space') +']'}}</span>
+      <span v-if="isAcrossSpace" class="menu-title">{{'[' + $t('project.version.checkout') +  $t('commons.space') +']'}}</span>
       <el-select v-if="isAcrossSpace" filterable slot="prepend" v-model="workspaceId" @change="changeWorkspace"
                  style="width: 160px"
                  size="small">
