@@ -305,6 +305,7 @@ export default {
       if (this.request.disabled) {
         jdbcPreProcessor.label = 'SCENARIO-REF-STEP';
       }
+      jdbcPreProcessor.active = false;
       this.request.hashTree.push(jdbcPreProcessor);
       this.sort();
       this.reload();
@@ -317,6 +318,7 @@ export default {
       if (this.request.disabled) {
         jdbcPostProcessor.label = 'SCENARIO-REF-STEP';
       }
+      jdbcPostProcessor.active = false;
       this.request.hashTree.push(jdbcPostProcessor);
       this.sort();
       this.reload();
