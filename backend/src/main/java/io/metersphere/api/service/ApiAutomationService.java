@@ -400,13 +400,12 @@ public class ApiAutomationService {
         if (scenario == null || StringUtils.isEmpty(scenario.getScenarioDefinition())) {
             return;
         }
-        if (scenario.getScenarioDefinition().contains("\"referenced\":\"REF\"")) {
-            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-            JSONArray hashTree = element.getJSONArray("hashTree");
-            ApiScenarioImportUtil.formatHashTree(hashTree);
-            setReferenced(hashTree,scenario.getVersionId(),scenario.getProjectId(),apiTestCaseMapper,apiDefinitionMapper,true);
-            scenario.setScenarioDefinition(JSONObject.toJSONString(element));
-        }
+        JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+        JSONArray hashTree = element.getJSONArray("hashTree");
+        ApiScenarioImportUtil.formatHashTree(hashTree);
+        setReferenced(hashTree,scenario.getVersionId(),scenario.getProjectId(),apiTestCaseMapper,apiDefinitionMapper,true);
+        scenario.setScenarioDefinition(JSONObject.toJSONString(element));
+
     }
 
     private void checkAndSetLatestVersion(String refId) {
@@ -1989,6 +1988,9 @@ public class ApiAutomationService {
                     }
                 }else{
                     object.put("projectId", projectId);
+                    if(StringUtils.isEmpty(object.getString("url"))){
+                        object.put("isRefEnvironment",true);
+                    }
                 }
                 JSONObject environmentMap = object.getJSONObject("environmentMap");
                 if (environmentMap != null) {
