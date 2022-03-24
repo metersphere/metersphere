@@ -464,7 +464,7 @@ public class TestPlanScenarioCaseService {
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Pass.name(), stepCount.getScenarioStepSuccess(), stepResult);
         getScenarioCaseReportStatusResultDTO(ExecuteResult.errorReportResult.name(), stepCount.getScenarioStepErrorReport(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Underway.name(),
-                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() -stepCount.getScenarioStepErrorReport() + underwayStepsCounts, stepResult);
+                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() - stepCount.getScenarioStepErrorReport() + underwayStepsCounts, stepResult);
         apiResult.setApiScenarioData(statusResult);
         apiResult.setApiScenarioStepData(stepResult);
     }
@@ -472,13 +472,7 @@ public class TestPlanScenarioCaseService {
     private int getUnderwayStepsCounts(List<String> underwayIds) {
         if (CollectionUtils.isNotEmpty(underwayIds)) {
             List<Integer> underwayStepsCounts = extTestPlanScenarioCaseMapper.getUnderwaySteps(underwayIds);
-            Optional<Integer> underwayStepCount = underwayStepsCounts.stream().reduce((total, count) -> {
-                if (count != null) {
-                    total += count;
-                }
-                return total;
-            });
-            return underwayStepCount.orElse(0);
+            return underwayStepsCounts.stream().filter(Objects::nonNull).reduce(0,Integer::sum);
         }
         return 0;
     }
@@ -518,21 +512,21 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String,String> idMap) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
                 extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
 
         String defaultStatus = "Fail";
-        Map<String,String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
-        for (TestPlanFailureScenarioDTO dto: apiTestCases) {
+        Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
+        for (TestPlanFailureScenarioDTO dto : apiTestCases) {
             String reportId = idMap.get(dto.getId());
             dto.setReportId(reportId);
-            if(reportId != null){
+            if (reportId != null) {
                 String status = reportStatus.get(reportId);
-                if(status == null ){
+                if (status == null) {
                     status = defaultStatus;
-                }else {
-                    if(StringUtils.equalsIgnoreCase(status,"Error")){
+                } else {
+                    if (StringUtils.equalsIgnoreCase(status, "Error")) {
                         status = "Fail";
                     }
                 }
