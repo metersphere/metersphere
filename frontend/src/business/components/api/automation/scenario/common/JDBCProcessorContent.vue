@@ -278,6 +278,11 @@ export default {
   margin: 6px 0px 8px 30px;
 }
 
+.environment-button {
+  margin-left: 20px;
+  padding: 7px;
+}
+
 /deep/ .el-form-item {
   margin-bottom: 15px;
 }
