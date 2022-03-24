@@ -49,6 +49,14 @@
         :label="$t('commons.delete_user')"
         min-width="120"/>
 
+       <ms-table-column
+         prop="projectName"
+         :fields-width="fieldsWidth"
+         :label="$t('test_track.case.project')"
+         v-if="publicEnable"
+         min-width="150px">
+        </ms-table-column>
+
       <span v-for="(item, index) in fields" :key="index">
         <ms-table-column
           v-if="item.id === 'lastExecResult'"
@@ -129,14 +137,7 @@
           </template>
         </ms-table-column>
 
-        <ms-table-column
-          prop="projectName"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.case.project')"
-          v-if="publicEnable"
-          min-width="150px">
-        </ms-table-column>
+
 
         <ms-table-column
           v-if="versionEnable"
