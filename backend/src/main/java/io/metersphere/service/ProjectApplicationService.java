@@ -3,6 +3,7 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.CaseFormat;
 import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectApplicationMapper;
 import io.metersphere.base.mapper.ProjectMapper;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +48,7 @@ public class ProjectApplicationService {
     @Resource
     private ProjectService projectService;
 
-    public void updateProjectApplication(ProjectApplication projectApplication){
+    public void updateProjectApplication(ProjectApplication projectApplication) {
         this.doBeforeUpdate(projectApplication);
         this.createOrUpdateConfig(projectApplication);
     }
@@ -59,7 +61,7 @@ public class ProjectApplicationService {
                 && BooleanUtils.isTrue(Boolean.parseBoolean(value))) {
             testCaseService.updateTestCaseCustomNumByProjectId(projectId);
         } else if (StringUtils.equals(type, ProjectApplicationType.MOCK_TCP_PORT.name())) {
-            this.doHandleMockTcp(projectId, value);
+            this.doHandleMockTcpPort(projectId, value);
         } else if (StringUtils.equals(type, ProjectApplicationType.CLEAN_TRACK_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.CLEAN_API_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.CLEAN_LOAD_REPORT.name())) {
@@ -90,13 +92,16 @@ public class ProjectApplicationService {
         projectService.addOrUpdateCleanUpSchedule(request);
     }
 
-    private void doHandleMockTcp(String projectId, String value) {
+    private void doHandleMockTcpPort(String projectId, String value) {
+
         int lastTcpNum = 0;
+        //获取旧端口
         ProjectConfig config = getSpecificTypeValue(projectId, ProjectApplicationType.MOCK_TCP_PORT.name());
         Integer oldPort = config.getMockTcpPort();
         if (oldPort != null) {
             lastTcpNum = oldPort;
         }
+
         int port;
         try {
             port = Integer.parseInt(value);
@@ -113,20 +118,47 @@ public class ProjectApplicationService {
         if (port > 0) {
             projectService.checkMockTcpPort(port);
         }
+
         AddProjectRequest project = new AddProjectRequest();
         project.setMockTcpPort(port);
         project.setId(projectId);
         projectService.checkProjectTcpPort(project);
-        //检查Mock环境是否需要同步更新
-        ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        if (apiTestEnvironmentService != null) {
-            apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId);
+
+        if (lastTcpNum != port) {
+            TCPPool.closeTcp(lastTcpNum);
         }
 
-        if (BooleanUtils.isTrue(Boolean.parseBoolean(value))) {
-            projectService.reloadMockTcp(project, lastTcpNum);
-        } else {
+    }
+
+    private void doHandleMockTcpStatus(String projectId, String value) {
+
+        boolean isOpen = Boolean.parseBoolean(value);
+        int port = 0;
+        //获取旧端口
+        ProjectConfig config = getSpecificTypeValue(projectId, ProjectApplicationType.MOCK_TCP_PORT.name());
+        Integer oldPort = config.getMockTcpPort();
+        if (oldPort != null) {
+            port = oldPort;
+        }
+
+        AddProjectRequest project = new AddProjectRequest();
+        project.setMockTcpPort(port);
+        project.setId(projectId);
+        if(!isOpen){
             projectService.closeMockTcp(project);
+        }else {
+            if (port == 0) {
+                MSException.throwException("tcp port cannot be 0");
+            }
+            if (port > 0) {
+                projectService.checkMockTcpPort(port);
+            }
+            projectService.checkProjectTcpPort(project);
+            if (BooleanUtils.isTrue(Boolean.parseBoolean(value))) {
+                projectService.reloadMockTcp(project, port);
+            } else {
+                projectService.closeMockTcp(project);
+            }
         }
     }
 
@@ -142,7 +174,7 @@ public class ProjectApplicationService {
         if (projectApplication != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(projectApplication, SystemReference.projectApplicationColumns);
             Project project = projectMapper.selectByPrimaryKey(projectApplication.getProjectId());
-            if (project==null) {
+            if (project == null) {
                 return null;
             }
             DetailColumn column = new DetailColumn("项目名称", "projectName", project.getName(), null);
@@ -157,7 +189,7 @@ public class ProjectApplicationService {
         ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
         projectApplicationExample.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(projectApplicationExample);
-        if(projectApplications == null || projectApplications.size() == 0){
+        if (projectApplications == null || projectApplications.size() == 0) {
             return new ProjectApplication();
         }
         return projectApplications.get(0);
@@ -193,16 +225,27 @@ public class ProjectApplicationService {
             example.clear();
             example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(type);
             projectApplicationMapper.updateByExample(conf, example);
-            return;
+        }else {
+            projectApplicationMapper.insertSelective(conf);
         }
 
-        projectApplicationMapper.insertSelective(conf);
+        if(StringUtils.equals(type,ProjectApplicationType.MOCK_TCP_PORT.name())){
+            //检查Mock环境是否需要同步更新
+            ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+            if (apiTestEnvironmentService != null) {
+                apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId);
+            }
+        } else if (StringUtils.equals(type, ProjectApplicationType.MOCK_TCP_OPEN.name())) {
+            this.doHandleMockTcpStatus(projectId, value);
+        }
+
     }
 
     /**
      * 返回指定项目下某配置的值
+     *
      * @param projectId 指定项目ID
-     * @param type ProjectApplicationType中某项目配置
+     * @param type      ProjectApplicationType中某项目配置
      * @return 如果有该配置返回字符串类型，否则返回NULL
      */
     public String getTypeValue(String projectId, String type) {
@@ -219,6 +262,7 @@ public class ProjectApplicationService {
 
     /**
      * 获取指定项目下的所有应用配置选项组成的对象
+     *
      * @param projectId 项目ID
      * @return 项目配置对象ProjectConfig
      */
@@ -254,8 +298,9 @@ public class ProjectApplicationService {
 
     /**
      * 返回指定项目下某配置的值
+     *
      * @param projectId 项目ID
-     * @param type ProjectApplicationType中某项目配置
+     * @param type      ProjectApplicationType中某项目配置
      * @return ProjectConfig
      */
     public ProjectConfig getSpecificTypeValue(String projectId, String type) {
@@ -289,7 +334,7 @@ public class ProjectApplicationService {
             return Boolean.valueOf(value);
         } else if (type == Integer.class) {
             try {
-               return Integer.valueOf(value);
+                return Integer.valueOf(value);
             } catch (Exception e) {
                 return 0;
             }
@@ -300,8 +345,21 @@ public class ProjectApplicationService {
     public void updateProjectConfigBatch(ProjectApplicationRequest request) {
         List<ProjectApplication> applications = request.getConfigs();
         if (CollectionUtils.isNotEmpty(applications)) {
+            List<ProjectApplication> applicationByTcp = new ArrayList<>();
             for (ProjectApplication application : applications) {
-                this.updateProjectApplication(application);
+                if (StringUtils.equals(application.getType(), ProjectApplicationType.MOCK_TCP_PORT.name())) {
+                    applicationByTcp.add(0, application);
+                } else if (StringUtils.equals(application.getType(), ProjectApplicationType.MOCK_TCP_OPEN.name())) {
+                    applicationByTcp.add(application);
+                } else {
+                    this.updateProjectApplication(application);
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(applicationByTcp)) {
+                for (ProjectApplication application : applicationByTcp) {
+                    this.updateProjectApplication(application);
+                }
             }
         }
     }
