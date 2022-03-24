@@ -170,6 +170,7 @@ export default {
             });
           });
         });
+      setTimeout(this.$refs.table.reloadTable, 200);
       },
       setEnvironment(data) {
         this.environmentId = data.id;
