@@ -254,7 +254,6 @@ export default {
           }
         });
       });
-      setTimeout(this.$refs.table.reloadTable, 200);
     },
     clear() {
       if (this.$refs.table) {
