@@ -67,7 +67,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -125,6 +125,7 @@ export default {
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
     }
+    this.projectId = getCurrentProjectID();
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
   data() {
@@ -133,6 +134,7 @@ export default {
       isShowInput: false,
       isShowNum: false,
       stepFilter: new STEP,
+      projectId:''
     }
   },
   computed: {
@@ -239,17 +241,17 @@ export default {
     },
     calcProjectId(projectId, parentId) {
       if (!projectId) {
-        return parentId ? parentId : getCurrentProjectID();
+        return parentId ? parentId : this.projectId;
       } else {
         const project = this.projectList.find(p => p.id === projectId);
         if (project) {
           return projectId;
         }
-        return parentId ? parentId : getCurrentProjectID();
+        return parentId ? parentId : this.projectId;
       }
     },
     getProjectName(id) {
-      if (this.projectId !== id) {
+      if (id !== this.projectId ) {
         const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
@@ -258,7 +260,7 @@ export default {
     clickResource(resource) {
       let workspaceId;
       let isTurnSpace = true
-      if(resource.projectId!==getCurrentProjectID()){
+      if(resource.projectId!==this.projectId){
         isTurnSpace = false;
         this.$get("/project/get/" + resource.projectId, response => {
           if (response.data) {
