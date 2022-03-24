@@ -120,7 +120,6 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         apiDefinition.setProjectId(this.projectId);
         String request = apiDefinition.getRequest();
         JSONObject requestObj = JSONObject.parseObject(request);
-//        requestObj.put("id", id);
         if(requestObj.get("projectId")!=null){
             requestObj.put("projectId", apiDefinition.getProjectId());
         }
