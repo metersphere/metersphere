@@ -177,7 +177,9 @@ export default {
           }
         }
       }
-      this.$refs.table.reloadTable();
+      if (this.$refs.table) {
+        this.$refs.table.reloadTable();
+      }
     });
   },
   methods: {
