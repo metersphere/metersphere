@@ -20,13 +20,13 @@ public class IssueTemplate implements Serializable {
 
     private Boolean global;
 
-    private String workspaceId;
-
     private Long createTime;
 
     private Long updateTime;
 
     private String createUser;
+
+    private String projectId;
 
     private String content;
 

@@ -1,6 +1,9 @@
 <template>
   <div>
     <div>
+      <div class="ms-opt-btn" v-if="versionEnable">
+        {{ $t('project.version.name') }}: {{ versionName }}
+      </div>
       <el-input :placeholder="$t('commons.search_by_name')" class="search-input" size="small"
                 :clearable="true"
                 v-model="tableSearch"/>
@@ -17,7 +20,7 @@
         :screen-height="screenHeight"
         @row-click="clickRow"
         row-key="id"
-        operator-width="120px"
+        operator-width="170px"
         ref="table"
       >
 
@@ -78,7 +81,7 @@
 
 <script>
 
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MockEditDrawer from "@/business/components/api/definition/components/mock/MockEditDrawer";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -88,13 +91,14 @@ export default {
   name: 'MockTab',
   components: {
     MockEditDrawer,
-    MsTable,MsTableColumn,MsTag
+    MsTable, MsTableColumn, MsTag
   },
   props: {
     baseMockConfigData: {},
-    isTcp:{
-      type:Boolean,
-      default:false,
+    versionName:String,
+    isTcp: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -102,11 +106,18 @@ export default {
       result: {},
       visible: false,
       mockConfigData: {},
-      tableSearch:"",
+      tableSearch: "",
       apiParams: {},
       pageSize: 10,
-      screenHeight:document.documentElement.clientHeight - 250,
+      screenHeight: document.documentElement.clientHeight - 250,
       operators: [
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.redirectToTest,
+          class: "run-button",
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.clickRow,
@@ -121,13 +132,18 @@ export default {
           permissions: ['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']
         }
       ],
+      versionEnable: false,
     };
   },
 
   watch: {
+    baseMockConfigData() {
+      this.mockConfigData = this.baseMockConfigData;
+    }
   },
   created() {
     this.mockConfigData = this.baseMockConfigData;
+    this.checkVersionEnable();
   },
   computed: {
     projectId() {
@@ -135,18 +151,106 @@ export default {
     },
   },
   methods: {
+    redirectToTest(row) {
+      let requestParam = null;
+      if (row && row.request) {
+        requestParam = JSON.parse(JSON.stringify(row.request));
+      }
+      if (requestParam.xmlDataStruct) {
+        this.getTcpMockTestData(requestParam);
+      } else {
+        this.getHttpMockTestData(requestParam);
+      }
+
+    },
+    getTcpMockTestData(requestParam) {
+      if (requestParam && requestParam.xmlDataStruct) {
+        let selectParma = requestParam.xmlDataStruct;
+        //调用后台生成符合mock需求的测试数据
+        this.$post("/mockConfig/getTcpMockTestData", selectParma, response => {
+          let returnData = response.data;
+          if (returnData) {
+            requestParam.xmlDataStruct = returnData;
+          }
+          this.$emit("redirectToTest", requestParam);
+        }, error => {
+          this.$emit("redirectToTest", requestParam);
+        });
+      }
+    },
+    getHttpMockTestData(requestParam) {
+      if (requestParam && requestParam.params) {
+        let selectParma = [];
+        if (requestParam.params.arguments && requestParam.params.arguments.length > 0) {
+          requestParam.params.arguments.forEach(item => {
+            if (item.rangeType && item.value && item.uuid) {
+              let paramObj = {id: item.uuid, value: item.value, condition: item.rangeType};
+              selectParma.push(paramObj);
+            }
+          });
+        }
+        if (requestParam.params.rest && requestParam.params.rest.length > 0) {
+          requestParam.params.rest.forEach(item => {
+            if (item.rangeType && item.value && item.uuid) {
+              let paramObj = {id: item.uuid, value: item.value, condition: item.rangeType};
+              selectParma.push(paramObj);
+            }
+          });
+        }
+        if (requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0) {
+          requestParam.params.body.kvs.forEach(item => {
+            if (item.rangeType && item.value && item.uuid) {
+              let paramObj = {id: item.uuid, value: item.value, condition: item.rangeType};
+              selectParma.push(paramObj);
+            }
+          });
+        }
+        //调用后台生成符合mock需求的测试数据
+        this.$post("/mockConfig/getMockTestData", selectParma, response => {
+          let returnData = response.data;
+          if (returnData && returnData.length > 0) {
+            returnData.forEach(data => {
+              if (requestParam.params.arguments && requestParam.params.arguments.length > 0) {
+                for (let i = 0; i < requestParam.params.arguments.length; i++) {
+                  if (requestParam.params.arguments[i].uuid === data.id) {
+                    requestParam.params.arguments[i].value = data.value;
+                  }
+                }
+              }
+              if (requestParam.params.rest && requestParam.params.rest.length > 0) {
+                for (let i = 0; i < requestParam.params.rest.length; i++) {
+                  if (requestParam.params.rest[i].uuid === data.id) {
+                    requestParam.params.rest[i].value = data.value;
+                  }
+                }
+              }
+              if (requestParam.params.body.kvs && requestParam.params.body.kvs.length > 0) {
+                for (let i = 0; i < requestParam.params.body.kvs.length; i++) {
+                  if (requestParam.params.body.kvs[i].uuid === data.id) {
+                    requestParam.params.body.kvs[i].value = data.value;
+                  }
+                }
+              }
+            });
+          }
+          this.$emit("redirectToTest", requestParam);
+        }, error => {
+          this.$emit("redirectToTest", requestParam);
+        });
+      }
+    },
     searchApiParams(apiId) {
       let selectUrl = "/mockConfig/getApiParams/" + apiId;
       this.$get(selectUrl, response => {
 
         this.apiParams = response.data;
-        if(!this.apiParams.query){
+        if (!this.apiParams.query) {
           this.apiParams.query = [];
         }
-        if(!this.apiParams.rest){
+        if (!this.apiParams.rest) {
           this.apiParams.rest = [];
         }
-        if(!this.apiParams.form){
+        if (!this.apiParams.form) {
           this.apiParams.form = [];
         }
       });
@@ -215,7 +319,7 @@ export default {
         });
       });
     },
-    addApiMock(){
+    addApiMock() {
       this.searchApiParams(this.mockConfigData.mockConfig.apiId);
       this.$refs.mockEditDrawer.close();
       this.$nextTick(() => {
@@ -247,6 +351,16 @@ export default {
         this.mockConfigData = response.data;
       });
     },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+        });
+      }
+    }
   }
 };
 </script>
@@ -256,6 +370,7 @@ export default {
 .ms-drawer >>> .ms-drawer-body {
   margin-top: 40px;
 }
+
 .search-input {
   float: right;
   width: 300px;

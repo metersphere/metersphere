@@ -33,13 +33,15 @@ public class LoadTestReport implements Serializable {
 
     private String testName;
 
+    private String testResourcePoolId;
+
     private Long testStartTime;
 
     private Long testEndTime;
 
     private Long testDuration;
 
-    private String testResourcePoolId;
+    private String versionId;
 
     private static final long serialVersionUID = 1L;
 }

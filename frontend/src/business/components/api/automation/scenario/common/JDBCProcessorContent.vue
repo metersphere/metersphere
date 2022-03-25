@@ -3,13 +3,13 @@
     <el-row>
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
-          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
+          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="request.disabled" style="margin: 10px">
             <el-row>
               <el-col :span="8">
                 <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
                   <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
-                             @change="environmentChange" clearable>
+                             @change="environmentChange" clearable :disabled="isReadOnly">
                     <el-option v-for="(environment, index) in environments" :key="index"
                                :label="environment.name"
                                :value="environment.id"/>
@@ -28,7 +28,7 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
-                  <el-select v-model="request.dataSourceId" size="small" @change="reload">
+                  <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
                     <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
                   </el-select>
                 </el-form-item>
@@ -36,7 +36,7 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
-                  <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+                  <el-input-number :disabled="request.disabled" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -117,13 +117,10 @@ export default {
       rules: {},
     }
   },
-  watch: {
-    'request.dataSourceId'() {
-      this.setDataSource();
-    },
-  },
   created() {
-    this.getEnvironments();
+    this.$nextTick(() => {
+      this.getEnvironments();
+    });
   },
   computed: {
     projectId() {
@@ -173,12 +170,22 @@ export default {
         let hasEnvironment = false;
         for (let i in this.environments) {
           if (this.environments[i].id === this.request.environmentId) {
-            hasEnvironment = true;
+            if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map) {
+              if (this.$store.state.scenarioEnvMap.has(this.projectId) &&
+                this.$store.state.scenarioEnvMap.get(this.projectId) === this.request.environmentId) {
+                hasEnvironment = true;
+              }
+            } else {
+              hasEnvironment = true;
+            }
             break;
           }
         }
         if (!hasEnvironment) {
-          this.request.environmentId = undefined;
+          if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+            && this.$store.state.scenarioEnvMap.has(this.projectId)) {
+            this.request.environmentId = this.$store.state.scenarioEnvMap.get(this.projectId);
+          }
         }
         if (!this.request.environmentId) {
           this.request.dataSourceId = undefined;
@@ -200,13 +207,17 @@ export default {
       }
 
       this.databaseConfigsOptions = [];
-      if(environment.config&&environment.config.databaseConfigs){
+      if (environment.config && environment.config.databaseConfigs) {
         environment.config.databaseConfigs.forEach(item => {
           if (item.id === this.request.dataSourceId) {
             flag = true;
           }
           this.databaseConfigsOptions.push(item);
         });
+        if (!flag && environment.config.databaseConfigs.length > 0) {
+          this.request.dataSourceId = environment.config.databaseConfigs[0].id;
+          flag = true;
+        }
       }
       if (!flag) {
         this.request.dataSourceId = "";
@@ -265,6 +276,11 @@ export default {
 
 .ms-left-buttion {
   margin: 6px 0px 8px 30px;
+}
+
+.environment-button {
+  margin-left: 20px;
+  padding: 7px;
 }
 
 /deep/ .el-form-item {

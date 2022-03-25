@@ -37,7 +37,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
-            swagger = new SwaggerParser().readWithInfo(sourceStr, auths, true).getSwagger();
+            swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
         }
         if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
@@ -100,6 +100,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         Set<String> pathNames = paths.keySet();
 
         this.definitions = swagger.getDefinitions();
+        if (this.definitions == null)
+            this.definitions = new HashMap<>();
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
@@ -291,7 +293,12 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             HashSet<String> refSet = new HashSet<>();
             Model model = getRefModelType(schema, refSet);
             item.setType("object");
-            item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+            if (model != null){
+                item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+                if(((AbstractModel) model).getRequired()!=null){
+                    item.setRequired(((AbstractModel) model).getRequired());
+                }
+            }
         } else if (schema instanceof ArrayModel) {
             //模型数组
             ArrayModel arrayModel = (ArrayModel) schema;
@@ -299,10 +306,21 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             handleArrayItemProperties(item, arrayModel.getItems(), refSet);
         } else if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
-            Map<String, Property> properties = model.getProperties();
-            if (model != null) {
-                item.setType("object");
-                item.setProperties(parseSchemaProperties(properties, new HashSet<>()));
+            item.setType("object");
+            if (model != null){
+                item.setProperties(parseSchemaProperties(model.getProperties(), new HashSet<>()));
+                if(model.getRequired()!=null){
+                    item.setRequired(model.getRequired());
+                }
+            }
+        }else if(schema instanceof AbstractModel){
+            AbstractModel abstractModel = (AbstractModel) schema;
+            HashSet<String> refSet = new HashSet<>();
+            item.setType("object");
+            if (abstractModel != null)
+                item.setProperties(parseSchemaProperties(abstractModel.getProperties(), refSet));
+            if(abstractModel.getRequired()!=null){
+                item.setRequired(abstractModel.getRequired());
             }
         }
         if (schema.getExample() != null) {
@@ -398,6 +416,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         Model model = this.definitions.get(simpleRef);
         if (model != null) {
             item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
+            if(((AbstractModel) model).getRequired()!=null){
+                item.setRequired(((AbstractModel) model).getRequired());
+            }
         }
     }
 

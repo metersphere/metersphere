@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-container v-loading="isLoading">
-      <el-main style="padding-top: 0px;padding-bottom: 0px" >
+      <el-main style="padding-top: 0px;padding-bottom: 0px">
         <!--   筛选条件     -->
         <el-row v-if="sharePage" style="margin-top: 10px">
           <el-select size="small" :placeholder="$t('api_test.definition.document.order')"
@@ -79,7 +79,8 @@
         <el-divider></el-divider>
         <!--   展示区域     -->
         <div ref="apiDocInfoDiv" @scroll="handleScroll" style="overflow: auto">
-          <api-information v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" :api-info="apiInfo" :project-id="projectId"  ref="apiDocInfoDivItem"/>
+          <api-information v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" :api-info="apiInfo"
+                           :project-id="projectId" ref="apiDocInfoDivItem"/>
         </div>
       </el-main>
       <!-- 右侧列表 -->
@@ -169,6 +170,7 @@ export default {
     documentId: String,
     moduleIds: Array,
     sharePage: Boolean,
+    versionId: String,
     pageHeaderHeight: Number,
     trashEnable: {
       type: Boolean,
@@ -253,6 +255,7 @@ export default {
         simpleRequest.moduleIds = [];
       }
       simpleRequest.trashEnable = this.trashEnable;
+      simpleRequest.versionId = this.versionId;
 
       let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
 

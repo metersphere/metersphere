@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
+    <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="node_path" jdbcType="VARCHAR" property="nodePath" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
@@ -13,7 +14,6 @@
     <result column="method" jdbcType="VARCHAR" property="method" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="other_test_name" jdbcType="VARCHAR" property="otherTestName" />
@@ -22,14 +22,17 @@
     <result column="demand_id" jdbcType="VARCHAR" property="demandId" />
     <result column="demand_name" jdbcType="VARCHAR" property="demandName" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
     <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
+    <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="original_status" jdbcType="VARCHAR" property="originalStatus" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
     <result column="order" jdbcType="BIGINT" property="order" />
-    <result column="case_public" jdbcType="BIT" property="casePublic"/>
+    <result column="case_public" jdbcType="BIT" property="casePublic" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="latest" jdbcType="BIT" property="latest" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="prerequisite" jdbcType="LONGVARCHAR" property="prerequisite" />
@@ -98,11 +101,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-      id
-      , node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`,
-    create_time, update_time, test_id, sort, num, other_test_name, review_status, tags, 
-    demand_id, demand_name, `status`, custom_num, step_model, create_user, original_status, 
-    delete_time, delete_user_id, `order`, case_public
+    id, node_id, test_id, node_path, project_id, `name`, `type`, maintainer, priority, 
+    `method`, create_time, update_time, sort, num, other_test_name, review_status, tags, 
+    demand_id, demand_name, `status`, step_model, custom_num, create_user, original_status, 
+    delete_time, delete_user_id, `order`, case_public, version_id, ref_id, latest
   </sql>
   <sql id="Blob_Column_List">
     prerequisite, remark, steps, step_description, expected_result, custom_fields
@@ -156,31 +158,32 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
-      insert into test_case (id, node_id, node_path,
-                             project_id, `name`, `type`,
-                             maintainer, priority, `method`,
-                             create_time, update_time, test_id,
-                             sort, num, other_test_name,
-                             review_status, tags, demand_id,
-                             demand_name, `status`, custom_num,
-                             step_model, create_user, original_status,
-                             delete_time, delete_user_id, `order`,
-                             case_public, prerequisite, remark,
-                             steps, step_description, expected_result,
-                             custom_fields)
-      values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR},
-              #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-              #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR},
-              #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{testId,jdbcType=VARCHAR},
-              #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, #{otherTestName,jdbcType=VARCHAR},
-              #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR},
-              #{demandName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR},
-              #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR},
-              #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT},
-              #{casePublic,jdbcType=BIT}, #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR},
-              #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR},
-              #{expectedResult,jdbcType=LONGVARCHAR},
-              #{customFields,jdbcType=LONGVARCHAR})
+    insert into test_case (id, node_id, test_id, 
+      node_path, project_id, `name`, 
+      `type`, maintainer, priority, 
+      `method`, create_time, update_time, 
+      sort, num, other_test_name, 
+      review_status, tags, demand_id, 
+      demand_name, `status`, step_model, 
+      custom_num, create_user, original_status, 
+      delete_time, delete_user_id, `order`, 
+      case_public, version_id, ref_id, 
+      latest, prerequisite, remark, 
+      steps, step_description, expected_result, 
+      custom_fields)
+    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
+      #{nodePath,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{type,jdbcType=VARCHAR}, #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
+      #{method,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, #{otherTestName,jdbcType=VARCHAR}, 
+      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR}, 
+      #{demandName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, 
+      #{customNum,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, 
+      #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
+      #{casePublic,jdbcType=BIT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
+      #{latest,jdbcType=BIT}, #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, 
+      #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{customFields,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -190,6 +193,9 @@
       </if>
       <if test="nodeId != null">
         node_id,
+      </if>
+      <if test="testId != null">
+        test_id,
       </if>
       <if test="nodePath != null">
         node_path,
@@ -218,9 +224,6 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="testId != null">
-        test_id,
-      </if>
       <if test="sort != null">
         sort,
       </if>
@@ -245,48 +248,57 @@
       <if test="status != null">
         `status`,
       </if>
+      <if test="stepModel != null">
+        step_model,
+      </if>
       <if test="customNum != null">
         custom_num,
       </if>
-        <if test="stepModel != null">
-            step_model,
-        </if>
-        <if test="createUser != null">
-            create_user,
-        </if>
-        <if test="originalStatus != null">
-            original_status,
-        </if>
-        <if test="deleteTime != null">
-            delete_time,
-        </if>
-        <if test="deleteUserId != null">
-            delete_user_id,
-        </if>
-        <if test="order != null">
-            `order`,
-        </if>
-        <if test="casePublic != null">
-            case_public,
-        </if>
-        <if test="prerequisite != null">
-            prerequisite,
-        </if>
-        <if test="remark != null">
-            remark,
-        </if>
-        <if test="steps != null">
-            steps,
-        </if>
-        <if test="stepDescription != null">
-            step_description,
-        </if>
-        <if test="expectedResult != null">
-            expected_result,
-        </if>
-        <if test="customFields != null">
-            custom_fields,
-        </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="originalStatus != null">
+        original_status,
+      </if>
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+      <if test="deleteUserId != null">
+        delete_user_id,
+      </if>
+      <if test="order != null">
+        `order`,
+      </if>
+      <if test="casePublic != null">
+        case_public,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="latest != null">
+        latest,
+      </if>
+      <if test="prerequisite != null">
+        prerequisite,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="steps != null">
+        steps,
+      </if>
+      <if test="stepDescription != null">
+        step_description,
+      </if>
+      <if test="expectedResult != null">
+        expected_result,
+      </if>
+      <if test="customFields != null">
+        custom_fields,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -294,6 +306,9 @@
       </if>
       <if test="nodeId != null">
         #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="testId != null">
+        #{testId,jdbcType=VARCHAR},
       </if>
       <if test="nodePath != null">
         #{nodePath,jdbcType=VARCHAR},
@@ -322,9 +337,6 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="testId != null">
-        #{testId,jdbcType=VARCHAR},
-      </if>
       <if test="sort != null">
         #{sort,jdbcType=INTEGER},
       </if>
@@ -349,48 +361,57 @@
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
       </if>
+      <if test="stepModel != null">
+        #{stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="customNum != null">
         #{customNum,jdbcType=VARCHAR},
       </if>
-        <if test="stepModel != null">
-            #{stepModel,jdbcType=VARCHAR},
-        </if>
-        <if test="createUser != null">
-            #{createUser,jdbcType=VARCHAR},
-        </if>
-        <if test="originalStatus != null">
-            #{originalStatus,jdbcType=VARCHAR},
-        </if>
-        <if test="deleteTime != null">
-            #{deleteTime,jdbcType=BIGINT},
-        </if>
-        <if test="deleteUserId != null">
-            #{deleteUserId,jdbcType=VARCHAR},
-        </if>
-        <if test="order != null">
-            #{order,jdbcType=BIGINT},
-        </if>
-        <if test="casePublic != null">
-            #{casePublic,jdbcType=BIT},
-        </if>
-        <if test="prerequisite != null">
-            #{prerequisite,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="remark != null">
-            #{remark,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="steps != null">
-            #{steps,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="stepDescription != null">
-            #{stepDescription,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="expectedResult != null">
-            #{expectedResult,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="customFields != null">
-            #{customFields,jdbcType=LONGVARCHAR},
-        </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="originalStatus != null">
+        #{originalStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUserId != null">
+        #{deleteUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="order != null">
+        #{order,jdbcType=BIGINT},
+      </if>
+      <if test="casePublic != null">
+        #{casePublic,jdbcType=BIT},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="latest != null">
+        #{latest,jdbcType=BIT},
+      </if>
+      <if test="prerequisite != null">
+        #{prerequisite,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="steps != null">
+        #{steps,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="stepDescription != null">
+        #{stepDescription,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="expectedResult != null">
+        #{expectedResult,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="customFields != null">
+        #{customFields,jdbcType=LONGVARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.TestCaseExample" resultType="java.lang.Long">
@@ -407,6 +428,9 @@
       </if>
       <if test="record.nodeId != null">
         node_id = #{record.nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testId != null">
+        test_id = #{record.testId,jdbcType=VARCHAR},
       </if>
       <if test="record.nodePath != null">
         node_path = #{record.nodePath,jdbcType=VARCHAR},
@@ -435,9 +459,6 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.testId != null">
-        test_id = #{record.testId,jdbcType=VARCHAR},
-      </if>
       <if test="record.sort != null">
         sort = #{record.sort,jdbcType=INTEGER},
       </if>
@@ -462,48 +483,57 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
+      <if test="record.stepModel != null">
+        step_model = #{record.stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="record.customNum != null">
         custom_num = #{record.customNum,jdbcType=VARCHAR},
       </if>
-        <if test="record.stepModel != null">
-            step_model = #{record.stepModel,jdbcType=VARCHAR},
-        </if>
-        <if test="record.createUser != null">
-            create_user = #{record.createUser,jdbcType=VARCHAR},
-        </if>
-        <if test="record.originalStatus != null">
-            original_status = #{record.originalStatus,jdbcType=VARCHAR},
-        </if>
-        <if test="record.deleteTime != null">
-            delete_time = #{record.deleteTime,jdbcType=BIGINT},
-        </if>
-        <if test="record.deleteUserId != null">
-            delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
-        </if>
-        <if test="record.order != null">
-            `order` = #{record.order,jdbcType=BIGINT},
-        </if>
-        <if test="record.casePublic != null">
-            case_public = #{record.casePublic,jdbcType=BIT},
-        </if>
-        <if test="record.prerequisite != null">
-            prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="record.remark != null">
-            remark = #{record.remark,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="record.steps != null">
-            steps = #{record.steps,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="record.stepDescription != null">
-            step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="record.expectedResult != null">
-            expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="record.customFields != null">
-            custom_fields = #{record.customFields,jdbcType=LONGVARCHAR},
-        </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.originalStatus != null">
+        original_status = #{record.originalStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleteUserId != null">
+        delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=BIGINT},
+      </if>
+      <if test="record.casePublic != null">
+        case_public = #{record.casePublic,jdbcType=BIT},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.latest != null">
+        latest = #{record.latest,jdbcType=BIT},
+      </if>
+      <if test="record.prerequisite != null">
+        prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.steps != null">
+        steps = #{record.steps,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.stepDescription != null">
+        step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.expectedResult != null">
+        expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.customFields != null">
+        custom_fields = #{record.customFields,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -513,6 +543,7 @@
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
       node_id = #{record.nodeId,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
       node_path = #{record.nodePath,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
@@ -522,7 +553,6 @@
       `method` = #{record.method,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      test_id = #{record.testId,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=INTEGER},
       num = #{record.num,jdbcType=INTEGER},
       other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
@@ -531,28 +561,32 @@
       demand_id = #{record.demandId,jdbcType=VARCHAR},
       demand_name = #{record.demandName,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      custom_num = #{record.customNum,jdbcType=VARCHAR},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
+      custom_num = #{record.customNum,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       original_status = #{record.originalStatus,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
       case_public = #{record.casePublic,jdbcType=BIT},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      latest = #{record.latest,jdbcType=BIT},
       prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
       custom_fields = #{record.customFields,jdbcType=LONGVARCHAR}
-      <if test="_parameter != null">
-          <include refid="Update_By_Example_Where_Clause"/>
-      </if>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
   </update>
   <update id="updateByExample" parameterType="map">
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
       node_id = #{record.nodeId,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
       node_path = #{record.nodePath,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
@@ -562,7 +596,6 @@
       `method` = #{record.method,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      test_id = #{record.testId,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=INTEGER},
       num = #{record.num,jdbcType=INTEGER},
       other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
@@ -571,23 +604,29 @@
       demand_id = #{record.demandId,jdbcType=VARCHAR},
       demand_name = #{record.demandName,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      custom_num = #{record.customNum,jdbcType=VARCHAR},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
+      custom_num = #{record.customNum,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       original_status = #{record.originalStatus,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
-      case_public = #{record.casePublic,jdbcType=BIT}
-      <if test="_parameter != null">
-          <include refid="Update_By_Example_Where_Clause"/>
-      </if>
+      case_public = #{record.casePublic,jdbcType=BIT},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      latest = #{record.latest,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     update test_case
     <set>
       <if test="nodeId != null">
         node_id = #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="testId != null">
+        test_id = #{testId,jdbcType=VARCHAR},
       </if>
       <if test="nodePath != null">
         node_path = #{nodePath,jdbcType=VARCHAR},
@@ -616,9 +655,6 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="testId != null">
-        test_id = #{testId,jdbcType=VARCHAR},
-      </if>
       <if test="sort != null">
         sort = #{sort,jdbcType=INTEGER},
       </if>
@@ -643,117 +679,132 @@
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
       </if>
+      <if test="stepModel != null">
+        step_model = #{stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="customNum != null">
         custom_num = #{customNum,jdbcType=VARCHAR},
       </if>
-        <if test="stepModel != null">
-            step_model = #{stepModel,jdbcType=VARCHAR},
-        </if>
-        <if test="createUser != null">
-            create_user = #{createUser,jdbcType=VARCHAR},
-        </if>
-        <if test="originalStatus != null">
-            original_status = #{originalStatus,jdbcType=VARCHAR},
-        </if>
-        <if test="deleteTime != null">
-            delete_time = #{deleteTime,jdbcType=BIGINT},
-        </if>
-        <if test="deleteUserId != null">
-            delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
-        </if>
-        <if test="order != null">
-            `order` = #{order,jdbcType=BIGINT},
-        </if>
-        <if test="casePublic != null">
-            case_public = #{casePublic,jdbcType=BIT},
-        </if>
-        <if test="prerequisite != null">
-            prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="remark != null">
-            remark = #{remark,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="steps != null">
-            steps = #{steps,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="stepDescription != null">
-            step_description = #{stepDescription,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="expectedResult != null">
-            expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
-        </if>
-        <if test="customFields != null">
-            custom_fields = #{customFields,jdbcType=LONGVARCHAR},
-        </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="originalStatus != null">
+        original_status = #{originalStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUserId != null">
+        delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=BIGINT},
+      </if>
+      <if test="casePublic != null">
+        case_public = #{casePublic,jdbcType=BIT},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="latest != null">
+        latest = #{latest,jdbcType=BIT},
+      </if>
+      <if test="prerequisite != null">
+        prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="steps != null">
+        steps = #{steps,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="stepDescription != null">
+        step_description = #{stepDescription,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="expectedResult != null">
+        expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="customFields != null">
+        custom_fields = #{customFields,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
-      update test_case
-      set node_id          = #{nodeId,jdbcType=VARCHAR},
-          node_path        = #{nodePath,jdbcType=VARCHAR},
-          project_id       = #{projectId,jdbcType=VARCHAR},
-          `name`           = #{name,jdbcType=VARCHAR},
-          `type`           = #{type,jdbcType=VARCHAR},
-          maintainer       = #{maintainer,jdbcType=VARCHAR},
-          priority         = #{priority,jdbcType=VARCHAR},
-          `method`         = #{method,jdbcType=VARCHAR},
-          create_time      = #{createTime,jdbcType=BIGINT},
-          update_time      = #{updateTime,jdbcType=BIGINT},
-          test_id          = #{testId,jdbcType=VARCHAR},
-          sort             = #{sort,jdbcType=INTEGER},
-          num              = #{num,jdbcType=INTEGER},
-          other_test_name  = #{otherTestName,jdbcType=VARCHAR},
-          review_status    = #{reviewStatus,jdbcType=VARCHAR},
-          tags             = #{tags,jdbcType=VARCHAR},
-          demand_id        = #{demandId,jdbcType=VARCHAR},
-          demand_name      = #{demandName,jdbcType=VARCHAR},
-          `status`         = #{status,jdbcType=VARCHAR},
-          custom_num       = #{customNum,jdbcType=VARCHAR},
-          step_model       = #{stepModel,jdbcType=VARCHAR},
-          create_user      = #{createUser,jdbcType=VARCHAR},
-          original_status  = #{originalStatus,jdbcType=VARCHAR},
-          delete_time      = #{deleteTime,jdbcType=BIGINT},
-          delete_user_id   = #{deleteUserId,jdbcType=VARCHAR},
-          `order`          = #{order,jdbcType=BIGINT},
-          case_public      = #{casePublic,jdbcType=BIT},
-          prerequisite     = #{prerequisite,jdbcType=LONGVARCHAR},
-          remark           = #{remark,jdbcType=LONGVARCHAR},
-          steps            = #{steps,jdbcType=LONGVARCHAR},
-          step_description = #{stepDescription,jdbcType=LONGVARCHAR},
-          expected_result  = #{expectedResult,jdbcType=LONGVARCHAR},
-          custom_fields    = #{customFields,jdbcType=LONGVARCHAR}
-      where id = #{id,jdbcType=VARCHAR}
+    update test_case
+    set node_id = #{nodeId,jdbcType=VARCHAR},
+      test_id = #{testId,jdbcType=VARCHAR},
+      node_path = #{nodePath,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      maintainer = #{maintainer,jdbcType=VARCHAR},
+      priority = #{priority,jdbcType=VARCHAR},
+      `method` = #{method,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      sort = #{sort,jdbcType=INTEGER},
+      num = #{num,jdbcType=INTEGER},
+      other_test_name = #{otherTestName,jdbcType=VARCHAR},
+      review_status = #{reviewStatus,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      demand_id = #{demandId,jdbcType=VARCHAR},
+      demand_name = #{demandName,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      step_model = #{stepModel,jdbcType=VARCHAR},
+      custom_num = #{customNum,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      original_status = #{originalStatus,jdbcType=VARCHAR},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT},
+      case_public = #{casePublic,jdbcType=BIT},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      latest = #{latest,jdbcType=BIT},
+      prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
+      remark = #{remark,jdbcType=LONGVARCHAR},
+      steps = #{steps,jdbcType=LONGVARCHAR},
+      step_description = #{stepDescription,jdbcType=LONGVARCHAR},
+      expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
+      custom_fields = #{customFields,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCase">
-      update test_case
-      set node_id         = #{nodeId,jdbcType=VARCHAR},
-          node_path       = #{nodePath,jdbcType=VARCHAR},
-          project_id      = #{projectId,jdbcType=VARCHAR},
-          `name`          = #{name,jdbcType=VARCHAR},
-          `type`          = #{type,jdbcType=VARCHAR},
-          maintainer      = #{maintainer,jdbcType=VARCHAR},
-          priority        = #{priority,jdbcType=VARCHAR},
-          `method`        = #{method,jdbcType=VARCHAR},
-          create_time     = #{createTime,jdbcType=BIGINT},
-          update_time     = #{updateTime,jdbcType=BIGINT},
-          test_id         = #{testId,jdbcType=VARCHAR},
-          sort            = #{sort,jdbcType=INTEGER},
-          num             = #{num,jdbcType=INTEGER},
-          other_test_name = #{otherTestName,jdbcType=VARCHAR},
-          review_status   = #{reviewStatus,jdbcType=VARCHAR},
-          tags            = #{tags,jdbcType=VARCHAR},
-          demand_id       = #{demandId,jdbcType=VARCHAR},
-          demand_name     = #{demandName,jdbcType=VARCHAR},
-          `status`        = #{status,jdbcType=VARCHAR},
-          custom_num      = #{customNum,jdbcType=VARCHAR},
-          step_model      = #{stepModel,jdbcType=VARCHAR},
-          create_user     = #{createUser,jdbcType=VARCHAR},
-          original_status = #{originalStatus,jdbcType=VARCHAR},
-          delete_time     = #{deleteTime,jdbcType=BIGINT},
-          delete_user_id  = #{deleteUserId,jdbcType=VARCHAR},
-          `order`         = #{order,jdbcType=BIGINT},
-          case_public     = #{casePublic,jdbcType=BIT}
-      where id = #{id,jdbcType=VARCHAR}
+    update test_case
+    set node_id = #{nodeId,jdbcType=VARCHAR},
+      test_id = #{testId,jdbcType=VARCHAR},
+      node_path = #{nodePath,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      maintainer = #{maintainer,jdbcType=VARCHAR},
+      priority = #{priority,jdbcType=VARCHAR},
+      `method` = #{method,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      sort = #{sort,jdbcType=INTEGER},
+      num = #{num,jdbcType=INTEGER},
+      other_test_name = #{otherTestName,jdbcType=VARCHAR},
+      review_status = #{reviewStatus,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      demand_id = #{demandId,jdbcType=VARCHAR},
+      demand_name = #{demandName,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      step_model = #{stepModel,jdbcType=VARCHAR},
+      custom_num = #{customNum,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      original_status = #{originalStatus,jdbcType=VARCHAR},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT},
+      case_public = #{casePublic,jdbcType=BIT},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      latest = #{latest,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

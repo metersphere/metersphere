@@ -38,7 +38,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             }
         }
 
-        if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {//  metersphere 格式导入
+        if (testObject.get("projectName") != null || testObject.get("projectId") != null) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
         } else {    //  chrome 插件录制格式导入
             request.setPlatform(ApiImportPlatform.Plugin.name());
@@ -56,7 +56,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             if (isCreateModule) {
                 moduleId = ApiDefinitionImportUtil.buildModule(this.selectModule, tag, this.projectId).getId();
             }
-            List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag);
+            List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag, false);
             for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
                 apiDefinition.setModuleId(moduleId);
@@ -120,7 +120,9 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         apiDefinition.setProjectId(this.projectId);
         String request = apiDefinition.getRequest();
         JSONObject requestObj = JSONObject.parseObject(request);
-//        requestObj.put("id", id);
+        if(requestObj.get("projectId")!=null){
+            requestObj.put("projectId", apiDefinition.getProjectId());
+        }
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
         apiDefinition.setCreateUser(SessionUtils.getUserId());
         apiDefinition.setUserId(SessionUtils.getUserId());
@@ -161,7 +163,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 String path = apiDefinition.getModulePath() == null ? "" : apiDefinition.getModulePath();
                 if (StringUtils.isNotBlank(this.selectModulePath)) {
                     apiDefinition.setModulePath(this.selectModulePath + path);
-                } else if (StringUtils.isBlank(importRequest.getModuleId())){
+                } else if (StringUtils.isBlank(importRequest.getModuleId())) {
                     apiDefinition.setModulePath("/未规划接口" + path);
                 }
             }

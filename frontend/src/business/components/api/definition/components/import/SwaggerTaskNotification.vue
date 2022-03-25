@@ -60,7 +60,7 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook"  size="mini"
+              <el-input v-model="scope.row.webhook" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -99,7 +99,7 @@
                 v-show="!scope.row.isSet"
                 :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+                v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
               <ms-tip-button
                 circle
                 type="danger"
@@ -108,7 +108,7 @@
                 v-show="!scope.row.isSet"
                 @click="deleteRowTask(scope.$index,scope.row)"
                 :tip="$t('commons.delete')"
-                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+                v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
@@ -185,7 +185,8 @@ export default {
     };
   },
   mounted() {
-    this.initForm();
+  },
+  created() {
   },
   methods: {
     initForm() {

@@ -11,6 +11,8 @@ import java.util.Map;
 public class RunRequest {
     private String testId;
     private String poolId;
+    // 开启定时同步
+    private boolean enable;
     // api / case 或有这个属性值
     private String reportId;
     private String url;

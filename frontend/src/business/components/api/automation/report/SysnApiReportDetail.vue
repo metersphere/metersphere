@@ -16,6 +16,7 @@
             <ms-metric-chart
               :content="content"
               :totalTime="totalTime"
+              :report="report"
               v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -39,6 +40,20 @@
                     v-on:requestResult="requestResult"
                     ref="failsTree"
                   />
+                </el-tab-pane>
+                <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
+                  <template slot="label">
+                    <span class="fail">{{ $t('error_report_library.option.name') }}</span>
+                  </template>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                                       :treeData="fullTreeNodes" ref="errorReportTree"/>
+                </el-tab-pane>
+                <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
+                  <template slot="label">
+                    <span class="fail">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
+                  </template>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                                       :treeData="fullTreeNodes" ref="unExecuteTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
@@ -76,7 +91,6 @@ import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {STEP} from "../scenario/Setting";
-import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
   name: "SysnApiReportDetail",
@@ -114,12 +128,17 @@ export default {
     this.isRequestResult = false;
   },
   created() {
-    if (this.scenario && this.scenario.scenarioDefinition) {
-      this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
-      this.initTree();
-      this.initMessageSocket();
-      this.clearDebug();
-    }
+
+  },
+  mounted() {
+    this.$nextTick(() => {
+      if (this.scenario && this.scenario.scenarioDefinition) {
+        this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
+        this.initTree();
+        this.initMessageSocket();
+        this.clearDebug();
+      }
+    });
   },
   props: {
     reportId: String,
@@ -162,7 +181,11 @@ export default {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
             let name = item.name ? item.name : this.getType(item.type);
-            let obj = {pid: pid, resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
+            let id = item.type === 'JSR223Processor' || !item.id ? item.resourceId : item.id
+            let obj = {
+              pid: pid, resId: id + "_" + item.parentIndex, index: Number(item.index), label: name,
+              value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true
+            };
             tree.children.push(obj);
             if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
               obj.unsolicited = false;
@@ -188,6 +211,10 @@ export default {
     filter(index) {
       if (index === "1") {
         this.$refs.failsTree.filter(index);
+      } else if (this.activeName === "errorReport") {
+        this.$refs.errorReportTree.filter("errorReport");
+      } else if (this.activeName === "unExecute") {
+        this.$refs.unExecuteTree.filter("unexecute");
       }
     },
     handleClick(tab, event) {
@@ -277,9 +304,9 @@ export default {
             this.content = {scenarios: []};
           }
           this.content.error = this.content.error;
-          this.content.success = (this.content.total - this.content.error);
+          this.content.success = (this.content.total - this.content.error - this.content.errorCode);
           this.totalTime = this.content.totalTime;
-          this.fullTreeNodes = JSON.parse(JSON.stringify(this.fullTreeNodes));
+          this.fullTreeNodes = this.content.steps;
           this.recursiveSorting(this.fullTreeNodes);
           this.reload();
         }
@@ -354,7 +381,7 @@ export default {
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.getReport();
         this.messageWebSocket.close();
-        scenario.$emit('hide', this.scenarioId);
+        this.$EventBus.$emit('hide', this.scenarioId);
         this.$emit('refresh', this.debugResult);
       }
     },

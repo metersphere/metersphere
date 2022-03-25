@@ -23,10 +23,12 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,7 +41,6 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
 public class MsJDBCSampler extends MsTestElement {
     // type 必须放最前面，以便能够转换正确的类
     private String type = "JDBCSampler";
-    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler";
+    private String clazzName = MsJDBCSampler.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private DatabaseConfig dataSource;
@@ -84,7 +85,11 @@ public class MsJDBCSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.setRefElement();
+            boolean ref = this.setRefElement();
+            if (!ref) {
+                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                return;
+            }
             hashTree = this.getHashTree();
         }
         if (config != null && config.getConfig() == null) {
@@ -139,7 +144,8 @@ public class MsJDBCSampler extends MsTestElement {
                 envConfig = this.initDataSource();
             }
             if (this.dataSource == null) {
-                MSException.throwException("数据源为空无法执行");
+                String message = "数据源为空请选择数据源";
+                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }
         }
         final HashTree samplerHashTree = tree.add(jdbcSampler(config));
@@ -154,21 +160,25 @@ public class MsJDBCSampler extends MsTestElement {
             tree.add(envArguments);
         }
 
+        //增加误报、全局断言
+        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
+
         //处理全局前后置脚本(步骤内)
-        String enviromentId = this.getEnvironmentId();
-        if (enviromentId == null) {
-            enviromentId = this.useEnvironment;
+        String environmentId = this.getEnvironmentId();
+        if (environmentId == null) {
+            environmentId = this.useEnvironment;
         }
         //根据配置将脚本放置在私有脚本之前
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), enviromentId, config, false);
+        JMeterScriptUtil.setScriptByEnvironmentConfig(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, false);
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
+            hashTree = ElementUtil.order(hashTree);
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
         //根据配置将脚本放置在私有脚本之后
-        JMeterScriptUtil.setScript(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), enviromentId, config, true);
+        JMeterScriptUtil.setScriptByEnvironmentConfig(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, true);
 
     }
 
@@ -215,7 +225,7 @@ public class MsJDBCSampler extends MsTestElement {
         return "";
     }
 
-    private void setRefElement() {
+    private boolean setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -254,11 +264,12 @@ public class MsJDBCSampler extends MsTestElement {
                 this.setVariableNames(proxy.getVariableNames());
                 this.setResultVariable(proxy.getResultVariable());
                 this.setQueryTimeout(proxy.getQueryTimeout());
+                return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             LogUtil.error(ex);
         }
+        return false;
     }
 
     private EnvironmentConfig initDataSource() {
@@ -298,16 +309,16 @@ public class MsJDBCSampler extends MsTestElement {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
+        if (config.isOperating()) {
+            String[] testNameArr = sampler.getName().split("<->");
+            if (testNameArr.length > 0) {
+                String testName = testNameArr[0];
+                sampler.setName(testName);
+            }
+        }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        sampler.setProperty("MS-ID", this.getId());
-        String indexPath = this.getIndex();
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
-        List<String> id_names = new LinkedList<>();
-        ElementUtil.getScenarioSet(this, id_names);
-        sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
-
-        // request.getDataSource() 是ID，需要转换为Name
+        ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
         sampler.setProperty("dataSource", this.dataSource.getName());
         sampler.setProperty("query", this.getQuery());
         sampler.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));

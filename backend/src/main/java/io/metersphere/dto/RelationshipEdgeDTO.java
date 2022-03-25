@@ -10,4 +10,6 @@ public class RelationshipEdgeDTO extends RelationshipEdge {
     private String targetCustomNum;
     private String status;
     private String creator;
+    private String versionId;
+    private String versionName;
 }

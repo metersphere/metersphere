@@ -43,5 +43,7 @@ public class ApiTestCase implements Serializable {
 
     private String caseStatus;
 
+    private String versionId;
+
     private static final long serialVersionUID = 1L;
 }

@@ -623,6 +623,76 @@ public class ApiScenarioReportResultExample {
             addCriterion("pass_assertions not between", value1, value2, "passAssertions");
             return (Criteria) this;
         }
+
+        public Criteria andErrorCodeIsNull() {
+            addCriterion("error_code is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeIsNotNull() {
+            addCriterion("error_code is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeEqualTo(String value) {
+            addCriterion("error_code =", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotEqualTo(String value) {
+            addCriterion("error_code <>", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeGreaterThan(String value) {
+            addCriterion("error_code >", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeGreaterThanOrEqualTo(String value) {
+            addCriterion("error_code >=", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeLessThan(String value) {
+            addCriterion("error_code <", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeLessThanOrEqualTo(String value) {
+            addCriterion("error_code <=", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeLike(String value) {
+            addCriterion("error_code like", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotLike(String value) {
+            addCriterion("error_code not like", value, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeIn(List<String> values) {
+            addCriterion("error_code in", values, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotIn(List<String> values) {
+            addCriterion("error_code not in", values, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeBetween(String value1, String value2) {
+            addCriterion("error_code between", value1, value2, "errorCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCodeNotBetween(String value1, String value2) {
+            addCriterion("error_code not between", value1, value2, "errorCode");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

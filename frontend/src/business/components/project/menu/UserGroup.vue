@@ -57,6 +57,7 @@
                         icon="el-icon-s-tools"
                         @exec="setPermission(scope.row)"
                         :disabled="flagChange(scope.row.scopeId ==='global')"/>
+                      <ms-table-operator-button :tip="$t('group.view_permission')" icon="el-icon-view" @exec="viewPermission(scope.row)"/>
                     </template>
                   </ms-table-operator>
                 </div>
@@ -163,6 +164,9 @@ export default {
       } else {
         return false;
       }
+    },
+    viewPermission(row) {
+      this.$refs.editPermission.open(row, true, this.$t('group.view_permission'));
     },
     create() {
       this.$refs.editUserGroup.open({}, 'create', this.$t('group.create'));

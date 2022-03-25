@@ -2,11 +2,11 @@
   <div>
     <span v-for="(permission, index) in permissions" :key="index">
       <el-checkbox v-if="permission.license" v-xpack class="permission-checkbox"
-                   v-model="permission['checked']" @change="change($event, permission)">
+                   v-model="permission['checked']" @change="change($event, permission)" :disabled="readOnly">
         {{ $t(permission.name) }}
       </el-checkbox>
       <el-checkbox v-else class="permission-checkbox"
-                   v-model="permission['checked']" @change="change($event, permission)">
+                   v-model="permission['checked']" @change="change($event, permission)" :disabled="isReadOnly(permission)">
         {{ $t(permission.name) }}
       </el-checkbox>
     </span>
@@ -28,11 +28,28 @@ export default {
       default() {
         return []
       }
+    },
+    readOnly: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    group: {
+      type: Object,
+      default() {
+        return {};
+      }
     }
   },
-  data() {
-    return {
-
+  computed: {
+    isReadOnly() {
+      return function (permission) {
+        // 禁止取消系统管理员用户组的读取和设置权限
+        const isSystemGroupPermission = permission.id === 'SYSTEM_GROUP:READ' || permission.id === 'SYSTEM_GROUP:READ+SETTING_PERMISSION';
+        const isDefaultSystemGroup = this.group.id === 'admin' && isSystemGroupPermission;
+        return this.readOnly || isDefaultSystemGroup;
+      }
     }
   },
   methods: {

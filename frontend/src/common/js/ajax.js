@@ -11,8 +11,8 @@ export function registerRequestHeaders() {
       config.headers['CSRF-TOKEN'] = user.csrfToken;
     }
     // 包含 工作空间 项目的标识
-    config.headers['WORKSPACE_ID'] = getCurrentWorkspaceId();
-    config.headers['PROJECT_ID'] = getCurrentProjectID();
+    config.headers['WORKSPACE'] = getCurrentWorkspaceId();
+    config.headers['PROJECT'] = getCurrentProjectID();
     return config;
   });
 }

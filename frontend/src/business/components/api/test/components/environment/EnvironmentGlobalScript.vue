@@ -11,7 +11,7 @@
           <div class="header-right" style="margin: 5px 5px 5px 50px" @click.stop>
             <span class="span-style">{{$t('api_test.script.filter_request_type')}}</span>
             <el-select multiple v-model="filterRequestArray" style="margin : 0px 10px 0px 10px; width: 214px "
-                       size="small" :placeholder="$t('commons.please_select')">
+                       size="small" :placeholder="$t('commons.please_select')" :disabled="isReadOnly">
               <el-option
                 v-for="item in requestArray"
                 :key="item.value"
@@ -20,7 +20,7 @@
               </el-option>
             </el-select>
             <span class="span-style" style="margin-right: 10px">{{$t('api_test.script.execution_order')}}</span>
-            <el-select v-model="isExecAfterPrivateScript" size="small" :placeholder="$t('commons.please_select')">
+            <el-select v-model="isExecAfterPrivateScript" size="small" :placeholder="$t('commons.please_select')" :disabled="isReadOnly">
               <el-option
                   v-for="item in scriptExecSort"
                   :key="item.value"
@@ -44,7 +44,7 @@
           </el-tooltip>
           <div class="header-right" style="margin: 5px 5px 5px 50px;" @click.stop>
             <el-switch v-model="isConnScenario" :active-text="$t('api_test.script.associated_scene_results')" style="font-size: 13px;font-weight: 300"
-                       @click.stop/>
+                       @click.stop :disabled="isReadOnly"/>
             <el-tooltip class="item" effect="dark" :content="$t('api_test.script.tip_3')" placement="right">
               <i class="el-icon-info"/>
             </el-tooltip>

@@ -1,9 +1,9 @@
 package io.metersphere.api.dto;
 
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.jorphan.collections.HashTree;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 @Setter
 public class RunModeDataDTO {
     // 执行HashTree
-    private HashTree hashTree;
+    private ApiScenarioWithBLOBs scenario;
     // 测试场景/测试用例
     private String testId;
 

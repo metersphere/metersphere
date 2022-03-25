@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `test_resource_pool` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `user` (
-    `id`                   varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT 'User ID',
+    `id`                   varchar(50) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'User ID',
     `name`                 varchar(64) NOT NULL COMMENT 'User name',
     `email`                varchar(64) NOT NULL COMMENT 'E-Mail address',
     `password`             varchar(256) COLLATE utf8mb4_bin DEFAULT NULL,

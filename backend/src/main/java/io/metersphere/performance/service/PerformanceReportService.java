@@ -173,31 +173,53 @@ public class PerformanceReportService {
     }
 
     public List<Statistics> getReportStatistics(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String reportValue = getContent(id, ReportKeys.RequestStatistics);
-        return JSON.parseArray(reportValue, Statistics.class);
+        // 确定顺序
+        List<Statistics> statistics = JSON.parseArray(reportValue, Statistics.class);
+        List<LoadTestExportJmx> jmxContent = getJmxContent(id);
+        String jmx = jmxContent.get(0).getJmx();
+        // 按照JMX顺序重新排序
+        statistics.sort(Comparator.comparingInt(a -> jmx.indexOf(a.getLabel())));
+        // 把 total 放到最后
+        List<Statistics> total = statistics.stream()
+                .filter(r -> StringUtils.equalsAnyIgnoreCase(r.getLabel(), "Total"))
+                .collect(Collectors.toList());
+        statistics.removeAll(total);
+        statistics.addAll(total);
+        return statistics;
     }
 
     public List<Errors> getReportErrors(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String content = getContent(id, ReportKeys.Errors);
         return JSON.parseArray(content, Errors.class);
     }
 
     public List<ErrorsTop5> getReportErrorsTOP5(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String content = getContent(id, ReportKeys.ErrorsTop5);
         return JSON.parseArray(content, ErrorsTop5.class);
     }
 
     public TestOverview getTestOverview(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return new TestOverview();
+        }
         String content = getContent(id, ReportKeys.Overview);
         return JSON.parseObject(content, TestOverview.class);
     }
 
     public ReportTimeInfo getReportTimeInfo(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return new ReportTimeInfo();
+        }
         String content = getContent(id, ReportKeys.TimeInfo);
         try {
             return JSON.parseObject(content, ReportTimeInfo.class);
@@ -221,26 +243,28 @@ public class PerformanceReportService {
     }
 
     public List<ChartsData> getLoadChartData(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String content = getContent(id, ReportKeys.LoadChart);
         return JSON.parseArray(content, ChartsData.class);
     }
 
     public List<ChartsData> getResponseTimeChartData(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String content = getContent(id, ReportKeys.ResponseTimeChart);
         return JSON.parseArray(content, ChartsData.class);
     }
 
-    public void checkReportStatus(String reportId) {
+    public boolean isReportError(String reportId) {
         LoadTestReport loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
         String reportStatus = "";
         if (loadTestReport != null) {
             reportStatus = loadTestReport.getStatus();
         }
-        if (StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus)) {
-            MSException.throwException("Report generation error!");
-        }
+        return StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus);
     }
 
     public LoadTestReportWithBLOBs getLoadTestReport(String id) {
@@ -329,13 +353,17 @@ public class PerformanceReportService {
     }
 
     public List<ChartsData> getErrorChartData(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String content = getContent(id, ReportKeys.ErrorsChart);
         return JSON.parseArray(content, ChartsData.class);
     }
 
     public List<ChartsData> getResponseCodeChartData(String id) {
-        checkReportStatus(id);
+        if (isReportError(id)) {
+            return Collections.emptyList();
+        }
         String content = getContent(id, ReportKeys.ResponseCodeChart);
         return JSON.parseArray(content, ChartsData.class);
     }
@@ -423,7 +451,9 @@ public class PerformanceReportService {
     }
 
     public List<ChartsData> getReportChart(String reportKey, String reportId) {
-        checkReportStatus(reportId);
+        if (isReportError(reportId)) {
+            return Collections.emptyList();
+        }
         try {
             String content = getContent(reportId, ReportKeys.valueOf(reportKey));
             return JSON.parseArray(content, ChartsData.class);
@@ -446,5 +476,15 @@ public class PerformanceReportService {
             return null;
         }
         return loadTestReportWithBLOBs.getAdvancedConfiguration();
+    }
+
+    public void cleanUpReport(long time, String projectId) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
+        List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
+        List<String> ids = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
+        DeleteReportRequest request = new DeleteReportRequest();
+        request.setIds(ids);
+        deleteReportBatch(request);
     }
 }

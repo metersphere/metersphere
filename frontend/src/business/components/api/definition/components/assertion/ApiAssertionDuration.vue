@@ -6,8 +6,11 @@
                   :placeholder="$t('api_test.request.assertions.response_in_time')"/>
       </el-col>
       <el-col class="assertion-btn">
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
+          <el-switch v-model="duration.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right: 10px"/>
+        </el-tooltip>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>
+        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -17,53 +20,55 @@
 
 <script>
 
-  export default {
-    name: "MsApiAssertionDuration",
+export default {
+  name: "MsApiAssertionDuration",
 
-    props: {
-      value: [Number, String],
-      duration: {},
-      edit: Boolean,
-      callback: Function,
-      isReadOnly: {
-        type: Boolean,
-        default: false
+  props: {
+    value: [Number, String],
+    duration: {},
+    edit: Boolean,
+    callback: Function,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  methods: {
+    add() {
+      if (this.validate()) {
+        this.duration.value = this.value;
+        this.duration.enable = true;
+        this.callback();
       }
     },
+    remove() {
+      this.duration.value = undefined;
 
-    methods: {
-      add() {
-        if (this.validate()) {
-          this.duration.value = this.value;
-          this.callback();
-        }
-      },
-      remove() {
-        this.duration.value = undefined;
-
-      },
-      change(value) {
-        if (this.validate()) {
-          this.$emit('change', value);
-        }
-      },
-      input(value) {
-        this.$emit('input', value);
-      },
-      validate() {
-        if (this.value == '' || Number(this.value) <= 0) {
-          this.$error(this.$t('commons.formatErr'));
-          return false;
-        }
-        return true;
+    },
+    change(value) {
+      if (this.validate()) {
+        this.$emit('change', value);
       }
+    },
+    input(value) {
+      this.$emit('input', value);
+    },
+    validate() {
+      if (this.value == '' || Number(this.value) <= 0) {
+        this.$error(this.$t('commons.formatErr'));
+        return false;
+      }
+      return true;
     }
   }
+}
 </script>
 
 <style scoped>
-  .assertion-btn {
-    text-align: center;
-    width: 60px;
-  }
+
+.assertion-btn {
+  text-align: center;
+  width: 80px;
+}
 </style>

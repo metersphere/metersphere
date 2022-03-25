@@ -1,6 +1,7 @@
 export default {
   commons: {
     project_permission: '請先添加該項目權限',
+    no_permission:'暫無權限',
     failure_continues: "失敗繼續",
     full_screen_editing: "全屏編輯",
     trash: "回收站",
@@ -24,6 +25,7 @@ export default {
     import_success: '導入成功',
     import_mode: '導入模式',
     import_module: '導入模塊',
+    module_deep_limit: '模塊深度不超過8層!',
     import_user: '導入用戶',
     export: '導出',
     please_fill_in_the_template: '請填寫模版內容',
@@ -32,6 +34,9 @@ export default {
     cut_back_new_version: '切回新版',
     comment: '評論',
     close_schedule: '關閉定時任務',
+    open_schedule: '開啟定時任務',
+    schedule_switch: '定時任務開關',
+    schedule_cron_title: '定時任務時間運算式',
     review_complete: '評審完成',
     examples: '示例',
     help_documentation: '幫助文檔',
@@ -39,11 +44,14 @@ export default {
     confirm_delete: '是否刪除',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
+    space:'空間',
+    current_workspace:"當前工作空間",
     organization: '組織',
     setting: '設置',
     project: '項目',
     about_us: '關於',
     current_project: '當前項目',
+    not_exist:"不存在",
     name: '名稱',
     description: '描述',
     annotation: '註釋',
@@ -155,6 +163,12 @@ export default {
     weeks_4: '周四',
     weeks_5: '周五',
     weeks_6: '周六',
+    date_unit: {
+      hour: "小時",
+      day: "天",
+      month: "月",
+      year: "年"
+    },
     test_unit: '測試',
     system_parameter_setting: '系統參數設置',
     connection_successful: '連接成功',
@@ -216,17 +230,25 @@ export default {
     debug_history: "調試歷史",
     testing: "測試中",
     edit_info: "編輯詳情",
-    enable_scene: "啟用場景環境",
+    enable_scene: "原場景環境",
+    variable_scene: "原場景变量",
+    reference_settings: "场景设置",
     enable_scene_info: "啟用場景環境：當前步驟使用場景原始環境配置運行",
     environment: "運行環境",
+    run: "運行",
+    delete_batch: "批量刪除",
     run_success: "執行成功",
     run_completed: "執行完成",
     run_warning: "正在運行中，請稍後查看",
     run_stop: "當前任務已停止，無法查看報告",
+    report_delete: "報告已删除",
     run_fail: "執行失敗",
     follow_success: "關註成功",
     cancel_follow_success: "取消關註成功",
     type: "類型",
+    type_of_integer: "請輸入整數類型",
+    type_of_num:"請輸入數字類型",
+    validity_period:'有效期',
     please_select_a_deadline: "請選擇截止時間",
     relationship: {
       name: '依賴關系',
@@ -392,9 +414,11 @@ export default {
         end_time_cannot_over_than_start_time: "結束時間不能超過當前時間",
       },
     },
+    no_operation_permission: "無操作權限!",
     enterprise_edition: "企業版",
     open_source_version: "開源版",
     function_planning: "功能正在規劃中...",
+    enterprise_edition_tips: "此功能為企業版功能，<a href='https://metersphere.io/enterprise.html' target='_blank'>詳情請諮詢</a>",
     system_data: "系統數據",
     system_user: "系統用戶",
     system_workspace: "工作空間",
@@ -415,7 +439,11 @@ export default {
     version: '版本',
     is_new: "是否新建",
     form_config: "表單配置",
-    form_content: "表單內容"
+    form_content: "表單內容",
+    sync_other_info: "復製以下信息到新版本",
+    delete_current_version: '列表版本',
+    delete_all_version: '全部版本',
+    change_password_tips: '您的密碼是系統初始密碼，請盡快修改密碼',
   },
   login: {
     normal_Login: "普通登錄",
@@ -493,6 +521,7 @@ export default {
     issue_status: '狀態',
     issue_severity: '嚴重程度',
     create: '創建字段',
+    update: '更新字段',
     name: '自定義字段',
     system_field: '系統字段',
     scene: '使用場景',
@@ -757,6 +786,32 @@ export default {
     test_case_custom_id_info: '用例ID默認為系統自增ID',
     scenario_custom_id: '場景自定義ID',
     scenario_custom_id_info: '場景用例ID默認為系統自增ID',
+    version: {
+      name: '版本',
+      read: '查看',
+      create_version: '創建版本',
+      edit_version: '編輯版本',
+      version_closed: '已關閉',
+      version_open: '未關閉',
+      publish_time: '發佈時間',
+      start_time: '開始時間',
+      end_time: '結束時間',
+      delete_version: '刪除版本',
+      please_input_version: '請輸入版本',
+      tips: '注意: 已關閉的版本不會出現在系統字段<strong>版本</strong>下拉框選項中',
+      enable: '啟用版本管理',
+      latest: '最新版',
+      set_latest: '設置為最新版本',
+      delete_tip: '此版本已經關聯繫統資源，此操作會將所關聯的資源一併刪除',
+      checkout: '切換',
+      compare: '對比',
+      change_latest_tip: '此操作會修改接口，場景，測試用例等列表頁面的默認展示，可能會消耗一些時間。請耐心等待！ '
+    },
+    timing_clean_plan_report: "定時清理測試計劃報告",
+    timing_clean_api_report: "定時清理接口測試報告",
+    timing_clean_load_report: "定時清理性能測試報告",
+    keep_recent: "保留最近",
+    please_select_cleaning_time: "請選擇清理時間！"
   },
   member: {
     create: '添加成員',
@@ -820,12 +875,14 @@ export default {
     operator: '操作人',
     description: '描述',
     set_permission: '設置權限',
+    view_permission: '查看權限',
     delete: '刪除用戶組',
     edit: '編輯用戶組',
     admin_not_allow_edit: '系統管理員不支持編輯!',
     admin_not_allow_delete: '系統用戶組不支持刪除!',
     select_type: '請選擇所屬類型',
     system: '系統',
+    personal: '個人信息',
     organization: '組織',
     workspace: '工作空間',
     project: '項目',
@@ -856,8 +913,10 @@ export default {
   report: {
     id: '報告ID',
     api_test_report: '接口測試報告',
+    scenario_test_report: '場景測試報告',
     load_test_report: '性能測試報告',
     test_plan_report: '測試計劃報告',
+    report_sharing_link: '報告分享鏈接',
     recent: '我最近的報告',
     search_by_name: '根據名稱搜索',
     batch_add_monitor_tips: '格式：名稱,IP,Port,描述<br/>如：項目1,192.168.1.52,9100,測試',
@@ -899,12 +958,13 @@ export default {
     not_exist: "測試報告不存在",
     batch_delete: "批量刪除報告",
     delete_batch_confirm: '確認批量刪除報告',
-    response_time: '響應時間(s)',
+    response_time: '響應(s)',
     max_users: '並發數',
     file_id: '文件ID',
     avg_response_time: '平均響應時間',
     tps: '每秒傳輸的事物處理個數',
-    plan_share_url: '鏈接跳轉是否登陸'
+    plan_share_url: '鏈接跳轉是否登陸',
+    rename_report: '重命名報告'
   },
   load_test: {
     id: '測試ID',
@@ -956,6 +1016,7 @@ export default {
     ramp_up_time_within: '在',
     ramp_up_time_minutes: '秒內，分',
     ramp_up_time_seconds: '秒內增加並發用戶',
+    ramp_up_tips: 'RampUp 過大，圖表渲染卡頓不予展示，這並不影響測試執行，請以實際結果為準',
     iterate_num: '叠代次數',
     by_iteration: '按叠代次數',
     by_duration: '按持續時間',
@@ -999,6 +1060,7 @@ export default {
     delete_threadgroup_confirm: '確認刪除場景',
     scenario_list: '場景列表',
     scenario_name: "場景名稱",
+    report_type: "报告类型",
     upload_jmx: '上傳 JMX 文件',
     exist_jmx: '已存在的文件',
     other_resource: '資源文件',
@@ -1016,6 +1078,7 @@ export default {
     stopthread: '停止線程',
     stoptest: '停止測試',
     stoptestnow: '立即停止測試',
+    batch_delete_confirm: "确认批量删除性能测试",
     report: {
       diff: "對比",
       set_default: '恢復默認',
@@ -1063,6 +1126,7 @@ export default {
     batch_copy: "批量復製",
     export_config: "導出",
     enable_validate_tip: "沒有可用請求",
+    unplanned_case: "未規劃用例",
     copy: "復製測試",
     please_select_case: "請選擇用例",
     fail_to_stop: "失敗停止",
@@ -1099,6 +1163,16 @@ export default {
       delete_mock_expect: "確認刪除這條預期嗎？",
       rule: {
         input_code: "請輸入 HTTP Code"
+      },
+      range_type:{
+        value_eq: "值-等於[value=]",
+        value_not_eq: "值-不等於[value!=]",
+        value_contain:"值-包含[include=]",
+        length_eq: "長度-等于[length=]",
+        length_not_eq: "長度-不等於[length!=]",
+        length_large_than:"長度-大於[length>]",
+        length_shot_than:"長度-小於[length<]",
+        regular_match: "正則匹配",
       }
     },
     definition: {
@@ -1116,7 +1190,7 @@ export default {
       api_path: "路徑",
       api_definition_path: "API路徑",
       api_case_path: "用例路徑",
-      api_principal: "負責人",
+      api_principal: "責任人",
       api_last_time: "最後更新時間",
       api_case_number: "用例數",
       api_case_status: "用例狀態",
@@ -1175,6 +1249,8 @@ export default {
         delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
         assertions_rule: "斷言規則",
+        pre_operation: "前置操作",
+        post_operation: "後置操作",
         response_header: "響應頭",
         response_body: "響應體",
         response_template: "響應報文模版",
@@ -1189,6 +1265,7 @@ export default {
         all_post_script: "全局後置腳本",
         pre_sql: "前置SQL",
         pre_return: "前置返回",
+        extract_params: "提取參數（變量名 / 表達式）",
         post_sql: "後置SQL",
         extract_param: "提取參數",
         add_module: "創建模塊",
@@ -1216,6 +1293,8 @@ export default {
         esb_title: "可以在報文模板中使用${參數名} 或 ${父節點參數名.子節點參數名}來生成xml數據結構",
       },
       document: {
+        open: "展開",
+        close: "收起",
         order: "排序方式",
         create_time_sort: "按創建時間從後到前",
         edit_time_positive_sequence: "按更新時間從前到後",
@@ -1248,8 +1327,11 @@ export default {
       case_reduction_error_text: "請先恢復"
     },
     automation: {
-      open_expansion: "一鍵展開",
-      close_expansion: "一鍵收起",
+      open_expansion: "批量展開步驟",
+      close_expansion: "批量折疊步驟",
+      bulk_activation_steps: "批量啟用步驟",
+      batch_disable_steps: "批量禁用步驟",
+      all: "全部",
       constant: "常量",
       counter: "計數器",
       random: "隨機數",
@@ -1276,6 +1358,8 @@ export default {
       scenario_test: "場景",
       scenario_list: "場景列表",
       add_scenario: "創建場景",
+      all_scenario: "全部場景",
+      unplanned_scenario: "未規劃場景",
       scenario_name: "場景名稱",
       case_level: "用例等級",
       tag: "標簽",
@@ -1320,6 +1404,7 @@ export default {
       loop_input_val: "變量前綴",
       loop_message: "當前循環下超過一個請求，不能關閉狀態",
       env_message: "請在環境配置中為該步驟所屬項目選擇運行環境",
+      debug_message: "當前步驟是禁用狀態不能調試",
       request_total: "請求",
       request_success: "成功",
       request_error: "失敗",
@@ -1339,6 +1424,9 @@ export default {
       config_environment: "配置環境",
       copy_environment: "復製環境",
       environment: "環境",
+      environment_type: "環境类型",
+      environment_json: "環境配置",
+      environment_group_id: "環境組ID",
       select_environment: "請選擇環境",
       please_save_test: "請先保存測試",
       common_config: "通用配置",
@@ -1349,7 +1437,9 @@ export default {
       request_timeout: "鏈接超時",
       response_timeout: "響應超時",
       repeat_warning: "啟用條件為 '無' 的域名已經存在！",
-      copy_warning: "啟用條件為 '無' 的域名不支持複製！"
+      copy_warning: "啟用條件為 '無' 的域名不支持複製！",
+      path_warning: "路徑不能為空",
+      module_warning: "模塊不能為空"
     },
     scenario: {
       id: "場景ID",
@@ -1385,6 +1475,9 @@ export default {
       scenario_warning: "引用的場景步驟及子步驟都無法添加其他步驟",
       scenario_step_warning: "當前步驟下不能添加其他步驟",
       scenario_error: "不能引用或復製自身！",
+      integrated: "集合",
+      independent: "獨立",
+      step_info: "在右側添加場景步驟",
     },
     request: {
       debug: "調試",
@@ -1418,6 +1511,7 @@ export default {
       parameters_advance_add_func: "添加函數",
       parameters_advance_add_func_limit: "最多支持5個函數",
       parameters_advance_add_func_error: "請先選擇函數",
+      parameters_advance_add_mock_error: "請先選擇mock數據",
       parameters_advance_add_param_error: "請輸入函數參數",
       parameters_desc: "參數追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "請求頭",
@@ -1531,7 +1625,8 @@ export default {
         expected_results: '預期結果',
         check: '校驗組內元素',
         add_check: '添加校驗',
-        add_subfield: '添加子字段'
+        add_subfield: '添加子字段',
+        description: "添加斷言規則校驗響應結果是否符合預期",
       },
       extract: {
         label: "提取",
@@ -1643,6 +1738,10 @@ export default {
       cover_tip_1: "1. 接口路徑不存在則新增",
       cover_tip_2: "2. 接口路徑與原接口一致，內容不一致則覆蓋原接口",
       cover_tip_3: "3. 接口路徑、內容與原接口一致則不做變更",
+      import_version: '導入版本',
+      data_update_version: '數據更新版本',
+      data_new_version: '數據創建版本',
+      latest_version: '最新版本',
     },
     home_page: {
       unit_of_measurement: "個",
@@ -1688,6 +1787,7 @@ export default {
           success: "成功率",
           interface_coverage: "接口覆蓋率",
         },
+        single_case: "單接口用例",
       },
       api_details_card: {
         title: "接口",
@@ -1767,6 +1867,7 @@ export default {
         swagger_schedule: "swagger",
         confirm: {
           close_title: "要關閉這條定時任務嗎？",
+          open_title: "要開啟這條定時任務嗎？",
         }
       }
     },
@@ -1787,6 +1888,14 @@ export default {
       before_the_pre_script_step: "步驟內前置腳本前",
       after_the_post_script_step: "步驟內後置腳本後",
       before_the_post_script_step: "步驟內後置腳本前",
+      global_script_config: "全局腳本配置",
+
+      pre_script_filter_request_type: "前置腳本過濾請求類型",
+      post_script_filter_request_type: "後置腳本過濾請求類型",
+      pre_script_exec_order: "前置腳本執行順序",
+      post_script_exec_order: "後置腳本執行順序",
+      pre_link_scenario_result: "前置關聯場景結果",
+      post_link_scenario_result: "後置關聯場景結果",
     }
   },
   api_report: {
@@ -1879,6 +1988,10 @@ export default {
       text_describe_tip: "使用於簡單的測試場景，沒有明確的測試步驟",
       change_type: "更改類型",
       minder_create_tip: "失敗, 無法在腦圖創建其父模塊",
+      minder_tem_node_tip: "無法在臨時節點{0}下創建用例",
+      minder_is_module_tip: "{0}是模塊，不能修改為用例",
+      minder_not_module_tip: "模塊{0}，不能創建在非模塊節點下",
+      minder_all_module_tip: "全部用例為虛擬模塊，請在其他模塊創建用例",
       minder_issue_delete_tip: "取消缺陷關聯成功",
       check_select: "請勾選用例",
       export_all_cases: '確定要導出全部用例嗎?',
@@ -1984,14 +2097,15 @@ export default {
         import_update: "導入更新",
         import_tip1: "項目設置中「測試用例自定義ID」 開關開啟時ID為必填項",
         import_tip2: "導入更新時ID為必填項",
+        import_file_tips: "請先上傳文件！",
       },
       export: {
         export: "導出用例",
-        export_tip: "請切換成接口列表勾選用例導出！"
+        export_tip: "請切換成用例列表勾選用例導出！"
       },
       case_desc: "用例描述",
-      passing_rate: '用例通過率'
-
+      passing_rate: '用例通過率',
+      sync_to_new_version: "復製以下信息到新版本",
     },
     plan: {
       test_plan: "測試計劃",
@@ -2040,6 +2154,15 @@ export default {
       test_plan_api_case_count: "接口用例數",
       test_plan_api_scenario_count: "場景用例數",
       test_plan_load_case_count: "性能用例數",
+      test_plan_component_case_count: "步驟用例數",
+      data_name: "數據名稱",
+      test_plan_batch_switch: "批量開/關定時任務",
+      batch_update_schedule_enable: '更新{0}個測試計畫的定時任務狀態為',
+      batch_update_schedule_enable_alert: '注意：只能更新已設定了定時任務的測試計畫',
+      next_run_time: '下次運行時間',
+      schedule_enabled: '已開啟',
+      check_schedule_enabled: '您勾選的數據檢測到有{0}條定時任務可以修改',
+      no_check_schedule_enabled: '您勾選的數據沒有檢測到定時任務',
       load_case: {
         case: "性能用例",
         execution_status: "執行狀態",
@@ -2050,6 +2173,7 @@ export default {
         exec: "正在執行....",
         error: "用例執行錯誤，請單獨調試該用例！",
         report_not_found: "報告不存在",
+        content_empty: "內容為空",
       }
     },
     demand: {
@@ -2094,6 +2218,7 @@ export default {
       send_success: "評論成功！",
       cannot_edit: "無法編輯此評論！",
       cannot_delete: "無法刪除此評論！",
+      submit_description: "請先提交評論！",
     },
     review_view: {
       review: "評審",
@@ -2112,6 +2237,7 @@ export default {
       name: "模塊名稱",
       delete_confirm: "確認刪除模塊: ",
       delete_all_resource: "以及模塊下所有子模塊和測試用例",
+      delete_batch_confirm: "確認批量刪除勾選的場景步驟？",
       module: "模塊",
       title: "標題",
       status: "狀態",
@@ -2153,6 +2279,7 @@ export default {
       not_pass: "不通過",
       failure: "失敗",
       blocking: "阻塞",
+      stop: "停止",
       skip: "跳過",
       actual_result: "實際結果",
       step_result: "步驟執行結果",
@@ -2195,11 +2322,16 @@ export default {
       test_detail: "測試詳情",
       failure_case: "失敗用例",
       export_report: "導出報告",
+      share_report: "分享報告",
       no_case_relevance: "沒有關聯用例",
       automatically_update_status: "自動更新狀態",
       automatically_update_status_tip: "當功能用例關聯的接口或性能用例在測試計劃執行後，自動更新功能用例的狀態",
       allow_associated_repetitive_cases: "允許關聯重復用例",
-      allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例"
+      allow_associated_repetitive_cases_tip: "是否允許同一個測試計劃中多次關聯相同用例",
+      performance_case_count: "性能測試用例數",
+      running: "運行中",
+      please_choose_test_case: "请选择测试用例！",
+      execute_tip: "步驟執行結果中含有 失敗 結果，無法標記該用例為 通過 狀態！"
     },
     issue: {
       issue: "缺陷",
@@ -2223,6 +2355,7 @@ export default {
       delete: "刪除缺陷",
       title_description_required: "標題和描述必填",
       close_success: "關閉成功",
+      delete_warning: "解除會影響測試計畫相關統計，是否確認",
       preview: "預覽",
       status_new: '新建',
       status_resolved: '已解決',
@@ -2242,6 +2375,9 @@ export default {
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷",
       save_before_open_comment: "請先保存缺陷再添加評論",
+      delete_tip: "確認刪除缺陷：",
+      check_id_exist: "檢查",
+      save_project_first: "請先保存項目"
     },
     report: {
       name: "測試計劃報告",
@@ -2251,6 +2387,8 @@ export default {
         creator: "創建人",
         create_time: "創建時間",
         trigger_mode: "觸發方式",
+        run_time: "運行耗時(s)",
+        pass_rate: "成功率",
         status: "狀態",
         operation: "操作",
       },
@@ -2280,7 +2418,7 @@ export default {
       all_case: "所有用例",
     },
     reporter: '報告人',
-    lastmodify: '最後更改'
+    lastmodify: '最後更改',
   },
   test_resource_pool: {
     id: "測試資源池ID",
@@ -2291,6 +2429,7 @@ export default {
     update_resource_pool: '修改資源池',
     select_pool_type: '選擇資源類型',
     max_threads: '最大並發數',
+    sync_jar: '定時同步JAR',
     input_pool_name: '請輸入資源池名稱',
     pool_name_valid: '資源池名稱不支持特殊字符',
     cannot_remove_all_node: '不能刪除所有獨立節點',
@@ -2491,6 +2630,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上傳CSV文件",
+    csv_message: "默認展示500條，完整的內容可點擊下載查看。",
     end: "結束",
     start: "開始",
     increment: "增量",
@@ -2537,7 +2677,45 @@ export default {
     before_change: "變更前",
     after_change: "變更後",
     share: "分享",
-    change_history: "變更歷史",
+    api_definition: "接口定義",
+    api_definition_case: "接口定義用例",
+    api_automation: "接口自動化",
+    api_automation_report: "測試報告",
+    track_test_case: "測試用例",
+    track_test_case_review: "用例評審",
+    track_test_plan: "測試計劃",
+    track_bug: "缺陷管理",
+    track_report: "報告",
+    performance_test: "性能測試",
+    performance_test_report: "性能測試報告",
+    system_user: "系統-用戶",
+    system_organization: "系統-組織",
+    system_workspace: "工作空間",
+    system_test_resource: "系統-測試資源池",
+    system_parameter_setting: "系統-系統參數設置",
+    system_quota_management: "系統-配額管理",
+    system_authorization_management: "系統-授權管理",
+    organization_member: "組織-成員",
+    organization_workspace: "組織-工作空間",
+    workspace_service_integration: "工作空間-服務集成",
+    workspace_message_settings: "工作空間-消息設置",
+    workspace_member: "工作空間-成員",
+    workspace_template_settings_field: "工作空間-模版設置-自定義字段",
+    workspace_template_settings: "工作空間-模版設置",
+    workspace_template_settings_case: "工作空間-模版設置-用例模版",
+    workspace_template_settings_issue: "工作空間-模版設置-缺陷模版",
+    project_project_manager: "項目-項目管理",
+    project_project_member: "項目-成員",
+    project_project_jar: "項目-JAR包管理",
+    project_environment_setting: "項目-環境設置",
+    project_file_management: "項目-文件管理",
+    personal_information_personal_settings: "個人信息-個人設置",
+    personal_information_apikeys: "個人信息-API Keys",
+    auth_title: "系統認證",
+    group_permission: "用戶組與權限",
+    error_report_library: "誤報庫",
+    enterprise_test_report: "項目報告",
+    change_history: "變更記錄",
     change_content: "變更內容"
   },
   plugin: {
@@ -2592,6 +2770,13 @@ export default {
     api_case: '接口用例'
   },
   permission: {
+    project_error_report_library: {
+      name: "誤報庫",
+      read: "查看誤報",
+      create: "創建誤報",
+      edit: "修改誤報",
+      delete: "刪除誤報",
+    },
     system_user: {
       name: "用戶",
       read: "查詢用戶",
@@ -2654,12 +2839,12 @@ export default {
       read: "查詢",
       edit: "編輯"
     },
-    workspace_message: {
+    project_message: {
       name: "消息設置",
       read: "查詢",
       edit: "編輯"
     },
-    workspace_template: {
+    project_template: {
       name: "模版設置",
       read: "查詢",
       case_template: "用例模版",
@@ -2878,12 +3063,41 @@ export default {
       delete: "刪除",
       read: "查看腳本",
     },
+    personal_information:{
+      name:'設置',
+      personal_setting: '個人設置',
+      api_keys: 'API Keys',
+      edit_password: "修改密碼",
+      third_account: '第三方平臺賬號',
+    },
     other: {
       track: "測試跟蹤",
       api: "接口測試",
       performance: "性能測試",
       project: "項目設置",
       report: "報表統計"
+    }
+  },
+  env_options: {
+    all_assertions: "全局斷言"
+  },
+  error_report_library: {
+    name: "誤報庫",
+    assertion: "誤報斷言",
+    tips:"注：在\"項目設置-設置環境-全局斷言\"中啟用誤報將進行以下規則匹配",
+    use_error_report: "啟用誤報",
+    use_desc: "失敗斷言與誤報規則衝突時統一處理為誤報",
+    option: {
+      name: "誤報",
+      error_code: "誤報名稱",
+      match_type: "匹配類型",
+      status: "狀態",
+      is_open: "啟用狀態",
+      create: "創建誤報",
+      match_rule: "匹配規則",
+    },
+    match_type: {
+      text: "文本"
     }
   }
 };

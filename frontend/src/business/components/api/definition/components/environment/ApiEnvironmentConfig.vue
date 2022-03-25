@@ -7,7 +7,7 @@
                      :env-add-permission="['PROJECT_ENVIRONMENT:READ+CREATE']"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
-      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close" :is-read-only="isReadOnly"/>
+      <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close" :is-read-only="isReadOnly"/>
     </el-container>
   </el-dialog>
 </template>
@@ -50,7 +50,8 @@
             permissions: ['PROJECT_ENVIRONMENT:READ+DELETE']
           }
         ],
-        selectEnvironmentId: ''
+        selectEnvironmentId: '',
+        ifCreate: false, //是否是创建环境
       }
     },
     computed: {
@@ -67,6 +68,7 @@
         listenGoBack(this.close);
       },
       deleteEnvironment(environment, index) {
+        this.ifCreate = false;
         if (environment.id) {
           this.result = this.$get('/api/environment/delete/' + environment.id, () => {
             this.$success(this.$t('commons.delete_success'));
@@ -78,6 +80,7 @@
         }
       },
       copyEnvironment(environment) {
+        this.ifCreate = false;
         this.currentEnvironment = environment;
         if (!environment.id) {
           this.$warning(this.$t('commons.please_save'));
@@ -110,6 +113,7 @@
         return name;
       },
       addEnvironment() {
+        this.ifCreate = true;
         let newEnvironment = new Environment({
           projectId: this.projectId
         });
@@ -147,6 +151,9 @@
       getEnvironment(environment) {
         parseEnvironment(environment);
         this.currentEnvironment = environment;
+        if(this.currentEnvironment.name){
+          this.ifCreate = false;
+        }
       },
       close() {
         this.$emit('close');

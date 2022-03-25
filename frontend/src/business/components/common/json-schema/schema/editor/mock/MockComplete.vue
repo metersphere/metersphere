@@ -10,20 +10,20 @@
       value-key="name"
       highlight-first-item
       @select="change">
-      <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced()"></i>
+      <i slot="suffix" v-if="!disabled" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
     </el-autocomplete>
+    <ms-api-variable-advance :show-mock-vars="showMockVars" :scenario-definition="scenarioDefinition" :current-item="mock" ref="variableAdvance"/>
 
-    <ms-advance ref="variableAdvance" :current-item="mock"/>
   </div>
 </template>
 
 <script>
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsAdvance from "./Advance";
+  import MsApiVariableAdvance from "../../../../../api/definition/components/ApiVariableAdvance";
 
   export default {
     name: 'MsMock',
-    components: {MsAdvance},
+    components: {MsApiVariableAdvance},
     props: {
       schema: {
         type: Object,
@@ -31,6 +31,13 @@
         }
       },
       disabled: Boolean,
+      scenarioDefinition: Array,
+      showMockVars: {
+        type: Boolean,
+        default() {
+          return false;
+        }
+      },
     },
     data() {
       return {
@@ -46,6 +53,7 @@
       if (this.schema.type === 'object') {
         this.$delete(this.schema, 'mock')
       }
+      this.mock.mock = this.mock.mock + "";
     },
     watch: {
       schema: {
@@ -59,8 +67,11 @@
     },
     methods: {
       funcSearch(queryString, cb) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        let results = [];
+        if(!this.showMockVars){
+          let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+          results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        }
         // 调用 callback 返回建议列表的数据
         cb(results);
       },
@@ -71,8 +82,14 @@
       },
       change: function () {
       },
-      advanced() {
-        this.$refs.variableAdvance.open();
+      advanced(item) {
+        this.mock = item;
+        // 冒泡到父组件，调用父组件的参数设置打开方法
+        if (this.scenarioDefinition != undefined) {
+          this.$emit('editScenarioAdvance', this.mock);
+        } else {
+          this.$refs.variableAdvance.open();
+        }
       },
       showEdit() {
         this.$emit('showEdit')
@@ -94,7 +111,10 @@
             state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
           )
         }
-      }
+      },
+      editScenarioAdvance(data) {
+        this.$emit('editScenarioAdvance', data);
+      },
     }
   }
 </script>

@@ -92,7 +92,7 @@ export default {
             id: "root",
             type: 'node',
             level: 0,
-            resource: this.showModuleTag ? ['模块'] : [],
+            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
             path: "",
             tagEnable: this.tagEnable
           },
@@ -143,6 +143,9 @@ export default {
         children = [];
       }
       let caseNum = root.data.caseNum;
+      if (root.data.text === '未规划用例' && root.data.level === 1) {
+        root.data.disable = true;
+      }
       if (children.length < 1 && (this.ignoreNum || caseNum && caseNum > 0)) {
         root.children.push({
           data: {
@@ -165,7 +168,7 @@ export default {
             disable: this.moduleDisable,
             type: 'node',
             level: item.level,
-            resource: this.showModuleTag ? ['模块'] : [],
+            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
             caseNum: item.caseNum,
             path: root.data.path + "/" + item.name,
             expandState:"collapse"
@@ -219,11 +222,11 @@ export default {
           data: {
             text: nodeData.name,
             id: nodeData.id,
-            disable: this.moduleDisable,
+            disable: this.moduleDisable || nodeData.id === 'root',
             tagEnable: this.tagEnable,
             type: 'node',
             level: nodeData.level,
-            resource: this.showModuleTag ? ['模块'] : [],
+            resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
           },
           children: []
         },

@@ -1,93 +1,132 @@
 <template>
-  <api-base-component
-    @copy="copyRow"
-    @remove="remove"
-    @active="active"
-    :data="request"
-    :draggable="draggable"
-    :color="defColor"
-    :is-max="isMax"
-    :show-btn="showBtn"
-    :background-color="defBackgroundColor"
-    :title="pluginName">
+  <div>
+    <api-base-component
+      @copy="copyRow"
+      @remove="remove"
+      @active="active"
+      :data="request"
+      :draggable="draggable"
+      :color="defColor"
+      :is-max="isMax"
+      :show-btn="showBtn"
+      :show-version="showVersion"
+      :background-color="defBackgroundColor"
+      :title="pluginName">
 
-    <template v-slot:request>
-      <legend style="width: 100%">
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <div class="ms-form">
-          <div class="ms-form-create" v-loading="loading">
-            <formCreate
-              v-model="pluginForm"
-              :rule="rules"
-              :option="option"
-              :value.sync="data"
-              @prefix-change="change"
-              @prefix-click="change"
-              @prefix-visible-change="visibleChange"
-            />
-          </div>
-        </div>
-      </legend>
-    </template>
+      <template v-slot:request>
+        <legend style="width: 100%">
+          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+          <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
+            <!-- 请求头-->
+            <el-tab-pane label="插件数据" name="base">
+              <div class="ms-form">
+                <div class="ms-form-create" v-loading="loading">
+                  <formCreate
+                    v-model="pluginForm"
+                    :rule="rules"
+                    :option="option"
+                    :value.sync="data"
+                    @prefix-change="change"
+                    @prefix-click="change"
+                    @display-change="changeDisplay"
+                    @prefix-visible-change="visibleChange"
+                  />
+                </div>
+              </div>
+            </el-tab-pane>
 
-    <template v-slot:debugStepCode>
+            <!-- 脚本步骤/断言步骤 -->
+            <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate">
+              <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.pre_operation') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
+                  <div class="el-step__icon-inner">{{ request.preSize }}</div>
+                </div>
+              </span>
+              <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'" ref="preStep"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.post_operation') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
+                  <div class="el-step__icon-inner">{{ request.postSize }}</div>
+                </div>
+              </span>
+              <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'" ref="postStep"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule">
+                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
+                {{ $t('api_test.definition.request.assertions_rule') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
+                  <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
+                </div>
+              </span>
+              <div style="margin-right: 20px">
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
+              </div>
+            </el-tab-pane>
+
+          </el-tabs>
+        </legend>
+      </template>
+
+      <template v-slot:debugStepCode>
        <span v-if="request.testing" class="ms-test-running">
          <i class="el-icon-loading" style="font-size: 16px"/>
          {{ $t('commons.testing') }}
        </span>
-      <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
-    </template>
+      </template>
 
-    <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
-      <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-        <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
-      </el-tooltip>
-      <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-        <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
-          <div style="transform: scale(0.66)">
-            <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+      <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
+        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+        </el-tooltip>
+        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+          <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+            <div style="transform: scale(0.66)">
+              <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+            </div>
+          </el-button>
+        </el-tooltip>
+      </template>
+
+      <template v-slot:result>
+        <div v-if="allSampler.indexOf(request.type) !==-1">
+          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+          <div v-if="request.result">
+            <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+              <el-tabs v-model="request.activeName" closable class="ms-tabs">
+                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                  <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
           </div>
-        </el-button>
-      </el-tooltip>
-    </template>
-
-    <template v-slot:result>
-      <div v-if="allSampler.indexOf(request.type) !==-1">
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <div v-if="request.result">
-          <div v-for="(scenario,h) in request.result.scenarios" :key="h">
-            <el-tabs v-model="request.activeName" closable class="ms-tabs">
-              <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+          <div v-else>
+            <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
+              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <api-response-component
+                  :currentProtocol="request.protocol"
+                  :apiActive="true"
+                  :result="item"
+                />
               </el-tab-pane>
             </el-tabs>
+            <api-response-component
+              :currentProtocol="request.protocol"
+              :apiActive="true"
+              :result="request.requestResult[0]"
+              v-else/>
           </div>
         </div>
-        <div v-else>
-          <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-            <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-              <api-response-component
-                :currentProtocol="request.protocol"
-                :apiActive="true"
-                :result="item"
-              />
-            </el-tab-pane>
-          </el-tabs>
-          <api-response-component
-            :currentProtocol="request.protocol"
-            :apiActive="true"
-            :result="request.requestResult[0]"
-            v-else/>
-        </div>
-      </div>
-    </template>
-
+      </template>
+    </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
-
-  </api-base-component>
+  </div>
 </template>
 
 <script>
@@ -97,6 +136,9 @@ import formCreate from "@form-create/element-ui";
 import MsUpload from "../common/MsPluginUpload";
 import {PLUGIN_ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import {getUUID} from "@/common/js/utils";
+import MsJmxStep from "../../../definition/components/step/JmxStep";
+import {Assertions} from "@/business/components/api/definition/model/ApiTestModel";
+import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
 
 formCreate.component("msUpload", MsUpload);
 
@@ -105,6 +147,7 @@ export default {
   components: {
     ApiBaseComponent,
     ApiResponseComponent,
+    MsJmxStep,
     MsRun: () => import("../../../definition/components/Run"),
   },
   props: {
@@ -113,6 +156,7 @@ export default {
       default: false,
     },
     message: String,
+    response: {},
     isReadOnly: {
       type: Boolean,
       default:
@@ -123,6 +167,10 @@ export default {
       default: false,
     },
     showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    showVersion: {
       type: Boolean,
       default: true,
     },
@@ -138,6 +186,7 @@ export default {
   },
   data() {
     return {
+      activeName: "base",
       loading: false,
       runData: [],
       reportId: "",
@@ -185,22 +234,58 @@ export default {
     }
     this.data = this.request;
     this.pluginName = this.request.stepName ? this.request.stepName : this.request.type;
+    if (this.request.hashTree) {
+      this.initStepSize(this.request.hashTree);
+      this.historicalDataProcessing(this.request.hashTree);
+    }
   },
   watch: {
     message() {
       this.reload();
     },
+    'request.hashTree'() {
+      this.initStepSize(this.request.hashTree);
+    },
     data: {
       handler: function () {
         Object.assign(this.request, this.data);
+        if (this.request.condition) {
+          this.changeDisplay(this.request.condition);
+        }
       },
       deep: true
     }
   },
   methods: {
+    tabClick() {
+      if (this.activeName === 'preOperate') {
+        this.$refs.preStep.filter();
+      }
+      if (this.activeName === 'postOperate') {
+        this.$refs.postStep.filter();
+      }
+      if (this.activeName === 'assertionsRule') {
+        this.$refs.assertionsRule.filter();
+      }
+    },
+    historicalDataProcessing(array) {
+      hisDataProcessing(array, this.request);
+    },
+    initStepSize(array) {
+      stepCompute(array, this.request);
+      this.reload();
+    },
     blur(d) {
     },
-    change(d) {
+    change(fileName) {
+    },
+    changeDisplay(fileName) {
+      if (fileName === 'number of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
+        this.pluginForm.hidden(true, "conditionTime");
+      }
+      if (fileName === 'specified elapsed time (ms)' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
+        this.pluginForm.hidden(false, "conditionTime");
+      }
     },
     run() {
       if (this.isApiImport || this.request.isRefEnvironment) {
@@ -217,7 +302,7 @@ export default {
           }
         }
       }
-      this.request.active = true;
+      this.request.debug = true;
       this.loading = true;
       this.runData = [];
       this.runData.projectId = this.request.projectId;
@@ -293,11 +378,17 @@ export default {
             }
             this.option.submitBtn = {show: false};
             this.request.clazzName = plugin.clazzName;
-            if (this.request && this.request.active && this.pluginForm) {
+            if (this.request && this.pluginForm && this.pluginForm.setValue instanceof Function) {
               this.pluginForm.setValue(this.request);
+            }
+            if (this.request.condition) {
+              this.$nextTick(() => {
+                this.changeDisplay(this.request.condition);
+              });
             }
           } else {
             this.request.enable = false;
+            this.request.plugin_del = true;
           }
         });
       }
@@ -360,10 +451,10 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 100px;
+  width: 80px;
 }
 
-/deep/ .el-select {
+.ms-form-create >>> .el-select {
   width: 100%;
 }
 
@@ -405,4 +496,12 @@ export default {
 .ms-form-create {
   margin: 10px;
 }
+
+.ms-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  border-radius: 42%;
+}
+
 </style>

@@ -107,9 +107,12 @@ export default {
       selectNodeIds: [],
     };
   },
-  props: [
-    'testCaseContainIds'
-  ],
+  props: {
+    testCaseContainIds: {
+      type: Set,
+      default: new Set()
+    }
+  },
   watch: {
     selectNodeIds() {
       this.initTableData();

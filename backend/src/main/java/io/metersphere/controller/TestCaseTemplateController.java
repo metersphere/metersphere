@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestCaseTemplate;
 import io.metersphere.base.domain.TestCaseTemplateWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.BaseQueryRequest;
@@ -26,7 +27,7 @@ public class TestCaseTemplateController {
     private TestCaseTemplateService testCaseTemplateService;
 
     @PostMapping("/add")
-    @MsAuditLog(module = "workspace_template_settings_case", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_TEMPLATE_SETTINGS_CASE, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
     public void add(@RequestBody UpdateCaseFieldTemplateRequest request) {
         testCaseTemplateService.add(request);
     }
@@ -38,20 +39,20 @@ public class TestCaseTemplateController {
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = "workspace_template_settings_case", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestCaseTemplateService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_TEMPLATE_SETTINGS_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestCaseTemplateService.class)
     public void delete(@PathVariable(value = "id") String id) {
         testCaseTemplateService.delete(id);
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = "workspace_template_settings_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_TEMPLATE_SETTINGS_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
     public void update(@RequestBody UpdateCaseFieldTemplateRequest request) {
         testCaseTemplateService.update(request);
     }
 
-    @GetMapping("/option/{workspaceId}")
-    public List<TestCaseTemplate> list(@PathVariable String workspaceId) {
-        return testCaseTemplateService.getOption(workspaceId);
+    @GetMapping({"/option/{projectId}", "/option"})
+    public List<TestCaseTemplate> list(@PathVariable(required = false) String projectId) {
+        return testCaseTemplateService.getOption(projectId);
     }
 
     @GetMapping("/get/relate/{projectId}")

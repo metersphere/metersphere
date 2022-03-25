@@ -12,6 +12,7 @@ import java.util.List;
 public class LoadTestDTO extends LoadTest {
     private String projectName;
     private String userName;
+    private String versionName;
     private Schedule schedule;
     private Boolean isNeedUpdate;
     private List<String> follows;

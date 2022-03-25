@@ -1,7 +1,7 @@
 package io.metersphere.api.tcp.server;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.mock.MockApiUtils;
+import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -16,6 +16,7 @@ public class TCPServicer {
     private InputStream is;
     private OutputStream os;
     private int port;
+
     public TCPServicer(Socket s, int port) {
         this.s = s;
         this.port = port;
@@ -29,47 +30,52 @@ public class TCPServicer {
             is = s.getInputStream();
             os = s.getOutputStream();
             int len = is.read(b);
-            message = new String(b,0,len);
+            message = new String(b, 0, len);
             returnMsg = this.getReturnMsg(message);
             os.write(returnMsg.getBytes());
         } catch (Exception e) {
             LogUtil.error(e);
-        }finally {
+        } finally {
             this.close();
         }
     }
 
     private String getReturnMsg(String message) {
+        LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
-        MockExpectConfigWithBLOBs matchdMockExpect = mockConfigService.matchTcpMockExpect(message,this.port);
+        MockExpectConfigWithBLOBs matchdMockExpect = mockConfigService.matchTcpMockExpect(message, this.port);
         String returnMsg = "";
-        if(matchdMockExpect != null){
+        if (matchdMockExpect != null) {
             String response = matchdMockExpect.getResponse();
             JSONObject responseObj = JSONObject.parseObject(response);
             int delayed = 0;
             try {
-                if(responseObj.containsKey("delayed")){
+                if (responseObj.containsKey("delayed")) {
                     delayed = responseObj.getInteger("delayed");
                 }
             } catch (Exception e) {
                 LogUtil.error(e);
             }
-            if(responseObj.containsKey("responseResult")){
+            if (responseObj.containsKey("responseResult")) {
                 JSONObject respResultObj = responseObj.getJSONObject("responseResult");
-                if(respResultObj.containsKey("body")){
-                    returnMsg = MockApiUtils.getResultByResponseResult(respResultObj.getJSONObject("body"),"",null,null);
+                if (respResultObj.containsKey("body")) {
+                    MockApiUtils mockApiUtils = new MockApiUtils();
+                    boolean useScript = false;
+                    if (respResultObj.containsKey("usePostScript")) {
+                        useScript = respResultObj.getBoolean("usePostScript");
+                    }
+                    returnMsg = mockApiUtils.getResultByResponseResult(respResultObj.getJSONObject("body"), "", null, null, useScript);
                 }
                 try {
-                    if(respResultObj.containsKey("delayed")){
+                    if (respResultObj.containsKey("delayed")) {
                         delayed = respResultObj.getInteger("delayed");
                     }
                 } catch (Exception e) {
                     LogUtil.error(e);
                 }
-            }else {
+            } else {
                 returnMsg = responseObj.getString("body");
             }
-
 
             try {
                 Thread.sleep(delayed);
@@ -77,21 +83,26 @@ public class TCPServicer {
                 LogUtil.error(e);
             }
         }
+        LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message + "; response:" + returnMsg);
         return returnMsg;
     }
 
     public void close() {
         //关闭资源
-        try{
+        try {
             is.close();
-        }catch (Exception e){}finally {
-            try{
+        } catch (Exception e) {
+            LogUtil.error(e);
+        } finally {
+            try {
                 os.close();
-            }catch (Exception e){}finally {
-                try{
+            } catch (Exception e) {
+                LogUtil.error(e);
+            } finally {
+                try {
                     s.close();
-                }catch (Exception e){}finally {
-
+                } catch (Exception e) {
+                    LogUtil.error(e);
                 }
             }
         }

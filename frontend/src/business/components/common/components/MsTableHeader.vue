@@ -15,15 +15,16 @@
         <ms-table-button v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
-          <ms-table-button v-if="showRun" icon="el-icon-circle-plus-outline"
-                           content="转场景测试" @click="historicalDataUpgrade"/>
+        <ms-table-button v-if="showRun" icon="el-icon-circle-plus-outline"
+                         content="转场景测试" @click="historicalDataUpgrade"/>
 
         <slot name="button"></slot>
+        <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" v-if="isShowVersion"/>
       </span>
       <span>
         <slot name="searchBarBefore"></slot>
         <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip" v-if="haveSearch"/>
-        <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
+        <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine" ref="searchBar"/>
       </span>
     </el-row>
   </div>
@@ -34,10 +35,19 @@
   import MsTableSearchBar from './MsTableSearchBar';
   import MsTableButton from './MsTableButton';
   import MsTableAdvSearchBar from "./search/MsTableAdvSearchBar";
+  import {getCurrentProjectID} from "@/common/js/utils";
+
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
   export default {
     name: "MsTableHeader",
-    components: {MsTableAdvSearchBar, MsTableSearchBar, MsTableButton},
+    components: {MsTableAdvSearchBar, MsTableSearchBar, MsTableButton,'VersionSelect': VersionSelect.default},
+    data() {
+      return {
+        version:this.currentVersion
+      };
+    },
     props: {
       title: {
         type: String,
@@ -88,7 +98,13 @@
         type: String,
 
       },
-
+      currentVersion:{
+        type: String,
+      },
+      isShowVersion:{
+        type: Boolean,
+        default: false
+      },
       isTesterPermission: {
         type: Boolean,
         default: false
@@ -103,6 +119,12 @@
         Boolean,
         default() {
           return true;
+        }
+      },
+      versionOptions:{
+        type: Array,
+        default() {
+          return []
         }
       }
     },
@@ -122,12 +144,24 @@
       },
       historicalDataUpgrade() {
         this.$emit('historicalDataUpgrade');
+      },
+      changeVersion(type){
+        this.$emit('changeVersion',type);
+      },
+      resetSearchData() {
+        if (this.$refs.searchBar) {
+          this.$refs.searchBar.reset();
+        }
       }
     },
     computed: {
       isCombine() {
         return this.condition.components !== undefined && this.condition.components.length > 0;
-      }
+      },
+      projectId() {
+        return getCurrentProjectID();
+      },
+
     }
   }
 </script>
@@ -151,5 +185,7 @@
   .search-bar {
     width: 240px
   }
-
+  .version-select {
+    padding-left: 10px;
+  }
 </style>

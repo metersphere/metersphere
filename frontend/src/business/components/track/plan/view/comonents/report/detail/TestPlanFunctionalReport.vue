@@ -1,24 +1,24 @@
 <template>
-  <test-plan-report-container id="functional" :title="'功能用例统计分析'">
+  <test-plan-report-container id="functional" :title="$t('test_track.report.analysis_functional')">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
+      <el-tab-pane v-if="resultEnable" :label="$t('test_track.report.test_result')" name="first">
         <functional-result :function-result="report.functionResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" name="second">
         <template v-slot:label>
-          <tab-pane-count title="失败用例"  :count="failureSize"/>
+          <tab-pane-count :title="$t('test_track.report.fail_case')" :count="failureSize"/>
         </template>
         <functional-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
       <el-tab-pane v-if="issueEnable" name="third">
         <template v-slot:label>
-          <tab-pane-count title="缺陷列表" :count="issueSize"/>
+          <tab-pane-count :title="$t('test_track.report.issue_list')" :count="issueSize"/>
         </template>
         <functional-issue-list :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setIssueSize"/>
       </el-tab-pane>
       <el-tab-pane name="fourth" v-if="allEnable">
         <template v-slot:label>
-          <tab-pane-count title="所有用例" :count="allSize"/>
+          <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
         </template>
         <functional-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setAllSize"/>
       </el-tab-pane>

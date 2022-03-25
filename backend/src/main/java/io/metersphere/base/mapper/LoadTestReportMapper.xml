@@ -16,10 +16,11 @@
     <result column="tps" jdbcType="VARCHAR" property="tps" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="test_name" jdbcType="VARCHAR" property="testName" />
+    <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
     <result column="test_start_time" jdbcType="BIGINT" property="testStartTime" />
     <result column="test_end_time" jdbcType="BIGINT" property="testEndTime" />
     <result column="test_duration" jdbcType="BIGINT" property="testDuration" />
-    <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -87,8 +88,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, file_id, 
-    max_users, avg_response_time, tps, project_id, test_name, test_start_time, test_end_time, 
-    test_duration, test_resource_pool_id
+    max_users, avg_response_time, tps, project_id, test_name, test_resource_pool_id, 
+    test_start_time, test_end_time, test_duration, version_id
   </sql>
   <sql id="Blob_Column_List">
     description, load_configuration, jmx_content, advanced_configuration
@@ -146,18 +147,18 @@
       create_time, update_time, `status`, 
       user_id, trigger_mode, file_id, 
       max_users, avg_response_time, tps, 
-      project_id, test_name, test_start_time, 
-      test_end_time, test_duration, test_resource_pool_id, 
-      description, load_configuration, 
+      project_id, test_name, test_resource_pool_id, 
+      test_start_time, test_end_time, test_duration, 
+      version_id, description, load_configuration, 
       jmx_content, advanced_configuration
       )
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
       #{maxUsers,jdbcType=VARCHAR}, #{avgResponseTime,jdbcType=VARCHAR}, #{tps,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testStartTime,jdbcType=BIGINT}, 
-      #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, #{testResourcePoolId,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
+      #{testStartTime,jdbcType=BIGINT}, #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, 
+      #{versionId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
       #{jmxContent,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
       )
   </insert>
@@ -206,6 +207,9 @@
       <if test="testName != null">
         test_name,
       </if>
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id,
+      </if>
       <if test="testStartTime != null">
         test_start_time,
       </if>
@@ -215,8 +219,8 @@
       <if test="testDuration != null">
         test_duration,
       </if>
-      <if test="testResourcePoolId != null">
-        test_resource_pool_id,
+      <if test="versionId != null">
+        version_id,
       </if>
       <if test="description != null">
         description,
@@ -274,6 +278,9 @@
       <if test="testName != null">
         #{testName,jdbcType=VARCHAR},
       </if>
+      <if test="testResourcePoolId != null">
+        #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
       <if test="testStartTime != null">
         #{testStartTime,jdbcType=BIGINT},
       </if>
@@ -283,8 +290,8 @@
       <if test="testDuration != null">
         #{testDuration,jdbcType=BIGINT},
       </if>
-      <if test="testResourcePoolId != null">
-        #{testResourcePoolId,jdbcType=VARCHAR},
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -351,6 +358,9 @@
       <if test="record.testName != null">
         test_name = #{record.testName,jdbcType=VARCHAR},
       </if>
+      <if test="record.testResourcePoolId != null">
+        test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      </if>
       <if test="record.testStartTime != null">
         test_start_time = #{record.testStartTime,jdbcType=BIGINT},
       </if>
@@ -360,8 +370,8 @@
       <if test="record.testDuration != null">
         test_duration = #{record.testDuration,jdbcType=BIGINT},
       </if>
-      <if test="record.testResourcePoolId != null">
-        test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
@@ -396,10 +406,11 @@
       tps = #{record.tps,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       test_name = #{record.testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       test_start_time = #{record.testStartTime,jdbcType=BIGINT},
       test_end_time = #{record.testEndTime,jdbcType=BIGINT},
       test_duration = #{record.testDuration,jdbcType=BIGINT},
-      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
@@ -424,10 +435,11 @@
       tps = #{record.tps,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       test_name = #{record.testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       test_start_time = #{record.testStartTime,jdbcType=BIGINT},
       test_end_time = #{record.testEndTime,jdbcType=BIGINT},
       test_duration = #{record.testDuration,jdbcType=BIGINT},
-      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR}
+      version_id = #{record.versionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -474,6 +486,9 @@
       <if test="testName != null">
         test_name = #{testName,jdbcType=VARCHAR},
       </if>
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
       <if test="testStartTime != null">
         test_start_time = #{testStartTime,jdbcType=BIGINT},
       </if>
@@ -483,8 +498,8 @@
       <if test="testDuration != null">
         test_duration = #{testDuration,jdbcType=BIGINT},
       </if>
-      <if test="testResourcePoolId != null">
-        test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
@@ -516,10 +531,11 @@
       tps = #{tps,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       test_name = #{testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       test_start_time = #{testStartTime,jdbcType=BIGINT},
       test_end_time = #{testEndTime,jdbcType=BIGINT},
       test_duration = #{testDuration,jdbcType=BIGINT},
-      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
@@ -541,10 +557,11 @@
       tps = #{tps,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       test_name = #{testName,jdbcType=VARCHAR},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       test_start_time = #{testStartTime,jdbcType=BIGINT},
       test_end_time = #{testEndTime,jdbcType=BIGINT},
       test_duration = #{testDuration,jdbcType=BIGINT},
-      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR}
+      version_id = #{versionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

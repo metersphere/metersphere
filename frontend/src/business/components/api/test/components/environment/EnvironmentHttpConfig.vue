@@ -43,12 +43,22 @@
         </div>
 
         <p>{{ $t('api_test.request.headers') }}</p>
+        <el-row>
+          <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+        </el-row>
         <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
         <div style="margin-top: 20px">
-          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">{{ $t('commons.add') }}</el-button>
+          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
+            {{ $t('commons.add') }}
+          </el-button>
           <div v-else>
-            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">{{ $t('commons.clear') }}</el-button>
-            <el-button type="primary" style="float: right" size="mini" @click="update">{{ $t('commons.update') }}</el-button>
+            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+              {{ $t('commons.clear') }}
+            </el-button>
+            <el-button type="primary" style="float: right" size="mini" @click="update">{{
+                $t('commons.update')
+              }}
+            </el-button>
           </div>
         </div>
       </el-form-item>
@@ -91,6 +101,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <batch-add-parameter @batchSave="batchSave" ref="batchAdd"/>
     </div>
   </el-form>
 </template>
@@ -104,10 +115,11 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import {getUUID} from "@/common/js/utils";
 import {KeyValue} from "../../../definition/model/ApiTestModel";
 import Vue from "vue";
+import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 
 export default {
   name: "MsEnvironmentHttpConfig",
-  components: {MsApiKeyValue, MsSelectTree, MsTableOperatorButton},
+  components: {MsApiKeyValue, MsSelectTree, MsTableOperatorButton, BatchAddParameter},
   props: {
     httpConfig: new HttpConfig(),
     projectId: String,
@@ -264,22 +276,46 @@ export default {
         });
       } else {
         this.condition.ids = [];
-        this.condition.details = [];
+        this.$warning(this.$t('api_test.environment.module_warning'));
+        return;
       }
     },
     update() {
       const index = this.httpConfig.conditions.findIndex((d) => d.id === this.condition.id);
       this.validateSocket(this.condition.socket);
       let obj = {
-        id: this.condition.id, type: this.condition.type, domain: this.condition.domain, socket: this.condition.socket, headers: this.condition.headers,
-        protocol: this.condition.protocol, details: this.condition.details, port: this.condition.port, time: this.condition.time
+        id: this.condition.id,
+        type: this.condition.type,
+        domain: this.condition.domain,
+        socket: this.condition.socket,
+        headers: this.condition.headers,
+        protocol: this.condition.protocol,
+        port: this.condition.port,
+        time: this.condition.time
       };
       if (obj.type === "PATH") {
+        if (this.pathDetails.name === '') {
+          this.$warning(this.$t('api_test.environment.path_warning'));
+          return;
+        }
         this.httpConfig.conditions[index].details = [this.pathDetails];
+      } else {
+        if (this.condition.type === "MODULE" && this.condition.details.length === 0) {
+          this.$warning(this.$t('api_test.environment.module_warning'));
+          return;
+        }
+        obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
       }
       if (index !== -1) {
         Vue.set(this.httpConfig.conditions[index], obj, 1);
-        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", headers: [new KeyValue()]};
+        this.condition = {
+          type: "NONE",
+          details: [new KeyValue({name: "", value: "contains"})],
+          protocol: "http",
+          socket: "",
+          domain: "",
+          headers: [new KeyValue()]
+        };
         this.reload();
       }
       this.$refs.envTable.setCurrentRow(0);
@@ -316,8 +352,16 @@ export default {
         domain: this.condition.domain, port: this.condition.port, time: new Date().getTime(), description: this.condition.description
       };
       if (this.condition.type === "PATH") {
+        if (this.pathDetails.name === '') {
+          this.$warning(this.$t('api_test.environment.path_warning'));
+          return;
+        }
         obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];
       } else {
+        if (this.condition.type === "MODULE" && this.condition.details.length === 0) {
+          this.$warning(this.$t('api_test.environment.module_warning'));
+          return;
+        }
         obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
       }
       this.httpConfig.conditions.unshift(obj);
@@ -334,7 +378,7 @@ export default {
         return;
       }
       const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
-      let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(this.condition.headers)), domain: row.domain, time: new Date().getTime()};
+      let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(row.headers)), domain: row.domain, time: new Date().getTime()};
       if (index != -1) {
         this.httpConfig.conditions.splice(index, 0, obj);
       } else {
@@ -368,6 +412,49 @@ export default {
       });
       return isValidate;
     },
+    batchAdd() {
+      this.$refs.batchAdd.open();
+    },
+    _handleBatchVars(data) {
+      let params = data.split("\n");
+      let keyValues = [];
+      params.forEach(item => {
+        let line = item.split(/：|:/);
+        let values = item.split(line[0] + ":");
+        let required = false;
+        keyValues.unshift(new KeyValue({
+          name: line[0],
+          required: required,
+          value: values[1],
+          type: "text",
+          valid: false,
+          file: false,
+          encode: true,
+          enable: true,
+          contentType: "text/plain"
+        }));
+      });
+      return keyValues;
+    },
+    batchSave(data) {
+      if (data) {
+        let keyValues = this._handleBatchVars(data);
+        keyValues.forEach(keyValue => {
+          let isAdd = true;
+          for (let i in this.condition.headers) {
+            let item = this.condition.headers[i];
+            if (item.name === keyValue.name) {
+              item.value = keyValue.value;
+              isAdd = false;
+            }
+          }
+          if (isAdd) {
+            this.condition.headers.unshift(keyValue);
+          }
+        })
+      }
+    },
+
   },
 };
 </script>
@@ -388,4 +475,10 @@ export default {
 .ms-el-form-item__content >>> .el-form-item__content {
   line-height: 20px;
 }
+
+.ms-el-link {
+  float: right;
+  margin-right: 45px;
+}
+
 </style>

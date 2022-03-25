@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +35,9 @@ public class CheckPermissionService {
     private ExtTestCaseReviewMapper extTestCaseReviewMapper;
     @Resource
     private UserService userService;
+    @Resource
+    private ExtProjectMapper extProjectMapper;
+
 
     public void checkProjectOwner(String projectId) {
         Set<String> projectIds = getUserRelatedProjectIds();
@@ -122,5 +127,27 @@ public class CheckPermissionService {
         if (result == 0) {
             MSException.throwException(Translator.get("check_owner_review"));
         }
+    }
+
+    public List<ProjectDTO> getOwnerProjects() {
+        Set<String> userRelatedProjectIds = getUserRelatedProjectIds();
+        if (CollectionUtils.isEmpty(userRelatedProjectIds)) {
+            return new ArrayList<>(0);
+        }
+        List<String> projectIds = new ArrayList<>(userRelatedProjectIds);
+        return extProjectMapper.queryListByIds(projectIds);
+    }
+
+    public Set<String> getOwnerByUserId(String userId) {
+        UserDTO userDTO = userService.getUserDTO(userId);
+        List<String> groupIds = userDTO.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.PROJECT))
+                .map(Group::getId)
+                .collect(Collectors.toList());
+        return userDTO.getUserGroups().stream()
+                .filter(ur -> groupIds.contains(ur.getGroupId()))
+                .map(UserGroup::getSourceId)
+                .collect(Collectors.toSet());
     }
 }

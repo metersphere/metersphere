@@ -2,12 +2,17 @@
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.environment.environment_config')"
              :visible.sync="visible" class="environment-dialog" width="80%" top="50px"
              @close="close" append-to-body destroy-on-close ref="environmentConfig">
+    <template #title>
+      <ms-dialog-header :title="$t('api_test.environment.environment_config')"
+                        @cancel="visible = false"
+                        @confirm="save"/>
+    </template>
     <el-container v-loading="result.loading">
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :env-add-permission="ENV_CREATE"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
-      <environment-edit :project-id="projectId" :environment="currentEnvironment" ref="environmentEdit" :is-read-only="isReadOnly"
+      <environment-edit :if-create="ifCreate" :project-id="projectId" :environment="currentEnvironment" ref="environmentEdit" :is-read-only="isReadOnly"
                         @close="close"/>
     </el-container>
   </el-dialog>
@@ -24,13 +29,14 @@
   import EnvironmentEdit from "./environment/EnvironmentEdit";
   import {deepClone, hasPermission, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
   import {Environment, parseEnvironment} from "../model/EnvironmentModel";
+  import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 
   export default {
     name: "ApiEnvironmentConfig",
     components: {
       EnvironmentEdit,
       MsAsideItem,
-      MsMainContainer, MsAsideContainer, MsContainer, MsApiCollapseItem, MsApiCollapse, draggable
+      MsMainContainer, MsAsideContainer, MsContainer, MsApiCollapseItem, MsApiCollapse, draggable, MsDialogHeader
     },
     data() {
       return {
@@ -53,7 +59,8 @@
               ['PROJECT_ENVIRONMENT:READ+DELETE'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE']
           }
         ],
-        selectEnvironmentId: ''
+        selectEnvironmentId: '',
+        ifCreate: false, //是否是创建环境
       }
     },
     props: {
@@ -88,6 +95,7 @@
         listenGoBack(this.close);
       },
       deleteEnvironment(environment, index) {
+        this.ifCreate = false;
         if (environment.id) {
           this.result = this.$get('/api/environment/delete/' + environment.id, () => {
             this.$success(this.$t('commons.delete_success'));
@@ -99,6 +107,7 @@
         }
       },
       copyEnvironment(environment) {
+        this.ifCreate = false;
         //点击复制的时候先选择改行，否则会出现解析错误
         this.environmentSelected(environment);
         this.currentEnvironment = environment;
@@ -133,6 +142,7 @@
         return name;
       },
       addEnvironment() {
+        this.ifCreate = true;
         let newEnvironment = new Environment({
           projectId: this.projectId
         });
@@ -170,6 +180,12 @@
       getEnvironment(environment) {
         parseEnvironment(environment);
         this.currentEnvironment = environment;
+        if(this.currentEnvironment.name){
+          this.ifCreate = false;
+        }
+      },
+      save(){
+        this.$refs.environmentEdit.save();
       },
       close() {
         this.$emit('close');

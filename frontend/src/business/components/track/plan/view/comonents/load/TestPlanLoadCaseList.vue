@@ -5,6 +5,7 @@
         <test-plan-load-case-list-header
             :condition="condition"
             :plan-id="planId"
+            :isShowVersion="false"
             @refresh="initTable"
             @relevanceCase="$emit('relevanceCase')"/>
       </template>
@@ -42,6 +43,18 @@
             :label="$t('commons.name')"
             min-width="120"
             sortable>
+          </ms-table-column>
+          <ms-table-column
+            v-if="versionEnable"
+            prop="versionId"
+            :field="item"
+            :filters="versionFilters"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.version')"
+            min-width="120px">
+           <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+           </template>
           </ms-table-column>
           <ms-table-column
             :field="item"
@@ -129,7 +142,7 @@ import {
   buildBatchParam, getCustomTableHeader, getCustomTableWidth
 } from "@/common/js/tableUtils";
 import {TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, hasLicense} from "@/common/js/utils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -211,7 +224,8 @@ export default {
       ],
       reportId: '',
       loading: false,
-      statusScheduler: null
+      statusScheduler: null,
+      versionFilters: []
     }
   },
   props: {
@@ -223,6 +237,7 @@ export default {
     planId: String,
     reviewId: String,
     clickType: String,
+    versionEnable: Boolean,
   },
   computed: {
     editTestPlanLoadCaseOrder() {
@@ -241,6 +256,9 @@ export default {
     planId() {
       this.initTable();
     }
+  },
+  mounted() {
+    this.getVersionOptions();
   },
   methods: {
     orderBySelectRows(rows){
@@ -448,6 +466,16 @@ export default {
     cancelRefresh() {
       if (this.refreshScheduler) {
         clearInterval(this.refreshScheduler);
+      }
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions= response.data;
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
       }
     },
   },

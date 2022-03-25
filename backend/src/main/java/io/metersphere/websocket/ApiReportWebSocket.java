@@ -2,7 +2,10 @@ package io.metersphere.websocket;
 
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.utils.LogUtil;
+import lombok.SneakyThrows;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -87,6 +90,7 @@ public class ApiReportWebSocket {
             this.runMode = runMode;
         }
 
+        @SneakyThrows
         @Override
         public void run() {
             try {
@@ -94,11 +98,13 @@ public class ApiReportWebSocket {
                 if (!session.isOpen()) {
                     return;
                 }
-                if (report != null) {
-                    session.getBasicRemote().sendText(report.getContent());
+                if (report != null && StringUtils.isNotEmpty(report.getStatus()) &&
+                        !StringUtils.equals(report.getStatus(), APITestStatus.Running.name())) {
+                    session.getBasicRemote().sendText(StringUtils.isNotEmpty(report.getContent()) ? report.getContent() : "{}");
                     session.close();
                 }
             } catch (Exception e) {
+                session.close();
                 LogUtil.error(e.getMessage(), e);
             }
         }

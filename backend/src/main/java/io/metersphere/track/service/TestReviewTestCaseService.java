@@ -151,11 +151,6 @@ public class TestReviewTestCaseService {
         testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
 
-    public List<TestReviewCaseDTO> getTestCaseReviewDTOList(QueryCaseReviewRequest request) {
-        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        return extTestReviewCaseMapper.list(request);
-    }
-
     public TestReviewCaseDTO get(String reviewId) {
         TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(reviewId);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testReviewCaseDTO.getCaseId());

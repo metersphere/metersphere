@@ -13,63 +13,57 @@
       <el-radio :disabled="isReadOnly" :label="type.RAW" @change="modeChange">
         {{ $t('api_test.definition.request.body_raw') }}
       </el-radio>
-      <el-radio :disabled="isReadOnly" label="script" @change="modeChange">
-        {{ $t('api_test.automation.customize_script') }}
-      </el-radio>
     </el-radio-group>
     <div class="ms-body" v-if="body.type == 'JSON'">
       <div style="padding: 10px">
         <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA"/>
       </div>
       <ms-json-code-edit
-        v-if="body.format==='JSON-SCHEMA'"
-        :body="body"
-        ref="jsonCodeEdit"/>
+          v-if="body.format==='JSON-SCHEMA'"
+          :body="body"
+          :show-mock-vars="true"
+          ref="jsonCodeEdit"/>
       <ms-code-edit
-        v-else-if="codeEditActive && loadIsOver"
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
-        :modes="modes"
-        :mode="'json'"
-        height="90%"
-        ref="codeEdit"/>
+          v-else-if="codeEditActive && loadIsOver"
+          :read-only="isReadOnly"
+          :data.sync="body.raw"
+          :modes="modes"
+          :mode="'json'"
+          height="90%"
+          ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'fromApi'">
       <ms-code-edit
-        :read-only="true"
-        :data.sync="body.apiRspRaw"
-        :modes="modes"
-        :mode="'text'"
-        v-if="loadIsOver"
-        height="90%"
-        ref="fromApiCodeEdit"/>
+          :read-only="true"
+          :data.sync="body.apiRspRaw"
+          :modes="modes"
+          :mode="'text'"
+          v-if="loadIsOver"
+          height="90%"
+          ref="fromApiCodeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
       <el-input v-model="body.xmlHeader" size="small" style="width: 400px;margin-bottom: 5px"/>
       <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.xmlRaw"
-        :modes="modes"
-        :mode="'xml'"
-        v-if="loadIsOver"
-        height="90%"
-        ref="codeEdit"/>
+          :read-only="isReadOnly"
+          :data.sync="body.xmlRaw"
+          :modes="modes"
+          :mode="'xml'"
+          v-if="loadIsOver"
+          height="90%"
+          ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">
       <ms-code-edit
-        :read-only="isReadOnly"
-        :data.sync="body.raw"
-        :modes="modes"
-        height="90%"
-        ref="codeEdit"/>
-    </div>
-
-    <div class="ms-body" v-if="body.type == 'script'">
-      <mock-api-script-editor v-if="loadIsOver"
-                 :jsr223-processor="body.scriptObject"/>
+          :read-only="isReadOnly"
+          :data.sync="body.raw"
+          :modes="modes"
+          v-if="loadIsOver"
+          height="90%"
+          ref="codeEdit"/>
     </div>
 
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
@@ -86,7 +80,6 @@ import MsApiVariable from "@/business/components/api/definition/components/ApiVa
 import MsApiFromUrlVariable from "@/business/components/api/definition/components/body/ApiFromUrlVariable";
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
-import MockApiScriptEditor from "@/business/components/api/definition/components/mock/Components/MockApiScriptEditor";
 
 export default {
   name: "MockApiResponseBody",
@@ -98,10 +91,9 @@ export default {
     MsApiFromUrlVariable,
     MsJsonCodeEdit,
     BatchAddParameter,
-    MockApiScriptEditor
   },
   props: {
-    apiId:String,
+    apiId: String,
     body: {},
     headers: Array,
     isReadOnly: {
@@ -111,7 +103,11 @@ export default {
     isShowEnable: {
       type: Boolean,
       default: true
-    }
+    },
+    usePostScript: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
@@ -239,34 +235,31 @@ export default {
     modeChange(mode) {
       switch (this.body.type) {
         case "JSON":
-          // this.setContentType("application/json");
           this.refreshMsCodeEdit();
           break;
         case "XML":
-          // this.setContentType("text/xml");
           this.refreshMsCodeEdit();
           break;
         case "fromApi":
           this.selectApiResponse();
           break;
         default:
-          // this.removeContentType();
           this.refreshMsCodeEdit();
           break;
       }
     },
-    refreshMsCodeEdit(){
+    refreshMsCodeEdit() {
       this.loadIsOver = false;
       this.$nextTick(() => {
         this.loadIsOver = true;
       });
     },
-    selectApiResponse(){
+    selectApiResponse() {
       let selectUrl = "/mockConfig/getApiResponse/" + this.apiId;
       this.$get(selectUrl, response => {
         let apiResponse = response.data;
-        if(apiResponse && apiResponse.returnMsg){
-          this.body.apiRspRaw = apiResponse.returnMsg;
+        if (apiResponse && apiResponse.returnData) {
+          this.body.apiRspRaw = apiResponse.returnData;
         }
         this.refreshMsCodeEdit();
       });
@@ -317,8 +310,8 @@ export default {
         let keyValues = [];
         params.forEach(item => {
           let line = [];
-          line[0] = item.substring(0,item.indexOf(":"));
-          line[1] = item.substring(item.indexOf(":")+1,item.length);
+          line[0] = item.substring(0, item.indexOf(":"));
+          line[1] = item.substring(item.indexOf(":") + 1, item.length);
           let required = false;
           keyValues.unshift(new KeyValue({
             name: line[0],

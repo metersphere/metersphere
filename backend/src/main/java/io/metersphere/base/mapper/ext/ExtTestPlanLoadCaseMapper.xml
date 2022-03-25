@@ -25,12 +25,24 @@
         <if test="request.name != null and request.name != ''">
             and (load_test.name like CONCAT('%', #{request.name},'%') OR load_test.num like CONCAT('%', #{request.name},'%'))
         </if>
+        <if test="request.versionId != null">
+            and load_test.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and load_test.ref_id = #{request.refId}
+        </if>
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='status'">
                             and load_test.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and load_test.version_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
@@ -135,11 +147,14 @@
         tplc.status as caseStatus,
         lt.name as caseName,
         tplc.load_report_id,
-        p.name as projectName
+        p.name as projectName,
+        pv.name versionName,
+        lt.version_id versionId
         from test_plan_load_case tplc
         inner join load_test lt on tplc.load_case_id = lt.id
         left join user u on lt.user_id = u.id
         left join project p on lt.project_id = p.id
+        left join project_version pv on lt.project_id = pv.project_id and lt.version_id = pv.id
         <where>
             tplc.test_plan_id = #{request.testPlanId}
             <if test="request.caseIds != null and request.caseIds.size > 0">
@@ -167,11 +182,20 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='version_id'">
+                                and lt.version_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
             </if>
         </where>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="lt"/>
+        </include>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -273,20 +297,21 @@
            <if test="status != null">
                and tplc.status = 'error'
            </if>
-        where tplc.test_plan_id = #{planId}
+        where tplc.test_plan_id = #{planId} ORDER BY tplc.order DESC
     </select>
 
     <select id="getCasesByIds" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id, lt.id as caseId, lt.name, lt.num, lt.project_id,
-        tplc.status ,tplc.create_user, tplc.load_report_id
+        ltr.status ,tplc.create_user, tplc.load_report_id,ltr.id AS reportId
         from test_plan_load_case tplc
         inner join load_test lt on tplc.load_case_id = lt.id
-        <if test="status != null">
-            and tplc.status = 'error'
-        </if>
-        where tplc.test_plan_id = #{planId}
-        and lt.id IN
+        inner join load_test_report ltr ON ltr.test_id = lt.id
+        where tplc.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and ltr.id IN
+        <foreach collection="reportIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
     </select>
@@ -323,4 +348,13 @@
         set status = null
         where id = #{0}
     </update>
+
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+    </sql>
 </mapper>

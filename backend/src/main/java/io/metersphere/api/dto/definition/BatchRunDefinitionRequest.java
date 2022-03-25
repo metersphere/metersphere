@@ -17,8 +17,9 @@ public class BatchRunDefinitionRequest {
 
     private RunModeConfigDTO config;
 
+    private String userId;
+
     //测试计划报告ID。 测试计划执行时使用
     private String planReportId;
 
-    private String userId;
 }

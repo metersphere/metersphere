@@ -19,7 +19,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/debug.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -40,7 +40,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/info.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -64,7 +64,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/error.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -87,7 +87,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/warn.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -151,7 +151,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/api/info.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -184,7 +184,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/testPlan/info.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>
@@ -217,7 +217,7 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/ms-jmeter-run-log.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>${logger.max.history:-30}</maxHistory>
             <TimeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>50MB</maxFileSize>

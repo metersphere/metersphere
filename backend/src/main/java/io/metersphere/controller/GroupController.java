@@ -6,6 +6,7 @@ import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.User;
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -54,7 +55,7 @@ public class GroupController {
 
     @PostMapping("/add")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_CREATE, PermissionConstants.PROJECT_GROUP_READ_CREATE}, logical = Logical.OR)
-    @MsAuditLog(module = "group_permission", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
+    @MsAuditLog(module = OperLogModule.GROUP_PERMISSION, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public Group addGroup(@RequestBody EditGroupRequest request) {
         request.setId(UUID.randomUUID().toString());
         return groupService.addGroup(request);
@@ -62,14 +63,14 @@ public class GroupController {
 
     @PostMapping("/edit")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_EDIT, PermissionConstants.PROJECT_GROUP_READ_EDIT}, logical = Logical.OR)
-    @MsAuditLog(module = "group_permission", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
+    @MsAuditLog(module = OperLogModule.GROUP_PERMISSION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public void editGroup(@RequestBody EditGroupRequest request) {
         groupService.editGroup(request);
     }
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_DELETE, PermissionConstants.PROJECT_GROUP_READ_DELETE}, logical = Logical.OR)
-    @MsAuditLog(module = "group_permission", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = GroupService.class)
+    @MsAuditLog(module = OperLogModule.GROUP_PERMISSION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = GroupService.class)
     public void deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
     }

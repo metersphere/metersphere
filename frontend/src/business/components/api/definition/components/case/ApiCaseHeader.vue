@@ -3,26 +3,37 @@
     <el-card>
       <el-row>
         <el-col :span="1">
-          <el-tag size="mini" :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}" class="api-el-tag">
+          <el-tag size="mini"
+                  :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}"
+                  class="api-el-tag">
             {{ api.method }}
           </el-tag>
         </el-col>
         <el-col :span="9">
           <div class="variable-combine"> {{ api.name }}</div>
         </el-col>
-        <el-col :span="9">
+        <el-col :span="8">
           <div class="variable-combine" style="margin-left: 10px">{{ api.path === null ? " " : api.path }}</div>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="4">
           <ms-environment-select
             :project-id="projectId"
             :is-read-only="isReadOnly"
             :useEnvironment='useEnvironment'
             @setEnvironment="setEnvironment" ref="environmentSelect"/>
         </el-col>
+        <el-col :span="2">
+          <!-- 保存操作 -->
+          <el-button type="primary" size="small" @click="saveTestCase()"
+                     v-prevent-re-click
+                     v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
+            {{ $t('commons.save') }}
+          </el-button>
+        </el-col>
       </el-row>
     </el-card>
   </el-header>
+
 </template>
 
 <script>
@@ -31,10 +42,11 @@ import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig"
 import MsTag from "../../../../common/components/MsTag";
 import MsEnvironmentSelect from "./MsEnvironmentSelect";
 import {API_METHOD_COLOUR} from "../../model/JsonData";
+import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
 
 export default {
   name: "ApiCaseHeader",
-  components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig},
+  components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig, ApiCaseItem},
   data() {
     return {
       methodColorMap: new Map(API_METHOD_COLOUR),
@@ -52,11 +64,28 @@ export default {
       default() {
         return {}
       },
+    },
+    apiCase: {
+      type: Object,
+      default() {
+        return {}
+      },
     }
   },
-  created() {
+  mounted() {
+    window.addEventListener('keydown', this.keyDown)
+  },
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.keyDown) // 在页面销毁的时候记得解除
   },
   methods: {
+    keyDown(e) {
+      if (!(e.keyCode === 83 && (e.ctrlKey || e.metaKey))) {
+        return;
+      }
+      e.preventDefault();
+      this.saveTestCase();
+    },
     refreshEnvironment() {
       this.$refs.environmentSelect.refreshEnvironment();
     },
@@ -77,6 +106,9 @@ export default {
         return this.methodColorMap.get(method);
       }
     },
+    saveTestCase() {
+      this.$emit("saveCase")
+    }
   }
 }
 </script>

@@ -4,4 +4,11 @@
     <delete id="delete">
         DELETE from api_execution_queue where id not IN (SELECT t1.queue_id from api_execution_queue_detail t1);
     </delete>
+    <select id="findTestPlanReportQueue" resultType="io.metersphere.base.domain.ApiExecutionQueue">
+        select * from api_execution_queue where report_id !=null and run_mode in('API_PLAN','JENKINS_SCENARIO_PLAN','SCHEDULE_SCENARIO_PLAN') and id not IN (SELECT t1.queue_id from api_execution_queue_detail t1) ;
+    </select>
+
+    <select id="findTestPlanRunningReport" resultType="java.lang.String">
+      SELECT t1.id from test_plan_report t1 WHERE  t1.`status` ="Running" and t1.id NOT IN (SELECT t.report_id from api_execution_queue t where t.report_id is not null);
+    </select>
 </mapper>

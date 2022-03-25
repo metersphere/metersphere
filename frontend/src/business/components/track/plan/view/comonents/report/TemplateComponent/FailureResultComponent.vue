@@ -92,7 +92,6 @@
     import TypeTableItem from "../../../../../common/tableItems/planview/TypeTableItem";
     import MethodTableItem from "../../../../../common/tableItems/planview/MethodTableItem";
     import StatusTableItem from "../../../../../common/tableItems/planview/StatusTableItem";
-    import {hub} from "@/business/components/track/plan/event-bus";
     export default {
       name: "FailureResultComponent",
       components: {StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem, CommonComponent},
@@ -127,7 +126,7 @@
       },
       methods: {
         goFailureTestCase(row) {
-          hub.$emit("openFailureTestCase", row);
+          this.$EventBus.$emit("openFailureTestCase", row);
         }
       }
     }

@@ -82,7 +82,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
             String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
             String id = add(request);
-            projectService.updateCaseTemplate(originId, id, request.getWorkspaceId());
+            projectService.updateCaseTemplate(originId, id, request.getProjectId());
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
@@ -102,22 +102,22 @@ public class TestCaseTemplateService extends TemplateBaseService {
      * @param customField
      */
     public void handleSystemFieldCreate(CustomField customField) {
-        TestCaseTemplateWithBLOBs workspaceSystemTemplate = getWorkspaceSystemTemplate(customField.getWorkspaceId());
+        TestCaseTemplateWithBLOBs workspaceSystemTemplate = getWorkspaceSystemTemplate(customField.getProjectId());
         if (workspaceSystemTemplate == null) {
-            createTemplateWithUpdateField(customField.getWorkspaceId(), customField);
+            createTemplateWithUpdateField(customField.getProjectId(), customField);
         } else {
             updateRelateWithUpdateField(workspaceSystemTemplate, customField);
         }
     }
 
-    private void createTemplateWithUpdateField(String workspaceId, CustomField customField) {
+    private void createTemplateWithUpdateField(String projectId, CustomField customField) {
         UpdateCaseFieldTemplateRequest request = new UpdateCaseFieldTemplateRequest();
         TestCaseTemplate testCaseTemplate = new TestCaseTemplate();
         testCaseTemplate.setName("default");
         testCaseTemplate.setType(TemplateConstants.TestCaseTemplateScene.functional.name());
         testCaseTemplate.setGlobal(false);
         testCaseTemplate.setSystem(true);
-        testCaseTemplate.setWorkspaceId(workspaceId);
+        testCaseTemplate.setProjectId(projectId);
         BeanUtils.copyBean(request, testCaseTemplate);
         List<CustomFieldTemplate> systemFieldCreateTemplate =
                 customFieldTemplateService.getSystemFieldCreateTemplate(customField, TemplateConstants.FieldTemplateScene.TEST_CASE.name());
@@ -133,7 +133,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
     private TestCaseTemplateWithBLOBs getWorkspaceSystemTemplate(String workspaceId) {
         TestCaseTemplateExample example = new TestCaseTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(workspaceId)
                 .andSystemEqualTo(true);
         List<TestCaseTemplateWithBLOBs> testCaseTemplates = testCaseTemplateMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(testCaseTemplates)) {
@@ -147,7 +147,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
             TestCaseTemplateExample example = new TestCaseTemplateExample();
             TestCaseTemplateExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(testCaseTemplate.getName())
-            .andWorkspaceIdEqualTo(testCaseTemplate.getWorkspaceId());
+                    .andProjectIdEqualTo(testCaseTemplate.getProjectId());
             if (StringUtils.isNotBlank(testCaseTemplate.getId())) {
                 criteria.andIdNotEqualTo(testCaseTemplate.getId());
             }
@@ -157,10 +157,10 @@ public class TestCaseTemplateService extends TemplateBaseService {
         }
     }
 
-    public TestCaseTemplateWithBLOBs getDefaultTemplate(String workspaceId) {
+    public TestCaseTemplateWithBLOBs getDefaultTemplate(String projectId) {
         TestCaseTemplateExample example = new TestCaseTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(projectId)
                 .andSystemEqualTo(true);
         List<TestCaseTemplateWithBLOBs> testCaseTemplates = testCaseTemplateMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(testCaseTemplates)) {
@@ -173,34 +173,28 @@ public class TestCaseTemplateService extends TemplateBaseService {
         }
     }
 
-    public List<TestCaseTemplate> getOption(String workspaceId) {
+    public List<TestCaseTemplate> getOption(String projectId) {
+        List<TestCaseTemplate> testCaseTemplates;
         TestCaseTemplateExample example = new TestCaseTemplateExample();
+        if (StringUtils.isBlank(projectId)) {
+            example.createCriteria().andGlobalEqualTo(true)
+                    .andSystemEqualTo(true);
+            return testCaseTemplateMapper.selectByExample(example);
+        }
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
+                .andProjectIdEqualTo(projectId)
                 .andSystemNotEqualTo(true);
-        List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
-        testCaseTemplates.add(getDefaultTemplate(workspaceId));
+        testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
+        testCaseTemplates.add(getDefaultTemplate(projectId));
         return testCaseTemplates;
     }
 
     public Map<String,List<String>> getCaseLevelAndStatusMapByProjectId(String projectId){
-        Project project = projectService.getProjectById(projectId);
-        String caseTemplateId = project.getCaseTemplateId();
-        TestCaseTemplateWithBLOBs caseTemplate = null;
-        TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
-        if (StringUtils.isNotBlank(caseTemplateId)) {
-            caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);
-            if (caseTemplate == null) {
-                caseTemplate = getDefaultTemplate(project.getWorkspaceId());
-            }
-        } else {
-            caseTemplate = getDefaultTemplate(project.getWorkspaceId());
-        }
-        BeanUtils.copyBean(caseTemplateDao, caseTemplate);
-        List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());
+        TestCaseTemplateDao template = getTemplate(projectId);
+        List<CustomFieldDao> result = template.getCustomFields();
 
         Map<String, List<String>> returnMap = new HashMap<>();
-        for (CustomFieldDao field:result) {
+        for (CustomFieldDao field : result) {
             if(StringUtils.equalsAnyIgnoreCase(field.getScene(),"TEST_CASE")){
                 if(StringUtils.equalsAnyIgnoreCase(field.getName(),"用例等级")){
                     try {
@@ -231,7 +225,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
     public TestCaseTemplateDao getTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
         String caseTemplateId = project.getCaseTemplateId();
-        TestCaseTemplateWithBLOBs caseTemplate = null;
+        TestCaseTemplateWithBLOBs caseTemplate;
         TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
         if (StringUtils.isNotBlank(caseTemplateId)) {
             caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);

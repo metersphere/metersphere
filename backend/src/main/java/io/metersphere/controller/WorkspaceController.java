@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.WorkspaceRequest;
@@ -27,7 +28,7 @@ public class WorkspaceController {
     private UserService userService;
 
     @PostMapping("add")
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace addWorkspace(@RequestBody Workspace workspace) {
         return workspaceService.saveWorkspace(workspace);
     }
@@ -38,33 +39,33 @@ public class WorkspaceController {
     }
 
     @PostMapping("special/add")
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace addWorkspaceByAdmin(@RequestBody Workspace workspace) {
         return workspaceService.addWorkspaceByAdmin(workspace);
     }
 
     @PostMapping("update")
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace updateWorkspace(@RequestBody Workspace workspace) {
 //        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
     }
 
     @PostMapping("special/update")
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public void updateWorkspaceByAdmin(@RequestBody Workspace workspace) {
         workspaceService.updateWorkspaceByAdmin(workspace);
     }
 
     @GetMapping("special/delete/{workspaceId}")
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
     public void deleteWorkspaceByAdmin(@PathVariable String workspaceId) {
         userService.refreshSessionUser("workspace", workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
 
     @GetMapping("delete/{workspaceId}")
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
     public void deleteWorkspace(@PathVariable String workspaceId) {
 //        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspaceId);
         userService.refreshSessionUser("workspace", workspaceId);
@@ -89,7 +90,7 @@ public class WorkspaceController {
     }
 
     @PostMapping("/member/update")
-    @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = WorkspaceService.class)
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }

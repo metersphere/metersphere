@@ -19,6 +19,7 @@ public class TestCaseDTO extends TestCaseWithBLOBs {
     private String projectName;
     private String createName;
     private String lastExecuteResult;
+    private String versionName;
 
     private List<String> caseTags = new ArrayList<>();
     private List<IssuesDao> issueList = new ArrayList<>();

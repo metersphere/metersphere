@@ -25,7 +25,6 @@
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
       </div>
-      <ms-jmx-step :request="request" :response="responseData"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
@@ -50,7 +49,6 @@ import {createComponent} from "../jmeter/components";
 import {REQ_METHOD} from "../../model/JsonData";
 import MsRequestResultTail from "../response/RequestResultTail";
 import MsBasisParameters from "../request/database/BasisParameters";
-import MsJmxStep from "../step/JmxStep";
 import MsApiCaseList from "../case/ApiCaseList";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
@@ -63,7 +61,6 @@ export default {
     MsResponseText,
     MsRun,
     MsBasisParameters,
-    MsJmxStep,
     MsApiCaseList
   },
   props: {

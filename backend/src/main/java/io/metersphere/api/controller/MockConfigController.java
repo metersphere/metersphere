@@ -1,11 +1,15 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.mock.MockApiUtils;
+import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
+import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockParamSuggestions;
+import io.metersphere.api.dto.mock.MockTestDataRequest;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
 import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
+import io.metersphere.api.mock.utils.MockApiUtils;
+import io.metersphere.api.mock.utils.MockTestDataUtil;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
@@ -47,15 +51,6 @@ public class MockConfigController {
         return mockConfigService.updateMockExpectConfigStatus(request);
     }
 
-//    @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-//    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
-//    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
-//    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/DefinitionCreate", subject = "接口定义通知")
-//    public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
-//        checkPermissionService.checkProjectOwner(request.getProjectId());
-//        return apiDefinitionService.create(request, bodyFiles);
-//    }
-
     @GetMapping("/mockExpectConfig/{id}")
     public MockExpectConfigResponse selectMockExpectConfig(@PathVariable String id) {
         MockExpectConfigWithBLOBs config = mockConfigService.findMockExpectConfigById(id);
@@ -77,10 +72,22 @@ public class MockConfigController {
     }
 
     @GetMapping("/getApiResponse/{id}")
-    public Map<String, String> getApiResponse(@PathVariable String id) {
+    public ApiDefinitionResponseDTO getApiResponse(@PathVariable String id) {
         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionService.getBLOBs(id);
-        Map<String, String> returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
+        ApiDefinitionResponseDTO returnMap = MockApiUtils.getApiResponse(apiDefinitionWithBLOBs.getResponse());
         return returnMap;
+    }
+
+    @PostMapping("/getMockTestData")
+    public List<MockTestDataRequest> getMockTestData(@RequestBody List<MockTestDataRequest> requestArray) {
+        MockTestDataUtil testDataUtil = new MockTestDataUtil();
+        return testDataUtil.parseTestDataByRequest(requestArray);
+    }
+
+    @PostMapping("/getTcpMockTestData")
+    public List<TcpTreeTableDataStruct> getTcpMockTestData(@RequestBody List<TcpTreeTableDataStruct> requestArray) {
+        MockTestDataUtil testDataUtil = new MockTestDataUtil();
+        return testDataUtil.parseTestDataByTcpTreeTableData(requestArray);
     }
 
 }

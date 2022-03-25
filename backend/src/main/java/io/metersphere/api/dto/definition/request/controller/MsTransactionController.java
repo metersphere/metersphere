@@ -20,7 +20,7 @@ import java.util.List;
 @JSONType(typeName = "TransactionController")
 public class MsTransactionController extends MsTestElement {
     private String type = "TransactionController";
-    private String clazzName = "io.metersphere.api.dto.definition.request.controller.MsTransactionController";
+    private String clazzName = MsTransactionController.class.getCanonicalName();
 
     private String name;
     private boolean generateParentSample;

@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class NodeDTO {
     private String ip;
+    private boolean enable;
     private Integer port;
     private Integer monitorPort;
     private Integer maxConcurrency;

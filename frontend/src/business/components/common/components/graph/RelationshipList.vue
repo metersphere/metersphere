@@ -9,6 +9,7 @@
       :case-id="resourceId"
       :read-only="readOnly"
       :relationship-type="relationshipType"
+      :version-enable="versionEnable"
       @setCount="setCount"
       @deleteRelationship="handleDelete"
       ref="testCaseRelationshipList"/>
@@ -18,6 +19,7 @@
       :read-only="readOnly"
       :api-definition-id="resourceId"
       :relationship-type="relationshipType"
+      :version-enable="versionEnable"
       @setCount="setCount"
       @deleteRelationship="handleDelete"
       ref="testCaseRelationshipList"/>
@@ -53,7 +55,8 @@ export default {
     readOnly: Boolean,
     relationshipType: String,
     title: String,
-    resourceType: String
+    resourceType: String,
+    versionEnable: Boolean,
   },
   methods: {
     getTableData() {

@@ -149,7 +149,6 @@
                              :total="page.total"/>
 
         <issue-edit @refresh="getIssues" ref="issueEdit"/>
-
       </el-card>
     </ms-main-container>
   </ms-container>
@@ -225,15 +224,19 @@ export default {
     },
   },
   activated() {
-    // 解决错位问题
-    window.addEventListener('resize', this.tableDoLayout);
-    getProjectMember((data) => {
-      this.members = data;
+    this.page.result.loading = true;
+    this.$nextTick(() => {
+      // 解决错位问题
+      window.addEventListener('resize', this.tableDoLayout);
+      getProjectMember((data) => {
+        this.members = data;
+      });
+      getIssuePartTemplateWithProject((template) => {
+        this.initFields(template);
+        this.page.result.loading = false;
+      });
+      this.getIssues();
     });
-    getIssuePartTemplateWithProject((template) => {
-      this.initFields(template);
-    });
-    this.getIssues();
   },
   computed: {
     platformFilters() {
@@ -308,6 +311,16 @@ export default {
       this.$refs.issueEdit.open(copyData, 'copy');
     },
     handleDelete(data) {
+      this.$alert(this.$t('test_track.issue.delete_tip') + ' ' + data.title + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleDelete(data);
+          }
+        }
+      });
+    },
+    _handleDelete(data) {
       this.page.result = this.$get('issues/delete/' + data.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.getIssues();

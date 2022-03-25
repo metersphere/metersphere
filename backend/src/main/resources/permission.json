@@ -141,16 +141,6 @@
       "resourceId": "WORKSPACE_SERVICE"
     },
     {
-      "id": "WORKSPACE_MESSAGE:READ",
-      "name": "permission.workspace_message.read",
-      "resourceId": "WORKSPACE_MESSAGE"
-    },
-    {
-      "id": "WORKSPACE_MESSAGE:READ+EDIT",
-      "name": "permission.workspace_message.edit",
-      "resourceId": "WORKSPACE_MESSAGE"
-    },
-    {
       "id": "WORKSPACE_USER:READ",
       "name": "permission.workspace_user.read",
       "resourceId": "WORKSPACE_USER"
@@ -254,26 +244,6 @@
       "id": "WORKSPACE_OPERATING_LOG:READ",
       "name": "permission.workspace_operation_log.read",
       "resourceId": "WORKSPACE_OPERATING_LOG"
-    },
-    {
-      "id": "WORKSPACE_TEMPLATE:READ",
-      "name": "permission.workspace_template.read",
-      "resourceId": "WORKSPACE_TEMPLATE"
-    },
-    {
-      "id": "WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE",
-      "name": "permission.workspace_template.case_template",
-      "resourceId": "WORKSPACE_TEMPLATE"
-    },
-    {
-      "id": "WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE",
-      "name": "permission.workspace_template.issue_template",
-      "resourceId": "WORKSPACE_TEMPLATE"
-    },
-    {
-      "id": "WORKSPACE_TEMPLATE:READ+CUSTOM",
-      "name": "permission.workspace_template.custom",
-      "resourceId": "WORKSPACE_TEMPLATE"
     },
     {
       "id": "PROJECT_USER:READ",
@@ -404,6 +374,36 @@
       "id": "PROJECT_FILE:READ+DELETE+FILE",
       "name": "permission.project_file.delete_file",
       "resourceId": "PROJECT_FILE"
+    },
+    {
+      "id": "PROJECT_TEMPLATE:READ",
+      "name": "permission.project_template.read",
+      "resourceId": "PROJECT_TEMPLATE"
+    },
+    {
+      "id": "PROJECT_TEMPLATE:READ+CASE_TEMPLATE",
+      "name": "permission.project_template.case_template",
+      "resourceId": "PROJECT_TEMPLATE"
+    },
+    {
+      "id": "PROJECT_TEMPLATE:READ+ISSUE_TEMPLATE",
+      "name": "permission.project_template.issue_template",
+      "resourceId": "PROJECT_TEMPLATE"
+    },
+    {
+      "id": "PROJECT_TEMPLATE:READ+CUSTOM",
+      "name": "permission.project_template.custom",
+      "resourceId": "PROJECT_TEMPLATE"
+    },
+    {
+      "id": "PROJECT_MESSAGE:READ",
+      "name": "permission.project_message.read",
+      "resourceId": "PROJECT_MESSAGE"
+    },
+    {
+      "id": "PROJECT_MESSAGE:READ+EDIT",
+      "name": "permission.project_message.edit",
+      "resourceId": "PROJECT_MESSAGE"
     },
     {
       "id": "PROJECT_CUSTOM_CODE:READ",
@@ -889,6 +889,80 @@
       "name": "permission.project_enterprise_report.edit",
       "resourceId": "PROJECT_ENTERPRISE_REPORT",
       "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ",
+      "name": "project.version.read",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+CREATE",
+      "name": "project.version.create_version",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+EDIT",
+      "name": "project.version.edit_version",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+DELETE",
+      "name": "project.version.delete_version",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_VERSION:READ+ENABLE",
+      "name": "project.version.enable",
+      "resourceId": "PROJECT_VERSION",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ",
+      "name": "permission.project_error_report_library.read",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+CREATE",
+      "name": "permission.project_error_report_library.create",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+EDIT",
+      "name": "permission.project_error_report_library.edit",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY:READ+DELETE",
+      "name": "permission.project_error_report_library.delete",
+      "resourceId": "PROJECT_ERROR_REPORT_LIBRARY",
+      "license": true
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+EDIT",
+      "name": "permission.personal_information.personal_setting",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+API_KEYS",
+      "name": "permission.personal_information.api_keys",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+EDIT_PASSWORD",
+      "name": "permission.personal_information.edit_password",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+THIRD_ACCOUNT",
+      "name": "permission.personal_information.third_account",
+      "resourceId": "PERSONAL_INFORMATION"
     }
   ],
   "resource": [
@@ -933,14 +1007,6 @@
       "name": "permission.workspace_service.name"
     },
     {
-      "id": "WORKSPACE_MESSAGE",
-      "name": "permission.workspace_message.name"
-    },
-    {
-      "id": "WORKSPACE_TEMPLATE",
-      "name": "permission.workspace_template.name"
-    },
-    {
       "id": "WORKSPACE_PROJECT_MANAGER",
       "name": "permission.workspace_project_manager.name"
     },
@@ -979,6 +1045,24 @@
     {
       "id": "PROJECT_FILE",
       "name": "permission.project_file.name"
+    },
+    {
+      "id": "PROJECT_TEMPLATE",
+      "name": "permission.project_template.name"
+    },
+    {
+      "id": "PROJECT_MESSAGE",
+      "name": "permission.project_message.name"
+    },
+    {
+      "id": "PROJECT_VERSION",
+      "name": "project.version_manage",
+      "license": true
+    },
+    {
+      "id": "PROJECT_ERROR_REPORT_LIBRARY",
+      "name": "permission.project_error_report_library.name",
+      "license": true
     },
     {
       "id": "PROJECT_APP_MANAGER",
@@ -1036,6 +1120,10 @@
     {
       "id": "SYSTEM_PLUGIN",
       "name": "permission.system_plugin.name"
+    },
+    {
+      "id": "PERSONAL_INFORMATION",
+      "name": "permission.personal_information.name"
     }
   ]
 }
