@@ -21,6 +21,8 @@ import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+
+
 import java.io.InputStream;
 import java.util.*;
 
@@ -255,14 +257,91 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (responses != null && responses.size() > 0) {
             responses.forEach((responseCode, response) -> {
                 msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
-                String body = parseSchema(response.getResponseSchema());
-                if (StringUtils.isNotBlank(body)) {
-                    msResponse.getBody().setRaw(body);
+                if (responseCode.equals("200")&&response.getResponseSchema()!=null) {
+                    parseResponseBody(response.getResponseSchema(),msResponse.getBody());
+                    msResponse.getBody().setFormat("JSON-SCHEMA");
+                } else {
+                    String body = parseSchema(response.getResponseSchema());
+                    if (StringUtils.isNotBlank(body)) {
+                        msResponse.getBody().setRaw(body);
+                    }
                 }
                 parseResponseHeader(response, msResponse.getHeaders());
             });
         }
         return msResponse;
+    }
+
+    private void parseResponseBody(Model schema,Body body) {
+        HashSet<String> refSet = new HashSet<>();
+        body.setJsonSchema(parseJsonSchema(schema, refSet));
+    }
+
+    private JsonSchemaItem parseJsonSchema(Model schema, HashSet<String> refSet) {
+        if (schema == null) return null;
+        JsonSchemaItem item = new JsonSchemaItem();
+        if (schema instanceof ArrayModel) {
+            ArrayModel arrayModel = (ArrayModel) schema;
+            item.setType("array");
+            item.setItems(new ArrayList<>());
+            JsonSchemaItem arrayItem = parseJsonSchema((Model) arrayModel.getItems(), refSet);
+            if (arrayItem != null) item.getItems().add(arrayItem);
+        } else if (schema instanceof ModelImpl) {
+            item.setType("object");
+            ModelImpl model = (ModelImpl) schema;
+            item.setProperties(parseNewSchemaProperties(model, refSet));
+        } else if (schema instanceof AbstractModel) {
+            AbstractModel abstractModel = (AbstractModel) schema;
+            item.setType("object");
+            item.setProperties(parseNewSchemaProperties(abstractModel, refSet));
+        } else if (schema instanceof RefModel) {
+            Model model = getRefModelType(schema, refSet);
+            item.setType("object");
+            item.setProperties(parseNewSchemaProperties(model, refSet));
+        }else {
+            return null;
+        }
+
+        return item;
+    }
+
+    private Map<String, JsonSchemaItem> parseNewSchemaProperties(Model schema, HashSet<String> refSet) {
+        if (schema == null) return null;
+        Map<String, Property> properties = schema.getProperties();
+        if (MapUtils.isEmpty(properties)) return null;
+        Map<String, JsonSchemaItem> JsonSchemaProperties = new LinkedHashMap<>();
+        properties.forEach((key, value) -> {
+            JsonSchemaItem item = new JsonSchemaItem();
+            item.setDescription(schema.getDescription());
+            JsonSchemaItem proItem = parseProperty(value, refSet);
+            if (proItem != null) JsonSchemaProperties.put(key, proItem);
+        });
+        return JsonSchemaProperties;
+    }
+
+
+    private JsonSchemaItem parseProperty(Property property,HashSet<String> refSet){
+        JsonSchemaItem item = new JsonSchemaItem();
+        item.setDescription(property.getDescription());
+        if (property instanceof ObjectProperty) {
+            ObjectProperty objectProperty = (ObjectProperty) property;
+            item.setType("object");
+            item.setProperties(parseSchemaProperties(objectProperty.getProperties(), refSet));
+        } else if (property instanceof ArrayProperty) {
+            ArrayProperty arrayProperty = (ArrayProperty) property;
+            handleArrayItemProperties(item, arrayProperty.getItems(), refSet);
+        } else if (property instanceof RefProperty) {
+            item.setType("object");
+            handleRefProperties(item, property, refSet);
+        } else {
+            handleBaseProperties(item, property);
+        }
+        if (property.getExample() != null) {
+            item.getMock().put("mock", property.getExample());
+        } else {
+            item.getMock().put("mock", "");
+        }
+        return item;
     }
 
     private void parseResponseHeader(Response response, List<KeyValue> msHeaders) {
