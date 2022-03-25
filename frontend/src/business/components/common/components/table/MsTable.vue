@@ -1,5 +1,5 @@
 <template>
-  <div v-if="tableActive">
+  <div>
     <el-table
       border
       class="test-content adjust-table ms-table"
@@ -164,7 +164,6 @@ export default {
       selectDataCounts: 0,
       selectRows: new Set(),
       selectIds: [],
-      tableActive: true,
       // hasBatchTipShow: false,
       defaultSort: {}
     };
@@ -407,7 +406,7 @@ export default {
     },
     doLayout() {
       if (this.$refs.table) {
-        setTimeout(this.$refs.table.doLayout(), 200);
+        setTimeout(this.$refs.table.doLayout, 200);
       }
     },
     filter(filters) {
@@ -480,9 +479,8 @@ export default {
       this.$refs.table.toggleRowSelection();
     },
     reloadTable() {
-      this.tableActive = false;
       this.$nextTick(() => {
-        this.tableActive = true;
+        this.doLayout();
       });
     },
     addPaddingColClass({column}) {
@@ -552,4 +550,5 @@ export default {
 .disable-hover >>> tr:hover>td{
   background-color: #ffffff !important;
 }
+
 </style>
