@@ -9,9 +9,6 @@ import io.metersphere.api.dto.parse.postman.PostmanKeyValue;
 import io.metersphere.api.parse.PostmanAbstractParserParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
-import io.metersphere.commons.constants.ProjectApplicationType;
-import io.metersphere.dto.ProjectConfig;
-import io.metersphere.service.ProjectApplicationService;
 import org.apache.commons.lang3.StringUtils;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.Project;
@@ -46,11 +43,8 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         Map<String, String> repeatMap = new HashMap();
         ProjectMapper projectMapper = CommonBeanFactory.getBean(ProjectMapper.class);
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-        ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
-        ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
-        boolean urlRepeat = config.getUrlRepeatable();
         parseItem(postmanCollection.getItem(), variables, results,
-                apiModule, apiModule.getName(), cases, repeatMap, urlRepeat);
+                apiModule, apiModule.getName(), cases, repeatMap, project.getRepeatable());
         Collections.reverse(results); // 调整顺序
         Collections.reverse(cases);
         apiImport.setData(results);

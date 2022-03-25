@@ -7,8 +7,7 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item v-if="platformOptions.length >= 1" :label-width="labelWidth"
-                      :label="$t('test_track.issue.third_party_integrated')"
+        <el-form-item v-if="platformOptions.length > 1" :label-width="labelWidth" :label="$t('test_track.issue.third_party_integrated')"
                       prop="platform">
           <el-select filterable v-model="form.platform">
             <el-option v-for="item in platformOptions" :key="item.value" :label="item.text" :value="item.value">
@@ -17,21 +16,25 @@
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('workspace.case_template_manage')" prop="caseTemplateId">
-          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate" :project-id="form.id"/>
+          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth"
                       :label="$t('workspace.issue_template_manage')" prop="issueTemplateId">
           <template-select :platform="form.platform" :data="form" scene="ISSUE" prop="issueTemplateId"
                            :disabled="form.platform === 'Jira' && form.thirdPartTemplate"
-                           :platformOptions="issueOptions" :project-id="form.id"
                            ref="issueTemplate"/>
 
-          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'"
-                       v-model="form.thirdPartTemplate" style="margin-left: 10px">
+          <el-checkbox @change="thirdPartTemplateChange" v-if="form.platform === 'Jira'" v-model="form.thirdPartTemplate" style="margin-left: 10px">
             {{ $t('test_track.issue.use_third_party') }}
           </el-checkbox>
 
+        </el-form-item>
+
+        <el-form-item :label-width="labelWidth" label="TCP Mock Port">
+          <el-input-number v-model="form.mockTcpPort" :controls="false"
+                           style="width: 37%;margin-right: 30px"></el-input-number>
+          <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
@@ -39,17 +42,17 @@
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
-          <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
         </el-form-item>
-
-        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form">
-          <template #checkBtn>
-            <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
-          </template>
-        </project-jira-config>
+        <el-form-item :label-width="labelWidth" :label="$t('project.jira_key')" v-if="jira">
+          <el-input v-model="form.jiraKey" autocomplete="off"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../assets/jira-key.png"/>
+            </template>
+          </ms-instructions-icon>
+        </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
-          <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
           <ms-instructions-icon effect="light">
             <template>
               禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
@@ -65,6 +68,18 @@
         <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_filter_id')" v-if="azuredevops">
           <el-input v-model="form.azureFilterId" autocomplete="off"/>
           <ms-instructions-icon content="非必填项，用例关联需求时，可以只筛选出，所填的 workItem 下的选项" effect="light"/>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable"
+                      v-if="this.isShowApp">
+          <el-switch v-model="form.repeatable"></el-switch>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.test_case_custom_id')" prop="customNum"
+                      v-if="this.isShowApp">
+          <el-switch v-model="form.customNum"></el-switch>
+        </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.scenario_custom_id')" prop="scenarioCustomNum"
+                      v-if="this.isShowApp">
+          <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -84,9 +99,8 @@
 
 import {
   getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-  getCurrentWorkspaceId,
+  getCurrentUser, getCurrentUserId,
+  getCurrentWorkspaceId, hasLicense,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -94,7 +108,7 @@ import {
 import {AZURE_DEVOPS, JIRA, PROJECT_ID, TAPD, ZEN_TAO} from "@/common/js/constants";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
-import TemplateSelect from "@/business/components/project/template/TemplateSelect";
+import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
@@ -110,12 +124,10 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
-import ProjectJiraConfig from "@/business/components/project/menu/components/ProjectJiraConfig";
 
 export default {
   name: "EditProject",
   components: {
-    ProjectJiraConfig,
     MsInstructionsIcon,
     TemplateSelect,
     MsResourceFiles,
@@ -154,8 +166,7 @@ export default {
       },
       screenHeight: 'calc(100vh - 195px)',
       labelWidth: '150px',
-      platformOptions: [],
-      issueOptions: []
+      platformOptions: []
     };
   },
   props: {
@@ -165,6 +176,13 @@ export default {
     isShowApp: {
       type: Boolean,
       default: true
+    }
+  },
+  mounted() {
+    if (this.$route.path.split('/')[2] === 'project' &&
+      this.$route.path.split('/')[3] === 'create') {
+      this.create();
+      this.$router.replace('/setting/project/all');
     }
   },
   computed: {
@@ -191,15 +209,6 @@ export default {
     this.createVisible = false;
   },
   methods: {
-    check() {
-      if (!this.form.id) {
-        this.$warning(this.$t("test_track.issue.save_project_first"));
-        return;
-      }
-      this.$post("/project/check/third/project", this.form, () => {
-        this.$success("OK");
-      });
-    },
     getOptions() {
       if (this.$refs.issueTemplate) {
         this.$refs.issueTemplate.getTemplateOptions();
@@ -213,15 +222,14 @@ export default {
         this.form.issueTemplateId = '';
     },
     edit(row) {
+      this.title = this.$t('project.edit');
       this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
       if (row) {
-        this.title = this.$t('project.edit');
-        row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {};
         this.form = Object.assign({}, row);
       } else {
-        this.form = {issueConfigObj: {}};
+        this.form = {};
       }
       this.platformOptions = [];
       this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
@@ -232,7 +240,6 @@ export default {
         this.filterPlatformOptions(platforms, JIRA);
         this.filterPlatformOptions(platforms, ZEN_TAO);
         this.filterPlatformOptions(platforms, AZURE_DEVOPS);
-        this.issueOptions = this.platformOptions;
       });
     },
     filterPlatformOptions(platforms, platform) {
@@ -257,7 +264,6 @@ export default {
           this.form.protocal = protocol;
           this.form.workspaceId = getCurrentWorkspaceId();
           this.form.createUser = getCurrentUserId();
-          this.form.issueConfig = JSON.stringify(this.form.issueConfigObj);
           this.result = this.$post("/project/" + saveType, this.form, () => {
             this.createVisible = false;
             this.reload();
@@ -322,9 +328,5 @@ pre {
 
 .el-input, .el-textarea {
   width: 80%;
-}
-
-.checkButton {
-  margin-left: 5px;
 }
 </style>

@@ -7,18 +7,14 @@ import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
-import io.metersphere.track.issue.domain.jira.JiraIssueType;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
-import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -52,7 +48,7 @@ public class IssuesController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
-    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.CREATE, mailTemplate = "track/IssuesCreate", subject = "缺陷通知")
     public IssuesWithBLOBs addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
@@ -61,17 +57,17 @@ public class IssuesController {
 
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
-    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.UPDATE, mailTemplate = "track/IssuesUpdate", subject = "缺陷通知")
     public void updateIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
         issuesService.updateIssues(issuesRequest);
     }
 
-    @GetMapping("/get/case/{refType}/{id}")
+    @GetMapping("/get/case/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
-    public List<IssuesDao> getIssues(@PathVariable String refType, @PathVariable String id) {
-        return issuesService.getIssues(id, refType);
+    public List<IssuesDao> getIssues(@PathVariable String id) {
+        return issuesService.getIssues(id);
     }
 
     @GetMapping("/get/{id}")
@@ -83,7 +79,7 @@ public class IssuesController {
     @GetMapping("/plan/get/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<IssuesDao> getIssuesByPlanId(@PathVariable String planId) {
-        return issuesService.getIssuesByPlanId(planId);
+        return issuesService.getIssuesByPlanoId(planId);
     }
 
     @GetMapping("/auth/{workspaceId}/{platform}")
@@ -101,13 +97,20 @@ public class IssuesController {
         issuesService.closeLocalIssue(id);
     }
 
+    @PostMapping("/delete")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_DELETE)
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = IssuesService.class)
+    public void deleteIssue(@RequestBody IssuesRequest request) {
+        issuesService.deleteIssue(request);
+    }
+
     @PostMapping("/delete/relate")
     public void deleteRelate(@RequestBody IssuesRequest request) {
         issuesService.deleteIssueRelate(request);
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.get(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, mailTemplate = "track/IssuesDelete", subject = "缺陷通知")
     public void delete(@PathVariable String id) {
         issuesService.delete(id);
@@ -158,13 +161,4 @@ public class IssuesController {
         return issuesService.getThirdPartTemplate(projectId);
     }
 
-    @PostMapping("/jira/issuetype")
-    public List<JiraIssueType> getJiraIssueType(@RequestBody JiraIssueTypeRequest request) {
-        return issuesService.getIssueTypes(request);
-    }
-
-    @GetMapping("/demand/list/{projectId}")
-    public List<DemandDTO> getDemandList(@PathVariable String projectId) {
-        return issuesService.getDemandList(projectId);
-    }
 }

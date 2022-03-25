@@ -85,19 +85,8 @@
       </span>
     </ms-table>
 
-    <test-plan-issue-edit
-      :plan-case-id="planCaseId"
-      :plan-id="planId"
-      :case-id="caseId"
-      @refresh="getIssues"
-      ref="issueEdit"/>
-
-    <IssueRelateList
-      :plan-case-id="planCaseId"
-      :case-id="caseId"
-      :not-in-ids="notInIds"
-      @refresh="getIssues"
-      ref="issueRelate"/>
+    <test-plan-issue-edit :plan-id="planId" :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
+    <IssueRelateList :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
   </div>
 </template>
 
@@ -135,20 +124,11 @@ export default {
       issueRelateVisible: false
     }
   },
-  props: {
-    planId: String,
-    caseId: String,
-    planCaseId: String,
-    readOnly: Boolean,
-    isCopy: Boolean,
-  },
+  props: ['caseId', 'readOnly','planId'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
     },
-    notInIds() {
-      return this.page.data ? this.page.data.map(i => i.id) : [];
-    }
   },
   created() {
     getIssuePartTemplateWithProject((template, project) => {
@@ -191,25 +171,20 @@ export default {
       return getCustomFieldValue(row, field, this.members);
     },
     getIssues() {
-      if (!this.isCopy) {
-        let result = getIssuesByCaseId(this.planId ? 'PLAN_FUNCTIONAL' : 'FUNCTIONAL', this.getCaseResourceId(), this.page);
-        if (result) {
-          this.page.result = result;
-        }
+      let result = getIssuesByCaseId(this.caseId, this.page);
+      if (result) {
+        this.page.result = result;
       }
     },
-    getCaseResourceId() {
-      return this.planId ? this.planCaseId : this.caseId;
-    },
     addIssue() {
-      if (!this.caseId || this.isCopy) {
+      if (!this.caseId) {
         this.$warning(this.$t('api_test.automation.save_case_info'));
         return;
       }
       this.$refs.issueEdit.open();
     },
     relateIssue() {
-      if (!this.caseId || this.isCopy) {
+      if (!this.caseId) {
         this.$warning(this.$t('api_test.automation.save_case_info'));
         return;
       }
@@ -226,23 +201,11 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.$alert(this.$t('test_track.issue.delete_warning'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.page.result = deleteIssueRelate({
-              id: row.id,
-              caseResourceId: this.getCaseResourceId(),
-              isPlanEdit: this.planId ? true : false
-            }, () => {
-              this.getIssues();
-              this.$success(this.$t('commons.delete_success'));
-            });
-          }
-        }
-      })
-    }
+      this.page.result = deleteIssueRelate({id: row.id, caseId: this.caseId}, () => {
+        this.getIssues();
+        this.$success(this.$t('commons.delete_success'));
+      });
+    },
   }
 }
 </script>

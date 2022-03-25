@@ -3,50 +3,30 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-          <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate"
-                                     :debug="debug" :report="report" @reportExport="handleExport"
-                                     @reportSave="handleSave"/>
+          <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
           <main v-if="isNotRunning">
-            <ms-metric-chart :content="content" :totalTime="totalTime" :report="report"/>
+            <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console"
-                                       v-on:requestResult="requestResult" ref="resultsTree"/>
+                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console" v-on:requestResult="requestResult" ref="resultsTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
-                                       :treeData="fullTreeNodes" ref="failsTree"
-                                       :errorReport="content.error"/>
-                </el-tab-pane>
-                <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
-                  <template slot="label">
-                    <span class="fail" style="color: #F6972A">{{ $t('error_report_library.option.name') }}</span>
-                  </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
-                                       :treeData="fullTreeNodes" ref="errorReportTree"/>
-                </el-tab-pane>
-                <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
-                  <template slot="label">
-                    <span class="fail" style="color: #9C9B9A">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
-                  </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
-                                       :treeData="fullTreeNodes" ref="unExecuteTree"/>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="fullTreeNodes" ref="failsTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
                     <span class="console">{{ $t('api_test.definition.request.console') }}</span>
                   </template>
-                  <ms-code-edit :mode="'text'" :read-only="true" :data.sync="content.console"
-                                height="calc(100vh - 500px)"/>
+                  <ms-code-edit :mode="'text'" :read-only="true" :data.sync="content.console" height="calc(100vh - 500px)"/>
                 </el-tab-pane>
 
               </el-tabs>
             </div>
-            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.name"
+            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
                                   :content="content" :total-time="totalTime"/>
           </main>
         </section>
@@ -134,10 +114,6 @@ export default {
     filter(index) {
       if (index === "1") {
         this.$refs.failsTree.filter(index);
-      } else if (this.activeName === "errorReport") {
-        this.$refs.errorReportTree.filter("errorReport");
-      } else if(this.activeName === "unExecute"){
-        this.$refs.unExecuteTree.filter("unexecute");
       }
     },
     init() {
@@ -149,7 +125,6 @@ export default {
       this.fullTreeNodes = [];
       this.failsTreeNodes = [];
       this.isRequestResult = false;
-      this.activeName = "total";
     },
     handleClick(tab, event) {
       this.isRequestResult = false;
@@ -336,21 +311,15 @@ export default {
         this.buildReport();
       } else if (this.isShare) {
         getShareScenarioReport(this.shareId, this.reportId, (data) => {
-          this.checkReport(data);
           this.handleGetScenarioReport(data);
         });
       } else {
         getScenarioReport(this.reportId, (data) => {
-          this.checkReport(data);
           this.handleGetScenarioReport(data);
         });
       }
     },
-    checkReport(data) {
-      if (!data) {
-        this.$emit('reportNotExist');
-      }
-    },
+
     handleGetScenarioReport(data) {
       if (data) {
         this.report = data;
@@ -365,7 +334,7 @@ export default {
               this.fullTreeNodes = report.steps;
               this.content.console = report.console;
               this.content.error = report.error;
-              this.content.success = (report.total - report.error - report.errorCode);
+              this.content.success = (report.total - report.error);
               this.totalTime = report.totalTime;
             }
             this.loading = false;
@@ -375,7 +344,7 @@ export default {
         }
       } else {
         this.$emit('invisible');
-        this.$warning(this.$t('commons.report_delete'));
+        this.$warning('报告已删除');
       }
     },
     buildReport() {
@@ -449,7 +418,7 @@ export default {
             requestTime = requestTime + resTime;
           })
         })
-        this.totalTime = requestTime
+          this.totalTime = requestTime
       }
     },
     requestResult(requestResult) {
@@ -468,9 +437,6 @@ export default {
     formatExportApi(array, scenario) {
       array.forEach(item => {
         if (this.stepFilter && this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
-          if(item.errorCode){
-            item.value.errorCode = item.errorCode;
-          }
           scenario.requestResults.push(item.value);
         }
         if (item.children && item.children.length > 0) {
@@ -480,25 +446,17 @@ export default {
     },
     handleExport() {
       if (this.report.reportVersion && this.report.reportVersion > 1) {
-        if (this.report.reportType === 'API_INTEGRATED') {
-          let scenario = {name: "", requestResults: []};
-          this.content.scenarios = [scenario];
-          this.formatExportApi(this.fullTreeNodes, scenario);
-        } else {
-          if (this.fullTreeNodes) {
-            this.fullTreeNodes.forEach(item => {
-              if (item.type === "scenario") {
-                let scenario = {name: item.label, requestResults: []};
-                if (this.content.scenarios && this.content.scenarios.length > 0) {
-                  this.content.scenarios.push(scenario);
-                } else {
-                  this.content.scenarios = [scenario];
-                }
-                this.formatExportApi(item.children, scenario);
-              }
-            })
+        this.fullTreeNodes.forEach(item => {
+          if (item.type === "scenario") {
+            let scenario = {name: item.label, requestResults: []};
+            if (this.content.scenarios && this.content.scenarios.length > 0) {
+              this.content.scenarios.push(scenario);
+            } else {
+              this.content.scenarios = [scenario];
+            }
+            this.formatExportApi(item.children, scenario);
           }
-        }
+        })
       }
       this.reportExportVisible = true;
       let reset = this.exportReportReset;

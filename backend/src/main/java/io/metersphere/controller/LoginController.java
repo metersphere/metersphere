@@ -1,11 +1,9 @@
 package io.metersphere.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
-import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.dto.UserDTO;
@@ -13,7 +11,6 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.BaseDisplayService;
 import io.metersphere.service.UserService;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -22,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping
@@ -32,15 +28,13 @@ public class LoginController {
     private UserService userService;
     @Resource
     private BaseDisplayService baseDisplayService;
+    @Resource
+    private RsaKey rsaKey;
 
     @GetMapping(value = "/isLogin")
-    public ResultHolder isLogin() throws NoSuchAlgorithmException {
-        RsaKey rsaKey = RsaUtil.getRsaKey();
+    public ResultHolder isLogin() {
         if (SecurityUtils.getSubject().isAuthenticated()) {
             UserDTO user = userService.getUserDTO(SessionUtils.getUserId());
-            if (user == null) {
-                return ResultHolder.error(rsaKey.getPublicKey());
-            }
             if (StringUtils.isBlank(user.getLanguage())) {
                 user.setLanguage(LocaleContextHolder.getLocale().toString());
             }
@@ -52,7 +46,7 @@ public class LoginController {
     }
 
     @PostMapping(value = "/signin")
-    @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
+    @MsAuditLog(module = "auth_title", type = OperLogConstants.LOGIN, title = "登录")
     public ResultHolder login(@RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
@@ -61,11 +55,7 @@ public class LoginController {
             }
         }
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LOCAL.name());
-        ResultHolder result = userService.login(request);
-        // 登录是否提示修改密码
-        boolean changePassword = userService.checkWhetherChangePasswordOrNot(request);
-        result.setMessage(BooleanUtils.toStringTrueFalse(changePassword));
-        return result;
+        return userService.login(request);
     }
 
     @GetMapping(value = "/currentUser")
@@ -74,7 +64,7 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
-    @MsAuditLog(module = OperLogModule.AUTH_TITLE, beforeEvent = "#msClass.getUserId(id)", type = OperLogConstants.LOGIN, title = "登出", msClass = SessionUtils.class)
+    @MsAuditLog(module = "auth_title", beforeEvent = "#msClass.getUserId(id)",type = OperLogConstants.LOGIN, title = "登出",msClass = SessionUtils.class)
     public ResultHolder logout() throws Exception {
         userService.logout();
         SecurityUtils.getSubject().logout();

@@ -13,7 +13,6 @@
         @refreshAll="refreshAll"
         @enableTrash="enableTrash"
         @enablePublic="enablePublic"
-        @toPublic="toPublic"
         :type="'edit'"
         :total='total'
         :public-total="publicTotal"
@@ -24,30 +23,22 @@
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
-          <ms-tab-button
-            :isShowChangeButton="false">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeTrashVersion" margin-left="-10"/>
-            </template>
-            <test-case-list
-              :checkRedirectID="checkRedirectID"
-              :isRedirectEdit="isRedirectEdit"
-              :tree-nodes="treeNodes"
-              :trash-enable="true"
-              :current-version="currentTrashVersion"
-              :version-enable="versionEnable"
-              @refreshTable="refresh"
-              @testCaseEdit="editTestCase"
-              @testCaseCopy="copyTestCase"
-              @testCaseDetail="showTestCaseDetail"
-              @getTrashList="getTrashList"
-              @getPublicList="getPublicList"
-              @refresh="refresh"
-              @refreshAll="refreshAll"
-              @setCondition="setCondition"
-              ref="testCaseTrashList">
-            </test-case-list>
-          </ms-tab-button>
+          <test-case-list
+            :checkRedirectID="checkRedirectID"
+            :isRedirectEdit="isRedirectEdit"
+            :tree-nodes="treeNodes"
+            :trash-enable="true"
+            @refreshTable="refresh"
+            @testCaseEdit="editTestCase"
+            @testCaseCopy="copyTestCase"
+            @testCaseDetail="showTestCaseDetail"
+            @getTrashList="getTrashList"
+            @getPublicList="getPublicList"
+            @refresh="refresh"
+            @refreshAll="refreshAll"
+            @setCondition="setCondition"
+            ref="testCaseTrashList">
+          </test-case-list>
         </el-tab-pane>
         <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
           <test-case-list
@@ -56,7 +47,6 @@
             :tree-nodes="treeNodes"
             :trash-enable="false"
             :public-enable="true"
-            :version-enable="versionEnable"
             @refreshTable="refresh"
             @testCaseEdit="editTestCase"
             @testCaseEditShow="editTestCaseShow"
@@ -79,9 +69,6 @@
             :right-tip="$t('test_track.case.minder')"
             :right-content="$t('test_track.case.minder')"
             :middle-button-enable="false">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-            </template>
             <test-case-list
               v-if="activeDom === 'left'"
               :checkRedirectID="checkRedirectID"
@@ -89,8 +76,6 @@
               :tree-nodes="treeNodes"
               :trash-enable="false"
               :public-enable="false"
-              :current-version="currentVersion"
-              :version-enable="versionEnable"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -121,11 +106,9 @@
           <div class="ms-api-scenario-div" v-if="!showPublic">
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
-              :version-enable="versionEnable"
               @refresh="refreshTable"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
-              @checkout="checkout($event, item)"
               :read-only="testCaseReadOnly"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
@@ -139,12 +122,10 @@
           <div class="ms-api-scenario-div" v-if="showPublic">
             <test-case-edit-show
               :currentTestCaseInfo="item.testCaseInfo"
-              :version-enable="versionEnable"
               @refresh="refreshTable"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
-              @checkout="checkoutPublic($event, item)"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
               :select-condition="condition"
@@ -154,9 +135,6 @@
               ref="testCaseEditShow">
             </test-case-edit-show>
           </div>
-          <template v-slot:version>
-            <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-          </template>
         </el-tab-pane>
         <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
           <template v-slot:label>
@@ -196,14 +174,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {
-  hasLicense,
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-  getUUID,
-  hasPermission,
-  setCurTabId
-} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasPermission, setCurTabId} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -211,10 +182,6 @@ import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMi
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
-
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
-
 export default {
   name: "TestCase",
   components: {
@@ -223,8 +190,7 @@ export default {
     MsTabButton,
     TestCaseNodeTree,
     MsMainContainer,
-    MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu, TestCaseEditShow,
-    'VersionSelect': VersionSelect.default,
+    MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu, TestCaseEditShow
   },
   comments: {},
   data() {
@@ -247,21 +213,17 @@ export default {
       tmpActiveDom: null,
       total: 0,
       publicTotal: 0,
-      tmpPath: null,
-      currentVersion: null,
-      currentTrashVersion: null,
-      versionEnable: false
+      tmpPath: null
     };
   },
   mounted() {
     this.getProject();
     let routeTestCase = this.$route.params.testCase;
-    if (routeTestCase && routeTestCase.add === true) {
+    if(routeTestCase && routeTestCase.add===true){
       this.addTab({name: 'add'});
-    } else {
+    }else {
       this.init(this.$route);
     }
-    this.checkVersionEnable();
   },
   beforeRouteLeave(to, from, next) {
     if (this.$store.state.isTestCaseMinderChanged) {
@@ -448,7 +410,7 @@ export default {
     },
     closeConfirm(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
-      if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 0) {
+      if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 1) {
         this.$alert(this.$t('commons.track') + " [ " + t[0].testCaseInfo.name + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
@@ -489,9 +451,9 @@ export default {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-        if (routeTestCase) {
+        if(routeTestCase){
           this.editTestCase(routeTestCase);
-        } else if (caseId) {
+        }else if (caseId) {
           this.$get('test/case/get/' + caseId, response => {
             let testCase = response.data;
             this.editTestCase(testCase);
@@ -631,10 +593,10 @@ export default {
       this.condition = data;
     },
     getProject() {
-      this.$get('/project_application/get/config/' + this.projectId + "/CASE_CUSTOM_NUM", result => {
+      this.$get("/project/get/" + this.projectId, result => {
         let data = result.data;
         if (data) {
-          this.$store.commit('setCurrentProjectIsCustomNum', data.caseCustomNum);
+          this.$store.commit('setCurrentProjectIsCustomNum', data.customNum);
         }
       });
     },
@@ -645,56 +607,6 @@ export default {
     enablePublic(data) {
       this.initApiTableOpretion = "publicEnable";
       this.publicEnable = data;
-    },
-    toPublic(data) {
-      if (data === 'public') {
-        this.activeName = "public"
-      } else {
-        this.activeName = "trash"
-      }
-
-    },
-    changeVersion(currentVersion) {
-      this.currentVersion = currentVersion || null;
-    },
-    changeTrashVersion(currentVersion) {
-      this.currentTrashVersion = currentVersion || null;
-    },
-    checkout(testCase, item) {
-      Object.assign(item.testCaseInfo, testCase)
-      //子组件先变更 copy 状态，再执行初始化操作
-      for (let i = 0; i < this.$refs.testCaseEdit.length; i++) {
-        this.$refs.testCaseEdit[i].initEdit(item.testCaseInfo, () => {
-          this.$nextTick(() => {
-            let vh = this.$refs.testCaseEdit[i].$refs.versionHistory;
-            vh.getVersionOptionList(vh.handleVersionOptions);
-            vh.show = false;
-            vh.loading = false;
-          });
-        });
-      }
-    },
-    checkoutPublic(testCase, item) {
-      Object.assign(item.testCaseInfo, testCase)
-      //子组件先变更 copy 状态，再执行初始化操作
-      this.$refs.testCaseEditShow[0].initEdit(item.testCaseInfo, () => {
-        this.$nextTick(() => {
-          let vh = this.$refs.testCaseEditShow[0].$refs.versionHistory;
-          vh.getVersionOptionList(vh.handleVersionOptions);
-          vh.show = false;
-          vh.loading = false;
-        });
-      });
-    },
-    checkVersionEnable() {
-      if (!this.projectId) {
-        return;
-      }
-      if (hasLicense()) {
-        this.$get('/project/version/enable/' + this.projectId, response => {
-          this.versionEnable = response.data;
-        });
-      }
     },
   }
 };
@@ -716,10 +628,6 @@ export default {
   min-width: 100%;
   max-width: 100%;
   padding-right: 100%;
-}
-
-.version-select {
-  padding-left: 10px;
 }
 
 </style>

@@ -20,7 +20,7 @@ import java.util.List;
 @JSONType(typeName = "TestPlan")
 public class MsTestPlan extends MsTestElement {
     private String type = "TestPlan";
-    private String clazzName = MsTestPlan.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.MsTestPlan";
 
     private boolean serializeThreadgroups = false;
 

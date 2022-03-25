@@ -20,7 +20,6 @@ function checkLicense(el, binding, type) {
   }
 }
 
-
 function checkRolePermission(el, binding, type) {
   const {value} = binding;
   if (value && value instanceof Array && value.length > 0) {
@@ -62,7 +61,6 @@ export const xpack = {
     checkLicense(el, binding);
   }
 };
-
 
 export const modules = {
   inserted(el, binding) {

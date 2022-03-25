@@ -2,11 +2,11 @@
   <div>
     <el-row >
       <el-col :span="12" v-if="caseCharData && caseCharData.length > 0">
-        <ms-doughnut-pie-chart :name="$t('api_test.home_page.detail_card.single_case')" :data="caseCharData" ref="functionChar"/>
+        <ms-doughnut-pie-chart :name="$t('单接口用例')" :data="caseCharData" ref="functionChar"/>
       </el-col>
       <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
-        <api-scenario-char-result :name="$t('test_track.plan.test_plan_api_scenario_count')" :data="scenarioCharData"/>
-        <api-scenario-char-result style="margin-top: -50px;" :name="$t('test_track.plan.test_plan_component_case_count')" :data="stepCharData"/>
+        <api-scenario-char-result :name="'场景用例数'" :data="scenarioCharData"/>
+        <api-scenario-char-result style="margin-top: -50px;" :name="'步骤用例数'" :data="stepCharData"/>
       </el-col>
     </el-row>
   </div>
@@ -28,12 +28,10 @@ export default {
         ["Success", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
         ["Pass", {name: this.$t('test_track.plan_view.pass'), itemStyle: {color: '#67C23A'}}],
         ["error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
-        ["Error", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["Fail", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["Failure", {name: this.$t('test_track.plan_view.failure'), itemStyle: {color: '#F56C6C'}}],
         ["Prepare", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
         ["Underway", {name: this.$t('api_test.home_page.detail_card.unexecute'), itemStyle: {color: '#909399'}}],
-        ["errorReportResult", {name: this.$t('error_report_library.option.name'), itemStyle: {color: '#F6972A'}}],
       ]),
       caseCharData: [],
       scenarioCharData: [],
@@ -63,23 +61,19 @@ export default {
   methods: {
     getCaseCharData() {
       let caseCharData = [];
-      if (this.apiResult.apiCaseData) {
-        this.apiResult.apiCaseData.forEach(item => {
-          let data = this.getDataByStatus(item.status);
-          data.value = item.count;
-          caseCharData.push(data);
-        });
-      }
+      this.apiResult.apiCaseData.forEach(item => {
+        let data = this.getDataByStatus(item.status);
+        data.value = item.count;
+        caseCharData.push(data);
+      });
       this.caseCharData = caseCharData;
 
       let apiScenarioData = [];
-      if (this.apiResult.apiScenarioData) {
-        this.apiResult.apiScenarioData.forEach(item => {
-          let data = this.getDataByStatus(item.status);
-          data.value = item.count;
-          apiScenarioData.push(data);
-        });
-      }
+      this.apiResult.apiScenarioData.forEach(item => {
+        let data = this.getDataByStatus(item.status);
+        data.value = item.count;
+        apiScenarioData.push(data);
+      });
 
       let stepCharData = [];
       for (let i = 0; i < this.apiResult.apiScenarioStepData.length; i++) {

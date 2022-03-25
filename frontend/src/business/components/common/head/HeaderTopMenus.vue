@@ -8,10 +8,7 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation" v-if="hasLicense() && check('workstation')">
-      {{ $t('commons.my_workstation') }}
-    </el-menu-item>
-    <el-menu-item v-if="!hasLicense()" @click="clickPlanMenu">
+    <el-menu-item index="/workstation" v-xpack onselectstart="return false">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
@@ -33,14 +30,13 @@
     </el-menu-item>
 
     <el-menu-item index="/project" onselectstart="return false"
-                  v-permission="['PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE',
-                  'PROJECT_CUSTOM_CODE:READ','PROJECT_ERROR_REPORT_LIBRARY:READ', 'PROJECT_TEMPLATE:READ', 'PROJECT_MESSAGE:READ']">
+                  v-permission="['PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ']">
       {{ $t('commons.project_setting') }}
     </el-menu-item>
 
     <el-menu-item index="/setting" onselectstart="return false"
                   v-permission="['SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ','SYSTEM_OPERATING_LOG:READ',
-                  'WORKSPACE_SERVICE:READ', 'PROJECT_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ']">
+                  'WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ']">
       {{ $t('commons.system_setting') }}
     </el-menu-item>
   </el-menu>
@@ -104,11 +100,8 @@ export default {
     this.registerEvents();
   },
   methods: {
-    hasLicense,
     handleSelect(index) {
-      if (index) {
-        this.activeIndex = index;
-      }
+      this.activeIndex = index;
     },
     active() {
       if (this.activeIndex === '/api') {
@@ -129,15 +122,7 @@ export default {
           });
         }
       });
-    },
-    clickPlanMenu() {
-      this.$message({
-        dangerouslyUseHTMLString: true,
-        showClose: true,
-        message: this.$t('commons.enterprise_edition_tips'),
-      });
-      return false;
-    },
+    }
   }
 };
 </script>

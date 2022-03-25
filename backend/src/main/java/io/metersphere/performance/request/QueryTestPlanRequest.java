@@ -1,6 +1,7 @@
 package io.metersphere.performance.request;
 
 import io.metersphere.controller.request.OrderRequest;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

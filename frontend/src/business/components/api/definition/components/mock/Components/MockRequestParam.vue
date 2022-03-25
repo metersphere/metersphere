@@ -32,7 +32,10 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.query" :parameters="request.arguments"/>
+              <mock-api-variable :append-dialog-to-body="true"
+                                 :suggestions="apiParams.query"
+                                 :with-mor-setting="true"
+                                 :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
@@ -48,7 +51,9 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.rest" :parameters="request.rest"/>
+              <mock-api-variable :append-dialog-to-body="true"
+                                 :suggestions="apiParams.rest"
+                                 :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
@@ -77,6 +82,7 @@ import MsApiKeyValue from "@/business/components/api/definition/components/ApiKe
 import MsApiAuthConfig from "@/business/components/api/definition/components/auth/ApiAuthConfig";
 import ApiRequestMethodSelect from "@/business/components/api/definition/components/collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
+import MockApiVariable from "@/business/components/api/definition/components/mock/Components/MockApiVariable";
 import MsApiAssertions from "@/business/components/api/definition/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/definition/components/extract/ApiExtract";
 import {Body, KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
@@ -88,8 +94,6 @@ import ApiDefinitionStepButton from "@/business/components/api/definition/compon
 import {hasPermission} from '@/common/js/utils';
 import Convert from "@/business/components/common/json-schema/convert/convert";
 import MockApiBody from "@/business/components/api/definition/components/mock/Components/MockApiBody";
-import MockCombinationCondition
-  from "@/business/components/api/definition/components/mock/Components/MockCombinationCondition";
 
 export default {
   name: "MockRequestParam",
@@ -98,13 +102,13 @@ export default {
     MsJsr233Processor,
     MsApiAdvancedConfig,
     BatchAddParameter,
+    MockApiVariable,
     ApiRequestMethodSelect,
     MsApiExtract,
     MsApiAuthConfig,
     MockApiBody,
     MsApiKeyValue,
-    MsApiAssertions,
-    MockCombinationCondition,
+    MsApiAssertions
   },
   props: {
     method: String,
@@ -386,7 +390,7 @@ export default {
 }
 
 .request-tabs {
-  margin: 10px;
+  margin: 20px;
   min-height: 200px;
 }
 

@@ -17,6 +17,6 @@ public class MsAssertionJsonPath extends MsAssertionType {
     }
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(expression) && isEnable();
+        return StringUtils.isNotBlank(expression);
     }
 }

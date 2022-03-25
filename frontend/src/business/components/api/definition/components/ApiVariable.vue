@@ -55,6 +55,15 @@
           </el-autocomplete>
         </el-col>
 
+        <el-col class="item">
+          <el-input v-model="item.description" size="small" maxlength="200"
+                    :placeholder="$t('commons.description')" show-word-limit>
+          </el-input>
+
+          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
+
+        </el-col>
 
         <el-col v-if="isActive && item.type === 'file'" class="item">
           <ms-api-body-file-upload :parameter="item"/>
@@ -83,12 +92,10 @@
                              :append-to-body="appendDialogToBody"
                              :parameters="parameters"
                              :current-item="currentItem"
-                             :scenario-definition="scenarioDefinition"
                              @advancedRefresh="reload"/>
-
     <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
-    <api-variable-setting :append-to-body="appendDialogToBody" :suggestions="suggestions"
+    <api-variable-setting :append-to-body="appendDialogToBody"
       ref="apiVariableSetting"/>
 
   </div>
@@ -134,8 +141,7 @@ export default {
       default: true
     },
     suggestions: Array,
-    withMorSetting: Boolean,
-    scenarioDefinition: Array,
+    withMorSetting: Boolean
   },
   data() {
     return {
@@ -208,7 +214,6 @@ export default {
           type: 'text',
           enable: true,
           uuid: this.uuid(),
-          required: false,
           contentType: 'text/plain'
         }));
       }
@@ -247,14 +252,10 @@ export default {
         this.$refs.variableJson.open(item);
         this.currentItem = item;
       } else {
+        this.$refs.variableAdvance.open();
         this.currentItem = item;
-        // 场景编辑参数设置冒泡，调用父组件的参数设置打开方法
-        if(this.scenarioDefinition != undefined){
-          this.$emit('editScenarioAdvance', this.currentItem);
-        }else{
-          this.$refs.variableAdvance.open();
-        }
       }
+
     },
     typeChange(item) {
       if (item.type === 'file') {
@@ -288,14 +289,14 @@ export default {
     callback(item) {
       this.currentItem.value = item;
       this.currentItem = null;
-    },
+    }
   },
   created() {
     if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
       this.parameters.push(new KeyValue({
         type: 'text',
         enable: true,
-        required: false,
+        required: true,
         uuid: this.uuid(),
         contentType: 'text/plain'
       }));
@@ -318,7 +319,7 @@ export default {
 }
 
 .kv-select {
-  width: 30%;
+  width: 50%;
 }
 
 .el-autocomplete {

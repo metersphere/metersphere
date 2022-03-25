@@ -1,44 +1,42 @@
 <template>
   <div class="request-form">
-    <component
-      v-bind:is="component"
-      :isMax="isMax"
-      :show-btn="showBtn"
-      :show-version="showVersion"
-      :scenario="scenario"
-      :controller="scenario"
-      :timer="scenario"
-      :assertions="scenario"
-      :extract="scenario"
-      :jsr223-processor="scenario"
-      :request="scenario"
-      :currentScenario="currentScenario"
-      :currentEnvironmentId="currentEnvironmentId"
-      :node="node"
-      :draggable="draggable"
-      :title="title"
-      :color="titleColor"
-      :response="response"
-      :environment-type="environmentType"
-      :environment-group-id="envGroupId"
-      :background-color="backgroundColor"
-      :project-list="projectList"
-      :env-map="envMap"
-      :message="message"
-      :api-id="apiId"
-      :scenario-definition="scenarioDefinition"
-      :if-from-variable-advance="ifFromVariableAdvance"
-      @suggestClick="suggestClick(node)"
-      @remove="remove"
-      @runScenario="runScenario"
-      @stopScenario="stopScenario"
-      @copyRow="copyRow"
-      @refReload="refReload"
-      @openScenario="openScenario"
-      @setDomain="setDomain"
-      @savePreParams="savePreParams"
-      @editScenarioAdvance="editScenarioAdvance"
-    />
+    <keep-alive>
+      <component
+        v-bind:is="component"
+        :isMax="isMax"
+        :show-btn="showBtn"
+        :expandedNode="expandedNode"
+        :scenario="scenario"
+        :controller="scenario"
+        :timer="scenario"
+        :assertions="scenario"
+        :extract="scenario"
+        :jsr223-processor="scenario"
+        :request="scenario"
+        :currentScenario="currentScenario"
+        :currentEnvironmentId="currentEnvironmentId"
+        :node="node"
+        :draggable="draggable"
+        :title="title"
+        :color="titleColor"
+        :response="response"
+        :environment-type="environmentType"
+        :environment-group-id="envGroupId"
+        :background-color="backgroundColor"
+        :project-list="projectList"
+        :env-map="envMap"
+        :message="message"
+        :api-id="apiId"
+        @suggestClick="suggestClick(node)"
+        @remove="remove"
+        @runScenario="runScenario"
+        @stopScenario="stopScenario"
+        @copyRow="copyRow"
+        @refReload="refReload"
+        @openScenario="openScenario"
+        @setDomain="setDomain"
+      />
+    </keep-alive>
   </div>
 </template>
 
@@ -84,24 +82,15 @@ export default {
       type: Boolean,
       default: true,
     },
-    showVersion: {
-      type: Boolean,
-      default: true,
-    },
     currentScenario: {},
+    expandedNode: Array,
     currentEnvironmentId: String,
     response: {},
     node: {},
     projectList: Array,
     envMap: Map,
     environmentType: String,
-    envGroupId: String,
-    scenarioDefinition: Array,
-    // 是否来自于接口自动化的参数设置
-    ifFromVariableAdvance: {
-      type: Boolean,
-      default: false,
-    },
+    envGroupId: String
   },
   data() {
     return {
@@ -222,6 +211,7 @@ export default {
     },
     remove(row, node) {
       this.$emit('remove', row, node);
+
     },
     copyRow(row, node) {
       this.$emit('copyRow', row, node);
@@ -244,13 +234,7 @@ export default {
     },
     setDomain() {
       this.$emit("setDomain");
-    },
-    savePreParams(data) {
-      this.$emit("savePreParams", data);
-    },
-    editScenarioAdvance(data) {
-      this.$emit('editScenarioAdvance', data);
-    },
+    }
   }
 }
 </script>

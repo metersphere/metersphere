@@ -25,7 +25,7 @@
           <bug-count-card class="track-card"/>
         </el-col>
         <el-col :span="12">
-          <ms-failure-test-case-list class="track-card" @redirectPage="redirectPage"/>
+          <ms-failure-test-case-list class="track-card"/>
         </el-col>
       </el-row>
 
@@ -37,6 +37,7 @@
           <ms-running-task-list :call-from="'track_home'" class="track-card" @redirectPage="redirectPage"/>
         </el-col>
       </el-row>
+
 
     </ms-main-container>
   </ms-container>
@@ -54,7 +55,7 @@ import BugCountCard from "@/business/components/track/home/components/BugCountCa
 import ReviewList from "@/business/components/track/home/components/ReviewList";
 import MsRunningTaskList from "@/business/components/track/home/components/RunningTaskList";
 import MsFailureTestCaseList from "@/business/components/api/homepage/components/FailureTestCaseList";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 require('echarts/lib/component/legend');
 export default {
@@ -139,21 +140,19 @@ export default {
           orient: 'vertical',
           right: '80',
         },
-        series: [
-          {
-            name: this.$t('test_track.home.function_case_count'),
-            data: yAxis1,
-            type: 'bar',
-            barWidth: 50,
-            itemStyle: {
-              color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
-            }
-          },
+        series: [{
+          name: this.$t('test_track.home.function_case_count'),
+          data: yAxis1,
+          type: 'bar',
+          barWidth: 50,
+          itemStyle: {
+            color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
+          }
+        },
           {
             name: this.$t('test_track.home.relevance_case_count'),
             data: yAxis2,
             type: 'bar',
-            barWidth: 50,
             itemStyle: {
               color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER_SHALLOW
             }
@@ -161,25 +160,17 @@ export default {
       };
       this.caseOption = option;
     },
-    redirectPage(page, dataType, selectType, title) {
-      //api页面跳转
-      //传入UUID是为了进行页面重新加载判断
-      let uuid = getUUID();
+    redirectPage(page, dataType, selectType) {
+      //test_plan 页面跳转
+      // this.$router.push('/track/plan/view/'+selectType);
       switch (page) {
-        case "api":
+        case "case":
           this.$router.push({
-            name: 'ApiDefinition',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
+            name:'testCase',
+            params:{
+              dataType:dataType,dataSelectRange:selectType, projectId: this.projectId
+            }
           });
-          break;
-        case "scenario":
-          this.$router.push({
-            name: 'ApiAutomation',
-            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
-          });
-          break;
-        case "testPlanEdit":
-          this.$router.push('/track/plan/view/' + selectType)
           break;
       }
     }

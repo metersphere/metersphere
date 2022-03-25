@@ -128,8 +128,7 @@ export function API_SCENARIO_FILTERS () {
 export const USER_GROUP_SCOPE = {
   'SYSTEM': 'group.system',
   'WORKSPACE': 'group.workspace',
-  'PROJECT': 'group.project',
-  'PERSONAL': 'group.personal'
+  'PROJECT': 'group.project'
 }
 
 export const PROJECT_GROUP_SCOPE = {

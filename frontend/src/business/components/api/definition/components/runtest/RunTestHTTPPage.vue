@@ -1,9 +1,6 @@
 <template>
 
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-    </div>
     <el-card class="card-content">
 
       <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
@@ -18,13 +15,12 @@
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <environment-select :current-data="api" :project-id="projectId" ref="environmentSelect"/>
+          <environment-select :current-data="api" :project-id="projectId"/>
         </el-form-item>
 
         <!-- 请求地址 -->
         <el-form-item prop="path">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path"
-                    class="ms-htt-width"
+          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="api.request.path" class="ms-htt-width"
                     size="small" :disabled="false"/>
         </el-form-item>
 
@@ -38,21 +34,12 @@
               </el-dropdown-item>
               <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
               </el-dropdown-item>
-              <el-dropdown-item command="update_api">{{
-                  $t('api_test.definition.request.update_api')
-                }}
-              </el-dropdown-item>
+              <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
               <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
 
           <el-button size="small" type="primary" v-else @click.once="stop">{{ $t('report.stop_btn') }}</el-button>
-
-          <el-button size="small" type="primary" @click.stop @click="generate"
-                     style="margin-left: 10px"
-                     v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
-            {{ $t('commons.generate_test_data') }}
-          </el-button>
 
         </el-form-item>
 
@@ -61,14 +48,14 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :response="responseData"
-                             v-if="loadRequest"
-                             :request="api.request" ref="apiRequestForm"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :request="api.request"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <ms-request-result-tail :response="responseData" ref="runResult"/>
       </div>
+
+      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
     </el-card>
 
@@ -89,13 +76,14 @@
 
 <script>
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsRequestResultTail from "../response/RequestResultTail";
 import MsRun from "../Run";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
+import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -107,6 +95,7 @@ export default {
     MsContainer,
     MsRequestResultTail,
     MsRun,
+    MsJmxStep
   },
   data() {
     return {
@@ -114,7 +103,6 @@ export default {
       api: {},
       loaded: false,
       loading: false,
-      loadRequest: true,
       createCase: "",
       currentRequest: {},
       refreshSign: "",
@@ -128,8 +116,7 @@ export default {
       runData: [],
       reportId: "",
       envMap: new Map,
-      runLoading: false,
-      versionEnable: false,
+      runLoading: false
     }
   },
   props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
@@ -144,60 +131,6 @@ export default {
     }
   },
   methods: {
-    hasPermission, hasLicense,
-    generate() {
-      this.$refs.apiRequestForm.generate();
-    },
-    setRequestParam(param, isEnvironmentMock) {
-      this.init();
-      if (param) {
-        if (param.headers) {
-          this.api.request.headers = param.headers;
-        }
-        if (param.arguments !== null && param.arguments.length > 0) {
-          for (let i = 0; i < param.arguments.length; i++) {
-            if (!param.arguments[i].required) {
-              param.arguments[i].required = true;
-            }
-          }
-          this.api.request.arguments = param.arguments;
-        }
-        if (param.body) {
-          if (param.body.kvs) {
-            for (let i = 0; i < param.body.kvs.length; i++) {
-              if (!param.body.kvs[i].required) {
-                param.body.kvs[i].required = true;
-              }
-            }
-          }
-
-          this.api.request.body = param.body;
-        }
-        if (param.rest) {
-          for (let i = 0; i < param.rest.length; i++) {
-            if (!param.rest[i].required) {
-              param.rest[i].required = true;
-            }
-          }
-          this.api.request.rest = param.rest;
-        }
-      }
-      if (isEnvironmentMock) {
-        this.$nextTick(() => {
-          let url = "/api/definition/getMockEnvironment/";
-          this.$get(url + this.projectId, response => {
-            let mockEnvironment = response.data;
-            if (mockEnvironment !== null) {
-              this.$refs.environmentSelect.setEnvironment(mockEnvironment.id);
-            }
-          });
-        })
-      }
-      this.loadRequest = false;
-      this.$nextTick(() => {
-        this.loadRequest = true;
-      })
-    },
     handleCommand(e) {
       switch (e) {
         case "load_case":
@@ -355,30 +288,17 @@ export default {
         this.$success(this.$t('report.test_stop_success'));
       });
     },
-    checkVersionEnable() {
-      if (!this.projectId) {
-        return;
-      }
-      if (hasLicense()) {
-        this.$get('/project/version/enable/' + this.projectId, response => {
-          this.versionEnable = response.data;
-        });
-      }
-    },
-    init() {
-      // 深度复制
-      this.api = JSON.parse(JSON.stringify(this.apiData));
-      this.api.protocol = this.currentProtocol;
-      this.currentRequest = this.api.request;
-      if (!this.api.environmentId && this.$store.state.useEnvironment) {
-        this.api.environmentId = this.$store.state.useEnvironment;
-      }
-      this.runLoading = false;
-      this.checkVersionEnable();
-    }
   },
   created() {
-    this.init();
+    // 深度复制
+    this.api = JSON.parse(JSON.stringify(this.apiData));
+    this.api.protocol = this.currentProtocol;
+    this.currentRequest = this.api.request;
+    if (!this.api.environmentId && this.$store.state.useEnvironment) {
+      this.api.environmentId = this.$store.state.useEnvironment;
+    }
+    this.runLoading = false;
+    //this.getResult();
   }
 }
 </script>

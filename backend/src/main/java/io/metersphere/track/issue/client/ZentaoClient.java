@@ -15,8 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import java.util.Map;
+import org.springframework.web.client.RestTemplate;
 
 public abstract class ZentaoClient extends BaseClient {
 
@@ -75,6 +74,7 @@ public abstract class ZentaoClient extends BaseClient {
     public AddIssueResponse.Issue addIssue(MultiValueMap<String, Object> paramMap) {
         String sessionId = login();
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = null;
         try {
             String bugCreate = requestUrl.getBugCreate();
@@ -91,6 +91,7 @@ public abstract class ZentaoClient extends BaseClient {
     public void updateIssue(String id, MultiValueMap<String, Object> paramMap) {
         String sessionId = login();
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+        RestTemplate restTemplate = new RestTemplate();
         try {
             restTemplate.exchange(requestUrl.getBugUpdate(),
                     HttpMethod.POST, requestEntity, String.class, id, sessionId);
@@ -130,29 +131,6 @@ public abstract class ZentaoClient extends BaseClient {
         return JSONObject.parseObject(getIssueResponse.getData());
     }
 
-    public GetCreateMetaDataResponse.MetaData getCreateMetaData(String productID) {
-        String sessionId = login();
-        ResponseEntity<String> response = restTemplate.exchange(requestUrl.getCreateMetaData(),
-                HttpMethod.GET, null, String.class, productID, sessionId);
-        GetCreateMetaDataResponse getCreateMetaDataResponse = (GetCreateMetaDataResponse) getResultForObject(GetCreateMetaDataResponse.class, response);
-        return JSONObject.parseObject(getCreateMetaDataResponse.getData(), GetCreateMetaDataResponse.MetaData.class);
-    }
-
-    public JSONObject getCustomFields(String productID) {
-        return getCreateMetaData(productID).getCustomFields();
-    }
-
-    public Map<String, Object> getBuildsByCreateMetaData(String projectId) {
-        return getCreateMetaData(projectId).getBuilds();
-    }
-
-    public Map<String, Object> getBuilds(String projectId) {
-        String sessionId = login();
-        ResponseEntity<String> response = restTemplate.exchange(requestUrl.getBuildsGet(),
-                HttpMethod.GET, null, String.class, projectId, sessionId);
-        return JSONObject.parseObject(response.getBody()).getJSONObject("data").getInnerMap();
-    }
-
     public JSONArray getBugsByProjectId(String projectId, int pageNum, int pageSize) {
         String sessionId = login();
         ResponseEntity<String> response = restTemplate.exchange(requestUrl.getBugList(),
@@ -187,20 +165,5 @@ public abstract class ZentaoClient extends BaseClient {
             suffix = "/" + suffix;
         }
         return String.format(replaceImgUrl, suffix);
-    }
-
-    public boolean checkProjectExist(String relateId) {
-        String sessionId = login();
-        ResponseEntity<String> response = restTemplate.exchange(requestUrl.getProductGet(),
-                HttpMethod.GET, null, String.class, relateId, sessionId);
-        try {
-            Object data = JSONObject.parseObject(response.getBody()).get("data");
-            if (!StringUtils.equals((String) data, "false")) {
-                return true;
-            }
-        } catch (Exception e) {
-            LogUtil.info("query zentao product info error. product id: " + relateId);
-        }
-        return false;
     }
 }

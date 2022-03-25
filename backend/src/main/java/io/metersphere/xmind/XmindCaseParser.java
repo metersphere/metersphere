@@ -7,12 +7,10 @@ import com.google.common.collect.ImmutableMap;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
-import io.metersphere.track.request.testcase.TestCaseImportRequest;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.xmind.parser.XmindParser;
 import io.metersphere.xmind.parser.pojo.Attached;
@@ -34,10 +32,16 @@ import java.util.regex.Pattern;
 public class XmindCaseParser {
 
     private TestCaseService testCaseService;
+    private String maintainer;
+    private String projectId;
     /**
      * 过程校验记录
      */
     private DetailUtil process;
+    /**
+     * 已存在用例名称
+     */
+    private Set<String> testCaseNames;
     /**
      * 转换后的案例信息
      */
@@ -60,11 +64,15 @@ public class XmindCaseParser {
 
     private List<String> errorPath;
 
-    private TestCaseImportRequest request;
+    private boolean isUseCustomId;
 
-    public XmindCaseParser(TestCaseImportRequest request) {
-        this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
-        this.request = request;
+    private String importType;
+
+    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames, boolean isUseCustomId, String importType) {
+        this.testCaseService = testCaseService;
+        this.maintainer = userId;
+        this.projectId = projectId;
+        this.testCaseNames = testCaseNames;
         testCases = new LinkedList<>();
         updateTestCases = new LinkedList<>();
         compartDatas = new ArrayList<>();
@@ -72,6 +80,8 @@ public class XmindCaseParser {
         nodePaths = new ArrayList<>();
         continueValidatedCase = new ArrayList<>();
         errorPath = new ArrayList<>();
+        this.isUseCustomId = isUseCustomId;
+        this.importType = importType;
     }
 
     private static final String TC_REGEX = "(?:tc:|tc：|tc)";
@@ -84,12 +94,12 @@ public class XmindCaseParser {
         compartDatas.clear();
         testCases.clear();
         updateTestCases.clear();
-        request.getTestCaseNames().clear();
+        testCaseNames.clear();
         nodePaths.clear();
     }
 
     public List<TestCaseWithBLOBs> getTestCase() {
-        if (StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Create.name())) {
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Create.name())) {
             return this.testCases;
         } else {
             return new ArrayList<>();
@@ -97,7 +107,7 @@ public class XmindCaseParser {
     }
 
     public List<TestCaseWithBLOBs> getUpdateTestCase() {
-        if (StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Update.name())) {
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
             return this.updateTestCases;
         } else {
             return new ArrayList<>();
@@ -195,6 +205,20 @@ public class XmindCaseParser {
             process.add(Translator.get("functional_method_tip"), nodePath + data.getName());
         }
 
+//        if (testCaseNames.contains(data.getName())) {
+//            TestCaseWithBLOBs bloBs = testCaseService.checkTestCaseExist(data);
+//            if (bloBs != null) {
+//                // process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
+//                // 记录需要变更的用例
+//                BeanUtils.copyBean(bloBs, data, "id");
+//                updateTestCases.add(bloBs);
+//                return false;
+//            }
+//
+//        } else {
+//            testCaseNames.add(data.getName());
+//        }
+
         // 用例等级和用例性质处理
         if (!priorityList.contains(data.getPriority())) {
             validatePass = false;
@@ -215,17 +239,15 @@ public class XmindCaseParser {
         compartDatas.add(compartData);
 
 
-        String importType = request.getImportType();
-        String projectId = request.getProjectId();
-        boolean isUseCustomId = request.isUseCustomId();
-
         //自定义ID判断
         if (StringUtils.isEmpty(data.getCustomNum())) {
-            if (StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
+            if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+                validatePass = false;
                 process.add(Translator.get("id_required"), nodePath + "/" + compartData.getName());
                 return false;
             } else {
                 if (isUseCustomId) {
+                    validatePass = false;
                     process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
                     return false;
                 }
@@ -233,10 +255,10 @@ public class XmindCaseParser {
         }
 
         //判断更新
-        if (StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
-            String checkResult;
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+            String checkResult = null;
             if (isUseCustomId) {
-                checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), projectId);
+                checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
             } else {
                 checkResult = testCaseService.checkIdExist(Integer.parseInt(data.getCustomNum()), projectId);
             }
@@ -254,19 +276,6 @@ public class XmindCaseParser {
             }
         }
 
-        // 判断新增
-        if (StringUtils.equals(importType, FunctionCaseImportEnum.Create.name())) {
-            String checkResult;
-            // 针对自定义 ID 的情况做重复判断
-            if (isUseCustomId) {
-                checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), projectId);
-                if (null != checkResult) {  //该ID在当前项目中存在
-                    process.add(Translator.get("custom_num_is_exist"), nodePath + "/" + compartData.getName());
-                    return false;
-                }
-            }
-        }
-
         if (validatePass) {
             this.continueValidatedCase.add(data);
         }
@@ -280,7 +289,6 @@ public class XmindCaseParser {
         for (Attached item : attacheds) {
             if (isAvailable(item.getTitle(), TC_REGEX)) {
                 item.setParent(parent);
-                // 格式化一个用例
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
                 String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
@@ -353,8 +361,8 @@ public class XmindCaseParser {
      */
     private void formatTestCase(String title, String nodePath, List<Attached> attacheds) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-        testCase.setProjectId(request.getProjectId());
-        testCase.setMaintainer(request.getUserId());
+        testCase.setProjectId(projectId);
+        testCase.setMaintainer(maintainer);
         testCase.setPriority(priorityList.get(0));
         testCase.setMethod("manual");
         testCase.setType("functional");
@@ -408,7 +416,7 @@ public class XmindCaseParser {
             });
         }
         testCase.setRemark(rc.toString());
-        if (request.isUseCustomId() || StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Update.name())) {
+        if (isUseCustomId || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
             testCase.setCustomNum(customId.toString());
         }
 
@@ -444,7 +452,6 @@ public class XmindCaseParser {
                             String nodePath = item.getTitle();
                             item.setPath(nodePath);
                             if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
-                                // 递归处理案例数据
                                 recursion(item, 1, item.getChildren().getAttached());
                             } else {
                                 if (!nodePath.startsWith("/")) {

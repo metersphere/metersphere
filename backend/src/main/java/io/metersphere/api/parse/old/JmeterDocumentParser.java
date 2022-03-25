@@ -1,7 +1,6 @@
 package io.metersphere.api.parse.old;
 
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.XMLUtils;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
@@ -35,7 +34,6 @@ public class JmeterDocumentParser {
     public static byte[] parse(byte[] source) {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        XMLUtils.setExpandEntityReferencesFalse(factory);
         try (
                 ByteArrayInputStream byteStream = new ByteArrayInputStream(source)
         ) {

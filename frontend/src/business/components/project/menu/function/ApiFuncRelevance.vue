@@ -4,7 +4,6 @@
     @setProject="setProject"
     @save="save"
     :plan-id="planId"
-    :dialog-title="dialogTitle"
     ref="baseRelevance">
 
     <template v-slot:aside>
@@ -25,8 +24,7 @@
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
       :project-id="projectId"
-      :is-test-plan="isTestPlan"
-      :is-script="isScript"
+      :is-test-plan="true"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiList"/>
@@ -37,8 +35,7 @@
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
       :project-id="projectId"
-      :is-test-plan="isTestPlan"
-      :is-script="isScript"
+      :is-test-plan="true"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiCaseList"/>
@@ -71,7 +68,6 @@ export default {
       currentModule: null,
       selectNodeIds: [],
       moduleOptions: {},
-      dialogTitle:this.$t('test_track.plan_view.relevance_test_case'),
       trashEnable: false,
       isApiListEnable: true,
       condition: {},
@@ -83,42 +79,12 @@ export default {
   props: {
     planId: {
       type: String
-    },
-    isTestPlan: {
-      type: Boolean,
-      default() {
-        return true;
-      }
-    },
-    isScript: {
-      type: Boolean,
-      default() {
-        return false;
-      }
-    }
-  },
-  created() {
-    if(this.isScript){
-      if(this.isApiListEnable){
-        this.dialogTitle = this.$t('permission.project_api_definition.import_api');
-      }else {
-        this.dialogTitle = this.$t('permission.project_track_case.import');
-      }
     }
   },
   watch: {
     planId() {
       this.condition.planId = this.planId;
     },
-    isApiListEnable(){
-      if(this.isScript){
-        if(this.isApiListEnable){
-          this.dialogTitle = this.$t('permission.project_api_definition.import_api');
-        }else {
-          this.dialogTitle = this.$t('permission.project_track_case.import');
-        }
-      }
-    }
   },
   methods: {
     open() {

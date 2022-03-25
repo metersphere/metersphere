@@ -62,20 +62,15 @@
     </el-card>
 
     <!-- 创建、编辑、复制环境时的对话框 -->
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%">
-      <template #title>
-        <ms-dialog-header :title="dialogTitle"
-                          @cancel="dialogVisible = false"
-                          @confirm="save"/>
-      </template>
-      <el-form label-width="80px" :rules="rules" style="display: flow-root">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" top="50px" width="66%">
+      <el-form label-width="80px" :rules="rules">
         <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
           <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
             <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
-      <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
+      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"
                         :project-id="currentProjectId" @refreshAfterSave="refresh">
       </environment-edit>
     </el-dialog>
@@ -143,7 +138,6 @@ import EnvironmentImport from "@/business/components/project/menu/EnvironmentImp
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import {_handleSelect, _handleSelectAll, getSelectDataCounts, setUnSelectIds} from "@/common/js/tableUtils";
 import EnvGroupCascader from "@/business/components/settings/workspace/environment/EnvGroupCascader";
-import MsDialogHeader from "../../../common/components/MsDialogHeader";
 
 export default {
   name: "EnvironmentList",
@@ -160,8 +154,7 @@ export default {
     MsTableOperator,
     MsTableButton,
     MsTableHeader,
-    ShowMoreBtn,
-    MsDialogHeader
+    ShowMoreBtn
   },
   data() {
     return {
@@ -196,8 +189,7 @@ export default {
         {
           name: this.$t('workspace.env_group.batch_add_to_ws'), handleClick: this.batchAddToGroup
         },
-      ],
-      ifCreate: false, //是否是创建环境
+      ]
     };
   },
   created() {
@@ -270,7 +262,6 @@ export default {
       if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
         this.$get("/project/listAll", (response) => {
           this.projectList = response.data;  //获取当前工作空间所拥有的项目,
-          this.projectFilters = [];
           this.projectList.forEach(project => {
             this.idNameMap.set(project.id, project.name);
             this.projectIds.push(project.id);
@@ -279,10 +270,10 @@ export default {
               value: project.id,
             });
           });
-          this.getEnvironments(this.condition.projectIds);
+          this.getEnvironments();
         });
       } else {
-        this.getEnvironments(this.condition.projectIds);
+        this.getEnvironments();
       }
     },
     getEnvironments(projectIds) {
@@ -302,7 +293,6 @@ export default {
       this.currentProjectId = '';
       this.dialogTitle = this.$t('api_test.environment.create');
       this.dialogVisible = true;
-      this.ifCreate = true;
       this.currentEnvironment = new Environment();
     },
     search() {
@@ -316,11 +306,8 @@ export default {
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
       this.currentEnvironment = temEnv;
       this.dialogVisible = true;
-      this.ifCreate = false;
     },
-    save(){
-      this.$refs.environmentEdit.save();
-    },
+
     copyEnv(environment) {
       this.currentProjectId = environment.projectId;  //复制时默认选择所要复制环境对应的项目
       this.dialogTitle = this.$t('api_test.environment.copy_environment');
@@ -418,8 +405,8 @@ export default {
               return "SHOW_INFO";
             }
             let obj = config.httpConfig.conditions[0];
-            if (obj.protocol && obj.socket) {
-              return obj.protocol + "://" + obj.socket;
+            if (obj.protocol && obj.domain) {
+              return obj.protocol + "://" + obj.domain;
             }
           } else if (config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";

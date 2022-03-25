@@ -71,14 +71,4 @@ public class BaseQueryRequest {
      * 要查询的字段
      */
     private List<String> selectFields;
-
-    /**
-     * 版本 ID
-     */
-    private String versionId;
-
-    /**
-     * 版本来源字段
-     */
-    private String refId;
 }

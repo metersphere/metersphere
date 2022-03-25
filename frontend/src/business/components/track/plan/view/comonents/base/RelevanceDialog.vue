@@ -7,10 +7,6 @@
              :destroy-on-close="true"
              top="50px" append-to-body>
 
-    <template #title>
-      <slot name="title" :title="title"></slot>
-    </template>
-
     <el-header class="header-btn">
       <slot name="headerBtn"></slot>
     </el-header>

@@ -23,13 +23,13 @@
     <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
                :withHeader="true" :modal="false" :title="$t('commons.notice_center')" size="550px"
                custom-class="ms-drawer-task">
-      <div style="margin: 0 20px 0">
+      <div style="margin: 0px 20px 0px">
         <el-tabs :active-name="activeName">
           <el-tab-pane :label="$t('commons.mentioned_me_notice')" name="mentionedMe">
-            <notification-data ref="mentionedMe" :user-list="userList" type="MENTIONED_ME"/>
+            <mentioned-me-data ref="mentionedMe" :user-list="userList"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('commons.system_notice')" name="systemNotice">
-            <notification-data ref="systemNotice" :user-list="userList" type="SYSTEM_NOTICE"/>
+            <system-notice-data ref="systemNotice" :user-list="userList"/>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -43,13 +43,15 @@ import MsDrawer from "../common/components/MsDrawer";
 import {getCurrentUserId} from "@/common/js/utils";
 import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
+import SystemNoticeData from "@/business/components/notice/components/SystemNoticeData";
+import MentionedMeData from "@/business/components/notice/components/MentionedMeData";
 import {getOperation, getResource} from "@/business/components/notice/util";
-import NotificationData from "@/business/components/notice/components/NotificationData";
 
 export default {
   name: "MsNotification",
   components: {
-    NotificationData,
+    MentionedMeData,
+    SystemNoticeData,
     MsTipButton,
     MsDrawer,
     MsRequestResultTail

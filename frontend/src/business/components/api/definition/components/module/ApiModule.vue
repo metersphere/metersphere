@@ -46,26 +46,26 @@
 </template>
 
 <script>
-import MsAddBasisApi from "../basis/AddBasisApi";
-import SelectMenu from "../../../../track/common/SelectMenu";
-import {OPTIONS} from "../../model/JsonData";
-import ApiImport from "../import/ApiImport";
-import MsNodeTree from "../../../../track/common/NodeTree";
-import ApiModuleHeader from "./ApiModuleHeader";
-import {buildTree} from "../../model/NodeTree";
-import {getCurrentProjectID} from "@/common/js/utils";
+  import MsAddBasisApi from "../basis/AddBasisApi";
+  import SelectMenu from "../../../../track/common/SelectMenu";
+  import {OPTIONS} from "../../model/JsonData";
+  import ApiImport from "../import/ApiImport";
+  import MsNodeTree from "../../../../track/common/NodeTree";
+  import ApiModuleHeader from "./ApiModuleHeader";
+  import {buildTree} from "../../model/NodeTree";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
-export default {
-  name: 'MsApiModule',
-  components: {
-    ApiModuleHeader,
-    MsNodeTree,
-    MsAddBasisApi,
-    SelectMenu,
-    ApiImport
-  },
-  data() {
-    return {
+  export default {
+    name: 'MsApiModule',
+    components: {
+      ApiModuleHeader,
+      MsNodeTree,
+      MsAddBasisApi,
+      SelectMenu,
+      ApiImport
+    },
+    data() {
+      return {
         openType: 'relevance',
         result: {},
         condition: {
@@ -81,15 +81,14 @@ export default {
       isReadOnly: {
         type: Boolean,
         default() {
-          return false;
+          return false
         }
       },
       showOperator: Boolean,
       planId: String,
-      currentVersion: String,
       relevanceProjectId: String,
       reviewId: String,
-      pageSource: String,
+      pageSource:String,
       total: Number,
       options: {
         type: Array,
@@ -166,11 +165,9 @@ export default {
         if (this.isPlanModel) {
           url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
         } else if (this.isRelevanceModel) {
-          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
+          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol;
         } else {
-          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
+          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol;
           if (!this.projectId) {
             return;
           }
@@ -179,7 +176,6 @@ export default {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
             this.data.forEach(node => {
-              node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
               buildTree(node, {path: ''});
             });
             this.$emit('setModuleOptions', this.data);

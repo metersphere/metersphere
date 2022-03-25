@@ -8,7 +8,7 @@
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
                       :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
-                       :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                      @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
                 <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
@@ -110,18 +110,12 @@
       <div v-if="apiCase.active||type==='detail'" v-loading="loading">
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers "
-                             :response="apiCase.responseData" :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <tcp-format-parameters :showScript="true" :show-pre-script="true" :request="apiCase.request"
-                               :response="apiCase.responseData"
-                               v-if="api.method==='TCP'"/>
-        <esb-definition v-xpack :request="apiCase.request" :show-pre-script="true" :showScript="true"
-                        :response="apiCase.responseData"
-                        v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
-        <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" :response="apiCase.responseData"
-                                 v-if="api.protocol==='SQL'"/>
-        <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" :response="apiCase.responseData"
-                                   v-if="api.protocol==='DUBBO'"/>
+        <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <tcp-format-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
+        <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
+        <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
+        <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
+
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
         <div v-if="isXpack&&api.method==='ESB'">
@@ -130,11 +124,19 @@
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
+
+        <ms-jmx-step v-if="apiCase.request.hashTree && apiCase.request.hashTree.length > 0" :request="apiCase.request" :api-id="api.id" :response="apiCase.responseData"/>
+        <!-- 保存操作 -->
+        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
+                   v-if="type!=='detail'"
+                   v-prevent-re-click
+                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
+          {{ $t('commons.save') }}
+        </el-button>
       </div>
     </el-collapse-transition>
     <ms-change-history ref="changeHistory"/>
   </el-card>
-
 
 </template>
 
@@ -152,6 +154,7 @@ import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
 import MsApiExtendBtns from "../reference/ApiExtendBtns";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsRequestResultTail from "../response/RequestResultTail";
+import MsJmxStep from "../step/JmxStep";
 import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 
@@ -162,7 +165,6 @@ import {API_METHOD_COLOUR} from "../../model/JsonData";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import {hasPermission} from '@/common/js/utils';
-import ApiCaseHeader from "./ApiCaseHeader";
 
 export default {
   name: "ApiCaseItem",
@@ -190,11 +192,11 @@ export default {
     MsDubboBasisParameters,
     MsApiExtendBtns,
     MsRequestResultTail,
+    MsJmxStep,
     ShowMoreBtn,
     MsChangeHistory,
     "esbDefinition": esbDefinition.default,
-    "esbDefinitionResponse": esbDefinitionResponse.default ,
-    ApiCaseHeader
+    "esbDefinitionResponse": esbDefinitionResponse.default
   },
   data() {
     return {
@@ -204,7 +206,6 @@ export default {
       resultMap: new Map([
         ['success', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('test_track.plan_view.pass')],
         ['error', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('api_test.home_page.detail_card.execution_failed')],
-        ['errorReportResult', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('error_report_library.option.name')],
         ['default', this.$t('test_track.plan_view.execute_result') + '：' + this.$t('api_test.home_page.detail_card.unexecute')]
       ]),
       isXpack: false,
@@ -222,7 +223,6 @@ export default {
       showFollow: false,
       beforeRequest: {},
       compare: [],
-      isSave: false
     }
   },
   props: {
@@ -287,7 +287,7 @@ export default {
     },
     hasPermission,
     openHis(row) {
-      this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case", "API_DEFINITION_CASE"]);
+      this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case"]);
     },
     getColor(enable, method) {
       if (enable) {
@@ -407,14 +407,12 @@ export default {
       }
     },
     saveCase(row, hideAlert) {
-      this.isSave = true;
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
       tmp.request.body = row.request.body;
       let bodyFiles = this.getBodyUploadFiles(tmp);
       tmp.projectId = getCurrentProjectID();
       tmp.active = true;
-      tmp.request.useEnvironment = this.environment;
       tmp.apiDefinitionId = tmp.apiDefinitionId || this.api.id;
       let url = "/api/testcase/create";
       if (tmp.id) {
@@ -424,7 +422,6 @@ export default {
         tmp.id = tmp.request.id;
         row.request.id = tmp.request.id;
         tmp.request.path = this.api.path;
-        tmp.versionId = this.api.versionId;
         if (tmp.request.protocol != "dubbo://" && tmp.request.protocol != "DUBBO") {
           tmp.request.method = this.api.method;
         }
@@ -456,7 +453,6 @@ export default {
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
           this.reload();
-          this.isSave = false;
           // 刷新编辑后用例列表
           if (this.api.source === "editCase") {
             this.$emit('reLoadCase');
@@ -465,8 +461,6 @@ export default {
             this.$emit('refresh');
           }
         }
-      }, (error) => {
-        this.isSave = false;
       });
     },
     saveTestCase(row, hideAlert) {
@@ -480,9 +474,7 @@ export default {
           this.addModule(row);
         } else {
           this.api.source = "editCase";
-          if (!this.isSave){
-            this.saveCase(row, hideAlert);
-          }
+          this.saveCase(row, hideAlert);
         }
       }
     },

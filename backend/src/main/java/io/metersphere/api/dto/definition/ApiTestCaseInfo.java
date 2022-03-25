@@ -8,6 +8,4 @@ import lombok.Setter;
 @Getter
 public class ApiTestCaseInfo extends ApiTestCaseWithBLOBs {
     private String apiMethod;
-    private String versionName;
-    private Boolean versionEnable;
 }

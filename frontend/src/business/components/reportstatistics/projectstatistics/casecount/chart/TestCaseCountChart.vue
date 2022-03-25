@@ -47,6 +47,8 @@ export default {
   name: "TestCaseCountChart",
   components: {MsChart},
   props: {
+    loadOption: {},
+    pieOption: {},
     chartWidth: Number,
     needFullScreen: Boolean,
     readOnly: Boolean,
@@ -54,8 +56,6 @@ export default {
   data() {
     return {
       dataOption: {},
-      loadOption: {},
-      pieOption: {},
       x: 0,
       y: 0,
       w: document.documentElement.clientWidth - 760,
@@ -124,14 +124,6 @@ export default {
         item.type = this.chartType;
       });
       this.reload();
-    },
-    setPieOptionAndBarOption(barOption,pieOption) {
-      if (barOption) {
-        this.loadOption = barOption;
-      }
-      if (pieOption) {
-        this.pieOption = pieOption;
-      }
     },
     reload() {
       this.loading = true

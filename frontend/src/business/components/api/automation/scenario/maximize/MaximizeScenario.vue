@@ -1,74 +1,30 @@
 <template>
-  <div style="width: 100%;overflow: hidden">
-    <div class="ms-header">
-      <el-row>
-        <el-col :span="1" v-show="scenarioDefinition.length > 1">
-          <div class="ms-div" style="margin-left: 10px">
-            <el-tooltip :content="$t('test_track.case.batch_operate')" placement="top" effect="light" v-show="!isBatchProcess">
-              <font-awesome-icon class="ms-batch-btn" :icon="['fa', 'bars']" v-prevent-re-click @click="batchProcessing"/>
-            </el-tooltip>
-            <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll"/>
-            <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
-              <font-awesome-icon class="ms-batch-btn" :icon="['fa', 'times']" v-prevent-re-click @click="cancelBatchProcessing"/>
-            </el-tooltip>
-          </div>
-        </el-col>
-
-        <el-col :span="9">
-          <div class="ms-div" @click="showAll">
-            <!-- 调试部分 -->
-            <el-row>
-              <el-col :span="8">
-                <el-tooltip placement="top" :content="currentScenario.name">
-                  <span style="margin-left: 10px">{{ currentScenario.name }}</span>
-                </el-tooltip>
-              </el-col>
-              <el-col :span="8">
-                {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
-              </el-col>
-              <el-col :span="8">
-                <el-link class="head" @click="showScenarioParameters">{{ $t('api_test.automation.scenario_total') }}</el-link>
-                ：{{ getVariableSize() }}
-              </el-col>
-            </el-row>
-          </div>
-
-        </el-col>
-        <el-col :span="12">
-          <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
-          <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{ $t('commons.failure_continues') }}</el-checkbox>
-          <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
-                       :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                       :environment-type.sync="envType" :group-id="envGroupId"
-                       @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right" :has-option-group="true"
-                       :result="envResult"/>
-
-          <el-dropdown split-button type="primary" @click="debugScenario" style="margin:0px 10px 0px" size="mini" @command="handleCommand" v-show="!debugLoading">
-            {{ $t('api_test.request.debug') }}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-          <el-button size="mini" type="primary" style="margin:0px 10px 0px" v-show="debugLoading" @click="stop">{{ $t('report.stop_btn') }}</el-button>
-        </el-col>
-
-        <font-awesome-icon class="ms-min-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
-      </el-row>
-    </div>
-
+  <div>
     <!-- 场景步骤-->
     <ms-container :class="{'maximize-container': !asideHidden}">
-      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px;overflow: hidden">
-        <div class="ms-debug-result" v-if="reqTotal > 0">
-          <span style="float: right">
-             <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
+      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px">
+        <!-- 场景步骤内容 -->
+        <div v-loading="loading" v-if="!asideHidden">
+          <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
+            <i class="el-icon-circle-plus-outline  ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
+          </el-tooltip>
+          <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+            <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion"/>
+          </el-tooltip>
+          <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light" v-if="!stepEnable">
+            <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" @click="enableAll"/>
+          </el-tooltip>
+          <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
+            <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" @click="disableAll"/>
+          </el-tooltip>
+          <span class="ms-debug-result" v-if="debug">
+              <div class="ms-debug-result" v-if="debug">
+                <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
                 <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
                 <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
                 <span class="ms-message-right"> {{ $t('api_test.automation.request_error') }} {{ reqError }}</span>
+              </div>
           </span>
-        </div>
-        <!-- 场景步骤内容 -->
-        <div v-loading="loading" v-if="!asideHidden">
           <el-tree node-key="resourceId"
                    v-if="showHideTree && !asideHidden"
                    :props="props"
@@ -76,46 +32,28 @@
                    :default-expanded-keys="expandedNode"
                    :expand-on-click-node="false"
                    highlight-current
-                   :show-checkbox="isBatchProcess"
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
-                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" class="ms-tree" ref="maxStepTree">
-            <el-row class="custom-tree-node" :gutter="18" type="flex" align="middle" slot-scope="{node, data}" style="width: 98%">
-              <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
-                <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e" @click="openOrClose(node)"/>
-                <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e" @click="openOrClose(node)"/>
-              </el-col>
-              <!-- 批量操作 -->
-              <el-col :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'" style="padding-left: 0px; padding-right: 0px;"
-                      v-show="(data.hashTree && data.hashTree.length === 0 )|| data.isLeaf">
-                <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts" v-show="data.checkBox" style="margin-right: 3px"/>
-              </el-col>
-              <el-col>
+                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick">
+              <span class="custom-tree-node father" slot-scope="{ node, data}">
                 <!-- 步骤组件-->
-                <ms-component-config
-                  :isMax="true"
-                  :type="data.type"
-                  :scenario="data"
-                  :response="response"
-                  :currentScenario="currentScenario"
-                  :currentEnvironmentId="currentEnvironmentId"
-                  :node="node"
-                  :project-list="projectList"
-                  :env-map="projectEnvMap"
-                  :message="message"
-                  @remove="remove" @copyRow="copyRow"
-                  @runScenario="runScenario"
-                  @stopScenario="stopScenario"
-                  @suggestClick="suggestClick"
-                  @refReload="refReload" @openScenario="openScenario"
-                  v-if="stepFilter.get('ALlSamplerStep').indexOf(data.type) ===-1
-                         || (!node.parent || !node.parent.data || stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1)"
-                />
-                <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none;">
-                  {{ hideNode(node) }}
-                </div>
-              </el-col>
-            </el-row>
+                 <ms-component-config
+                   :isMax="true"
+                   :type="data.type"
+                   :scenario="data"
+                   :response="response"
+                   :currentScenario="currentScenario"
+                   :currentEnvironmentId="currentEnvironmentId"
+                   :node="node"
+                   :project-list="projectList"
+                   :env-map="projectEnvMap"
+                   :message="message"
+                   @remove="remove" @copyRow="copyRow"
+                   @runScenario="runScenario"
+                   @stopScenario="stopScenario"
+                   @suggestClick="suggestClick"
+                   @refReload="refReload" @openScenario="openScenario"/>
+              </span>
           </el-tree>
           <div @click="fabClick">
             <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
@@ -150,9 +88,7 @@
             :node="selectedNode"
             :project-list="projectList"
             :env-map="projectEnvMap"
-            :scenario-definition="scenarioDefinition"
             :draggable="false"
-            @editScenarioAdvance="editScenarioAdvance"
             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
             v-if="selectedTreeNode && selectedNode"/>
           <!-- 请求下还有的子步骤-->
@@ -171,7 +107,7 @@
                 :draggable="false"
                 @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
                 @refReload="refReload" @openScenario="openScenario"
-                v-show="selectedTreeNode && selectedNode && stepFilter.get('ALlSamplerStep').indexOf(item.type) ===-1"/>
+                v-if="selectedTreeNode && selectedNode"/>
             </div>
           </div>
         </div>
@@ -217,7 +153,7 @@
 import {API_STATUS, PRIORITY} from "../../../definition/model/JsonData";
 import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, STEP} from "../Setting";
-import {exportPdf, getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {handleCtrlSEvent} from "../../../../../../common/js/utils";
@@ -226,7 +162,6 @@ import {buttons, setComponent} from '../menu/Menu';
 import MsContainer from "../../../../common/components/MsContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
-import html2canvas from "html2canvas";
 // import MsAsideContainer from "./MsLeftContainer";
 
 let jsonPath = require('jsonpath');
@@ -246,10 +181,6 @@ export default {
     reqError: Number,
     reqTotalTime: Number,
     message: String,
-    environmentType: String,
-    groupId: String,
-    projectIds: Set,
-    projectList: Array,
   },
   components: {
     MsAsideContainer,
@@ -266,14 +197,12 @@ export default {
     ApiImport: () => import("../../../definition/components/import/ApiImport"),
     MsComponentConfig: () => import("../component/ComponentConfig"),
     EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
-    ShowMoreBtn: () => import( "@/business/components/track/case/components/ShowMoreBtn"),
   },
   data() {
     return {
       props: {
         label: "label",
-        children: "hashTree",
-        disabled: false
+        children: "hashTree"
       },
       rules: {
         name: [
@@ -286,7 +215,6 @@ export default {
         principal: [{required: true, message: this.$t('api_test.definition.request.responsible'), trigger: 'change'}],
       },
       environments: [],
-      projectEnvMap: Map,
       currentEnvironmentId: "",
       maintainerOptions: [],
       value: API_STATUS[0].id,
@@ -313,51 +241,16 @@ export default {
         spacing: 30
       },
       response: {},
+      projectIds: new Set,
+      projectEnvMap: new Map,
+      projectList: [],
       debugResult: new Map,
       expandedStatus: false,
       stepEnable: true,
       debugLoading: false,
       buttonData: [],
       stepFilter: new STEP,
-      asideHidden: false,
-      selectDataCounts: 0,
-      batchOperators: [
-        {
-          name: this.$t('api_test.automation.bulk_activation_steps'),
-          handleClick: this.enableAll,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
-        },
-        {
-          name: this.$t('api_test.automation.batch_disable_steps'),
-          handleClick: this.disableAll,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
-        },
-        {
-          name: this.$t('api_test.automation.open_expansion'),
-          handleClick: this.openExpansion,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
-        },
-        {
-          name: this.$t('api_test.automation.close_expansion'),
-          handleClick: this.closeExpansion,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
-        },
-        {
-          name: this.$t('api_test.definition.request.batch_delete') + "步骤",
-          handleClick: this.handleDeleteBatch,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
-        },
-      ],
-      reloadKey: "",
-      envType: this.environmentType,
-      envGroupId: this.groupId,
-      cookieShare: false,
-      sampleError: true,
-      envResult: {
-        loading: false
-      },
-      isBatchProcess: false,
-      isCheckedAll: false,
+      asideHidden: false
     }
   },
   created() {
@@ -365,22 +258,22 @@ export default {
       this.currentScenario.apiScenarioModuleId = "";
     }
     this.operatingElements = this.stepFilter.get("ALL");
+    this.projectEnvMap = this.envMap;
     this.stepEnable = this.stepReEnable;
     this.initPlugins();
     this.buttonData = buttons(this);
-    this.projectEnvMap = this.envMap;
   },
   mounted() {
     this.$refs.refFab.openMenu();
   },
 
   watch: {
+    envMap() {
+      this.projectEnvMap = this.envMap;
+    },
     reloadDebug() {
       this.reload();
-    },
-    debug() {
-      this.debugLoading = this.debug;
-    },
+    }
   },
   directives: {OutsideClick},
   computed: {
@@ -519,7 +412,6 @@ export default {
           arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
         }
         if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-          this.hideTreeNode(arr[i], arr[i].hashTree);
           this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
         // 添加debug结果
@@ -527,30 +419,6 @@ export default {
           arr[i].requestResult = this.debugResult.get(arr[i].id + arr[i].name);
         }
       }
-    },
-    openOrClose(node) {
-      node.expanded = !node.expanded;
-      if (node.expanded) {
-        this.nodeExpand(node.data);
-      } else {
-        this.nodeCollapse(node.data);
-      }
-    },
-    hideNode(node) {
-      node.isLeaf = true;
-      node.visible = false;
-    },
-    hideTreeNode(node, array) {
-      let isLeaf = true;
-      array.forEach(item => {
-        if (this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
-          isLeaf = false;
-        }
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.hideTreeNode(item, item.hashTree);
-        }
-      })
-      node.isLeaf = isLeaf;
     },
     sort() {
       for (let i in this.scenarioDefinition) {
@@ -567,7 +435,6 @@ export default {
         }
 
         if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-          this.hideTreeNode(this.scenarioDefinition[i], this.scenarioDefinition[i].hashTree);
           this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
         }
         // 添加debug结果
@@ -607,7 +474,6 @@ export default {
       this.reload();
       this.initProjectIds();
       this.scenarioVisible = false;
-      this.cancelBatchProcessing();
     },
     setApiParameter(item, refType, referenced) {
       let request = {};
@@ -649,7 +515,6 @@ export default {
       this.sort();
       this.reload();
       this.initProjectIds();
-      this.cancelBatchProcessing();
     },
     openTagConfig() {
       if (!this.projectId) {
@@ -719,10 +584,6 @@ export default {
         this.loading = false
       })
     },
-    debugScenario() {
-      this.debugLoading = true;
-      this.$emit('runDebug');
-    },
     runDebug() {
       /*触发执行操作*/
       let sign = this.$refs.envPopover.checkEnv();
@@ -730,31 +591,29 @@ export default {
         this.errorRefresh();
         return;
       }
-      if (this.$refs['currentScenario']) {
-        this.$refs['currentScenario'].validate((valid) => {
-          if (valid) {
-            Promise.all([
-              this.editScenario()]).then(val => {
-              if (val) {
-                this.debugData = {
-                  id: this.currentScenario.id,
-                  name: this.currentScenario.name,
-                  type: "scenario",
-                  variables: this.currentScenario.variables,
-                  referenced: 'Created',
-                  enableCookieShare: this.enableCookieShare,
-                  headers: this.currentScenario.headers,
-                  environmentMap: this.projectEnvMap,
-                  hashTree: this.scenarioDefinition
-                };
-                this.reportId = getUUID().substring(0, 8);
-              }
-            });
-          } else {
-            this.errorRefresh();
-          }
-        })
-      }
+      this.$refs['currentScenario'].validate((valid) => {
+        if (valid) {
+          Promise.all([
+            this.editScenario()]).then(val => {
+            if (val) {
+              this.debugData = {
+                id: this.currentScenario.id,
+                name: this.currentScenario.name,
+                type: "scenario",
+                variables: this.currentScenario.variables,
+                referenced: 'Created',
+                enableCookieShare: this.enableCookieShare,
+                headers: this.currentScenario.headers,
+                environmentMap: this.projectEnvMap,
+                hashTree: this.scenarioDefinition
+              };
+              this.reportId = getUUID().substring(0, 8);
+            }
+          });
+        } else {
+          this.errorRefresh();
+        }
+      })
     },
     getEnvironments() {
       if (this.projectId) {
@@ -998,15 +857,13 @@ export default {
     openExpansion() {
       this.expandedNode = [];
       this.expandedStatus = true;
-      let resourceIds = this.getAllResourceIds();
-      this.changeNodeStatus(resourceIds, this.scenarioDefinition);
+      this.changeNodeStatus(this.scenarioDefinition);
     },
     closeExpansion() {
       this.expandedStatus = false;
       this.expandedNode = [];
-      let resourceIds = this.getAllResourceIds();
-      this.changeNodeStatus(resourceIds, this.scenarioDefinition);
-      this.forceRerender();
+      this.changeNodeStatus(this.scenarioDefinition);
+      this.showHide();
     },
     stepNode() {
       //改变每个节点的状态
@@ -1019,12 +876,10 @@ export default {
         }
       }
     },
-    stepStatus(resourceIds, nodes) {
+    stepStatus(nodes) {
       for (let i in nodes) {
         if (nodes[i]) {
-          if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
-            nodes[i].enable = this.stepEnable;
-          }
+          nodes[i].enable = this.stepEnable;
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.stepStatus(nodes[i].hashTree);
           }
@@ -1033,200 +888,59 @@ export default {
     },
     enableAll() {
       this.stepEnable = true;
-      let resourceIds = this.getAllResourceIds();
-      this.stepStatus(resourceIds, this.scenarioDefinition);
+      this.stepNode();
     },
     disableAll() {
       this.stepEnable = false;
-      let resourceIds = this.getAllResourceIds();
-      this.stepStatus(resourceIds, this.scenarioDefinition);
-    },
-    handleDeleteBatch() {
-      this.getAllResourceIds().forEach(item => {
-        this.recursionDelete(item, this.scenarioDefinition);
-      });
-      this.sort();
-      this.forceRerender();
-    },
-    recursionDelete(resourceId, nodes) {
-      for (let i in nodes) {
-        if (nodes[i]) {
-          if (resourceId === nodes[i].resourceId) {
-            nodes.splice(i, 1);
-          } else {
-            if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
-              this.recursionDelete(resourceId, nodes[i].hashTree);
-            }
-          }
-        }
-      }
-    },
-    forceRerender() {
-      this.$nextTick(() => {
-        this.$store.state.forceRerenderIndex = getUUID();
-      });
-    },
-    getAllResourceIds() {
-      let selectValueArr = [];
-      if (this.$refs.maxStepTree) {
-        let checkNodes = this.$refs.maxStepTree.getCheckedNodes();
-        for (let node of checkNodes) {
-          selectValueArr.push(node.resourceId);
-        }
-      }
-      return selectValueArr;
+      this.stepNode();
     },
     runScenario(scenario) {
       this.$emit('runScenario', scenario);
     },
-    stopScenario() {
+    stopScenario(){
       this.$emit('stopScenario');
-    },
-    editScenarioAdvance(data) {
-      this.$emit('editScenarioAdvance', data);
-    },
-
-    batchProcessing() {
-      this.isBatchProcess = true;
-      this.expandedNode = [];
-      this.hideAllTreeNode(this.scenarioDefinition);
-      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
-        this.stepCheckedAll(true, this.$refs.maxStepTree.root.childNodes);
-      }
-      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
-        this.stepCheckedAll(false, this.$refs.maxStepTree.root.childNodes);
-      }
-      this.reload();
-    },
-    cancelBatchProcessing() {
-      this.isBatchProcess = false;
-      this.isCheckedAll = false;
-      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
-        this.stepCheckedAll(true, this.$refs.maxStepTree.root.childNodes);
-      }
-      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
-        this.stepCheckedAll(false, this.$refs.maxStepTree.root.childNodes);
-      }
-      this.selectDataCounts = 0;
-      this.commandTreeNode();
-      this.reload();
-    },
-    commandTreeNode(node, array) {
-      if (!array) {
-        array = this.scenarioDefinition;
-      }
-      let isLeaf = true;
-      array.forEach(item => {
-        item.checkBox = false;
-        if (isLeaf && this.stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1) {
-          isLeaf = false;
-        }
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.commandTreeNode(item, item.hashTree);
-        }
-      })
-      if (node) {
-        node.isBatchProcess = this.isBatchProcess;
-        node.checkBox = false;
-        node.isLeaf = isLeaf;
-      }
-    },
-    checkedAll(v) {
-      if (this.$refs.maxStepTree && this.$refs.maxStepTree.root && this.$refs.maxStepTree.root.childNodes) {
-        this.stepCheckedAll(v, this.$refs.maxStepTree.root.childNodes);
-      }
-    },
-    stepCheckedAll(v, array) {
-      if (array) {
-        array.forEach(item => {
-          if (item.childNodes && item.childNodes.length > 0) {
-            this.stepCheckedAll(v, item.childNodes);
-          }
-          item.checked = v;
-        })
-      }
-    },
-    reloadTreeStatus() {
-      this.reloadKey = "";
-      this.$nextTick(() => {
-        this.reloadKey = "reload";
-        let row = {resourceId: "ms-reload-max-test"};
-        if (this.$refs.maxStepTree && this.$refs.maxStepTree.root.data) {
-          this.$refs.maxStepTree.root.data.push(row);
-          this.$refs.maxStepTree.root.data.splice(this.$refs.maxStepTree.root.data.length - 1, 1);
-        }
-      });
-    },
-    hideAllTreeNode(array) {
-      array.forEach(item => {
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.hideAllTreeNode(item.hashTree);
-        }
-        item.isLeaf = this.isBatchProcess;
-        item.isBatchProcess = this.isBatchProcess;
-        item.checkBox = this.isBatchProcess;
-      })
-    },
-    handleExport() {
-      let name = this.$t('commons.report_statistics.test_case_analysis');
-      this.$nextTick(function () {
-        setTimeout(() => {
-          html2canvas(document.getElementById('reportAnalysis'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
-          });
-        }, 1000);
-      });
-    },
-    stop() {
-      this.debugLoading = false;
-      this.$emit('stop');
-    },
-    close() {
-      this.$emit('closePage', this.currentScenario.name);
-    },
-    unFullScreen() {
-      this.$emit('unFullScreen');
-    },
-    handleCommand() {
-      this.debug = false;
-      this.debugLoading = false;
-      this.$emit('handleCommand');
-    },
-    setCookieShare() {
-      this.$emit('setCookieShare', this.cookieShare);
-    },
-    setOnSampleError() {
-      this.$emit('setSampleError', this.sampleError);
-    },
-
-    showPopover() {
-      let definition = JSON.parse(JSON.stringify(this.currentScenario));
-      definition.hashTree = this.scenarioDefinition;
-      this.envResult.loading = true;
-      this.getEnv(JSON.stringify(definition)).then(() => {
-        this.$refs.envPopover.openEnvSelect();
-        this.envResult.loading = false;
-      })
-    },
-    getEnv(definition) {
-      return new Promise((resolve) => {
-        this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
-          if (res.data) {
-            res.data.projectIds.push(this.projectId);
-            this.$emit("update:projectIds", new Set(res.data.projectIds));
-            this.$emit("update:isFullUrl", res.data.fullUrl);
-          }
-          resolve();
-        })
-      });
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style scoped>
+.card-content {
+  height: calc(100vh - 196px);
+  overflow-y: auto;
+}
+
+.ms-scenario-input {
+  width: 100%;
+}
+
+.ms-main-div {
+  background-color: white;
+}
+
+.ms-debug-div {
+  border: 1px #DCDFE6 solid;
+  border-radius: 4px;
+  margin-right: 20px;
+}
+
+.ms-scenario-button {
+  margin-left: 20px;
+  padding: 7px;
+}
+
+.ms-api-col {
+  background-color: #7C3985;
+  border-color: #7C3985;
+  margin-right: 10px;
+  color: white;
+}
+
+.ms-font {
+  color: #303133;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-size: 13px;
+}
 
 .ms-col-one {
   margin-top: 10px;
@@ -1274,9 +988,8 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 9;
+  z-index: 1;
 }
-
 
 .ms-tree >>> .el-tree-node__expand-icon.expanded {
   -webkit-transform: rotate(0deg);
@@ -1284,9 +997,8 @@ export default {
 }
 
 .ms-tree >>> .el-icon-caret-right:before {
-  /*content: '\e723';*/
-  padding: 0;
-  content: "";
+  content: '\e723';
+  font-size: 20px;
 }
 
 .ms-tree >>> .el-tree-node__expand-icon.is-leaf {
@@ -1299,9 +1011,8 @@ export default {
 
 .ms-tree >>> .el-tree-node__expand-icon.expanded.el-icon-caret-right:before {
   color: #7C3985;
-  /* content: "\e722";*/
-  padding: 0;
-  content: "";
+  content: "\e722";
+  font-size: 20px;
 }
 
 .ms-sc-variable-header >>> .el-dialog__body {
@@ -1316,15 +1027,53 @@ export default {
   display: none;
 }
 
+.scenario-aside {
+  min-width: 400px;
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid #EBEEF5;
+  box-sizing: border-box;
+}
+
+.scenario-main {
+  position: relative;
+  margin-left: 20px;
+  border: 1px solid #EBEEF5;
+}
+
+.scenario-list {
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 28px;
+}
+
 .father:hover .child {
   display: block;
 }
 
+.ms-open-btn {
+  margin: 5px 5px 0px;
+  color: #6D317C;
+  font-size: 20px;
+}
+
+.ms-open-btn:hover {
+  background-color: #F2F9EE;
+  cursor: pointer;
+  color: #67C23A;
+}
+
+.ms-open-btn-left {
+  margin-left: 30px;
+}
+
 .ms-debug-result {
-  font-size: 12px;
-  margin-right: 20px;
+  float: right;
+  margin-right: 30px;
   margin-top: 3px;
-  height: 20px;
 }
 
 .ms-message-right {
@@ -1332,59 +1081,10 @@ export default {
 }
 
 .maximize-container .ms-aside-container {
-  min-width: 500px;
-}
-
-.custom-tree-node-hide {
-  width: 10px;
-  padding: 0px;
-  vertical-align: center;
+  min-width: 680px;
 }
 
 .ms-aside-container {
   height: calc(100vh - 50px) !important;
-}
-
-.custom-node_e {
-  color: #7C3985;
-  font-size: 20px;
-}
-
-.custom-tree-node-col {
-  width: 10px;
-  padding: 0px;
-}
-
-.ms-header {
-  border-bottom: 1px solid #E6E6E6;
-  width: 100%;
-  height: 36px;
-  background-color: #FFF;
-  font-size: 12px;
-}
-
-.ms-div {
-  margin-top: 10px;
-}
-
-.ms-min-alt-ico {
-  font-size: 15px;
-  margin: 10px 10px 0px;
-  float: right;
-  color: #8c939d;
-}
-
-.ms-min-alt-ico:hover {
-  color: black;
-  cursor: pointer;
-}
-
-.ms-batch-btn {
-  margin-left: 5px;
-}
-
-.ms-batch-btn:hover {
-  cursor: pointer;
-  color: #6D317C;
 }
 </style>

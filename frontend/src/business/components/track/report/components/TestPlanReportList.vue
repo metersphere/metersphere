@@ -4,82 +4,49 @@
       <ms-table-header :condition.sync="condition" :show-create="false"
                        @search="initTableData"/>
     </template>
+    <el-table border :data="tableData"
+              @select-all="handleSelectAll"
+              @select="handleSelect"
+              :height="screenHeight"
+              ref="testPlanReportTable"
+              row-key="id"
+              class="test-content adjust-table ms-select-all-fixed"
+              @filter-change="filter" @sort-change="sort">
 
-    <ms-table
-      v-loading="result.loading"
-      operator-width="170px"
-      row-key="id"
-      :data="tableData"
-      :condition="condition"
-      :total="total"
-      :page-size.sync="pageSize"
-      :operators="operators"
-      :screen-height="screenHeight"
-      :batch-operators="batchButtons"
-      :remember-order="true"
-      :fields.sync="fields"
-      :field-key="tableHeaderKey"
-      @handlePageChange="initTableData"
-      @refresh="initTableData"
-      ref="testPlanReportTable">
+      <el-table-column width="50" type="selection"/>
 
-      <span v-for="item in fields" :key="item.key">
+      <ms-table-header-select-popover v-show="total>0"
+                                      :page-size="pageSize > total ? total : pageSize"
+                                      :total="total"
+                                      :select-data-counts="selectDataCounts"
+                                      :table-data-count-in-page="tableData.length"
+                                      @selectPageAll="isSelectDataAll(false)"
+                                      @selectAll="isSelectDataAll(true)"/>
 
-      <ms-table-column
-        prop="name"
-        :field="item"
-        :fields-width="fieldsWidth"
-        sortable
-        :label="$t('test_track.report.list.name')"
-        :show-overflow-tooltip="false"
-        :editable="true"
-        :edit-content="$t('report.rename_report')"
-        @editColumn="openReNameDialog"
-        min-width="200px">
-      </ms-table-column>
+      <el-table-column width="30" :resizable="false" align="center">
+        <template v-slot:default="scope">
+          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+        </template>
+      </el-table-column>
 
-      <ms-table-column
-        prop="testPlanName"
-        :field="item"
-        :fields-width="fieldsWidth"
-        :label="$t('test_track.report.list.test_plan')"
-        min-width="100"/>
-
-      <ms-table-column
-        prop="creator"
-        :field="item"
-        :fields-width="fieldsWidth"
-        :label="$t('test_track.report.list.creator')"/>
-
-      <ms-table-column
-        prop="createTime"
-        :field="item"
-        :fields-width="fieldsWidth"
-        sortable
-        :label="$t('test_track.report.list.create_time')"
-        min-width="150px">
+      <el-table-column min-width="300" prop="name" :label="$t('test_track.report.list.name')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="testPlanName" min-width="150" sortable :label="$t('test_track.report.list.test_plan')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="creator" :label="$t('test_track.report.list.creator')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="createTime" sortable :label="$t('test_track.report.list.create_time' )"
+                       show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
-      </ms-table-column>
-
-      <ms-table-column
-        prop="triggerMode"
-        :field="item"
-        :fields-width="fieldsWidth"
-        sortable
-        :label="$t('test_track.report.list.trigger_mode')">
+      </el-table-column>
+      <el-table-column prop="triggerMode" :label="$t('test_track.report.list.trigger_mode')" show-overflow-tooltip>
         <template v-slot:default="scope">
           <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
         </template>
-      </ms-table-column>
-
-      <ms-table-column
-        prop="status"
-        :field="item"
-        :fields-width="fieldsWidth"
-        sortable
-        :label="$t('commons.status')">
+      </el-table-column>
+      <el-table-column prop="status" :label="$t('commons.status')">
         <template v-slot:default="scope">
           <ms-tag v-if="scope.row.status == 'RUNNING'" type="success" effect="plain" :content="'Running'"/>
           <ms-tag
@@ -87,38 +54,23 @@
             type="info" effect="plain" :content="'Completed'"/>
           <ms-tag v-else type="effect" effect="plain" :content="scope.row.status"/>
         </template>
-      </ms-table-column>
-
-      <ms-table-column
-        prop="runTime"
-        :field="item"
-        :fields-width="fieldsWidth"
-        sortable="custom"
-        :label="$t('test_track.report.list.run_time')">
+      </el-table-column>
+      <el-table-column min-width="150" :label="$t('commons.operating')">
         <template v-slot:default="scope">
-          <span v-if="scope.row.endTime != null">{{ (scope.row.runTime / 1000).toFixed(2) }}</span>
-          <span v-else>/</span>
+          <div>
+            <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
+                                      @exec="openReport(scope.row)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_REPORT:READ+DELETE']" type="danger"
+                                      :tip="$t('commons.delete')" icon="el-icon-delete"
+                                      @exec="handleDelete(scope.row)"/>
+          </div>
         </template>
-      </ms-table-column>
-
-      <ms-table-column
-        prop="passRate"
-        :field="item"
-        :fields-width="fieldsWidth"
-        :label="$t('test_track.report.list.pass_rate')">
-        <template v-slot:default="scope">
-          <span>{{ (scope.row.passRate ? (scope.row.passRate  * 100 ).toFixed(1) : 0) + '%'}}</span>
-        </template>
-      </ms-table-column>
-
-      </span>
-    </ms-table>
-
+      </el-table-column>
+    </el-table>
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
     <test-plan-report-view @refresh="initTableData" ref="testPlanReportView"/>
     <test-plan-db-report ref="dbReport"/>
-    <ms-rename-report-dialog ref="renameDialog" @submit="rename"></ms-rename-report-dialog>
   </el-card>
 </template>
 
@@ -143,16 +95,12 @@ import {
   initCondition,
   saveLastTableSortField,
   setUnSelectIds,
-  toggleAllSelection,
-  getCustomTableWidth,
-  getCustomTableHeader
+  toggleAllSelection
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {getCurrentProjectID} from "@/common/js/utils";
 import TestPlanDbReport from "@/business/components/track/report/components/TestPlanDbReport";
-import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
+
 export default {
   name: "TestPlanReportList",
   components: {
@@ -162,9 +110,6 @@ export default {
     MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
     ReportTriggerModeItem, MsTag,
     ShowMoreBtn, MsTableSelectAll,
-    MsTableColumn,
-    MsTable,
-    MsRenameReportDialog
   },
   data() {
     return {
@@ -173,7 +118,7 @@ export default {
       tableHeaderKey: "TRACK_REPORT_TABLE",
       queryPath: "/test/plan/report/list",
       condition: {
-        components: TEST_PLAN_REPORT_CONFIGS,
+        components: TEST_PLAN_REPORT_CONFIGS
       },
       currentPage: 1,
       pageSize: 10,
@@ -200,29 +145,6 @@ export default {
         },
       ],
       selectDataCounts: 0,
-
-      fields: getCustomTableHeader('TRACK_REPORT_TABLE'),
-      fieldsWidth: getCustomTableWidth('TRACK_REPORT_TABLE'),
-      operators: [],
-      batchButtons: [],
-      publicButtons: [
-        {
-          name: this.$t('api_test.definition.request.batch_delete'),
-          handleClick: this.handleDeleteBatch,
-          permission: ['PROJECT_TRACK_REPORT:READ+DELETE'],
-        },
-      ],
-      simpleOperators: [
-        {
-          tip: this.$t('test_track.plan_view.view_report'), icon: "el-icon-document",
-          exec: this.openReport,
-        },
-        {
-          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete,
-          permissions: ['PROJECT_TRACK_REPORT:READ+DELETE']
-        },
-      ],
     };
   },
   watch: {
@@ -234,8 +156,6 @@ export default {
   },
   created() {
     this.projectId = this.$route.params.projectId;
-    this.batchButtons = this.publicButtons;
-    this.operators = this.simpleOperators;
     if (!this.projectId) {
       this.projectId = getCurrentProjectID();
     }
@@ -305,7 +225,7 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             let deleteParam = {};
-            let ids = this.$refs.testPlanReportTable.selectIds;
+            let ids = Array.from(this.selectRows).map(row => row.id);
             deleteParam.dataIds = ids;
             deleteParam.projectId = this.projectId;
             deleteParam.selectAllDate = this.condition.selectAll;
@@ -361,16 +281,6 @@ export default {
     saveSortField(key, orders) {
       saveLastTableSortField(key, JSON.stringify(orders));
     },
-    openReNameDialog($event) {
-      this.$refs.renameDialog.open($event);
-    },
-    rename(data) {
-      this.$post("/test/plan/report/reName/", data, () => {
-        this.$success(this.$t("organization.integration.successful_operation"));
-        this.initTableData();
-        this.$refs.renameDialog.close();
-      });
-    }
   }
 };
 </script>

@@ -11,23 +11,17 @@
     :is-disabled="true"
     :is-max="isMax"
     :show-btn="showBtn"
-    :show-version="showVersion"
     color="#606266"
     background-color="#F4F4F5"
-    :if-from-variable-advance="ifFromVariableAdvance"
-    :environmentType="environmentType"
-    :environmentGroupId="environmentGroupId"
-    :envMap="envMap"
     :title="$t('commons.scenario')">
 
-    <template v-slot:afterTitle>
+    <template v-slot:afterTitle v-if="isSameSpace">
       <span v-if="isShowNum" @click="clickResource(scenario)">{{ "（ ID: " + scenario.num + "）" }}</span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
           <i class="el-icon-warning"/>
         </el-tooltip>
       </span>
-      <span v-xpack v-if="scenario.versionEnable">{{ $t('project.version.name') }}: {{ scenario.versionName }}</span>
     </template>
 
     <template v-slot:behindHeaderLeft>
@@ -45,7 +39,14 @@
         {{ getCode() }}
       </span>
     </template>
-    <template v-slot:button v-if="!ifFromVariableAdvance">
+    <template v-slot:scenarioEnable>
+      <el-tooltip :content="$t('commons.enable_scene_info')" placement="top">
+        <el-checkbox v-model="scenario.environmentEnable" @change="checkEnv" :disabled="scenario.disabled">
+          {{ $t('commons.enable_scene') }}
+        </el-checkbox>
+      </el-tooltip>
+    </template>
+    <template v-slot:button>
       <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
         <el-button :disabled="!scenario.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
       </el-tooltip>
@@ -67,14 +68,12 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
-import {STEP} from "@/business/components/api/automation/scenario/Setting";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
 
 export default {
   name: "ApiScenarioComponent",
   props: {
     scenario: {},
-    currentScenario: {},
     message: String,
     node: {},
     isMax: {
@@ -82,10 +81,6 @@ export default {
       default: false,
     },
     showBtn: {
-      type: Boolean,
-      default: true,
-    },
-    showVersion: {
       type: Boolean,
       default: true,
     },
@@ -97,11 +92,7 @@ export default {
     projectList: Array,
     environmentType: String,
     environmentGroupId: String,
-    envMap: Map,
-    ifFromVariableAdvance: {
-      type: Boolean,
-      default: false,
-    }
+    envMap: Map
   },
   watch: {
     message() {
@@ -110,20 +101,56 @@ export default {
       }
       this.reload();
     },
-    'node.data.isBatchProcess'() {
-      if (this.node.data && this.node.data.isBatchProcess && this.node.data.referenced === 'REF') {
-        this.node.expanded = false;
-      }
-    }
   },
   created() {
-    if (this.scenario.num) {
+    if(this.scenario.num){
       this.isShowNum = true;
-    } else {
-      this.isShowNum = false;
     }
-    if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
-      this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
+    if (!this.scenario.projectId) {
+      this.scenario.projectId = getCurrentProjectID();
+    }
+    if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
+      this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
+        if (response.data) {
+          this.scenario.loaded = true;
+          let obj = {};
+          if (response.data.scenarioDefinition) {
+            obj = JSON.parse(response.data.scenarioDefinition);
+            this.scenario.hashTree = obj.hashTree;
+          }
+          this.scenario.projectId = response.data.projectId;
+          const pro = this.projectList.find(p => p.id === response.data.projectId);
+          if (!pro) {
+            this.scenario.projectId = getCurrentProjectID();
+          }
+          if (this.scenario.hashTree) {
+            this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
+          }
+          if(response.data.num){
+            this.scenario.num = response.data.num;
+            this.getWorkspaceId(response.data.projectId);
+          }
+          this.scenario.name = response.data.name;
+          this.scenario.headers = obj.headers;
+          this.scenario.variables = obj.variables;
+          this.scenario.environmentMap = obj.environmentMap;
+          this.$emit('refReload');
+        }
+      })
+    }
+    else if(this.scenario.id && (this.scenario.referenced === 'Copy'||this.scenario.referenced === 'Created') && !this.scenario.loaded){
+      this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
+        if (response.data) {
+          if(response.data.num){
+            this.scenario.num = response.data.num;
+            this.getWorkspaceId(response.data.projectId);
+          }else {
+            this.isSameSpace = false
+          }
+        } else {
+          this.isSameSpace = false
+        }
+      })
     }
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
@@ -131,27 +158,25 @@ export default {
     return {
       loading: false,
       isShowInput: false,
-      isShowNum: false,
-      stepFilter: new STEP,
+      isShowNum:false,
+      isSameSpace:true
     }
   },
   computed: {
     isDeletedOrRef() {
-      return this.scenario.referenced !== undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF';
-
+      if (this.scenario.referenced != undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF') {
+        return true;
+      }
+      return false;
+    },
+    projectId() {
+      return getCurrentProjectID();
     },
   },
   methods: {
     run() {
-      if (!this.scenario.enable) {
-        this.$warning(this.$t('api_test.automation.debug_message'));
-        return;
-      }
       this.scenario.run = true;
-      let runScenario = JSON.parse(JSON.stringify(this.scenario));
-      runScenario.hashTree = [this.scenario];
-      runScenario.stepScenario = true;
-      this.$emit('runScenario', runScenario);
+      this.$emit('runScenario', this.scenario);
     },
     stop() {
       this.scenario.run = false;
@@ -199,11 +224,7 @@ export default {
     },
     active() {
       if (this.node) {
-        if (this.node.data && this.node.data.isBatchProcess && this.node.data.referenced === 'REF') {
-          this.node.expanded = false;
-        } else {
-          this.node.expanded = !this.node.expanded;
-        }
+        this.node.expanded = !this.node.expanded;
       }
       this.reload();
     },
@@ -223,7 +244,7 @@ export default {
       for (let i in arr) {
         arr[i].disabled = true;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
-        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
+        if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
           this.recursive(arr[i].hashTree, arr[i].projectId);
         }
       }
@@ -232,7 +253,7 @@ export default {
       for (let i in scenarioDefinition) {
         scenarioDefinition[i].disabled = true;
         scenarioDefinition[i].projectId = this.calcProjectId(scenarioDefinition[i].projectId, id);
-        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+        if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
           this.recursive(scenarioDefinition[i].hashTree, scenarioDefinition[i].projectId);
         }
       }
@@ -249,39 +270,30 @@ export default {
       }
     },
     getProjectName(id) {
-      if (id !== getCurrentProjectID()) {
+      if (this.projectId !== id) {
         const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
 
     },
     clickResource(resource) {
-      let workspaceId;
-      let isTurnSpace = true
-      if(resource.projectId!==getCurrentProjectID()){
-        isTurnSpace = false;
-        this.$get("/project/get/" + resource.projectId, response => {
-          if (response.data) {
-            workspaceId  = response.data.workspaceId;
-            isTurnSpace = true;
-            this.gotoTurn(resource,workspaceId,isTurnSpace);
-          }
-        });
-      }else {
-        this.gotoTurn(resource,workspaceId,isTurnSpace);
-      }
-
-    },
-    gotoTurn(resource,workspaceId,isTurnSpace){
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id,projectId:resource.projectId}
       });
-      if(isTurnSpace){
-        window.open(automationData.href, '_blank');
-      }
+      window.open(automationData.href, '_blank');
+    },
+    getWorkspaceId(projectId){
+      this.$get("/project/get/" + projectId, response => {
+        if(response.data){
+          if(response.data.workspaceId===getCurrentWorkspaceId()){
+            this.isShowNum = true;
+          }else {
+            this.isSameSpace = false;
+          }
+        }
+      });
     }
-
   }
 }
 </script>
@@ -301,7 +313,7 @@ export default {
 }
 
 .ms-tag {
-  margin-left: 0;
+  margin-left: 0px;
 }
 
 .ms-req-error {
@@ -346,8 +358,7 @@ export default {
 .ms-test-running {
   color: #6D317C;
 }
-
-.ms-num {
+.ms-num{
   margin-left: 1rem;
   font-size: 15px;
   color: #de9d1c;

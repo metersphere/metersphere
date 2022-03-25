@@ -23,11 +23,8 @@
         </el-tooltip>
       </el-col>
       <el-col class="assertion-btn">
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
-          <el-switch v-model="jsonPath.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right: 10px"/>
-        </el-tooltip>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
+        <el-button :disabled="isReadOnly" type="primary" size="small" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -91,7 +88,6 @@
       },
       getJSONPath() {
         let jsonPath = new JSONPath(this.jsonPath);
-        jsonPath.enable = true;
         jsonPath.description = jsonPath.expression + " expect: " + (jsonPath.expect ? jsonPath.expect : '');
         return jsonPath;
       },
@@ -119,6 +115,6 @@
 
   .assertion-btn {
     text-align: center;
-    width: 80px;
+    width: 60px;
   }
 </style>

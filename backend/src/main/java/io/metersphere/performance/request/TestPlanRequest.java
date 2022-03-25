@@ -32,10 +32,6 @@ public class TestPlanRequest {
 
     private String testResourcePoolId;
 
-    private String refId;
-
-    private String versionId;
-
     private List<String> follows;
 
     private static final long serialVersionUID = 1L;

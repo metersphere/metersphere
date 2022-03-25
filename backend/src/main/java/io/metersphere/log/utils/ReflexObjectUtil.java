@@ -176,7 +176,7 @@ public class ReflexObjectUtil {
                             column.setDiffValue(diffValue);
                         }
                         // 深度对比
-                        else if (StringUtils.equals(module, "API_DEFINITION")) {
+                        else if (StringUtils.equals(module, "api_definition")) {
                             if (originalColumns.get(i).getColumnName().equals("request")) {
                                 String newValue = newColumns.get(i).getOriginalValue().toString();
                                 String oldValue = column.getOriginalValue().toString();
@@ -186,21 +186,12 @@ public class ReflexObjectUtil {
                                 String oldValue = column.getOriginalValue().toString();
                                 column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
                             }
-                        }
-                        // 环境全局前后置脚本深度对比
-                        else if(StringUtils.equals(module, "PROJECT_ENVIRONMENT_SETTING")){
-                            if (originalColumns.get(i).getColumnName().equals("config")) {
-                                String newValue = newColumns.get(i).getOriginalValue().toString();
-                                String oldValue = column.getOriginalValue().toString();
-                                column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
-                            }
-                        }
-                        else {
+                        } else {
                             String newValue = column.getNewValue().toString();
                             if (StringUtils.isNotEmpty(newValue)) {
                                 column.setNewValue(newValue.replaceAll("\\n", " "));
                             }
-                            String oldValue = Objects.toString(column.getOriginalValue(), "");
+                            String oldValue = column.getOriginalValue().toString();
                             if (StringUtils.isNotEmpty(oldValue)) {
                                 column.setOriginalValue(oldValue.replaceAll("\\n", " "));
                             }
@@ -215,15 +206,15 @@ public class ReflexObjectUtil {
         return comparedColumns;
     }
 
-    private static String reviverJson(String str, String key, String option) {
+    private static String reviverJson(String str,String key,String option){
         JSONObject obj = new JSONObject(str);
         org.json.JSONArray arr = obj.getJSONArray(key);
         for (int i = 0; i < arr.length(); i++) {
             String s = arr.getString(i);
-            if (option.equals(DIFF_ADD)) {
-                s = DIFF_ADD + s;
+            if(option.equals(DIFF_ADD)){
+                s = DIFF_ADD+s;
             }
-            arr.put(i, s);
+            arr.put(i,s);
         }
         return obj.toString();
     }

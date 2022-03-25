@@ -17,11 +17,7 @@
                  ref="nodeTree"/>
     </template>
 
-    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false">
-      <template v-slot:searchBarBefore>
-        <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
-      </template>
-    </ms-table-header>
+    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false"/>
 
     <ms-table
       v-loading="page.result.loading"
@@ -48,17 +44,6 @@
       </ms-table-column>
 
       <ms-table-column prop="name" :label="$t('commons.name')"/>
-
-      <ms-table-column
-        v-if="versionEnable"
-        prop="versionId"
-        :filters="versionFilters"
-        :label="$t('commons.version')"
-        min-width="120px">
-        <template v-slot:default="scope">
-          <span>{{ scope.row.versionName }}</span>
-        </template>
-      </ms-table-column>
 
       <ms-table-column
         prop="priority"
@@ -116,9 +101,6 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
-import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "FunctionalRelevance",
@@ -134,10 +116,6 @@ export default {
     MsTableSearchBar,
     MsTableAdvSearchBar,
     MsTableHeader,
-    'VersionSelect': VersionSelect.default,
-  },
-  mounted(){
-    this.getVersionOptions();
   },
   data() {
     return {
@@ -156,8 +134,7 @@ export default {
         {text: 'P1', value: 'P1'},
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
-      ],
-      versionFilters: []
+      ]
     };
   },
   props: {
@@ -179,11 +156,7 @@ export default {
     multipleProject: {
       type: Boolean,
       default: true
-    },
-    versionEnable: {
-      type: Boolean,
-      default: false
-    },
+    }
   },
   watch: {
     selectNodeIds() {
@@ -256,20 +229,6 @@ export default {
         this.projectId = projectId;
       }
       this.getNodeTree(this);
-    },
-    getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions= response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
-    },
-    changeVersion(currentVersion) {
-      this.page.condition.versionId = currentVersion || null;
-      this.getTestCases();
     }
   }
 }

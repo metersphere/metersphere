@@ -6,7 +6,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.TestPlanTestCaseMapper;
-import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.issues.IssuesRelevanceRequest;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -43,13 +41,13 @@ public class TestCaseIssueService {
 
     public void delTestCaseIssues(String testCaseId) {
         TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andResourceIdEqualTo(testCaseId);
+        example.createCriteria().andTestCaseIdEqualTo(testCaseId);
         testCaseIssuesMapper.deleteByExample(example);
     }
 
     public List<TestCaseDTO> list(IssuesRelevanceRequest request) {
-        List<String> caseIds = getCaseIdsByIssuesId(request.getIssuesId());
-        List<TestCaseDTO> list = testCaseService.getTestCaseByIds(caseIds);
+        List<String> testCaseIds = getTestCaseIdsByIssuesId(request.getIssuesId());
+        List<TestCaseDTO> list = testCaseService.getTestCaseByIds(testCaseIds);
         testCaseService.addProjectName(list);
         return list;
     }
@@ -60,56 +58,37 @@ public class TestCaseIssueService {
         return testCaseIssuesMapper.selectByExample(example);
     }
 
-    /**
-     * 测试计划的用例获取对应的功能用例
-     * @param issuesId
-     * @return
-     */
-    public List<String> getCaseIdsByIssuesId(String issuesId) {
-        List<TestCaseIssues> testCaseIssueList = getTestCaseIssuesByIssuesId(issuesId);
-        List<String> caseIds = new ArrayList<>();
-        testCaseIssueList.forEach(i -> {
-            if (StringUtils.equals(i.getRefType(), IssueRefType.PLAN_FUNCTIONAL.name())) {
-                caseIds.add(i.getRefId());
-            } else {
-                caseIds.add(i.getResourceId());
-            }
-        });
-        return caseIds;
+    public List<String> getTestCaseIdsByIssuesId(String issuesId) {
+        return getTestCaseIssuesByIssuesId(issuesId).stream()
+                .map(TestCaseIssues::getTestCaseId)
+                .collect(Collectors.toList());
     }
 
     public void relate(IssuesRelevanceRequest request) {
-        if (StringUtils.isNotBlank(request.getCaseResourceId())) {
+        if (StringUtils.isNotBlank(request.getCaseId())) {
             List<String> issueIds = request.getIssueIds();
             if (!CollectionUtils.isEmpty(issueIds)) {
                 issueIds.forEach(issueId -> {
-                    relate(request, issueId, request.getCaseResourceId());
+                    create(request.getCaseId(), issueId);
                 });
             }
         } else if (StringUtils.isNotBlank(request.getIssuesId())) {
-            List<String> caseResourceIds = request.getCaseResourceIds();
-            if (!CollectionUtils.isEmpty(caseResourceIds)) {
-                caseResourceIds.forEach(caseResourceId -> {
-                    relate(request, request.getIssuesId(), caseResourceId);
+            List<String> caseIds = request.getTestCaseIds();
+            if (!CollectionUtils.isEmpty(caseIds)) {
+                caseIds.forEach(caseId -> {
+                    create(caseId, request.getIssuesId());
                 });
             }
         }
+
+        updateIssuesCount(request.getCaseId());
     }
 
-    protected void relate(IssuesRelevanceRequest request, String issueId, String caseResourceId) {
-        if (request.getIsPlanEdit()) {
-            add(issueId, caseResourceId, request.getRefId(), IssueRefType.PLAN_FUNCTIONAL.name());
-            updateIssuesCount(request.getCaseResourceId());
-        } else {
-            add(issueId, caseResourceId, null, IssueRefType.FUNCTIONAL.name());
-        }
-    }
-
-    public void updateIssuesCount(String resourceId) {
-        List<IssuesDao> issues = issuesService.getIssues(resourceId, IssueRefType.PLAN_FUNCTIONAL.name());
+    public void updateIssuesCount(String caseId) {
+        List<IssuesDao> issues = issuesService.getIssues(caseId);
         int issuesCount = issues.size();
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
-        example.createCriteria().andIdEqualTo(resourceId);
+        example.createCriteria().andCaseIdEqualTo(caseId);
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         testPlanTestCase.setIssuesCount(issuesCount);
         if (!CollectionUtils.isEmpty(issues)) {
@@ -118,17 +97,14 @@ public class TestCaseIssueService {
         testPlanTestCaseMapper.updateByExampleSelective(testPlanTestCase, example);
     }
 
-    public void add(String issuesId, String resourceId, String refId, String refType) {
-        if (StringUtils.isNotBlank(resourceId)) {
-            TestCaseIssues testCaseIssues = new TestCaseIssues();
-            testCaseIssues.setId(UUID.randomUUID().toString());
-            testCaseIssues.setIssuesId(issuesId);
-            testCaseIssues.setResourceId(resourceId);
-            testCaseIssues.setRefType(refType);
-            testCaseIssues.setRefId(refId);
-            testCaseIssuesMapper.insert(testCaseIssues);
-        }
+    public void create(String caseId, String issueId) {
+        TestCaseIssues testCaseIssues = new TestCaseIssues();
+        testCaseIssues.setId(UUID.randomUUID().toString());
+        testCaseIssues.setTestCaseId(caseId);
+        testCaseIssues.setIssuesId(issueId);
+        testCaseIssuesMapper.insert(testCaseIssues);
     }
+
 
     public String getLogDetails(IssuesRelevanceRequest request) {
         TestCaseWithBLOBs bloBs = testCaseService.getTestCase(request.getCaseId());

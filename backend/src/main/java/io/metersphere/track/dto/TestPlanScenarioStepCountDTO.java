@@ -12,9 +12,7 @@ public class TestPlanScenarioStepCountDTO {
     private int scenarioStepTotal;
     private int scenarioStepSuccess;
     private int scenarioStepError;
-    private int scenarioStepErrorReport;
     private List<String> underwayIds = new ArrayList<>();
     private int scenarioStepUnderway;
-    private int scenarioStepUnExecute;
 }
 

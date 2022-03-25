@@ -23,8 +23,6 @@ public class SaveApiTestCaseRequest extends ApiTestCase {
 
     private List<String> follows;
 
-    private String versionId;
-
     //ESB参数。  可为null
     private String esbDataStruct;
     private String backEsbDataStruct;

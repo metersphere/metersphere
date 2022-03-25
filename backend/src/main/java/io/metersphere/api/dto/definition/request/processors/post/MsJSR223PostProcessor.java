@@ -5,7 +5,6 @@ import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -25,7 +24,7 @@ import java.util.List;
 @JSONType(typeName = "JSR223PostProcessor")
 public class MsJSR223PostProcessor extends MsTestElement {
     private String type = "JSR223PostProcessor";
-    private String clazzName = MsJSR223PostProcessor.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor";
 
     @JSONField(ordinal = 20)
     private String script;
@@ -35,16 +34,15 @@ public class MsJSR223PostProcessor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
-        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
         ParameterConfig config = (ParameterConfig) msParameter;
-        if (StringUtils.isEmpty(this.getEnvironmentId())) {
-            if (config.getConfig() != null) {
-                if (config.getProjectId() != null) {
+        if(StringUtils.isEmpty(this.getEnvironmentId())){
+            if(config.getConfig() != null){
+                if(config.getProjectId() != null){
                     String evnId = config.getConfig().get(config.getProjectId()).getApiEnvironmentid();
                     this.setEnvironmentId(evnId);
-                } else {
+                }else {
                     Collection<EnvironmentConfig> evnConfigList = config.getConfig().values();
-                    if (evnConfigList != null && !evnConfigList.isEmpty()) {
+                    if(evnConfigList!=null && !evnConfigList.isEmpty()){
                         for (EnvironmentConfig configItem : evnConfigList) {
                             String evnId = configItem.getApiEnvironmentid();
                             this.setEnvironmentId(evnId);
@@ -55,13 +53,8 @@ public class MsJSR223PostProcessor extends MsTestElement {
             }
         }
         //替换Metersphere环境变量
-        script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
+        script = StringUtils.replace(script,RunningParamKeys.API_ENVIRONMENT_ID,"\""+RunningParamKeys.RUNNING_PARAMS_PREFIX+this.getEnvironmentId()+".\"");
 
-        if(config.isOperating()){
-            if (StringUtils.isNotEmpty(script) && script.startsWith("io.metersphere.utils.JMeterVars.addVars")) {
-                return;
-            }
-        }
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -59,11 +60,11 @@ public class JmeterFileService {
         Map<String, byte[]> files = new HashMap<>();
 
         //  每个测试生成一个文件夹
-        files.put(fileName, context.getContent());
+        files.put(fileName, context.getContent().getBytes(StandardCharsets.UTF_8));
         // 保存jmx
         LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
         record.setId(context.getReportId());
-        record.setJmxContent(new String(context.getContent()));
+        record.setJmxContent(context.getContent());
         extLoadTestReportMapper.updateJmxContentIfAbsent(record);
         // 保存 byte[]
         Map<String, byte[]> jarFiles = context.getTestResourceFiles();

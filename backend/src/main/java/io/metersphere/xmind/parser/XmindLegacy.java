@@ -1,11 +1,9 @@
 package io.metersphere.xmind.parser;
 
-import io.metersphere.performance.parse.EngineSourceParserFactory;
 import org.dom4j.*;
 import org.json.JSONObject;
 import org.json.XML;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,7 @@ public class XmindLegacy {
         //去除自由风格主题
         xmlContent = xmlContent.replaceAll("<topics type=\"detached\">", "");
 
-        Document document = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xmlContent.getBytes("utf-8")));// 读取XML文件,获得document对象
+        Document document = DocumentHelper.parseText(xmlContent);// 读取XML文件,获得document对象
         Element root = document.getRootElement();
         List<Node> topics = root.selectNodes("//topic");
 
@@ -43,7 +41,7 @@ public class XmindLegacy {
             xmlComments = xmlComments.replace("xmlns=\"urn:xmind:xmap:xmlns:comments:2.0\"", "");
 
             // 添加评论到content中
-            Document commentDocument = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xmlComments.getBytes("utf-8")));
+            Document commentDocument = DocumentHelper.parseText(xmlComments);
             List<Node> commentsList = commentDocument.selectNodes("//comment");
 
             for (Node topic : topics) {

@@ -3,26 +3,9 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search" :show-create="false">
-            <template v-slot:button>
-              <el-button-group>
-
-                <el-tooltip class="item" effect="dark" content="left" :disabled="true" placement="left">
-                  <el-button plain :class="{active: leftActive}" @click="changeTab('left')">{{$t('commons.scenario')}}</el-button>
-                </el-tooltip>
-
-                <el-tooltip class="item" effect="dark" content="right" :disabled="true" placement="right">
-                  <el-button plain :class="{active: rightActive}" @click="changeTab('right')">
-                    {{$t('api_test.definition.request.case')}}
-                  </el-button>
-                </el-tooltip>
-
-              </el-button-group>
-            </template>
-          </ms-table-header>
+          <ms-table-header :condition.sync="condition" @search="search"
+                           :show-create="false"/>
         </template>
-
-
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @select-all="handleSelectAll"
                   @select="handleSelect"
@@ -48,62 +31,20 @@
               <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
             </template>
           </el-table-column>
-
-          <ms-table-column
-            prop="name"
-            sortable
-            :label="$t('commons.name')"
-            :show-overflow-tooltip="false"
-            :editable="true"
-            :edit-content="$t('report.rename_report')"
-            @editColumn="openReNameDialog"
-            min-width="200px">
-          </ms-table-column>
-
-          <el-table-column prop="reportType" :label="$t('load_test.report_type')" width="150"
-                           column-key="reportType"
-                           :filters="reportTypeFilters">
-            <template v-slot:default="scope">
-              <div v-if="scope.row.reportType === 'SCENARIO_INTEGRATED'">
-                <el-tag size="mini" type="primary">
-                  {{ $t('api_test.scenario.integrated') }}
-                </el-tag>
-                {{ $t('commons.scenario') }}
-              </div>
-              <div v-else-if="scope.row.reportType === 'API_INDEPENDENT'">
-                <el-tag size="mini" type="primary">
-                  {{ $t('api_test.scenario.independent') }}
-                </el-tag>
-                case
-              </div>
-              <div v-else-if="scope.row.reportType === 'API_INTEGRATED'">
-                <el-tag size="mini" type="primary">
-                  {{ $t('api_test.scenario.integrated') }}
-                </el-tag>
-                case
-              </div>
-              <div v-else>
-                <el-tag size="mini" type="primary">
-                  {{ $t('api_test.scenario.independent') }}
-                </el-tag>
-                {{ $t('commons.scenario') }}
-              </div>
-            </template>
+          <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
           </el-table-column>
+
+          <el-table-column prop="scenarioName" :label="$t('api_test.automation.scenario_name')" width="150"
+                           show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
-          <el-table-column prop="createTime" min-width="120" :label="$t('commons.create_time')" sortable>
+          <el-table-column prop="createTime" width="250" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="endTime" min-width="120" :label="$t('report.test_end_time')" sortable>
+          <el-table-column prop="endTime" width="250" :label="$t('report.test_end_time')" sortable>
             <template v-slot:default="scope">
-              <span v-if="scope.row.endTime < scope.row.createTime">
-                {{ scope.row.updateTime | timestampFormatDate }}
-              </span>
-              <span v-else>
-                {{ scope.row.endTime | timestampFormatDate }}
-              </span>
+              <span>{{ scope.row.endTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="triggerMode" width="150" :label="$t('commons.trigger_mode.name')"
@@ -134,11 +75,6 @@
         <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
-      <ms-rename-report-dialog ref="renameDialog" @submit="rename($event)"></ms-rename-report-dialog>
-      <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
-                 :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
-        <ms-request-result-tail :response="response" ref="debugResult"/>
-      </el-dialog>
     </ms-main-container>
   </ms-container>
 </template>
@@ -147,10 +83,6 @@
 import {getCurrentProjectID} from "@/common/js/utils";
 import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import {_filter, _sort} from "@/common/js/tableUtils";
-import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
-import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import MsRequestResultTail from "../../../api/definition/components/response/RequestResultTail";
-import MsTabButton from "@/business/components/common/components/MsTabButton";
 
 export default {
   components: {
@@ -161,25 +93,11 @@ export default {
     MsContainer: () => import("../../../common/components/MsContainer"),
     MsTableHeader: () => import("../../../common/components/MsTableHeader"),
     MsTablePagination: () => import("../../../common/pagination/TablePagination"),
-    ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn"),
-    MsRenameReportDialog,
-    MsTableColumn,
-    MsTabButton,
-    MsRequestResultTail,
-  },
-  computed: {
-    leftActive() {
-      return this.trashActiveDom === 'left';
-    },
-    rightActive() {
-      return this.trashActiveDom === 'right';
-    },
+    ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn")
   },
   data() {
     return {
       result: {},
-      resVisible: false,
-      response: {},
       reportId: "",
       debugVisible: false,
       condition: {
@@ -200,17 +118,6 @@ export default {
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'},
         {text: 'Success', value: 'Success'},
-        {text: 'stopped', value: 'stop'},
-        {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
-      ],
-      reportTypeFilters:[],
-      reportScenarioFilters: [
-        {text: this.$t('api_test.scenario.independent') + this.$t('commons.scenario'), value: 'SCENARIO_INDEPENDENT'},
-        {text: this.$t('api_test.scenario.integrated') + this.$t('commons.scenario'), value: 'SCENARIO_INTEGRATED'}
-      ],
-      reportCaseFilters: [
-        {text: this.$t('api_test.scenario.independent') + 'case', value: 'API_INDEPENDENT'},
-        {text: this.$t('api_test.scenario.integrated') + 'case', value: 'API_INTEGRATED'},
       ],
       triggerFilters: [
         {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
@@ -231,15 +138,10 @@ export default {
       unSelection: [],
       selectDataCounts: 0,
       screenHeight: 'calc(100vh - 200px)',
-      trashActiveDom:'left'
     }
   },
   watch: {
     '$route': 'init',
-    trashActiveDom(){
-      this.condition.filters={report_type:[]};
-      this.search();
-    }
   },
 
   methods: {
@@ -251,23 +153,11 @@ export default {
       this.selectAll = false;
       this.unSelection = [];
       this.selectDataCounts = 0;
-      let url = ''
-      if(this.trashActiveDom==='left'){
-        this.reportTypeFilters =this.reportScenarioFilters;
-        url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
-      }else{
-        this.reportTypeFilters =this.reportCaseFilters;
-        url = "/api/execute/result/list/" + this.currentPage + "/" + this.pageSize;
-      }
+      let url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-        this.tableData.forEach(item => {
-          if (item.status === 'STOP') {
-            item.status = 'stopped'
-          }
-        })
         this.selectRows.clear();
         this.unSelection = data.listObject.map(s => s.id);
       });
@@ -275,36 +165,17 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    getExecResult(apiCase) {
-      if (apiCase.id) {
-        let url = "/api/definition/report/get/" + apiCase.id;
-        this.$get(url, response => {
-          if (response.data) {
-            try {
-              let data = JSON.parse(response.data.content);
-              this.response = data;
-              this.resVisible = true;
-            } catch (error) {
-              this.resVisible = true;
-            }
-          }
-        });
-      }
-    },
     handleView(report) {
       this.reportId = report.id;
       if (report.status === 'Running') {
         this.$warning(this.$t('commons.run_warning'))
         return;
       }
-      if (report.reportType.indexOf('SCENARIO') !== -1 || report.reportType === 'API_INTEGRATED') {
-        this.currentProjectId = report.projectId;
-        this.$router.push({
-          path: 'report/view/' + report.id,
-        })
-      } else {
-        this.getExecResult(report);
-      }
+      this.currentProjectId = report.projectId;
+      this.$router.push({
+        path: 'report/view/' + report.id,
+      })
+
     },
     handleDelete(report) {
       this.$alert(this.$t('api_report.delete_confirm') + report.name + "？", '', {
@@ -399,20 +270,7 @@ export default {
       let rowArray = Array.from(rowSets)
       let ids = rowArray.map(s => s.id);
       return ids;
-    },
-    openReNameDialog($event) {
-      this.$refs.renameDialog.open($event);
-    },
-    rename(data) {
-      this.$post("/api/scenario/report/reName/", data, () => {
-        this.$success(this.$t("organization.integration.successful_operation"));
-        this.init();
-        this.$refs.renameDialog.close();
-      });
-    },
-    changeTab(tabType){
-      this.trashActiveDom = tabType;
-    },
+    }
   },
 
   created() {
@@ -424,16 +282,5 @@ export default {
 <style scoped>
 .table-content {
   width: 100%;
-}
-.active {
-  border: solid 1px #6d317c!important;
-  background-color: var(--primary_color)!important;
-  color: #FFFFFF!important;
-}
-
-.item{
-  height: 32px;
-  padding: 5px 8px;
-  border: solid 1px var(--primary_color);
 }
 </style>

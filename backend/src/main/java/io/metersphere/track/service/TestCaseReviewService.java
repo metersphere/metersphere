@@ -26,12 +26,10 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
-import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
 import io.metersphere.track.request.testreview.*;
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,11 +117,38 @@ public class TestCaseReviewService {
     }
 
     //评审内容
-    private Map getReviewParamMap(TestCaseReview review) {
-        Map paramMap = new HashMap<>();
+    private Map<String, String> getReviewParamMap(SaveTestCaseReviewRequest reviewRequest) {
+        Long startTime = reviewRequest.getCreateTime();
+        Long endTime = reviewRequest.getEndTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        String eTime = String.valueOf(endTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
+        String end = null;
+        if (!eTime.equals("null")) {
+            end = sdf.format(new Date(Long.parseLong(eTime)));
+        }
+
+        Map<String, String> paramMap = new HashMap<>();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         paramMap.put("url", baseSystemConfigDTO.getUrl());
-        paramMap.putAll(new BeanMap(review));
+        paramMap.put("creator", reviewRequest.getCreator());
+        paramMap.put("name", reviewRequest.getName());
+        paramMap.put("start", start);
+        paramMap.put("end", end);
+        paramMap.put("id", reviewRequest.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), reviewRequest.getStatus())) {
+            status = "已完成";
+        }
+        paramMap.put("status", status);
         return paramMap;
     }
 
@@ -212,7 +237,7 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        return testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
+        return testCaseReview;
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
@@ -335,7 +360,7 @@ public class TestCaseReviewService {
 
         // 如果是关联全部指令则根据条件查询未关联的案例
         if (testCaseIds.get(0).equals("all")) {
-            List<TestCaseDTO> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
+            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
             if (!testCases.isEmpty()) {
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
             }
@@ -413,7 +438,7 @@ public class TestCaseReviewService {
             try {
                 BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
                 String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.UPDATE);
-                Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(_testCaseReview));
+                Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
                 paramMap.put("operator", SessionUtils.getUser().getName());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
@@ -609,7 +634,7 @@ public class TestCaseReviewService {
         List<String> testCaseIds = request.getTestCaseIds();
         List<String> names = new ArrayList<>();
         if (testCaseIds.get(0).equals("all")) {
-            List<TestCaseDTO> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
+            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
             if (!testCases.isEmpty()) {
                 names = testCases.stream().map(TestCase::getName).collect(Collectors.toList());
                 testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());

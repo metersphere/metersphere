@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiDefinitionExecResult implements Serializable {
@@ -27,16 +26,6 @@ public class ApiDefinitionExecResult implements Serializable {
     private String actuator;
 
     private String triggerMode;
-
-    private String errorCode;
-
-    private String versionId;
-
-    private String projectId;
-
-    private String integratedReportId;
-
-    private String reportType;
 
     private String content;
 

@@ -37,13 +37,10 @@ public class Body {
 
     public boolean isValid() {
         if (this.isKV()) {
-            if(kvs != null){
-                return kvs.stream().anyMatch(KeyValue::isValid);
-            }
+            return kvs.stream().anyMatch(KeyValue::isValid);
         } else {
             return StringUtils.isNotBlank(raw);
         }
-        return false;
     }
 
     public boolean isKV() {

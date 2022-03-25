@@ -23,8 +23,6 @@ public class ApiScenarioRequest extends BaseQueryRequest {
     private String executeStatus;
     private boolean notInTestPlan;
     private String reviewId;
-    private String versionId;
-    private String refId;
 
     //操作人
     private String operator;

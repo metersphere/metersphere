@@ -12,6 +12,4 @@ public interface ExtApiModuleMapper {
     List<ApiModuleDTO> getNodeTreeByProjectId(@Param("projectId") String projectId, @Param("protocol") String protocol);
 
     void updatePos(String id, Double pos);
-
-    String getNameById(String moduleId);
 }

@@ -28,48 +28,22 @@
   </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
-    t.id,
-    t.environment_id,
-    (
-    SELECT
-    NAME
-    FROM
-    api_test_environment
-    WHERE
-    id = t.environment_id
-    ) AS environment_name,
-    t.create_time,
-    t.update_time,
-    c.id AS case_id,
-    c.project_id,
-    c.name,
-    c.api_definition_id,
-    c.priority,
-    c.description,
-    c.create_user_id,
-    c.update_user_id,
-    c.num,
-    c.tags,
-    c.create_user_id as create_user,
-    a.module_id,
-    a.path,
-    a.protocol,
-    t.status execResult,
-    a.user_id,
-    a.version_id versionId
+    t.id, t.environment_id,(select name from api_test_environment where id = t.environment_id) as environment_name, t.create_time, t.update_time,
+    c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id,
+    c.update_user_id, c.num, c.tags, t.create_user,
+    a.module_id, a.path, a.protocol, t.status execResult, a.user_id
     from
     test_plan_api_case t
     inner join
     api_test_case c
     on t.api_case_id = c.id
     <if test="request.planId != null and request.planId!=''">
-      and t.test_plan_id = #{request.planId}
-    </if>
+        and t.test_plan_id = #{request.planId}
+      </if>
     inner join
-    api_definition a
+      api_definition a
     on
-    c.api_definition_id = a.id
-    where 1
+      c.api_definition_id = a.id
     <if test="request.protocol != null and request.protocol!=''">
       and a.protocol = #{request.protocol}
     </if>
@@ -90,6 +64,7 @@
         and t.status = #{request.status}
       </otherwise>
     </choose>
+    where 1
     <if test="request.ids != null and request.ids.size() > 0">
       <if test="request.projectId != null and request.projectId!=''">
         and a.projectId = #{request.projectId}
@@ -133,19 +108,10 @@
                 #{value}
               </foreach>
             </when>
-            <when test="key == 'version_id'">
-              and a.version_id in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
-            </when>
           </choose>
         </if>
       </foreach>
     </if>
-    <include refid="queryVersionCondition">
-      <property name="versionTable" value="a"/>
-    </include>
     <if test="request.orders != null and request.orders.size() > 0">
       order by
       <foreach collection="request.orders" separator="," item="order">
@@ -162,7 +128,6 @@
         </choose>
       </foreach>
     </if>
-
   </select>
   <select id="selectIds" resultType="java.lang.String">
     select
@@ -260,7 +225,6 @@
     from
     test_plan_api_case
     where test_plan_id = #{planId}
-    AND api_case_id in (SELECT id FROM api_test_case WHERE (`status` is null or `status` != 'Trash'))
   </select>
 
   <select id="getIdsByPlanId" resultType="java.lang.String">
@@ -302,14 +266,11 @@
         api_test_case c
         on t.api_case_id = c.id
       and t.test_plan_id = #{planId}
-        <if test="status == 'unExecute'">
-            and (t.status in ('Stop','unExecute') or t.status IS NULL)
-        </if>
-       <if test="status != null and status != 'unExecute'">
-         and t.status = #{status}
+       <if test="status != null">
+         and t.status = 'error'
        </if>
       and (c.status != 'Trash' or c.status is null)
-      where t.test_plan_id = #{planId} ORDER BY t.order DESC
+      where t.test_plan_id = #{planId};
     </select>
 
   <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanFailureApiDTO">
@@ -330,7 +291,6 @@
     <foreach collection="ids" item="id" separator="," open="(" close=")">
       #{id}
     </foreach>
-    ORDER BY t.order DESC
   </select>
 
 
@@ -356,13 +316,4 @@
     </if>
     order by `order` desc limit 1;
   </select>
-
-  <sql id="queryVersionCondition">
-    <if test="request.versionId != null">
-      and ${versionTable}.version_id = #{request.versionId}
-    </if>
-    <if test="request.refId != null">
-      and ${versionTable}.ref_id = #{request.refId}
-    </if>
-  </sql>
 </mapper>

@@ -1,12 +1,11 @@
 <template>
-  <span>
-    <span>
+  <div>
+    <div>
+      <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{ $t('commons.adv_search.title') }}
+      </el-link>
       <el-input :placeholder="$t('commons.search_by_id_name_tag_path')" @blur="search" class="search-input" size="small"
                 @keyup.enter.native="enterSearch"
                 v-model="condition.name" ref="inputVal"/>
-      <el-link type="primary" @click="open" style="float: right;margin-top: 5px;padding-right: 10px">
-        {{ $t('commons.adv_search.title') }}
-      </el-link>
 
       <ms-table
         :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
@@ -68,7 +67,7 @@
         <ms-table-column
           prop="status"
           sortable="custom"
-          :filters="!trashEnable ? statusFilters : statusFiltersTrash"
+          :filters="statusFilters"
           :field="item"
           :fields-width="fieldsWidth"
           min-width="120px"
@@ -80,7 +79,6 @@
           </span>
           </template>
         </ms-table-column>
-
 
         <ms-table-column
           prop="method"
@@ -118,25 +116,13 @@
           prop="tags"
           :field="item"
           :fields-width="fieldsWidth"
-          min-width="80px"
+          min-width="100px"
           :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=100" :content="itemName"
                     style="margin-left: 0px; margin-right: 2px"/>
             <span/>
-          </template>
-        </ms-table-column>
-
-        <ms-table-column
-          :label="$t('project.version.name')"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :filters="versionFilters"
-          min-width="100px"
-          prop="versionId">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
           </template>
         </ms-table-column>
 
@@ -196,19 +182,17 @@
       </ms-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </span>
+    </div>
     <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :data-count="$refs.table ? $refs.table.selectDataCounts : 0"
-                   :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :data-count="$refs.table ? $refs.table.selectDataCounts : 0" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"/>
 
     <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
-    <!--  删除接口提示  -->
-    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
-  </span>
+
+  </div>
 
 </template>
 
@@ -227,7 +211,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsBottomContainer from "../BottomContainer";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -236,18 +220,14 @@ import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/se
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
-  buildBatchParam,
-  getCustomTableHeader,
-  getCustomTableWidth,
-  getLastTableSortField,
-  initCondition
+  initCondition,
+  getCustomTableHeader, getCustomTableWidth, buildBatchParam, getLastTableSortField
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {editApiDefinitionOrder} from "@/network/api";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
 import {getGraphByCondition} from "@/network/graph";
-import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -256,7 +236,6 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "ApiList",
   components: {
-    ListItemDeleteConfirm,
     HeaderLabelOperate,
     CaseBatchMove,
     ApiStatus,
@@ -292,7 +271,6 @@ export default {
       enableOrderDrag: true,
       selectDataRange: "all",
       graphData: [],
-      isMoveBatch: true,
       deletePath: "/test/case/delete",
       buttons: [
         {
@@ -309,11 +287,6 @@ export default {
           name: this.$t('api_test.definition.request.batch_move'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
-        },
-        {
-          name: this.$t('api_test.batch_copy'),
-          handleClick: this.handleBatchCopy,
-          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_API']
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
@@ -389,12 +362,8 @@ export default {
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
-      ],
-
-      statusFiltersTrash: [
         {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
       ],
-
       caseStatusFilters: [
         {text: this.$t('api_test.home_page.detail_card.unexecute'), value: '未执行'},
         {text: this.$t('test_track.review.pass'), value: '通过'},
@@ -415,7 +384,6 @@ export default {
         {text: 'TCP', value: 'TCP'},
       ],
       userFilters: [],
-      versionFilters: [],
       valueArr: {
         status: API_STATUS,
         method: REQ_METHOD,
@@ -426,17 +394,14 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 258px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
       projectName: "",
-      versionEnable: false,
-      isFirstInitTable:true,
     };
   },
   props: {
     currentProtocol: String,
-    currentVersion: String,
     selectNodeIds: Array,
     isSelectThisWeek: String,
     activeDom: String,
@@ -497,13 +462,9 @@ export default {
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     }
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-    // 切换tab之后版本查询
-    this.condition.versionId = this.currentVersion;
+
     this.initTable();
     this.getMaintainerOptions();
-    this.getVersionOptions();
-    this.checkVersionEnable();
-
 
     // 通知过来的数据跳转到编辑
     if (this.$route.query.resourceId) {
@@ -528,12 +489,6 @@ export default {
       initCondition(this.condition, false);
       this.closeCaseModel();
       this.initTable(true);
-    },
-    currentVersion() {
-      this.condition.versionId = this.currentVersion;
-      this.initTable();
-      // 选择了版本过滤，版本列上的checkbox也进行过滤
-      this.getVersionOptions(this.currentVersion);
     },
     trashEnable() {
       if (this.trashEnable) {
@@ -565,12 +520,7 @@ export default {
       });
     },
     handleBatchMove() {
-      this.isMoveBatch = true;
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
-    },
-    handleBatchCopy() {
-      this.isMoveBatch = false;
-      this.$refs.testCaseBatchMove.open(this.moduleTree, this.$refs.table.selectIds, this.moduleOptions);
     },
     closeCaseModel() {
       //关闭案例弹窗
@@ -637,11 +587,7 @@ export default {
         });
       }
       if (this.needRefreshModule()) {
-        if(this.isFirstInitTable){
-          this.isFirstInitTable = false;
-        }else {
-          this.$emit("refreshTree");
-        }
+        this.$emit("refreshTree");
       }
     },
     getMaintainerOptions() {
@@ -651,21 +597,6 @@ export default {
           return {text: u.name, value: u.id};
         });
       });
-    },
-    getVersionOptions(currentVersion) {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          if (currentVersion) {
-            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
-              return {text: u.name, value: u.id};
-            });
-          } else {
-            this.versionFilters = response.data.map(u => {
-              return {text: u.name, value: u.id};
-            });
-          }
-        });
-      }
     },
     enterSearch() {
       this.$refs.inputVal.blur();
@@ -685,7 +616,8 @@ export default {
     handleCopy(row) {
       let obj = JSON.parse(JSON.stringify(row));
       obj.isCopy = true;
-      this.$emit('copyApi', obj);
+      obj.id =getUUID();
+      this.$emit('editApi', obj);
     },
     runApi(row) {
       let request = row ? JSON.parse(row.request) : {};
@@ -798,17 +730,14 @@ export default {
       param.projectId = this.projectId;
       param.condition = this.condition;
       param.moduleId = param.nodeId;
-      let url = '/api/definition/batch/editByParams';
-      if (!this.isMoveBatch)
-        url = '/api/definition/batch/copy';
-      this.$post(url, param, () => {
+      this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testCaseBatchMove.close();
         this.initTable();
       });
     },
     handleTestCase(api) {
-      this.$emit("handleTestCase", api);
+      this.$emit("handleTestCase", api)
       // this.$refs.caseList.open(this.selectApi);
     },
     handleDelete(api) {
@@ -820,43 +749,20 @@ export default {
         });
         return;
       }
-      // 检查api有几个版本
-      this.$get('/api/definition/versions/' + api.id, response => {
-        if (hasLicense() && this.versionEnable && response.data.length > 1) {
-          // 删除提供列表删除和全部版本删除
-          this.$refs.apiDeleteConfirm.open(api, this.$t('api_test.definition.request.delete_confirm'));
-        } else {
-          this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this._handleDelete(api, false);
-              }
-            }
-          });
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let ids = [api.id];
+            this.$post('/api/definition/removeToGc/', ids, () => {
+              this.$success(this.$t('commons.delete_success'));
+              // this.initTable();
+              this.$emit("refreshTable");
+              this.$refs.caseList.apiCaseClose();
+            });
+          }
         }
       });
-    },
-    _handleDelete(api, deleteCurrentVersion) {
-      // 删除指定版本
-      if (deleteCurrentVersion) {
-        this.$get('/api/definition/delete/' + api.versionId + '/' + api.refId, () => {
-          this.$success(this.$t('commons.delete_success'));
-          this.$refs.apiDeleteConfirm.close();
-          this.$emit("refreshTable");
-        });
-      }
-      // 删除全部版本
-      else {
-        let ids = [api.id];
-        this.$post('/api/definition/removeToGc/', ids, () => {
-          this.$success(this.$t('commons.delete_success'));
-          // this.initTable();
-          this.$refs.apiDeleteConfirm.close();
-          this.$emit("refreshTable");
-          this.$refs.caseList.apiCaseClose();
-        });
-      }
     },
 
     getColor(enable, method) {
@@ -930,19 +836,6 @@ export default {
         return false;
       }
     },
-    checkVersionEnable() {
-      if (!this.projectId) {
-        return;
-      }
-      if (hasLicense()) {
-        this.$get('/project/version/enable/' + this.projectId, response => {
-          this.versionEnable = response.data;
-          if (!response.data) {
-            this.fields = this.fields.filter(f => f.id !== 'versionId');
-          }
-        });
-      }
-    }
   },
 };
 </script>
@@ -965,6 +858,7 @@ export default {
 .search-input {
   float: right;
   width: 300px;
+  margin-right: 10px;
 }
 
 .el-tag {
@@ -985,7 +879,6 @@ export default {
   max-width: 100%;
   padding-right: 100%;
 }
-
 /* /deep/ .el-table__fixed-body-wrapper {
   top: 60px !important;
 } */

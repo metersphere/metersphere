@@ -305,17 +305,12 @@ export default {
     reportId: {
       type: String
     },
-    report: {
-      type: Object
-    },
     isReadOnly: {
       type: Boolean,
       default() {
         return false;
       }
-    },
-    isShare: Boolean,
-    shareId: String,
+    }
   },
   data() {
     return {
@@ -333,7 +328,7 @@ export default {
       resourcePoolType: null,
       activeNames: ["0"],
       threadGroups: [],
-      maxThreadNumbers: 500000,
+      maxThreadNumbers: 5000,
       serializeThreadGroups: false,
       autoStop: false,
       autoStopDelay: 30,
@@ -359,12 +354,7 @@ export default {
     } else {
       this.calculateTotalChart();
     }
-    if (this.test) {
-      this.resourcePool = this.test.testResourcePoolId;
-    }
-    if (this.report) {
-      this.resourcePool = this.report.testResourcePoolId;
-    }
+    this.resourcePool = this.test.testResourcePoolId;
     this.getResourcePools();
   },
   watch: {
@@ -392,17 +382,10 @@ export default {
       }
       this.getResourcePools();
     },
-    report() {
-      this.resourcePool = this.report.testResourcePoolId;
-    }
   },
   methods: {
     getResourcePools() {
-      let url = '/testresourcepool/list/quota/valid';
-      if (this.isShare) {
-        url = '/share/testresourcepool/list/quota/valid';
-      }
-      this.result = this.$get(url, response => {
+      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
         // 如果当前的资源池无效 设置 null
         if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
@@ -423,14 +406,25 @@ export default {
       if (!url) {
         return;
       }
-      if (this.isShare) {
-        url = '/share/performance/report/get-load-config/' + this.reportId;
-      }
       this.$get(url, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
           for (let i = 0; i < this.threadGroups.length; i++) {
-            data[i].forEach(item => {
+            let handler = this.threadGroups[i].handler;
+
+            let j = 0;
+            for (; j < data.length; j++) {
+              let res = data[j].filter(v => v.key === HANDLER && v.value === handler);
+              if (res.length > 0) {
+                break;
+              }
+            }
+            // 这里是报告查询
+            if (this.reportId) {
+              j = i;
+            }
+
+            data[j].forEach(item => {
               switch (item.key) {
                 case TARGET_LEVEL:
                   this.threadGroups[i].threadNumber = item.value;
@@ -539,9 +533,6 @@ export default {
       if (!url) {
         return;
       }
-      if (this.isShare) {
-        url = '/share/performance/report/get-jmx-content/' + this.reportId;
-      }
       let threadGroups = [];
       this.$get(url, (response) => {
         response.data.forEach(d => {
@@ -649,7 +640,6 @@ export default {
           smooth: false,
           symbolSize: 5,
           showSymbol: false,
-          sampling: 'lttb',
           itemStyle: {
             color: hexToRgb(color[i % color.length]),
             borderColor: 'rgba(137,189,2,0.27)',
@@ -657,10 +647,6 @@ export default {
           },
         };
 
-        if (tg.rampUpTime > 10000) {
-          this.$warning(this.$t('load_test.ramp_up_tips'));
-          return;
-        }
 
         let timePeriod = Math.floor(tg.rampUpTime / tg.step);
         let timeInc = timePeriod;
@@ -776,11 +762,7 @@ export default {
       return tg.duration;
     },
     getRatios(tg) {
-      if (tg.resourceNodes) {
-        return tg.resourceNodes.map(node => node.ratio);
-      } else {
-        return [];
-      }
+      return tg.resourceNodes.map(node => node.ratio);
     },
     convertProperty() {
       /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？

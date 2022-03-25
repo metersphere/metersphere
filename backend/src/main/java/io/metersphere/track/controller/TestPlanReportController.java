@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -13,7 +12,6 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.dto.TestPlanReportDTO;
-import io.metersphere.track.dto.TestPlanScheduleReportInfoDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
@@ -67,7 +65,7 @@ public class TestPlanReportController {
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = OperLogModule.TRACK_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanReportIdList)", msClass = TestPlanReportService.class)
+    @MsAuditLog(module = "track_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanReportIdList)", msClass = TestPlanReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_REPORT_TASK, target = "#targetClass.getReports(#testPlanReportIdList)", targetClass = TestPlanReportService.class,
             event = NoticeConstants.Event.DELETE, mailTemplate = "track/ReportDelete", subject = "报告通知")
     public void delete(@RequestBody List<String> testPlanReportIdList) {
@@ -84,8 +82,8 @@ public class TestPlanReportController {
     public void apiExecuteFinish(@PathVariable String planId, @PathVariable String userId) {
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, ReportTriggerMode.API.name());
-        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getTestPlanReport().getId(), null, ReportTriggerMode.API.name());
+        TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(), null, ReportTriggerMode.API.name(), null);
     }
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
@@ -93,14 +91,8 @@ public class TestPlanReportController {
         String userId = SessionUtils.getUser().getId();
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, triggerMode);
-        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.genTestPlanReportContent(report);
-        testPlanReportService.countReportByTestPlanReportId(report.getTestPlanReport().getId(), null, triggerMode);
+        TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(), null, triggerMode, null);
         return "success";
-    }
-
-    @PostMapping("/reName")
-    public void reName(@RequestBody TestPlanReport request) {
-        testPlanReportService.reName(request.getId(), request.getName());
     }
 }

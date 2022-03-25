@@ -5,7 +5,6 @@ import io.metersphere.api.dto.definition.DragModuleRequest;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.ApiDefinitionDefaultApiTypeUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -26,17 +25,10 @@ public class ApiModuleController {
 
     @GetMapping("/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol) {
+//        checkPermissionService.checkProjectOwner(projectId);
         String userId = SessionUtils.getUserId();
         ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
-        return apiModuleService.getNodeTreeByProjectId(projectId, protocol, null);
-    }
-
-    @GetMapping("/list/{projectId}/{protocol}/{versionId}")
-    public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol,
-                                                 @PathVariable String versionId) {
-        String userId = SessionUtils.getUserId();
-        ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
-        return apiModuleService.getNodeTreeByProjectId(projectId, protocol, versionId);
+        return apiModuleService.getNodeTreeByProjectId(projectId, protocol);
     }
 
     @GetMapping("/trashCount/{projectId}/{protocol}")
@@ -71,26 +63,26 @@ public class ApiModuleController {
     }
 
     @PostMapping("/add")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiModuleService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiModuleService.class)
     public String addNode(@RequestBody ApiModule node) {
         return apiModuleService.addNode(node);
     }
 
     @PostMapping("/edit")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiModuleService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiModuleService.class)
     public int editNode(@RequestBody DragModuleRequest node) {
         return apiModuleService.editNode(node);
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#nodeIds)", msClass = ApiModuleService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#nodeIds)", msClass = ApiModuleService.class)
     public int deleteNode(@RequestBody List<String> nodeIds) {
         //nodeIds 包含删除节点ID及其所有子节点ID
         return apiModuleService.deleteNode(nodeIds);
     }
 
     @PostMapping("/drag")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiModuleService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiModuleService.class)
     public void dragNode(@RequestBody DragModuleRequest node) {
         apiModuleService.dragNode(node);
     }

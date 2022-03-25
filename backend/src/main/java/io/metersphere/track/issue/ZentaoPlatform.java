@@ -66,13 +66,13 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     public IssuesDao getZentaoAssignedAndBuilds(IssuesDao issue){
         JSONObject zentaoIssue = zentaoClient.getBugById(issue.getPlatformId());
-        String assignedTo = zentaoIssue.getString("assignedTo");
+        String openedBy = zentaoIssue.getString("openedBy");
         String openedBuild = zentaoIssue.getString("openedBuild");
         List<String>zentaoBuilds = new ArrayList<>();
         if(Strings.isNotBlank(openedBuild)){
             zentaoBuilds = Arrays.asList(openedBuild.split(","));
         }
-        issue.setZentaoAssigned(assignedTo);
+        issue.setZentaoAssigned(openedBy);
         issue.setZentaoBuilds(zentaoBuilds);
         return issue;
     }
@@ -162,12 +162,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         issue.setReporter(bugObj.getOpenedBy());
         issue.setPlatform(key);
         try {
-            String openedDate = bug.getString("openedDate");
-            String lastEditedDate = bug.getString("lastEditedDate");
-            if (StringUtils.isNotBlank(openedDate) && !openedDate.startsWith("0000-00-00"))
-                issue.setCreateTime(bug.getLong("openedDate"));
-            if (StringUtils.isNotBlank(lastEditedDate)  && !lastEditedDate.startsWith("0000-00-00"))
-                issue.setUpdateTime(bug.getLong("lastEditedDate"));
+            issue.setCreateTime(bug.getLong("openedDate"));
+            issue.setUpdateTime(bug.getLong("lastEditedDate"));
         } catch (Exception e) {
             LogUtil.error("update zentao time" + e.getMessage());
         }
@@ -338,17 +334,32 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     public List<ZentaoBuild> getBuilds() {
-        Map<String, Object> builds = zentaoClient.getBuildsByCreateMetaData(getProjectId(projectId));
-        if (builds == null || builds.isEmpty()) {
-            builds = zentaoClient.getBuilds(getProjectId(projectId));
-        }
-        List<ZentaoBuild> res = new ArrayList<>();
-        builds.forEach((k, v) -> {
-            if (StringUtils.isNotBlank(k)) {
-                res.add(new ZentaoBuild(k, v.toString()));
+        String session = zentaoClient.login();;
+        HttpHeaders httpHeaders = new HttpHeaders();
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
+        RestTemplate restTemplate = new RestTemplate();
+        String buildGet = zentaoClient.requestUrl.getBuildsGet();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(buildGet + session,
+                HttpMethod.GET, requestEntity, String.class, getProjectId(projectId));
+        String body = responseEntity.getBody();
+        JSONObject obj = JSONObject.parseObject(body);
+
+        LogUtil.info("zentao builds" + obj);
+
+        JSONObject data = obj.getJSONObject("data");
+        Map<String,Object> maps = data.getInnerMap();
+
+        List<ZentaoBuild> list = new ArrayList<>();
+        for (Map.Entry<String, Object> map : maps.entrySet()) {
+            ZentaoBuild build = new ZentaoBuild();
+            String id = map.getKey();
+            if (StringUtils.isNotBlank(id)) {
+                build.setId(map.getKey());
+                build.setName((String) map.getValue());
+                list.add(build);
             }
-        });
-        return res;
+        }
+        return list;
     }
 
     private String uploadFile(FileSystemResource resource) {
@@ -378,26 +389,23 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     private String ms2ZentaoDescription(String msDescription) {
-        String imgUrlRegex = "!\\[.*?]\\(/resource/md/get(.*?\\..*?)\\)";
+        String imgUrlRegex = "!\\[.*?]\\(/resource/md/get/(.*?\\..*?)\\)";
         String zentaoSteps = msDescription.replaceAll(imgUrlRegex, zentaoClient.requestUrl.getReplaceImgUrl());
         Matcher matcher = zentaoClient.requestUrl.getImgPattern().matcher(zentaoSteps);
         while (matcher.find()) {
             // get file name
-            String originSubUrl = matcher.group(1);
-            String fileName = originSubUrl.substring(10);
-            fileName = resourceService.decodeFileName(fileName);
+            String fileName = matcher.group(1);
             // get file
             ResponseEntity<FileSystemResource> mdImage = resourceService.getMdImage(fileName);
             // upload zentao
             String id = uploadFile(mdImage.getBody());
             // todo delete local file
             int index = fileName.lastIndexOf(".");
-            String suffix = "";
             if (index != -1) {
-                suffix = fileName.substring(index);
+                fileName = fileName.substring(0, index);
             }
             // replace id
-            zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), id + suffix);
+            zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(fileName), id);
         }
         // image link
         String netImgRegex = "!\\[(.*?)]\\((http.*?)\\)";
@@ -408,10 +416,5 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         // todo 图片回显
         String imgRegex = "<img src.*?/>";
         return ztDescription.replaceAll(imgRegex, "");
-    }
-
-    @Override
-    public Boolean checkProjectExist(String relateId) {
-        return zentaoClient.checkProjectExist(relateId);
     }
 }

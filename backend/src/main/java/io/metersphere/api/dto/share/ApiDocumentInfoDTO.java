@@ -18,15 +18,8 @@ public class ApiDocumentInfoDTO {
     private String name;
     private String status;
 
-    private String tags;
-    private String modules;
-    private String createUser;
-    private String responsibler;
-    private String desc;
-
     private String requestHead;
     private String urlParams;
-    private String restParams;
     private String requestBodyParamType;
     private String requestBodyFormData;
     private String requestBodyStrutureData;
@@ -42,8 +35,5 @@ public class ApiDocumentInfoDTO {
 
     private String responseCode;
     private boolean sharePopoverVisible = false;
-
-    private String refId;
-    private String versionId;
 
 }

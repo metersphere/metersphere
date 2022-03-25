@@ -46,8 +46,6 @@ public class SaveApiDefinitionRequest {
 
     private String remark;
 
-    private String versionId;
-
     private Schedule schedule;
 
     private String triggerMode;
@@ -60,10 +58,4 @@ public class SaveApiDefinitionRequest {
     private String esbDataStruct;
     private String backEsbDataStruct;
     private String backScript;
-
-    // 创建新版本时用到的
-    private boolean newVersionRemark;
-    private boolean newVersionDeps;
-    // 复制的请求Id
-    private String sourceId;
 }

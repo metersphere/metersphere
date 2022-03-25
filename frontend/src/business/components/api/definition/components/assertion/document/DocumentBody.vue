@@ -1,17 +1,13 @@
 <template>
   <div class="ms-border" style="margin-top: 10px">
     <div style="margin-bottom: 10px">
-      <el-row :gutter="10" type="flex" justify="space-between" align="middle">
-        <el-col>
-           <span class="ms-import" @click="importData">
-             <i class="el-icon-edit-outline" style="font-size: 16px"/>
-             {{ $t('commons.import') }}
-           </span>
-          <span v-if="apiId!=='none'">
-             <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
-          </span>
-        </el-col>
-      </el-row>
+      <span class="ms-import" @click="importData">
+         <i class="el-icon-edit-outline" style="font-size: 16px"/>
+         {{ $t('commons.import') }}
+       </span>
+      <span v-if="apiId!=='none'">
+         <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
+      </span>
     </div>
     <el-table
       :data="tableData"
@@ -22,7 +18,6 @@
       row-key="id"
       border
       default-expand-all
-      :height="300"
       v-loading="loading">
 
       <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
@@ -33,14 +28,14 @@
       </el-table-column>
 
       <el-table-column prop="include" width="78" :label="$t('api_test.request.assertions.must_contain')"
-                       :scoped-slot="renderHeader">
+                       :render-header="renderHeader">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked || scope.row.type==='array'"/>
+          <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked"/>
         </template>
       </el-table-column>
 
       <el-table-column prop="typeVerification" width="100" :label="$t('api_test.request.assertions.type_verification')"
-                       :scoped-slot="renderHeaderType">
+                       :render-header="renderHeaderType">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked"/>
         </template>
@@ -72,7 +67,7 @@
       </el-table-column>
 
       <el-table-column prop="arrayVerification" width="140" :label="$t('api_test.request.assertions.check')"
-                       :scoped-slot="renderHeaderArray">
+                       :render-header="renderHeaderArray">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.arrayVerification" @change="handleCheckOneChange"
                        v-if="scope.row.type==='array'" :disabled="checked"/>
@@ -116,10 +111,6 @@ export default {
     document: {},
     apiId: String,
     showOptionsButton: Boolean,
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    }
   },
   data() {
     return {
@@ -139,9 +130,9 @@ export default {
         {value: 'object', label: 'object'},
         {value: 'array', label: 'array'},
         {value: 'string', label: 'string'},
-        {value: 'integer', label: 'integer'},
+        {value: 'int', label: 'int'},
         {value: 'number', label: 'number'},
-        {value: 'boolean', label: 'boolean'},
+
       ],
       requiredSelectOptions: [
         {value: true, label: this.$t('commons.selector.required')},
@@ -170,9 +161,6 @@ export default {
     }
   },
   methods: {
-    removeDoc() {
-      this.$emit('remove');
-    },
     setJSONData(data) {
       this.checked = false;
       this.document.data.jsonFollowAPI = "";
@@ -319,9 +307,6 @@ export default {
         arr.forEach(item => {
           if (type === 1) {
             item.include = val
-            if (item.type === 'array') {
-              item.include = false;
-            }
           }
           if (type === 2) {
             item.typeVerification = val
@@ -341,9 +326,6 @@ export default {
       }
       this.tableData.forEach(item => {
         item.include = val;
-        if (item.type === 'array') {
-          item.include = false;
-        }
         this.childrenChecked(item.children, 1, val);
       })
     },
@@ -538,10 +520,5 @@ export default {
 .ms-import:hover {
   cursor: pointer;
   border-color: #783887;
-}
-
-.assertion-btn {
-  text-align: center;
-  width: 60px;
 }
 </style>

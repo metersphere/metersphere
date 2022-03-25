@@ -20,6 +20,7 @@
 import MsTableHeader from "../../../../../common/components/MsTableHeader";
 import MsTableButton from "../../../../../common/components/MsTableButton";
 import MsEnvironmentSelect from "../../../../../api/definition/components/case/MsEnvironmentSelect";
+
 export default {
   name: "TestPlanCaseListHeader",
   components: {MsEnvironmentSelect, MsTableButton, MsTableHeader},
@@ -34,9 +35,6 @@ export default {
           this.$emit('setEnvironment', data);
         });
       }
-    },
-    changeVersion(currentVersion) {
-      this.$emit('changeVersion', currentVersion);
     }
   }
 };
@@ -48,7 +46,4 @@ export default {
   margin-right: 10px;
 }
 
-.version-select {
-  padding-left: 10px;
-}
 </style>

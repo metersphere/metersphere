@@ -116,7 +116,6 @@ export const STATUS = {
     {label: "Saved", value: "Saved"}, {label: "Starting", value: "Starting"},
     {label: "Running", value: "Running"}, {label: "Reporting", value: "Reporting"},
     {label: "Completed", value: "Completed"}, {label: "Error", value: "Error"},
-    {label: "error_report_library.option.name", value: "errorReportResult"},
     {label: "Success", value: "Success"}
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
@@ -416,34 +415,6 @@ export const PRINCIPAL = {
   }
 };
 
-export const PRINCIPALAPI = {
-  key: "creator",
-  name: 'MsTableSearchSelect',
-  label: 'api_test.definition.request.responsible',
-  operator: {
-    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
-    change: function (component, value) { // 运算符change事件
-      if (value === OPERATORS.CURRENT_USER.value) {
-        component.value = value;
-      }
-    }
-  },
-  options: { // 异步获取候选项
-    url: "/user/list",
-    labelKey: "name",
-    valueKey: "id",
-    showLabel: option => {
-      return option.label + "(" + option.value + ")";
-    }
-  },
-  props: {
-    multiple: true
-  },
-  isShow: operator => {
-    return operator !== OPERATORS.CURRENT_USER.value;
-  }
-};
-
 export const STAGE = {
   key: "stage",
   name: 'MsTableSearchSelect',
@@ -531,26 +502,6 @@ export const CASE_REVIEW_STATUS = {
   }
 }
 
-export const PLAN_CASE_STATUS = {
-  key: "planCaseStatus",
-  name: 'MsTableSearchSelect',
-  label: "test_track.plan_view.execute_result",
-  operator: {
-    options: [OPERATORS.IN, OPERATORS.NOT_IN]
-  },
-  options: [
-    {label: "test_track.plan.plan_status_prepare", value: "Prepare"},
-    {label: "test_track.plan_view.pass", value: "Pass"},
-    {label: "test_track.plan_view.failure", value: "Failure"},
-    {label: "test_track.plan_view.blocking", value: "Blocking"},
-    {label: "test_track.plan_view.skip", value: "Skip"},
-    {label: "test_track.plan.plan_status_running", value: "Underway"},
-  ],
-  props: {
-    multiple: true
-  }
-}
-
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
@@ -561,7 +512,7 @@ export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME,
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];
 
-export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, PRINCIPALAPI, ISREFERENCE];
+export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, CREATOR,ISREFERENCE];
 
 export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR,ISREFERENCE];
 
@@ -570,7 +521,7 @@ export const API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_SCEN
 export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME,CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_REPORT_STATUS];
 
 // 测试计划 功能用例
-export const TEST_PLAN_TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, EXECUTOR, CASE_REVIEW_STATUS, PLAN_CASE_STATUS];
+export const TEST_PLAN_TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, EXECUTOR, CASE_REVIEW_STATUS];
 
 // 测试计划关联页面
 export const TEST_PLAN_RELEVANCE_FUNC_CONFIGS = [NAME, API_TAGS, CREATE_TIME, UPDATE_TIME, CREATOR];

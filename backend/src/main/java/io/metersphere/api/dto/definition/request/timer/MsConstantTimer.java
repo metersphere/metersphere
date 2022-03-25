@@ -20,7 +20,7 @@ import java.util.List;
 @JSONType(typeName = "ConstantTimer")
 public class MsConstantTimer extends MsTestElement {
     private String type = "ConstantTimer";
-    private String clazzName = MsConstantTimer.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.timer.MsConstantTimer";
 
     @JSONField(ordinal = 20)
     private String id;

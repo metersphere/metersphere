@@ -7,7 +7,6 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ public class ApiDefinitionImport {
     private List<ApiDefinitionWithBLOBs> data;
 
     // 新版本带用例导出
-    private List<ApiTestCaseWithBLOBs> cases = new ArrayList<>();
+    private List<ApiTestCaseWithBLOBs> cases;
 
     //ESB文件导入的附属数据类
     private Map<String,EsbApiParamsWithBLOBs> esbApiParamsMap;

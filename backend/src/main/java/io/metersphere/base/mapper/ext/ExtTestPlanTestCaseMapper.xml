@@ -114,12 +114,6 @@
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
-        <if test='${condition}.planCaseStatus != null'>
-            and test_plan_test_case.status
-            <include refid="condition">
-                <property name="object" value="${condition}.planCaseStatus"/>
-            </include>
-        </if>
 
     </sql>
 
@@ -177,10 +171,7 @@
             <if test="request.method != null">
                 and test_case.method = #{request.method}
             </if>
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="test_case"/>
-            </include>
-            and (test_case.status != 'Trash' or test_case.status is null)
+            and test_case.status != 'Trash'
             <include refid="filter"/>
         </where>
     </sql>
@@ -220,12 +211,6 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='version_id'">
-                            and test_case.version_id in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
                         <otherwise>
                             and test_plan_test_case.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -242,31 +227,27 @@
         select test_plan_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
         test_case.type,test_case.test_id as testId,test_case.node_id, test_case.tags, test_case.maintainer,
         test_case.custom_fields,
-        test_case.node_path, test_case.method, if(pa.type_value = 'false', cast(test_case.num as char),
+        test_case.node_path, test_case.method, if(project.custom_num = 0, cast(test_case.num as char),
         test_case.custom_num) as customNum, test_plan_test_case.executor, test_plan_test_case.status,
         test_plan_test_case.actual_result,
         test_plan_test_case.update_time, test_plan_test_case.create_time,test_case_node.name as model, project.name as
         projectName,test_plan_test_case.issues as issues,test_plan_test_case.issues_count as issuesCount,
-        test_plan_test_case.plan_id as planId,test_case.version_id as versionId,
-        project_version.name as versionName
+        test_plan_test_case.plan_id as planId
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id = test_case.node_id
         inner join project on project.id = test_case.project_id
-        inner join project_application pa on pa.project_id = project.id and pa.type = 'CASE_CUSTOM_NUM'
-        left join project_version on project_version.id = test_case.version_id and project.id =
-        project_version.project_id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
                 <choose>
                     <when test="order.name == 'custom_num'">
-                        customNum ${order.type}
+                     customNum ${order.type}
                     </when>
-                    <when test="order.name == 'name'">
+                     <when test="order.name == 'name'">
                         test_case.name ${order.type}
-                    </when>
+                     </when>
                     <otherwise>
                         test_plan_test_case.${order.name} ${order.type}
                     </otherwise>
@@ -274,7 +255,6 @@
             </foreach>
         </if>
     </select>
-
     <select id="selectIds" resultType="java.lang.String">
         select distinct test_plan_test_case.id as id
         from test_plan_test_case
@@ -397,7 +377,6 @@
         select status
         from test_plan_test_case
         where plan_id = #{planId}
-        AND case_id in (SELECT id FROM test_case WHERE (`status` is null or `status` != 'Trash'))
     </select>
     <select id="listByPlanId" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         SELECT test_plan_api_case.id as reportId,test_plan_api_case.api_case_id as id,"definition" as
@@ -453,28 +432,25 @@
 
     <select id="listForMinder" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select pc.id as id,
-        pc.executor, pc.status,
-        pc.update_time,
-        pc.plan_id as planId,
-        t.name, t.priority,
-        t.type, t.node_id,
-        t.steps, t.prerequisite,
-        t.remark,
-        t.id as caseId,
-        t.node_path, t.method, t.num, t.step_model, t.expected_result, t.step_description
+               pc.executor, pc.status,
+               pc.update_time,
+               pc.plan_id as planId,
+               t.name, t.priority,
+               t.type, t.node_id,
+               t.steps, t.prerequisite,
+               t.remark,
+               t.id as caseId,
+               t.node_path, t.method, t.num, t.step_model, t.expected_result, t.step_description
         from test_plan_test_case pc
         inner join test_case t on pc.case_id = t.id
         <where>
             pc.plan_id = #{request.planId}
             and t.node_id = #{request.nodeId}
-            and (t.status != 'Trash' or t.status is null)
         </where>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
-        select *
-        from test_case_test
-        where test_case_id = #{caseId};
+        select * from test_case_test where test_case_id = #{caseId};
     </select>
     <select id="selectIdsByQuery" resultType="java.lang.String">
         select test_plan_test_case.id
@@ -486,21 +462,21 @@
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
         select tptc.id, tptc.status
         from test_plan_test_case tptc
-                 inner join test_case tc
-                            on tc.id = tptc.case_id and tc.status != 'Trash'
+        inner join test_case tc
+        on tc.id = tptc.case_id and tc.status != 'Trash'
         where tptc.plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select tptc.id, tc.id as caseId, tc.name, tc.priority, tc.num, tc.custom_num, tc.project_id,
-        tc.node_id, tc.tags, tptc.actual_result,
-        tptc.update_time, tptc.create_time,
-        tptc.issues_count, tptc.status,
-        tptc.plan_id, tptc.executor
+               tc.node_id, tc.tags, tptc.actual_result,
+               tptc.update_time, tptc.create_time,
+               tptc.issues_count, tptc.status,
+               tptc.plan_id, tptc.executor
         from test_plan_test_case tptc
         inner join test_case tc on tptc.case_id = tc.id
-        <if test="status != null">
-            and tptc.status = 'Failure'
-        </if>
+       <if test="status != null">
+           and tptc.status = 'Failure'
+       </if>
         and (tc.status != 'Trash' or tc.status is null)
         where tptc.plan_id = #{planId} order by tptc.update_time desc
     </select>
@@ -538,14 +514,10 @@
     </delete>
 
     <select id="selectPlanIds" resultType="java.lang.String">
-        select DISTINCT plan_id
-        from test_plan_test_case;
+        select DISTINCT plan_id from test_plan_test_case;
     </select>
     <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
-        select id
-        from test_plan_test_case
-        where plan_id = #{planId}
-        order by update_time ASC;
+        select id from test_plan_test_case where plan_id = #{planId} order by update_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">
@@ -563,20 +535,4 @@
         </if>
         order by `order` desc limit 1;
     </select>
-
-    <select id="getTestCaseWithNodeInfo" resultType="io.metersphere.base.domain.TestCase">
-        select tc.project_id, tc.node_id
-        from test_plan_test_case tptc
-        join test_case tc on tptc.case_id = tc.id
-        where tptc.plan_id = #{planId}
-    </select>
-
-    <sql id="queryVersionCondition">
-        <if test="request.versionId != null">
-            and ${versionTable}.version_id = #{request.versionId}
-        </if>
-        <if test="request.refId != null">
-            and ${versionTable}.ref_id = #{request.refId}
-        </if>
-    </sql>
 </mapper>

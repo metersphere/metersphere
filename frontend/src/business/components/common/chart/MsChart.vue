@@ -1,17 +1,16 @@
 <template>
   <chart
-      v-if="loaded"
-      :style="{'height': chartHeight, 'width': chartWidth}"
-      class="ms-chart"
-      :init-options="defaultInitOptions"
-      :option="options"
-      :theme="theme"
-      :group="group"
-      @click="onClick"
-      @datazoom="datazoom"
-      :watch-shallow="watchShallow"
-      :manual-update="manualUpdate"
-      :autoresize="autoresize" id="chartsShow"/>
+    :style="{'height': chartHeight, 'width': chartWidth}"
+    class="ms-chart"
+    :init-options="defaultInitOptions"
+    :option="options"
+    :theme="theme"
+    :group="group"
+    @click="onClick"
+    @datazoom="datazoom"
+    :watch-shallow="watchShallow"
+    :manual-update="manualUpdate"
+    :autoresize="autoresize" id="chartsShow"/>
 </template>
 
 <script>
@@ -42,7 +41,6 @@ export default {
   },
   data() {
     return {
-      loaded: true,
       defaultInitOptions: this.initOptions
     };
   },
@@ -76,12 +74,6 @@ export default {
   methods: {
     onClick(params) {
       this.$emit('onClick', params.data);
-    },
-    reload() {
-      this.loaded = false;
-      this.$nextTick(() => {
-        this.loaded = true;
-      })
     },
     exportCharts(fileName, type) {
       if (document.getElementsByClassName('ms-chart')) {

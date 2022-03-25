@@ -14,27 +14,12 @@
       @save="save"
       ref="minder"
     />
-
-    <IssueRelateList
-      :plan-case-id="getCurId()"
-      :case-id="getCurCaseId()"
-      @refresh="refreshRelateIssue"
-      ref="issueRelate"/>
-
-    <test-plan-issue-edit
-      :is-minder="true"
-      :plan-id="planId"
-      :plan-case-id="getCurId()"
-      :case-id="getCurCaseId()"
-      @refresh="refreshIssue"
-      ref="issueEdit"/>
-
+    <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
+    <test-plan-issue-edit :plan-id="planId" :case-id="getCurCaseId()" @refresh="refreshIssue" ref="issueEdit"/>
   </div>
 </template>
 
 <script>
-const {getCurrentWorkspaceId} = require("@/common/js/utils");
-const {getIssuesListById} = require("@/network/Issue");
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
   handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
@@ -44,6 +29,7 @@ import {getPlanCasesForMinder} from "@/network/testCase";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
 import {addIssueHotBox} from "./minderUtils";
+import {getIssuesById} from "@/network/Issue";
 export default {
 name: "TestPlanMinder",
   components: {MsModuleMinder, TestPlanIssueEdit, IssueRelateList},
@@ -73,9 +59,6 @@ name: "TestPlanMinder",
   computed: {
     selectNode() {
       return this.$store.state.testPlanViewSelectNode;
-    },
-    workspaceId(){
-      return getCurrentWorkspaceId();
     }
   },
   mounted() {
@@ -115,7 +98,7 @@ name: "TestPlanMinder",
       listenDblclick(() => {
         let data = getSelectedNodeData();
         if (data.type === 'issue') {
-          getIssuesListById(data.id, this.projectId,this.workspaceId,(data) => {
+          getIssuesById(data.id, (data) => {
             data.customFields = JSON.parse(data.customFields);
             this.$refs.issueEdit.open(data);
           });
@@ -192,9 +175,6 @@ name: "TestPlanMinder",
     },
     getCurCaseId() {
       return getSelectedNodeData().caseId;
-    },
-    getCurId() {
-      return getSelectedNodeData().id;
     },
     refreshIssue(issue) {
       handleIssueAdd(issue);

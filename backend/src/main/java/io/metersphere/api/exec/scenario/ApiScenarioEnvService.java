@@ -88,13 +88,11 @@ public class ApiScenarioEnvService {
                         ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(tr.getId());
                         if (apiTestCaseWithBLOBs != null) {
                             env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
-                            env.setFullUrl(false);
                         }
                     } else {
                         ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                         if (apiDefinition != null) {
                             env.getProjectIds().add(apiDefinition.getProjectId());
-                            env.setFullUrl(false);
                         }
                     }
                 } else if (StringUtils.equals(tr.getType(), "scenario")) {
@@ -119,7 +117,6 @@ public class ApiScenarioEnvService {
                     }
                 } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                     env.getProjectIds().add(tr.getProjectId());
-                    env.setFullUrl(false);
                 }
             }
             if (StringUtils.equals(tr.getType(), "scenario")) {
@@ -166,11 +163,9 @@ public class ApiScenarioEnvService {
                         if (StringUtils.equals(tr.getRefType(), "CASE")) {
                             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(tr.getId());
                             env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
-                            env.setFullUrl(false);
                         } else {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                             env.getProjectIds().add(apiDefinition.getProjectId());
-                            env.setFullUrl(false);
                         }
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
@@ -198,7 +193,6 @@ public class ApiScenarioEnvService {
                         }
                     } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
-                        env.setFullUrl(false);
                     }
                 }
                 if (StringUtils.equals(tr.getType(), "scenario")) {
@@ -222,10 +216,7 @@ public class ApiScenarioEnvService {
      *
      * @param apiScenarioWithBLOBs
      */
-    public void setScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, RunScenarioRequest request) {
-        if (apiScenarioWithBLOBs == null) {
-            return;
-        }
+    public void setScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
         String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
         String environmentJson = apiScenarioWithBLOBs.getEnvironmentJson();
         String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
@@ -234,84 +225,79 @@ public class ApiScenarioEnvService {
         }
         String definition = apiScenarioWithBLOBs.getScenarioDefinition();
         MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
-        GenerateHashTreeUtil.parse(definition, scenario);
+        GenerateHashTreeUtil.parse(definition, scenario, apiScenarioWithBLOBs.getId(), null);
         if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
             scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
         } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
             Map<String, String> map = environmentGroupProjectService.getEnvMap(environmentGroupId);
             scenario.setEnvironmentMap(map);
         }
-        if (request != null && request.getConfig() != null && request.getConfig().getEnvMap() != null && !request.getConfig().getEnvMap().isEmpty()) {
-            scenario.setEnvironmentMap(request.getConfig().getEnvMap());
-        }
         apiScenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(scenario));
     }
 
     public boolean checkScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenario testPlanApiScenarios) {
+        String definition = apiScenarioWithBLOBs.getScenarioDefinition();
+        MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
         boolean isEnv = true;
-        if (apiScenarioWithBLOBs != null) {
-            String definition = apiScenarioWithBLOBs.getScenarioDefinition();
-            MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
-            Map<String, String> envMap = scenario.getEnvironmentMap();
-            if (testPlanApiScenarios != null) {
-                String envType = testPlanApiScenarios.getEnvironmentType();
-                String envJson = testPlanApiScenarios.getEnvironment();
-                String envGroupId = testPlanApiScenarios.getEnvironmentGroupId();
-                if (StringUtils.equals(envType, EnvironmentType.JSON.toString())
-                        && StringUtils.isNotBlank(envJson)) {
-                    envMap = JSON.parseObject(testPlanApiScenarios.getEnvironment(), Map.class);
-                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())
-                        && StringUtils.isNotBlank(envGroupId)) {
-                    envMap = environmentGroupProjectService.getEnvMap(envGroupId);
-                } else {
-                    envMap = new HashMap<>();
-                }
+        Map<String, String> envMap = scenario.getEnvironmentMap();
+        if (testPlanApiScenarios != null) {
+            String envType = testPlanApiScenarios.getEnvironmentType();
+            String envJson = testPlanApiScenarios.getEnvironment();
+            String envGroupId = testPlanApiScenarios.getEnvironmentGroupId();
+            if (StringUtils.equals(envType, EnvironmentType.JSON.toString())
+                    && StringUtils.isNotBlank(envJson)) {
+                envMap = JSON.parseObject(testPlanApiScenarios.getEnvironment(), Map.class);
+            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())
+                    && StringUtils.isNotBlank(envGroupId)) {
+                envMap = environmentGroupProjectService.getEnvMap(envGroupId);
+            } else {
+                envMap = new HashMap<>();
             }
-            ScenarioEnv apiScenarioEnv = getApiScenarioEnv(definition);
-            // 所有请求非全路径检查环境
-            if (!apiScenarioEnv.getFullUrl()) {
-                try {
-                    if (envMap == null || envMap.isEmpty()) {
-                        isEnv = false;
-                    } else {
-                        Set<String> projectIds = apiScenarioEnv.getProjectIds();
-                        projectIds.remove(null);
-                        if (CollectionUtils.isNotEmpty(envMap.keySet())) {
-                            for (String id : projectIds) {
-                                Project project = projectMapper.selectByPrimaryKey(id);
-                                if (project == null) {
-                                    id = apiScenarioWithBLOBs.getProjectId();
-                                }
-                                String s = envMap.get(id);
-                                if (StringUtils.isBlank(s)) {
+        }
+        ScenarioEnv apiScenarioEnv = getApiScenarioEnv(definition);
+        // 所有请求非全路径检查环境
+        if (!apiScenarioEnv.getFullUrl()) {
+            try {
+                if (envMap == null || envMap.isEmpty()) {
+                    isEnv = false;
+                } else {
+                    Set<String> projectIds = apiScenarioEnv.getProjectIds();
+                    projectIds.remove(null);
+                    if (CollectionUtils.isNotEmpty(envMap.keySet())) {
+                        for (String id : projectIds) {
+                            Project project = projectMapper.selectByPrimaryKey(id);
+                            if (project == null) {
+                                id = apiScenarioWithBLOBs.getProjectId();
+                            }
+                            String s = envMap.get(id);
+                            if (StringUtils.isBlank(s)) {
+                                isEnv = false;
+                                break;
+                            } else {
+                                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
+                                if (env == null) {
                                     isEnv = false;
                                     break;
-                                } else {
-                                    ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
-                                    if (env == null) {
-                                        isEnv = false;
-                                        break;
-                                    }
                                 }
                             }
-                        } else {
-                            isEnv = false;
                         }
+                    } else {
+                        isEnv = false;
                     }
-                } catch (Exception e) {
-                    isEnv = false;
-                    LogUtil.error(e.getMessage(), e);
                 }
+            } catch (Exception e) {
+                isEnv = false;
+                LogUtil.error(e.getMessage(), e);
             }
+        }
 
-            // 1.8 之前环境是 environmentId
-            if (!isEnv) {
-                String envId = scenario.getEnvironmentId();
-                if (StringUtils.isNotBlank(envId)) {
-                    ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
-                    if (env != null) {
-                        isEnv = true;
-                    }
+        // 1.8 之前环境是 environmentId
+        if (!isEnv) {
+            String envId = scenario.getEnvironmentId();
+            if (StringUtils.isNotBlank(envId)) {
+                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
+                if (env != null) {
+                    isEnv = true;
                 }
             }
         }
@@ -350,7 +336,7 @@ public class ApiScenarioEnvService {
             StringBuilder builder = new StringBuilder();
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
                 try {
-                    this.setScenarioEnv(apiScenarioWithBLOBs, request);
+                    this.setScenarioEnv(apiScenarioWithBLOBs);
                     boolean haveEnv = this.checkScenarioEnv(apiScenarioWithBLOBs, null);
                     if (!haveEnv) {
                         builder.append(apiScenarioWithBLOBs.getName()).append("; ");
@@ -365,7 +351,7 @@ public class ApiScenarioEnvService {
         } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
                 try {
-                    this.setScenarioEnv(apiScenarioWithBLOBs, request);
+                    this.setScenarioEnv(apiScenarioWithBLOBs);
                 } catch (Exception e) {
                     MSException.throwException("定时任务设置场景环境失败，场景ID： " + apiScenarioWithBLOBs.getId());
                 }

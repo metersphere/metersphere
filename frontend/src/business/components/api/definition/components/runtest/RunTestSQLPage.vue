@@ -1,9 +1,6 @@
 <template>
 
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-    </div>
     <el-card class="card-content">
       <!-- 操作按钮 -->
       <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
@@ -22,13 +19,15 @@
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <div v-loading="loading">
         <!-- TCP 请求参数 -->
-        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm" :response="responseData"/>
+        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
 
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
         <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
       </div>
+
+      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
     </el-card>
 
@@ -47,7 +46,7 @@
 </template>
 
 <script>
-import {getUUID, hasLicense} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
@@ -57,6 +56,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsRun from "../Run";
 import MsBasisParameters from "../request/database/BasisParameters";
 import {REQ_METHOD} from "../../model/JsonData";
+import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -68,7 +68,8 @@ export default {
     MsRequestResultTail,
     ApiEnvironmentConfig,
     MsRun,
-    MsBasisParameters
+    MsBasisParameters,
+    MsJmxStep
     },
     data() {
       return {
@@ -89,8 +90,7 @@ export default {
         },
         runData: [],
         reportId: "",
-        runLoading: false,
-        versionEnable: false,
+        runLoading: false
       }
     },
     props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
@@ -272,16 +272,6 @@ export default {
           this.$success(this.$t('report.test_stop_success'));
         });
       },
-      checkVersionEnable() {
-        if (!this.projectId) {
-          return;
-        }
-        if (hasLicense()) {
-          this.$get('/project/version/enable/' + this.projectId, response => {
-            this.versionEnable = response.data;
-          });
-        }
-      }
     },
     created() {
       // 深度复制
@@ -291,7 +281,6 @@ export default {
       this.runLoading = false;
       this.getEnvironments();
       this.getResult();
-      this.checkVersionEnable();
     }
   }
 </script>

@@ -5,7 +5,6 @@ import io.metersphere.commons.constants.TestReviewCaseStatus;
 import io.metersphere.track.request.testcase.TrackCount;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -111,23 +110,21 @@ public class TrackStatisticsDTO {
      */
     public void countPriority(List<TrackCountResult> trackCountResults) {
         for (TrackCountResult countResult : trackCountResults) {
-            if (StringUtils.isNotBlank(countResult.getGroupField())) {
-                switch (countResult.getGroupField().toUpperCase()){
-                    case TrackCount.P0:
-                        this.p0CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    case TrackCount.P1:
-                        this.p1CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    case TrackCount.P2:
-                        this.p2CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    case TrackCount.P3:
-                        this.p3CaseCountNumber += countResult.getCountNumber();
-                        break;
-                    default:
-                        break;
-                }
+            switch (countResult.getGroupField().toUpperCase()){
+                case TrackCount.P0:
+                    this.p0CaseCountNumber += countResult.getCountNumber();
+                    break;
+                case TrackCount.P1:
+                    this.p1CaseCountNumber += countResult.getCountNumber();
+                    break;
+                case TrackCount.P2:
+                    this.p2CaseCountNumber += countResult.getCountNumber();
+                    break;
+                case TrackCount.P3:
+                    this.p3CaseCountNumber += countResult.getCountNumber();
+                    break;
+                default:
+                    break;
             }
             this.allCaseCountNumber += countResult.getCountNumber();
         }

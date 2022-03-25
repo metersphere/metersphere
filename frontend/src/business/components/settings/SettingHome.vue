@@ -54,9 +54,9 @@ export default {
     let projectPermissions = hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ',
       'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ');
 
-    let wsPermissions = hasPermissions('WORKSPACE_SERVICE:READ', 'PROJECT_MESSAGE:READ', 'WORKSPACE_USER:READ',
+    let wsPermissions = hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ',
       'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ',
-      'PROJECT_TEMPLATE:READ');
+      'WORKSPACE_TEMPLATE:READ');
 
     let sysPermissions = hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ',
       'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ',
@@ -87,8 +87,6 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  min-width: 400px;
-  min-height: 400px;
   transform: translate(-50%, -50%);
 }
 

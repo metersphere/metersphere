@@ -22,7 +22,6 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.json.JSONToDocumentUtils;
@@ -102,7 +101,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/DefinitionCreate", subject = "接口定义通知")
     public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
@@ -111,7 +110,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
     public ApiDefinitionWithBLOBs update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
@@ -120,14 +119,14 @@ public class ApiDefinitionController {
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiDefinitionService.class)
     public void delete(@PathVariable String id) {
         apiDefinitionService.delete(id);
     }
 
     @PostMapping("/deleteBatch")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void deleteBatch(@RequestBody List<String> ids) {
         apiDefinitionService.deleteBatch(ids);
     }
@@ -142,14 +141,14 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/deleteBatchByParams")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void deleteBatchByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.deleteByParams(request);
     }
 
     @PostMapping("/removeToGc")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, target = "#targetClass.getBLOBs(#ids)", targetClass = ApiDefinitionService.class,
             event = NoticeConstants.Event.DELETE, mailTemplate = "api/DefinitionDelete", subject = "接口定义通知")
     public void removeToGc(@RequestBody List<String> ids) {
@@ -158,7 +157,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/removeToGcByParams")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class,
             mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
     public void removeToGcByParams(@RequestBody ApiBatchRequest request) {
@@ -166,7 +165,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/reduction")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void reduction(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.reduction(request);
     }
@@ -178,14 +177,14 @@ public class ApiDefinitionController {
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
     public MsExecResponseDTO runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         request.setDebug(true);
         return apiDefinitionService.run(request, bodyFiles);
     }
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public MsExecResponseDTO run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         request.setReportId(null);
         return apiDefinitionService.run(request, bodyFiles);
@@ -213,21 +212,21 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_IMPORT_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
     @PostMapping(value = "/export/{type}")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EXPORT_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiExportResult export(@RequestBody ApiBatchRequest request, @PathVariable String type) {
         return apiDefinitionService.export(request, type);
     }
 
     //定时任务创建
     @PostMapping(value = "/schedule/create")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.CREATE, title = "#request.scheduleFrom", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.scheduleFrom", project = "#request.projectId")
     public void createSchedule(@RequestBody ScheduleRequest request) {
         apiDefinitionService.createSchedule(request);
     }
@@ -274,22 +273,15 @@ public class ApiDefinitionController {
 
     @PostMapping("/batch/editByParams")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class,
-           mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
+            mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
     public void editByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiByParam(request);
     }
 
-    @PostMapping("/batch/copy")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_API)
-    @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
-    public void batchCopy(@RequestBody ApiBatchRequest request) {
-        apiDefinitionService.batchCopy(request);
-    }
-
     @PostMapping("/relevance")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testPlanRelevance(request);
     }
@@ -310,8 +302,8 @@ public class ApiDefinitionController {
         esbImportService.templateExport(response);
     }
 
-    @GetMapping("/getMockEnvironment/{projectId}")
-    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId) {
+    @GetMapping("/getMockEnvironment/{projectId}/{protocal}")
+    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, @PathVariable String protocal, HttpServletRequest request) {
         return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId);
     }
 
@@ -355,24 +347,9 @@ public class ApiDefinitionController {
         apiDefinitionService.saveFollows(definitionId, follows);
     }
 
+
     @GetMapping("/getWorkerQueue")
     public String getWorkerQueue() {
         return execThreadPoolExecutor.getWorkerQueue();
     }
-
-    @GetMapping("versions/{definitionId}")
-    public List<ApiDefinitionResult> getApiDefinitionVersions(@PathVariable String definitionId) {
-        return apiDefinitionService.getApiDefinitionVersions(definitionId);
-    }
-
-    @GetMapping("get/{version}/{refId}")
-    public ApiDefinitionResult getApiDefinition(@PathVariable String version, @PathVariable String refId) {
-        return apiDefinitionService.getApiDefinitionByVersion(refId, version);
-    }
-
-    @GetMapping("delete/{version}/{refId}")
-    public void deleteApiDefinition(@PathVariable String version, @PathVariable String refId) {
-        apiDefinitionService.deleteApiDefinitionByVersion(refId, version);
-    }
-
 }

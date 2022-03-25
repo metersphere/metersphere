@@ -24,7 +24,7 @@ export default {
       data: {}
     }
   },
-  props: ['title','tip', 'versionEnable'],
+  props: ['title','tip'],
   methods: {
     open(item) {
       this.visible = true;

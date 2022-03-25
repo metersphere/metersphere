@@ -37,19 +37,5 @@ public class TestPlanReportContentWithBLOBs extends TestPlanReportContent implem
 
     private String loadFailureCases;
 
-    private String planScenarioReportStruct;
-
-    private String planApiCaseReportStruct;
-
-    private String planLoadCaseReportStruct;
-
-    private String errorReportCases;
-
-    private String errorReportScenarios;
-
-    private String unExecuteCases;
-
-    private String unExecuteScenarios;
-
     private static final long serialVersionUID = 1L;
 }

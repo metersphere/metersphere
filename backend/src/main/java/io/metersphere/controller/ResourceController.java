@@ -20,18 +20,8 @@ public class ResourceController {
         resourceService.mdUpload(request, file);
     }
 
-    @GetMapping(value = "/md/get")
-    public ResponseEntity<FileSystemResource> getFile(@RequestParam ("fileName") String fileName) {
-        return resourceService.getMdImage(fileName);
-    }
-
-    /**
-     * 兼容旧版本
-     * @param fileName
-     * @return
-     */
     @GetMapping(value = "/md/get/{fileName}")
-    public ResponseEntity<FileSystemResource> getFileCompatible(@PathVariable("fileName") String fileName) {
+    public ResponseEntity<FileSystemResource> getFile(@PathVariable("fileName") String fileName) {
         return resourceService.getMdImage(fileName);
     }
 

@@ -133,7 +133,6 @@
         let obj = {apiDefinitionId: api.id, name: api.name, priority: 'P0', active: true, uuid: getUUID(), request: api.request};
         obj.projectId = getCurrentProjectID();
         obj.id = obj.uuid;
-        obj.versionId = api.versionId;
         let url = "/api/testcase/create";
         let bodyFiles = this.getBodyUploadFiles(obj);
         this.$fileUpload(url, null, bodyFiles, obj, (response) => {

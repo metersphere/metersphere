@@ -1,66 +1,63 @@
 <template>
 
   <div class="card-container">
-    <div class="ms-opt-btn" v-if="versionEnable">
-      {{ $t('project.version.name') }}: {{ apiData.versionName }}
-    </div>
     <el-card class="card-content">
 
-      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right" style="height: 100%">
+      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
 
         <!-- 操作按钮 -->
         <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
                      @command="handleCommand" size="small" style="float: right;margin-right: 20px" v-if="!runLoading">
-          {{ $t('commons.test') }}
+          {{$t('commons.test')}}
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
+            <el-dropdown-item command="load_case">{{$t('api_test.definition.request.load_case')}}
             </el-dropdown-item>
-            <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
+            <el-dropdown-item command="save_as_case">{{$t('api_test.definition.request.save_as_case')}}
             </el-dropdown-item>
-            <el-dropdown-item command="update_api">{{ $t('api_test.definition.request.update_api') }}</el-dropdown-item>
-            <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
+            <el-dropdown-item command="update_api">{{$t('api_test.definition.request.update_api')}}</el-dropdown-item>
+            <el-dropdown-item command="save_as_api">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">
-          {{ $t('report.stop_btn') }}
-        </el-button>
+        <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">{{ $t('report.stop_btn') }}</el-button>
 
-        <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
+        <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          {{ $t('api_test.definition.request.run_env') }}：
-          <environment-select :type="'TCP'" :current-data="api" :project-id="projectId" ref="environmentSelect"/>
+          {{$t('api_test.definition.request.run_env')}}：
+          <environment-select :type="'TCP'" :current-data="api" :project-id="projectId"/>
         </el-form-item>
-      </el-form>
+
 
         <!-- TCP 请求参数 -->
+        <!--        <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>-->
+        <!--        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>-->
+
         <div v-if="api.method=='TCP'" v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-tcp-format-parameters :request="api.request" @callback="runTest" :response="responseData"
-                                    ref="requestForm"/>
+<!--          <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>-->
+          <ms-tcp-format-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
           <!--返回结果-->
           <!-- HTTP 请求返回数据 -->
-          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+          <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
           <ms-request-result-tail :response="responseData" ref="runResult"/>
         </div>
         <div v-else-if="api.method=='ESB'" v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="true" :request="api.request"
-                          @callback="runTest" ref="requestForm"/>
+          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="true" :request="api.request"  @callback="runTest" ref="requestForm"/>
         </div>
+      </el-form>
 
+      <ms-jmx-step :request="api.request" :apiId="api.id" :response="responseData"/>
 
       <div v-if="api.method=='ESB'">
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
-        <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="false" :show-options-button="false"
-                                 :request="api.request" :response-data="responseData"/>
+        <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
+        <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="false" :show-options-button="false" :request="api.request" :response-data="responseData" />
       </div>
 
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api"
-                      :refreshSign="refreshSign"
+    <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api" :refreshSign="refreshSign"
                       :loaded="loaded" :createCase="createCase"
                       ref="caseList"/>
 
@@ -73,7 +70,7 @@
 
 <script>
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID, hasLicense} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
@@ -82,14 +79,15 @@ import MsRun from "../Run";
 import MsTcpFormatParameters from "@/business/components/api/definition/components/request/tcp/TcpFormatParameters";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
+import MsJmxStep from "../step/JmxStep";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
-
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
-const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
+const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "RunTestTCPPage",
   components: {
+    MsJmxStep,
     EnvironmentSelect,
     MsApiRequestForm,
     MsApiCaseList,
@@ -118,45 +116,12 @@ export default {
       },
       runData: [],
       reportId: "",
-      showXpackCompnent: false,
-      runLoading: false,
-      versionEnable: false,
+      showXpackCompnent:false,
+      runLoading: false
     }
   },
-  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
   methods: {
-    setRequestParam(param, isEnvironmentMock) {
-      this.init();
-      if (this.api.method === "TCP" && param && this.api.request) {
-        if (param.reportType) {
-          this.api.request.reportType = param.reportType;
-        }
-        if (param.jsonDataStruct) {
-          this.api.request.jsonDataStruct = param.jsonDataStruct;
-        }
-        if (param.rawDataStruct) {
-          this.api.request.rawDataStruct = param.rawDataStruct;
-        }
-        if (param.xmlDataStruct) {
-          this.api.request.xmlDataStruct = param.xmlDataStruct;
-        }
-        this.$nextTick(() => {
-          this.$refs.requestForm.reload();
-          this.$refs.requestForm.setReportType(param.reportType);
-        });
-      }
-      if (isEnvironmentMock) {
-        this.$nextTick(() => {
-          let url = "/api/definition/getMockEnvironment/";
-          this.$get(url + this.projectId, response => {
-            let mockEnvironment = response.data;
-            if (mockEnvironment !== null) {
-              this.$refs.environmentSelect.setEnvironment(mockEnvironment.id);
-            }
-          });
-        })
-      }
-    },
     handleCommand(e) {
       switch (e) {
         case "load_case":
@@ -171,7 +136,7 @@ export default {
           return this.$refs['requestForm'].validate();
       }
     },
-    refresh() {
+    refresh(){
       this.$emit('refresh');
     },
     runTest() {
@@ -262,10 +227,10 @@ export default {
       if (Object.prototype.toString.call(this.api.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
         this.api.response = JSON.parse(this.api.response);
       }
-      if (this.api.tags instanceof Array) {
+      if (this.api.tags instanceof  Array) {
         this.api.tags = JSON.stringify(this.api.tags);
       }
-      if (this.api.method === 'ESB') {
+      if(this.api.method==='ESB'){
         this.api.esbDataStruct = JSON.stringify(this.api.request.esbDataStruct);
         this.api.backEsbDataStruct = JSON.stringify(this.api.request.backEsbDataStruct);
       }
@@ -306,34 +271,17 @@ export default {
         this.$success(this.$t('report.test_stop_success'));
       });
     },
-    checkVersionEnable() {
-      if (!this.projectId) {
-        return;
-      }
-      if (hasLicense()) {
-        this.$get('/project/version/enable/' + this.projectId, response => {
-          this.versionEnable = response.data;
-        });
-      }
-    },
-    init() {
-      // 深度复制
-      this.api = JSON.parse(JSON.stringify(this.apiData));
-      this.api.protocol = this.currentProtocol;
-      if (!this.api.environmentId) {
-        this.api.environmentId = this.$store.state.useEnvironment;
-      }
-      this.currentRequest = this.api.request;
-      this.runLoading = false;
-      this.getResult();
-      if (requireComponent != null && JSON.stringify(esbDefinition) !== '{}') {
-        this.showXpackCompnent = true;
-      }
-      this.checkVersionEnable();
-    }
   },
   created() {
-    this.init();
+    // 深度复制
+    this.api = JSON.parse(JSON.stringify(this.apiData));
+    this.api.protocol = this.currentProtocol;
+    this.currentRequest = this.api.request;
+    this.runLoading = false;
+    this.getResult();
+    if (requireComponent != null && JSON.stringify(esbDefinition) !== '{}') {
+      this.showXpackCompnent = true;
+    }
   }
 }
 </script>

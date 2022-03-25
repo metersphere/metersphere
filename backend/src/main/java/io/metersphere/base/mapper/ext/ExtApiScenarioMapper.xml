@@ -154,7 +154,6 @@
     <select id="list" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
         api_scenario.custom_num, api_scenario.version, api_scenario.environment_type, api_scenario.environment_group_id,
-        api_scenario.version_id, api_scenario.ref_id, project_version.name as version_name,
         <if test="request.selectEnvironment == true">
             api_scenario.environment_json as env,
         </if>
@@ -162,16 +161,13 @@
         api_scenario.status, api_scenario.principal, api_scenario.step_total,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
-        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time
-        ,u2.name as principal_name,
-        api_scenario.create_user as creator , user.name as creator_name
+        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time ,u2.name as principal_name,
+        api_scenario.create_user as creator
         from api_scenario
         left join project on api_scenario.project_id = project.id
-        left join user on api_scenario.user_id = user.id and api_scenario.create_user = user.id
+        left join user on api_scenario.user_id = user.id
         left join user deleteUser on api_scenario.delete_user_id = deleteUser.id
         left join user u2 on api_scenario.principal = u2.id
-        left join project_version on api_scenario.project_id = project_version.project_id AND project_version.id =
-        api_scenario.version_id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -291,12 +287,6 @@
                                 </foreach>
                             </when>
 
-                            <when test="key=='version_id'">
-                                and api_scenario.version_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -320,9 +310,6 @@
                 where pc.test_plan_id = #{request.planId}
                 )
             </if>
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="api_scenario"/>
-            </include>
         </where>
     </sql>
 
@@ -330,12 +317,8 @@
       select * from api_scenario where tags like CONCAT('%', #{id},'%')
     </select>
 
-    <select id="selectIds" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
-        select api_scenario.*, project_version.name as version_name, project.version_enable
-        from api_scenario
-        LEFT JOIN project_version on project_version.project_id = api_scenario.project_id and project_version.id = version_id
-        LEFT JOIN project on api_scenario.project_id = project.id
-        WHERE api_scenario.id in
+    <select id="selectIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        select * from api_scenario where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
@@ -418,23 +401,23 @@
     </update>
 
     <select id="countByProjectID" resultType="java.lang.Long">
-        SELECT COUNT(DISTINCT ref_id) AS countNumber FROM api_scenario WHERE project_id = #{0} AND status != 'Trash' AND latest = 1
+        SELECT COUNT(id) AS countNumber FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
     <select id="selectIdAndScenarioByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         SELECT id,scenario_definition FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
     <select id="selectIdAndUseUrlByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        SELECT id,use_url FROM api_scenario WHERE project_id = #{0} AND status != 'Trash' AND latest = 1
+        SELECT id,use_url FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber FROM api_scenario
-        WHERE project_id = #{projectId}  AND status != 'Trash' and latest = 1
+        WHERE project_id = #{projectId}  AND status != 'Trash'
         AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countRunResultByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, if(last_result is null,"notRun",last_result) AS groupField  FROM api_scenario
-        WHERE project_id = #{0} AND status != 'Trash' and latest = 1
+        WHERE project_id = #{0} AND status != 'Trash'
         GROUP BY groupField
     </select>
 
@@ -477,7 +460,7 @@
         WHERE use_url IS NULL
     </select>
     <select id="selectTrash" resultType="java.lang.Integer">
-        select count(DISTINCT ref_id)
+        select count(1)
         from api_scenario
         where project_id = #{projectId}
           and status = 'Trash'
@@ -506,7 +489,7 @@
 
     <select id="countExecuteTimesByProjectID" resultType="java.lang.Long">
         SELECT SUM(execute_times) FROM api_scenario
-        WHERE project_id = #{0} and latest = 1
+        WHERE project_id = #{0}
     </select>
     <select id="selectProjectIds" resultType="java.lang.String">
         select DISTINCT project_id from api_scenario;
@@ -639,73 +622,4 @@
         and api_scenario.status != 'Trash';
     </select>
 
-    <select id="selectById" resultMap="BaseResultMap">
-        select api_scenario.*, project_version.name as version_name, project.version_enable
-        from api_scenario
-        LEFT JOIN project_version on project_version.project_id = api_scenario.project_id and project_version.id = version_id
-        LEFT JOIN project on api_scenario.project_id = project.id
-        WHERE api_scenario.id = #{id}
-    </select>
-
-    <sql id="queryVersionCondition">
-        <if test="request.versionId != null">
-            and ${versionTable}.version_id = #{request.versionId}
-        </if>
-        <if test="request.refId != null">
-            and ${versionTable}.ref_id = #{request.refId}
-        </if>
-        <if test="request.versionId == null and request.refId == null and request.id == null">
-            AND ${versionTable}.latest = 1
-        </if>
-    </sql>
-
-    <update id="clearLatestVersion">
-        UPDATE api_scenario
-        SET latest = 0
-        WHERE ref_id = #{refId}
-    </update>
-
-    <update id="addLatestVersion">
-        UPDATE api_scenario
-        INNER JOIN ((
-        SELECT tmp.id
-        FROM api_scenario tmp
-        JOIN project_version
-        ON tmp.project_id = project_version.project_id AND
-        tmp.version_id = project_version.id AND project_version.latest = TRUE
-        WHERE ref_id = #{refId,jdbcType=VARCHAR}
-        LIMIT 1
-        )
-        UNION ALL
-        (
-        SELECT tmp.id
-        FROM api_scenario tmp
-        JOIN project_version
-        ON tmp.project_id = project_version.project_id AND
-        tmp.version_id = project_version.id
-        AND NOT EXISTS(SELECT ref_id
-        FROM api_scenario tmp2
-        JOIN project_version
-        ON tmp2.project_id =
-        project_version.project_id AND
-        version_id =
-        project_version.id AND
-        project_version.latest = TRUE
-        WHERE tmp.ref_id = tmp2.ref_id)
-        WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
-        ORDER BY tmp.update_time DESC
-        LIMIT 1)) AS t ON api_scenario.id = t.id
-        SET api_scenario.latest = TRUE
-        WHERE ref_id = #{refId,jdbcType=VARCHAR}
-    </update>
-
-    <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
-        SELECT DISTINCT ref_id
-        FROM api_scenario
-        WHERE ref_id NOT IN (
-        SELECT DISTINCT ref_id
-        FROM api_scenario
-        WHERE version_id = #{versionId} AND project_id = #{projectId}
-        ) AND project_id = #{projectId}
-    </select>
 </mapper>

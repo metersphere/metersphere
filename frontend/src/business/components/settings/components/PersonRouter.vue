@@ -1,21 +1,20 @@
 <template>
   <div>
     <el-tabs v-model="activeIndex" >
-      <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+EDIT')" name="commons.personal_setting" :label="$t('commons.personal_setting')" class="setting-item" ></el-tab-pane>
-      <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+API_KEYS')" name="commons.api_keys" :label="$t('commons.api_keys')" class="setting-item" ></el-tab-pane>
-      <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+EDIT_PASSWORD')" name="change_password" :label="$t('member.edit_password')" class="setting-item" ></el-tab-pane>
-      <el-tab-pane  v-if="hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')&&(hasJira||hasTapd||hasZentao||hasAzure)&&hasPermission('WORKSPACE_SERVICE:READ')" name="third_account" :label="$t('commons.third_account')" class="setting-item" ></el-tab-pane>
+      <el-tab-pane  v-for="menu in persons" :key = "menu.title" :name="menu.title" :label="$t(menu.title)" class="setting-item"></el-tab-pane>
+      <el-tab-pane   name="change_password" :label="$t('member.edit_password')" class="setting-item"></el-tab-pane>
+      <el-tab-pane   name="third_account" :label="$t('commons.third_account')" class="setting-item"></el-tab-pane>
     </el-tabs>
     <ms-main-container>
-      <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" :form = form @getPlatformInfo = "getPlatformInfo" @cancel = "cancel"   />
-      <ms-api-keys v-if="activeIndex==='commons.api_keys'" />
-      <password-info v-if="activeIndex==='change_password'" :rule-form = "ruleForm" @cancel="cancel" ></password-info>
-      <el-form v-if="activeIndex==='third_account'" >
-        <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo" />
-        <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo" />
-        <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo" />
-        <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo" />
-        <el-form-item >
+      <ms-person-from-setting v-if="activeIndex==='commons.personal_setting'" :form = form @getPlatformInfo = "getPlatformInfo" @cancel = "cancel" />
+      <ms-api-keys v-if="activeIndex==='commons.api_keys'"/>
+      <password-info v-if="activeIndex==='change_password'" :rule-form = "ruleForm" @cancel="cancel"></password-info>
+      <el-form v-if="activeIndex==='third_account'">
+        <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo"/>
+        <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
+        <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
+        <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
+        <el-form-item>
           <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
           <el-button type="primary" @click="updateUser('updateUserForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
         </el-form-item>
@@ -32,13 +31,13 @@
   import MsApiKeys from "@/business/components/settings/personal/ApiKeys";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import PasswordInfo from "@/business/components/settings/personal/PasswordInfo";
-  import {getCurrentUser, getCurrentWorkspaceId, hasPermission} from "@/common/js/utils";
+  import {getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
   import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
   import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
   import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
   import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
   import {getIntegrationService} from "@/network/organization";
-  import {AZURE_DEVOPS, JIRA, TAPD, TokenKey, ZEN_TAO} from "@/common/js/constants";
+  import {TokenKey} from "@/common/js/constants";
 
   export default {
     name: "MsPersonRouter",
@@ -62,8 +61,8 @@
         return menus;
       };
       return{
-        //persons: getMenus('person'),
-        activeIndex: '',
+        persons: getMenus('person'),
+        activeIndex: 'commons.personal_setting',
         ruleForm:{},
         hasJira: false,
         hasTapd: false,
@@ -85,7 +84,6 @@
       }
     },
     methods:{
-      hasPermission,
       currentUser: () => {
         return getCurrentUser();
       },
@@ -187,24 +185,8 @@
           this.projectList = data.project
         });
       },
-      getActiveIndex(){
-        if(hasPermission('PERSONAL_INFORMATION:READ+EDIT')){
-          this.activeIndex = 'commons.personal_setting';
-          return;
-        }else if(hasPermission('PERSONAL_INFORMATION:READ+API_KEYS')){
-          this.activeIndex = 'commons.api_keys';
-          return;
-        }else if(hasPermission('PERSONAL_INFORMATION:READ+EDIT_PASSWORD')){
-          this.activeIndex = 'change_password';
-          return;
-        }else if(hasPermission('PERSONAL_INFORMATION:READ+THIRD_ACCOUNT')){
-          this.activeIndex = 'third_account';
-          return;
-        }
-      }
     },
     created() {
-      this.getActiveIndex();
       this.initTableData();
     }
 

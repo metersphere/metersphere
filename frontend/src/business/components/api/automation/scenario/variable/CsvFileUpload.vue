@@ -72,13 +72,13 @@ export default {
       }
     },
     handleRemove(file) {
-      let fileName = file.file ? file.file.name : file.name
-      this.$alert('是否确认删除CSV文件：【 ' + fileName + " 】？", '', {
+      this.$alert('是否确认删除CSV文件：【 ' + file.name + " 】？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
             this.$refs.upload.handleRemove(file);
             for (let i = 0; i < this.parameter.files.length; i++) {
+              let fileName = file.file ? file.file.name : file.name;
               let paramFileName = this.parameter.files[i].file ?
                 this.parameter.files[i].file.name : this.parameter.files[i].name;
               if (fileName === paramFileName) {

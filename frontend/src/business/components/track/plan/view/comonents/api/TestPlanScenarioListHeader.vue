@@ -23,10 +23,8 @@ import MsEnvironmentSelect from "../../../../../api/definition/components/case/M
 
 export default {
   name: "TestPlanScenarioListHeader",
-  components: {
-    MsEnvironmentSelect, MsTableButton, MsTableHeader
-  },
-  props: ['condition', 'isReadOnly', 'projectId'],
+  components: {MsEnvironmentSelect, MsTableButton, MsTableHeader},
+  props: ['condition', 'isReadOnly'],
   methods: {}
 };
 </script>

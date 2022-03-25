@@ -20,7 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DebugSampler")
 public class MsDebugSampler extends MsTestElement {
-    private String clazzName = MsDebugSampler.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsDebugSampler";
 
     @JSONField(ordinal = 40)
     private String type = "DebugSampler";

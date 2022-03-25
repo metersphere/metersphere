@@ -19,15 +19,13 @@
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
-
     <test-plan-functional v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
-                          :clickType="clickType" :plan-id="planId" :version-enable="versionEnable"
-                          ref="testPlanFunctional"/>
+                          :clickType="clickType" :plan-id="planId" ref="testPlanFunctional"/>
     <test-plan-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType"
-                   :plan-id="planId" :version-enable="versionEnable"/>
+                   :plan-id="planId"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
-                    :plan-id="planId" :version-enable="versionEnable"/>
-    <test-plan-report-content v-if="activeIndex === 'report'" :plan-id="planId" :version-enable="versionEnable"/>
+                    :plan-id="planId"/>
+    <test-plan-report-content v-if="activeIndex === 'report'" :plan-id="planId"/>
 
     <is-change-confirm
       :title="'请保存脑图'"
@@ -51,7 +49,7 @@ import MsTestPlanHeaderBar from "./comonents/head/TestPlanHeaderBar";
 import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
 import TestPlanApi from "./comonents/api/TestPlanApi";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 
@@ -76,9 +74,7 @@ export default {
       redirectCharType: '',
       //报表跳转过来的参数-通过哪种数据跳转的
       clickType: '',
-      tmpActiveIndex: '',
-      versionEnable: false,
-      projectId: null
+      tmpActiveIndex: ''
     };
   },
   computed: {
@@ -108,8 +104,6 @@ export default {
         this.$router.push('/track/plan/all');
       }
     });
-    this.projectId = getCurrentProjectID();
-    this.checkVersionEnable();
   },
   mounted() {
     this.getTestPlans();
@@ -171,17 +165,7 @@ export default {
       this.$nextTick(() => {
         this.isMenuShow = true;
       });
-    },
-    checkVersionEnable() {
-      if (!this.projectId) {
-        return;
-      }
-      if (hasLicense()) {
-        this.$get('/project/version/enable/' + this.projectId, response => {
-          this.versionEnable = response.data;
-        });
-      }
-    },
+    }
   },
 };
 </script>

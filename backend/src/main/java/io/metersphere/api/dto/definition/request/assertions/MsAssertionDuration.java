@@ -13,6 +13,6 @@ public class MsAssertionDuration extends MsAssertionType {
     }
 
     public boolean isValid() {
-        return value > 0 && isEnable();
+        return value > 0;
     }
 }

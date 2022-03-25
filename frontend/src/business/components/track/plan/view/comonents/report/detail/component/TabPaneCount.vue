@@ -20,10 +20,9 @@ export default {
   /*color: white;*/
   color: #783887;
   height: 20px;
-  border: 0 !important;
-  display: inline-block;
+  border: 0px !important;
   /*border-radius: 42%;*/
-  margin-left: 6px;
+  /*margin-left: 4px;*/
 }
 
 .fix-color {

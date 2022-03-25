@@ -1,16 +1,17 @@
 <template>
-  <el-card>
-    <el-row>
-      <span>{{ $t('api_test.request.assertions.description') }}</span>
-      <span style="float: right">
-        <api-json-path-suggest-button
-          :open-tip="$t('api_test.request.assertions.json_path_suggest')"
-          :clear-tip="$t('api_test.request.assertions.json_path_clear')"
-          :isReadOnly="isReadOnly"
-          @open="suggestJsonOpen"
-          @clear="clearJson"/>
-      </span>
-    </el-row>
+  <api-base-component
+    v-loading="loading"
+    @copy="copyRow"
+    @remove="remove"
+    @active="active"
+    :data="assertions"
+    :draggable="draggable"
+    :is-max="isMax"
+    :show-btn="showBtn"
+    color="#A30014"
+    background-color="#F7E6E9"
+    :title="$t('api_test.definition.request.assertions_rule')">
+
     <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
@@ -35,7 +36,6 @@
             :is-read-only="isReadOnly"
             :list="assertions.regex"
             :callback="after"
-            @callback="after"
             v-if="type === options.REGEX"
           />
           <ms-api-assertion-json-path
@@ -70,13 +70,18 @@
             :callback="after"
             v-if="type === options.DOCUMENT"
           />
-          <el-button v-if="!type" :disabled="true" type="primary" size="mini">
+          <el-button v-if="!type" :disabled="true" type="primary" size="small">
             {{ $t('api_test.request.assertions.add') }}
           </el-button>
         </el-col>
       </el-row>
     </div>
 
+    <api-json-path-suggest-button
+      :open-tip="$t('api_test.request.assertions.json_path_suggest')"
+      :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+      @open="suggestJsonOpen"
+      @clear="clearJson"/>
 
     <ms-api-assertions-edit
       :is-read-only="isReadOnly"
@@ -90,7 +95,7 @@
       @addSuggest="addJsonPathSuggest"
       ref="jsonpathSuggest"/>
 
-  </el-card>
+  </api-base-component>
 </template>
 
 <script>
@@ -138,10 +143,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    showVersion: {
-      type: Boolean,
-      default: true,
-    },
     assertions: {},
     node: {},
     request: {},
@@ -165,29 +166,7 @@ export default {
       reloadData: "",
     }
   },
-  watch: {
-    assertions: {
-      handler(v) {
-        this.computeStep();
-      },
-      deep: true
-    },
-  },
   methods: {
-    computeStep() {
-      let ruleSize = 0;
-      ruleSize = (this.assertions.jsonPath.length + this.assertions.jsr223.length + this.assertions.regex.length + this.assertions.xpath2.length);
-      if (this.assertions && this.assertions.document.data && (this.assertions.document.data.json.length > 0 || this.assertions.document.data.xml.length > 0)) {
-        ruleSize++;
-      }
-      if (this.assertions.duration && this.assertions.duration.value > 0) {
-        ruleSize++;
-      }
-      ruleSize += this.assertions.text ? this.assertions.text.length : 0;
-      this.request.ruleSize = ruleSize;
-      this.$emit('reload');
-    },
-
     after() {
       this.type = "";
       this.reloadData = getUUID().substring(0, 8);
@@ -227,12 +206,11 @@ export default {
       let expect = jsonItem.expect;
       if (expect) {
         expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
-          .replaceAll('+', "\\+").replaceAll('[', "\\[").replaceAll(']', "\\]")
+          .replaceAll('+', "\\+").replaceAll('.', "\\.").replaceAll('[', "\\[").replaceAll(']', "\\]")
           .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
           .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
       }
       jsonItem.expect = expect;
-      jsonItem.enable = true;
       this.assertions.jsonPath.push(jsonItem);
     },
     clearJson() {

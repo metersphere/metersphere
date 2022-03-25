@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
-    <ms-aside-container v-show="isAsideHidden">
+    <ms-aside-container>
       <ms-api-scenario-module
         :show-operator="true"
         @nodeSelectEvent="nodeChange"
@@ -39,11 +39,7 @@
             :custom-num="customNum"
             :init-api-table-opretion="initApiTableOpretion"
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
-            ref="apiTrashScenarioList">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-            </template>
-          </ms-api-scenario-list>
+            ref="apiTrashScenarioList"/>
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
@@ -62,11 +58,7 @@
             :custom-num="customNum"
             :init-api-table-opretion="initApiTableOpretion"
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
-            ref="apiScenarioList">
-            <template v-slot:version>
-              <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-            </template>
-          </ms-api-scenario-list>
+            ref="apiScenarioList"/>
         </el-tab-pane>
 
 
@@ -106,16 +98,11 @@
 <script>
 
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
-import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
-
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
-const jsondiffpatch = require('jsondiffpatch');
+import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
   name: "ApiAutomation",
   components: {
-    'VersionSelect': VersionSelect.default,
     MsApiScenarioModule: () => import("@/business/components/api/automation/scenario/ApiScenarioModule"),
     MsApiScenarioList: () => import("@/business/components/api/automation/scenario/ApiScenarioList"),
     MsMainContainer: () => import("@/business/components/common/components/MsMainContainer"),
@@ -161,24 +148,18 @@ export default {
       customNum: false,
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
-      isSave: false,
-      isAsideHidden: true,
     };
   },
   created() {
-    let workspaceId = this.$route.params.workspaceId;
-    if (workspaceId) {
-      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
-    }
     let projectId = this.$route.params.projectId;
-    if (projectId) {
+    if(projectId){
       sessionStorage.setItem(PROJECT_ID, projectId);
     }
   },
   mounted() {
     this.getProject();
     this.getTrashCase();
-    this.init();
+    this.init()
   },
   watch: {
     redirectID() {
@@ -201,7 +182,6 @@ export default {
       this.activeName = "default";
     },
     activeName() {
-      this.isAsideHidden = this.activeName === 'default';
     }
   },
   methods: {
@@ -287,7 +267,7 @@ export default {
           status: "Underway", principal: getCurrentUser().id,
           apiScenarioModuleId: "default-module", id: getUUID(),
           modulePath: "/" + this.$t("commons.module_title"),
-          level: "P0", type: "add"
+          level: "P0"
         };
         if (this.nodeTree && this.nodeTree.length > 0) {
           currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
@@ -329,42 +309,28 @@ export default {
     },
     handleTabClose() {
       let message = "";
-      if (!this.isSave) {
-        this.tabs.forEach(t => {
-          this.diff(t);
-          if (t && this.isSave) {
-            message += t.currentScenario.name + "，";
-            this.isSave = false;
+      this.tabs.forEach(t => {
+        if (t && this.$store.state.scenarioMap.has(t.currentScenario.id) && this.$store.state.scenarioMap.get(t.currentScenario.id) > 1) {
+          message += t.currentScenario.name + "，";
+        }
+      })
+      if (message !== "") {
+        this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.scenarioMap.clear();
+              this.tabs = [];
+              this.activeName = "default";
+              this.refresh();
+            }
           }
         });
-        if (message !== "") {
-          this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.tabs = [];
-                this.activeName = "default";
-                this.isSave = false;
-              } else {
-                this.isSave = false;
-              }
-            }
-          });
-        } else {
-          this.tabs = [];
-          this.activeName = "default";
-          this.refresh();
-          this.isSave = false;
-        }
       } else {
         this.tabs = [];
         this.activeName = "default";
         this.refresh();
-        this.isSave = false;
-      }
-      if (this.tabs && this.tabs.length === 0) {
-        this.refreshAll();
       }
     },
     handleCommand(e) {
@@ -389,150 +355,22 @@ export default {
         this.activeName = "default";
       }
     },
-    diff(t) {
-      if (t.currentScenario.type !== "add") {
-        let v1 = t.currentScenario.scenarioDefinitionOrg;
-        let v2 = {
-          apiScenarioModuleId: t.currentScenario.apiScenarioModuleId,
-          name: t.currentScenario.name,
-          status: t.currentScenario.status,
-          principal: t.currentScenario.principal,
-          level: t.currentScenario.level,
-          tags: t.currentScenario.tags,
-          description: t.currentScenario.description,
-          scenarioDefinition: t.currentScenario.scenarioDefinition
-        };
-        let v3 = JSON.parse(JSON.stringify(v2));
-        if (v1.scenarioDefinition) {
-          this.deleteResourceIds(v1.scenarioDefinition);
-        }
-        if (v3.scenarioDefinition) {
-          this.deleteResourceIds(v3.scenarioDefinition);
-        }
-        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
-        if (delta) {
-          this.isSave = true;
-        }
-      }
-    },
-    deleteResourceIds(array) {
-      array.forEach(item => {
-        if (item.resourceId) {
-          delete item.resourceId;
-        }
-        if (item.method) {
-          delete item.method;
-        }
-        if (item.timeout >= 0) {
-          delete item.timeout;
-        }
-        if (item.ctimeout >= 0) {
-          delete item.ctimeout;
-        }
-        if (item.rest && item.rest.length === 0) {
-          delete item.rest;
-        }
-        if (item.arguments && item.arguments.length === 0) {
-          delete item.arguments;
-        }
-        if (item.id) {
-          delete item.id;
-        }
-        if (!item.checkBox) {
-          delete item.checkBox;
-        }
-        if (!item.isBatchProcess) {
-          delete item.isBatchProcess;
-        }
-        if (!item.isLeaf || item.isLeaf) {
-          delete item.isLeaf;
-        }
-        if (item.maxThreads) {
-          delete item.maxThreads;
-        }
-        if (item.parentIndex) {
-          delete item.parentIndex
-        }
-        if (item.connectTimeout) {
-          delete item.connectTimeout;
-        }
-        if (item.index) {
-          delete item.index;
-        }
-        if (item.postSize >= 0) {
-          delete item.postSize;
-        }
-        if (item.preSize >= 0) {
-          delete item.preSize;
-        }
-        if (item.requestResult) {
-          delete item.requestResult;
-        }
-        if (item.responseTimeout) {
-          delete item.responseTimeout;
-        }
-        if (item.root) {
-          delete item.root;
-        }
-        if (item.ruleSize >= 0) {
-          delete item.ruleSize;
-        }
-        if (item.delay) {
-          item.delay = Number(item.delay);
-        }
-        if (item.body && item.body.kvs) {
-          item.body.kvs.forEach(v => {
-            if (v.files) {
-              delete v.files;
-            }
-          })
-        }
-        if (item.body && ((item.body.binary && item.body.binary.length === 0) || (item.body.kvs && item.body.kvs.length === 0))) {
-          delete item.body;
-        }
-        delete item.projectId;
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.deleteResourceIds(item.hashTree);
-        }
-      })
-    },
     closeConfirm(targetName) {
-      let message = "";
-      let tab = this.tabs.filter(tab => tab.name === targetName);
-      if (!this.isSave) {
-        tab.forEach(t => {
-          this.diff(t);
-          if (t && this.isSave) {
-            message += t.currentScenario.name + "，";
+      let t = this.tabs.filter(tab => tab.name === targetName);
+      if (t && this.$store.state.scenarioMap.has(t[0].currentScenario.id) && this.$store.state.scenarioMap.get(t[0].currentScenario.id) > 1) {
+        this.$alert(this.$t('commons.scenario') + " [ " + t[0].currentScenario.name + " ] " + this.$t('commons.confirm_info'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.scenarioMap.delete(t[0].currentScenario.id);
+              this.removeTab(targetName);
+            }
           }
         });
-        if (message !== "") {
-          this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.removeTab(targetName);
-                this.isSave = false;
-              } else {
-                this.isSave = false;
-              }
-            }
-          });
-        } else {
-          this.isSave = false;
-          this.removeTab(targetName);
-        }
       } else {
-        this.isSave = false;
+        this.$store.state.scenarioMap.delete(t[0].currentScenario.id);
         this.removeTab(targetName);
-      }
-      if (tab) {
-        tab.splice(0, 1);
-        tab = undefined;
-      }
-      if (this.tabs && this.tabs.length === 0) {
-        this.refreshAll();
       }
     },
     removeTab(targetName) {
@@ -542,10 +380,6 @@ export default {
         this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
         this.activeName = "default";
-      }
-      let index = this.tabs.findIndex(item => item.name === targetName);
-      if (index !== -1) {
-        this.tabs.splice(index, 1);
       }
     },
     setTabLabel(data) {
@@ -567,15 +401,15 @@ export default {
       }
     },
     refresh(data) {
-      if (data) {
-        this.setTabTitle(data);
+      this.setTabTitle(data);
+      this.$refs.apiScenarioList.search(data);
+      if (this.$refs.apiTrashScenarioList) {
+        this.$refs.apiTrashScenarioList.search(data);
       }
-      this.isSave = true;
+      this.$refs.nodeTree.list();
     },
     refreshTree() {
-      if (this.$refs.nodeTree) {
-        this.$refs.nodeTree.list();
-      }
+      this.$refs.nodeTree.list();
     },
     refreshAll() {
       this.$refs.nodeTree.list();
@@ -587,7 +421,7 @@ export default {
     setTabTitle(data) {
       for (let index in this.tabs) {
         let tab = this.tabs[index];
-        if (tab && tab.name === this.activeName) {
+        if (tab.name === this.activeName) {
           tab.label = data.name;
           break;
         }
@@ -596,7 +430,7 @@ export default {
     init() {
       let scenarioData = this.$route.params.scenarioData;
       if (scenarioData) {
-        this.editScenario(scenarioData);
+        this.editScenario(scenarioData)
       }
     },
     editScenario(row) {
@@ -641,7 +475,7 @@ export default {
       });
     },
     getProject() {
-      this.$get('/project_application/get/config/' + this.projectId + "/SCENARIO_CUSTOM_NUM", result => {
+      this.$get("/project/get/" + this.projectId, result => {
         let data = result.data;
         if (data) {
           this.customNum = data.scenarioCustomNum;
@@ -650,17 +484,6 @@ export default {
     },
     updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
-    },
-    changeVersion(currentVersion) {
-      if (this.$refs.apiScenarioList) {
-        this.$refs.apiScenarioList.condition.versionId = currentVersion || null;
-        this.$refs.apiScenarioList.getVersionOptions(currentVersion);
-      }
-      if (this.$refs.apiTrashScenarioList) {
-        this.$refs.apiTrashScenarioList.condition.versionId = currentVersion || null;
-        this.$refs.apiTrashScenarioList.getVersionOptions(currentVersion);
-      }
-      this.refresh();
     }
   }
 };

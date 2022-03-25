@@ -533,9 +533,9 @@ export function handleMinderIssueDelete(commandName, isPlan) {
       nodes.forEach(node => {
         let data = node.data;
         if (data.type === 'issue') {
-          let caseResourceId = node.parent.data.id;
+          let caseId = isPlan ? node.parent.data.caseId : node.parent.data.id
           let p = new Promise((resolve) => {
-            deleteIssueRelate({id: data.id, caseResourceId, isPlanEdit: isPlan}, () => {
+            deleteIssueRelate({id: data.id, caseId: caseId}, () => {
               resolve();
             });
           });

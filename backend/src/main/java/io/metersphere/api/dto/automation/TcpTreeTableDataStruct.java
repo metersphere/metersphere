@@ -28,7 +28,6 @@ public class TcpTreeTableDataStruct {
     private String type;
     private String systemName;
     private String contentType;
-    private String condition;
     private boolean required;
     private String description;
     private List<TcpTreeTableDataStruct> children;
@@ -115,6 +114,7 @@ public class TcpTreeTableDataStruct {
         try {
             element = document.addElement(this.name);
             if (StringUtils.equalsAnyIgnoreCase(type, "string", "array")) {
+                long lengthNum = Long.parseLong(this.contentType);
                 String attrString = "";
                 if (StringUtils.equalsIgnoreCase(this.type, "string")) {
                     attrString = "s," + contentType;
@@ -153,6 +153,7 @@ public class TcpTreeTableDataStruct {
         try {
             element = document.addElement(this.name);
             if (StringUtils.equalsAnyIgnoreCase(type, "string", "array")) {
+                long lengthNum = Long.parseLong(this.contentType);
                 String attrString = "";
                 if (StringUtils.equalsIgnoreCase(this.type, "string")) {
                     attrString = "s," + contentType;

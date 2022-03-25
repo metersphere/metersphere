@@ -1,22 +1,16 @@
 <template>
-  <el-main v-loading="result.loading" class="container" :style="isCaseEdit ? '' : 'height: calc(100vh - 62px)'">
+  <el-main v-loading="result.loading" class="container" :style="isPlan ? '' : 'height: calc(100vh - 62px)'">
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
         <el-form-item v-if="!enableThirdPartTemplate" :label="$t('commons.title')" prop="title">
-          <el-row>
-            <el-col  :span="22">
-              <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
-            </el-col>
-            <el-col  :span="2">
-              <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
-                <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
-              </el-tooltip>
-              <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
-                <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
-              </el-tooltip>
-            </el-col>
-          </el-row>
+          <el-input v-model="form.title" autocomplete="off" class="top-input-class"></el-input>
+          <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+            <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-left: 15px;cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow" >
+            <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-left: 15px; cursor: pointer;position: relative;top: 5px" @click="saveFollow" />
+          </el-tooltip>
         </el-form-item>
         <div v-else style="text-align: right; margin-bottom: 5px">
           <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
@@ -67,8 +61,8 @@
           </el-col>
         </el-row>
 
-        <el-form-item v-if="!isCaseEdit">
-          <test-case-issue-list :issues-id="form.id"
+        <el-form-item v-if="!isPlan">
+          <test-case-issue-list :test-case-contain-ids="testCaseContainIds" :issues-id="form.id"
                                 ref="testCaseIssueList"/>
         </el-form-item>
 
@@ -95,10 +89,8 @@
             </div>
           </el-col>
         </el-row>
-
         <issue-comment :issues-id="form.id"
-                       @getComments="getComments"
-                       ref="issueComment"/>
+                           @getComments="getComments" ref="issueComment"/>
       </el-form>
     </el-scrollbar>
 
@@ -110,14 +102,19 @@
 import TemplateComponentEditHeader
   from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
-import CustomFieldFormList from "@/business/components/project/template/CustomFieldFormList";
-import CustomFieldRelateList from "@/business/components/project/template/CustomFieldRelateList";
+import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
+import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
-import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId,} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+} from "@/common/js/utils";
 import {enableThirdPartTemplate, getIssuePartTemplateWithProject} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
@@ -156,12 +153,13 @@ export default {
       rules: {
         title: [
           {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
-          {max: 300, message: this.$t('test_track.length_less_than') + '300', trigger: 'blur'}
+          {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
         ],
         description: [
           {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
         ]
       },
+      testCaseContainIds: new Set(),
       url: '',
       form: {
         title: '',
@@ -169,8 +167,7 @@ export default {
         creator: null,
         remark: null,
         tapdUsers:[],
-        zentaoBuilds:[],
-        zentaoAssigned: ''
+        zentaoBuilds:[]
       },
       tapdUsers: [],
       zentaoUsers: [],
@@ -217,7 +214,7 @@ export default {
     };
   },
   props: {
-    isCaseEdit: {
+    isPlan: {
       type: Boolean,
       default() {
         return false;
@@ -225,7 +222,6 @@ export default {
     },
     caseId: String,
     planId: String,
-    planCaseId: String,
     isMinder: Boolean,
   },
   computed: {
@@ -304,6 +300,7 @@ export default {
       }
     },
     initEdit(data) {
+      this.testCaseContainIds = new Set();
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
@@ -363,24 +360,10 @@ export default {
       param.projectId = this.projectId;
       param.workspaceId = getCurrentWorkspaceId();
       buildCustomFields(this.form, param, this.issueTemplate);
-      if (this.planId) {
-        // 测试计划用例创建缺陷
-        if (!this.form.id) {
-          param.addResourceIds = [this.planCaseId];
-          param.refId = this.caseId;
-          param.isPlanEdit = true;
-        }
+      if (this.isPlan) {
+        param.testCaseIds = [this.caseId];
       } else {
-        if (this.isCaseEdit) {
-          // 功能用例创建缺陷
-          if (!this.form.id) {
-            param.addResourceIds = [this.caseId];
-          }
-        } else {
-          // 缺陷管理创建缺陷
-          param.addResourceIds = [...this.$refs.testCaseIssueList.addIds];
-          param.deleteResourceIds = [...this.$refs.testCaseIssueList.deleteIds];
-        }
+        param.testCaseIds = Array.from(this.testCaseContainIds);
       }
       if (this.planId) {
         param.resourceId = this.planId;
@@ -462,7 +445,7 @@ export default {
 
 <style scoped>
 .top-input-class{
-  width: 100%;
+  width: 95%;
 }
 
 .filed-list {

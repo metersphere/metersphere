@@ -112,10 +112,6 @@ export default {
   computed: {
     language() {
       const user = getCurrentUser();
-      // 取值为空时默认中文，如：导出
-      if (!user) {
-        return 'zh_CN';
-      }
       const language = user.language;
       switch (language) {
         case 'zh_CN':
@@ -130,39 +126,35 @@ export default {
     }
   },
   mounted() {
-    if(!this.disabled){
-      // 点击编辑，失去焦点展示
-      let el = document.getElementById(this.id);
-      if (!this.autoReview) {
-        this.defaultOpen = null;
-      }
-      if (el) {
-        el.addEventListener('click', () => {
-          let imagePreview = el.getElementsByClassName('v-note-img-wrapper');
-          if (imagePreview.length > 0) { // 图片预览的时候不切换到编辑模式
-            if (this.autoReview)
-              this.defaultOpen = 'preview';
-          } else {
-            if (this.autoReview)
-              this.defaultOpen = null;
-          }
-        });
-        let input = el.getElementsByClassName('auto-textarea-input');
-        input[0].addEventListener('blur', () => {
+    // 点击编辑，失去焦点展示
+    let el = document.getElementById(this.id);
+    if (!this.autoReview) {
+      this.defaultOpen = null;
+    }
+    if (el) {
+      el.addEventListener('click', () => {
+        let imagePreview = el.getElementsByClassName('v-note-img-wrapper');
+        if (imagePreview.length > 0) { // 图片预览的时候不切换到编辑模式
           if (this.autoReview)
             this.defaultOpen = 'preview';
-        });
-      }
+        } else {
+          if (this.autoReview)
+            this.defaultOpen = null;
+        }
+      });
+      let input = el.getElementsByClassName('auto-textarea-input');
+      input[0].addEventListener('blur', () => {
+        if (this.autoReview)
+          this.defaultOpen = 'preview';
+      });
     }
-
   },
   methods: {
     imgAdd(pos, file){
       this.result.loading = true;
       uploadMarkDownImg(file, (response, param) => {
         this.$success(this.$t('commons.save_success'));
-        let url = '/resource/md/get?fileName='  +  param.id + '_' + encodeURIComponent(param.fileName);
-        this.$refs.md.$img2Url(pos, url);
+        this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id + '_' + param.fileName);
         this.result.loading = false;
       });
       this.$emit('imgAdd', file);

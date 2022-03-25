@@ -1064,76 +1064,6 @@ public class LoadTestReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andTestResourcePoolIdIsNull() {
-            addCriterion("test_resource_pool_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdIsNotNull() {
-            addCriterion("test_resource_pool_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdEqualTo(String value) {
-            addCriterion("test_resource_pool_id =", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdNotEqualTo(String value) {
-            addCriterion("test_resource_pool_id <>", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdGreaterThan(String value) {
-            addCriterion("test_resource_pool_id >", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdGreaterThanOrEqualTo(String value) {
-            addCriterion("test_resource_pool_id >=", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdLessThan(String value) {
-            addCriterion("test_resource_pool_id <", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdLessThanOrEqualTo(String value) {
-            addCriterion("test_resource_pool_id <=", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdLike(String value) {
-            addCriterion("test_resource_pool_id like", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdNotLike(String value) {
-            addCriterion("test_resource_pool_id not like", value, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdIn(List<String> values) {
-            addCriterion("test_resource_pool_id in", values, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdNotIn(List<String> values) {
-            addCriterion("test_resource_pool_id not in", values, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdBetween(String value1, String value2) {
-            addCriterion("test_resource_pool_id between", value1, value2, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestResourcePoolIdNotBetween(String value1, String value2) {
-            addCriterion("test_resource_pool_id not between", value1, value2, "testResourcePoolId");
-            return (Criteria) this;
-        }
-
         public Criteria andTestStartTimeIsNull() {
             addCriterion("test_start_time is null");
             return (Criteria) this;
@@ -1314,73 +1244,73 @@ public class LoadTestReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdIsNull() {
-            addCriterion("version_id is null");
+        public Criteria andTestResourcePoolIdIsNull() {
+            addCriterion("test_resource_pool_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdIsNotNull() {
-            addCriterion("version_id is not null");
+        public Criteria andTestResourcePoolIdIsNotNull() {
+            addCriterion("test_resource_pool_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdEqualTo(String value) {
-            addCriterion("version_id =", value, "versionId");
+        public Criteria andTestResourcePoolIdEqualTo(String value) {
+            addCriterion("test_resource_pool_id =", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotEqualTo(String value) {
-            addCriterion("version_id <>", value, "versionId");
+        public Criteria andTestResourcePoolIdNotEqualTo(String value) {
+            addCriterion("test_resource_pool_id <>", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdGreaterThan(String value) {
-            addCriterion("version_id >", value, "versionId");
+        public Criteria andTestResourcePoolIdGreaterThan(String value) {
+            addCriterion("test_resource_pool_id >", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdGreaterThanOrEqualTo(String value) {
-            addCriterion("version_id >=", value, "versionId");
+        public Criteria andTestResourcePoolIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_resource_pool_id >=", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdLessThan(String value) {
-            addCriterion("version_id <", value, "versionId");
+        public Criteria andTestResourcePoolIdLessThan(String value) {
+            addCriterion("test_resource_pool_id <", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdLessThanOrEqualTo(String value) {
-            addCriterion("version_id <=", value, "versionId");
+        public Criteria andTestResourcePoolIdLessThanOrEqualTo(String value) {
+            addCriterion("test_resource_pool_id <=", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdLike(String value) {
-            addCriterion("version_id like", value, "versionId");
+        public Criteria andTestResourcePoolIdLike(String value) {
+            addCriterion("test_resource_pool_id like", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotLike(String value) {
-            addCriterion("version_id not like", value, "versionId");
+        public Criteria andTestResourcePoolIdNotLike(String value) {
+            addCriterion("test_resource_pool_id not like", value, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdIn(List<String> values) {
-            addCriterion("version_id in", values, "versionId");
+        public Criteria andTestResourcePoolIdIn(List<String> values) {
+            addCriterion("test_resource_pool_id in", values, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotIn(List<String> values) {
-            addCriterion("version_id not in", values, "versionId");
+        public Criteria andTestResourcePoolIdNotIn(List<String> values) {
+            addCriterion("test_resource_pool_id not in", values, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdBetween(String value1, String value2) {
-            addCriterion("version_id between", value1, value2, "versionId");
+        public Criteria andTestResourcePoolIdBetween(String value1, String value2) {
+            addCriterion("test_resource_pool_id between", value1, value2, "testResourcePoolId");
             return (Criteria) this;
         }
 
-        public Criteria andVersionIdNotBetween(String value1, String value2) {
-            addCriterion("version_id not between", value1, value2, "versionId");
+        public Criteria andTestResourcePoolIdNotBetween(String value1, String value2) {
+            addCriterion("test_resource_pool_id not between", value1, value2, "testResourcePoolId");
             return (Criteria) this;
         }
     }

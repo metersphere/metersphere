@@ -1,12 +1,11 @@
 <template>
   <div v-if="visible">
-    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer">
+    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom">
       <template v-slot:header>
         <api-case-header
           :api="api"
           @setEnvironment="setEnvironment"
           @addCase="addCase"
-          @saveCase="saveCase(apiCaseList[0])"
           :condition="condition"
           :priorities="priorities"
           :project-id="projectId"
@@ -17,24 +16,26 @@
 
       <el-container v-if="!result.loading">
         <el-main>
-          <api-case-item
-            :loading="singleLoading && singleRunId === apiCaseList[0].id || batchLoadingIds.indexOf(apiCaseList[0].id) > -1"
-            @refresh="refresh"
-            @singleRun="singleRun"
-            @stop="stop"
-            @refreshModule="refreshModule"
-            @copyCase="copyCase"
-            @showExecResult="showExecResult"
-            @showHistory="showHistory"
-            @reLoadCase="reLoadCase"
-            :environment="environment"
-            :is-case-edit="isCaseEdit"
-            :api="api"
-            :currentApi="currentApi"
-            :loaded="loaded"
-            :runResult="runResult"
-            :maintainerOptions="maintainerOptions"
-            :api-case="apiCaseList[0]" ref="apiCaseItem"/>
+          <div v-for="(item,index) in apiCaseList" :key="item.id ? item.id : item.uuid">
+            <api-case-item
+              :loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
+              @refresh="refresh"
+              @singleRun="singleRun"
+              @stop="stop"
+              @refreshModule="refreshModule"
+              @copyCase="copyCase"
+              @showExecResult="showExecResult"
+              @showHistory="showHistory"
+              @reLoadCase="reLoadCase"
+              :environment="environment"
+              :is-case-edit="isCaseEdit"
+              :api="api"
+              :currentApi="currentApi"
+              :loaded="loaded"
+              :runResult="runResult"
+              :maintainerOptions="maintainerOptions"
+              :api-case="item" :index="index" ref="apiCaseItem"/>
+          </div>
         </el-main>
       </el-container>
     </ms-drawer>
@@ -132,24 +133,14 @@ export default {
         this.maintainerOptions = response.data;
       });
     },
-    close(){
-      if(this.$refs.testCaseDrawer){
-        this.$refs.testCaseDrawer.close();
-      }
-    },
     open(api, testCaseId) {
       this.api = api;
       // testCaseId 不为空则为用例编辑页面
       this.testCaseId = testCaseId;
       this.condition = {components: API_CASE_CONFIGS};
-      this.getApiTest(true,true);
+      this.getApiTest(true);
       this.visible = true;
       this.$store.state.currentApiCase = undefined;
-
-      //默认最大化
-      this.$nextTick(() => {
-        this.$refs.testCaseDrawer.setfullScreen();
-      });
     },
     add(api) {
       this.api = api;
@@ -157,13 +148,9 @@ export default {
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition();
       this.visible = true;
-      this.$nextTick(() => {
-        this.$refs.testCaseDrawer.setfullScreen();
-      });
     },
     copy(apiCase) {
       this.api.id = apiCase.apiDefinitionId;
-      this.api.versionId = apiCase.versionId;
       if (apiCase && apiCase.request) {
         if (apiCase.request.type === "HTTPSamplerProxy") {
           this.api.protocol = "HTTP";
@@ -179,11 +166,6 @@ export default {
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition(apiCase);
       this.visible = true;
-
-      //默认最大化
-      this.$nextTick(() => {
-        this.$refs.testCaseDrawer.setfullScreen();
-      });
     },
     runTestCase(api, testCaseId) {
       if (api && testCaseId) {
@@ -196,9 +178,6 @@ export default {
       }
       this.visible = true;
     },
-    saveCase(item, hideAlert) {
-      this.$refs.apiCaseItem.saveTestCase(item, hideAlert);
-    },
     saveApiAndCase(api) {
       if (api && api.url) {
         api.url = undefined;
@@ -210,11 +189,6 @@ export default {
       this.api = api;
       this.currentApi = api;
       this.addCase();
-
-      //默认最大化
-      this.$nextTick(() => {
-        this.$refs.testCaseDrawer.setfullScreen();
-      });
     },
     setEnvironment(environment) {
       this.environment = environment;
@@ -232,9 +206,6 @@ export default {
     apiCaseClose() {
       this.apiCaseList = [];
       this.visible = false;
-      if (this.$route.fullPath !== this.$route.path) {
-        this.$router.replace({path: '/api/definition'});
-      }
       this.$emit('refresh');
     },
     refreshModule() {
@@ -294,7 +265,7 @@ export default {
         })
       }
     },
-    getTestCase(openCase) {
+    getTestCase() {
       return new Promise((resolve) => {
         let commonUseEnvironment = this.$store.state.useEnvironment;
         this.environment = commonUseEnvironment ? commonUseEnvironment : "";
@@ -302,9 +273,6 @@ export default {
           let apiCase = response.data;
           if (apiCase) {
             this.formatCase(apiCase);
-            if(openCase){
-              apiCase.active = true;
-            }
             this.apiCaseList = [apiCase];
           }
           resolve();
@@ -326,11 +294,11 @@ export default {
         });
       }
     },
-    getApiTest(addCase,openCase) {
+    getApiTest(addCase) {
       if (this.loaded) {
         this.getApiLoadCase();
       } else {
-        this.getTestCase(openCase).then(() => {
+        this.getTestCase().then(() => {
           if (addCase && !this.loaded && this.apiCaseList.length === 0) {
             this.addCase();
           }
@@ -352,17 +320,9 @@ export default {
         if (request.backScript) {
           request.hashTree.push(request.backScript);
         }
-        let newUuid = getUUID();
-        request.id = newUuid;
-        let obj = {
-          apiDefinitionId: this.api.id,
-          name: '',
-          priority: 'P0',
-          active: true,
-          tags: [],
-          uuid: newUuid,
-          caseStatus: "Underway"
-        };
+        let uuid = getUUID();
+        request.id = uuid;
+        let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid, caseStatus: "Underway"};
         obj.request = request;
         this.apiCaseList.unshift(obj);
       }

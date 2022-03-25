@@ -5,10 +5,8 @@ import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.utils.JMeterVars;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,7 +24,7 @@ import java.util.List;
 @JSONType(typeName = "JSR223PreProcessor")
 public class MsJSR223PreProcessor extends MsTestElement {
     private String type = "JSR223PreProcessor";
-    private String clazzName = MsJSR223PreProcessor.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor";
 
     @JSONField(ordinal = 20)
     private String script;
@@ -37,19 +35,14 @@ public class MsJSR223PreProcessor extends MsTestElement {
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
-        // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
-            return;
-        }
-        ScriptFilter.verify(this.getScriptLanguage(), this.getName(), script);
-        if (StringUtils.isEmpty(this.getEnvironmentId())) {
-            if (config.getConfig() != null) {
-                if (config.getProjectId() != null) {
+        if(StringUtils.isEmpty(this.getEnvironmentId())){
+            if(config.getConfig() != null){
+                if(config.getProjectId() != null){
                     String evnId = config.getConfig().get(config.getProjectId()).getApiEnvironmentid();
                     this.setEnvironmentId(evnId);
-                } else {
+                }else {
                     Collection<EnvironmentConfig> evnConfigList = config.getConfig().values();
-                    if (evnConfigList != null && !evnConfigList.isEmpty()) {
+                    if(evnConfigList!=null && !evnConfigList.isEmpty()){
                         for (EnvironmentConfig configItem : evnConfigList) {
                             String evnId = configItem.getApiEnvironmentid();
                             this.setEnvironmentId(evnId);
@@ -59,16 +52,13 @@ public class MsJSR223PreProcessor extends MsTestElement {
                 }
             }
         }
-        //替换环境变量
-        if (StringUtils.isNotEmpty(script)) {
-            script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
-        }
-        if (config.isOperating()) {
-            if (StringUtils.isNotEmpty(script) && script.startsWith(JMeterVars.class.getCanonicalName())) {
-                return;
-            }
-        }
+        //替换Metersphere环境变量
+        script = StringUtils.replace(script,RunningParamKeys.API_ENVIRONMENT_ID,"\""+RunningParamKeys.RUNNING_PARAMS_PREFIX+this.getEnvironmentId()+".\"");
 
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         final HashTree jsr223PreTree = tree.add(getJSR223PreProcessor());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

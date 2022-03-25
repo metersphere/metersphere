@@ -28,22 +28,22 @@
         <executions>
           <execution>
             <!-- optional: you don't really need execution ids, but it looks nice in your build log. -->
-            <id>install node and npm</id>
+            <id>install node and yarn</id>
             <goals>
-              <goal>install-node-and-npm</goal>
+              <goal>install-node-and-yarn</goal>
             </goals>
             <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
             <configuration>
               <nodeVersion>v16.10.0</nodeVersion>
-              <npmVersion>6.14.15</npmVersion>
+              <yarnVersion>v1.22.15</yarnVersion>
             </configuration>
           </execution>
           <!-- Install all project dependencies -->
           <execution>
-            <id>npm install</id>
+            <id>yarn install</id>
             <goals>
-              <goal>npm</goal>
+              <goal>yarn</goal>
             </goals>
             <configuration>
               <!-- optional: The default argument is actually
@@ -55,12 +55,12 @@
           </execution>
           <!-- Build and minify static files -->
           <execution>
-            <id>npm run build</id>
+            <id>yarn build</id>
             <goals>
-              <goal>npm</goal>
+              <goal>yarn</goal>
             </goals>
             <configuration>
-              <arguments>run build</arguments>
+              <arguments>build</arguments>
             </configuration>
           </execution>
         </executions>

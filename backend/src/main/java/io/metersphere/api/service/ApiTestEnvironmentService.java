@@ -10,7 +10,6 @@ import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
-import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
@@ -18,14 +17,12 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.ProjectConfig;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,13 +42,10 @@ public class ApiTestEnvironmentService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
-    @Resource
-    private ProjectApplicationService projectApplicationService;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
-        example.setOrderByClause("update_time desc");
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
@@ -66,7 +60,6 @@ public class ApiTestEnvironmentService {
             environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(), '%'));    //使搜索文本变成数据库中的正则表达式
             criteria.andNameLike(environmentRequest.getName());
         }
-        example.setOrderByClause("update_time desc");
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
@@ -103,8 +96,6 @@ public class ApiTestEnvironmentService {
         FileUtils.createFiles(request.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
         //检查Config，判断isMock参数是否给True
         request = this.updateConfig(request,false);
-        request.setCreateTime(System.currentTimeMillis());
-        request.setUpdateTime(System.currentTimeMillis());
         apiTestEnvironmentMapper.insert(request);
         return request.getId();
     }
@@ -127,7 +118,6 @@ public class ApiTestEnvironmentService {
     public void update(ApiTestEnvironmentDTO apiTestEnvironment,List<MultipartFile> sslFiles) {
         checkEnvironmentExist(apiTestEnvironment);
         FileUtils.createFiles(apiTestEnvironment.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
-        apiTestEnvironment.setUpdateTime(System.currentTimeMillis());
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
     }
     private void checkEnvironmentExist(ApiTestEnvironmentWithBLOBs environment) {
@@ -227,12 +217,11 @@ public class ApiTestEnvironmentService {
                         }
                     }
                 }
-                ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
-                Integer mockPortStr = config.getMockTcpPort();
-                if(mockPortStr != null && mockPortStr != 0){
+
+                if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
                     if(configObj.containsKey("tcpConfig")){
                         if(configObj.containsKey("port")){
-                            if(configObj.getInteger("port").intValue() != mockPortStr){
+                            if(configObj.getInteger("port").intValue() != project.getMockTcpPort().intValue()){
                                 needUpdate = true;
                             }
                         }else {
@@ -360,11 +349,9 @@ public class ApiTestEnvironmentService {
         tcpConfigObj.put("nodelay", false);
         tcpConfigObj.put("closeConnection", false);
         if(project != null){
-            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
-            Integer mockPort = config.getMockTcpPort();
-            if(mockPort != null && mockPort != 0){
+            if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
                 tcpConfigObj.put("server", tcpSocket);
-                tcpConfigObj.put("port", mockPort);
+                tcpConfigObj.put("port", project.getMockTcpPort().intValue());
             }
         }
 

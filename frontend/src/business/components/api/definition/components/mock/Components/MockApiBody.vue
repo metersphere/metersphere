@@ -25,11 +25,14 @@
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
       </el-row>
-      <mock-combination-condition :filter-type-object="body"
-                                  :is-read-only="isReadOnly"
-                                  :is-show-enable="isShowEnable"
-                                  :suggestions="suggestions"
-                                  :parameters="body.kvs"/>
+      <mock-api-variable
+        :with-mor-setting="true"
+        :suggestions="suggestions"
+        :is-read-only="isReadOnly"
+        :parameters="body.kvs"
+        :isShowEnable="isShowEnable"
+        :append-dialog-to-body="true"
+        type="body"/>
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
@@ -75,22 +78,22 @@ import {BODY_TYPE, KeyValue} from "@/business/components/api/definition/model/Ap
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
+import MockApiVariable from "@/business/components/api/definition/components/mock/Components/MockApiVariable";
 import MsApiFromUrlVariable from "@/business/components/api/definition/components/body/ApiFromUrlVariable";
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
-import MockCombinationCondition
-  from "@/business/components/api/definition/components/mock/Components/MockCombinationCondition";
+
 
 export default {
   name: "MockApiBody",
   components: {
+    MockApiVariable,
     MsDropdown,
     MsCodeEdit,
     MsApiKeyValue,
     MsApiFromUrlVariable,
     MsJsonCodeEdit,
-    BatchAddParameter,
-    MockCombinationCondition
+    BatchAddParameter
   },
   props: {
     body: {},
@@ -213,19 +216,20 @@ export default {
     modeChange(mode) {
       switch (this.body.type) {
         case "JSON":
-          this.setContentType("application/json");
+          // this.setContentType("application/json");
           break;
         case "XML":
-          this.setContentType("text/xml");
+          // this.setContentType("text/xml");
           break;
         case "WWW_FORM":
-          this.setContentType("application/x-www-form-urlencoded");
+          // this.setContentType("application/x-www-form-urlencoded");
           break;
-        case "BINARY":
-          this.setContentType("application/octet-stream");
-          break;
+        // todo from data
+        // case "BINARY":
+        //   this.setContentType("application/octet-stream");
+        //   break;
         default:
-          this.removeContentType();
+          // this.removeContentType();
           break;
       }
     },

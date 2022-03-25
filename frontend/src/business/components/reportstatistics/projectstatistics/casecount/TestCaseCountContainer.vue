@@ -94,6 +94,7 @@ export default {
         let data = response.data.barChartDTO;
         let pieData = response.data.pieChartDTO;
         let selectTableData = response.data.tableDTOs;
+        console.info(response.data);
         this.initPic(data, pieData, selectTableData);
       }, error => {
         this.loading = false;
@@ -132,7 +133,6 @@ export default {
       if (selectTableData) {
         this.tableData = selectTableData;
       }
-      this.$refs.analysisChart.setPieOptionAndBarOption(this.loadOption,this.pieOption);
       this.loading = false;
       this.$refs.analysisChart.generateOption(this.chartType);
     },

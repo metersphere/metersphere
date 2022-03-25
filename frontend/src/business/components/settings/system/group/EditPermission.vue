@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :visible.sync="dialogVisible" width="65%"
-             :title="title"
+             :title="$t('group.set_permission')"
              :destroy-on-close="true"
              v-loading="result.loading"
              top="5%"
@@ -11,6 +11,7 @@
         border
         :data="tableData"
         class="permission-table"
+        :row-class-name="handleLicenseResource"
         style="width: 100%">
         <el-table-column
           prop="type"
@@ -35,7 +36,7 @@
           prop="permissions"
           :label="$t('group.permission')">
           <template v-slot:default="scope">
-            <group-permission :permissions="scope.row.permissions" :selected.sync="tableData" :read-only="readOnly" :group="group"/>
+            <group-permission :permissions="scope.row.permissions" :selected.sync="tableData"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -43,7 +44,7 @@
           :label="$t('group.check_all')">
           <template v-slot:default="scope">
             <div style="text-align: center;">
-              <el-checkbox @change="handleSelectAll($event, scope.row.permissions)" :disabled="isReadOnly(scope.row)"/>
+              <el-checkbox @change="handleSelectAll($event, scope.row.permissions)"/>
             </div>
           </template>
         </el-table-column>
@@ -51,7 +52,7 @@
     </div>
     <template v-slot:footer>
       <el-button @click="cancel" size="medium">{{ $t('commons.cancel') }}</el-button>
-      <el-button type="primary" @click="onSubmit" size="medium" style="margin-top: 10px;margin-left: 5px;" :disabled="readOnly">
+      <el-button type="primary" @click="onSubmit" size="medium" style="margin-top: 10px;margin-left: 5px;">
         {{ $t('commons.confirm') }}
       </el-button>
     </template>
@@ -72,9 +73,7 @@ export default {
       selected: [],
       group: {},
       result: {},
-      spanArr: [],
-      readOnly: false,
-      title: this.$t('group.set_permission')
+      spanArr: []
     }
   },
   components: {
@@ -83,18 +82,10 @@ export default {
   computed: {
     userGroupType() {
       return USER_GROUP_SCOPE;
-    },
-    isReadOnly() {
-      return function (data) {
-        const isDefaultSystemGroup = this.group.id === 'admin' && data.resource.id === 'SYSTEM_GROUP';
-        return this.readOnly || isDefaultSystemGroup;
-      }
     }
   },
   methods: {
-    open(row, readOnly, title) {
-      this.readOnly = readOnly ? readOnly : false;
-      this.title = title ? title : this.$t('group.set_permission');
+    open(row) {
       this.tableData = [];
       this.spanArr = [];
       this.dialogVisible = true;
@@ -106,27 +97,9 @@ export default {
         let data = result.data;
         if (data) {
           this.tableData = data.permissions;
-          this.handleNoLicensePermissions();
           this._getUniteMenu();
         }
       })
-    },
-    handleNoLicensePermissions() {
-      let license = hasLicense();
-      if (license) {
-        return;
-      }
-      for (let i = this.tableData.length - 1; i >= 0; i--) {
-        if (this.tableData[i].resource.license) {
-          this.tableData.splice(i, 1);
-        } else {
-          for (let j = this.tableData[i].permissions.length - 1; j >= 0; j--) {
-            if (this.tableData[i].permissions[j].license) {
-              this.tableData[i].permissions.splice(j, 1);
-            }
-          }
-        }
-      }
     },
     _getUniteMenu() {
       let menu = ['TRACK', 'API', 'PERFORMANCE', 'REPORT'];
@@ -185,11 +158,21 @@ export default {
     },
     handleSelectAll(check, permissions) {
       permissions.map(p => p.checked = check);
+    },
+    handleLicenseResource(row) {
+      if (!row.row.resource.license) {
+        return;
+      }
+      if (!hasLicense()) {
+        return 'hidden-row';
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-
+.permission-table >>> .hidden-row {
+  display: none;
+}
 </style>

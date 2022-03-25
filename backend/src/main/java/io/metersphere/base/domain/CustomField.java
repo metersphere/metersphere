@@ -20,15 +20,17 @@ public class CustomField implements Serializable {
 
     private Boolean global;
 
+    private String workspaceId;
+
     private Long createTime;
 
     private Long updateTime;
 
     private String createUser;
 
-    private String projectId;
-
     private String options;
+
+    private String defaultValue;
 
     private static final long serialVersionUID = 1L;
 }

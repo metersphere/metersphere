@@ -9,7 +9,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.exec.api.ApiCaseExecuteService;
+import io.metersphere.api.exec.api.TestPlanApiExecuteService;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
@@ -17,7 +17,6 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -61,7 +60,7 @@ public class TestPlanApiCaseService {
     @Resource
     ApiTestCaseMapper apiTestCaseMapper;
     @Resource
-    private ApiCaseExecuteService testPlanApiCaseExecuteService;
+    private TestPlanApiExecuteService testPlanApiCaseExecuteService;
     @Resource
     SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -80,7 +79,6 @@ public class TestPlanApiCaseService {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanApiCaseDTO> apiTestCases = extTestPlanApiCaseMapper.list(request);
-        ServiceUtils.buildVersionInfo(apiTestCases);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
@@ -245,7 +243,6 @@ public class TestPlanApiCaseService {
         ApiTestCaseRequest selectReq = new ApiTestCaseRequest();
         selectReq.setIds(ids);
         List<TestPlanApiCaseDTO> returnList = extTestPlanApiCaseMapper.list(selectReq);
-        ServiceUtils.buildVersionInfo(returnList);
         return returnList;
     }
 
@@ -358,20 +355,12 @@ public class TestPlanApiCaseService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanApiCaseMapper.selectForPlanReport(planId);
-        calculatePlanReport(report, planReportCaseDTOS);
-    }
 
-    public void calculatePlanReport(List<String> apiReportIds, TestPlanSimpleReportDTO report) {
-        List<PlanReportCaseDTO> planReportCaseDTOS = apiDefinitionExecResultService.selectForPlanReport(apiReportIds);
-        calculatePlanReport(report, planReportCaseDTOS);
-    }
-
-    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
-        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, "success");
+        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "success");
 
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
 
@@ -415,11 +404,14 @@ public class TestPlanApiCaseService {
                 testPlanApiCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap) {
+    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap, boolean isFinish) {
         if (testPlanApiCaseReportMap.isEmpty()) {
             return new ArrayList<>();
         }
-        String defaultStatus = "error";
+        String defaultStatus = "Running";
+        if (isFinish) {
+            defaultStatus = "error";
+        }
         List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(testPlanApiCaseReportMap.keySet(), null);
         Map<String, String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(testPlanApiCaseReportMap.values());
         for (TestPlanFailureApiDTO dto : apiTestCases) {
@@ -436,16 +428,6 @@ public class TestPlanApiCaseService {
                 dto.setExecResult(status);
             }
         }
-        return buildCases(apiTestCases);
-    }
-
-    public List<TestPlanFailureApiDTO> getErrorReportCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ExecuteResult.errorReportResult.name());
-        return buildCases(apiTestCases);
-    }
-
-    public List<TestPlanFailureApiDTO> getUnExecuteCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, "unExecute");
         return buildCases(apiTestCases);
     }
 }

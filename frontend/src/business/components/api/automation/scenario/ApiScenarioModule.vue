@@ -7,12 +7,12 @@
       :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
-      :allLabel="$t('api_test.automation.all_scenario')"
+      :allLabel="$t('全部场景')"
       :type="isReadOnly ? 'view' : 'edit'"
       :delete-permission="['PROJECT_API_SCENARIO:READ+DELETE']"
       :add-permission="['PROJECT_API_SCENARIO:READ+CREATE']"
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
-      :default-label="$t('api_test.automation.unplanned_scenario')"
+      :default-label="'未规划场景'"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -186,7 +186,6 @@
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
             this.data.forEach(node => {
-              node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name
               buildTree(node, {path: ''});
             });
             this.$emit('setModuleOptions', this.data);

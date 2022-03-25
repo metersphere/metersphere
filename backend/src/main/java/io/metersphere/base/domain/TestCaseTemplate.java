@@ -20,6 +20,8 @@ public class TestCaseTemplate implements Serializable {
 
     private Boolean global;
 
+    private String workspaceId;
+
     private String prerequisite;
 
     private Long createTime;
@@ -29,8 +31,6 @@ public class TestCaseTemplate implements Serializable {
     private String stepModel;
 
     private String createUser;
-
-    private String projectId;
 
     private static final long serialVersionUID = 1L;
 }

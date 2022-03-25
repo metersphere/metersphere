@@ -5,13 +5,6 @@
         <component :is="licenseHeader"></component>
       </el-col>
     </el-row>
-    <el-row v-if="changePassword">
-      <el-col>
-        <div class="change-password-tip">
-          {{ $t('commons.change_password_tips') }}
-        </div>
-      </el-col>
-    </el-row>
     <el-row id="header-top" type="flex" justify="space-between" align="middle" v-if="isMenuShow">
       <el-col :span="12">
         <img :src="'/display/file/logo'" class="logo" alt="">
@@ -66,11 +59,6 @@ export default {
       isShow: true,
       isMenuShow: true,
     };
-  },
-  computed: {
-    changePassword() {
-      return JSON.parse(sessionStorage.getItem("changePassword"));
-    }
   },
   created() {
     this.initSessionTimer();
@@ -270,14 +258,6 @@ export default {
 .license-head {
   height: 30px;
   background: #BA331B;
-  text-align: center;
-  line-height: 30px;
-  color: white;
-}
-
-.change-password-tip {
-  height: 30px;
-  background: #e6a23c;
   text-align: center;
   line-height: 30px;
   color: white;

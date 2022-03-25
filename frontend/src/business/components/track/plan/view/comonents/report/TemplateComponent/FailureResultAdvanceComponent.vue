@@ -15,6 +15,7 @@
     import TypeTableItem from "../../../../../common/tableItems/planview/TypeTableItem";
     import MethodTableItem from "../../../../../common/tableItems/planview/MethodTableItem";
     import StatusTableItem from "../../../../../common/tableItems/planview/StatusTableItem";
+    import {hub} from "@/business/components/track/plan/event-bus";
     import FunctionalFailureCasesList from "./component/FunctionalFailureCasesList";
     import ApiFailureCasesList from "./component/ApiFailureCasesList";
     import ScenarioFailureCasesList from "./component/ScenarioFailureCasesList";
@@ -65,7 +66,7 @@
       },
       methods: {
         goFailureTestCase(row) {
-          this.$EventBus.$emit("openFailureTestCase", row);
+          hub.$emit("openFailureTestCase", row);
         }
       }
     }

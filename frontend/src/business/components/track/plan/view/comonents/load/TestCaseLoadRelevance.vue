@@ -19,7 +19,6 @@
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                                v-if="condition.components !== undefined && condition.components.length > 0"
                                @search="getTestCases"/>
-      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20" class="search-input"/>
 
       <el-table
         v-loading="result.loading"
@@ -43,19 +42,6 @@
           :label="$t('commons.name')"
           show-overflow-tooltip>
         </el-table-column>
-
-        <el-table-column
-          v-if="versionEnable"
-          prop="versionId"
-          :column-key="'versionId'"
-          :filters="versionFilters"
-          :label="$t('commons.version')"
-          min-width="120px">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
-          </template>
-        </el-table-column>
-
         <el-table-column
           prop="status"
           column-key="status"
@@ -102,9 +88,6 @@ import MsPerformanceTestStatus from "@/business/components/performance/test/Perf
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {_filter} from "@/common/js/tableUtils";
 import {TEST_PLAN_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
-import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestCaseLoadRelevance",
@@ -117,8 +100,7 @@ export default {
     MsTableAdvSearchBar,
     MsTableHeader,
     MsPerformanceTestStatus,
-    MsTablePagination,
-    'VersionSelect': VersionSelect.default,
+    MsTablePagination
   },
   data() {
     return {
@@ -144,8 +126,7 @@ export default {
         {text: 'Reporting', value: 'Reporting'},
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'}
-      ],
-      versionFilters: [],
+      ]
     };
   },
   props: {
@@ -154,10 +135,7 @@ export default {
     },
     reviewId: {
       type: String
-    },
-    versionEnable: {
-      type: Boolean
-    },
+    }
   },
   watch: {
     planId() {
@@ -166,9 +144,6 @@ export default {
     reviewId() {
       this.condition.reviewId = this.reviewId;
     },
-  },
-  mounted(){
-    this.getVersionOptions();
   },
   methods: {
     filter(filters) {
@@ -300,20 +275,6 @@ export default {
       }
       this.treeNodes = [];
       this.selectNodeIds = [];
-    },
-    getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
-    },
-    changeVersion(currentVersion){
-      this.condition.versionId = currentVersion || null;
-      this.search();
     }
   }
 }

@@ -18,17 +18,8 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
             {{ $t('operating_log.change_history') }}
           </el-link>
-          <!--  版本历史 -->
-          <ms-version-history v-xpack
-                              ref="versionHistory"
-                              :version-data="versionData"
-                              :current-id="currentTestCaseInfo.id"
-                              :is-read="currentTestCaseInfo.trashEnable"
-                              @confirmOtherInfo="confirmOtherInfo"
-                              :current-project-id="currentProjectId"
-                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small" style="float: right;margin-right: 20px" :disabled="readOnly">
+                       @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
@@ -73,9 +64,9 @@
             </el-col>
 
             <el-col :span="8">
-              <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tags">
+              <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag"
-                              class="ms-case-input"></ms-input-tag>
+                              class="ms-case-input"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -83,8 +74,7 @@
           <!-- 自定义字段 -->
           <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                    class="case-form">
-            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth"
-                                    :issue-template="testCaseTemplate"/>
+            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="testCaseTemplate"/>
           </el-form>
 
           <el-row v-if="isCustomNum">
@@ -114,9 +104,7 @@
           <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
-                                     :is-copy="currentTestCaseInfo.isCopy"
-                                     :label-width="formLabelWidth" :case-id="form.id" :version-enable="versionEnable"
-                                     ref="otherInfo"/>
+                                     :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!=='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -143,20 +131,10 @@
                              @getComments="getComments" ref="testCaseComment"/>
 
         </el-form>
+
       </div>
       <ms-change-history ref="changeHistory"/>
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        width="100%"
-      >
-        <test-case-version-diff  v-if="dialogVisible" :old-data="oldData" :new-data="newData"
-                                :tree-nodes="treeNodes"></test-case-version-diff>
 
-      </el-dialog>
-
-      <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo" ref="selectPropDialog"></version-create-other-info-select>
     </div>
   </el-card>
 
@@ -165,15 +143,12 @@
 
 <script>
 import {TokenKey} from '@/common/js/constants';
-import MsDialogFooter from '../../../common/components/MsDialogFooter';
+import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getNodePath,
-  getUUID,
-  handleCtrlSEvent,
-  hasLicense,
-  hasPermission,
+  getNodePath, getUUID,
+  handleCtrlSEvent, hasLicense, hasPermission,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -188,8 +163,13 @@ import {API_STATUS, REVIEW_STATUS} from "@/business/components/api/definition/mo
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import MsTestCaseStepRichText from "./MsRichText";
-import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
-import {buildCustomFields, buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import {
+  buildCustomFields,
+  buildTestCaseOldFields,
+  getTemplate,
+  parseCustomField
+} from "@/common/js/custom_field";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
@@ -198,11 +178,6 @@ import StepChangeItem from "@/business/components/track/case/components/StepChan
 import MsChangeHistory from "../../../history/ChangeHistory";
 import {getTestTemplate} from "@/network/custom-field-template";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
-import TestCaseVersionDiff from "@/business/components/track/case/version/TestCaseVersionDiff";
-import VersionCreateOtherInfoSelect from "@/business/components/track/case/components/VersionCreateOtherInfoSelect";
-
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
 
 export default {
   name: "TestCaseEdit",
@@ -219,10 +194,7 @@ export default {
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
     MsTestCaseStepRichText,
-    MsChangeHistory,
-    'MsVersionHistory': versionHistory.default,
-    TestCaseVersionDiff,
-    VersionCreateOtherInfoSelect,
+    MsChangeHistory
   },
   data() {
     return {
@@ -238,8 +210,6 @@ export default {
       result: {},
       dialogFormVisible: false,
       showFollow: false,
-      isValidate:false,
-      currentValidateName:"",
       form: {
         name: '',
         module: 'default-module',
@@ -303,6 +273,8 @@ export default {
         {value: 'manual', label: this.$t('test_track.case.manual')}
       ],
       testCase: {},
+      testCases: [],
+      index: 0,
       showInputTag: true,
       tableType: "",
       stepFilter: new STEP,
@@ -310,14 +282,7 @@ export default {
         id: 'id',
         label: 'name',
       },
-      tabId: getUUID(),
-      versionData: [],
-      dialogVisible: false,
-      oldData: null,
-      newData: null,
-      selectedOtherInfo: null,
-      currentProjectId: "" ,
-      casePublic: false,
+      tabId: getUUID()
     };
   },
   props: {
@@ -336,8 +301,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    activeName: String,
-    versionEnable: Boolean,
+    activeName: String
   },
   computed: {
     projectIds() {
@@ -361,7 +325,7 @@ export default {
   watch: {
     form: {
       handler(val) {
-        if (val && this.$store.state.testCaseMap && this.form.id) {
+        if (val && this.$store.state.testCaseMap) {
           let change = this.$store.state.testCaseMap.get(this.form.id);
           change = change + 1;
           this.$store.state.testCaseMap.set(this.form.id, change);
@@ -371,7 +335,7 @@ export default {
     },
     'testCaseTemplate.customFields': {
       handler(val) {
-        if (val && this.$store.state.testCaseMap && this.form.id) {
+        if (val && this.$store.state.testCaseMap) {
           let change = this.$store.state.testCaseMap.get(this.form.id);
           change = change + 1;
           this.$store.state.testCaseMap.set(this.form.id, change);
@@ -386,7 +350,8 @@ export default {
   mounted() {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
-      this.open(this.currentTestCaseInfo);
+      this.open(this.currentTestCaseInfo)
+      this.getComments(this.currentTestCaseInfo)
     }
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
     setInterval(function () {
@@ -407,10 +372,7 @@ export default {
     if (!(this.$store.state.testCaseMap instanceof Map)) {
       this.$store.state.testCaseMap = new Map();
     }
-    if (this.form.id) {
-      this.$store.state.testCaseMap.set(this.form.id, 0);
-    }
-
+    this.$store.state.testCaseMap.set(this.form.id, 0);
   },
   created() {
     if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
@@ -449,9 +411,9 @@ export default {
         }
       }
     }),
-      this.result = this.$get('/project_application/get/config/' + this.projectId + "/CASE_PUBLIC", res => {
+      this.result = this.$get('/project/get/' + this.projectId, res => {
         let data = res.data;
-        if (data && data.casePublic) {
+        if (data.casePublic) {
           this.isPublic = true;
         }
       })
@@ -460,17 +422,14 @@ export default {
     } else {
       this.isXpack = false;
     }
-    if (hasLicense()) {
-      this.getVersionHistory();
-    }
   },
   methods: {
-    alert: alert,
+    alert:alert,
     currentUser: () => {
       return getCurrentUser();
     },
     openHis() {
-      this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case", "TRACK_TEST_CASE"]);
+      this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case"]);
     },
     setModule(id, data) {
       this.form.module = id;
@@ -519,9 +478,7 @@ export default {
       if (!this.form.remark) {
         this.form.remark = "";
       }
-      if (this.form.id) {
-        this.$store.state.testCaseMap.set(this.form.id, 0);
-      }
+      this.$store.state.testCaseMap.set(this.form.id, 0);
     },
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
@@ -537,7 +494,7 @@ export default {
           }
         })
       } else if (e === 'ADD_AND_PUBLIC') {
-        this.casePublic = true;
+        this.form.casePublic = true;
         this.saveCase();
       } else {
         this.saveCase();
@@ -568,9 +525,7 @@ export default {
       this.isStepTableAlive = false;
       this.$nextTick(() => {
         this.isStepTableAlive = true;
-        if (this.form.id) {
-          this.$store.state.testCaseMap.set(this.form.id, 0);
-        }
+        this.$store.state.testCaseMap.set(this.form.id, 0);
       });
     },
     reloadForm() {
@@ -590,7 +545,7 @@ export default {
           initFuc(testCase);
         });
     },
-    initEdit(testCase, callback) {
+    initEdit(testCase) {
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -603,7 +558,6 @@ export default {
         this.operationType = 'edit';
         //复制
         if (this.type === 'copy') {
-          this.showInputTag = false;
           this.operationType = 'add';
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
@@ -611,11 +565,8 @@ export default {
           //设置自定义熟悉默认值
           this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, buildTestCaseOldFields(this.form));
           this.reload();
-          this.$nextTick(() => {
-            this.showInputTag = true;
-          });
         } else {
-          this.getTestCase(testCase.id);
+          this.initTestCases(testCase);
         }
       } else {
         if (this.selectNode.data) {
@@ -635,17 +586,48 @@ export default {
         this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules);
         this.reload();
       }
-      if (callback) {
-        callback();
-      }
-      if (this.type !== 'copy') {
-        this.getComments(this.currentTestCaseInfo);
+    },
+    handlePre() {
+      this.index--;
+      this.getTestCase(this.index)
+    },
+    handleNext() {
+      this.index++;
+      this.getTestCase(this.index);
+    },
+    initTestCases(testCase) {
+      if (this.publicEnable) {
+        this.result = this.$post('/test/case/list/ids/public', this.selectCondition, response => {
+          this.testCases = response.data;
+          for (let i = 0; i < this.testCases.length; i++) {
+            if (this.testCases[i].id === testCase.id) {
+              this.index = i;
+              this.getTestCase(i);
+            }
+          }
+        });
+      } else {
+        this.selectCondition.workspaceId = null;
+        this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
+          this.testCases = response.data;
+          for (let i = 0; i < this.testCases.length; i++) {
+            if (this.testCases[i].id === testCase.id) {
+              this.index = i;
+              this.getTestCase(i);
+            }
+          }
+        });
       }
     },
-    getTestCase(id) {
+    getTestCase(index) {
+      let id = "";
       this.showInputTag = false;
-      if (!id) {
+      let testCase = this.testCases[index];
+      if (typeof (index) == "undefined") {
         id = this.currentTestCaseInfo.id;
+
+      } else {
+        id = testCase.id;
       }
       this.result = this.$get('/test/case/get/' + id, response => {
         if (response.data) {
@@ -707,11 +689,21 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase(callback) {
-      if (this.validateForm()) {
+      let isValidate = true;
+      this.$refs['caseFrom'].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+          return false;
+        }
+      });
+      this.$refs['customFieldForm'].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+          return false;
+        }
+      });
+      if (isValidate) {
         this._saveCase(callback);
-      }else{
-        this.$refs.versionHistory.loading = false;
-        this.$refs.selectPropDialog.close();
       }
     },
     _saveCase(callback) {
@@ -725,7 +717,7 @@ export default {
           this.$emit("refreshTestCase",);
           this.$store.state.testCaseMap.delete(this.form.id);
           //this.tableType = 'edit';
-          this.$emit("refresh", response.data);
+          this.$emit("refresh", this.form);
           if (this.form.id) {
             this.$emit("caseEdit", param);
           } else {
@@ -734,17 +726,11 @@ export default {
             this.close();
           }
           this.form.id = response.data.id;
-          this.currentTestCaseInfo.id = response.data.id;
 
           if (callback) {
             callback(this);
           }
           // 保存用例后刷新附件
-
-          //更新版本
-          if (hasLicense()) {
-            this.getVersionHistory();
-          }
         });
       }
     },
@@ -759,28 +745,15 @@ export default {
           param.projectId = this.projectId;
         }
       }
-      if (this.publicEnable) {
-        this.casePublic = true;
-      }
       param.name = param.name.trim();
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
-      //当 testId 为其他信息的时候必须删除该字段避免后端反序列化报错
-      if ("other" != this.form.selected) {
-        param.testId = JSON.stringify(this.form.selected);
-      }else{
-        delete param.selected;
-      }
+      param.testId = JSON.stringify(this.form.selected);
       param.tags = this.form.tags;
-      param.casePublic = this.casePublic;
       param.type = 'functional';
       buildCustomFields(this.form, param, this.testCaseTemplate);
       this.parseOldFields(param);
-      //配置多版本复制的时候是否要连带复制其他信息
-      if (this.selectedOtherInfo) {
-        param.otherInfoConfig = this.selectedOtherInfo;
-      }
       return param;
     },
     parseOldFields(param) {
@@ -864,7 +837,7 @@ export default {
     resetForm() {
       //防止点击修改后，点击新建触发校验
       if (this.$refs['caseFrom']) {
-        this.$refs['caseFrom'].validate(() => {
+        this.$refs['caseFrom'].validate((valid) => {
           this.$refs['caseFrom'].resetFields();
           this._resetForm();
           return true;
@@ -890,7 +863,6 @@ export default {
         result: ''
       }];
       this.form.customNum = '';
-      this.form.tags = [];
     },
     addListener() {
       document.addEventListener("keydown", this.createCtrlSHandle);
@@ -900,13 +872,8 @@ export default {
     },
     createCtrlSHandle(event) {
       let curTabId = this.$store.state.curTabId;
-      if (curTabId === this.tabId) {
-        if (event.keyCode === 83 && event.ctrlKey && this.readOnly) {
-          this.$warning(this.$t("commons.no_operation_permission"));
-          return false;
-        }
+      if (curTabId === this.tabId)
         handleCtrlSEvent(event, this.saveCase);
-      }
     },
     saveFollow() {
       if (this.showFollow) {
@@ -940,136 +907,7 @@ export default {
           });
         }
       }
-    },
-    getVersionHistory(param) {
-      this.$get('/test/case/versions/' + this.currentTestCaseInfo.id, response => {
-        if (response.data.length > 0) {
-          for (let i = 0; i < response.data.length; i++) {
-              this.currentProjectId = response.data[i].projectId;
-          }
-        } else {
-          this.currentProjectId = getCurrentProjectID();
-        }
-        this.versionData = response.data;
-        this.$refs.versionHistory.loading = false;
-      });
-    },
-    setSpecialPropForCompare: function (that) {
-      that.newData.tags = JSON.parse(that.newData.tags || "{}");
-      that.newData.steps = JSON.parse(that.newData.steps || "{}");
-      that.oldData.tags = JSON.parse(that.oldData.tags || "{}");
-      that.oldData.steps = JSON.parse(that.oldData.steps || "{}");
-      that.newData.readOnly = true;
-      that.oldData.readOnly = true;
-    },
-    compare(row) {
-      this.$get('/test/case/get/' + row.id + "/" + this.currentTestCaseInfo.refId, response => {
-        let p1 = this.$get('/test/case/get/' + response.data.id);
-        let p2 = this.$get('/test/case/get/' + this.currentTestCaseInfo.id);
-        let that = this;
-        Promise.all([p1, p2]).then(data => {
-          if (data[0] && data[1]) {
-            that.newData = data[0].data.data;
-            that.oldData = data[1].data.data;
-            let testCase = that.versionData.filter(v => v.versionId === this.currentTestCaseInfo.versionId)[0];
-            that.newData.versionName = that.versionData.filter(v => v.id === that.newData.id)[0].versionName;
-            that.oldData.versionName = that.versionData.filter(v => v.id === that.oldData.id)[0].versionName;
-            that.newData.userName = response.data.createName
-            that.oldData.userName = testCase.createName
-            this.setSpecialPropForCompare(that);
-            that.dialogVisible = true;
-          }
-        });
-      });
-    },
-    checkout(row) {
-      this.$refs.versionHistory.loading = true;
-      let testCase = this.versionData.filter(v => v.versionId === row.id)[0];
-
-      if (testCase) {
-        this.$get('test/case/get/' + testCase.id, response => {
-          let testCase = response.data;
-          this.$emit("checkout", testCase);
-          this.$refs.versionHistory.loading = false;
-        });
-      }
-    },
-    validateForm() {
-      let isValidate = true;
-      this.$refs['caseFrom'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          return false;
-        }
-      });
-      this.$refs['customFieldForm'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          for (let i = 0; i < this.$refs['customFieldForm'].fields.length; i++) {
-            let customField = this.$refs['customFieldForm'].fields[i];
-            if(customField.validateState==='error'){
-              if(this.currentValidateName){
-                this.currentValidateName = this.currentValidateName+","+customField.label
-              }else{
-                this.currentValidateName = customField.label
-              }
-            }
-          }
-          this.isValidate = true;
-          this.$warning(this.currentValidateName +this.$t('commons.cannot_be_null'));
-          this.currentValidateName = '';
-          return false;
-        }
-      });
-      return isValidate;
-    },
-    async create(row) {
-      if (this.validateForm()) {
-        // 创建新版本
-        this.form.versionId = row.id;
-        let hasOtherInfo = await this.hasOtherInfo();
-        if (hasOtherInfo) {
-          this.$refs.versionHistory.loading = false;
-          this.$refs.selectPropDialog.open();
-        } else {
-          this.saveCase();
-        }
-      } else {
-        this.$refs.versionHistory.loading = false;
-      }
-    },
-    del(row) {
-      let that = this;
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.$get('/test/case/delete/' + row.id + '/' + this.form.refId, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.getVersionHistory();
-              this.$emit("refresh");
-            });
-          } else {
-            that.$refs.versionHistory.loading = false;
-          }
-        }
-      });
-    },
-    changeType(type) {
-      this.type = type;
-    },
-    hasOtherInfo() {
-      return new Promise((resolve) => {
-          this.$get("test/case/hasOtherInfo/" + this.form.id, (res) => {
-            resolve(res.data);
-          })
-        }
-      );
-    },
-    confirmOtherInfo(selectedOtherInfo) {
-      this.selectedOtherInfo = selectedOtherInfo;
-      this.saveCase();
-    },
+    }
   }
 }
 </script>
@@ -1120,7 +958,7 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 9;
+  z-index: 1;
 }
 
 .ms-case-input {

@@ -29,13 +29,11 @@ const state = {
   // 当前项目是否勾选自定义ID
   currentProjectIsCustomNum: false,
   testCaseTemplate: {},
-  scenarioEnvMap: new Map(),
+  scenarioMap: new Map(),
   apiMap: new Map(),
   apiStatus: new Map(),
   testCaseMap: new Map(),
-  curTabId: null,
-  testCaseDefaultValue: {},
-  forceRerenderIndex: "",
+  curTabId: null
 }
 
 const store = new Vuex.Store({

@@ -14,7 +14,4 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .v-note-wrapper {
-  position: initial;
-}
 </style>

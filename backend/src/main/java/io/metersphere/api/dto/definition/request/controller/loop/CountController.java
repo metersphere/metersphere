@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class CountController {
     private int loops;
-    private long interval;
+    private int interval;
     private boolean proceed;
     private Object requestResult;
 

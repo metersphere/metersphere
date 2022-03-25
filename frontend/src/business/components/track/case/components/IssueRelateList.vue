@@ -90,11 +90,7 @@ export default {
       return getCurrentProjectID();
     }
   },
-  props: {
-    caseId: String,
-    planCaseId: String,
-    notInIds: Array,
-  },
+  props: ['caseId'],
   created() {
     isThirdPartEnable((data) => {
       this.isThirdPart = data;
@@ -107,18 +103,14 @@ export default {
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
-      this.page.condition.notInIds = this.notInIds;
+      this.page.condition.caseId = this.caseId;
       this.page.result = getRelateIssues(this.page);
-    },
-    getCaseResourceId() {
-      return this.planCaseId ? this.planCaseId : this.caseId;
     },
     save() {
       let param = {};
+      param.caseId = this.caseId;
       param.issueIds = Array.from(this.$refs.table.selectRows).map(i => i.id);
-      param.caseResourceId = this.getCaseResourceId();
-      param.isPlanEdit = !!this.planCaseId;
-      param.refId = this.planCaseId ? this.caseId : null;
+      param.caseId = this.caseId;
       testCaseIssueRelate(param, () => {
         this.visible = false;
         this.$emit('refresh', this.$refs.table.selectRows);

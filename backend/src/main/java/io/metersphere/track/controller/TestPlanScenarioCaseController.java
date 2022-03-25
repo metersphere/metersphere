@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.constants.RunModeConstants;
@@ -41,16 +40,6 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.getFailureCases(planId);
     }
 
-    @GetMapping("/list/errorReport/{planId}")
-    public List<TestPlanFailureScenarioDTO> getErrorReportList(@PathVariable String planId) {
-        return testPlanScenarioCaseService.getErrorReportCases(planId);
-    }
-
-    @GetMapping("/list/unExecute/{planId}")
-    public List<TestPlanFailureScenarioDTO> getUnExecuteCases(@PathVariable String planId) {
-        return testPlanScenarioCaseService.getUnExecuteCases(planId);
-    }
-
     @GetMapping("/list/all/{planId}")
     public List<TestPlanFailureScenarioDTO> getAllList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getAllCases(planId);
@@ -67,19 +56,19 @@ public class TestPlanScenarioCaseController {
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanScenarioCaseService.class)
+    @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanScenarioCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanScenarioCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public void deleteApiCaseBath(@RequestBody TestPlanScenarioCaseBatchRequest request) {
         testPlanScenarioCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping(value = "/run")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planCaseIds)", msClass = TestPlanScenarioCaseService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planCaseIds)", msClass = TestPlanScenarioCaseService.class)
     public List<MsExecResponseDTO> run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         if(request.getConfig() == null){
@@ -92,7 +81,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping(value = "/jenkins/run")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public List<MsExecResponseDTO> runByRun(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.API.name());
@@ -101,7 +90,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/batch/update/env")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
         testPlanScenarioCaseService.batchUpdateEnv(request);
     }

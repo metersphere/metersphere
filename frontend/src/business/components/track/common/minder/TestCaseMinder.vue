@@ -17,19 +17,8 @@
       @save="save"
       ref="minder"
     />
-
-    <IssueRelateList
-      :case-id="getCurCaseId()"
-      @refresh="refreshRelateIssue"
-      ref="issueRelate"/>
-
-    <test-plan-issue-edit
-      :is-minder="true"
-      :plan-id="null"
-      :case-id="getCurCaseId()"
-      @refresh="refreshIssue"
-      ref="issueEdit"/>
-
+    <IssueRelateList :case-id="getCurCaseId()"  @refresh="refreshRelateIssue" ref="issueRelate"/>
+    <test-plan-issue-edit :is-minder="true" :plan-id="null" :case-id="getCurCaseId()" @refresh="refreshIssue"  ref="issueEdit"/>
   </div>
 
 </template>
@@ -39,15 +28,8 @@ import MsModuleMinder from "@/business/components/common/components/MsModuleMind
 import {
   getChildNodeId,
   handleAfterSave,
-  handleExpandToLevel,
-  handleMinderIssueDelete,
-  handleTestCaseAdd,
-  handTestCaeEdit,
-  isCaseNodeData,
-  isModuleNode,
-  isModuleNodeData,
-  listenBeforeExecCommand,
-  listenDblclick,
+  handleExpandToLevel, handleMinderIssueDelete, handleTestCaseAdd, handTestCaeEdit, isModuleNode, isModuleNodeData,
+  listenBeforeExecCommand, listenDblclick,
   listenNodeSelected,
   loadSelectNodes,
   priorityDisableCheck,
@@ -58,6 +40,7 @@ import {getTestCasesForMinder, getMinderExtraNode} from "@/network/testCase";
 import {addIssueHotBox, getSelectedNodeData, handleIssueAdd, handleIssueBatch} from "./minderUtils";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
+import {getIssuesById} from "@/network/Issue";
 
 const {getIssuesListById} = require("@/network/Issue");
 const {getCurrentWorkspaceId} = require("@/common/js/utils");
@@ -98,9 +81,6 @@ name: "TestCaseMinder",
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
     },
-    testCaseDefaultValue() {
-      return this.$store.state.testCaseDefaultValue;
-    },
     disabled() {
       return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
     },
@@ -132,7 +112,7 @@ name: "TestCaseMinder",
   methods: {
     handleAfterMount() {
       listenNodeSelected(() => {
-        // 点击模块，加载模块下的用例
+        // 展开模块下的用例
         loadSelectNodes(this.getParam(),  getTestCasesForMinder, null, getMinderExtraNode);
       });
 
@@ -222,25 +202,23 @@ name: "TestCaseMinder",
     },
     buildSaveParam(root, parent, preNode, nextNode) {
       let data = root.data;
-      if (isCaseNodeData(data)) {
+      if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this.buildSaveCase(root, parent, preNode, nextNode);
       } else {
         let deleteChild = data.deleteChild;
-        if (deleteChild && deleteChild.length > 0 && isModuleNodeData(data)) {
+        if (deleteChild && deleteChild.length > 0 && data.type === 'node') {
           this.deleteNodes.push(...deleteChild);
         }
 
         if (data.type !== 'tmp' && data.changed) {
-          if (isModuleNodeData(data)) {
-            if (data.contextChanged) {
-              this.buildSaveModules(root, data, parent);
-              root.children && root.children.forEach(i => {
-                if (isModuleNode(i)) {
-                  i.data.changed = true;
-                  i.data.contextChanged = true; // 如果当前节点有变化，下面的模块节点也需要level也可能需要变化
-                }
-              });
-            }
+          if (data.contextChanged && data.resource && data.resource.indexOf(this.$t('test_track.module.module')) > -1) {
+            this.buildSaveModules(root, data, parent);
+            root.children && root.children.forEach(i => {
+              if (isModuleNode(i)) {
+                i.data.changed = true;
+                i.data.contextChanged = true; // 如果当前节点有变化，下面的模块节点也需要level也可能需要变化
+              }
+            });
           } else {
             // 保存临时节点
             this.buildExtraNode(data, parent, root);
@@ -269,14 +247,16 @@ name: "TestCaseMinder",
       }
       let pId = parent ? (parent.newId ? parent.newId : parent.id) : null;
 
-      if (parent && !isModuleNodeData(parent)) {
-        this.throwError(this.$t('test_track.case.minder_not_module_tip', [data.text]));
+      if (!isModuleNodeData(parent)) {
+        let tip = data.text + '不能创建非模块节点下';
+        this.$error(tip)
+        throw new Error(tip);
       }
 
       let module = {
         id: data.id,
         name: data.text,
-        level: parent ? parent.level + 1 : data.level,
+        level: parent.level + 1,
         parentId: pId
       };
       data.level = module.level;
@@ -303,14 +283,11 @@ name: "TestCaseMinder",
       }
 
       this.saveModuleNodeMap.set(module.id, node);
-
-      if (module.level > 8) {
-        this.throwError(this.$t('commons.module_deep_limit'));
-      }
       this.saveModules.push(module);
     },
     buildExtraNode(data, parent, root) {
-      if (data.type !== 'node' && data.type !== 'tmp' && parent && isModuleNodeData(parent) && data.changed === true) {
+      if (data.type !== 'node' && data.type !== 'tmp'
+        && parent && parent.type === 'node' && data.changed === true) {
         // 保存额外信息，只保存模块下的一级子节点
         let nodes = this.saveExtraNode[parent.id];
         if (!nodes) {
@@ -326,49 +303,35 @@ name: "TestCaseMinder",
         return;
       }
 
-      if (parent.id === 'root') {
-        this.throwError(this.$t('test_track.case.minder_all_module_tip'));
-      }
-
       if (parent.isExtraNode) {
-        this.throwError(this.$t('test_track.case.minder_tem_node_tip', [parent.text]));
+        let tip = '无法在临时节点"' + parent.text + '"下创建用例';
+        this.$error(tip)
+        throw new Error(tip);
       }
 
       if (data.type === 'node') {
-        this.throwError(this.$t('test_track.case.minder_is_module_tip', [data.text]));
+        let tip = data.text + '是模块，不能修改为用例';
+        this.$error(tip)
+        throw new Error(tip);
       }
 
       let isChange = false;
 
       let nodeId = parent ? (parent.newId ? parent.newId : parent.id) : "";
-      let priorityDefaultValue;
-      if (data.priority ) {
-        priorityDefaultValue = 'P' + (data.priority - 1);
-      } else {
-        priorityDefaultValue = this.testCaseDefaultValue['用例等级'] ? this.testCaseDefaultValue['用例等级'] : 'P' + 0;
-      }
-
       let testCase = {
         id: data.id,
         name: data.text,
         nodeId: nodeId,
         nodePath: getNodePath(nodeId, this.moduleOptions),
         type: data.type ? data.type : 'functional',
-        method: data.method ? data.method : 'manual',
-        maintainer: this.testCaseDefaultValue['责任人'] ? this.testCaseDefaultValue['责任人'] : data.maintainer,
-        priority: priorityDefaultValue,
+        method: data.method ? data.method: 'manual',
+        maintainer: data.maintainer,
+        priority: 'P' + (data.priority ? data.priority - 1 : 0),
         prerequisite: "",
         remark: "",
         stepDescription: "",
         expectedResult: "",
-        status: this.testCaseDefaultValue['用例状态'],
-        steps: [{
-          num: 1,
-          desc: '',
-          result: ''
-        }],
-        tags: "[]",
-        stepModel: "STEP"
+        steps: "[]"
       };
       if (data.changed) isChange = true;
       let steps = [];
@@ -442,7 +405,9 @@ name: "TestCaseMinder",
         this.saveCases.push(testCase);
       }
       if (testCase.nodeId !== 'root' && testCase.nodeId.length < 15) {
-        this.throwError(this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip'));
+        let tip = this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip');
+        this.$error(tip)
+        throw new Error(tip);
       }
     },
     pushDeleteNode(data) {
@@ -480,10 +445,6 @@ name: "TestCaseMinder",
       }
       data.isExtraNode = true;
       return nodeData;
-    },
-    throwError(tip) {
-      this.$error(tip)
-      throw new Error(tip);
     },
     tagEditCheck() {
       return tagEditCheck;

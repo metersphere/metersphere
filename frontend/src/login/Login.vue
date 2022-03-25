@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import {getCurrentUserId, hasPermissions, publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
+import {publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
 import {CURRENT_LANGUAGE, DEFAULT_LANGUAGE, PRIMARY_COLOR} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -82,7 +82,6 @@ export default {
       openLdap: false,
       authSources: [],
       loginUrl: 'signin',
-      lastUser: null
     };
   },
   beforeCreate() {
@@ -137,9 +136,6 @@ export default {
     if (license.default) {
       license.default.valid(this);
     }
-
-    // 上次登录的用户
-    this.lastUser = sessionStorage.getItem('lastUser');
   },
 
   destroyed() {
@@ -178,8 +174,6 @@ export default {
       });
     },
     doLogin() {
-      // 删除缓存
-      sessionStorage.removeItem('changePassword');
       let publicKey = localStorage.getItem("publicKey");
 
       let form = {
@@ -191,10 +185,7 @@ export default {
       this.result = this.$post(this.loginUrl, form, response => {
         saveLocalStorage(response);
         sessionStorage.setItem('loginSuccess', 'true');
-        sessionStorage.setItem('changePassword', response.message);
         this.getLanguage(response.data.language);
-        // 检查登录用户的权限
-        this.checkRedirectUrl();
       });
     },
     getLanguage(language) {
@@ -216,30 +207,13 @@ export default {
     getDefaultRules() { // 设置完语言要重新赋值
       return {
         username: [
-          {required: true, message: this.$t('commons.input_login_username'), trigger: 'blur'},
-        ],
-        password: [
+            {required: true, message: this.$t('commons.input_login_username'), trigger: 'blur'},
+          ],
+            password: [
           {required: true, message: this.$t('commons.input_password'), trigger: 'blur'},
           {min: 6, max: 30, message: this.$t('commons.input_limit', [6, 30]), trigger: 'blur'}
         ]
       };
-    },
-    checkRedirectUrl() {
-      if (this.lastUser === getCurrentUserId()) {
-        return;
-      }
-      let redirectUrl = '/';
-      if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_MESSAGE:READ', 'PROJECT_TEMPLATE:READ')) {
-        redirectUrl = '/project/home';
-      } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ')) {
-        redirectUrl = '/setting/project/:type';
-      } else if (hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_OPERATING_LOG:READ')) {
-        redirectUrl = '/setting';
-      } else {
-        redirectUrl = '/';
-      }
-
-      sessionStorage.setItem('redirectUrl', redirectUrl);
     }
   }
 };

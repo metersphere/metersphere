@@ -50,56 +50,34 @@
               <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
             </el-form-item>
 
-            <el-tabs v-model="activeName" @tab-click="tabClick">
-              <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables" v-if="isBodyShow">
+            <el-tabs v-model="activeName">
+              <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
                 <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
                                            :description="$t('api_test.scenario.kv_description')"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
                 <div class="sql-content">
-                  <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query"
-                                theme="eclipse" ref="codeEdit"/>
+                  <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query" theme="eclipse" ref="codeEdit"/>
                 </div>
               </el-tab-pane>
-              <!-- 脚本步骤/断言步骤 -->
-              <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
-                <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-                  {{ $t('api_test.definition.request.pre_operation') }}
-                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.preSize > 0">
-                    <div class="el-step__icon-inner">{{ request.preSize }}</div>
-                  </div>
-                </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'"
-                             ref="preStep"/>
-              </el-tab-pane>
-              <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
-                           v-if="showScript">
-                  <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-                  {{ $t('api_test.definition.request.post_operation') }}
-                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.postSize > 0">
-                    <div class="el-step__icon-inner">{{ request.postSize }}</div>
-                  </div>
-                  </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'"
-                             ref="postStep"/>
-              </el-tab-pane>
-              <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
-                           v-if="showScript">
-                  <span class="item-tabs" effect="dark" placement="top-start" slot="label">
-                  {{ $t('api_test.definition.request.assertions_rule') }}
-                  <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.ruleSize > 0">
-                    <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
-                  </div>
-                  </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
-                             :tab-type="'assertionsRule'" ref="assertionsRule"/>
-              </el-tab-pane>
-
             </el-tabs>
           </el-form>
         </div>
       </el-col>
+      <el-col :span="3" class="ms-left-cell" v-if="showScript">
 
+        <el-button class="ms-left-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
+        <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
+        <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #FE6F71;background-color: #F2ECF3" @click="addPreSql">+{{$t('api_test.definition.request.pre_sql')}}</el-button>
+        <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #1483F6;background-color: #F2ECF3" @click="addPostSql">+{{$t('api_test.definition.request.post_sql')}}</el-button>
+        <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+        <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
+      </el-col>
     </el-row>
 
     <!-- 环境 -->
@@ -121,9 +99,6 @@
   import {getCurrentProjectID} from "@/common/js/utils";
   import {getUUID} from "@/common/js/utils";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
-  import MsJmxStep from "../../step/JmxStep";
-  import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
-
 
   export default {
     name: "MsDatabaseConfig",
@@ -131,13 +106,11 @@
       MsJsr233Processor,
       MsApiScenarioVariables,
       MsCodeEdit,
-      ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig,
-      MsJmxStep
+      ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
     },
     props: {
       request: {},
       basisData: {},
-      response: {},
       moduleOptions: Array,
       showScript: {
         type: Boolean,
@@ -150,9 +123,8 @@
     },
     data() {
       return {
-        spanNum: 24,
+        spanNum: 21,
         environments: [],
-        isBodyShow: true,
         currentEnvironment: {},
         databaseConfigsOptions: [],
         isReloadData: false,
@@ -164,19 +136,14 @@
       'request.dataSourceId'() {
         this.setDataSource();
       },
-      'request.hashTree': {
-        handler(v) {
-          this.initStepSize(this.request.hashTree);
-        },
-        deep: true
-      }
     },
     created() {
-      this.getEnvironments();
-      if (this.request.hashTree) {
-        this.initStepSize(this.request.hashTree);
-        this.historicalDataProcessing(this.request.hashTree);
+      if(this.showScript){
+        this.spanNum = 21;
+      }else {
+        this.spanNum = 24;
       }
+      this.getEnvironments();
     },
     computed: {
       projectId() {
@@ -184,30 +151,33 @@
       },
     },
     methods: {
-      tabClick() {
-        if (this.activeName === 'preOperate') {
-          this.$refs.preStep.filter();
-        }
-        if (this.activeName === 'postOperate') {
-          this.$refs.postStep.filter();
-        }
-        if (this.activeName === 'assertionsRule') {
-          this.$refs.assertionsRule.filter();
-        }
+      addPre() {
+        let jsr223PreProcessor = createComponent("JSR223PreProcessor");
+        this.request.hashTree.push(jsr223PreProcessor);
+        this.reload();
       },
-      historicalDataProcessing(array) {
-        hisDataProcessing(array, this.request);
+      addPost() {
+        let jsr223PostProcessor = createComponent("JSR223PostProcessor");
+        this.request.hashTree.push(jsr223PostProcessor);
+        this.reload();
       },
-      initStepSize(array) {
-        stepCompute(array, this.request);
-        this.reloadBody();
+      addPreSql() {
+        let jdbcPreProcessor = createComponent("JDBCPreProcessor");
+        this.request.hashTree.push(jdbcPreProcessor);
       },
-      reloadBody() {
-        // 解决修改请求头后 body 显示错位
-        this.isBodyShow = false;
-        this.$nextTick(() => {
-          this.isBodyShow = true;
-        });
+      addPostSql() {
+        let jdbcPostProcessor = createComponent("JDBCPostProcessor");
+        this.request.hashTree.push(jdbcPostProcessor);
+      },
+      addAssertions() {
+        let assertions = new Assertions();
+        this.request.hashTree.push(assertions);
+        this.reload();
+      },
+      addExtract() {
+        let jsonPostProcessor = new Extract();
+        this.request.hashTree.push(jsonPostProcessor);
+        this.reload();
       },
       remove(row) {
         let index = this.request.hashTree.indexOf(row);
@@ -248,9 +218,6 @@
           this.environments.forEach(environment => {
             parseEnvironment(environment);
           });
-          if (!this.request.environmentId) {
-            this.request.environmentId = this.$store.state.useEnvironment;
-          }
           let hasEnvironment = false;
           for (let i in this.environments) {
             if (this.environments[i].id === this.request.environmentId) {
@@ -334,19 +301,6 @@
 
   .ms-left-cell {
     margin-top: 40px;
-  }
-
-  .ms-header {
-    background: #783887;
-    color: white;
-    height: 18px;
-    font-size: xx-small;
-    border-radius: 50%;
-  }
-
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
   }
 
   .ms-left-buttion {

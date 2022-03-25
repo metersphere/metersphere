@@ -9,6 +9,9 @@ import ReportStatistics from "@/business/components/reportstatistics/router";
 import Project from "@/business/components/project/router";
 import {getCurrentUserId, hasPermissions} from "@/common/js/utils";
 
+// const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
+// const Report = requireContext.keys().map(key => requireContext(key).report);
+// const ReportObj = Report && Report != null && Report.length > 0 && Report[0] != undefined ? Report : [{path: "/sidebar"}];
 Vue.use(VueRouter);
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
@@ -27,6 +30,7 @@ const router = new VueRouter({
     Track,
     ReportStatistics,
     Project
+    // ...ReportStatistics
   ]
 });
 
@@ -59,9 +63,9 @@ function redirectLoginPath(originPath) {
   let loginSuccess = sessionStorage.getItem('loginSuccess');
 
   if (!redirectUrl || redirectUrl === '/') {
-    if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_TEMPLATE:READ', 'PROJECT_MESSAGE:READ')) {
+    if (hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ')) {
       redirectUrl = '/project/home';
-    } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'PROJECT_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ')) {
+    } else if (hasPermissions('WORKSPACE_SERVICE:READ', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_USER:READ', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_TEMPLATE:READ')) {
       redirectUrl = '/setting/project/:type';
     } else if (hasPermissions('SYSTEM_USER:READ', 'SYSTEM_WORKSPACE:READ', 'SYSTEM_GROUP:READ', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_SETTING:READ', 'SYSTEM_AUTH:READ', 'SYSTEM_QUOTA:READ', 'SYSTEM_OPERATING_LOG:READ')) {
       redirectUrl = '/setting';

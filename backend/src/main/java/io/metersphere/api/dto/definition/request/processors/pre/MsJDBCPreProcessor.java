@@ -37,6 +37,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
 public class MsJDBCPreProcessor extends MsTestElement {
     // type 必须放最前面，以便能够转换正确的类
     private String type = "JDBCPreProcessor";
-    private String clazzName = MsJDBCPreProcessor.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor";
 
     @JSONField(ordinal = 20)
     private DatabaseConfig dataSource;
@@ -130,8 +131,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
                 this.initDataSource();
             }
             if (this.dataSource == null) {
-                String message = "数据源为空请选择数据源";
-                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
+                MSException.throwException("数据源为空无法执行");
             }
         }
         final HashTree samplerHashTree = tree.add(jdbcPreProcessor(config));
@@ -245,9 +245,14 @@ public class MsJDBCPreProcessor extends MsTestElement {
         jdbcPreProcessor.setName(this.getName() == null? "JDBCPreProcessor" : this.getName());
         jdbcPreProcessor.setProperty(TestElement.TEST_CLASS, JDBCPreProcessor.class.getName());
         jdbcPreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+        jdbcPreProcessor.setProperty("MS-ID", this.getId());
+        String indexPath = this.getIndex();
+        jdbcPreProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
+        List<String> id_names = new LinkedList<>();
+        ElementUtil.getScenarioSet(this, id_names);
+        jdbcPreProcessor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
-        ElementUtil.setBaseParams(jdbcPreProcessor, this.getParent(), config, this.getId(), this.getIndex());
-
+        // request.getDataSource() 是ID，需要转换为Name
         jdbcPreProcessor.setProperty("dataSource", this.dataSource.getName());
         jdbcPreProcessor.setProperty("query", this.getQuery());
         jdbcPreProcessor.setProperty("queryTimeout", String.valueOf(this.getQueryTimeout()));

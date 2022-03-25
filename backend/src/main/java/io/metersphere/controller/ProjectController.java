@@ -6,7 +6,6 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -71,7 +70,7 @@ public class ProjectController {
     }
 
     @PostMapping("/add")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#project.id)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_project_manager", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#project.id)", msClass = ProjectService.class)
     public Project addProject(@RequestBody AddProjectRequest project, HttpServletRequest request) {
         Project returnModel = projectService.addProject(project);
         //创建项目的时候默认增加Mock环境
@@ -98,37 +97,37 @@ public class ProjectController {
 
 
     @GetMapping("/delete/{projectId}")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_project_manager", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
     public void deleteProject(@PathVariable(value = "projectId") String projectId) {
         projectService.deleteProject(projectId);
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = ProjectService.class)
-    public void updateProject(@RequestBody AddProjectRequest Project) {
+    @MsAuditLog(module = "project_project_manager", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = ProjectService.class)
+    public void updateProject(@RequestBody Project Project) {
         projectService.updateProject(Project);
     }
 
     @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
     public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return projectService.uploadFiles(projectId, files);
     }
 
     @PostMapping(value = "/update/file/{fileId}", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
     public FileMetadata updateFile(@PathVariable String fileId, @RequestPart(value = "file", required = false) MultipartFile file) {
         return projectService.updateFile(fileId, file);
     }
 
     @GetMapping(value = "delete/file/{fileId}")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_project_manager", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
     public void deleteFile(@PathVariable String fileId) {
         projectService.deleteFile(fileId);
     }
 
     @PostMapping("/member/update")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MEMBER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_project_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = ProjectService.class)
     public void updateMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         projectService.updateMember(memberDTO);
     }
@@ -138,23 +137,8 @@ public class ProjectController {
         return checkPermissionService.getUserRelatedProjectIds();
     }
 
-    @GetMapping("/getOwnerProjects")
-    public List<ProjectDTO>  getOwnerProjects() {
-        return checkPermissionService.getOwnerProjects();
-    }
-
     @GetMapping("/genTcpMockPort/{id}")
     public String genTcpMockPort(@PathVariable String id){
         return projectService.genTcpMockPort(id);
-    }
-
-    @GetMapping("version/enable/{projectId}")
-    public boolean isVersionEnable(@PathVariable String projectId) {
-        return projectService.isVersionEnable(projectId);
-    }
-
-    @PostMapping("/check/third/project")
-    public void checkThirdProjectExist(@RequestBody Project project) {
-        projectService.checkThirdProjectExist(project);
     }
 }

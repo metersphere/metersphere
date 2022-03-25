@@ -17,14 +17,12 @@ import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
-import io.metersphere.track.request.testcase.TestCaseImportRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,6 +37,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     private Class excelDataClass;
 
+    boolean isIgnoreError = false;
+
     protected List<ExcelErrData<TestCaseExcelData>> errList = new ArrayList<>();
 
     protected List<TestCaseExcelData> excelDataList = new ArrayList<>();
@@ -46,13 +46,14 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private Map<Integer, String> headMap;
     private Map<String,String> excelHeadToFieldNameDic = new HashMap<>();
 
-
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
      */
-    protected static final int BATCH_COUNT = 5000;
+    protected static final int BATCH_COUNT = 2000;
 
     private TestCaseService testCaseService;
+
+    private String projectId;
 
     protected List<TestCaseExcelData> updateList = new ArrayList<>();  //存储待更新用例的集合
 
@@ -60,27 +61,38 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     protected boolean isUpdated = false;  //判断是否更新过用例，将会传给前端
 
+    public boolean isUseCustomId;
+
+    public String importType;
+
+    Set<String> testCaseNames;
+
     Set<String> customIds;
+
+    Set<String> savedCustomIds;
+
+    Set<String> userIds;
 
     private List<String> names = new LinkedList<>();
     private List<String> ids = new LinkedList<>();
 
     Map<String,CustomFieldDao> customFieldsMap = new HashMap<>();
-
-    private TestCaseImportRequest request;
-
     public boolean isUpdated() {
         return isUpdated;
     }
 
-    public TestCaseNoModelDataListener(TestCaseImportRequest request, Class c) {
+    public TestCaseNoModelDataListener(boolean isIgnoreError,Class c,List<CustomFieldDao> customFields, String projectId, Set<String> testCaseNames, Set<String> savedCustomIds, Set<String> userIds, boolean isUseCustomId, String importType) {
         this.excelDataClass = c;
+        this.isIgnoreError = isIgnoreError;
         this.testCaseService = (TestCaseService) CommonBeanFactory.getBean("testCaseService");
+        this.projectId = projectId;
+        this.testCaseNames = testCaseNames;
+        this.userIds = userIds;
+        this.isUseCustomId = isUseCustomId;
+        this.importType = importType;
         customIds = new HashSet<>();
+        this.savedCustomIds = savedCustomIds;
 
-        this.request = request;
-
-        List<CustomFieldDao> customFields = request.getCustomFields();
         if(CollectionUtils.isNotEmpty(customFields)){
             for (CustomFieldDao dto:customFields) {
                 String name = dto.getName();
@@ -154,14 +166,12 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     }
 
     public String validate(TestCaseExcelData data, String errMsg) {
-        Set<String> savedCustomIds = request.getSavedCustomIds();
-        String importType = request.getImportType();
         StringBuilder stringBuilder = new StringBuilder(errMsg);
-        if (request.isUseCustomId() || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
+        if (isUseCustomId || StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
             if (data.getCustomNum() == null) {
                 stringBuilder.append(Translator.get("id_required") + ";");
             } else {
-                String customId = data.getCustomNum();
+                String customId = data.getCustomNum().toString();
                 if (StringUtils.isEmpty(customId)) {
                     stringBuilder.append(Translator.get("id_required") + ";");
                 } else if (customIds.contains(customId)) {
@@ -213,9 +223,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 String value = null;
                 if (StringUtils.equals(customName, "status")) {
                     value = data.getStatus();
-                    if (!checkCaseStatus(value)){
-                        stringBuilder.append(Translator.get("case_status_not_exist") + "; ");
-                    }
                 }else if (StringUtils.equals(customName, "priority")) {
                     value = data.getPriority();
                 }else if (StringUtils.equals(customName, "maintainer")) {
@@ -224,7 +231,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     if (StringUtils.isBlank(data.getMaintainer())) {
                         data.setMaintainer(SessionUtils.getUserId());
                     } else {
-                        if (!request.getUserIds().contains(data.getMaintainer())) {
+                        if (!userIds.contains(data.getMaintainer())) {
                             stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
                         }
                     }
@@ -245,10 +252,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
          */
         if (null != data.getCustomNum()) {  //当前读取的数据有ID
 
-            if (StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Update.name())) {
+            if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
                 String checkResult = null;
-                if (request.isUseCustomId()) {
-                    checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), request.getProjectId());
+                if (isUseCustomId) {
+                    checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
                 } else {
                     int customNumId = -1;
                     try {
@@ -258,7 +265,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     if (customNumId < 0) {
                         stringBuilder.append(Translator.get("id_not_rightful") + "[" + data.getCustomNum() + "]; ");
                     } else {
-                        checkResult = testCaseService.checkIdExist(customNumId, request.getProjectId());
+                        checkResult = testCaseService.checkIdExist(customNumId, projectId);
                     }
                 }
                 if (null != checkResult) {  //该ID在当前项目中存在
@@ -283,10 +290,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         /*
         校验用例
          */
-        if (request.getTestCaseNames().contains(data.getName())) {
+        if (testCaseNames.contains(data.getName())) {
             TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
             BeanUtils.copyBean(testCase, data);
-            testCase.setProjectId(request.getProjectId());
+            testCase.setProjectId(projectId);
             String steps = getSteps(data);
             testCase.setSteps(steps);
             testCase.setType("functional");
@@ -312,7 +319,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             }
 
         } else {
-            request.getTestCaseNames().add(data.getName());
+            testCaseNames.add(data.getName());
             excelDataList.add(data);
         }
         return stringBuilder.toString();
@@ -337,7 +344,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     public void saveData() {
 
         //excel中用例都有错误时就返回，只要有用例可用于更新或者插入就不返回
-        if (!errList.isEmpty() && !request.isIgnore()) {
+        if (!errList.isEmpty() && !isIgnoreError) {
             return;
         }
 
@@ -346,7 +353,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
-            testCaseService.saveImportData(result, request);
+            testCaseService.saveImportData(result, projectId);
             this.names = result.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result.stream().map(TestCase::getId).collect(Collectors.toList());
             this.isUpdated = true;
@@ -356,7 +363,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result2 = updateList.stream()
                     .map(item -> this.convert2TestCaseForUpdate(item))
                     .collect(Collectors.toList());
-            testCaseService.updateImportData(result2, request);
+            if (this.isUseCustomId) {
+                testCaseService.updateImportDataCustomId(result2, projectId);
+            } else {
+                testCaseService.updateImportDataCarryId(result2, projectId);
+            }
             this.isUpdated = true;
             this.names = result2.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result2.stream().map(TestCase::getId).collect(Collectors.toList());
@@ -365,31 +376,16 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     }
 
-    /**
-     * 检验导入功能用例的状态
-     * @param status
-     * @return
-     */
-    private boolean checkCaseStatus(String status){
-        if (StringUtils.equalsAnyIgnoreCase(status, "Underway", "进行中", "進行中")) {
-            return true;
-        } else if (StringUtils.equalsAnyIgnoreCase(status, "Prepare", "未开始", "未開始")) {
-            return true;
-        } else if (StringUtils.equalsAnyIgnoreCase(status, "Completed", "已完成", "已完成")) {
-            return true;
-        }
-        return false;
-    }
 
     private TestCaseWithBLOBs convert2TestCase(TestCaseExcelData data) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         BeanUtils.copyBean(testCase, data);
         testCase.setId(UUID.randomUUID().toString());
-        testCase.setProjectId(request.getProjectId());
+        testCase.setProjectId(this.projectId);
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
-        if (request.isUseCustomId()) {
-            testCase.setCustomNum(data.getCustomNum());
+        if (this.isUseCustomId) {
+            testCase.setCustomNum(data.getCustomNum().toString());
         }
 
         String nodePath = data.getNodePath();
@@ -407,12 +403,13 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         testCase.setTags(modifiedTags);
         testCase.setType("functional");
 
+        JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway", "进行中", "進行中")) {
+        if (StringUtils.equalsAny(data.getStatus(), "Underway","underway", "进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare", "未开始", "未開始")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare","prepare", "未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed","已完成", "已完成")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "completed","已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);
@@ -443,7 +440,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private TestCaseWithBLOBs convert2TestCaseForUpdate(TestCaseExcelData data) {
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         BeanUtils.copyBean(testCase, data);
-        testCase.setProjectId(request.getProjectId());
+        testCase.setProjectId(this.projectId);
         testCase.setUpdateTime(System.currentTimeMillis());
 
         //调整nodePath格式
@@ -461,11 +458,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway","进行中", "進行中")) {
+        if (StringUtils.equalsAny(data.getStatus(), "Underway","underway" ,"进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare","未开始", "未開始")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare","prepare" ,"未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed", "已完成", "已完成")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "completed","已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);
@@ -480,7 +477,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         String modifiedTags = modifyTagPattern(data);
         testCase.setTags(modifiedTags);
 
-        if (!request.isUseCustomId()) {
+        if (!isUseCustomId) {
             testCase.setNum(Integer.parseInt(data.getCustomNum()));
             testCase.setCustomNum(null);
         }
@@ -514,35 +511,58 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
     }
 
+
     public String getSteps(TestCaseExcelData data) {
         JSONArray jsonArray = new JSONArray();
 
         List<String> stepDescList = new ArrayList<>();
         List<String> stepResList = new ArrayList<>();
-        ListUtils<String> listUtils = new ListUtils<>();
-
-        Set<Integer> rowNums = new HashSet<>();
+        ListUtils<String> listUtils = new ListUtils<String>();
         if (data.getStepDesc() != null) {
-            String[] stepDesc = data.getStepDesc().split("\r|\n|\r\n");
-
-            int rowIndex = 1;
+            String desc = data.getStepDesc().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
+            String[] stepDesc = desc.split("\r\n");
+            StringBuffer stepBuffer = new StringBuffer();
+            int lastStepIndex = 1;
             for (String row : stepDesc) {
-                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row,rowIndex);
-                stepDescList.add(rowInfo.rowInfo);
-                rowNums.add(rowIndex++);
+                RowInfo rowInfo = this.parseIndexInRow(row);
+                int rowIndex = rowInfo.index;
+                String rowMessage = rowInfo.rowInfo;
+                if (rowIndex > -1) {
+                    listUtils.set(stepDescList, lastStepIndex - 1, stepBuffer.toString(), "");
+                    stepBuffer = new StringBuffer();
+                    lastStepIndex = rowIndex;
+                    stepBuffer.append(rowMessage);
+                } else {
+                    stepBuffer.append(row);
+                }
+            }
+            if (StringUtils.isNotEmpty(stepBuffer.toString())) {
+                listUtils.set(stepDescList, lastStepIndex - 1, stepBuffer.toString(), "");
             }
         } else {
             stepDescList.add("");
         }
 
         if (data.getStepResult() != null) {
-            String[] stepRes = data.getStepResult().split("\r|\n|\r\n");
+            String stepResult = data.getStepResult().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
+            String[] stepRes = stepResult.split("\r\n");
+            StringBuffer stepBuffer = new StringBuffer();
             int lastStepIndex = 1;
             for (String row : stepRes) {
-                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row,lastStepIndex);
+                RowInfo rowInfo = this.parseIndexInRow(row);
+                int rowIndex = rowInfo.index;
                 String rowMessage = rowInfo.rowInfo;
-                stepResList.add(rowMessage);
-                lastStepIndex++;
+                if (rowIndex > -1) {
+                    listUtils.set(stepResList, lastStepIndex - 1, stepBuffer.toString(), "");
+                    stepBuffer = new StringBuffer();
+                    lastStepIndex = rowIndex;
+                    stepBuffer.append(rowMessage);
+                } else {
+                    stepBuffer.append(row);
+                }
+            }
+            if (StringUtils.isNotEmpty(stepBuffer.toString())) {
+                listUtils.set(stepResList, lastStepIndex - 1, stepBuffer.toString(), "");
             }
         } else {
             stepResList.add("");
@@ -557,14 +577,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             step.put("num", i + 1);
             if (i < stepDescList.size()) {
                 step.put("desc", stepDescList.get(i));
-            } else {
-                step.put("desc", "");
             }
 
             if (i < stepResList.size()) {
                 step.put("result", stepResList.get(i));
-            } else {
-                step.put("result", "");
             }
 
             jsonArray.add(step);
@@ -572,10 +588,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         return jsonArray.toJSONString();
     }
 
-    private RowInfo parseIndexInRow(String row,int rowIndex) {
+    private RowInfo parseIndexInRow(String row) {
         RowInfo rowInfo = new RowInfo();
         String parseString = row;
-
         int index = -1;
         String rowMessage = row;
         String[] indexSplitCharArr = new String[]{")", "）", "]", "】", ".", ",", "，", "。"};
@@ -587,7 +602,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 String[] rowSplit = StringUtils.split(parseString, splitChar);
                 if (rowSplit.length > 0) {
                     String indexString = rowSplit[0];
-                    if (StringUtils.isNumeric(indexString)&&indexString.equals(String.valueOf(rowIndex))) {
+                    if (StringUtils.isNumeric(indexString)) {
                         try {
                             index = Integer.parseInt(indexString);
                             rowMessage = StringUtils.substring(parseString, indexString.length() + splitChar.length());
@@ -699,9 +714,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (StringUtils.isEmpty(value)) {
                 value = "";
             }
-            if (field.getType().equalsIgnoreCase("multipleSelect")) {
-                value = modifyMultipleSelectPattern(value);
-            }
+
             JSONObject statusObj = new JSONObject();
             statusObj.put("id", UUID.randomUUID().toString());
             statusObj.put("name", field.getName());
@@ -711,31 +724,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             customArr.add(statusObj);
         }
         return customArr.toJSONString();
-    }
-
-    /**
-     * 调整自定义多选下拉框格式，便于前端进行解析。
-     * 例如对于：下拉值1，下拉值2。将调整为:["下拉值1","下拉值2"]。
-     */
-    public String modifyMultipleSelectPattern(String values) {
-        try {
-            if (StringUtils.isNotBlank(values)) {
-                JSONArray array = JSONArray.parseArray(values);
-                return array.toJSONString();
-            }
-            return "[]";
-        } catch (Exception e) {
-            if (values != null) {
-                Stream<String> stringStream = Arrays.stream(values.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
-                List<String> valueList = stringStream.map(multip -> multip = "\"" + multip + "\"")
-                        .collect(Collectors.toList());
-                String modifiedValues = StringUtils.join(valueList, ",");
-                modifiedValues = "[" + modifiedValues + "]";
-                return modifiedValues;
-            } else {
-                return "[]";
-            }
-        }
     }
 
     /**
@@ -768,14 +756,5 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     class RowInfo {
         public int index;
         public String rowInfo;
-    }
-
-    public static boolean isNumericzidai(String str) {
-        Pattern pattern = Pattern.compile("-?[0-9]+(\\.[0-9]+)?");
-        Matcher isNum = pattern.matcher(str);
-        if (!isNum.matches()) {
-            return false;
-        }
-        return true;
     }
 }

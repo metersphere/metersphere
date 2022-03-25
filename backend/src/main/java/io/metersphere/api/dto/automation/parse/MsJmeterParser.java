@@ -170,7 +170,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         String path = source.getPath();
         // Request Defaults
         if (StringUtils.isEmpty(source.getDomain())) {
-            return path;
+            return null;
         }
         if (!path.startsWith("http://") && !path.startsWith("https://")) {
             String domain = source.getDomain();
@@ -607,44 +607,24 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         assertions.setDuration(new MsAssertionDuration());
         assertions.setType("Assertions");
         if (key instanceof ResponseAssertion) {
+            MsAssertionRegex assertionRegex = new MsAssertionRegex();
             ResponseAssertion assertion = (ResponseAssertion) key;
+            assertionRegex.setDescription(assertion.getName());
+            assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
             if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
-                assertion.getTestStrings().forEach(item -> {
-                    MsAssertionRegex assertionRegex = new MsAssertionRegex();
-                    assertionRegex.setDescription(assertion.getName());
-                    assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
-                    assertionRegex.setExpression(item.getStringValue());
-                    if (assertion.isTestFieldResponseData()) {
-                        assertionRegex.setSubject("Response Data");
-                    }
-                    if (assertion.isTestFieldResponseCode()) {
-                        assertionRegex.setSubject("Response Code");
-                    }
-                    if (assertion.isTestFieldResponseHeaders()) {
-                        assertionRegex.setSubject("Response Headers");
-                    }
-                    assertions.setName(assertion.getName());
-                    assertions.getRegex().add(assertionRegex);
-                });
-            } else {
-                MsAssertionRegex assertionRegex = new MsAssertionRegex();
-                assertionRegex.setDescription(assertion.getName());
-                assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
-                if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
-                    assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
-                }
-                if (assertion.isTestFieldResponseData()) {
-                    assertionRegex.setSubject("Response Data");
-                }
-                if (assertion.isTestFieldResponseCode()) {
-                    assertionRegex.setSubject("Response Code");
-                }
-                if (assertion.isTestFieldResponseHeaders()) {
-                    assertionRegex.setSubject("Response Headers");
-                }
-                assertions.setName(assertion.getName());
-                assertions.getRegex().add(assertionRegex);
+                assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
             }
+            if (assertion.isTestFieldResponseData()) {
+                assertionRegex.setSubject("Response Data");
+            }
+            if (assertion.isTestFieldResponseCode()) {
+                assertionRegex.setSubject("Response Code");
+            }
+            if (assertion.isTestFieldResponseHeaders()) {
+                assertionRegex.setSubject("Response Headers");
+            }
+            assertions.setName(assertion.getName());
+            assertions.getRegex().add(assertionRegex);
         } else if (key instanceof JSONPathAssertion) {
             MsAssertionJsonPath assertionJsonPath = new MsAssertionJsonPath();
             JSONPathAssertion jsonPathAssertion = (JSONPathAssertion) key;

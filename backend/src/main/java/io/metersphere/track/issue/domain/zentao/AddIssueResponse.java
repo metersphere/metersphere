@@ -5,7 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddIssueResponse extends ZentaoResponse {
+public class AddIssueResponse {
+    private String status;
+    private String md5;
+    private String data;
+
     @Getter
     @Setter
     public static class Issue {

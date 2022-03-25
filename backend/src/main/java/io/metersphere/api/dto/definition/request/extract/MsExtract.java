@@ -24,7 +24,7 @@ import java.util.StringJoiner;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "Extract")
 public class MsExtract extends MsTestElement {
-    private String clazzName = MsExtract.class.getCanonicalName();
+    private String clazzName = "io.metersphere.api.dto.definition.request.extract.MsExtract";
 
     private List<MsExtractRegex> regex;
     private List<MsExtractJSONPath> json;
@@ -66,7 +66,7 @@ public class MsExtract extends MsTestElement {
             shell.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
             shell.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
             shell.setProperty("cacheKey", false);
-            shell.setProperty("script", "io.metersphere.utils.JMeterVars.addVars(prev.getResourceId(),vars," + "\"" + extract.toString() + "\"" + ");");
+            shell.setProperty("script", "io.metersphere.utils.JMeterVars.addVars(prev.hashCode(),vars," + "\"" + extract.toString() + "\"" + ");");
             samplerHashTree.add(shell);
         }
     }

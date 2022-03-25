@@ -1,6 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 16px;"
-           style="height: 350px;margin-top: 5px">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header">
       <span class="title">
         {{ $t('api_test.home_page.test_case_count_card.title') }}
@@ -8,10 +7,17 @@
     </div>
     <el-container>
       <el-aside width="120px">
-        <ms-count-ring-chart :content="testCaseCountData.allApiDataCountNumber"/>
+        <div class="main-number-show">
+          <span class="count-number">
+            {{ testCaseCountData.allApiDataCountNumber }}
+          </span>
+          <span style="color: #6C317C;">
+            {{ $t('api_test.home_page.unit_of_measurement') }}
+          </span>
+        </div>
       </el-aside>
       <el-main style="padding-left: 0px;padding-right: 0px">
-        <div style="width: 185px; float:right;margin:0 auto">
+        <div style="width: 200px;margin:0 auto">
           <el-row align="center" class="hidden-lg-and-down">
             <el-col :span="6"
                     style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
@@ -29,7 +35,7 @@
               <div class="count-info-div" v-html="testCaseCountData.sqlCountStr"></div>
             </el-col>
           </el-row>
-          <el-row align="right" class="hidden-xl-only">
+          <el-row align="right" style="margin-left: 20px" class="hidden-xl-only">
             <el-col :span="6"
                     style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="testCaseCountData.httpCountStr"></div>
@@ -70,8 +76,12 @@
         </el-row>
         <el-row :gutter="20" class="hidden-xl-only">
           <el-col :span="8">
-            <div class="count-info-div"
-                 v-html="$t('api_test.home_page.schedule_task_details_card.this_week_add_sm',[testCaseCountData.thisWeekAddedCount])"></div>
+            {{ $t('api_test.home_page.test_case_details_card.this_week_add_sm') }}
+            <br/>
+            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">
+              {{ testCaseCountData.thisWeekAddedCount }}
+            </el-link>
+            {{ $t('api_test.home_page.unit_of_measurement') }}
           </el-col>
           <el-col :span="8">
             <div class="count-info-div"
@@ -83,14 +93,12 @@
           </el-col>
         </el-row>
       </el-header>
-      <el-main style="padding: 5px 5px 0px 0px;margin-top: 10px">
+      <el-main style="padding: 5px;margin-top: 10px">
         <el-container>
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
-              <el-aside width="50px">
-                <span style="float: left">
-                  {{ $t('api_test.home_page.detail_card.rate.coverage') + ":" }}
-                </span>
+              <el-aside width="30%">
+                {{ $t('api_test.home_page.detail_card.rate.coverage') + ":" }}
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">
@@ -103,7 +111,7 @@
               </el-main>
             </el-container>
           </el-aside>
-          <el-main style="padding: 0px; height: 80px; float:right;">
+          <el-main style="padding: 5px">
             <el-card class="no-shadow-card" body-style="padding-left:5px;padding-right:5px">
               <main>
                 <el-row>
@@ -139,12 +147,10 @@
 
 <script>
 
-import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
-
 export default {
   name: "MsTestCaseInfoCard",
 
-  components: {MsCountRingChart},
+  components: {},
 
   data() {
     return {
@@ -183,15 +189,23 @@ export default {
 
 .count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
-  font-size: 19px;
+  font-size: 33px;
   color: var(--count_number);
   position: relative;
-  margin-left: 10px;
-  float: left;
+}
+
+.main-number-show {
+  width: 100px;
+  height: 100px;
+  border-style: solid;
+  border-width: 7px;
+  border-color: var(--count_number_shallow);
+  border-radius: 50%;
+
 }
 
 .count-number-show {
-  margin: 19px auto;
+  margin: 20px auto;
 }
 
 .detail-container {
@@ -199,8 +213,6 @@ export default {
 }
 
 .no-shadow-card {
-  width: 115px;
-  float: right;
   -webkit-box-shadow: 0 0px 0px 0 rgba(0, 0, 0, .1);
   box-shadow: 0 0px 0px 0 rgba(0, 0, 0, .1);
 }
@@ -228,6 +240,6 @@ export default {
 
 .info-tool-tip {
   position: absolute;
-  top: 30px;
+  top: 0;
 }
 </style>

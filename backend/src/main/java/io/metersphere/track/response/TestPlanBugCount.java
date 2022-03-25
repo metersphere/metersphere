@@ -13,5 +13,4 @@ public class TestPlanBugCount {
     private int caseSize;
     private int bugSize;
     private String passRage;
-    private String planId;
 }

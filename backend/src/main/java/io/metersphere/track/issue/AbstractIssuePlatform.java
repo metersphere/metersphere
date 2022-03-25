@@ -8,7 +8,6 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.CustomFieldType;
-import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -17,7 +16,6 @@ import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
-import io.metersphere.track.issue.domain.ProjectIssueConfig;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -39,7 +37,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
-import java.net.URLDecoder;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.function.Function;
@@ -143,10 +140,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     public abstract String getProjectId(String projectId);
 
     public String getProjectId(String projectId, Function<Project, String> getProjectKeyFuc) {
-        return getProjectKeyFuc.apply(getProject(projectId, getProjectKeyFuc));
-    }
-
-    public Project getProject(String projectId,  Function<Project, String> getProjectKeyFuc) {
         Project project;
         if (StringUtils.isNotBlank(projectId)) {
             project = projectService.getProjectById(projectId);
@@ -155,51 +148,56 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             project = projectService.getProjectById(testCase.getProjectId());
         }
         String projectKey = getProjectKeyFuc.apply(project);
-        if (StringUtils.isBlank(projectKey)) {
-            MSException.throwException("请在项目设置配置 " + key + "项目ID");
-        }
-        return project;
+        if (StringUtils.isBlank(projectKey)) MSException.throwException("请在项目设置配置 " + key + "项目ID");
+        return projectKey;
     }
 
-    public ProjectIssueConfig getProjectConfig(String configStr) {
-        ProjectIssueConfig issueConfig;
-        if (StringUtils.isNotBlank(configStr)) {
-            issueConfig = JSONObject.parseObject(configStr, ProjectIssueConfig.class);
-        } else {
-            issueConfig = new ProjectIssueConfig();
+    protected boolean isIntegratedPlatform(String workspaceId, String platform) {
+        IntegrationRequest request = new IntegrationRequest();
+        request.setPlatform(platform);
+        request.setWorkspaceId(workspaceId);
+        ServiceIntegration integration = integrationService.get(request);
+        return StringUtils.isNotBlank(integration.getId());
+    }
+
+    protected void insertTestCaseIssues(String issuesId, String caseId) {
+        if (StringUtils.isNotBlank(caseId)) {
+            TestCaseIssues testCaseIssues = new TestCaseIssues();
+            testCaseIssues.setId(UUID.randomUUID().toString());
+            testCaseIssues.setIssuesId(issuesId);
+            testCaseIssues.setTestCaseId(caseId);
+            testCaseIssuesMapper.insert(testCaseIssues);
+            testCaseIssueService.updateIssuesCount(caseId);
         }
-        return issueConfig;
     }
 
     protected void handleIssueUpdate(IssuesUpdateRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         issuesMapper.updateByPrimaryKeySelective(request);
-        handleTestCaseIssues(request);
+        if (!request.isWithoutTestCaseIssue()) {
+            handleTestCaseIssues(request);
+        }
     }
 
     protected void handleTestCaseIssues(IssuesUpdateRequest issuesRequest) {
         String issuesId = issuesRequest.getId();
-        List<String> deleteCaseIds = issuesRequest.getDeleteResourceIds();
-
-        if (!CollectionUtils.isEmpty(deleteCaseIds)) {
+        if (StringUtils.isNotBlank(issuesRequest.getTestCaseId())) {
+            insertTestCaseIssues(issuesId, issuesRequest.getTestCaseId());
+        } else {
+            List<String> testCaseIds = issuesRequest.getTestCaseIds();
             TestCaseIssuesExample example = new TestCaseIssuesExample();
-            example.createCriteria().andResourceIdIn(deleteCaseIds);
-            // 测试计划的用例 deleteCaseIds 是空的， 不会进到这里
-            example.or(example.createCriteria().andRefIdIn(deleteCaseIds));
+            example.createCriteria().andIssuesIdEqualTo(issuesId);
+            List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
+            List<String> deleteCaseIds = testCaseIssues.stream().map(TestCaseIssues::getTestCaseId).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(testCaseIds)) {
+                deleteCaseIds.removeAll(testCaseIds);
+            }
             testCaseIssuesMapper.deleteByExample(example);
-        }
-
-        List<String> addCaseIds = issuesRequest.getAddResourceIds();
-        TestCaseIssueService testCaseIssueService = CommonBeanFactory.getBean(TestCaseIssueService.class);
-
-        if (!CollectionUtils.isEmpty(addCaseIds)) {
-            if (issuesRequest.getIsPlanEdit()) {
-                addCaseIds.forEach(caseId -> {
-                    testCaseIssueService.add(issuesId, caseId, issuesRequest.getRefId(), IssueRefType.PLAN_FUNCTIONAL.name());
-                    testCaseIssueService.updateIssuesCount(caseId);
+            deleteCaseIds.forEach(testCaseIssueService::updateIssuesCount);
+            if (!CollectionUtils.isEmpty(testCaseIds)) {
+                testCaseIds.forEach(caseId -> {
+                    insertTestCaseIssues(issuesId, caseId);
                 });
-            } else {
-                addCaseIds.forEach(caseId -> testCaseIssueService.add(issuesId, caseId, null, IssueRefType.FUNCTIONAL.name()));
             }
         }
     }
@@ -227,7 +225,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setUpdateTime(System.currentTimeMillis());
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issues.setPlatformStatus(issuesRequest.getPlatformStatus());
-        issues.setCreator(SessionUtils.getUserId());
         issuesMapper.insert(issues);
         return issues;
     }
@@ -316,15 +313,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         String result = input;
         while (matcher.find()) {
             String url = matcher.group(2);
-            if (url.contains("/resource/md/get/")) { // 兼容旧数据
+            if (url.contains("/resource/md/get/")) {
                 String path = url.substring(url.indexOf("/resource/md/get/"));
                 String name = path.substring(path.indexOf("/resource/md/get/") + 26);
-                String mdLink = "![" + name + "](" + path + ")";
-                result = matcher.replaceFirst(mdLink);
-                matcher = pattern.matcher(result);
-            } else if(url.contains("/resource/md/get")) { //新数据走这里
-                String path = url.substring(url.indexOf("/resource/md/get"));
-                String name = path.substring(path.indexOf("/resource/md/get") + 35);
                 String mdLink = "![" + name + "](" + path + ")";
                 result = matcher.replaceFirst(mdLink);
                 matcher = pattern.matcher(result);
@@ -344,12 +335,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         while (matcher.find()) {
             try {
                 String path = matcher.group(2);
-                if (path.contains("/resource/md/get/")) { // 兼容旧数据
+                if (path.contains("/resource/md/get/")) {
                     String name = path.substring(path.indexOf("/resource/md/get/") + 17);
                     files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));
-                } else if (path.contains("/resource/md/get")) { // 新数据走这里
-                    String name = path.substring(path.indexOf("/resource/md/get") + 26);
-                    files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + URLDecoder.decode(name, "UTF-8")));
                 }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
@@ -364,8 +352,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     @Override
     public void deleteIssue(String id) {
-        IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
-        issuesService.deleteIssue(id);
+        issuesMapper.deleteByPrimaryKey(id);
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria()
+                .andIssuesIdEqualTo(id);
+        testCaseIssuesMapper.deleteByExample(example);
     }
 
     protected void addCustomFields(IssuesUpdateRequest issuesRequest, MultiValueMap<String, Object> paramMap) {
@@ -377,32 +368,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         });
     }
 
-    protected Object getSyncJsonParamValue(Object value) {
-        JSONObject valObj = ((JSONObject) value);
-        String accountId = valObj.getString("accountId");
-        JSONObject child = valObj.getJSONObject("child");
-        if (child != null) {// 级联框
-            List<Object> values = new ArrayList<>();
-            if (StringUtils.isNotBlank(valObj.getString("id")))  {
-                values.add(valObj.getString("id"));
-            }
-            if (StringUtils.isNotBlank(child.getString("id")))  {
-                values.add(child.getString("id"));
-            }
-            return values;
-        } else if (StringUtils.isNotBlank(accountId) && isThirdPartTemplate) {
-            // 用户选择框
-            return accountId;
-        } else {
-            String id = valObj.getString("id");
-            if (StringUtils.isNotBlank(id)) {
-                return valObj.getString("id");
-            } else {
-                return valObj.getString("key");
-            }
-        }
-    }
-
     protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
         Set<String> names = issue.keySet();
@@ -411,12 +376,31 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             Object value = issue.get(fieldName);
             if (value != null) {
                if (value instanceof JSONObject) {
-                   item.setValue(getSyncJsonParamValue(value));
+                   JSONObject valObj = ((JSONObject) value);
+                   String accountId = valObj.getString("accountId");
+                   JSONObject child = valObj.getJSONObject("child");
+                   if (child != null) {// 级联框
+                       List<Object> values = new ArrayList<>();
+                       if (StringUtils.isNotBlank(valObj.getString("id")))  {
+                           values.add(valObj.getString("id"));
+                       }
+                       if (StringUtils.isNotBlank(child.getString("id")))  {
+                           values.add(child.getString("id"));
+                       }
+                       item.setValue(values);
+                   } else if (StringUtils.isNotBlank(accountId)) {
+                       // 用户选择框
+                       if (isThirdPartTemplate) {
+                           item.setValue(accountId);
+                       }
+                    } else {
+                       item.setValue(valObj.getString("id"));
+                    }
                 } else if (value instanceof JSONArray) {
                     List<Object> values = new ArrayList<>();
                     ((JSONArray)value).forEach(attr -> {
                         if (attr instanceof JSONObject) {
-                            values.add(getSyncJsonParamValue(attr));
+                            values.add(((JSONObject)attr).getString("id"));
                         } else {
                             values.add(attr);
                         }
@@ -486,12 +470,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
             JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
             defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
-                String id = ((JSONObject) item).getString("id");
-                if (StringUtils.isBlank(id)) {
-                    id = ((JSONObject) item).getString("key");
-                    ((JSONObject) item).put("id", id);
-                }
-                if (!ids.contains(id)) {
+                if (!ids.contains(((JSONObject) item).getString("id"))) {
                     issueFields.add(item);
                 }
             });
@@ -501,9 +480,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     public <T> T getConfig(String platform, Class<T> clazz) {
         String config = getPlatformConfig(platform);
-        if (StringUtils.isBlank(config)) {
-            MSException.throwException("配置为空");
-        }
+        if (StringUtils.isBlank(config)) MSException.throwException("配置为空");
         return JSONObject.parseObject(config, clazz);
     }
 
@@ -521,10 +498,5 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public Boolean checkProjectExist(String relateId) {
-        return null;
     }
 }

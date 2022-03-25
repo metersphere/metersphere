@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
         <div style="font-size: 16px;margin-bottom: 20px;margin-left: 10px">
@@ -86,7 +86,7 @@
         </div>
       </template>
       <el-table border class="adjust-table" :data="tableData" ref="operLog"
-                :height="screenHeight" v-loading="loading">
+                :height="screenHeight">
         <el-table-column prop="operTime" :label="$t('operating_log.time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.operTime | timestampFormatDate }}</span>
@@ -99,11 +99,7 @@
             <span>{{ getType(scope.row.operType) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px">
-          <template v-slot:default="scope">
-            <span>{{ getLogModule(scope.row.operModule) }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px"/>
         <el-table-column prop="operTitle" :label="$t('operating_log.name')" :show-overflow-tooltip="true" width="180px">
           <template v-slot:default="scope">
             <el-link v-if="isLink(scope.row)" style="color: #409EFF" @click="clickResource(scope.row)">
@@ -130,7 +126,7 @@
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "./config";
+import {getUrl, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "./config";
 import MsLogDetail from "./LogDetail";
 
 export default {
@@ -157,9 +153,7 @@ export default {
         screenHeight: 'calc(100vh - 270px)',
         LOG_TYPE: new LOG_TYPE(this),
         LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
-        LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
         sysList:new SYSLIST(),
-        loading: false
       }
     },
     mounted() {
@@ -206,20 +200,19 @@ export default {
     },
     methods: {
       isLink(row) {
-        let uri = getUrl(row, this);
+        let uri = getUrl(row);
         if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
           return true;
         }
         return false;
       },
       clickResource(resource) {
-        let uri = getUrl(resource, this);
+        let uri = getUrl(resource);
         if (!resource.sourceId) {
             this.toPage(uri);
         }
         let operModule = resource.operModule;
-        let module = this.getLogModule(operModule);
-        if (module === "系统-系统参数设置" || module === "系统-系統參數設置" || module === "System parameter setting") {
+        if (operModule === "系统-系统参数设置" || operModule === "系统-系統參數設置" || operModule === "System parameter setting") {
           this.toPage(uri);
         } else {
           let resourceId = resource.sourceId;
@@ -270,11 +263,11 @@ export default {
           this.condition.operModule = this.condition.operModules[1];
         }
         let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
-        this.loading = true;
+        this.result.loading = true;
         this.$post(url, this.condition, response => {
           this.tableData = response.data.listObject;
           this.total = response.data.itemCount;
-          this.loading = false;
+          this.result.loading = false;
         })
 
       },
@@ -311,9 +304,6 @@ export default {
       },
       getType(type) {
         return this.LOG_TYPE_MAP.get(type);
-      },
-      getLogModule(val) {
-        return this.LOG_MODULE_MAP.get(val) ? this.LOG_MODULE_MAP.get(val) : val;
       },
       search() {
         this.initTableData();

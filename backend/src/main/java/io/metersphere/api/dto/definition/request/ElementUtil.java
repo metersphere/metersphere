@@ -28,20 +28,15 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
-import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
-import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.testelement.TestPlan;
-import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jorphan.collections.HashTree;
 
 import java.io.ByteArrayOutputStream;
@@ -51,9 +46,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ElementUtil {
-    private static final String PRE = "PRE";
-    private static final String POST = "POST";
-    private static final String ASSERTIONS = "ASSERTIONS";
+
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public static Arguments addArguments(ParameterConfig config, String projectId, String name) {
@@ -78,16 +71,10 @@ public class ElementUtil {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
-            if (StringUtils.isEmpty(projectId)) {
-                projectId = environment.getProjectId();
-            }
             if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
                 isMockEnvironment = true;
             }
             // 单独接口执行
-            if (StringUtils.isEmpty(projectId)) {
-                projectId = environment.getProjectId();
-            }
             Map<String, EnvironmentConfig> map = new HashMap<>();
             map.put(projectId, JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             return map;
@@ -192,6 +179,16 @@ public class ElementUtil {
             path = StringUtils.isEmpty(element.getName()) ? element.getType() : element.getName() + DelimiterConstants.STEP_DELIMITER.toString() + path;
         }
         return getFullPath(element.getParent(), path);
+    }
+
+    public static void getScenarioSet(MsTestElement element, List<String> id_names) {
+        if (StringUtils.equals(element.getType(), "scenario")) {
+            id_names.add(element.getResourceId() + "_" + element.getName());
+        }
+        if (element.getParent() == null) {
+            return;
+        }
+        getScenarioSet(element.getParent(), id_names);
     }
 
     public static String getParentName(MsTestElement parent) {
@@ -362,6 +359,41 @@ public class ElementUtil {
         }
     }
 
+    public static void dataFormatting(JSONArray hashTree, String id, String reportType) {
+        for (int i = 0; i < hashTree.size(); i++) {
+            JSONObject element = hashTree.getJSONObject(i);
+            formatSampler(element);
+            if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+                element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
+            }
+            if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
+                if (element != null && requests.contains(element.getString("type")) && !element.getString("resourceId").contains(id)) {
+                    element.fluentPut("resourceId", id + "=" + element.getString("resourceId"));
+                }
+            }
+            if (element.containsKey("hashTree")) {
+                JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                dataFormatting(elementJSONArray, id, reportType);
+            }
+        }
+    }
+
+    public static void dataFormatting(JSONObject element, String id, String reportType) {
+        if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+            element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
+        }
+        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
+            if (element != null && requests.contains(element.getString("type")) && !element.getString("resourceId").contains(id)) {
+                element.fluentPut("resourceId", id + "=" + element.getString("resourceId"));
+            }
+        }
+        formatSampler(element);
+        if (element != null && element.containsKey("hashTree")) {
+            JSONArray elementJSONArray = element.getJSONArray("hashTree");
+            dataFormatting(elementJSONArray, id, reportType);
+        }
+    }
+
     public static void dataSetDomain(JSONArray hashTree, MsParameter msParameter) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -498,64 +530,6 @@ public class ElementUtil {
         }
     }
 
-    public static List<JSONObject> mergeHashTree(List<JSONObject> sourceHashTree, List<JSONObject> targetHashTree) {
-        try {
-            List<String> sourceIds = new ArrayList<>();
-            List<String> delIds = new ArrayList<>();
-            Map<String, JSONObject> updateMap = new HashMap<>();
-
-            if (CollectionUtils.isNotEmpty(targetHashTree)) {
-                for (int i = 0; i < targetHashTree.size(); i++) {
-                    JSONObject item = targetHashTree.get(i);
-                    item.put("disabled", true);
-                    if (StringUtils.isNotEmpty(item.getString("id"))) {
-                        updateMap.put(item.getString("id"), item);
-                    }
-                }
-            }
-            // 找出待更新内容和源已经被删除的内容
-            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
-                for (int i = 0; i < sourceHashTree.size(); i++) {
-                    JSONObject source = sourceHashTree.get(i);
-                    if (source != null) {
-                        sourceIds.add(source.getString("id"));
-                        if (!StringUtils.equals(source.getString("label"), "SCENARIO-REF-STEP") && StringUtils.isNotEmpty(source.getString("id"))) {
-                            if (updateMap.containsKey(source.getString("id"))) {
-                                sourceHashTree.set(i, updateMap.get(source.getString("id")));
-                            } else {
-                                delIds.add(source.getString("id"));
-                            }
-                        }
-                        // 历史数据兼容
-                        if (StringUtils.isEmpty(source.getString("id")) && !StringUtils.equals(source.getString("label"), "SCENARIO-REF-STEP") && i < targetHashTree.size()) {
-                            sourceHashTree.set(i, targetHashTree.get(i));
-                        }
-                    }
-                }
-            }
-
-            // 删除多余的步骤
-            for (int i = 0; i < sourceHashTree.size(); i++) {
-                JSONObject source = sourceHashTree.get(i);
-                if (delIds.contains(source.getString("id"))) {
-                    sourceHashTree.remove(i);
-                }
-            }
-            // 补充新增的源引用步骤
-            if (CollectionUtils.isNotEmpty(targetHashTree)) {
-                for (int i = 0; i < targetHashTree.size(); i++) {
-                    JSONObject item = sourceHashTree.get(i);
-                    if (!sourceIds.contains(item.getString("id"))) {
-                        sourceHashTree.add(item);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            return targetHashTree;
-        }
-        return sourceHashTree;
-    }
-
     public static String hashTreeToString(HashTree hashTree) {
         try (ByteArrayOutputStream bas = new ByteArrayOutputStream()) {
             SaveService.saveTree(hashTree, bas);
@@ -565,176 +539,5 @@ public class ElementUtil {
             io.metersphere.plugin.core.utils.LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;
-    }
-
-    public static String getResourceId(String resourceId, ParameterConfig config, MsTestElement parent, String indexPath) {
-        if (StringUtils.isNotEmpty(config.getScenarioId()) && StringUtils.equals(config.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            resourceId = config.getScenarioId() + "=" + resourceId;
-        }
-        return resourceId + "_" + ElementUtil.getFullIndexPath(parent, indexPath);
-    }
-
-    public static JSR223PreProcessor argumentsToProcessor(Arguments arguments) {
-        JSR223PreProcessor processor = new JSR223PreProcessor();
-        processor.setEnabled(true);
-        processor.setName("User Defined Variables");
-        processor.setProperty("scriptLanguage", "beanshell");
-        processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
-        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        StringBuffer script = new StringBuffer();
-        if (arguments != null) {
-            for (int i = 0; i < arguments.getArguments().size(); ++i) {
-                String argValue = arguments.getArgument(i).getValue();
-                script.append("vars.put(\"" + arguments.getArgument(i).getName() + "\",\"" + argValue + "\");").append("\n");
-            }
-            processor.setProperty("script", script.toString());
-        }
-        return processor;
-    }
-
-    public static void setBaseParams(AbstractTestElement sampler, MsTestElement parent, ParameterConfig config, String id, String indexPath) {
-        sampler.setProperty("MS-ID", id);
-        sampler.setProperty("MS-RESOURCE-ID", ElementUtil.getResourceId(id, config, parent, indexPath));
-        LoggerUtil.debug("mqtt sampler resourceId :" + sampler.getPropertyAsString("MS-RESOURCE-ID"));
-    }
-
-    public static void accuracyHashTree(HashTree hashTree) {
-        Map<Object, HashTree> objects = new LinkedHashMap<>();
-        Object groupHashTree = hashTree;
-        if (hashTree != null && hashTree.size() > 0) {
-            for (Object key : hashTree.keySet()) {
-                if (key instanceof TestPlan) {
-                    for (Object node : hashTree.get(key).keySet()) {
-                        if (node instanceof ThreadGroup) {
-                            groupHashTree = hashTree.get(key).get(node);
-                        }
-                    }
-                } else {
-                    objects.put(key, hashTree.get(key));
-                }
-            }
-        }
-        if (!objects.isEmpty() && groupHashTree instanceof HashTree) {
-            for (Object key : objects.keySet()) {
-                hashTree.remove(key);
-                ((HashTree) groupHashTree).add(key, objects.get(key));
-            }
-        }
-    }
-
-    private static final List<String> preOperates = new ArrayList<String>() {{
-        this.add("JSR223PreProcessor");
-        this.add("JDBCPreProcessor");
-        this.add("ConstantTimer");
-    }};
-    private static final List<String> postOperates = new ArrayList<String>() {{
-        this.add("JSR223PostProcessor");
-        this.add("JDBCPostProcessor");
-        this.add("Extract");
-    }};
-
-
-    public static void copyBean(JSONObject target, JSONObject source) {
-        if (source == null || target == null) {
-            return;
-        }
-        for (String key : target.keySet()) {
-            if (source.containsKey(key) && !StringUtils.equalsIgnoreCase(key, "hashTree")) {
-                target.put(key, source.get(key));
-            }
-        }
-    }
-
-    private static List<MsTestElement> orderList(List<MsTestElement> list) {
-        if (CollectionUtils.isNotEmpty(list)) {
-            for (int i = 0; i < list.size(); i++) {
-                if (StringUtils.isEmpty(list.get(i).getIndex())) {
-                    list.get(i).setIndex(String.valueOf(i));
-                }
-            }
-            return list.stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList());
-        }
-        return list;
-    }
-
-    public static Map<String, List<JSONObject>> group(JSONArray elements) {
-        Map<String, List<JSONObject>> groupMap = new LinkedHashMap<>();
-        if (CollectionUtils.isNotEmpty(elements)) {
-            for (int i = 0; i < elements.size(); i++) {
-                JSONObject item = elements.getJSONObject(i);
-                if ("Assertions".equals(item.getString("type"))) {
-                    if (groupMap.containsKey(ASSERTIONS)) {
-                        groupMap.get(ASSERTIONS).add(item);
-                    } else {
-                        groupMap.put(ASSERTIONS, new LinkedList<JSONObject>() {{
-                            this.add(item);
-                        }});
-                    }
-                } else if (preOperates.contains(item.getString("type"))) {
-                    if (groupMap.containsKey(PRE)) {
-                        groupMap.get(PRE).add(item);
-                    } else {
-                        groupMap.put(PRE, new LinkedList<JSONObject>() {{
-                            this.add(item);
-                        }});
-                    }
-                } else if (postOperates.contains(item.getString("type"))) {
-                    if (groupMap.containsKey(POST)) {
-                        groupMap.get(POST).add(item);
-                    } else {
-                        groupMap.put(POST, new LinkedList<JSONObject>() {{
-                            this.add(item);
-                        }});
-                    }
-                }
-            }
-        }
-        return groupMap;
-    }
-
-    public static List<MsTestElement> order(List<MsTestElement> elements) {
-        List<MsTestElement> elementList = new LinkedList<>();
-        if (CollectionUtils.isNotEmpty(elements)) {
-            Map<String, List<MsTestElement>> groupMap = new LinkedHashMap<>();
-            elements.forEach(item -> {
-                if ("Assertions".equals(item.getType())) {
-                    if (groupMap.containsKey(ASSERTIONS)) {
-                        groupMap.get(ASSERTIONS).add(item);
-                    } else {
-                        groupMap.put(ASSERTIONS, new LinkedList<MsTestElement>() {{
-                            this.add(item);
-                        }});
-                    }
-                } else if (preOperates.contains(item.getType())) {
-                    if (groupMap.containsKey(PRE)) {
-                        groupMap.get(PRE).add(item);
-                    } else {
-                        groupMap.put(PRE, new LinkedList<MsTestElement>() {{
-                            this.add(item);
-                        }});
-                    }
-                } else if (postOperates.contains(item.getType())) {
-                    if (groupMap.containsKey(POST)) {
-                        groupMap.get(POST).add(item);
-                    } else {
-                        groupMap.put(POST, new LinkedList<MsTestElement>() {{
-                            this.add(item);
-                        }});
-                    }
-                } else {
-                    elementList.add(item);
-                }
-            });
-            if (CollectionUtils.isNotEmpty(groupMap.get(PRE))) {
-                elementList.addAll(orderList(groupMap.get(PRE)));
-            }
-            if (CollectionUtils.isNotEmpty(groupMap.get(POST))) {
-                elementList.addAll(orderList(groupMap.get(POST)));
-            }
-            if (CollectionUtils.isNotEmpty(groupMap.get(ASSERTIONS))) {
-                elementList.addAll(groupMap.get(ASSERTIONS));
-            }
-        }
-        return elementList;
     }
 }

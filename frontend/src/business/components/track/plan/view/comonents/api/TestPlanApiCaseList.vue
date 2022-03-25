@@ -11,6 +11,7 @@
           @setEnvironment="setEnvironment"
           v-if="isPlanModel"/>
       </template>
+
       <ms-table
         v-loading="result.loading"
         :data="tableData"
@@ -30,25 +31,13 @@
         row-key="id"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
+
           <ms-table-column :field="item" prop="num"
                            :fields-width="fieldsWidth"
                            sortable label="ID" min-width="80"/>
 
           <ms-table-column :field="item" :fields-width="fieldsWidth" prop="name" sortable min-width="120"
                            :label="$t('test_track.case.name')"/>
-
-         <ms-table-column
-           v-if="versionEnable"
-           prop="versionId"
-           :field="item"
-           :filters="versionFilters"
-           :fields-width="fieldsWidth"
-           :label="$t('commons.version')"
-           min-width="120px">
-         <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
-          </template>
-        </ms-table-column>
 
           <ms-table-column
             :field="item"
@@ -133,10 +122,7 @@
                 <el-link v-else-if="scope.row.execResult && scope.row.execResult === 'success'"
                          type="primary"
                          @click="getReportResult(scope.row)" v-text="getResult(scope.row.execResult)">
-                </el-link>
-                <el-link v-else-if="scope.row.execResult && scope.row.execResult === 'errorReportResult'"
-                         style="color: #F6972A"
-                         @click="getReportResult(scope.row)" v-text="getResult(scope.row.execResult)">
+
                 </el-link>
                 <div v-else v-text="getResult(scope.row.execResult)"/>
 
@@ -163,12 +149,7 @@
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                   :select-row="$refs.table ? $refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
 
-      <ms-plan-run-mode
-        :type="'apiCase'"
-        :plan-case-ids="testPlanCaseIds"
-        @close="search"
-        @handleRunBatch="handleRunBatch"
-        ref="runMode"/>
+      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="testPlanCaseIds" :type="'apiCase'"/>
     </el-card>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
@@ -185,7 +166,7 @@ import MsContainer from "../../../../../common/components/MsContainer";
 import MsBottomContainer from "../../../../../api/definition/components/BottomContainer";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, hasLicense, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getUUID} from "../../../../../../../common/js/utils";
@@ -230,9 +211,6 @@ export default {
     MsContainer,
     MsBottomContainer,
     MsTaskCenter
-  },
-  mounted(){
-    this.getVersionOptions();
   },
   data() {
     return {
@@ -297,8 +275,7 @@ export default {
       rowLoading: "",
       userFilters: [],
       projectIds: [],
-      projectList: [],
-      versionFilters: [],
+      projectList: []
     };
   },
   props: {
@@ -328,8 +305,7 @@ export default {
     },
     planId: String,
     reviewId: String,
-    clickType: String,
-    versionEnable: Boolean,
+    clickType: String
   },
   created: function () {
     this.getMaintainerOptions();
@@ -504,7 +480,7 @@ export default {
       this.rowLoading = "";
     },
     handleBatchEdit() {
-      this.$refs.batchEdit.open(this.condition.selectAll ? this.total : this.$refs.table.selectRows.size);
+      this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
       this.$refs.batchEdit.setSelectRows(this.$refs.table.selectRows);
     },
     getData() {
@@ -650,16 +626,6 @@ export default {
           this.$refs.apiCaseResult.open();
         }
       });
-    },
-    getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions= response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
     },
   },
 };

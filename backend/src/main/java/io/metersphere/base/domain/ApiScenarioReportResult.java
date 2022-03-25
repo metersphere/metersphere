@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class ApiScenarioReportResult implements Serializable {
@@ -20,8 +21,6 @@ public class ApiScenarioReportResult implements Serializable {
     private Long totalAssertions;
 
     private Long passAssertions;
-
-    private String errorCode;
 
     private byte[] content;
 

@@ -2,26 +2,7 @@
   <ms-container>
     <ms-main-container>
       <el-card v-loading="result.loading" v-if="show">
-        <el-row v-if="isShare">
-          <el-col :span="24">
-            <div>
-              <span class="ms-report-time-desc-share">{{ $t('commons.name') }}：{{ report.name }}</span>
-              <span class="ms-report-time-desc-share">{{ $t('commons.executor') }}：{{ report.userName }}</span>
-            </div>
-            <div>
-              <span class="ms-report-time-desc-share">{{ $t('report.test_duration', [minutes, seconds]) }}</span>
-              <span class="ms-report-time-desc-share" v-if="startTime !== '0'">
-                  {{ $t('report.test_start_time') }}：{{ startTime | timestampFormatDate }}
-              </span>
-              <span class="ms-report-time-desc-share" v-else>{{ $t('report.test_start_time') }}：-</span>
-              <span class="ms-report-time-desc-share" v-if="report.status === 'Completed' && endTime !== '0'">
-                  {{ $t('report.test_end_time') }}：{{ endTime | timestampFormatDate }}
-              </span>
-              <span class="ms-report-time-desc-share" v-else>{{ $t('report.test_end_time') }}：- </span>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row v-else>
+        <el-row>
           <el-col :span="16">
             <el-row v-if="!isPlanReport">
               <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -93,7 +74,7 @@
                             :share-id="shareId"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_config')">
-              <ms-test-configuration :report-id="reportId" :report="report" :is-share="isShare" :share-id="shareId"/>
+              <ms-test-configuration :report-id="reportId"/>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -283,14 +264,10 @@ export default {
       }
     },
     clearData() {
-      this.show = false;
       this.startTime = '0';
       this.endTime = '0';
       this.minutes = '0';
       this.seconds = '0';
-      this.$nextTick(() => {
-        this.show = true;
-      });
     },
     stopTest(forceStop) {
       this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
@@ -444,12 +421,6 @@ export default {
   text-align: left;
   display: block;
   color: #5C7878;
-}
-
-.ms-report-time-desc-share {
-  text-align: left;
-  color: #5C7878;
-  padding-right: 20px;
 }
 
 .report-export .el-card {

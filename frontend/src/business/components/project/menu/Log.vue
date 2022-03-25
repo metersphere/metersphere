@@ -98,11 +98,7 @@
                 <span>{{ getType(scope.row.operType) }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px">
-              <template v-slot:default="scope">
-                <span>{{ getModule(scope.row.operModule) }}</span>
-              </template>
-            </el-table-column>
+            <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px"/>
             <el-table-column prop="operTitle" :label="$t('operating_log.name')" :show-overflow-tooltip="true" width="180px">
               <template v-slot:default="scope">
                 <el-link v-if="isLink(scope.row)" style="color: #409EFF" @click="clickResource(scope.row)">
@@ -131,13 +127,7 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import {getCurrentProjectID} from "@/common/js/utils";
-import {
-  getUrl,
-  LOG_MODULE_MAP,
-  LOG_TYPE,
-  LOG_TYPE_MAP,
-  SYSLIST
-} from "@/business/components/settings/operatinglog/config";
+import {getUrl, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "@/business/components/settings/operatinglog/config";
 import MsLogDetail from "@/business/components/settings/operatinglog/LogDetail";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
@@ -166,7 +156,6 @@ export default {
       screenHeight: 'calc(100vh - 215px)',
       LOG_TYPE: new LOG_TYPE(this),
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
-      LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
       sysList: new SYSLIST(),
     }
   },
@@ -176,20 +165,19 @@ export default {
   },
   methods: {
     isLink(row) {
-      let uri = getUrl(row, this);
+      let uri = getUrl(row);
       if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
         return true;
       }
       return false;
     },
     clickResource(resource) {
-      let uri = getUrl(resource, this);
+      let uri = getUrl(resource);
       if (!resource.sourceId) {
         this.toPage(uri);
       }
       let operModule = resource.operModule;
-      let module = this.getLogModule(operModule);
-      if (module === "系统-系统参数设置" || module === "系统-系統參數設置" || module === "System parameter setting") {
+      if (operModule === "系统-系统参数设置" || operModule === "系统-系統參數設置" || operModule === "System parameter setting") {
         this.toPage(uri);
       } else {
         let resourceId = resource.sourceId;
@@ -284,9 +272,6 @@ export default {
     },
     getType(type) {
       return this.LOG_TYPE_MAP.get(type);
-    },
-    getModule(val) {
-      return this.LOG_MODULE_MAP.get(val) ? this.LOG_MODULE_MAP.get(val) : val;
     },
     search() {
       this.initTableData();

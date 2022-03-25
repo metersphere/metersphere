@@ -8,7 +8,6 @@
     :color="defColor"
     :is-max="isMax"
     :show-btn="showBtn"
-    :show-version="showVersion"
     :background-color="defBackgroundColor"
     :title="request.elementType">
     <div style="height: 300px;width: 100%">
@@ -54,10 +53,6 @@
         default: false,
       },
       showBtn: {
-        type: Boolean,
-        default: true,
-      },
-      showVersion: {
         type: Boolean,
         default: true,
       },
@@ -131,7 +126,7 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 80px;
+    width: 100px;
   }
   .ms-test-running {
     color: #6D317C;

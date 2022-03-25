@@ -172,7 +172,7 @@
           this.httpForm.request.method = this.httpForm.method;
           this.httpForm.request.path = this.httpForm.path;
         }
-        if (this.currentModule != null && this.currentModule.id) {
+        if (this.currentModule != null) {
           this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
           this.httpForm.moduleId = this.currentModule.id;
         } else {

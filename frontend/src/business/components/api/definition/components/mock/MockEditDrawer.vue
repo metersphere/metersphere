@@ -1,50 +1,52 @@
 <template>
-  <ms-drawer :size="60" @close="close" :visible="showDrawer" direction="bottom" ref="mockDrawer">
+  <ms-drawer :size="60" @close="close" :visible="showDrawer" direction="bottom">
     <template v-slot:header>
       <mock-config-header
         :mock-expect-config="mockExpectConfig"
         :show-head-table="showHeadTable"
-        @saveMockExpectConfig="saveMockExpectConfig"
       />
     </template>
-    <div>
-      <!--  期望详情 -->
-      <p class="tip">{{ $t('api_test.mock.request_condition') }}</p>
-      <el-form :model="mockExpectConfig" :rules="rule" ref="mockExpectForm" label-width="80px" label-position="right">
+    <el-container>
+      <el-main>
+        <!--  期望详情 -->
+        <p class="tip">{{ $t('api_test.mock.request_condition') }}</p>
+        <el-form :model="mockExpectConfig" :rules="rule" ref="mockExpectForm" label-width="80px" label-position="right">
 
-        <div class="card">
-          <div class="base-info">
-            <el-row>
-              <tcp-params
-                v-if="isTcp" :show-operation-col="true"
-                :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
-              <mock-request-param
-                v-else
-                :isShowEnable="false"
-                :referenced="true"
-                :is-read-only="false"
-                :api-params="apiParams"
-                :request="mockExpectConfig.request.params"/>
-            </el-row>
+          <div class="card">
+            <div class="base-info">
+              <el-row>
+                <tcp-params
+                    v-if="isTcp"
+                    :request="mockExpectConfig.request" style="margin: 10px 10px;" ref="tcpParam"></tcp-params>
+                <mock-request-param
+                    v-else
+                  :isShowEnable="false"
+                  :referenced="true"
+                  :is-read-only="false"
+                  :api-params="apiParams"
+                  :request="mockExpectConfig.request.params"/>
+              </el-row>
 
-            <el-row style="margin-top: 10px;">
-              <el-col :span="12">
+              <el-row style="margin-top: 10px;">
                 <p class="tip">{{ $t('api_test.mock.rsp_param') }}</p>
-              </el-col>
-              <el-col :span="12">
-                <el-button class="ms-right-buttion" size="small" @click="addPostScript">
-                  +{{ $t('api_test.definition.request.post_script') }}
-                </el-button>
-              </el-col>
-            </el-row>
-            <el-row>
-              <mock-response-param :api-id="apiId" :is-tcp="isTcp"
-                                   :response="mockExpectConfig.response.responseResult" ref="mockResponseParam"/>
-            </el-row>
+              </el-row>
+              <el-row>
+                <mock-response-param :api-id="apiId" :is-tcp="isTcp"
+                  :response="mockExpectConfig.response.responseResult"/>
+              </el-row>
+              <el-row>
+                <div style="float: right;margin-right: 20px">
+                  <el-button type="primary" size="small" @click="saveMockExpectConfig" title="ctrl + s">{{
+                      $t('commons.save')
+                    }}
+                  </el-button>
+                </div>
+              </el-row>
+            </div>
           </div>
-        </div>
-      </el-form>
-    </div>
+        </el-form>
+      </el-main>
+    </el-container>
   </ms-drawer>
 </template>
 <script>
@@ -62,21 +64,21 @@ import TcpParams from "@/business/components/api/definition/components/request/t
 export default {
   name: 'MockEditDrawer',
   components: {
-    MsDrawer, MockConfigHeader, MockRowVariables, MsCodeEdit, MockRequestParam, MockResponseParam, TcpParams
+    MsDrawer,MockConfigHeader,MockRowVariables,MsCodeEdit,MockRequestParam,MockResponseParam,TcpParams
   },
   props: {
     apiParams: Object,
-    apiId: String,
-    mockConfigId: String,
-    isTcp: {
-      type: Boolean,
+    apiId:String,
+    mockConfigId:String,
+    isTcp:{
+      type:Boolean,
       default: false,
     }
   },
   data() {
     return {
       showDrawer: false,
-      mockExpectConfig: {},
+      mockExpectConfig:{},
       showHeadTable: true,
       headerSuggestions: REQUEST_HEADERS,
       baseMockExpectConfig: {
@@ -88,13 +90,13 @@ export default {
           jsonParam: false,
           variables: [],
           jsonData: "{}",
-          params: {
-            headers: [],
-            arguments: [],
-            rest: [],
-            body: {
-              type: 'Form Data',
-              binary: [],
+          params:{
+            headers:[],
+            arguments:[],
+            rest:[],
+            body:{
+              type: 'JSON',
+              binary:[],
               kvs: [],
             }
           }
@@ -103,15 +105,14 @@ export default {
           httpCode: "",
           httpHeads: [],
           body: "",
-          responseResult: {
+          responseResult:{
             delayed: 0,
-            headers: [],
-            arguments: [],
-            rest: [],
-            body: {
-              xmlHeader: 'version="1.0" encoding="UTF-8"',
+            headers:[],
+            arguments:[],
+            rest:[],
+            body:{
               type: 'JSON',
-              binary: []
+              binary:[]
             }
           }
         },
@@ -128,26 +129,25 @@ export default {
       },
     };
   },
-  watch: {},
+  watch: {
+  },
   created() {
     this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
   },
-  computed: {},
+  computed: {
+  },
   methods: {
-    addPostScript() {
-      this.$refs.mockResponseParam.setUsePostScript();
-    },
     uuid: function () {
       return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
     },
-    open(param) {
+    open(param){
       this.mockExpectConfig = JSON.parse(JSON.stringify(this.baseMockExpectConfig));
-      if (param) {
+      if(param){
         this.mockExpectConfig = param;
-        if (!this.mockExpectConfig.request.params) {
+        if(!this.mockExpectConfig.request.params){
 
           let requestParamsObj = {
-            rest: [],
+            rest:[],
             headers: [],
             arguments: [],
             body: {
@@ -156,56 +156,56 @@ export default {
               kvs: [],
             },
           };
-          this.$set(this.mockExpectConfig.request, "params", requestParamsObj);
+          this.$set(this.mockExpectConfig.request,"params",requestParamsObj);
 
-          if (this.mockExpectConfig.request.jsonParam && this.mockExpectConfig.request.jsonData) {
+          if(this.mockExpectConfig.request.jsonParam && this.mockExpectConfig.request.jsonData){
             this.mockExpectConfig.request.params.body.type = "JSON";
             this.mockExpectConfig.request.params.body.raw = this.mockExpectConfig.request.jsonData;
-          } else if (this.mockExpectConfig.request.variables) {
+          }else if(this.mockExpectConfig.request.variables){
             this.mockExpectConfig.request.params.body.type = "Form Data";
             let headerItem = {};
             headerItem.enable = true;
             this.mockExpectConfig.request.params.headers.push(headerItem);
             this.mockExpectConfig.request.variables.forEach(item => {
               this.mockExpectConfig.request.params.arguments.push({
-                description: "",
-                type: "text",
-                name: item.name,
-                value: item.value,
-                required: true,
-                contentType: "text/plain",
-                uuid: this.uuid(),
+                description : "",
+                type : "text",
+                name : item.name,
+                value : item.value,
+                required : true,
+                contentType : "text/plain",
+                uuid : this.uuid(),
               });
               this.mockExpectConfig.request.params.body.kvs.push({
-                description: "",
-                type: "text",
-                name: item.name,
-                value: item.value,
-                required: true,
-                contentType: "text/plain",
-                uuid: this.uuid(),
+                description : "",
+                type : "text",
+                name : item.name,
+                value : item.value,
+                required : true,
+                contentType : "text/plain",
+                uuid : this.uuid(),
               });
             });
           }
         }
         if (!this.mockExpectConfig.response.responseResult) {
           let responseResultObj = {
-            headers: [],
-            arguments: [],
-            rest: [],
+            headers:[],
+            arguments:[],
+            rest:[],
             httpCode: this.mockExpectConfig.response.httpCode,
-            delayed: this.mockExpectConfig.response.delayed,
-            body: {
+            delayed:  this.mockExpectConfig.response.delayed,
+            body:{
               type: "Raw",
               raw: this.mockExpectConfig.response.body,
-              binary: []
+              binary:[]
             }
           };
-          this.$set(this.mockExpectConfig.response, "responseResult", responseResultObj);
-          if (this.mockExpectConfig.response.httpHeads) {
+          this.$set(this.mockExpectConfig.response,"responseResult",responseResultObj);
+          if(this.mockExpectConfig.response.httpHeads){
             this.mockExpectConfig.response.httpHeads.forEach(item => {
               this.mockExpectConfig.response.responseResult.headers.push({
-                enable: true,
+                enable:true,
                 name: item.name,
                 value: item.value,
               });
@@ -215,17 +215,11 @@ export default {
         }
       }
       this.showDrawer = true;
-      this.$nextTick(() => {
-        this.$refs.mockDrawer.setfullScreen();
-      });
     },
-    close() {
+    close(){
       this.showDrawer = false;
     },
     saveMockExpectConfig() {
-      if (this.isTcp && this.$refs.tcpParam) {
-        this.$refs.tcpParam.saveData();
-      }
       let mockConfigId = this.mockConfigId;
       this.mockExpectConfig.mockConfigId = mockConfigId;
       let formCheckResult = this.checkMockExpectForm("mockExpectForm", true);
@@ -243,19 +237,19 @@ export default {
     uploadMockExpectConfig(clearForm) {
       let url = "/mockConfig/updateMockExpectConfig";
       let param = this.mockExpectConfig;
-      if (!param.name || param.name === '') {
+      if(!param.name || param.name === ''){
         this.$error(this.$t('test_track.case.input_name'));
         return false;
-      } else if (param.name.length > 100) {
-        this.$error(this.$t('test_track.length_less_than') + 100);
+      }else if(param.name.length > 100){
+        this.$error(this.$t('test_track.length_less_than')+100);
         return false;
       }
 
-      if (!param.response.responseResult.httpCode) {
+      if(!param.response.responseResult.httpCode){
         param.response.responseResult.httpCode = 200;
       }
 
-      if (!param.request.params.id) {
+      if(!param.request.params.id){
         param.request.params.id = getUUID();
       }
       let obj = {
@@ -267,7 +261,7 @@ export default {
       this.$fileUpload(url, null, bodyFiles, param, response => {
         let returnData = response.data;
         this.mockExpectConfig.id = returnData.id;
-        this.$emit('refreshMockInfo', param.mockConfigId);
+        this.$emit('refreshMockInfo',param.mockConfigId);
         if (clearForm) {
           this.cleanMockExpectConfig();
         }
@@ -369,16 +363,4 @@ export default {
   margin-top: 40px;
 }
 
-.base-info {
-  width: 99%;
-  margin-left: 5px;
-}
-
-.ms-right-buttion {
-  float: right;
-  margin: 6px 0px 8px 30px;
-  color: #783887;
-  background-color: #F2ECF3;
-  border: #F2ECF3;
-}
 </style>

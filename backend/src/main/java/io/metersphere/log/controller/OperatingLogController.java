@@ -2,7 +2,6 @@ package io.metersphere.log.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.service.OperatingLogService;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/operating/log")
@@ -37,11 +35,4 @@ public class OperatingLogController {
         return operatingLogService.findBySourceId(request);
     }
 
-    @PostMapping("/save")
-    public void save(@RequestBody OperatingLogWithBLOBs msOperLog) {
-        //保存获取的操作
-        msOperLog.setId(UUID.randomUUID().toString());
-        String sourceIds = msOperLog.getSourceId();
-        operatingLogService.create(msOperLog, sourceIds);
-    }
 }

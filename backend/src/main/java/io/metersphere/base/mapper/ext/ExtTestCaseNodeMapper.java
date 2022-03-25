@@ -16,6 +16,4 @@ public interface ExtTestCaseNodeMapper {
     void updatePos(String id, Double pos);
 
     List<String> getNodes(@Param("parentId") String parentId);
-
-    List<TestCaseNodeDTO> getNodeTreeByIds(@Param("nodeIds") List<String> nodeIds);
 }

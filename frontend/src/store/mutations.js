@@ -18,7 +18,6 @@ const mutations = {
   setCurrentProjectIsCustomNum: (state, value) => state.currentProjectIsCustomNum = value,
   setTestCaseTemplate: (state, value) => state.testCaseTemplate = value,
   setCurTabId: (state, value) => state.curTabId = value,
-  setTestCaseDefaultValue: (state, value) => state.testCaseDefaultValue = value,
 }
 
 export default mutations;

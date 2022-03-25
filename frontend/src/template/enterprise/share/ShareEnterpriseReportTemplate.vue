@@ -51,6 +51,7 @@ export default {
           let data = JSON.parse(reportData.dataOption);
           data.selectOption = selectOption;
           this.dataOption = data;
+          console.info(this.dataOption);
           this.reloadChart();
         }
       }, (error) => {

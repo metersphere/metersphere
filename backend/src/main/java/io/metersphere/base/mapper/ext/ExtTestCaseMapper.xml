@@ -82,18 +82,11 @@
     <update id="updateTestCaseCustomNumByProjectId">
         update test_case set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
     </update>
-    <select id="getTestCaseByNotInReview" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select
-        test_case.id,
-        test_case.name,
-        test_case.priority,
-        test_case.type,
-        test_case.review_status,
-        project_version.name as versionName,
-        project_version.id as versionId
-        from test_case
+
+    <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
+        as test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
-        left join project_version on test_case.version_id = project_version.id and test_case.project_id = project_version.project_id
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
@@ -126,21 +119,14 @@
                     #{nodeId}
                 </foreach>
             </if>
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="test_case"/>
-            </include>
             <include refid="filters"/>
         </where>
     </sql>
 
-    <select id="getTestCaseByNotInPlan" resultType="io.metersphere.track.dto.TestCaseDTO">
+    <select id="getTestCaseByNotInPlan" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
-        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time,
-        test_case.update_time,
-        project_version.name versionName, test_case.version_id versionId
-        from test_case
-        left join project_version on project_version.project_id = test_case.project_id and project_version.id =
-        test_case.version_id
+        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time, test_case.update_time
+        from test_case as test_case
         <if test="!request.repeatCase">
             left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         </if>
@@ -181,64 +167,7 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
-        test_case.delete_user_id ,test_case.delete_time,
-        project_version.name as versionName,
-        project_version.id as versionId,
-        <if test="request.selectFields != null and request.selectFields.size() > 0">
-            <foreach collection="request.selectFields" item="field" separator=",">
-                ${field}
-            </foreach>
-        </if>
-        <if test="request.selectFields == null or request.selectFields.size() == 0">
-            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
-            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
-            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.other_test_name, test_case.review_status, test_case.tags,
-            test_case.demand_id, test_case.demand_name, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,
-            test_case.custom_fields, test_case.ref_id
-        </if>
-        from test_case
-        left join project_version on project_version.id = test_case.version_id
-        <include refid="queryWhereCondition"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
-    </select>
-
-    <select id="publicList" resultType="io.metersphere.track.dto.TestCaseDTO">
-        SELECT test_case.versionName,
-        test_case.versionId,
-        test_case.createName,
-        test_case.projectName,
-        test_case.id,
-        test_case.node_id,
-        test_case.node_path,
-        test_case.project_id,
-        test_case.`name`,
-        test_case.`type`,
-        test_case.maintainer,
-        test_case.priority,
-        test_case.`method`,
-        test_case.create_time,
-        test_case.update_time,
-        test_case.test_id,
-        test_case.sort,
-        test_case.num,
-        test_case.other_test_name,
-        test_case.review_status,
-        test_case.tags,
-        test_case.demand_id,
-        test_case.demand_name,
-        test_case.`status`,
-        test_case.custom_num,
-        test_case.step_model,
-        test_case.create_user,
-        test_case.custom_fields,
-        test_case.case_public ,
-        test_case.ref_id
-         from
-        (select
-        project_version.name as versionName,
-        project_version.id as versionId,
+        deleteUser.name AS delete_user_id,test_case.delete_time,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
@@ -251,21 +180,35 @@
             test_case.other_test_name, test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
-            test_case.custom_fields,test_case.case_public ,
-            project.workspace_id , project.name as projectName ,test_case.ref_id ,test_case.`order`
+            test_case.custom_fields, project.name as projectName
         </if>
         from test_case left join user u on test_case.create_user=u.id
-        left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
-        project on test_case.project_id = project.id
-        left join project_version on project.id = project_version.project_id and project_version.id =
-        test_case.version_id where test_case.case_public = true
-        ) test_case right join
-        (select
-        max(test_case.update_time) update_time , ref_id
-        from test_case
-        left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
-        project on test_case.project_id = project.id where test_case.case_public = true group by test_case.ref_id
-        ) tmp on test_case.update_time = tmp.update_time and test_case.ref_id = tmp.ref_id
+        left join user deleteUser on test_case.delete_user_id=deleteUser.id
+        left join project on test_case.project_id = project.id
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
+    <select id="publicList" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        deleteUser.name AS delete_user_id,test_case.delete_time,
+        <if test="request.selectFields != null and request.selectFields.size() > 0">
+            <foreach collection="request.selectFields" item="field" separator=",">
+                ${field}
+            </foreach>
+        </if>
+        <if test="request.selectFields == null or request.selectFields.size() == 0">
+            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+            test_case.other_test_name, test_case.review_status, test_case.tags,
+            test_case.demand_id, test_case.demand_name, test_case.`status`,
+            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
+            test_case.custom_fields,test_case.case_public , project.name as projectName
+        </if>
+        from test_case left join user u on test_case.create_user=u.id
+        left join user deleteUser on test_case.delete_user_id=deleteUser.id
+        left join project on test_case.project_id = project.id
         <where>
             <include refid="filters"/>
             <if test="request.combine != null">
@@ -322,13 +265,12 @@
         </where>
 
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
-
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
         select count(test_case.id) from test_case
         left join project on test_case.project_id = project.id
-        <include refid="queryWhereConditionWidthProject"/>
+        <include refid="queryWhereCondition"/>
     </select>
 
     <select id="moduleCountByCollection" resultType="java.util.Map">
@@ -336,27 +278,43 @@
         <include refid="queryWhereCondition"/>
         GROUP BY node_id
     </select>
+    <select id="listIds" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        <if test="request.selectFields != null and request.selectFields.size() > 0">
+            <foreach collection="request.selectFields" item="field" separator=",">
+                ${field}
+            </foreach>
+        </if>
+        <if test="request.selectFields == null or request.selectFields.size() == 0">
+            <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        </if>
+        from test_case
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select load_test.id, load_test.name, load_test.project_id,'性能测试' as type, project_version.name as version_name
-        from load_test inner join project_version on project_version.project_id = load_test.project_id and project_version.id = load_test.version_id
+        select id,name,project_id,'性能测试' as type from load_test
         <where>
             <if test="request.projectId!=null">
-                and load_test.project_id= #{request.projectId}
+                and project_id= #{request.projectId}
             </if>
         </where>
         UNION ALL
-        select api_scenario.id, api_scenario.name, api_scenario.project_id,'接口场景' as type, project_version.name as version_name
-        from api_scenario inner join project_version on project_version.project_id = api_scenario.project_id and project_version.id = api_scenario.version_id
+        select id,name,project_id,'接口场景' as type from api_scenario
+
         <where>
             <if test="request.projectId!=null">
-                and api_scenario.project_id= #{request.projectId}
+                and project_id= #{request.projectId}
             </if>
         </where>
         and api_scenario.status!='Trash'
         UNION ALL
-        select b.id,b.name,b.project_id,'接口用例' as type, project_version.name as version_name
-        from api_test_case b inner join api_definition a on  b.api_definition_id = a.id and a.status != 'Trash'
-        inner join project_version on project_version.project_id = a.project_id and project_version.id = a.version_id
+        select b.id,b.name,b.project_id,'接口用例' as type from api_test_case b
+        inner join
+        api_definition a
+        on
+        b.api_definition_id = a.id
+        and a.status != 'Trash'
         <where>
             <if test="request.projectId!=null">
                 and b.project_id= #{request.projectId}
@@ -414,83 +372,6 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
-    <select id="selectPublicIds" resultType="java.lang.String">
-        select test_case.id from
-        (select
-        test_case.id,test_case.update_time, test_case.ref_id , test_case.`status` , test_case.case_public ,
-        test_case.project_id
-        from test_case left join project on test_case.project_id = project.id) test_case
-        right join (select
-        max(test_case.update_time) update_time , ref_id
-        from test_case
-        left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
-        project on test_case.project_id = project.id
-        where (test_case.STATUS IS NULL OR test_case.STATUS != 'Trash') and test_case.case_public=true GROUP BY ref_id)
-        tmp on test_case.update_time = tmp.update_time and test_case.ref_id = tmp.ref_id
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                    <property name="objectKey" value="request.combine.tags"/>
-                </include>
-            </if>
-            <if test="request.statusIsNot != null">
-                and (test_case.status is null or test_case.status != #{request.statusIsNot})
-            </if>
-
-            <if test="request.notEqStatus != null">
-                and (test_case.status is null or test_case.status != #{request.notEqStatus})
-            </if>
-            <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%')
-                or test_case.num like CONCAT('%', #{request.name},'%')
-                or test_case.tags like CONCAT('%', #{request.name},'%')
-                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
-            </if>
-            <if test="request.ids != null">
-                and test_case.id in
-                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
-            </if>
-            <if test="request.relevanceCreateTime >0">
-                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
-                #{request.createTime})
-            </if>
-            <if test="request.createTime >0">
-                and test_case.create_time >= #{request.createTime}
-            </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.workspaceId != null">
-                AND test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
-            </if>
-            <if test="request.projectId != null">
-                and test_case.project_id = #{request.projectId}
-            </if>
-            <include refid="filters"/>
-            <if test="request.caseCoverage == 'uncoverage' ">
-                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
-            </if>
-            <if test="request.caseCoverage == 'coverage' ">
-                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
-            </if>
-            <if test="request.versionId != null">
-                and test_case.version_id = #{request.versionId}
-            </if>
-            <if test="request.refId != null">
-                and test_case.ref_id = #{request.refId}
-            </if>
-            and test_case.case_public = TRUE
-        </where>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
-    </select>
-
     <sql id="filters">
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
@@ -523,12 +404,6 @@
                         <when test="key=='method'">
                             and test_case.method in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                        <when test="key=='version_id'">
-                            and test_case.version_id in
-                            <foreach collection="values" open="(" close=")" separator="," item="value">
                                 #{value}
                             </foreach>
                         </when>
@@ -586,64 +461,6 @@
                     #{nodeId}
                 </foreach>
             </if>
-            <if test="request.projectId != null">
-                and test_case.project_id = #{request.projectId}
-            </if>
-            <include refid="filters"/>
-            <if test="request.caseCoverage == 'uncoverage' ">
-                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
-            </if>
-            <if test="request.caseCoverage == 'coverage' ">
-                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
-            </if>
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="test_case"/>
-            </include>
-        </where>
-    </sql>
-
-    <sql id="queryWhereConditionWidthProject">
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                    <property name="objectKey" value="request.combine.tags"/>
-                </include>
-            </if>
-
-            <if test="request.statusIsNot != null">
-                and (test_case.status is null or test_case.status != #{request.statusIsNot})
-            </if>
-
-            <if test="request.notEqStatus != null">
-                and (test_case.status is null or test_case.status != #{request.notEqStatus})
-            </if>
-            <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%')
-                or test_case.num like CONCAT('%', #{request.name},'%')
-                or test_case.tags like CONCAT('%', #{request.name},'%')
-                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
-            </if>
-            <if test="request.ids != null">
-                and test_case.id in
-                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
-            </if>
-            <if test="request.relevanceCreateTime >0">
-                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
-                #{request.createTime})
-            </if>
-            <if test="request.createTime >0">
-                and test_case.create_time >= #{request.createTime}
-            </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
@@ -657,91 +474,70 @@
             <if test="request.caseCoverage == 'coverage' ">
                 and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
             </if>
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="test_case"/>
-            </include>
         </where>
     </sql>
 
     <select id="countPriority" resultType="io.metersphere.track.response.TrackCountResult">
-        SELECT test_case.priority as groupField, count(DISTINCT ref_id) AS countNumber
-        FROM test_case
-        WHERE project_id = #{projectId}
-          AND (test_case.status IS NULL OR test_case.status != 'Trash')
-          and latest = true
+        SELECT test_case.priority as groupField,count(id) AS countNumber FROM test_case
+        WHERE project_id = #{projectId} AND (test_case.status IS NULL OR test_case.status != 'Trash')
         GROUP BY test_case.priority
     </select>
 
     <select id="countCreatedThisWeek" resultType="java.lang.Long">
-        SELECT count(DISTINCT ref_id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId} and test_case.status != 'Trash' and latest = 1
+        SELECT count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId} and test_case.status != 'Trash'
           AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
     <select id="countStatus" resultType="io.metersphere.track.response.TrackCountResult">
         SELECT review_status AS groupField,count(id) AS countNumber FROM test_case
-        WHERE project_id = #{projectId} and (test_case.status != 'Trash' or test_case.status is null) and latest = 1
+        WHERE project_id = #{projectId} and (test_case.status != 'Trash' or test_case.status is null)
         GROUP BY test_case.review_status
     </select>
 
     <select id="countRelevance" resultType="io.metersphere.track.response.TrackCountResult">
         SELECT test_case_test.test_type AS groupField, count(test_case_test.test_case_id) AS countNumber
         FROM test_case join test_case_test on test_case.id = test_case_test.test_case_id
-        WHERE test_case.project_id = #{projectId} and test_case.status != 'Trash' and latest = 1 GROUP BY test_case_test.test_type
+        WHERE test_case.project_id = #{projectId} and test_case.status != 'Trash' GROUP BY test_case_test.test_type
     </select>
     <select id="countRelevanceCreatedThisWeek" resultType="java.lang.Long">
-        SELECT count(distinct test_case.ref_id) AS countNumber FROM test_case join test_case_test on test_case.id = test_case_test.test_case_id
-        WHERE test_case.project_id = #{projectId} and test_case.status != 'Trash' and latest = 1
+        SELECT count(distinct test_case_test.test_case_id) AS countNumber FROM test_case join test_case_test on test_case.id = test_case_test.test_case_id
+        WHERE test_case.project_id = #{projectId} and test_case.status != 'Trash'
         AND test_case_test.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countCoverage" resultType="int">
-        select count(test_case.id) from test_case where test_case.project_id = #{projectId} and test_case.status != 'Trash' and latest = 1
+        select count(test_case.id) from test_case where test_case.project_id = #{projectId} and test_case.status != 'Trash'
         and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
     </select>
     <select id="countFuncMaintainer" resultType="io.metersphere.track.response.TrackCountResult">
         select count(tc.id) as countNumber, user.name as groupField from test_case tc right join user on tc.maintainer = user.id
-        where tc.project_id = #{projectId} and tc.status != 'Trash' and tc.latest = 1
+        where tc.project_id = #{projectId} and tc.status != 'Trash'
         group by tc.maintainer
     </select>
     <select id="countRelevanceMaintainer" resultType="io.metersphere.track.response.TrackCountResult">
         select count(tc.id) as countNumber, user.name as groupField from test_case tc right join user on tc.maintainer = user.id
-        where tc.project_id = #{projectId} and tc.status != 'Trash' and tc.latest = 1 and tc.id in (select distinct test_case_test.test_case_id from test_case_test)
+        where tc.project_id = #{projectId} and tc.status != 'Trash' and tc.id in (select distinct test_case_test.test_case_id from test_case_test)
         group by tc.maintainer
     </select>
     <select id="getTestPlanBug" resultType="int">
-        select count(distinct (tci.issues_id))
-        from test_plan_test_case tptc
-                 join test_case_issues tci on tptc.id = tci.resource_id
-                 right join test_case
-                            on test_case.id = tci.ref_id
-                 join issues
-                      on tci.issues_id = issues.id
-        where tptc.plan_id = #{planId}
-          and (issues.status != 'closed'
-            or issues.status is null)
-          and test_case.status != 'Trash';
+        select count(distinct (tci.issues_id)) from test_plan_test_case tptc join test_case_issues tci on tptc.case_id = tci.test_case_id join issues on tci.issues_id  = issues.id
+        where tptc.plan_id = #{planId} and (issues.status != 'closed' or issues.status is null);
     </select>
     <select id="getTestPlanCase" resultType="int">
         select count(s)
         from (
                  select tptc.id as s
                  from test_plan_test_case tptc join test_case on tptc.case_id = test_case.id
-                 where tptc.plan_id = #{planId} and (test_case.status != 'Trash' or test_case.status is null)
-
+                 where tptc.plan_id = #{planId}
                  union all
-
                  select tpas.id as s
                  from test_plan_api_scenario tpas join api_scenario on tpas.api_scenario_id = api_scenario.id
-                 where tpas.test_plan_id = #{planId} and (api_scenario.status != 'Trash' or api_scenario.status is null)
-
+                 where tpas.test_plan_id = #{planId} and api_scenario.status != 'Trash'
                  union all
-
                  select tpac.id as s
                  from test_plan_api_case tpac join api_test_case on tpac.api_case_id = api_test_case.id
                                               join api_definition on api_test_case.api_definition_id = api_definition.id
-                 where tpac.test_plan_id = #{planId} and (api_definition.status != 'Trash' or api_definition.status is null)
-
+                 where tpac.test_plan_id = #{planId} and api_definition.status != 'Trash'
                  union all
-
                  select tplc.id as s
                  from test_plan_load_case tplc join load_test on tplc.load_case_id = load_test.id
                  where tplc.test_plan_id = #{planId}
@@ -849,25 +645,12 @@
         </if>
         order by `order` desc limit 1;
     </select>
-    <select id="getTestCase" resultType="io.metersphere.track.dto.TestCaseDTO">
-        SELECT
-        test_case.id,
-        test_case. NAME,
-        test_case.priority,
-        test_case.type,
-        test_case.review_status,
-        test_case.num,
-        test_case.custom_num,
-        test_case.tags,
-        test_case.create_time,
-        test_case.update_time,
-        project_version.name versionName,
-        project_version.id versionId
-        FROM
-        test_case AS test_case
-        inner join project_version on project_version.project_id = test_case.project_id and project_version.id = test_case.version_id
+    <select id="getTestCase" resultType="io.metersphere.base.domain.TestCase">
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
+        test_case.num, test_case.custom_num, test_case.tags, test_case.create_time, test_case.update_time
+        from test_case as test_case
         <include refid="notInQueryWhereCondition"></include>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+        ORDER BY test_case.order DESC
     </select>
 
     <select id="getTestCaseForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
@@ -895,20 +678,13 @@
             status         = 'Trash',
             delete_time    = #{request.deleteTime},
             delete_user_id = #{request.deleteUserId}
-        where ref_id = (select a.ref_id from (select ref_id from test_case where id = #{request.id}) a )
+        where id = #{request.id}
     </update>
 
     <update id="deletePublic">
         update test_case
         set case_public = false
-        <where>
-            <if test="request.refId != null">
-                ref_id =#{request.refId}
-            </if>
-            <if test="request.versionId != null">
-              and  version_id =#{request.versionId}
-            </if>
-        </where>
+        where id = #{request.id}
     </update>
 
     <update id="reduction">
@@ -940,97 +716,14 @@
     </select>
 
     <select id="countByWorkSpaceId" resultType="java.lang.Integer">
-        select count(distinct ref_id)
+        select count(id)
         from test_case
         where project_id in (
             select id
             from project
             where workspace_id = #{workSpaceId})
           and case_public = true
-          and (test_case.status != 'Trash' or test_case.status is NULL)
+          and status != 'Trash'
     </select>
 
-    <select id="trashCount" resultType="java.lang.Long">
-        SELECT
-            count(DISTINCT ref_id)
-        FROM
-            test_case
-        WHERE
-            project_id = #{projectId}
-          AND STATUS = 'Trash'
-    </select>
-
-    <sql id="queryVersionCondition">
-        <if test="request.versionId != null">
-            and ${versionTable}.version_id = #{request.versionId}
-        </if>
-        <if test="request.refId != null">
-            and ${versionTable}.ref_id = #{request.refId}
-        </if>
-        <if test="request.versionId == null and request.refId == null">
-            AND ${versionTable}.latest = 1
-        </if>
-    </sql>
-
-    <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
-        SELECT DISTINCT ref_id
-        FROM test_case
-        WHERE ref_id NOT IN (
-            SELECT DISTINCT ref_id
-            FROM test_case
-            WHERE version_id = #{versionId}
-              AND project_id = #{projectId}
-        )
-          AND project_id = #{projectId}
-    </select>
-    <select id="getMaintainerMap" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id as id, test_case.maintainer as maintainer
-        from test_case as test_case
-        left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
-        <include refid="notInQueryWhereCondition"/>
-        and T2.case_id is null
-        order by test_case.`order` desc, test_case.sort desc
-    </select>
-    <select id="getForNodeEdit" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select test_case.id, test_case.node_id, test_case.node_path
-        from test_case where node_id in
-        <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </select>
-
-    <update id="addLatestVersion">
-        UPDATE test_case
-            INNER JOIN ((
-            SELECT tmp.id
-            FROM test_case tmp
-            JOIN project_version
-            ON tmp.project_id = project_version.project_id AND
-            tmp.version_id = project_version.id AND project_version.latest = TRUE
-            WHERE ref_id = #{refId,jdbcType=VARCHAR}
-            LIMIT 1
-            )
-            UNION ALL
-            (
-            SELECT tmp.id
-            FROM test_case tmp
-            JOIN project_version
-            ON tmp.project_id = project_version.project_id AND
-            tmp.version_id = project_version.id
-            AND NOT EXISTS (SELECT ref_id
-            FROM test_case tmp2
-            JOIN project_version
-            ON tmp2.project_id =
-            project_version.project_id AND
-            version_id =
-            project_version.id AND
-            project_version.latest = TRUE
-            WHERE tmp.ref_id = tmp2.ref_id)
-            WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
-            ORDER BY tmp.update_time DESC
-            LIMIT 1)) AS t
-        ON test_case.id = t.id
-            SET test_case.latest = TRUE
-        WHERE ref_id = #{refId,jdbcType=VARCHAR}
-    </update>
 </mapper>

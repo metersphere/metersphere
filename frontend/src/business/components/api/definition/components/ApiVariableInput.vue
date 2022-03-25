@@ -1,9 +1,10 @@
 <template>
   <div class="variable-input">
-    <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input" @click.native="savePreParams(value)"/>
+    <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
     <div :class="{'hidden': !showVariable}" class="variable-combine" v-if="value">
+      <div v-if="showCopy" class="variable">{{variable}}</div>
       <el-tooltip v-if="showCopy" :content="$t('api_test.copied')" manual v-model="visible" placement="top" :visible-arrow="false">
-        <i class="el-icon-copy-document copy" @click="copy" style="margin-top: 10px"/>
+        <i class="el-icon-copy-document copy" @click="copy"/>
       </el-tooltip>
     </div>
   </div>
@@ -12,6 +13,7 @@
 <script>
   export default {
     name: "MsApiVariableInput",
+
     props: {
       value: String,
       size: String,
@@ -31,16 +33,14 @@
         type: Boolean,
         default: false
       },
-      ifFromVariableAdvance: {
-        type: Boolean,
-        default: false,
-      },
     },
+
     data() {
       return {
         visible: false
       }
     },
+
     methods: {
       copy() {
         let input = document.createElement("input");
@@ -62,13 +62,9 @@
       },
       input(value) {
         this.$emit('input', value);
-      },
-      savePreParams(value) {
-        if(this.ifFromVariableAdvance){
-          this.$emit('savePreParams', value);
-        }
-      },
+      }
     },
+
     computed: {
       variable() {
         return "${" + (this.showCopyTipWithMultiple ? (this.value + "_n") : this.value) + "}";

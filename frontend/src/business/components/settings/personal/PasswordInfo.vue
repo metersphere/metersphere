@@ -1,24 +1,21 @@
 <template>
-  <div>
-    <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm" >
-      <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
-        <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
-      </el-form-item>
-      <el-form-item :label="$t('member.new_password')" prop="newpassword">
-        <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
-      </el-form-item>
-      <el-form-item :label="$t('member.repeat_password')" prop="repeatPassword">
-        <el-input v-model="ruleForm.repeatPassword" autocomplete="off" show-password/>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
-        <el-button type="primary" @click="updatePassword('editPasswordForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
-      </el-form-item>
-    </el-form>
-  </div>
+  <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
+    <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
+      <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
+    </el-form-item>
+    <el-form-item :label="$t('member.new_password')" prop="newpassword">
+      <el-input v-model="ruleForm.newpassword" autocomplete="off" show-password/>
+    </el-form-item>
+    <el-form-item :label="$t('member.repeat_password')" prop="repeatPassword">
+      <el-input v-model="ruleForm.repeatPassword" autocomplete="off" show-password/>
+    </el-form-item>
+    <el-form-item>
+      <el-button @click="cancel">{{$t('commons.cancel')}}</el-button>
+      <el-button type="primary" @click="updatePassword('editPasswordForm')" @keydown.enter.native.prevent>{{$t('commons.confirm')}}</el-button>
+    </el-form-item>
+  </el-form>
 </template>
 <script>
-
 import {logout} from "@/network/user";
 
 export default {
@@ -83,6 +80,7 @@ export default {
       });
     },
   }
+
 }
 </script>
 <style scoped>

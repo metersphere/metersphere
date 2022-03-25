@@ -15,25 +15,15 @@
           </el-col>
 
           <el-col :span="12">
-            <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-              <i class="el-icon-star-off"
-                 style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; "
-                 @click="saveFollow"/>
+            <el-tooltip :content="$t('commons.follow')" placement="bottom"  effect="dark" v-if="!showFollow">
+              <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
             </el-tooltip>
-            <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-              <i class="el-icon-star-on"
-                 style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; "
-                 @click="saveFollow"/>
+            <el-tooltip :content="$t('commons.cancel')" placement="bottom"  effect="dark" v-if="showFollow">
+              <i class="el-icon-star-on" style="color: #783987; font-size: 28px;  margin-right: 15px;cursor: pointer;position: relative; top: 5px; " @click="saveFollow" />
             </el-tooltip>
-
-            <el-link type="primary" size="small" style="margin-right: 5px" @click="openHis" v-if="test.id">
+            <el-link type="primary" size="small" style="margin-right: 20px" @click="openHis" v-if="test.id">
               {{ $t('operating_log.change_history') }}
             </el-link>
-            <ms-version-history v-xpack
-                                ref="versionHistory"
-                                :version-data="versionData"
-                                :current-id="testId"
-                                @compare="compare" @checkout="checkout" @create="create" @del="del"/>
             <el-button :disabled="isReadOnly" type="primary" size="small" plain @click="save"
                        v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
             >{{ $t('commons.save') }}
@@ -80,16 +70,6 @@
 
       <ms-change-history ref="changeHistory"/>
 
-      <el-dialog
-        :fullscreen="true"
-        :visible.sync="dialogVisible"
-        :destroy-on-close="true"
-        width="100%"
-      >
-        <diff-version v-if="dialogVisible" :old-data="oldData" :show-follow="showFollow" :new-data="newData"
-                      :new-show-follow="newShowFollow"></diff-version>
-      </el-dialog>
-
     </ms-main-container>
   </ms-container>
 </template>
@@ -100,15 +80,11 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, hasLicense, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, hasPermission} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import MsChangeHistory from "../../history/ChangeHistory";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
-import DiffVersion from "@/business/components/performance/test/DiffVersion";
-
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
 
 export default {
   name: "EditPerformanceTest",
@@ -121,21 +97,15 @@ export default {
     PerformanceAdvancedConfig,
     MsContainer,
     MsMainContainer,
-    MsChangeHistory,
-    'MsVersionHistory': versionHistory.default,
-    DiffVersion
+    MsChangeHistory
   },
   inject: [
     'reload'
   ],
   data() {
     return {
-      dialogVisible: false,
       result: {},
       test: {schedule: {}, follows: []},
-      oldData: {schedule: {}, follows: []},
-      newData: {schedule: {}, follows: []},
-      newShowFollow: false,
       savePath: "/performance/save",
       editPath: "/performance/edit",
       runPath: "/performance/run",
@@ -143,7 +113,7 @@ export default {
       active: '0',
       testId: '',
       isReadOnly: false,
-      showFollow: false,
+      showFollow:false,
       tabs: [{
         title: this.$t('load_test.basic_config'),
         id: '0',
@@ -158,7 +128,6 @@ export default {
         component: 'PerformanceAdvancedConfig'
       }],
       maintainerOptions: [],
-      versionData: [],
     };
   },
   watch: {
@@ -181,9 +150,6 @@ export default {
   created() {
     this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
     this.getTest(this.$route.params.testId);
-    if (hasLicense()) {
-      this.getVersionHistory();
-    }
   },
   mounted() {
     this.importAPITest();
@@ -199,14 +165,11 @@ export default {
       });
     },
     openHis() {
-      this.$refs.changeHistory.open(this.test.id, ["性能测试", "性能測試", "Performance test", "PERFORMANCE_TEST"]);
+      this.$refs.changeHistory.open(this.test.id,["性能测试" , "性能測試" , "Performance test"]);
     },
     importAPITest() {
       let apiTest = this.$store.state.test;
-      console.log("输出vuex的test");
-      console.log(apiTest);
       if (apiTest && apiTest.name) {
-        console.log("set test name");
         this.$set(this.test, "name", apiTest.name);
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
@@ -243,10 +206,7 @@ export default {
         this.$store.commit("clearTest");
       } else {
         let scenarioJmxs = this.$store.state.scenarioJmxs;
-        console.log("输出vuex的scenarioJmxs");
-        console.log(scenarioJmxs);
         if (scenarioJmxs && scenarioJmxs.name) {
-          console.log("set scenarioJmxs name");
           this.$set(this.test, "name", scenarioJmxs.name);
           let relateApiList = [];
           if (scenarioJmxs.jmxs) {
@@ -291,42 +251,30 @@ export default {
             if (!this.test.schedule) {
               this.test.schedule = {};
             }
-            this.getDefaultFollow(testId);
+            this.$get('/performance/test/follow/' + testId, response => {
+              this.$set(this.test, 'follows', response.data);
+              for (let i = 0; i < this.test.follows.length; i++) {
+                if(this.test.follows[i]===this.currentUser().id){
+                  this.showFollow = true;
+                  break;
+                }
+              }
+            });
           }
         });
       }
     },
-    getDefaultFollow(testId) {
-      this.$get('/performance/test/follow/' + testId, response => {
-        this.$set(this.test, 'follows', response.data);
-        for (let i = 0; i < this.test.follows.length; i++) {
-          if (this.test.follows[i] === this.currentUser().id) {
-            this.showFollow = true;
-            break;
-          }
-        }
-      });
-    },
-    save(newVersion) {
+    save() {
       if (!this.validTest()) {
         return;
       }
-      if (!this.test.versionId) {
-        if (this.$refs.versionHistory && this.$refs.versionHistory.currentVersion) {
-          this.test.versionId = this.$refs.versionHistory.currentVersion.id;
-        }
-      }
+
       let options = this.getSaveOption();
 
-      this.result = this.$request(options, (response) => {
+      this.result = this.$request(options, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.advancedConfig.cancelAllEdit();
-        if (newVersion) {
-          this.$router.push({
-            path: '/performance/test/edit/' + response.data.id,
-          });
-          this.getVersionHistory();
-        }
+        this.$router.push({path: '/performance/test/all'});
       });
     },
     saveAndRun() {
@@ -372,6 +320,7 @@ export default {
       formData.append('request', new Blob([requestJson], {
         type: "application/json"
       }));
+
       return {
         method: 'POST',
         url: url,
@@ -463,14 +412,8 @@ export default {
       return true;
     },
     durationValidate(intervalTime) {
-      let duration = 0;
-      this.$refs.pressureConfig.threadGroups.forEach(tg => {
-        let d = this.$refs.pressureConfig.getDuration(tg);
-        if (duration < d) {
-          duration = d;
-        }
-      });
-      if (intervalTime < duration * 1000) {
+      let duration = this.$refs.pressureConfig.duration * 60 * 1000;
+      if (intervalTime < duration) {
         return {
           pass: false,
           info: this.$t('load_test.schedule_tip')
@@ -482,6 +425,7 @@ export default {
     },
     fileChange(threadGroups) {
       let handler = this.$refs.pressureConfig;
+
       let csvSet = new Set;
       threadGroups.forEach(tg => {
         tg.threadNumber = tg.threadNumber || 10;
@@ -523,93 +467,32 @@ export default {
         this.$refs.pressureConfig.calculateTotalChart();
       }
     },
-    saveFollow() {
-      if (this.showFollow) {
+    saveFollow(){
+      if(this.showFollow){
         this.showFollow = false;
         for (let i = 0; i < this.test.follows.length; i++) {
-          if (this.test.follows[i] === this.currentUser().id) {
-            this.test.follows.splice(i, 1);
+          if(this.test.follows[i]===this.currentUser().id){
+            this.test.follows.splice(i,1)
             break;
           }
         }
-        if (this.testId) {
-          this.$post("/performance/test/update/follows/" + this.testId, this.test.follows, () => {
+        if(this.testId){
+          this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
             this.$success(this.$t('commons.cancel_follow_success'));
           });
         }
-      } else {
+      }else {
         this.showFollow = true;
-        if (!this.test.follows) {
+        if(!this.test.follows){
           this.test.follows = [];
         }
-        this.test.follows.push(this.currentUser().id);
-        if (this.testId) {
-          this.$post("/performance/test/update/follows/" + this.testId, this.test.follows, () => {
+        this.test.follows.push(this.currentUser().id)
+        if(this.testId){
+          this.$post("/performance/test/update/follows/"+this.testId, this.test.follows,() => {
             this.$success(this.$t('commons.follow_success'));
           });
         }
       }
-    },
-    getVersionHistory() {
-      let testId = undefined;
-      if (this.testId) {
-        testId = this.testId;
-      }
-      this.$get('/performance/versions/' + testId, response => {
-        this.versionData = response.data;
-      });
-    },
-    compare(row) {
-      this.oldData = this.test;
-      this.$get('/performance/get/' + row.id + "/" + this.test.refId, response => {
-        this.$get('/performance/get/' + response.data.id, res => {
-          if (res.data) {
-            this.newData = res.data;
-            this.$get('/performance/test/follow/' + response.data.id, resp => {
-              if (resp.data && resp.data.follows) {
-                for (let i = 0; i < resp.data.follows.length; i++) {
-                  if (resp.data.follows[i] === this.currentUser().id) {
-                    this.newShowFollow = true;
-                    break;
-                  }
-                }
-              }
-            });
-          }
-        });
-      });
-      if (this.newData) {
-        this.dialogVisible = true;
-      }
-    },
-    checkout(row) {
-      //let test = this.versionData.filter(v => v.versionId === row.id)[0];
-      this.test.versionId = row.id;
-      this.result = this.$get('/performance/get/' + this.test.versionId + "/" + this.test.refId, response => {
-        this.testId = response.data.id;
-        this.$router.push({
-          path: '/performance/test/edit/' + this.testId,
-        });
-        this.getVersionHistory();
-      });
-    },
-    create(row) {
-      // 创建新版本
-      this.test.versionId = row.id;
-      this.save(true);
-    },
-    del(row) {
-      this.$alert(this.$t('load_test.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.$get('performance/delete/' + row.id + '/' + this.test.refId, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.getVersionHistory();
-            });
-          }
-        }
-      });
     }
   }
 };
@@ -636,5 +519,4 @@ export default {
   margin-right: 25px;
   margin-top: 5px;
 }
-
 </style>

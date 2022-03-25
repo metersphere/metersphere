@@ -9,12 +9,9 @@ import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
 import io.metersphere.base.domain.ShareInfo;
-import io.metersphere.base.domain.User;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.reportstatistics.dto.ReportStatisticsSaveRequest;
 import io.metersphere.reportstatistics.service.ReportStatisticsService;
-import io.metersphere.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -37,8 +34,6 @@ public class ShareInfoController {
     ApiDefinitionService apiDefinitionService;
     @Resource
     ReportStatisticsService reportStatisticsService;
-    @Resource
-    UserService userService;
 
     @PostMapping("/selectApiSimpleInfo")
     public List<ApiDocumentInfoDTO> list(@RequestBody ApiDocumentRequest request) {
@@ -58,7 +53,6 @@ public class ShareInfoController {
             //要根据ids的顺序进行返回排序
             List<ApiDefinitionWithBLOBs> apiModels = apiDefinitionService.getBLOBs(request.getApiIdList());
             Map<String, ApiDefinitionWithBLOBs> apiModelMaps = apiModels.stream().collect(Collectors.toMap(ApiDefinitionWithBLOBs::getId, a -> a, (k1, k2) -> k1));
-            Map<String, User> userIdMap = userService.queryName();
             for (String id : request.getApiIdList()) {
                 ApiDefinitionWithBLOBs model = apiModelMaps.get(id);
                 if (model == null) {
@@ -66,7 +60,7 @@ public class ShareInfoController {
                     model.setId(id);
                     model.setName(id);
                 }
-                ApiDocumentInfoDTO returnDTO = shareInfoService.conversionModelToDTO(model,userIdMap);
+                ApiDocumentInfoDTO returnDTO = shareInfoService.conversionModelToDTO(model);
                 returnList.add(returnDTO);
             }
         }
@@ -78,8 +72,7 @@ public class ShareInfoController {
         ApiDefinitionWithBLOBs apiModel = apiDefinitionService.getBLOBs(id);
         ApiDocumentInfoDTO returnDTO = new ApiDocumentInfoDTO();
         try {
-            Map<String, User> userIdMap = userService.queryName();
-            returnDTO = shareInfoService.conversionModelToDTO(apiModel,userIdMap);
+            returnDTO = shareInfoService.conversionModelToDTO(apiModel);
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -89,7 +82,6 @@ public class ShareInfoController {
 
     @PostMapping("/generateApiDocumentShareInfo")
     public ShareInfoDTO generateApiDocumentShareInfo(@RequestBody ApiDocumentShareRequest request) {
-        request.setCreateUserId(SessionUtils.getUserId());
         ShareInfo apiShare = shareInfoService.generateApiDocumentShareInfo(request);
         ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;
@@ -97,7 +89,6 @@ public class ShareInfoController {
 
     @PostMapping("/generateShareInfoWithExpired")
     public ShareInfoDTO generateShareInfo(@RequestBody ShareInfo request) {
-        request.setCreateUserId(SessionUtils.getUserId());
         ShareInfo apiShare = shareInfoService.createShareInfo(request);
         ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;

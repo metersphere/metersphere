@@ -24,9 +24,9 @@ export function getIssues(page) {
   });
 }
 
-export function getIssuesByCaseId(refType, caseId, page) {
+export function getIssuesByCaseId(caseId, page) {
   if (caseId) {
-    return get('issues/get/case/' + refType + '/' + caseId, (response) => {
+    return get('issues/get/case/' + caseId, (response) => {
       page.data = response.data;
       buildIssues(page);
     });
@@ -150,8 +150,4 @@ export function isThirdPartEnable(callback) {
     if (callback)
       callback(project.platform !== LOCAL);
   });
-}
-
-export function getJiraIssueType(param, callback) {
-  return basePost('/issues/jira/issuetype', param, callback);
 }

@@ -30,25 +30,6 @@
                          v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
-              <el-popover
-                v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
-                style="padding: 0 10px;"
-                placement="bottom"
-                width="300">
-                <p>{{ shareUrl }}</p>
-                <span style="color: red;float: left;margin-left: 10px;" v-if="application.typeValue">{{
-                    $t('commons.validity_period')+application.typeValue
-                  }}</span>
-                <div style="text-align: right; margin: 0">
-                  <el-button type="primary" size="mini" :disabled="!shareUrl"
-                             v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}
-                  </el-button>
-                </div>
-                <el-button slot="reference" :disabled="isReadOnly" type="danger" plain size="mini"
-                           @click="handleShare(report)">
-                  {{ $t('test_track.plan_view.share_report') }}
-                </el-button>
-              </el-popover>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
                          size="mini" v-permission="['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']"
                          @click="compareReports()">
@@ -153,14 +134,13 @@ import MsReportTestOverview from './components/TestOverview';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
-import {exportPdf, getCurrentProjectID, hasPermission} from "@/common/js/utils";
+import {exportPdf, hasPermission} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 import MsTestConfiguration from "@/business/components/performance/report/components/TestConfiguration";
-import {generateShareInfoWithExpired} from "@/network/share";
 
 
 export default {
@@ -215,8 +195,6 @@ export default {
         {value: '300', label: '5m'}
       ],
       testDeleted: false,
-      shareUrl: "",
-      application:{}
     };
   },
   methods: {
@@ -330,7 +308,7 @@ export default {
       this.$set(this.report, "refresh", e.data); // 触发刷新
       if (e.data.startsWith('Error')) {
         this.$set(this.report, "status", 'Error');
-        this.$error(e.data);
+        this.$warning(e.data);
         return;
       }
       this.$set(this.report, "status", 'Running');
@@ -366,37 +344,6 @@ export default {
             reset();
           });
         }, 1000);
-      });
-    },
-    handleShare(report) {
-      this.getProjectApplication();
-      let pram = {};
-      pram.customData = report.id;
-      pram.shareType = 'PERFORMANCE_REPORT';
-      generateShareInfoWithExpired(pram, (data) => {
-        let thisHost = window.location.host;
-        this.shareUrl = thisHost + "/sharePerformanceReport" + data.shareUrl;
-      });
-    },
-    getProjectApplication(){
-      this.$get('/project_application/get/' + getCurrentProjectID()+"/PERFORMANCE_SHARE_REPORT_TIME", res => {
-        if(res.data){
-          let quantity = res.data.typeValue.substring(0, res.data.typeValue.length - 1);
-          let unit = res.data.typeValue.substring(res.data.typeValue.length - 1);
-          if(unit==='H'){
-            res.data.typeValue = quantity+this.$t('commons.date_unit.hour');
-          }else
-          if(unit==='D'){
-            res.data.typeValue = quantity+this.$t('commons.date_unit.day');
-          }else
-          if(unit==='M'){
-            res.data.typeValue = quantity+this.$t('commons.date_unit.month');
-          }else
-          if(unit==='Y'){
-            res.data.typeValue = quantity+this.$t('commons.date_unit.year');
-          }
-          this.application = res.data;
-        }
       });
     },
     exportReportReset() {

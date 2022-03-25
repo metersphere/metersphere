@@ -26,8 +26,6 @@
           @setCondition="setCondition"
           :review-id="reviewId"
           :clickType="clickType"
-          :current-version="currentVersion"
-          :version-enable="versionEnable"
           ref="testPlanTestCaseList"/>
         <test-review-minder
           :tree-nodes="treeNodes"
@@ -42,13 +40,11 @@
     <test-review-relevance
       @refresh="refresh"
       :review-id="reviewId"
-      :version-enable="versionEnable"
       ref="testReviewRelevance"/>
 
     <is-change-confirm
       :title="'请保存脑图'"
       :tip="'脑图未保存，确认保存脑图吗？'"
-      :version-enable="versionEnable"
       @confirm="changeConfirm"
       ref="isChangeConfirm"/>
 
@@ -65,8 +61,6 @@ import TestReviewMinder from "@/business/components/track/common/minder/TestRevi
 import {getCurrentProjectID} from "@/common/js/utils";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestReviewFunction",
@@ -75,8 +69,7 @@ export default {
     TestReviewMinder,
     MsTabButton,
     TestReviewTestCaseList,
-    TestReviewRelevance, MsNodeTree, MsTestPlanCommonComponent,
-    'VersionSelect': VersionSelect.default,
+    TestReviewRelevance, MsNodeTree, MsTestPlanCommonComponent
   },
   data() {
     return {
@@ -90,26 +83,19 @@ export default {
       activeDom: 'left',
       condition: {},
       tmpActiveDom: null,
-      tmpPath: null,
-      currentVersion : null
+      tmpPath: null
     }
   },
   props: [
     'reviewId',
     'redirectCharType',
     'clickType',
-    'versionEnable',
   ],
   mounted() {
     this.getNodeTreeByReviewId()
   },
   activated() {
     this.getNodeTreeByReviewId()
-  },
-  watch: {
-    reviewId() {
-      this.getNodeTreeByReviewId();
-    }
   },
   computed: {
     projectId() {
@@ -155,9 +141,6 @@ export default {
         return true;
       }
     },
-    changeVersion(currentVersion) {
-      this.currentVersion = currentVersion || null;
-    }
   }
 }
 </script>
@@ -165,9 +148,5 @@ export default {
 <style scoped>
 /deep/ .el-button-group>.el-button:first-child {
   padding: 4px 1px !important;
-}
-
-.version-select {
-  padding-left: 10px;
 }
 </style>

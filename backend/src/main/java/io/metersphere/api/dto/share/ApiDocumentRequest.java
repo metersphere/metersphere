@@ -21,6 +21,4 @@ public class ApiDocumentRequest {
     private String orderCondition;
     private List<String> apiIdList;
     private boolean trashEnable;
-    private String refId;
-    private String versionId;
 }

@@ -13,14 +13,19 @@ export default {
       name: 'fucHome',
       component: () => import('@/business/components/api/homepage/ApiTestHomePage'),
     },
+    // {
+    //   path: "project/:type",
+    //   name: "fucProject",
+    //   component: MsProject,
+    // },
     {
       path: "report/list/:testId",
-      name: "ApiReports",
+      name: "ApiReportList",
       component: () => import('@/business/components/api/report/ApiReportList'),
     },
     {
       path: "report/view/:reportId",
-      name: "ApiReportViews",
+      name: "ApiReportView",
       component: () => import('@/business/components/api/report/ApiReportView'),
     },
     {
@@ -35,12 +40,12 @@ export default {
 
     },
     {
-      path: "definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?/:workspaceId?",
+      path: "definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?",
       name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
-      path: "automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:workspaceId?",
+      path: "automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),
     },

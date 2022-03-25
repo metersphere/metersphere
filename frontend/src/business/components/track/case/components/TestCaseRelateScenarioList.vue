@@ -6,10 +6,6 @@
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                                v-if="condition.components !== undefined && condition.components.length > 0"
                                @search="initTable"/>
-
-    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-left="-100"
-                    class="search-input"/>
-
       <ms-table v-loading="result.loading" :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total"
                 :showSelectAll="false"
@@ -24,20 +20,23 @@
           sortable=true>
         </ms-table-column>
 
+<!--        <ms-table-column-->
+<!--          v-if="item.id == 'num' && customNum" prop="customNum"-->
+<!--          label="ID"-->
+<!--          sortable-->
+<!--          :fields-width="fieldsWidth"-->
+<!--          min-width="120px">-->
+<!--          <template slot-scope="scope">-->
+<!--            &lt;!&ndash;<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.customNum }} </span>&ndash;&gt;-->
+<!--            <el-tooltip content="编辑">-->
+<!--              <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>-->
+<!--            </el-tooltip>-->
+<!--          </template>-->
+<!--        </ms-table-column>-->
+
         <ms-table-column
           prop="name"
           :label="$t('api_test.automation.scenario_name')"/>
-
-        <ms-table-column
-          v-if="versionEnable"
-          :label="$t('project.version.name')"
-          :filters="versionFilters"
-          min-width="100px"
-          prop="versionId">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
-          </template>
-        </ms-table-column>
 
         <ms-table-column
           prop="level"
@@ -87,9 +86,6 @@ import PlanStatusTableItem from "@/business/components/track/common/tableItems/p
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsTag from "@/business/components/common/components/MsTag";
 import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "TestCaseRelateScenarioList",
@@ -101,8 +97,7 @@ export default {
     MsTable,
     MsTableColumn,
     MsTableAdvSearchBar,
-    MsTag,
-    'VersionSelect': VersionSelect.default,
+    MsTag
   },
   data() {
     return {
@@ -116,26 +111,19 @@ export default {
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
       ],
-      screenHeight: '100vh - 400px',//屏幕高度
+      screenHeight: '600px',//屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      versionFilters: []
     }
   },
   props: {
     selectNodeIds: Array,
     projectId: String,
-    versionEnable: Boolean,
-    notInIds: {
-      type: Array,
-      default: null
-    }
   },
   created: function () {
     this.initTable();
-    this.getVersionOptions();
   },
   watch: {
     selectNodeIds() {
@@ -164,7 +152,6 @@ export default {
         this.condition.projectId = this.projectId;
       }
       let url = '/test/case/relevance/scenario/list/';
-      this.condition.notInIds = this.notInIds;
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
@@ -191,20 +178,6 @@ export default {
         this.$refs.table.clearSelectRows();
       }
     },
-    getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
-    },
-    changeVersion(currentVersion) {
-      this.condition.versionId = currentVersion || null;
-      this.initTable();
-    }
   },
 }
 </script>

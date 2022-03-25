@@ -324,7 +324,7 @@ export default {
 }
 
 .request-tabs {
-  margin: 10px;
+  margin: 20px;
   min-height: 200px;
 }
 
