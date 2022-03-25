@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.ZentaoClient;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -338,9 +339,14 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     public List<ZentaoBuild> getBuilds() {
-        Map<String, Object> builds = zentaoClient.getBuildsByCreateMetaData(getProjectId(projectId));
+        String relateProjectId = getProjectId(projectId);
+        Boolean exist = checkProjectExist(relateProjectId);
+        if (!exist) {
+            MSException.throwException(Translator.get("zentao_project_id_not_exist"));
+        }
+        Map<String, Object> builds = zentaoClient.getBuildsByCreateMetaData(relateProjectId);
         if (builds == null || builds.isEmpty()) {
-            builds = zentaoClient.getBuilds(getProjectId(projectId));
+            builds = zentaoClient.getBuilds(relateProjectId);
         }
         List<ZentaoBuild> res = new ArrayList<>();
         builds.forEach((k, v) -> {
