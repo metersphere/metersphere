@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import {getUUID, getCurrentProjectID} from "@/common/js/utils";
+import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -680,7 +680,7 @@ export default {
     },
 
     clickResource(resource) {
-      let workspaceId;
+      let workspaceId = getCurrentWorkspaceId();
       let isTurnSpace = true
       if (resource.projectId !== getCurrentProjectID()) {
         isTurnSpace = false;
