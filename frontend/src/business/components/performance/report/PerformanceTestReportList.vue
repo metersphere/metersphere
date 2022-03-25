@@ -429,4 +429,9 @@ export default {
 .test-content {
   width: 100%;
 }
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 47px !important; /* 不同表格top值不一样 */
+}
+
 </style>
