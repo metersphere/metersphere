@@ -6,22 +6,24 @@
           <ms-table-header :condition.sync="condition" @search="search"
                            :show-create="false"/>
         </template>
-
-        <el-table v-loading="result.loading"
-                  border :data="tableData" class="adjust-table test-content"
-                  @select-all="handleSelectAll"
-                  @select="handleSelect"
-                  @sort-change="sort"
-                  @filter-change="filter"
-                  :height="screenHeight"
-        >
-          <el-table-column
-            type="selection"/>
-          <el-table-column width="40" :resizable="false" align="center">
-            <template v-slot:default="scope">
-              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
-            </template>
-          </el-table-column>
+        <ms-table
+          v-loading="result.loading"
+          :data="tableData"
+          :condition="condition"
+          :page-size="pageSize"
+          :total="total"
+          :operators="operators"
+          :screenHeight="screenHeight"
+          :field-key="tableHeaderKey"
+          :remember-order="true"
+          row-key="id"
+          :row-order-group-id="projectId"
+          :batch-operators="buttons"
+          operator-width="130px"
+          :screen-height="screenHeight"
+          @refresh="search"
+          :disable-header-config="true"
+          ref="table">
           <el-table-column
             prop="testName"
             :label="$t('report.test_name')"
@@ -113,22 +115,7 @@
               <ms-performance-report-status :row="row"/>
             </template>
           </el-table-column>
-          <el-table-column
-            min-width="130"
-            :label="$t('commons.operating')">
-            <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
-                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ']"
-                                        @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-s-operation"
-                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']"
-                                        @exec="handleDiff(scope.row)" type="warning"/>
-              <ms-table-operator-button :tip="$t('api_report.delete')"
-                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ+DELETE']"
-                                        icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
-            </template>
-          </el-table-column>
-        </el-table>
+        </ms-table>
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
@@ -150,15 +137,17 @@ import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem"
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
-import {_filter, _sort, getLastTableSortField, saveLastTableSortField} from "@/common/js/tableUtils";
+import {_filter, _sort, buildBatchParam, getLastTableSortField, saveLastTableSortField} from "@/common/js/tableUtils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import MsTable from "@/business/components/common/components/table/MsTable";
 
 export default {
   name: "PerformanceTestReportList",
   components: {
+    MsTable,
     SameTestReports,
     MsDialogFooter,
     MsTableHeader,
@@ -188,7 +177,6 @@ export default {
       },
       projectId: null,
       tableData: [],
-      multipleSelection: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -214,6 +202,28 @@ export default {
       buttons: [
         {
           name: this.$t('report.batch_delete'), handleClick: this.handleBatchDelete
+        }
+      ],
+      operators: [
+        {
+          tip: this.$t('api_report.detail'),
+          icon: "el-icon-s-data",
+          exec: this.handleView,
+          type: 'primary',
+          permissions: ['PROJECT_PERFORMANCE_REPORT:READ']
+        },
+        {
+          tip: this.$t('load_test.report.diff'),
+          icon: "el-icon-s-operation",
+          type: "warning",
+          exec: this.handleDiff,
+          permissions: ['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']
+        }, {
+          tip: this.$t('commons.delete'),
+          icon: "el-icon-delete",
+          type: "danger",
+          exec: this.handleDelete,
+          permissions: ['PROJECT_PERFORMANCE_REPORT:READ+DELETE']
         }
       ],
       selectRows: new Set(),
@@ -303,9 +313,6 @@ export default {
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
     handleRename(report) {
       this.$prompt(this.$t('commons.input_name'), '', {
         confirmButtonText: this.$t('commons.confirm'),
@@ -366,45 +373,19 @@ export default {
       _filter(filters, this.condition);
       this.initTableData();
     },
-    handleSelect(selection, row) {
-      if (this.selectRows.has(row)) {
-        this.$set(row, "showMore", false);
-        this.selectRows.delete(row);
-      } else {
-        this.$set(row, "showMore", true);
-        this.selectRows.add(row);
-      }
-    },
     saveSortField(key, orders) {
       saveLastTableSortField(key, JSON.stringify(orders));
-    },
-    handleSelectAll(selection) {
-      if (selection.length > 0) {
-        this.tableData.forEach(item => {
-          this.$set(item, "showMore", true);
-          this.selectRows.add(item);
-        });
-      } else {
-        this.selectRows.clear();
-        this.tableData.forEach(row => {
-          this.$set(row, "showMore", false);
-        });
-      }
     },
     handleBatchDelete() {
       this.$alert(this.$t('report.delete_batch_confirm') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let ids = [];
-            this.selectRows.forEach(row => {
-              ids.push(row.id);
-            });
-            this.result = this.$post("/performance/report/batch/delete", {ids: ids}, () => {
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.result = this.$post("/performance/report/batch/delete", param, () => {
+              this.$success(this.$t('commons.delete_success'));
               this.initTableData();
             });
-
-            this.$success(this.$t('commons.delete_success'));
           }
         },
       });
