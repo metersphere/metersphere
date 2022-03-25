@@ -8,6 +8,7 @@
     <result column="run_mode" jdbcType="VARCHAR" property="runMode" />
     <result column="pool_id" jdbcType="VARCHAR" property="poolId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="failure" jdbcType="BIT" property="failure" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, report_id, report_type, run_mode, pool_id, create_time
+    id, report_id, report_type, run_mode, pool_id, create_time, failure
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiExecutionQueueExample" resultMap="BaseResultMap">
     select
@@ -102,11 +103,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiExecutionQueue">
     insert into api_execution_queue (id, report_id, report_type, 
-      run_mode, pool_id, create_time
-      )
+      run_mode, pool_id, create_time, 
+      failure)
     values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{reportType,jdbcType=VARCHAR}, 
-      #{runMode,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}
-      )
+      #{runMode,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{failure,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiExecutionQueue">
     insert into api_execution_queue
@@ -129,6 +130,9 @@
       <if test="createTime != null">
         create_time,
       </if>
+      <if test="failure != null">
+        failure,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -148,6 +152,9 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="failure != null">
+        #{failure,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -178,6 +185,9 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.failure != null">
+        failure = #{record.failure,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -190,7 +200,8 @@
       report_type = #{record.reportType,jdbcType=VARCHAR},
       run_mode = #{record.runMode,jdbcType=VARCHAR},
       pool_id = #{record.poolId,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      failure = #{record.failure,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -213,6 +224,9 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="failure != null">
+        failure = #{failure,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -222,7 +236,8 @@
       report_type = #{reportType,jdbcType=VARCHAR},
       run_mode = #{runMode,jdbcType=VARCHAR},
       pool_id = #{poolId,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      failure = #{failure,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

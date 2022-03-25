@@ -64,7 +64,7 @@ public class ScheduleService {
     }
 
     public void updateSwaggerUrlSchedule(SwaggerUrlProject swaggerUrlProject) {
-        swaggerUrlProjectMapper.updateByPrimaryKeySelective(swaggerUrlProject);
+        swaggerUrlProjectMapper.updateByPrimaryKeyWithBLOBs(swaggerUrlProject);
     }
 
     public ApiSwaggerUrlDTO selectApiSwaggerUrlDTO(String id) {
@@ -164,7 +164,7 @@ public class ScheduleService {
     public Schedule buildApiTestSchedule(ScheduleRequest request) {
         Schedule schedule = new Schedule();
         schedule.setResourceId(request.getResourceId());
-        schedule.setEnable(true);
+        schedule.setEnable(request.getEnable());
         schedule.setValue(request.getValue().trim());
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());
@@ -179,6 +179,9 @@ public class ScheduleService {
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException("重置定时任务-删除旧定时任务时出现异常");
+        }
+        if(!request.getEnable()){
+            return;
         }
         try {
             scheduleManager.addCronJob(jobKey, triggerKey, clazz, request.getValue(),
@@ -263,6 +266,7 @@ public class ScheduleService {
             schedule.setProjectId(testPlan.getProjectId());
             schedule.setGroup(ScheduleGroup.TEST_PLAN_TEST.name());
             schedule.setType(ScheduleType.CRON.name());
+            schedule.setConfig(request.getConfig());
             jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;

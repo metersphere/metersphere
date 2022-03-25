@@ -23,7 +23,7 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> selectByTagId(@Param("id") String id);
 
-    List<ApiScenarioWithBLOBs> selectIds(@Param("ids") List<String> ids);
+    List<ApiScenarioDTO> selectIds(@Param("ids") List<String> ids);
 
     int selectTrash(@Param("projectId") String projectId);
 
@@ -87,4 +87,11 @@ public interface ExtApiScenarioMapper {
 
     void setScenarioEnvGroupIdNull(@Param("environmentGroupId") String environmentGroupId);
 
+    ApiScenarioDTO selectById(@Param("id") String id);
+
+    void clearLatestVersion(String refId);
+
+    void addLatestVersion(String refId);
+
+    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
 }

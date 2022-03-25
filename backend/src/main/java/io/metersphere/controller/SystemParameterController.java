@@ -4,6 +4,7 @@ import io.metersphere.base.domain.SystemHeader;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -15,6 +16,7 @@ import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +28,7 @@ import java.util.List;
 @RequestMapping(value = "/system")
 public class SystemParameterController {
     @Resource
-    private SystemParameterService SystemParameterService;
+    private SystemParameterService systemParameterService;
     @Resource
     private Environment env;
     @Resource
@@ -37,24 +39,24 @@ public class SystemParameterController {
     private ProjectService projectService;
 
     @PostMapping("/edit/email")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
     public void editMail(@RequestBody List<SystemParameter> systemParameter) {
-        SystemParameterService.editMail(systemParameter);
+        systemParameterService.editMail(systemParameter);
     }
 
     @PostMapping("/testConnection")
     public void testConnection(@RequestBody HashMap<String, String> hashMap) {
-        SystemParameterService.testConnection(hashMap);
+        systemParameterService.testConnection(hashMap);
     }
 
     @GetMapping("/version")
     public String getVersion() {
-        return SystemParameterService.getVersion();
+        return systemParameterService.getVersion();
     }
 
     @GetMapping("/theme")
     public String getTheme() {
-        return SystemParameterService.getValue("ui.theme");
+        return systemParameterService.getValue("ui.theme");
     }
 
     @GetMapping("timeout")
@@ -64,50 +66,50 @@ public class SystemParameterController {
 
     @GetMapping("/mail/info")
     public MailInfo mailInfo() {
-        return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
+        return systemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
     }
 
     @GetMapping("/base/info")
     public BaseSystemConfigDTO getBaseInfo() {
-        return SystemParameterService.getBaseInfo();
+        return systemParameterService.getBaseInfo();
     }
 
     @PostMapping("/system/header")
     public SystemHeader getHeader(@RequestBody SystemHeader systemHeader) {
-        return SystemParameterService.getHeader(systemHeader.getType());
+        return systemParameterService.getHeader(systemHeader.getType());
     }
 
     @PostMapping("/save/base")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getBaseLogDetails()", content = "#msClass.getBaseLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getBaseLogDetails()", content = "#msClass.getBaseLogDetails()", msClass = SystemParameterService.class)
     public void saveBaseInfo(@RequestBody List<SystemParameter> systemParameter) {
-        SystemParameterService.saveBaseInfo(systemParameter);
+        systemParameterService.saveBaseInfo(systemParameter);
     }
 
     @GetMapping("/save/baseurl")
     public void saveBaseurl(@RequestParam("baseurl") String baseurl) {
-        SystemParameterService.saveBaseurl(baseurl);
+        systemParameterService.saveBaseurl(baseurl);
     }
 
     @PostMapping("/save/ldap")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails()", content = "#msClass.getLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails()", content = "#msClass.getLogDetails()", msClass = SystemParameterService.class)
     public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
-        SystemParameterService.saveLdap(systemParameter);
+        systemParameterService.saveLdap(systemParameter);
     }
 
     @GetMapping("/ldap/info")
     public LdapInfo getLdapInfo() {
-        return SystemParameterService.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
+        return systemParameterService.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
     }
 
     @PostMapping("save/header")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "显示设置")
+    @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, title = "显示设置")
     public void saveHeader(@RequestBody UserHeader userHeader) {
-        SystemParameterService.saveHeader(userHeader);
+        systemParameterService.saveHeader(userHeader);
     }
 
     @PostMapping("/header/info")
     public UserHeader getHeaderInfo(@RequestBody HeaderRequest headerRequest) {
-        return SystemParameterService.queryUserHeader(headerRequest);
+        return systemParameterService.queryUserHeader(headerRequest);
     }
 
     @GetMapping("/statistics/data")
@@ -124,12 +126,12 @@ public class SystemParameterController {
 
     @GetMapping("/get/info/{key}")
     public SystemParameter getInfo(@PathVariable String key) {
-        return SystemParameterService.getInfo(key);
+        return systemParameterService.getInfo(key);
     }
 
     @PostMapping("/edit/info")
     public SystemParameter editInfo(@RequestBody SystemParameter systemParameter) {
-        SystemParameterService.editInfo(systemParameter);
+        systemParameterService.editInfo(systemParameter);
         return systemParameter;
     }
 

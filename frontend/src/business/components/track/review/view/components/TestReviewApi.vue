@@ -25,6 +25,7 @@
         @nodeSelectEvent="nodeChange"
         @refreshTable="refreshTable"
         @setModuleOptions="setModuleOptions"
+        :version-enable="versionEnable"
         :is-read-only="true"
         :review-id="reviewId"
         ref="scenarioNodeTree">
@@ -41,6 +42,7 @@
        v-if="model === 'api'"
        :current-protocol="currentProtocol"
        :currentRow="currentRow"
+       :version-enable="versionEnable"
        :select-node-ids="selectNodeIds"
        :trash-enable="trashEnable"
        :is-case-relevance="true"
@@ -55,6 +57,7 @@
         v-if="model === 'scenario'"
         :select-node-ids="selectNodeIds"
         :trash-enable="trashEnable"
+        :version-enable="versionEnable"
         :review-id="reviewId"
         :clickType="clickType"
         @refresh="refreshTree"
@@ -64,12 +67,14 @@
     <test-review-relevance-api
       @refresh="refresh"
       :review-id="reviewId"
+      :version-enable="versionEnable"
       :model="model"
       ref="apiCaseRelevance"
     />
     <test-review-relevance-scenario
       @refresh="refresh"
       :review-id="reviewId"
+      :version-enable="versionEnable"
       :model="model"
       ref="scenarioCaseRelevance"
     />
@@ -88,6 +93,7 @@ import MsApiModule from "../../../../api/definition/components/module/ApiModule"
 import TestReviewRelevanceApi from "@/business/components/track/review/view/components/TestReviewRelevanceApi";
 import TestReviewRelevanceScenario
   from "@/business/components/track/review/view/components/TestReviewRelevanceScenario";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
   name: "TestReviewApi",
@@ -112,7 +118,8 @@ export default {
       currentModule: null,
       selectNodeIds: [],
       moduleOptions: {},
-      model: 'api'
+      model: 'api',
+      versionEnable: false,
     }
   },
   props: [
@@ -122,6 +129,7 @@ export default {
   ],
   mounted() {
     this.checkRedirectCharType();
+    this.checkVersionEnable();
   },
   watch: {
     model() {
@@ -180,6 +188,16 @@ export default {
         this.$refs.scenarioCaseRelevance.open();
       } else {
         this.$refs.apiCaseRelevance.open();
+      }
+    },
+    checkVersionEnable() {
+      if (!getCurrentProjectID()) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + getCurrentProjectID(), response => {
+          this.versionEnable = response.data;
+        });
       }
     },
   }

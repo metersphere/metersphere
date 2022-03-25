@@ -9,12 +9,12 @@
     <result column="case_name" jdbcType="VARCHAR" property="caseName" />
     <result column="system" jdbcType="BIT" property="system" />
     <result column="global" jdbcType="BIT" property="global" />
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
     <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
@@ -81,8 +81,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, description, case_name, `system`, `global`, workspace_id, prerequisite, 
-    create_time, update_time, step_model, create_user
+    id, `name`, `type`, description, case_name, `system`, `global`, prerequisite, create_time, 
+    update_time, step_model, create_user, project_id
   </sql>
   <sql id="Blob_Column_List">
     step_description, expected_result, actual_result, steps
@@ -136,17 +136,17 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
-    insert into test_case_template (id, `name`, `type`, 
+    INSERT INTO test_case_template (id, `name`, `type`,
       description, case_name, `system`, 
-      `global`, workspace_id, prerequisite, 
-      create_time, update_time, step_model, 
-      create_user, step_description, expected_result, 
+      `global`, prerequisite, create_time, 
+      update_time, step_model, create_user, 
+      project_id, step_description, expected_result, 
       actual_result, steps)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+    VALUES (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
       #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, 
-      #{global,jdbcType=BIT}, #{workspaceId,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{stepModel,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{global,jdbcType=BIT}, #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
       #{actualResult,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
@@ -173,9 +173,6 @@
       <if test="global != null">
         `global`,
       </if>
-      <if test="workspaceId != null">
-        workspace_id,
-      </if>
       <if test="prerequisite != null">
         prerequisite,
       </if>
@@ -190,6 +187,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="stepDescription != null">
         step_description,
@@ -226,9 +226,6 @@
       <if test="global != null">
         #{global,jdbcType=BIT},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
-      </if>
       <if test="prerequisite != null">
         #{prerequisite,jdbcType=VARCHAR},
       </if>
@@ -243,6 +240,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="stepDescription != null">
         #{stepDescription,jdbcType=LONGVARCHAR},
@@ -288,9 +288,6 @@
       <if test="record.global != null">
         `global` = #{record.global,jdbcType=BIT},
       </if>
-      <if test="record.workspaceId != null">
-        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-      </if>
       <if test="record.prerequisite != null">
         prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       </if>
@@ -305,6 +302,9 @@
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.stepDescription != null">
         step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
@@ -332,12 +332,12 @@
       case_name = #{record.caseName,jdbcType=VARCHAR},
       `system` = #{record.system,jdbcType=BIT},
       `global` = #{record.global,jdbcType=BIT},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
       actual_result = #{record.actualResult,jdbcType=LONGVARCHAR},
@@ -355,12 +355,12 @@
       case_name = #{record.caseName,jdbcType=VARCHAR},
       `system` = #{record.system,jdbcType=BIT},
       `global` = #{record.global,jdbcType=BIT},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -386,9 +386,6 @@
       <if test="global != null">
         `global` = #{global,jdbcType=BIT},
       </if>
-      <if test="workspaceId != null">
-        workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      </if>
       <if test="prerequisite != null">
         prerequisite = #{prerequisite,jdbcType=VARCHAR},
       </if>
@@ -403,6 +400,9 @@
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="stepDescription != null">
         step_description = #{stepDescription,jdbcType=LONGVARCHAR},
@@ -427,12 +427,12 @@
       case_name = #{caseName,jdbcType=VARCHAR},
       `system` = #{system,jdbcType=BIT},
       `global` = #{global,jdbcType=BIT},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       step_model = #{stepModel,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       step_description = #{stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
       actual_result = #{actualResult,jdbcType=LONGVARCHAR},
@@ -447,12 +447,12 @@
       case_name = #{caseName,jdbcType=VARCHAR},
       `system` = #{system,jdbcType=BIT},
       `global` = #{global,jdbcType=BIT},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       step_model = #{stepModel,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

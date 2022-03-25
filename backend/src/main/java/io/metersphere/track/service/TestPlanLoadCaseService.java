@@ -9,14 +9,20 @@ import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.performance.request.QueryTestPlanRequest;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.dto.*;
@@ -59,12 +65,16 @@ public class TestPlanLoadCaseService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
+    private ExtLoadTestReportMapper extLoadTestReportMapper;
+    @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
     @Lazy
     private TestPlanService testPlanService;
+    @Resource
+    private ExtLoadTestMapper extLoadTestMapper;
 
-    public Pager<List<LoadTest>> relevanceList(LoadCaseRequest request, int goPage, int pageSize) {
+    public Pager<List<LoadTestDTO>> relevanceList(LoadCaseRequest request, int goPage, int pageSize) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         orders.forEach(i -> i.setPrefix("load_test"));
         request.setOrders(orders);
@@ -73,10 +83,16 @@ public class TestPlanLoadCaseService {
         }
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
-            return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList<>());
+            return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList <>());
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, performanceTestService.getLoadTestListByIds(ids));
+        QueryTestPlanRequest newRequest = new QueryTestPlanRequest();
+        BeanUtils.copyBean(newRequest, request);
+        Map filters = new HashMap();
+        filters.put("id", ids);
+        newRequest.setFilters(filters);
+        List<LoadTestDTO> loadTestDTOS = extLoadTestMapper.list(newRequest);
+        return PageUtils.setPageInfo(page, loadTestDTOS);
     }
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
@@ -184,7 +200,7 @@ public class TestPlanLoadCaseService {
                 TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
                 example.createCriteria().andLoadReportIdEqualTo(report.getId());
                 List<TestPlanLoadCase> cases = testPlanLoadCaseMapper.selectByExample(example);
-                if (CollectionUtils.isEmpty(cases) || !cases.get(0).getStatus().equals("success")) {
+                if (CollectionUtils.isEmpty(cases) || !cases.get(0).getStatus().equals(TestPlanLoadCaseStatus.success.name())) {
                     break;
                 }
             }
@@ -352,7 +368,7 @@ public class TestPlanLoadCaseService {
         example.createCriteria()
                 .andTestPlanIdEqualTo(planId)
                 .andLoadCaseIdIn(performanceIds)
-                .andStatusEqualTo("error");
+                .andStatusEqualTo(TestPlanLoadCaseStatus.error.name());
         return testPlanLoadCaseMapper.countByExample(example) > 0 ? true : false;
     }
 
@@ -367,12 +383,31 @@ public class TestPlanLoadCaseService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanLoadCaseMapper.selectForPlanReport(planId);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = extLoadTestReportMapper.selectForPlanReport(reportIds);
+        // 性能测试的报告状态跟用例的执行状态不一样
+        planReportCaseDTOS.forEach(item -> {
+            if (item.getStatus().equals(PerformanceTestStatus.Completed.name())) {
+                item.setStatus(TestPlanLoadCaseStatus.success.name());
+            } else if (item.getStatus().equals(PerformanceTestStatus.Error.name())) {
+                item.setStatus(TestPlanLoadCaseStatus.error.name());
+            } else {
+                item.setStatus(TestPlanLoadCaseStatus.run.name());
+            }
+        });
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanLoadResultReportDTO loadResult = new TestPlanLoadResultReportDTO();
         report.setLoadResult(loadResult);
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
-        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "success");
+        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, TestPlanLoadCaseStatus.success.name());
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
 
         loadResult.setCaseData(statusResult);
@@ -383,13 +418,13 @@ public class TestPlanLoadCaseService {
         return buildCases(cases);
     }
 
-    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids, String planId, String status) {
-        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids, planId, status);
+    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids, Collection<String> reportIds) {
+        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids, reportIds);
         return buildCases(cases);
     }
 
     public List<TestPlanLoadCaseDTO> getFailureCases(String planId) {
-        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getCases(planId, "error");
+        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getCases(planId, TestPlanLoadCaseStatus.error.name());
         return buildCases(failureCases);
     }
 
@@ -436,7 +471,7 @@ public class TestPlanLoadCaseService {
     }
 
     public void initOrderField() {
-        ServiceUtils.initOrderField(TestPlanLoadCase.class, TestPlanLoadCaseMapper.class,
+        ServiceUtils.initOrderField(TestPlanLoadCaseWithBLOBs.class, TestPlanLoadCaseMapper.class,
                 extTestPlanLoadCaseMapper::selectPlanIds,
                 extTestPlanLoadCaseMapper::getIdsOrderByUpdateTime);
     }

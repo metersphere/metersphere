@@ -7,8 +7,10 @@
     :draggable="draggable"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     color="#6D317C"
     background-color="#FCF6EE"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('api_test.automation.transcation_controller')">
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
@@ -47,8 +49,16 @@ export default {
       type: Boolean,
       default: true,
     },
+    showVersion: {
+      type: Boolean,
+      default: true,
+    },
     index: Object,
     draggable: {
+      type: Boolean,
+      default: false,
+    },
+    ifFromVariableAdvance: {
       type: Boolean,
       default: false,
     },
@@ -177,7 +187,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 100px;
+  width: 80px;
 }
 .ms-test-running {
   color: #6D317C;

@@ -1,13 +1,16 @@
 <template>
   <ms-container>
-    <ms-main-container>
+    <ms-main-container v-if="loading">
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
                            :create-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
+                           :version-options="versionOptions"
+                           :current-version.sync="currentVersion"
+                           :is-show-version=true
+                           @changeVersion="changeVersion"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
-
         <ms-table
           :data="tableData"
           :condition="condition"
@@ -21,18 +24,19 @@
           row-key="id"
           :row-order-group-id="projectId"
           :row-order-func="editLoadTestCaseOrder"
-          operator-width="190px"
+          :batch-operators="batchButtons"
+          operator-width="120px"
           :screen-height="screenHeight"
-          :enable-selection="false"
           @refresh="search"
           :disable-header-config="true"
           ref="table">
-
           <el-table-column
             prop="num"
             label="ID"
-            width="100"
-            show-overflow-tooltip>
+            width="100">
+            <template v-slot:default="scope">
+              <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.num }}</span>
+            </template>
           </el-table-column>
           <el-table-column
             prop="name"
@@ -40,6 +44,16 @@
             show-overflow-tooltip>
             <template v-slot:default="scope">
               <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="versionEnable"
+            :label="$t('project.version.name')"
+            :filters="versionFilters"
+            column-key="versionId"
+            prop="versionId">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.versionName }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -70,8 +84,7 @@
           </el-table-column>
           <el-table-column
             prop="reportCount"
-            :label="$t('report.load_test_report')"
-            width="150">
+            :label="$t('commons.report')">
             <template v-slot:default="scope">
               <el-link v-if="scope.row.reportCount > 0" @click="reports(scope.row)">
                 {{ scope.row.reportCount }}
@@ -93,6 +106,8 @@
                              :total="total"/>
       </el-card>
     </ms-main-container>
+    <!--  删除接口提示  -->
+    <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </ms-container>
 </template>
 
@@ -103,15 +118,17 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceTestStatus from "./PerformanceTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {getLastTableSortField} from "@/common/js/tableUtils";
+import {buildBatchParam, getLastTableSortField} from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editLoadTestCaseOrder} from "@/network/load-test";
+import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 
 export default {
   components: {
+    ListItemDeleteConfirm,
     MsTable,
     MsTableHeader,
     MsPerformanceTestStatus,
@@ -123,7 +140,7 @@ export default {
   },
   data() {
     return {
-      tableHeaderKey:"PERFORMANCE_TEST_TABLE",
+      tableHeaderKey: "PERFORMANCE_TEST_TABLE",
       result: {},
       deletePath: "/performance/delete",
       condition: {
@@ -132,19 +149,34 @@ export default {
       projectId: null,
       tableData: [],
       multipleSelection: [],
+      versionFilters: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      loading: false,
+      loading: true,
       testId: null,
       enableOrderDrag: true,
+      batchButtons: [
+        {
+          name: this.$t('commons.delete_batch'),
+          handleClick: this.handleBatchDelete,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+DELETE']
+        }
+      ],
       operators: [
+        {
+          tip: this.$t('commons.run'), icon: "el-icon-video-play",
+          class: 'run-button',
+          exec: this.handleRun,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+RUN']
+        },
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']
-        }, {
-          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
+        },
+        {
+          tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "primary",
           exec: this.handleCopy,
           permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']
         }, {
@@ -163,6 +195,9 @@ export default {
       ],
       userFilters: [],
       screenHeight: 'calc(100vh - 200px)',
+      versionOptions: [],
+      currentVersion: '',
+      versionEnable: false,
     };
   },
   watch: {
@@ -179,10 +214,12 @@ export default {
       return editLoadTestCaseOrder;
     }
   },
-  created: function () {
+  created() {
     this.projectId = getCurrentProjectID();
     this.initTableData();
     this.getMaintainerOptions();
+    this.getVersionOptions();
+    this.checkVersionEnable();
   },
   methods: {
     getMaintainerOptions() {
@@ -232,25 +269,60 @@ export default {
         this.search();
       });
     },
-    handleDelete(test) {
-      this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
+    handleRun(test) {
+      this.result = this.$post("/performance/run", {id: test.id, triggerMode: 'MANUAL'}, (response) => {
+        let reportId = response.data;
+        this.$router.push({path: '/performance/report/view/' + reportId});
+      });
+    },
+    handleBatchDelete() {
+      this.$alert(this.$t('load_test.batch_delete_confirm') + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this._handleDelete(test);
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.result = this.$post("/performance/delete/batch", param, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTableData();
+            })
           }
         }
       });
     },
-    _handleDelete(test) {
-      let data = {
-        id: test.id
-      };
-
-      this.result = this.$post(this.deletePath, data, () => {
-        this.$success(this.$t('commons.delete_success'));
-        this.initTableData();
+    handleDelete(test) {
+      this.$get('/performance/versions/' + test.id, response => {
+        if (hasLicense() && this.versionEnable && response.data.length > 1) {
+          // 删除提供列表删除和全部版本删除
+          this.$refs.apiDeleteConfirm.open(test, this.$t('load_test.delete_confirm'));
+        } else {
+          this.$alert(this.$t('load_test.delete_confirm') + test.name + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this._handleDelete(test, false);
+              }
+            }
+          });
+        }
       });
+    },
+    _handleDelete(test, deleteCurrentVersion) {
+      if (deleteCurrentVersion) {
+        this.$get('performance/delete/' + test.versionId + '/' + test.refId, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTableData();
+          this.$refs.apiDeleteConfirm.close();
+        });
+      } else {
+        let data = {
+          id: test.id
+        };
+        this.result = this.$post(this.deletePath, data, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTableData();
+          this.$refs.apiDeleteConfirm.close();
+        });
+      }
     },
     link(row) {
       this.$router.push({
@@ -268,7 +340,47 @@ export default {
         return;
       }
       this.$router.push('/performance/test/create');
-    }
+    },
+    getVersionOptions(currentVersion) {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data;
+          if (currentVersion) {
+            this.versionFilters = response.data.filter(u => u.id === currentVersion).map(u => {
+              return {text: u.name, value: u.id};
+            });
+          } else {
+            this.versionFilters = response.data.map(u => {
+              return {text: u.name, value: u.id};
+            });
+          }
+        });
+      }
+    },
+    changeVersion(value) {
+      this.currentVersion = value || null;
+      this.condition.versionId = value || null;
+      this.refresh();
+      this.getVersionOptions(value);
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+          this.loading = false;
+          this.$nextTick(() => {
+            this.loading = true;
+          });
+        });
+      }
+    },
+    refresh(data) {
+      this.initTableData();
+      //this.$refs.nodeTree.list();
+    },
   }
 };
 </script>

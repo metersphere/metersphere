@@ -1,7 +1,7 @@
 pipeline {
     agent {
         node {
-            label 'metersphere'
+            label 'metersphere-buildx'
         }
     }
     options { quietPeriod(600) }
@@ -17,14 +17,13 @@ pipeline {
 //                     sh "yarn install"
 //                     sh "cd .."
                     sh "./mvnw clean package --settings ./settings.xml"
+                    sh "mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)"
                 }
             }
         }
         stage('Docker build & push') {
             steps {
-                sh "docker build --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} ."
-                sh "docker tag ${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}"
-                sh "docker push ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}"
+                 sh "docker buildx build --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} --platform linux/amd64,linux/arm64 . --push"
             }
         }
     }
@@ -34,10 +33,7 @@ pipeline {
             withCredentials([string(credentialsId: 'wechat-bot-webhook', variable: 'WEBHOOK')]) {
                 qyWechatNotification failSend: true, mentionedId: '', mentionedMobile: '', webhookUrl: "$WEBHOOK"
             }
-            cleanWs(cleanWhenNotBuilt: false,
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true)            
+            sh "./mvnw clean"
         }
     }
 }

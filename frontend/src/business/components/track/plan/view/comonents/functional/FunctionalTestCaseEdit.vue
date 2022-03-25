@@ -27,7 +27,17 @@
                     </el-col>
 
                     <el-col class="head-right" :span="20">
-                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true, true)" :list="testCases"/>
+                      <ms-previous-next-button
+                        :index="index"
+                        :page-num="pageNum"
+                        :page-size="pageSize"
+                        :page-total="pageTotal"
+                        :total="total"
+                        :next-page-data="nextPageData"
+                        :pre-page-data="prePageData"
+                        @pre="handlePre"
+                        @next="saveCase(true, true)"
+                        :list="testCases"/>
                       <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
                         {{$t('test_track.save')}} & {{$t('test_track.next')}}
                       </el-button>
@@ -38,7 +48,7 @@
                   <el-row class="head-bar">
                     <el-col>
                       <el-divider content-position="left">
-                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.num }}-{{ testCase.name }}</el-button>
                       </el-divider>
                     </el-col>
                   </el-row>
@@ -100,6 +110,7 @@
 
                     <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
                       <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
+                                                 :is-test-plan-edit="true"
                                                  :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
                                                  :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                     </el-form-item >
@@ -151,12 +162,13 @@ import {buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
-import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
-import TestPlanCaseStepResultsItem from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
+import TestPlanCaseStepResultsItem
+  from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -185,7 +197,6 @@ export default {
       showDialog: false,
       testCase: {},
       index: 0,
-      testCases: [],
       editor: ClassicEditor,
       editorConfig: {
         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
@@ -207,6 +218,8 @@ export default {
       isCustomFiledActive: false,
       otherInfoActive: true,
       isReadOnly: false,
+      testCases: [],
+      originalStatus: ""
     };
   },
   props: {
@@ -215,7 +228,14 @@ export default {
     },
     searchParam: {
       type: Object
-    }
+    },
+    pageNum: Number,
+    pageSize: {
+      type: Number,
+      default: 1
+    },
+    nextPageData: Object,
+    prePageData: Object
   },
   computed: {
     projectId() {
@@ -226,6 +246,9 @@ export default {
     },
     statusReadOnly() {
       return !hasPermission('PROJECT_TRACK_PLAN:READ+RUN');
+    },
+    pageTotal() {
+      return Math.ceil(this.total / this.pageSize);
     }
   },
   methods: {
@@ -251,6 +274,7 @@ export default {
       this.$emit('refreshTable');
     },
     statusChange(status) {
+      this.originalStatus = this.testCase.status;
       this.testCase.status = status;
       this.saveCase(true);
     },
@@ -307,6 +331,11 @@ export default {
             + this.$t('test_track.length_less_than') + '300');
           return;
         }
+        if (result.executeResult === 'Failure' && this.testCase.status === 'Pass') {
+          this.$warning(this.$t('test_track.plan_view.execute_tip'));
+          this.testCase.status = this.originalStatus;
+          return;
+        }
         param.results.push(result);
       }
       param.results = JSON.stringify(param.results);
@@ -320,7 +349,7 @@ export default {
         }
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
-        if (next && this.index < this.testCases.length - 1) {
+        if (next) {
           this.handleNext();
         }
       });
@@ -337,8 +366,14 @@ export default {
       }
     },
     handleNext() {
+      if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
+        return;
+      } else if (this.index === this.testCases.length - 1) {
+        this.$emit('nextPage');
+        return;
+      }
       this.index++;
-      this.getTestCase(this.index);
+      this.getTestCase(this.testCases[this.index].id);
       this.reloadOtherInfo();
     },
     reloadOtherInfo() {
@@ -348,15 +383,20 @@ export default {
       })
     },
     handlePre() {
+      if (this.index === 0 && this.pageNum === 1) {
+        this.$warning('已经是第一页');
+        return;
+      } else if (this.index === 0) {
+        this.$emit('prePage');
+        return;
+      }
       this.index--;
-      this.getTestCase(this.index);
+      this.getTestCase(this.testCases[this.index].id);
       this.reloadOtherInfo();
     },
-    getTestCase(index) {
-      this.testCase = {};
-      let testCase = this.testCases[index];
+    getTestCase(id) {
       // id 为 TestPlanTestCase 的 id
-      this.result = this.$get('/test/plan/case/get/' + testCase.id, response => {
+      this.result = this.$get('/test/plan/case/get/' + id, response => {
         let item = {};
         Object.assign(item, response.data);
         if (item.results) {
@@ -400,19 +440,30 @@ export default {
         this.getComments(item);
       });
     },
-    openTestCaseEdit(testCase) {
+    openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;
       this.isReadOnly = !hasPermission('PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL');
 
+      if (tableData) {
+        this.testCases = tableData;
+        for (let i = 0; i < this.testCases.length; i++) {
+          let item = this.testCases[i];
+          if (item.id === testCase.id) {
+            this.index = i;
+            break;
+          }
+        }
+      }
+
       listenGoBack(this.handleClose);
-      let initFuc = this.initData;
+      let initFuc = this.getTestCase;
       getTemplate('field/template/case/get/relate/', this)
         .then((template) => {
           this.testCaseTemplate = template;
-          initFuc(testCase);
+          initFuc(testCase.id);
         });
       if (this.$refs.otherInfo) {
         this.$refs.otherInfo.reset();
@@ -431,17 +482,6 @@ export default {
     },
     saveReport(reportId) {
       this.$post('/test/plan/case/edit', {id: this.testCase.id, reportId: reportId});
-    },
-    initData(testCase) {
-      this.result = this.$post('/test/plan/case/list/ids', this.searchParam, response => {
-        this.testCases = response.data;
-        for (let i = 0; i < this.testCases.length; i++) {
-          if (this.testCases[i].id === testCase.id) {
-            this.index = i;
-            this.getTestCase(i);
-          }
-        }
-      });
     },
     openTest(item) {
       const type = item.testType;

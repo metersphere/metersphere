@@ -6,7 +6,7 @@
       </el-row>
     </el-tab-pane>
     <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
-      <test-case-test-relate :read-only="readOnly" :case-id="caseId"/>
+      <test-case-test-relate :read-only="readOnly" :case-id="caseId" :version-enable="versionEnable" ref="relateTest"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.related_requirements')" name="demand">
@@ -14,7 +14,7 @@
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
 
-          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable/>
+          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable filterable :filter-method="filterDemand"/>
         </el-form-item>
       </el-col>
       <el-col :span="7">
@@ -29,15 +29,18 @@
       <test-case-issue-relate
         v-if="tabActiveName === 'bug'"
         :plan-id="planId"
+        :is-copy="isCopy"
         :read-only="readOnly && !(isTestPlan)"
-        :case-id="caseId" ref="issue"/>
+        :plan-case-id="planId ? this.form.id : null"
+        :case-id="caseId"
+        ref="issue"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('commons.relationship.name')" name="relationship">
       <template v-slot:label>
         <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
       </template>
-      <dependencies-list @setCount="setRelationshipCount" :read-only="readOnly" :resource-id="caseId" resource-type="TEST_CASE" ref="relationship"/>
+      <dependencies-list @setCount="setRelationshipCount" :read-only="readOnly" :resource-id="caseId" :version-enable="versionEnable" resource-type="TEST_CASE" ref="relationship"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
@@ -90,7 +93,7 @@ export default {
     DependenciesList,
     TestCaseTestRelate,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit'],
   data() {
     return {
       result: {},
@@ -126,6 +129,10 @@ export default {
         this.$refs.relationship.open();
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
+      } else if (this.tabActiveName === 'relateTest') {
+        this.$nextTick(() => {
+          this.getRelatedTest();
+        });
       }
     },
     caseId() {
@@ -256,6 +263,9 @@ export default {
         });
       }
     },
+    getRelatedTest() {
+      this.$refs.relateTest.initTable();
+    },
     visibleChange(flag) {
       if (flag) {
         this.getDemandOptions();
@@ -264,7 +274,7 @@ export default {
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
         this.result = {loading: true};
-        this.$get("demand/list/" + this.projectId).then(response => {
+        this.$get("/issues/demand/list/" + this.projectId).then(response => {
           this.demandOptions = [];
           if (response.data.data && response.data.data.length > 0) {
             this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
@@ -300,6 +310,12 @@ export default {
         }
         pathArray.pop();
       });
+    },
+    filterDemand(node, keyword) {
+      if (keyword && node.text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1) {
+        return true;
+      }
+      return false;
     }
   }
 };

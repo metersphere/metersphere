@@ -1,6 +1,7 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.issues.IssuesRelevanceRequest;
@@ -26,7 +27,7 @@ public class TestCaseIssuesController {
     }
 
     @PostMapping("/relate")
-    @MsAuditLog(module = "track_test_case", type = OperLogConstants.ASSOCIATE_ISSUE, content = "#msClass.getLogDetails(#request)", msClass = TestCaseIssueService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.ASSOCIATE_ISSUE, content = "#msClass.getLogDetails(#request)", msClass = TestCaseIssueService.class)
     public void relate(@RequestBody IssuesRelevanceRequest request) {
         testCaseIssueService.relate(request);
     }

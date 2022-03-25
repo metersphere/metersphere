@@ -14,9 +14,9 @@ public class ApiDefinitionEnvController {
     @Resource
     private ApiDefinitionEnvService apiDefinitionEnvService;
 
-    @GetMapping("/get/{id}")
-    public ApiDefinitionEnv get(@PathVariable String id) {
-        return apiDefinitionEnvService.get(id);
+    @GetMapping("/get/{id}/{projectId}")
+    public ApiDefinitionEnv get(@PathVariable String id, @PathVariable String projectId) {
+        return apiDefinitionEnvService.get(id, projectId);
     }
 
     @PostMapping(value = "/create")

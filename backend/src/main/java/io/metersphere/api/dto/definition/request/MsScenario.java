@@ -8,14 +8,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.definition.request.controller.MsCriticalSectionController;
+import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
@@ -46,7 +48,7 @@ import java.util.stream.Collectors;
 public class MsScenario extends MsTestElement {
 
     private String type = "scenario";
-    private String clazzName = "io.metersphere.api.dto.definition.request.MsScenario";
+    private String clazzName = MsScenario.class.getCanonicalName();
 
     @JSONField(ordinal = 21)
     private String referenced;
@@ -72,6 +74,9 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 29)
     private boolean environmentEnable;
 
+    @JSONField(ordinal = 30)
+    private Boolean variableEnable;
+
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public MsScenario() {
@@ -93,41 +98,9 @@ public class MsScenario extends MsTestElement {
         }
         if (this.getReferenced() != null && this.getReferenced().equals(MsTestElementConstants.Deleted.name())) {
             return;
-        } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            try {
-                ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
-                if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
-                    JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-                    // 历史数据处理
-                    ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
-                    this.setName(scenario.getName());
-                    this.setProjectId(scenario.getProjectId());
-                    LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                    });
-                    // 场景变量
-                    if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                        LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
-                                new TypeReference<LinkedList<ScenarioVariable>>() {
-                                });
-                        this.setVariables(variables);
-                    }
-                    // 场景请求头
-                    if (StringUtils.isNotEmpty(element.getString("headers"))) {
-                        LinkedList<KeyValue> headers = mapper.readValue(element.getString("headers"),
-                                new TypeReference<LinkedList<KeyValue>>() {
-                                });
-                        this.setHeaders(headers);
-                    }
-                    this.setHashTree(sourceHashTree);
-                    hashTree = sourceHashTree;
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())
+                && !this.setRefScenario(hashTree)) {
+            return;
         }
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
@@ -156,29 +129,137 @@ public class MsScenario extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             config.setVariables(this.variables);
         }
-        // 场景变量和环境变量
-        Arguments arguments = arguments(config);
-        if (arguments != null) {
-            tree.add(ParameterConfig.valueSupposeMock(arguments));
-        }
-        ElementUtil.addCsvDataSet(tree, variables, config, "shareMode.group");
-        ElementUtil.addCounter(tree, variables, false);
-        ElementUtil.addRandom(tree, variables);
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            config.setHeaders(this.headers);
-        }
+        HashTree scenarioTree = tree;
+        // 取出自身场景环境
         ParameterConfig newConfig = new ParameterConfig();
         if (this.isEnvironmentEnable()) {
-            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+            this.setNewConfig(envConfig, newConfig);
+        }
+
+        if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
+            scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
+        }
+        // 环境变量
+        Arguments arguments = arguments(this.isEnvironmentEnable() ? newConfig : config);
+        if (arguments != null && (this.variableEnable == null || this.variableEnable)) {
+            Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
+            // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
+            scenarioTree.add(valueSupposeMock);
+            if (this.variableEnable != null && this.variableEnable) {
+                scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
+            }
+        }
+        if (this.variableEnable == null || this.variableEnable) {
+            ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
+            ElementUtil.addCounter(scenarioTree, variables, false);
+            ElementUtil.addRandom(scenarioTree, variables);
+            if (CollectionUtils.isNotEmpty(this.headers)) {
+                if (this.isEnvironmentEnable()) {
+                    newConfig.setHeaders(this.headers);
+                } else {
+                    config.setHeaders(this.headers);
+                }
+            }
+        }
+        // 添加全局前置
+        this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, true);
+
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (MsTestElement el : hashTree) {
+                if (el != null) {
+                    el.setParent(this);
+                    el.setMockEnvironment(this.isMockEnvironment());
+                    if (this.isEnvironmentEnable()) {
+                        newConfig.setScenarioId(config.getScenarioId());
+                        newConfig.setReportType(config.getReportType());
+                        el.toHashTree(scenarioTree, el.getHashTree(), newConfig);
+                    } else {
+                        el.toHashTree(scenarioTree, el.getHashTree(), config);
+                    }
+                }
+            }
+        }
+        // 添加全局后置
+        this.setGlobProcessor(this.isEnvironmentEnable() ? newConfig : config, scenarioTree, false);
+    }
+
+    private void setGlobProcessor(ParameterConfig config, HashTree scenarioTree, boolean isPre) {
+        if (config.getConfig() != null && (this.variableEnable == null || this.variableEnable)) {
+            config.getConfig().forEach((k, environmentConfig) -> {
+                if (environmentConfig != null) {
+                    MsJSR223Processor processor = isPre ? environmentConfig.getPreStepProcessor() : environmentConfig.getPostStepProcessor();
+                    if (processor != null && StringUtils.isNotEmpty(processor.getScript())) {
+                        processor.setType("JSR223Processor");
+                        processor.setClazzName(MsJSR223Processor.class.getCanonicalName());
+                        boolean isConnScenarioPre = false;
+                        if (environmentConfig.getGlobalScriptConfig() != null) {
+                            isConnScenarioPre = isPre ? environmentConfig.getGlobalScriptConfig().isConnScenarioPreScript() :
+                                    environmentConfig.getGlobalScriptConfig().isConnScenarioPostScript();
+                        }
+                        String name = isPre ? "PRE_PROCESSOR_ENV_" : "POST_PROCESSOR_ENV_";
+                        processor.setName(name + isConnScenarioPre);
+                        processor.toHashTree(scenarioTree, processor.getHashTree(), config);
+                    }
+                }
+            });
+        }
+    }
+
+    private boolean setRefScenario(List<MsTestElement> hashTree) {
+        try {
+            ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
+            if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
+                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                // 历史数据处理
+                ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
+                this.setName(scenario.getName());
+                this.setProjectId(scenario.getProjectId());
+                LinkedList<MsTestElement> sourceHashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                });
+                // 场景变量
+                if (StringUtils.isNotEmpty(element.getString("variables")) && (this.variableEnable == null || this.variableEnable)) {
+                    LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                            new TypeReference<LinkedList<ScenarioVariable>>() {
+                            });
+                    this.setVariables(variables);
+                }
+                // 场景请求头
+                if (StringUtils.isNotEmpty(element.getString("headers")) && (this.variableEnable == null || this.variableEnable)) {
+                    LinkedList<KeyValue> headers = mapper.readValue(element.getString("headers"),
+                            new TypeReference<LinkedList<KeyValue>>() {
+                            });
+                    this.setHeaders(headers);
+                }
+                this.setHashTree(sourceHashTree);
+                hashTree.clear();
+                hashTree.addAll(sourceHashTree);
+                return true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    private void setNewConfig(Map<String, EnvironmentConfig> envConfig, ParameterConfig newConfig) {
+        if (this.isEnvironmentEnable()) {
+            ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             EnvironmentGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(EnvironmentGroupProjectService.class);
-            ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
-            String environmentType = scenario.getEnvironmentType();
-            String environmentJson = scenario.getEnvironmentJson();
-            String environmentGroupId = scenario.getEnvironmentGroupId();
-            if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
-                this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
-            } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                this.environmentMap = JSON.parseObject(environmentJson, Map.class);
+            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(this.getId());
+            if (scenario != null) {
+                String environmentType = scenario.getEnvironmentType();
+                String environmentJson = scenario.getEnvironmentJson();
+                String environmentGroupId = scenario.getEnvironmentGroupId();
+                if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                    this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                    this.environmentMap = JSON.parseObject(environmentJson, Map.class);
+                }
+            } else {
+                this.setEnvironmentEnable(false);
             }
 
             if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
@@ -195,18 +276,6 @@ public class MsScenario extends MsTestElement {
                     }
                 });
                 newConfig.setConfig(envConfig);
-            }
-
-        }
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            for (MsTestElement el : hashTree) {
-                el.setParent(this);
-                el.setMockEnvironment(this.isMockEnvironment());
-                if (this.isEnvironmentEnable()) {
-                    el.toHashTree(tree, el.getHashTree(), newConfig);
-                } else {
-                    el.toHashTree(tree, el.getHashTree(), config);
-                }
             }
         }
     }
@@ -240,6 +309,7 @@ public class MsScenario extends MsTestElement {
         arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        // 场景变量
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             this.getVariables().stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")

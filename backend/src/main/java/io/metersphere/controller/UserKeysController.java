@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.UserKey;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.security.ApiKeyHandler;
@@ -35,14 +36,14 @@ public class UserKeysController {
     }
 
     @GetMapping("generate")
-    @MsAuditLog(module = "personal_information_apikeys", type = OperLogConstants.CREATE, title = "API KEY")
+    @MsAuditLog(module = OperLogModule.PERSONAL_INFORMATION_APIKEYS, type = OperLogConstants.CREATE, title = "API KEY")
     public void generateUserKey() {
         String userId = SessionUtils.getUser().getId();
         userKeyService.generateUserKey(userId);
     }
 
     @GetMapping("delete/{id}")
-    @MsAuditLog(module = "personal_information_apikeys", type = OperLogConstants.DELETE, title = "API KEY")
+    @MsAuditLog(module = OperLogModule.PERSONAL_INFORMATION_APIKEYS, type = OperLogConstants.DELETE, title = "API KEY")
     public void deleteUserKey(@PathVariable String id) {
         userKeyService.deleteUserKey(id);
     }
@@ -53,7 +54,7 @@ public class UserKeysController {
     }
 
     @GetMapping("disable/{id}")
-    @MsAuditLog(module = "personal_information_apikeys", type = OperLogConstants.UPDATE, title = "API KEY")
+    @MsAuditLog(module = OperLogModule.PERSONAL_INFORMATION_APIKEYS, type = OperLogConstants.UPDATE, title = "API KEY")
     public void disabledUserKey(@PathVariable String id) {
         userKeyService.disableUserKey(id);
     }

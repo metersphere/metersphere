@@ -76,6 +76,10 @@ public class EnvironmentGroupService {
         if (CollectionUtils.isEmpty(envGroupProject)) {
             return;
         }
+        List<String> distinctProjects = envGroupProject.stream().map(EnvironmentGroupProject::getProjectId).distinct().collect(Collectors.toList());
+        if (envGroupProject.size() != distinctProjects.size()) {
+            MSException.throwException(Translator.get("environment_group_has_duplicate_project"));
+        }
         List<Project> projects = projectMapper.selectByExample(new ProjectExample());
         List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
         List<ApiTestEnvironment> environments = apiTestEnvironmentMapper.selectByExample(new ApiTestEnvironmentExample());
@@ -283,12 +287,18 @@ public class EnvironmentGroupService {
         example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId());
         List<EnvironmentGroupDTO> result = new ArrayList<>();
         List<EnvironmentGroup> groups = environmentGroupMapper.selectByExample(example);
+        List<String> ids = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            List<Project> projects = projectMapper.selectByExample(new ProjectExample());
+            List<String> allProjectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+            ids = projectIds.stream().filter(allProjectIds::contains).collect(Collectors.toList());
+        }
         for (EnvironmentGroup group : groups) {
             Map<String, String> envMap = environmentGroupProjectService.getEnvMap(group.getId());
             EnvironmentGroupDTO dto = new EnvironmentGroupDTO();
             BeanUtils.copyProperties(group, dto);
-            if (CollectionUtils.isNotEmpty(projectIds)) {
-                boolean b = envMap.keySet().containsAll(projectIds);
+            if (CollectionUtils.isNotEmpty(ids)) {
+                boolean b = envMap.keySet().containsAll(ids);
                 if (BooleanUtils.isFalse(b)) {
                     dto.setDisabled(true);
                 }

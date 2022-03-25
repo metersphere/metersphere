@@ -1,5 +1,5 @@
 <template>
-  <el-form label-position="right" label-width="110px" size="small">
+  <el-form label-position="right" label-width="115px" size="small">
     <el-form-item :label="'Jira '+ $t('commons.information')">
       <ms-instructions-icon size="10" :content="$t('organization.integration.jira_prompt_information')"/>
     </el-form-item>

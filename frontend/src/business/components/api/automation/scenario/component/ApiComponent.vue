@@ -11,21 +11,33 @@
       :background-color="displayColor.backgroundColor"
       :is-max="isMax"
       :show-btn="showBtn"
-      :title="displayTitle">
+      :show-version="showVersion"
+      :title="displayTitle"
+      :if-from-variable-advance="ifFromVariableAdvance">
 
-      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')&&isSameSpace">
+      <template v-slot:afterTitle v-if="(request.refType==='API'|| request.refType==='CASE')">
         <span v-if="isShowNum" @click="clickResource(request)">{{ "（ ID: " + request.num + "）" }}</span>
         <span v-else>
-          <el-tooltip class="ms-num" effect="dark" :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')" placement="top">
+          <el-tooltip class="ms-num" effect="dark"
+                      :content="request.refType==='API'?$t('api_test.automation.scenario.api_none'):$t('api_test.automation.scenario.case_none')"
+                      placement="top">
             <i class="el-icon-warning"/>
           </el-tooltip>
         </span>
+        <span v-xpack v-if="request.versionEnable&&showVersion">{{ $t('project.version.name') }}: {{
+            request.versionName
+          }}</span>
       </template>
 
       <template v-slot:behindHeaderLeft>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">
+          {{ $t('api_test.automation.reference_deleted') }}
+        </el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{
+            $t('api_test.scenario.reference')
+          }}
+        </el-tag>
         <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
@@ -33,16 +45,24 @@
            <i class="el-icon-loading" style="font-size: 16px"/>
            {{ $t('commons.testing') }}
          </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <!--  场景调试步骤增加误报判断  -->
+        <span class="ms-step-debug-code" :class="'ms-req-error-report'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult && request.requestResult[0].status==='errorReportResult'">
+          {{ $t("error_report_library.option.name") }}
+        </span>
+        <span class="ms-step-debug-code"
+              @click="active"
+              :class="request.requestResult[0].success && reqSuccess?'ms-req-success':'ms-req-error'"
+              v-else-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success && reqSuccess ? 'success' : 'error' }}
         </span>
       </template>
-      <template v-slot:button>
+      <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-          <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+          <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;"
+                     class="stop-btn" circle>
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
             </div>
@@ -51,38 +71,50 @@
       </template>
       <!--请求内容-->
       <template v-slot:request>
-        <legend style="width: 100%">
-          <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-api-request-form
-            v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
-            :isShowEnable="true"
-            :referenced="true"
-            :headers="request.headers "
-            :is-read-only="isCompReadOnly"
-            :request="request"/>
-          <esb-definition
-            v-if="showXpackCompnent&&request.esbDataStruct!=null"
-            v-xpack
-            :request="request"
-            :showScript="false"
-            :is-read-only="isCompReadOnly" ref="esbDefinition"/>
-          <ms-tcp-format-parameters
-            v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
-            :is-read-only="isCompReadOnly"
-            :show-script="false" :request="request"/>
+        <legend style="width: 100%;">
+          <div v-if="!ifFromVariableAdvance">
+            <customize-req-info :is-customize-req="isCustomizeReq" :request="request" @setDomain="setDomain"/>
+            <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+            <ms-api-request-form
+              v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
+              :scenario-definition="scenarioDefinition"
+              @editScenarioAdvance="editScenarioAdvance"
+              :isShowEnable="true"
+              :response="response"
+              :referenced="true"
+              :headers="request.headers "
+              :is-read-only="isCompReadOnly"
+              :request="request"/>
+            <esb-definition
+              v-if="showXpackCompnent&&request.esbDataStruct!=null"
+              v-xpack
+              :request="request"
+              :response="response"
+              :showScript="true"
+              :show-pre-script="true"
+              :is-read-only="isCompReadOnly" ref="esbDefinition"/>
+            <ms-tcp-format-parameters
+              v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
+              :is-read-only="isCompReadOnly"
+              :response="response"
+              :show-pre-script="true"
+              :show-script="true" :request="request"/>
 
-          <ms-sql-basis-parameters
-            v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-            :request="request"
-            :is-read-only="isCompReadOnly"
-            :showScript="false"/>
+            <ms-sql-basis-parameters
+              v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
+              :request="request"
+              :response="response"
+              :is-read-only="isCompReadOnly"
+              :showScript="true"/>
 
-          <ms-dubbo-basis-parameters
-            v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
-            :request="request"
-            :is-read-only="isCompReadOnly"
-            :showScript="false"/>
+            <ms-dubbo-basis-parameters
+              v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+              :request="request"
+              :response="response"
+              :is-read-only="isCompReadOnly"
+              :showScript="true"/>
+
+          </div>
         </legend>
       </template>
       <!-- 执行结果内容 -->
@@ -102,8 +134,10 @@
             />
           </div>
           <div v-else>
-            <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+            <el-tabs v-model="request.activeName" closable class="ms-tabs"
+                     v-if="request.requestResult && request.requestResult.length > 1">
+              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i"
+                           style="margin-bottom: 5px">
                 <api-response-component
                   :currentProtocol="request.protocol"
                   :apiActive="true"
@@ -127,17 +161,7 @@
 </template>
 
 <script>
-import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-import MsTcpFormatParameters from "../../../definition/components/request/tcp/TcpFormatParameters";
-import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
-import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
-import MsRun from "../../../definition/components/Run";
-import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import {getUUID, getCurrentProjectID} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -162,19 +186,33 @@ export default {
       type: Boolean,
       default: true,
     },
+    showVersion: {
+      type: Boolean,
+      default: true,
+    },
     currentEnvironmentId: String,
     projectList: Array,
-    expandedNode: Array,
     envMap: Map,
     message: String,
     environmentGroupId: String,
-    environmentType: String
+    environmentType: String,
+    scenarioDefinition: Array,
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
-    TemplateComponent,
-    CustomizeReqInfo,
-    ApiBaseComponent, ApiResponseComponent,
-    MsSqlBasisParameters, MsTcpFormatParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+    TemplateComponent: () => import("@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent"),
+    CustomizeReqInfo: () => import("@/business/components/api/automation/scenario/common/CustomizeReqInfo"),
+    ApiBaseComponent: () => import("../common/ApiBaseComponent"),
+    ApiResponseComponent: () => import("./ApiResponseComponent"),
+    MsSqlBasisParameters: () => import("../../../definition/components/request/database/BasisParameters"),
+    MsTcpFormatParameters: () => import("../../../definition/components/request/tcp/TcpFormatParameters"),
+    MsDubboBasisParameters: () => import("../../../definition/components/request/dubbo/BasisParameters"),
+    MsApiRequestForm: () => import("../../../definition/components/request/http/ApiHttpRequestForm"),
+    MsRequestResultTail: () => import("../../../definition/components/response/RequestResultTail"),
+    MsRun: () => import("../../../definition/components/Run"),
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default
   },
@@ -192,7 +230,7 @@ export default {
       envType: this.environmentType,
       environmentMap: this.envMap,
       isShowNum: false,
-      isSameSpace: true,
+      response: {},
     }
   },
   created() {
@@ -208,14 +246,17 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
+
     if (this.request.num) {
       this.isShowNum = true;
+      this.request.root = true;
+      if (this.request.id && this.request.referenced === 'REF') {
+        this.request.disabled = true;
+      }
+    } else {
+      this.isShowNum = false;
     }
-    // 加载引用对象数据
-    this.getApiInfo();
     if (this.request.protocol === 'HTTP') {
-      this.setUrl(this.request.url);
-      this.setUrl(this.request.path);
       // 历史数据 auth 处理
       if (this.request.hashTree) {
         for (let index in this.request.hashTree) {
@@ -327,6 +368,7 @@ export default {
   },
   methods: {
     forStatus() {
+      this.reqSuccess = true;
       if (this.request.result && this.request.result.length > 0) {
         this.request.result.forEach(item => {
           item.requestResult.forEach(req => {
@@ -344,6 +386,9 @@ export default {
             }
           }
         })
+      }
+      if (this.request.requestResult && this.request.requestResult.length > 0) {
+        this.response = this.request.requestResult[0];
       }
     },
     initDataSource() {
@@ -437,18 +482,20 @@ export default {
             }
             if (response.data.num) {
               this.request.num = response.data.num;
-              this.getWorkspaceId(response.data.projectId);
             }
             this.request.id = response.data.id;
             this.request.disabled = true;
             this.request.root = true;
             this.request.projectId = response.data.projectId;
+            this.request.versionName = response.data.versionName;
+            this.request.versionEnable = response.data.versionEnable;
             let req = JSON.parse(response.data.request);
             if (req && this.request) {
               this.request.hashTree = hashTree;
               this.mergeHashTree(req.hashTree);
             }
             this.initDataSource();
+            this.forStatus();
             this.sort();
             this.reload();
           }
@@ -459,9 +506,10 @@ export default {
             if (response.data) {
               if (response.data.num) {
                 this.request.num = response.data.num;
-                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
+              this.request.versionName = response.data.versionName;
+              this.request.versionEnable = response.data.versionEnable;
             }
           })
         } else if (this.request.refType === 'API') {
@@ -469,9 +517,10 @@ export default {
             if (response.data) {
               if (response.data.num) {
                 this.request.num = response.data.num;
-                this.getWorkspaceId(response.data.projectId);
               }
               this.request.id = response.data.id;
+              this.request.versionName = response.data.versionName;
+              this.request.versionEnable = response.data.versionEnable;
             }
           })
         }
@@ -558,13 +607,6 @@ export default {
       if (this.node) {
         this.node.expanded = this.request.active;
       }
-      if (this.node.expanded && this.expandedNode && this.expandedNode.indexOf(this.request.resourceId) === -1) {
-        this.expandedNode.push(this.request.resourceId);
-      } else {
-        if (this.expandedNode && this.expandedNode.indexOf(this.request.resourceId) !== -1) {
-          this.expandedNode.splice(this.expandedNode.indexOf(this.request.resourceId), 1);
-        }
-      }
       this.apiActive = this.request.active;
       this.reload();
     },
@@ -583,6 +625,11 @@ export default {
           }
         }
       }
+      if (!this.request.enable) {
+        this.$warning(this.$t('api_test.automation.debug_message'));
+        return false;
+      }
+      this.request.debug = true;
       this.request.active = true;
       this.loading = true;
       this.runData = [];
@@ -613,6 +660,7 @@ export default {
       this.request.requestResult = [data];
       this.request.result = undefined;
       this.loading = false;
+      this.response = data;
       this.$emit('refReload', this.request, this.node);
     },
     setDomain() {
@@ -632,28 +680,20 @@ export default {
     },
 
     clickResource(resource) {
-      if (resource.refType && resource.refType === 'API') {
-        if (resource.protocol === 'dubbo://') {
-          resource.protocol = 'DUBBO'
-        }
-        let definitionData = this.$router.resolve({
-          name: 'ApiDefinition',
-          params: {redirectID: getUUID(), dataType: "api", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, type: resource.protocol}
-        });
-        window.open(definitionData.href, '_blank');
-      } else if (resource.refType && resource.refType === 'CASE') {
-        this.$get("/api/testcase/findById/" + resource.id, response => {
+      let workspaceId;
+      let isTurnSpace = true
+      if (resource.projectId !== getCurrentProjectID()) {
+        isTurnSpace = false;
+        this.$get("/project/get/" + resource.projectId, response => {
           if (response.data) {
-            response.data.sourceId = resource.resourceId;
-            response.data.type = resource.type;
-            response.data.refType = resource.refType;
-            this.clickCase(response.data)
-          } else {
-            this.$error("接口用例场景场景已经被删除");
+            workspaceId = response.data.workspaceId;
+            isTurnSpace = true;
+            this.gotoTurn(resource, workspaceId, isTurnSpace);
           }
         });
+      } else {
+        this.gotoTurn(resource, workspaceId, isTurnSpace);
       }
-
     },
     clickCase(resource) {
       let uri = getUrl(resource);
@@ -680,16 +720,43 @@ export default {
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
     },
-    getWorkspaceId(projectId) {
-      this.$get("/project/get/" + projectId, response => {
-        if (response.data) {
-          if (response.data.workspaceId === getCurrentWorkspaceId()) {
-            this.isShowNum = true;
-          } else {
-            this.isSameSpace = false;
-          }
+    editScenarioAdvance(data) {
+      this.$emit('editScenarioAdvance', data);
+    },
+    gotoTurn(resource, workspaceId, isTurnSpace) {
+      if (resource.refType && resource.refType === 'API') {
+        if (resource.protocol === 'dubbo://') {
+          resource.protocol = 'DUBBO'
         }
-      });
+        let definitionData = this.$router.resolve({
+          name: 'ApiDefinition',
+          params: {
+            redirectID: getUUID(),
+            dataType: "api",
+            dataSelectRange: 'edit:' + resource.id,
+            projectId: resource.projectId,
+            type: resource.protocol,
+            workspaceId: workspaceId,
+          }
+        });
+        if (isTurnSpace) {
+          window.open(definitionData.href, '_blank');
+        }
+      } else if (resource.refType && resource.refType === 'CASE') {
+        this.$get("/api/testcase/findById/" + resource.id, response => {
+          if (response.data) {
+            response.data.sourceId = resource.resourceId;
+            response.data.type = resource.type;
+            response.data.refType = resource.refType;
+            response.data.workspaceId = workspaceId;
+            if (isTurnSpace) {
+              this.clickCase(response.data)
+            }
+          } else {
+            this.$error("接口用例场景场景已经被删除");
+          }
+        });
+      }
     }
   }
 }
@@ -746,6 +813,10 @@ export default {
 
 .ms-req-error {
   color: #F56C6C;
+}
+
+.ms-req-error-report {
+  color: #F6972A;
 }
 
 .ms-test-running {

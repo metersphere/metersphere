@@ -7,9 +7,13 @@ import lombok.Data;
 public class TestCaseIssues implements Serializable {
     private String id;
 
-    private String testCaseId;
+    private String resourceId;
 
     private String issuesId;
+
+    private String refId;
+
+    private String refType;
 
     private static final long serialVersionUID = 1L;
 }

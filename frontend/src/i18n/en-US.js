@@ -1,6 +1,7 @@
 export default {
   commons: {
     project_permission: 'Please add the project permission first',
+    no_permission: 'No permission yet',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
     trash: "Trash",
@@ -25,6 +26,7 @@ export default {
     import_mode: 'Import mode',
     import_module: 'Import module',
     import_user: 'Import user',
+    module_deep_limit: 'The node depth does not exceed 8 layers!',
     export: 'Export',
     please_fill_content: 'Please fill content',
     please_fill_in_the_template: 'Please fill in the template',
@@ -32,6 +34,9 @@ export default {
     cut_back_new_version: 'Switch back to new version',
     comment: 'Comment',
     close_schedule: 'Close Schedule',
+    open_schedule: 'Start Schedule',
+    schedule_switch: 'Schedule Switch',
+    schedule_cron_title: 'Schedule Time Expression',
     review_complete: 'Review Completed',
     examples: 'examples',
     help_documentation: 'Help',
@@ -40,11 +45,14 @@ export default {
     delete_cancelled: 'Delete cancelled',
     option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
+    space:'Space',
+    current_workspace:"Current Workspace",
     organization: 'Organization',
     setting: 'Setting',
     project: 'Project',
     about_us: 'About Us',
     current_project: 'Current Project',
+    not_exist:"Not exist",
     name: 'Name',
     description: 'Description',
     annotation: 'Annotation',
@@ -161,6 +169,12 @@ export default {
     weeks_4: 'Thur',
     weeks_5: 'Fri',
     weeks_6: 'Sat',
+    date_unit: {
+      hour: "HOUR",
+      day: "Day",
+      month: "Month",
+      year: "Year"
+    },
     test_unit: 'tests',
     remove: 'Remove',
     next_level: "Next level",
@@ -214,19 +228,27 @@ export default {
     execute_history: "Execute history",
     debug_history: "Debug history",
     testing: "Testing",
-    enable_scene: "Enable scene environment",
+    enable_scene: "Original scene environment",
+    variable_scene: "Original scene variable",
+    reference_settings: "Reference settings",
     enable_scene_info: "Enable scene environment: the current step uses the original environment configuration of the scene to run",
     edit_info: "Edit details",
     environment: "Environment",
+    run: "Run",
+    delete_batch: "Delete Batch",
     run_success: "Run Success",
     run_completed: "Run Completed",
     run_fail: "Run Fail",
     run_warning: "Is running, please check later",
     run_stop: "The current task has been stopped and the report cannot be viewed",
+    report_delete: "Report deleted",
     follow_success: "Follow Success",
     cancel_follow_success: "Cancel Follow Success",
     generate_test_data: "Generate test data",
     type: "Type",
+    type_of_num: "Please enter an number type",
+    type_of_integer: "Please enter an integer type",
+    validity_period: 'Validity Period',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
       name: 'Dependencies',
@@ -306,7 +328,7 @@ export default {
     },
     monitor: "Monitor",
     all_label: {
-      case: "all",
+      case: "All Case",
       review: "all"
     },
     image: 'Image',
@@ -391,9 +413,11 @@ export default {
         end_time_cannot_over_than_start_time: "End time cannot before than start time",
       },
     },
+    no_operation_permission: "No operation permission!",
     enterprise_edition: "ENTERPRISE",
     open_source_version: "OPEN-SOURCE",
     function_planning: "The function is being planned...",
+    enterprise_edition_tips: "This is an enterprise edition feature, <a href='https://metersphere.io/enterprise.html' target='_blank'>please consult for details</a>",
     system_data: "System Data",
     system_user: "User",
     system_workspace: "Workspace",
@@ -413,7 +437,11 @@ export default {
     version: 'Version',
     is_new: "Is new",
     form_config: "Form config",
-    form_content: "Form content"
+    form_content: "Form content",
+    sync_other_info: "Copy other config",
+    delete_current_version: 'Current version',
+    delete_all_version: 'All versions',
+    change_password_tips: 'Your password is the initial system password, please change it as soon as possible'
   },
   login: {
     normal_Login: "Normal Login",
@@ -491,6 +519,7 @@ export default {
     issue_status: 'Status',
     issue_severity: 'Severity',
     create: 'Create Field',
+    update: 'Update Field',
     name: 'Custom Field',
     system_field: 'System Field',
     scene: 'Use Scene',
@@ -753,6 +782,32 @@ export default {
     test_case_custom_id_info: 'The Case ID defaults to the system self incrementing ID',
     scenario_custom_id: 'Scenario Custom ID',
     scenario_custom_id_info: 'The scenario use case ID defaults to the system self-incremented ID',
+    version: {
+      name: 'Version',
+      read: 'Search',
+      create_version: 'Create version',
+      edit_version: 'Edit version',
+      version_closed: 'Closed',
+      version_open: 'Open',
+      publish_time: 'Publish time',
+      start_time: 'Start time',
+      end_time: 'End time',
+      delete_version: 'Delete version',
+      please_input_version: 'Please input version',
+      tips: 'Note: The closed version will not appear in the system field <strong>Version</strong> drop-down box option',
+      enable: 'Enable version management',
+      latest: 'Latest',
+      set_latest: 'Latest',
+      delete_tip: 'This version has associated system resources, this operation will delete the associated resources',
+      checkout: 'Checkout',
+      compare: 'Compare',
+      change_latest_tip: 'This operation will modify the default display of the interface, scene, test case and other list pages, which may take some time. Please wait! '
+    },
+    timing_clean_plan_report: "Regularly clean up test report",
+    timing_clean_api_report: "Regularly clean up api report",
+    timing_clean_load_report: "Regularly clean up performance report",
+    keep_recent: "Keep recent",
+    please_select_cleaning_time: "please select cleaning time！"
   },
   member: {
     create: 'Create',
@@ -821,7 +876,9 @@ export default {
     admin_not_allow_edit: 'admin not allow edit!',
     admin_not_allow_delete: 'admin not allow delete!',
     select_type: 'please select type',
+    view_permission: 'view permission',
     system: 'System',
+    personal: 'Personal Information',
     organization: 'Organization',
     workspace: 'Workspace',
     project: 'Project',
@@ -852,8 +909,10 @@ export default {
   report: {
     id: 'Report ID',
     api_test_report: 'Api Test Report',
+    scenario_test_report: 'Scenario Test Report',
     load_test_report: 'Load Test Report',
     test_plan_report: 'Test Plan Report',
+    report_sharing_link: 'Report Sharing Link',
     recent: 'My recent Report',
     search_by_name: 'Search by Name',
     batch_add_monitor_tips: 'Format: name, IP, Port, description<br/>such as: item 1, 192.168.1.52, 9100, test',
@@ -895,12 +954,13 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
-    response_time: 'Response Time(s)',
+    response_time: 'Response(s)',
     max_users: 'VUs',
     file_id: 'Report File ID',
     avg_response_time: 'Average Response Time',
     tps: 'Transactions Per Second',
-    plan_share_url: 'Whether the link jump is logged in'
+    plan_share_url: 'Whether the link jump is logged in',
+    rename_report: 'Rename report'
   },
   load_test: {
     id: 'Load Test ID',
@@ -952,6 +1012,7 @@ export default {
     ramp_up_time_within: 'In',
     ramp_up_time_minutes: 'seconds, separate',
     ramp_up_time_seconds: 'seconds add VUs',
+    ramp_up_tips: 'The RampUp is too large, the chart rendering will not be displayed, this does not affect the test execution, please refer to the actual results',
     iterate_num: 'Iterations',
     by_iteration: 'By iterations',
     by_duration: 'By duration',
@@ -993,6 +1054,7 @@ export default {
     delete_threadgroup_confirm: 'Confirm delete scenario',
     scenario_list: 'Scenario List',
     scenario_name: 'Scenario Name',
+    report_type: 'Report type',
     upload_jmx: 'Upload JMX',
     exist_jmx: 'Existed Files',
     other_resource: 'Resource Files',
@@ -1011,6 +1073,7 @@ export default {
     stopthread: 'Stop thread',
     stoptest: 'Stop test',
     stoptestnow: 'Stop the test immediately',
+    batch_delete_confirm: "Confirm batch delete performance test",
     report: {
       diff: "Compare",
       set_default: 'Set to Default',
@@ -1052,6 +1115,7 @@ export default {
     copied: "copied",
     key: "Key",
     value: "Value",
+    unplanned_case: "Unplanned Case",
     create_performance_test: "Create Performance Test",
     create_performance_test_batch: "Batch Create Performance Test",
     batch_copy: "Batch Copy",
@@ -1093,6 +1157,16 @@ export default {
       delete_mock_expect: "Confirm to delete this expect info ?",
       rule: {
         input_code: "Please input HTTP Code"
+      },
+      range_type: {
+        value_eq: "value=",
+        value_not_eq: "value!=",
+        value_contain: "include=",
+        length_eq: "length=",
+        length_not_eq: "length!=",
+        length_large_than: "length>",
+        length_shot_than: "length<",
+        regular_match: "Regular match",
       }
     },
     definition: {
@@ -1169,6 +1243,8 @@ export default {
         delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
+        pre_operation: "Pre operation",
+        post_operation: "Post operation",
         response_header: "Response header",
         response_body: "Response body",
         response_template: "Response template",
@@ -1183,6 +1259,7 @@ export default {
         all_post_script: "Postscript",
         pre_sql: "JDBC Preprocessor",
         pre_return: "pre return",
+        extract_params: "extract params（variable / expression）",
         post_sql: "JDBC Postprocessor",
         extract_param: "Extract parameters",
         add_module: "Add module",
@@ -1211,6 +1288,8 @@ export default {
         esb_title: "You can use ${name} or ${parent name.child name} to generate xml struct in report template",
       },
       document: {
+        open: "Open",
+        close: "Close",
         order: "Order",
         create_time_sort: "From back to front by create time",
         edit_time_positive_sequence: "From front to back by update time",
@@ -1243,8 +1322,11 @@ export default {
       case_reduction_error_text: "Please restore first"
     },
     automation: {
-      open_expansion: "One-click expansion",
-      close_expansion: "One-click storage",
+      open_expansion: "Batch Folding Steps",
+      close_expansion: "Bulk Expand Steps",
+      bulk_activation_steps: "Bulk activation steps",
+      batch_disable_steps: "Batch disable steps",
+      all: "all",
       constant: "constant",
       counter: "counter",
       random: "random",
@@ -1271,6 +1353,8 @@ export default {
       scenario_test: "Scenario test",
       scenario_list: "Scenario List",
       add_scenario: "Add scenario",
+      all_scenario: "All scenario",
+      unplanned_scenario: "Unplanned Scenario",
       scenario_name: "Scenario Name",
       case_level: "Case Level",
       tag: "Tag",
@@ -1315,6 +1399,7 @@ export default {
       loop_input_val: "Variable prefix",
       loop_message: "There is more than one request in the current cycle and cannot be closed",
       env_message: "Please select the operating environment for the project to which this step belongs in the environment configuration",
+      debug_message: "The current step is disabled and cannot be debugged",
       request_total: "request",
       request_success: "success",
       request_error: "error",
@@ -1334,6 +1419,9 @@ export default {
       config_environment: "Config Environment",
       copy_environment: "copy environment",
       environment: "Environment",
+      environment_type: "Environment Type",
+      environment_json: "Environment Config",
+      environment_group_id: "Environment Group ID",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
       common_config: "Common Config",
@@ -1344,7 +1432,9 @@ export default {
       request_timeout: "Request Timeout",
       response_timeout: "Response Timeout",
       repeat_warning: "The domain name whose activation condition is'None' already exists!",
-      copy_warning: "Domain names whose enabling conditions are'none' do not support copying!"
+      copy_warning: "Domain names whose enabling conditions are'none' do not support copying!",
+      path_warning: "The path cannot be empty",
+      module_warning: "The path cannot be empty"
     },
     scenario: {
       id: "Scenario ID",
@@ -1381,6 +1471,9 @@ export default {
       scenario_warning: "No other steps can be added to the referenced scenario steps and sub-steps",
       scenario_step_warning: "No other steps can be added under the current step",
       scenario_error: "Cannot reference or copy itself！",
+      integrated: "Integrated",
+      independent: "Independent",
+      step_info: "Add a scene step on the right",
     },
     request: {
       debug: "Debug",
@@ -1413,6 +1506,7 @@ export default {
       parameters_advance_add_func: "Add Function",
       parameters_advance_add_func_limit: "Support up to 5 functions",
       parameters_advance_add_func_error: "Please select function first",
+      parameters_advance_add_mock_error: "Please select mock data first",
       parameters_advance_add_param_error: "Please enter function parameters",
       parameters_desc: "Parameters will be appended to the URL e.g. https://fit2cloud.com?Name=Value&Name2=Value2",
       headers: "Headers",
@@ -1526,7 +1620,8 @@ export default {
         expected_results: 'Expected results',
         check: 'Check the elements in the array',
         add_check: 'Add check',
-        add_subfield: 'Add subfield'
+        add_subfield: 'Add subfield',
+        description: "Add assertion rules to check whether the response result is as expected",
       },
       extract: {
         label: "Extract from response",
@@ -1638,6 +1733,10 @@ export default {
       cover_tip_1: "1. Add if the interface path does not exist",
       cover_tip_2: "2. The interface path is consistent with the original interface, if the content is inconsistent, the original interface will be overwritten",
       cover_tip_3: "3. If the interface path and content are consistent with the original interface, no change will be made",
+      import_version: 'Import version',
+      data_update_version: 'Api update version',
+      data_new_version: 'Api creation version',
+      latest_version: 'Latest version',
     },
     home_page: {
       unit_of_measurement: "",
@@ -1683,6 +1782,7 @@ export default {
           success: "Success",
           interface_coverage: "Interface coverage",
         },
+        single_case: "Single Case",
       },
       api_details_card: {
         title: "API",
@@ -1762,6 +1862,7 @@ export default {
         swagger_schedule: "swagger",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
+          open_title: "Do you want to start this scheduled task?？",
         }
       }
     },
@@ -1782,6 +1883,14 @@ export default {
       before_the_pre_script_step: "Before pre-script in step",
       after_the_post_script_step: "After the script is placed in the step",
       before_the_post_script_step: "Post-in-step before script",
+      global_script_config: "Global script config",
+
+      pre_script_filter_request_type: "Pre script filter request type",
+      post_script_filter_request_type: "Post script filter request type",
+      pre_script_exec_order: "Pre script exec order",
+      post_script_exec_order: "Post script exec order",
+      pre_link_scenario_result: "Pre link scenario result",
+      post_link_scenario_result: "Post link scenario result",
     }
   },
   api_report: {
@@ -1882,6 +1991,10 @@ export default {
       minder_issue_delete_tip: "Successfully cancel the defect association",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
+      minder_tem_node_tip: "Cannot create case {0} under the temporary node",
+      minder_is_module_tip: "{0} is a module and cannot be modified as a use ca",
+      minder_not_module_tip: "Module {0}, cannot be created under a non-module node",
+      minder_all_module_tip: 'All case are virtual modules. Please create use cases in other modules',
       input_test_case: 'Please enter the associated case name',
       test_name: 'TestName',
       other: '--Other--',
@@ -1946,8 +2059,8 @@ export default {
       unlink: 'Unlink',
       project_name: "Project",
       status: 'Review Status',
-      status_prepare: 'Not started',
-      status_running: 'In progress',
+      status_prepare: 'Prepare',
+      status_running: 'Underway',
       status_finished: 'Completed',
       status_pass: 'Pass',
       status_un_pass: 'UnPass',
@@ -1986,10 +2099,11 @@ export default {
         import_update: "Import Update",
         import_tip1: "The ID is required when the \"Test Case Custom ID\" switch is turned on in the project settings",
         import_tip2: "ID is required when importing and updating",
+        import_file_tips: "Please upload the file first!",
       },
       export: {
         export: "Export cases",
-        export_tip: "Switch to Interface List and check Use Case Export"
+        export_tip: "Switch to Case List and check Use Case Export"
       },
       case_desc: "Case Desc",
       passing_rate: 'Case Pass Rate'
@@ -2041,6 +2155,15 @@ export default {
       test_plan_api_case_count: "Api case count",
       test_plan_api_scenario_count: "Scenario case count",
       test_plan_load_case_count: "Load case count",
+      test_plan_component_case_count: "Component Case Count",
+      data_name: "Data Name",
+      test_plan_batch_switch: "batch on/off scheduled tasks",
+      batch_update_schedule_enable: 'update the scheduled task status of {0} test plans',
+      batch_update_schedule_enable_alert: 'note: only test plans with scheduled tasks can be updated',
+      next_run_time: 'next running time',
+      schedule_enabled: 'enabled',
+      check_schedule_enabled: 'the data you checked has detected {0} scheduled tasks that can be modified',
+      no_check_schedule_enabled: 'the data you checked does not detect a scheduled task',
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",
@@ -2051,6 +2174,7 @@ export default {
         exec: "Executing....",
         error: "Use case execution error, please debug this use case separately!",
         report_not_found: "Report does not exist",
+        content_empty: "Content empty",
       }
     },
     review: {
@@ -2098,6 +2222,7 @@ export default {
       execute_result: "Result",
       cannot_edit: "Cannot edit this comment！",
       cannot_delete: "Cannot delete this comment！",
+      submit_description: "please submit comments first！",
     },
     module: {
       id: 'Module ID',
@@ -2108,6 +2233,7 @@ export default {
       name: "Name",
       delete_confirm: "Confirm delete module:",
       delete_all_resource: "and all submodules and test cases under the module",
+      delete_batch_confirm: "Steps to confirm batch deletion of selected scenarios？",
       module: "Module",
       title: "Title",
       describe: "Describe",
@@ -2149,6 +2275,7 @@ export default {
       not_pass: "UnPass",
       failure: "Failure",
       blocking: "Blocking",
+      stop: "Stop",
       skip: "Skip",
       actual_result: "Actual result",
       step_result: "Step result",
@@ -2191,11 +2318,16 @@ export default {
       test_detail: "Test detail",
       failure_case: "Failure case",
       export_report: "Export Report",
+      share_report: "Share Report",
       no_case_relevance: "No related use cases",
       automatically_update_status: "Auto update status",
       allow_associated_repetitive_cases: "Repetitive Case",
       automatically_update_status_tip: "When the interface or performance use case associated with the functional use case is executed in the test plan, the status of the functional use case is automatically updated",
-      allow_associated_repetitive_cases_tip: "Whether to allow the same use case to be associated multiple times in the same test plan"
+      allow_associated_repetitive_cases_tip: "Whether to allow the same use case to be associated multiple times in the same test plan",
+      performance_case_count: "Performance Case Count",
+      running: "Running",
+      please_choose_test_case: "please select a test case！",
+      execute_tip: "The step execution result contains a Failed result, and the use case cannot be marked as Passed!"
     },
     issue: {
       issue: "Issue",
@@ -2219,6 +2351,7 @@ export default {
       delete: "Delete",
       title_description_required: "Title and description are required",
       close_success: "Closed successfully",
+      delete_warning: "The cancellation will affect the statistics related to the test plan. Confirm whether to confirm or not",
       preview: "Preview",
       status_new: 'new',
       status_resolved: 'resolved',
@@ -2233,11 +2366,14 @@ export default {
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
       zentao_bug_assigned: "Zentao handler",
-      third_party_integrated: "Third-party Platform Integrated",
+      third_party_integrated: "Third-party Platform",
       use_third_party: "Enable Jira Issue Template",
       update_third_party_bugs: "Update the defects of third-party platforms",
       sync_bugs: "Synchronization Issue",
       save_before_open_comment: "Please save issue before comment",
+      delete_tip: "Confirm Delete Issue：",
+      check_id_exist: "Check",
+      save_project_first: "Please save the project first"
     },
     report: {
       name: "Test Plan Report",
@@ -2247,6 +2383,8 @@ export default {
         creator: "Creator",
         create_time: "Create Time",
         trigger_mode: "Trigger Mode",
+        run_time: "run time(s)",
+        pass_rate: "pass rate",
         status: "Status",
         operation: "Operation",
       },
@@ -2276,7 +2414,8 @@ export default {
       all_case: "All Case",
     },
     reporter: 'Reporter',
-    lastmodify: 'Last Modify'
+    lastmodify: 'Last Modify',
+    sync_to_new_version: "Copy to latest version",
   },
   test_resource_pool: {
     id: 'Resource Pool ID',
@@ -2287,6 +2426,7 @@ export default {
     update_resource_pool: 'Create resource pool',
     select_pool_type: 'Select resource type',
     max_threads: 'Maximum concurrent number',
+    sync_jar: 'Timing synchronization jar',
     input_pool_name: 'Please enter the resource pool name',
     pool_name_valid: 'Resource pool name does not support special characters',
     cannot_remove_all_node: 'Cannot delete all independent nodes',
@@ -2487,7 +2627,8 @@ export default {
     timeout: "timeout",
   },
   variables: {
-    cvs_info: "Only CSV files can be uploaded",
+    ƒ: "Only CSV files can be uploaded",
+    csv_message: "500 items are displayed by default, and the complete content can be downloaded and viewed.",
     end: "end",
     start: "start",
     increment: "increment",
@@ -2534,7 +2675,45 @@ export default {
     before_change: "Before change",
     after_change: "After change",
     share: "Share",
-    change_history: "Change history",
+    api_definition: "Api definition",
+    api_definition_case: "Api definition case",
+    api_automation: "Api automation",
+    api_automation_report: "Test Report",
+    track_test_case: "Test case",
+    track_test_case_review: "Case review",
+    track_test_plan: "Test plan",
+    track_bug: "Defect management",
+    track_report: "Report",
+    performance_test: "Performance test",
+    performance_test_report: "Performance test report",
+    system_user: "System user",
+    system_organization: "System organization",
+    system_workspace: "workspace",
+    system_test_resource: "System test resource",
+    system_parameter_setting: "System parameter setting",
+    system_quota_management: "System Quota management",
+    system_authorization_management: "System authorization management",
+    organization_member: "Organization member",
+    organization_workspace: "Organization workspace",
+    project_project_member: "Project member",
+    workspace_service_integration: "Workspace service integration",
+    workspace_message_settings: "Workspace message settings",
+    workspace_member: "Workspace member",
+    workspace_template_settings_field: "Workspace template settings field",
+    workspace_template_settings: "Workspace template settings",
+    workspace_template_settings_case: "Workspace template settings case",
+    workspace_template_settings_issue: "Workspace template settings issue",
+    project_project_manager: "Project project manager",
+    project_project_jar: "Project project jar",
+    project_environment_setting: "Project environment setting",
+    project_file_management: "Project file management",
+    personal_information_personal_settings: "Personal information personal settings",
+    personal_information_apikeys: "Personal information API Keys",
+    auth_title: "Auth",
+    group_permission: "Group",
+    error_report_library: "Error report",
+    enterprise_test_report: "Enterprise report",
+    change_history: "Change log",
     change_content: "Change content"
   },
   plugin: {
@@ -2589,6 +2768,13 @@ export default {
     api_case: 'API Case',
   },
   permission: {
+    project_error_report_library: {
+      name: "Error report library",
+      read: "READ",
+      create: "CREATE",
+      edit: "EDIT",
+      delete: "DELETE",
+    },
     system_user: {
       name: "User",
       read: "READ",
@@ -2651,12 +2837,12 @@ export default {
       read: "READ",
       edit: "EDIT",
     },
-    workspace_message: {
+    project_message: {
       name: "Message",
       read: "READ",
       edit: "EDIT",
     },
-    workspace_template: {
+    project_template: {
       name: "Template",
       read: "READ",
       case_template: "CASE TEMPLATE",
@@ -2874,6 +3060,13 @@ export default {
       delete: "DELETE",
       read: "READ",
     },
+    personal_information: {
+      name: 'Setting',
+      personal_setting: 'Personal Setting',
+      api_keys: 'API Keys',
+      edit_password: "EDIT PASSWORD",
+      third_account: 'Third Account',
+    },
     other: {
       track: "Track",
       api: "API",
@@ -2881,6 +3074,27 @@ export default {
       project: "Project",
       report: "Report Statistics"
     }
+  },
+  env_options: {
+    all_assertions: "Assertions"
+  },
+  error_report_library: {
+    name: "Error report",
+    assertion: "Error code assertion",
+    tips:"Tips: Use error report in \"Project Settings - Project environment-Assertions\"",
+    use_error_report: "Use error code",
+    use_desc: "In case of conflict between error code and error assertions, it is treated as error code",
+    option: {
+      name: "Err code",
+      error_code: "Name",
+      match_type: "Match",
+      status: "Status",
+      is_open: "Is open",
+      create: "Create",
+      match_rule: "Rule",
+    },
+    match_type: {
+      text: "TXT"
+    }
   }
-
 };

@@ -24,6 +24,7 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private String maintainerName;
     private Boolean isCustomNum;
     private int issuesCount;
+    private String versionName;
 
     private List<TestCaseTestDTO> list;
     private List<IssuesDao> issueList;

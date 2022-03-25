@@ -2,10 +2,10 @@
   <div>
     <el-row type="flex">
       <el-col :span="codeSpan" class="script-content">
-        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
+        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223Processor.scriptLanguage]"
                       :read-only="isReadOnly"
                       height="90%"
-                      :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
+                      :data.sync="jsr223Processor.script" theme="eclipse" :modes="['java','python']"
                       ref="codeEdit"/>
       </el-col>
       <div style="width: 14px;margin-right: 5px;">
@@ -16,10 +16,12 @@
         </div>
       </div>
       <el-col :span="menuSpan" style="width: 200px" class="script-index">
-        <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
+        <ms-dropdown :default-command.sync="jsr223Processor.scriptLanguage" :commands="languages"
+                     style="margin-bottom: 5px;margin-left: 15px;"
                      @command="languageChange"/>
-        <mock-script-nav-menu ref="scriptNavMenu" style="width: 90%" :language="jsr223ProcessorData.scriptLanguage" :menus="baseCodeTemplates"
-                         @handleCode="handleCodeTemplate"/>
+        <mock-script-nav-menu ref="scriptNavMenu" style="width: 90%" :language="jsr223Processor.scriptLanguage"
+                              :menus="baseCodeTemplates"
+                              @handleCode="handleCodeTemplate"/>
       </el-col>
     </el-row>
   </div>
@@ -32,66 +34,14 @@ import MsDropdown from "@/business/components/common/components/MsDropdown";
 import CustomFunctionRelate from "@/business/components/project/menu/function/CustomFunctionRelate";
 import ApiFuncRelevance from "@/business/components/project/menu/function/ApiFuncRelevance";
 import MockScriptNavMenu from "@/business/components/api/definition/components/mock/Components/MockScriptNavMenu";
+import i18n from "@/i18n/i18n";
 
 export default {
   name: "MockApiScriptEditor",
   components: {MsDropdown, MsCodeEdit, CustomFunctionRelate, ApiFuncRelevance, MockScriptNavMenu},
   data() {
     return {
-      jsr223ProcessorData: {},
       baseCodeTemplates: [],
-      httpCodeTemplates: [
-        {
-          title: "API"+this.$t('api_test.definition.document.request_info'),
-          children: [
-            {
-              title: this.$t('api_test.request.address'),
-              value: 'var returnMsg = requestParams.get("address");\nreturn returnMsg;',
-            },
-            {
-              title: "Header "+this.$t('api_test.definition.document.request_param'),
-              value: 'var returnMsg = requestParams.get("header.${param}");\nreturn returnMsg;',
-            },
-            {
-              title: this.$t('api_test.request.body')+this.$t('api_test.variable'),
-              value: 'var returnMsg = requestParams.get("body.${param}");\nreturn returnMsg;\n' +
-                "\n"+
-                '//如果对象是多层JSON，需要引入fastjson协助解析:\n' +
-                '// 以"{\"name\":\"user\",\"rows\":[{\"type\":1}]}" 为demo,取rows第1个的type数据:\n' +
-                'import com.alibaba.fastjson.JSON;\n'+
-                'import com.alibaba.fastjson.JSONArray;\n'+
-                'import com.alibaba.fastjson.JSONObject;\n'+
-                '\n'+
-                'var jsonParam = requestParams.get("body.json");\n' +
-                'JSONObject jsonObject = JSONObject.parseObject(jsonParam);\n' +
-                'var returnMsg = jsonObject.getJSONArray("rows").getJSONObject(0).getString("type");\n' +
-                'return returnMsg;\n',
-            },
-            {
-              title: this.$t('api_test.request.body')+this.$t('api_test.variable')+" (Raw)",
-              value: 'var returnMsg = requestParams.get("bodyRaw");\nreturn returnMsg;',
-            },
-            {
-              title: "Query "+this.$t('api_test.definition.document.request_param'),
-              value: 'var returnMsg = requestParams.get("query.${param}");\nreturn returnMsg;',
-            },
-            {
-              title: "Rest "+this.$t('api_test.definition.document.request_param'),
-              value: 'var returnMsg = requestParams.get("rest.${param}");\nreturn returnMsg;',
-            },
-
-          ]
-        },
-        {
-          title: this.$t('project.code_segment.code_segment'),
-          children: [
-            {
-              title: this.$t('project.code_segment.insert_segment'),
-              command: "custom_function",
-            }
-          ]
-        },
-      ],
       tcpCodeTemplates: [
         {
           title: this.$t('project.code_segment.code_segment'),
@@ -105,8 +55,7 @@ export default {
       ],
       isCodeEditAlive: true,
       languages: [
-        'beanshell'
-        // , "python",  "nashornScript", "rhinoScript"
+        'beanshell', "python"
       ],
       codeEditModeMap: {
         beanshell: 'java',
@@ -121,11 +70,75 @@ export default {
     }
   },
   created() {
-    this.jsr223ProcessorData = this.jsr223Processor;
-    if(this.showApi){
+    if(this.jsr223Processor){
+      if (!this.jsr223Processor.scriptLanguage) {
+        this.jsr223Processor.scriptLanguage = "beanshell";
+      }
+    }
+    if (this.showApi) {
       this.baseCodeTemplates = this.httpCodeTemplates;
-    }else {
+    } else {
       this.baseCodeTemplates = this.tcpCodeTemplates;
+    }
+  },
+
+  computed: {
+    httpCodeTemplates() {
+      let returnData = [
+        {
+          title: "API" + this.$t('api_test.definition.document.request_info'),
+          children: [
+            {
+              title: this.$t('api_test.request.address'),
+              value: this.getScript("address"),
+            },
+            {
+              title: "Header " + this.$t('api_test.definition.document.request_param'),
+              value: this.getScript("header"),
+            },
+            {
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable'),
+              value: this.getScript("body"),
+            },
+            {
+              title: this.$t('api_test.request.body') + this.$t('api_test.variable') + " (Raw)",
+              value: this.getScript("bodyRaw"),
+            },
+            {
+              title: "Query " + this.$t('api_test.definition.document.request_param'),
+              value: this.getScript("query"),
+            },
+            {
+              title: "Rest " + this.$t('api_test.definition.document.request_param'),
+              value: this.getScript("rest"),
+            },
+
+          ]
+        },
+        {
+          title: i18n.t('project.code_segment.custom_value'),
+          children: [
+            {
+              title: i18n.t('api_test.request.processor.code_template_get_variable'),
+              value: 'vars.get("variable_name");',
+            },
+            {
+              title: i18n.t('api_test.request.processor.code_template_set_variable'),
+              value: 'vars.put("variable_name", "variable_value");',
+            },
+          ]
+        },
+        {
+          title: this.$t('project.code_segment.code_segment'),
+          children: [
+            {
+              title: this.$t('project.code_segment.insert_segment'),
+              command: "custom_function",
+            }
+          ]
+        },
+      ];
+      return returnData;
     }
   },
   props: {
@@ -137,26 +150,98 @@ export default {
     jsr223Processor: {
       type: Object,
     },
-    showApi:{
-      type:Boolean,
-      default:true,
+    showApi: {
+      type: Boolean,
+      default: true,
     },
     node: {},
   },
   watch: {
     jsr223Processor() {
       this.reload();
+    },
+    'jsr223Processor.scriptLanguage'() {
+      if (this.showApi) {
+        this.baseCodeTemplates = this.httpCodeTemplates;
+      } else {
+        this.baseCodeTemplates = this.tcpCodeTemplates;
+      }
     }
   }
   ,
   methods: {
-    addTemplate(template) {
-      if (!this.jsr223ProcessorData.script) {
-        this.jsr223ProcessorData.script = "";
+    getScript(type) {
+      let returnScript = "";
+      let laguanges = "beanshell";
+      if (this.jsr223Processor) {
+        laguanges = this.jsr223Processor.scriptLanguage
       }
-      this.jsr223ProcessorData.script += template.value;
-      if (this.jsr223ProcessorData.scriptLanguage === 'beanshell') {
-        this.jsr223ProcessorData.script += ';';
+      switch (type) {
+        case "address":
+          if (laguanges === "python") {
+            returnScript = 'param=vars["address"]';
+          } else {
+            returnScript = 'var param=vars.get("address")';
+          }
+          break;
+        case "header":
+          if (laguanges === "python") {
+            returnScript = 'param=vars["header.${param}"]';
+          } else {
+            returnScript = 'var param=vars.get("header.${param}")';
+          }
+          break;
+        case "body":
+          if (laguanges === "python") {
+            returnScript = 'param=vars["body.${param}"]';
+          } else {
+            returnScript = 'var param=vars.get("body.${param}");\n' +
+              '//如果对象是多层JSON，需要引入fastjson协助解析:\n' +
+              '// 以"{\"name\":\"user\",\"rows\":[{\"type\":1}]}" 为demo,取rows第1个的type数据:\n' +
+              'import com.alibaba.fastjson.JSON;\n' +
+              'import com.alibaba.fastjson.JSONArray;\n' +
+              'import com.alibaba.fastjson.JSONObject;\n' +
+              '\n' +
+              'var jsonParam = vars.get("body.json");\n' +
+              'JSONObject jsonObject = JSONObject.parseObject(jsonParam);\n' +
+              'var value = jsonObject.getJSONArray("rows").getJSONObject(0).getString("type");\n' +
+              'vars.put("key1","value");\n';
+          }
+          break;
+        case "bodyRaw":
+          if (laguanges === "python") {
+            returnScript = 'param=vars["bodyRaw"]';
+          } else {
+            returnScript = 'var param=vars.get("bodyRaw")';
+          }
+          break;
+        case "query":
+          if (laguanges === "python") {
+            returnScript = 'param=vars["query.${param}"]';
+          } else {
+            returnScript = 'var param=vars.get("query.${param}")';
+          }
+          break;
+        case "rest":
+          if (laguanges === "python") {
+            returnScript = 'param=vars["rest.${param}"]';
+          } else {
+            returnScript = 'var param=vars.get("rest.${param}")';
+          }
+          break;
+        default:
+          break;
+      }
+
+      return returnScript;
+    },
+    addTemplate(template) {
+      if (!this.jsr223Processor.script) {
+        this.jsr223Processor.script = "";
+      }
+      this.jsr223Processor.script += template.value;
+      if (this.jsr223Processor.scriptLanguage === 'beanshell') {
+        this.jsr223Processor.script += ';';
       }
       this.reload();
     },
@@ -165,12 +250,12 @@ export default {
       this.$nextTick(() => (this.isCodeEditAlive = true));
     },
     languageChange(language) {
-      this.jsr223ProcessorData.scriptLanguage = language;
+      this.jsr223Processor.scriptLanguage = language;
       this.$emit("languageChange");
     },
     addCustomFuncScript(script) {
-      this.jsr223ProcessorData.script = this.jsr223ProcessorData.script ?
-        this.jsr223ProcessorData.script + '\n\n' + script : script;
+      this.jsr223Processor.script = this.jsr223Processor.script ?
+        this.jsr223Processor.script + '\n\n' + script : script;
       this.reload();
     },
     switchMenu() {
@@ -184,10 +269,10 @@ export default {
       }
     },
     handleCodeTemplate(code) {
-      if (!this.jsr223ProcessorData.script) {
-        this.jsr223ProcessorData.script = code;
+      if (!this.jsr223Processor.script) {
+        this.jsr223Processor.script = code;
       } else {
-        this.jsr223ProcessorData.script = this.jsr223ProcessorData.script + '\n' + code;
+        this.jsr223Processor.script = this.jsr223Processor.script + '\n' + code;
       }
       this.reload();
     },
@@ -230,14 +315,15 @@ export default {
 }
 
 .show-menu {
-  text-align:center;
+  text-align: center;
   font-weight: bold;
-  color:#935aa1;
+  color: #935aa1;
   font-size: 18px;
   cursor: pointer;
 }
+
 .show-menu:hover {
-  color:#935aa1;
+  color: #935aa1;
 }
 
 </style>

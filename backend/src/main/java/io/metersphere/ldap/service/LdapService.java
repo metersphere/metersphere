@@ -1,14 +1,19 @@
 package io.metersphere.ldap.service;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.realm.ldap.LdapUtils;
 import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.InvalidNameException;
@@ -38,6 +43,8 @@ public class LdapService {
 
     @Resource
     private SystemParameterService service;
+    @Resource
+    private UserService userService;
 
     public DirContextOperations authenticate(LoginRequest request) {
         String username = request.getUsername();
@@ -56,9 +63,6 @@ public class LdapService {
 
         // 检查属性是否存在
         getMappingAttr("name", dirContextOperations);
-        getMappingAttr("email", dirContextOperations);
-
-
         return dirContextOperations;
     }
 
@@ -69,6 +73,54 @@ public class LdapService {
     public boolean authenticate(String dn, String credentials) {
         LdapTemplate ldapTemplate = getConnection();
         return authenticate(dn, credentials, ldapTemplate);
+    }
+
+    public ResultHolder login(LoginRequest request) {
+        String isOpen = service.getValue(ParamConstants.LDAP.OPEN.getValue());
+        if (StringUtils.isBlank(isOpen) || StringUtils.equals(Boolean.FALSE.toString(), isOpen)) {
+            MSException.throwException(Translator.get("ldap_authentication_not_enabled"));
+        }
+
+        DirContextOperations dirContext = authenticate(request);
+        String email = getNotRequiredMappingAttr("email", dirContext);
+        String userId = getMappingAttr("username", dirContext);
+
+        SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LDAP.name());
+        SecurityUtils.getSubject().getSession().setAttribute("email", email);
+
+        // userId 或 email 有一个相同即为存在本地用户
+        User u = userService.selectUser(userId, email);
+        String name = getMappingAttr("name", dirContext);
+        String phone = getNotRequiredMappingAttr("phone", dirContext);
+        if (u == null) {
+
+            // 新建用户 获取LDAP映射属性
+            User user = new User();
+            user.setId(userId);
+            user.setName(name);
+            if (StringUtils.isBlank(email)) {
+                email = userId + "@localhost.localhost";
+            }
+            user.setEmail(email);
+
+            if (StringUtils.isNotBlank(phone)) {
+                user.setPhone(phone);
+            }
+
+            user.setSource(UserSource.LDAP.name());
+            userService.addLdapUser(user);
+        } else {
+            // 更新
+            u.setName(name);
+            u.setPhone(phone);
+            u.setEmail(email);
+            userService.updateUser(u);
+        }
+
+        // 执行 LocalRealm 中 LDAP 登录逻辑
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(userId);
+        return userService.login(loginRequest);
     }
 
     private boolean authenticate(String dn, String credentials, LdapTemplate ldapTemplate) throws AuthenticationException {

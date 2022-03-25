@@ -25,7 +25,7 @@
         {{ $t('api_test.definition.request.body_binary') }}
       </el-radio>
     </el-radio-group>
-    <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
+    <div v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{ $t("commons.batch_add") }}</el-link>
       </el-row>
@@ -34,6 +34,8 @@
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
         :isShowEnable="isShowEnable"
+        :scenario-definition="scenarioDefinition"
+        @editScenarioAdvance="editScenarioAdvance"
         type="body"/>
     </div>
     <div v-if="body.type == 'JSON'">
@@ -43,6 +45,8 @@
       <ms-json-code-edit
         v-if="body.format==='JSON-SCHEMA'"
         :body="body"
+        :scenario-definition="scenarioDefinition"
+        @editScenarioAdvance="editScenarioAdvance"
         ref="jsonCodeEdit"/>
       <ms-code-edit
         v-else-if="codeEditActive"
@@ -116,7 +120,8 @@ export default {
     isShowEnable: {
       type: Boolean,
       default: true
-    }
+    },
+    scenarioDefinition: Array,
   },
   data() {
     return {
@@ -314,6 +319,9 @@ export default {
           this.format(this.body.kvs, item);
         })
       }
+    },
+    editScenarioAdvance(data) {
+      this.$emit('editScenarioAdvance', data);
     },
   },
   created() {

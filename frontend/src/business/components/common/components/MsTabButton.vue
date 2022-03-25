@@ -19,6 +19,8 @@
 
     </el-button-group>
 
+    <slot name="version"></slot>
+
     <template v-slot:header>
       <slot name="header"></slot>
     </template>

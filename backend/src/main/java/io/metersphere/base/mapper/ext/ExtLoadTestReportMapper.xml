@@ -70,11 +70,12 @@
         ltr.description, user.name as userName, project.name as
         projectName, ltr.trigger_mode,
         ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
-        project.id as projectId
+        project.id as projectId, project_version.name as version_name
         from load_test_report ltr
         left join load_test lt on ltr.test_id = lt.id
         join user on ltr.user_id = user.id
         join project on project.id = ltr.project_id
+        JOIN project_version on project.id = project_version.project_id AND ltr.version_id = project_version.id
         <where>
             <if test="reportRequest.combine != null">
                 <include refid="combine">
@@ -134,10 +135,10 @@
     </select>
 
     <select id="getReportTestAndProInfo" resultType="io.metersphere.dto.ReportDTO">
-        select ltr.id, ltr.name, ltr.test_id as testId, ltr.description,
-        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
-        p.id as projectId, p.name as projectName
+        select ltr.*,
+        p.id as projectId, p.name as projectName, user.name as userName
         from load_test_report ltr left join load_test lt on ltr.test_id = lt.id join project p on ltr.project_id = p.id
+        JOIN user on ltr.user_id = user.id
         where ltr.id = #{id}
     </select>
 
@@ -169,6 +170,13 @@
           and t.project_id = #{projectId}
           and t.status = 'running'
 
+    </select>
+    <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
+        select status from load_test_report
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
     </select>
 
     <update id="updateJmxContentIfAbsent">

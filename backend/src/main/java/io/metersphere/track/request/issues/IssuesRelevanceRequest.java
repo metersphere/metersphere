@@ -34,4 +34,9 @@ public class IssuesRelevanceRequest {
     private Boolean checked;
 
     private String description;
+
+    private String caseResourceId;
+    private List<String> caseResourceIds;
+    private Boolean isPlanEdit = false;
+    private String refId;
 }

@@ -262,7 +262,7 @@ public class GroupService {
 
     private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, List<String> permissionList) {
         List<GroupResourceDTO> dto = new ArrayList<>();
-        List<GroupResource> resources = resource.stream().filter(g -> g.getId().startsWith(type)).collect(Collectors.toList());
+        List<GroupResource> resources = resource.stream().filter(g -> g.getId().startsWith(type)||g.getId().startsWith("PERSONAL")).collect(Collectors.toList());
         permissions.forEach(p -> {
             if (permissionList.contains(p.getId())) {
                 p.setChecked(true);

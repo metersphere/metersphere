@@ -8,8 +8,10 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -34,6 +36,7 @@ public class APIScenarioReportController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<APIScenarioReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setLimit("LIMIT " + (goPage - 1) * pageSize + "," + pageSize * 50);
         return PageUtils.setPageInfo(page, apiReportService.list(request));
     }
 
@@ -44,7 +47,7 @@ public class APIScenarioReportController {
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = "api_automation_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioReportService.class)
+    @MsAuditLog(module = OperLogModule.API_AUTOMATION_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.get(#request.id)", targetClass = ApiScenarioReportService.class,
             mailTemplate = "api/ReportDelete", subject = "接口报告通知")
     public void delete(@RequestBody DeleteAPIReportRequest request) {
@@ -52,11 +55,15 @@ public class APIScenarioReportController {
     }
 
     @PostMapping("/batch/delete")
-    @MsAuditLog(module = "api_automation_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = ApiScenarioReportService.class)
+    @MsAuditLog(module = OperLogModule.API_AUTOMATION_REPORT, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = ApiScenarioReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getByIds(#request.ids)", targetClass = ApiScenarioReportService.class,
             mailTemplate = "api/ReportDelete", subject = "接口报告通知")
     public void deleteAPIReportBatch(@RequestBody APIReportBatchRequest request) {
         apiReportService.deleteAPIReportBatch(request);
     }
 
+    @PostMapping("/reName")
+    public void reName(@RequestBody ApiScenarioReport reportRequest) {
+        apiReportService.reName(reportRequest);
+    }
 }

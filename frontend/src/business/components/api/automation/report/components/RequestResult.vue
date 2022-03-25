@@ -1,21 +1,32 @@
 <template>
   <el-card class="ms-cards" v-if="request && request.responseResult">
     <div class="request-result">
-      <div @click="active" >
-        <el-row :gutter="10" type="flex" align="middle" class="info">
-          <el-col :span="10" v-if="indexNumber!=undefined">
+      <div @click="active">
+        <el-row :gutter="18" type="flex" align="middle" class="info">
+          <el-col class="ms-req-name-col" :span="18" v-if="indexNumber!=undefined">
             <el-tooltip :content="getName(request.name)" placement="top">
               <div class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner"> {{ indexNumber }}</div>
                 </div>
-                <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
-                {{ getName(request.name) }}
+                <i class="icon el-icon-arrow-right" :class="{'is-active': showActive}" @click="active" @click.stop/>
+                <span>{{ getName(request.name) }}</span>
               </div>
             </el-tooltip>
           </el-col>
-          <el-col :span="9">
-            <el-tooltip effect="dark" :content="request.responseResult.responseCode" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
+          <el-col :span="3">
+            <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
+                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
+                        :open-delay="800">
+              <div style="color: #F6972A">
+                {{ baseErrorCode }}
+              </div>
+            </el-tooltip>
+          </el-col>
+          <el-col :span="6">
+            <el-tooltip effect="dark" :content="request.responseResult.responseCode"
+                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
+                        :open-delay="800">
               <div style="color: #5daf34" v-if="request.success">
                 {{ request.responseResult.responseCode }}
               </div>
@@ -35,10 +46,20 @@
           <el-col :span="2">
             <div>
               <el-tag v-if="request.testing" class="ms-test-running" size="mini">
-               <i class="el-icon-loading" style="font-size: 16px"/>
-               {{ $t('commons.testing') }}
-             </el-tag>
-              <el-tag size="mini" v-else-if="request.unexecute">{{ $t('api_test.home_page.detail_card.unexecute') }}</el-tag>
+                <i class="el-icon-loading" style="font-size: 16px"/>
+                {{ $t('commons.testing') }}
+              </el-tag>
+              <el-tag size="mini" v-else-if="request.unexecute">{{
+                  $t('api_test.home_page.detail_card.unexecute')
+                }}
+              </el-tag>
+              <el-tag size="mini" v-else-if="!request.success && request.status && request.status==='unexecute'">{{
+                  $t('api_test.home_page.detail_card.unexecute')
+                }}
+              </el-tag>
+              <el-tag v-else-if="baseErrorCode && baseErrorCode!== ''" class="ms-test-error_code" size="mini">
+                {{ $t('error_report_library.option.name') }}
+              </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
               <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
             </div>
@@ -47,13 +68,13 @@
       </div>
 
       <el-collapse-transition>
-        <div v-show="isActive && !request.unexecute" style="width: 99%">
+        <div v-show="showActive && !request.unexecute" style="width: 99%">
           <ms-request-result-tail
             :scenario-name="scenarioName"
             :request-type="requestType"
             :request="request"
             :console="console"
-            v-if="isActive"/>
+            v-if="showActive"/>
         </div>
       </el-collapse-transition>
     </div>
@@ -81,10 +102,21 @@ export default {
     scenarioName: String,
     indexNumber: Number,
     console: String,
+    errorCode: {
+      type: String,
+      default: ""
+    },
+    isActive: {
+      type: Boolean,
+      default: false
+    }
+  },
+  created() {
+    this.showActive = this.isActive;
+    this.baseErrorCode = this.errorCode;
   },
   data() {
     return {
-      isActive: false,
       requestType: "",
       color: {
         type: String,
@@ -92,10 +124,32 @@ export default {
           return "#B8741A";
         }
       },
+      baseErrorCode: "",
       backgroundColor: {
         type: String,
         default() {
           return "#F9F1EA";
+        }
+      },
+      showActive: false,
+    }
+  },
+  watch: {
+    isActive() {
+      this.showActive = this.isActive;
+    },
+    errorCode() {
+      this.baseErrorCode = this.errorCode;
+    },
+    request: {
+      deep: true,
+      handler(n) {
+        if (this.request.errorCode) {
+          this.baseErrorCode = this.request.errorCode;
+        } else if (this.request.attachInfoMap && this.request.attachInfoMap.errorReportResult) {
+          if (this.request.attachInfoMap.errorReportResult !== "") {
+            this.baseErrorCode = this.request.attachInfoMap.errorReportResult;
+          }
         }
       },
     }
@@ -103,9 +157,9 @@ export default {
   methods: {
     active() {
       if (this.request.unexecute) {
-        this.isActive = false;
+        this.showActive = false;
       } else {
-        this.isActive = !this.isActive;
+        this.showActive = !this.showActive;
       }
     },
     getName(name) {
@@ -152,6 +206,10 @@ export default {
   font-weight: 500;
   line-height: 35px;
   padding-left: 5px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .request-result .url {
@@ -195,6 +253,12 @@ export default {
   color: #6D317C;
 }
 
+.ms-test-error_code {
+  color: #F6972A;
+  background-color: #FDF5EA;
+  border-color: #FDF5EA;
+}
+
 .ms-api-col {
   background-color: #EFF0F0;
   border-color: #EFF0F0;
@@ -230,11 +294,14 @@ export default {
 .ms-req-name {
   display: inline-block;
   margin: 0 5px;
-  overflow-x: hidden;
   padding-bottom: 0;
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
   width: 350px;
+}
+
+.ms-req-name-col {
+  overflow-x: hidden;
 }
 </style>

@@ -1,17 +1,28 @@
 <template>
   <div class="scenario-result">
-    <div v-if="(node.children && node.children.length >0) || node.unsolicited || this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1">
+    <div v-if="(node.children && node.children.length >0) || node.unsolicited
+    || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner"> {{ node.index }}</div>
+          <div class="el-step__icon-inner">
+            {{ node.index }}
+          </div>
         </div>
-        {{ node.label }}
+        <el-tooltip effect="dark" :content="node.label" placement="top">
+          <span>{{ node.label }}</span>
+        </el-tooltip>
       </el-card>
     </div>
     <div v-else>
-      <ms-request-result :request="node.value" :indexNumber="node.index"
-                         v-on:requestResult="requestResult"
-                         :scenarioName="node.label" :console="console"/>
+      <ms-request-result
+        :request="node.value"
+        :indexNumber="node.index"
+        :error-code="node.errorCode"
+        :scenarioName="node.label"
+        :console="console"
+        :isActive="isActive"
+        v-on:requestResult="requestResult"
+      />
     </div>
   </div>
 </template>
@@ -27,11 +38,11 @@ export default {
     scenario: Object,
     node: Object,
     console: String,
+    isActive: Boolean,
   },
 
   data() {
     return {
-      isActive: false,
       stepFilter: new STEP,
     }
   },
@@ -67,6 +78,9 @@ export default {
 
 .ms-card >>> .el-card__body {
   padding: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .scenario-result .info {
@@ -90,13 +104,14 @@ export default {
   color: #64666A;
 }
 
-.ms-api-col-create {
+.ms-card .ms-api-col-create {
   background-color: #EBF2F2;
   border-color: #008080;
   margin-right: 10px;
   font-size: 12px;
   color: #008080;
 }
+
 
 /deep/ .el-step__icon {
   width: 20px;

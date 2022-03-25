@@ -161,27 +161,27 @@ export function setComponent(type, _this, plugin) {
         _this.scenarioDefinition.push(new JSR223Processor());
       break;
     case ELEMENT_TYPE.JSR223PreProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor",label: "SCENARIO-REF-STEP"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor", label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
       break;
     case ELEMENT_TYPE.JSR223PostProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor",label: "SCENARIO-REF-STEP"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor", label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
       break;
     case ELEMENT_TYPE.JDBCPreProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPreProcessor",label: "SCENARIO-REF-STEP"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPreProcessor", label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPreProcessor"}));
       break;
     case ELEMENT_TYPE.JDBCPostProcessor:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPostProcessor",label: "SCENARIO-REF-STEP"})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPostProcessor", label: "SCENARIO-REF-STEP"})) :
         _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPostProcessor"}));
       break;
     case ELEMENT_TYPE.Assertions:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions({label: "SCENARIO-REF-STEP",id:getUUID()})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions({label: "SCENARIO-REF-STEP", id: getUUID()})) :
         _this.scenarioDefinition.push(new Assertions());
       break;
     case ELEMENT_TYPE.Extract:
-      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Extract({label: "SCENARIO-REF-STEP",id:getUUID()})) :
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Extract({label: "SCENARIO-REF-STEP", id: getUUID()})) :
         _this.scenarioDefinition.push(new Extract());
       break;
     case ELEMENT_TYPE.CustomizeReq:
@@ -201,11 +201,14 @@ export function setComponent(type, _this, plugin) {
       _this.$refs.scenarioRelevance.open();
       break;
     default:
-      _this.scenarioDefinition.push(new PluginController({type: plugin.jmeterClazz,stepName:plugin.name, pluginId: plugin.scriptId}));
+      _this.scenarioDefinition.push(new PluginController({type: plugin.jmeterClazz, stepName: plugin.name, pluginId: plugin.scriptId}));
       break;
   }
   if (_this.selectedNode) {
     _this.selectedNode.expanded = true;
   }
   _this.sort();
+  _this.$nextTick(() => {
+    _this.cancelBatchProcessing();
+  });
 }

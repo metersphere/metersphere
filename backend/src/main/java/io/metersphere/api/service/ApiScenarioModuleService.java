@@ -465,6 +465,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             record.setCreateTime(System.currentTimeMillis());
             record.setUpdateTime(System.currentTimeMillis());
             record.setProjectId(projectId);
+            record.setCreateUser(SessionUtils.getUserId());
             apiScenarioModuleMapper.insert(record);
             return  record;
         }else {

@@ -204,7 +204,7 @@ import MsJarConfig from "@/business/components/settings/workspace/JarConfig";
 import MsTableButton from "../../common/components/MsTableButton";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
-import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
+import TemplateSelect from "@/business/components/project/template/TemplateSelect";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
 import AddMember from "@/business/components/settings/common/AddMember";
@@ -309,9 +309,6 @@ export default {
           this.$router.push('/track/home').then(() => {
             this.reload();
             this.reloadTopMenus();
-            if (!getCurrentUser().lastProjectId) {
-              window.location.reload();
-            }
           });
         } else {
           this.$warning(this.$t("commons.project_permission"));

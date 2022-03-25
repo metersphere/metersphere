@@ -5,6 +5,7 @@
       :get-table-data="getTestCases"
       :get-node-tree="getTreeNodes"
       :save="saveCaseRelevance"
+      :version-enable="versionEnable"
       ref="functionalRelevance">
     </functional-relevance>
 </template>
@@ -35,6 +36,7 @@ export default {
       type: String
     },
     relationshipType: String,
+    versionEnable: Boolean
   },
   watch: {
     caseId() {

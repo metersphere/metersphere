@@ -30,6 +30,9 @@
                 #{apiId}
             </foreach>
         </if>
+        <include refid="queryVersionCondition">
+            <property name="versionTable" value="api"/>
+        </include>
         <if test="request.orderCondition == 'createTimeDesc'">
             ORDER BY api.create_time DESC
         </if>
@@ -52,4 +55,15 @@
         </where>
     </select>
 
+    <sql id="queryVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
 </mapper>

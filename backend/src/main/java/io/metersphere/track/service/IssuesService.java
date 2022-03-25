@@ -8,6 +8,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
+import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -23,13 +24,12 @@ import io.metersphere.service.CustomFieldTemplateService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.dto.PlanReportIssueDTO;
-import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
-import io.metersphere.track.dto.TestPlanSimpleReportDTO;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.jira.JiraIssueType;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -77,6 +77,8 @@ public class IssuesService {
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private IssueFollowMapper issueFollowMapper;
+    @Resource
+    private TestPlanTestCaseMapper testPlanTestCaseMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -92,9 +94,11 @@ public class IssuesService {
         for (AbstractIssuePlatform platform : platformList) {
             issues = platform.addIssue(issuesRequest);
         }
-        issuesRequest.getTestCaseIds().forEach(l -> {
-            testCaseIssueService.updateIssuesCount(l);
-        });
+        if (issuesRequest.getIsPlanEdit()) {
+            issuesRequest.getAddResourceIds().forEach(l -> {
+                testCaseIssueService.updateIssuesCount(l);
+            });
+        }
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         return issues;
     }
@@ -126,13 +130,8 @@ public class IssuesService {
 
     public List<AbstractIssuePlatform> getAddPlatforms(IssuesUpdateRequest updateRequest) {
         List<String> platforms = new ArrayList<>();
-        if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
-            // 测试计划关联
-            platforms.add(getPlatformsByCaseId(updateRequest.getTestCaseId()));
-        } else {
-            // 缺陷管理关联
-            platforms.add(getPlatform(updateRequest.getProjectId()));
-        }
+        // 缺陷管理关联
+        platforms.add(getPlatform(updateRequest.getProjectId()));
 
         if (CollectionUtils.isEmpty(platforms)) {
             platforms.add(IssuesManagePlatform.Local.toString());
@@ -157,35 +156,16 @@ public class IssuesService {
         return IssueFactory.createPlatforms(platforms, issuesRequest);
     }
 
-    public List<IssuesDao> getIssues(String caseId) {
+    public List<IssuesDao> getIssues(String caseResourceId, String refType) {
         IssuesRequest issueRequest = new IssuesRequest();
-        issueRequest.setTestCaseId(caseId);
+        issueRequest.setCaseResourceId(caseResourceId);
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
-        Project project = getProjectByCaseId(caseId);
-        // project 不存在
-        if (project == null) {
-            return null;
-        }
-        String workspaceId = project.getWorkspaceId();
-        TestCase testCase = testCaseMapper.selectByPrimaryKey(caseId);
-        String userId = testCase.getMaintainer();
-        issueRequest.setWorkspaceId(workspaceId);
-        issueRequest.setUserId(userId);
-        return getIssuesByProjectIdOrCaseId(issueRequest);
+        issueRequest.setRefType(refType);
+        return disconnectIssue(extIssuesMapper.getIssuesByCaseId(issueRequest));
     }
 
     public IssuesWithBLOBs getIssue(String id) {
         return issuesMapper.selectByPrimaryKey(id);
-    }
-
-    public List<IssuesDao> getIssuesByProjectIdOrCaseId(IssuesRequest issueRequest) {
-        List<IssuesDao> issues;
-        if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
-            issues = extIssuesMapper.getIssues(issueRequest);
-        } else {
-            issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
-        }
-        return issues;
     }
 
     public String getPlatformsByCaseId(String caseId) {
@@ -286,18 +266,36 @@ public class IssuesService {
         return platform.getPlatformUser();
     }
 
-    public void deleteIssue(IssuesRequest request) {
-        issuesMapper.deleteByPrimaryKey(request.getId());
-        deleteIssueRelate(request);
+    public void deleteIssue(String id) {
+        issuesMapper.deleteByPrimaryKey(id);
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria().andIssuesIdEqualTo(id);
+        List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
+        testCaseIssues.forEach(i -> {
+            if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
+                testCaseIssueService.updateIssuesCount(i.getResourceId());
+            }
+        });
+        testCaseIssuesMapper.deleteByExample(example);
     }
 
     public void deleteIssueRelate(IssuesRequest request) {
-        String caseId = request.getCaseId();
+        String caseResourceId = request.getCaseResourceId();
         String id = request.getId();
         TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andTestCaseIdEqualTo(caseId).andIssuesIdEqualTo(id);
-        testCaseIssuesMapper.deleteByExample(example);
-        testCaseIssueService.updateIssuesCount(caseId);
+        if (request.getIsPlanEdit() == true) {
+            example.createCriteria().andResourceIdEqualTo(caseResourceId).andIssuesIdEqualTo(id);
+            testCaseIssuesMapper.deleteByExample(example);
+            testCaseIssueService.updateIssuesCount(caseResourceId);
+        } else {
+            extIssuesMapper.deleteIssues(id, caseResourceId);
+            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+            testPlanTestCaseExample.createCriteria().andCaseIdEqualTo(caseResourceId);
+            List<TestPlanTestCase> list = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
+            list.forEach(item -> {
+                testCaseIssueService.updateIssuesCount(item.getId());
+            });
+        }
     }
 
     public void delete(String id) {
@@ -345,22 +343,33 @@ public class IssuesService {
             if (planMap.get(item.getResourceId()) != null) {
                 item.setResourceName(planMap.get(item.getResourceId()));
             }
+
             TestCaseIssuesExample example = new TestCaseIssuesExample();
             example.createCriteria().andIssuesIdEqualTo(item.getId());
             List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
-            List<String> caseIds = testCaseIssues.stream()
-                    .map(TestCaseIssues::getTestCaseId)
-                    .collect(Collectors.toList());
-            item.setCaseIds(caseIds);
-            item.setCaseCount(testCaseIssues.size());
-            if (StringUtils.equals(item.getPlatform(), "Tapd")) {
-                TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
-                List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
-                item.setTapdUsers(tapdUsers);
-            }
-            if (StringUtils.equals(item.getPlatform(), "Zentao")) {
-                ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
-                platform.getZentaoAssignedAndBuilds(item);
+            Set<String> caseIdSet = new HashSet<>();
+            testCaseIssues.forEach(i -> {
+                if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
+                    caseIdSet.add(i.getRefId());
+                } else {
+                    caseIdSet.add(i.getResourceId());
+                }
+            });
+            item.setCaseIds(new ArrayList<>(caseIdSet));
+            item.setCaseCount(caseIdSet.size());
+
+            try {
+                if (StringUtils.equals(item.getPlatform(), IssuesManagePlatform.Tapd.name())) {
+                    TapdPlatform platform = (TapdPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
+                    List<String> tapdUsers = platform.getTapdUsers(item.getProjectId(), item.getPlatformId());
+                    item.setTapdUsers(tapdUsers);
+                }
+                if (StringUtils.equals(item.getPlatform(), IssuesManagePlatform.Zentao.name())) {
+                    ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(item.getPlatform(), request);
+                    platform.getZentaoAssignedAndBuilds(item);
+                }
+            } catch (Exception e) {
+                LogUtil.error(e);
             }
         });
         return issues;
@@ -442,8 +451,10 @@ public class IssuesService {
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
-            String defaultCustomFields = getDefaultCustomFields(projectId);
-            issuesRequest.setDefaultCustomFields(defaultCustomFields);
+            if (!projectService.isThirdPartTemplate(projectId)) {
+                String defaultCustomFields = getDefaultCustomFields(projectId);
+                issuesRequest.setDefaultCustomFields(defaultCustomFields);
+            }
 
             if (CollectionUtils.isNotEmpty(tapdIssues)) {
                 TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
@@ -470,6 +481,7 @@ public class IssuesService {
             }
         }
     }
+
 
     /**
      * 获取默认的自定义字段的取值，同步之后更新成第三方平台的值
@@ -543,7 +555,7 @@ public class IssuesService {
     }
 
     public List<IssuesDao> relateList(IssuesRequest request) {
-        return extIssuesMapper.getRelateIssues(request);
+        return extIssuesMapper.getIssues(request);
     }
 
     public void userAuth(AuthUserIssueRequest authUserIssueRequest) {
@@ -560,7 +572,7 @@ public class IssuesService {
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
         planReportIssueDTOS.forEach(item -> {
-            String status = null;
+            String status;
             // 本地缺陷
             if (StringUtils.equalsIgnoreCase(item.getPlatform(), IssuesManagePlatform.Local.name())
                     || StringUtils.isBlank(item.getPlatform())) {
@@ -571,7 +583,7 @@ public class IssuesService {
             if (StringUtils.isBlank(status)) {
                 status = IssuesStatus.NEW.toString();
             }
-            TestPlanUtils.getStatusResultMap(statusResultMap, status);
+            TestPlanUtils.buildStatusResultMap(statusResultMap, status);
         });
         Set<String> status = statusResultMap.keySet();
         status.forEach(item -> {
@@ -580,10 +592,24 @@ public class IssuesService {
         functionResult.setIssueData(statusResult);
     }
 
-    public List<IssuesDao> getIssuesByPlanoId(String planId) {
+    public List<IssuesDao> getIssuesByPlanId(String planId) {
         IssuesRequest issueRequest = new IssuesRequest();
-        issueRequest.setResourceId(planId);
-        return extIssuesMapper.getIssues(issueRequest);
+        issueRequest.setPlanId(planId);
+        List<IssuesDao> planIssues = extIssuesMapper.getPlanIssues(issueRequest);
+        return disconnectIssue(planIssues);
+    }
+
+    public List<IssuesDao> disconnectIssue(List<IssuesDao> issues) {
+        Set<String> ids = new HashSet<>(issues.size());
+        Iterator<IssuesDao> iterator = issues.iterator();
+        while (iterator.hasNext()) {
+            IssuesDao next = iterator.next();
+            if (ids.contains(next.getId())) {
+                iterator.remove();
+            }
+            ids.add(next.getId());
+        }
+        return issues;
     }
 
     public void changeStatus(IssuesRequest request) {
@@ -644,12 +670,36 @@ public class IssuesService {
     public IssueTemplateDao getThirdPartTemplate(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             Project project = projectService.getProjectById(projectId);
-            IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(projectId);
-            issuesRequest.setWorkspaceId(project.getWorkspaceId());
-            return IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest)
+            return IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), getDefaultIssueRequest(projectId, project.getWorkspaceId()))
                     .getThirdPartTemplate();
         }
         return new IssueTemplateDao();
+    }
+
+    public IssuesRequest getDefaultIssueRequest(String projectId, String workspaceId) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setProjectId(projectId);
+        issuesRequest.setWorkspaceId(workspaceId);
+        return issuesRequest;
+    }
+
+    public List<JiraIssueType> getIssueTypes(JiraIssueTypeRequest request) {
+        IssuesRequest issuesRequest = getDefaultIssueRequest(request.getProjectId(), request.getWorkspaceId());
+        JiraPlatform platform = (JiraPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest);
+        if (StringUtils.isNotBlank(request.getJiraKey())) {
+            return platform.getIssueTypes(request.getJiraKey());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<DemandDTO> getDemandList(String projectId) {
+        Project project = projectService.getProjectById(projectId);
+        String workspaceId = project.getWorkspaceId();
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setWorkspaceId(workspaceId);
+        issueRequest.setProjectId(projectId);
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(project.getPlatform(), issueRequest);
+        return platform.getDemandList(projectId);
     }
 }

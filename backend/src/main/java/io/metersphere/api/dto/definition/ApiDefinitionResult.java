@@ -29,4 +29,8 @@ public class ApiDefinitionResult extends ApiDefinitionWithBLOBs {
     private String scenarioType;
 
     private String apiType;
+
+    private String versionName;
+
+    private Boolean versionEnable;
 }

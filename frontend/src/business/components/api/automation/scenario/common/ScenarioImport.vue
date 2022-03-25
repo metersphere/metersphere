@@ -29,6 +29,24 @@
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-form-item>
+          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
+                        :label="$t('api_test.api_import.import_version')" prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+                        :label="$t('api_test.api_import.data_update_version')" prop="versionId">
+            <el-select size="small" v-model="formData.updateVersionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'fullCoverage'"
+                        :label="$t('api_test.api_import.data_new_version')" prop="versionId">
+            <el-select size="small" v-model="formData.versionId" clearable style="width: 100%">
+              <el-option v-for="item in versionOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
         </el-col>
         <el-col :span="1">
           <el-divider direction="vertical"/>
@@ -74,21 +92,21 @@
 </template>
 
 <script>
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import MsSelectTree from "../../../../common/select-tree/SelectTree";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import {getCurrentProjectID, hasLicense, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
-  export default {
-    name: "ScenarioImport",
-    components: {MsDialogFooter, MsSelectTree},
-    props: {
-      saved: {
-        type: Boolean,
-        default: true,
-      },
-      moduleOptions: Array,
+export default {
+  name: "ScenarioImport",
+  components: {MsDialogFooter, MsSelectTree},
+  props: {
+    saved: {
+      type: Boolean,
+      default: true,
     },
-    data() {
+    moduleOptions: Array,
+  },
+  data() {
       return {
         visible: false,
         swaggerUrlEable: false,
@@ -152,10 +170,16 @@
           id: 'id',
           label: 'name',
         },
+        versionOptions: [],
+        projectVersionEnable: false,
       }
     },
     activated() {
       this.selectedPlatform = this.platforms[0];
+    },
+    created() {
+      this.getVersionOptions();
+      this.checkVersionEnable();
     },
     watch: {
       selectedPlatformValue() {
@@ -165,7 +189,10 @@
             break;
           }
         }
-      },
+        if (this.selectedPlatformValue === 'Har') {
+          this.formData.modeId = 'fullCoverage';
+        }
+      }
     },
     computed: {
       isHar() {
@@ -273,6 +300,28 @@
         this.formData.moduleId = id;
         this.formData.modulePath = data.path;
       },
+      getVersionOptions() {
+        if (hasLicense()) {
+          this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+            this.versionOptions = response.data.filter(v => v.status === 'open');
+            this.versionOptions.forEach(v => {
+              if (v.latest) {
+                v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
+              }
+            });
+          });
+        }
+      },
+      checkVersionEnable() {
+        if (!this.projectId) {
+          return;
+        }
+        if (hasLicense()) {
+          this.$get('/project/version/enable/' + this.projectId, response => {
+            this.projectVersionEnable = response.data;
+          });
+        }
+      }
     }
   }
 </script>

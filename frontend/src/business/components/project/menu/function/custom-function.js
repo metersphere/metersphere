@@ -45,7 +45,7 @@ function pythonCode(requestObj) {
     connType = "HTTPSConnection";
   }
   let headers = getHeaders(requestHeaders);
-  requestBody = requestBody ? requestBody : "{}";
+  requestBody = requestBody ? JSON.stringify(requestBody) : "{}";
   requestPath = getRequestPath(requestArguments, requestPath);
   let obj = {requestBody, headers, host, requestPath, requestMethod, connType};
   return _pythonCodeTemplate(obj);

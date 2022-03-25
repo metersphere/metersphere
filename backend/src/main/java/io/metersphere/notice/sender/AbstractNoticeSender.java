@@ -209,9 +209,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     JSONArray array = JSON.parseArray(customFields);
                     for (Object o : array) {
                         JSONObject jsonObject = JSON.parseObject(o.toString());
+                        String name = jsonObject.getString("name");
+                        Object value = jsonObject.getObject("value", Object.class);
+                        paramMap.put(name, value); // 处理人
                         if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
-                            String processor = jsonObject.getString("value");
-                            toUsers.add(new Receiver(processor, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                            paramMap.put("processor", value); // 处理人
+                            toUsers.add(new Receiver(value.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                             break;
                         }
                     }

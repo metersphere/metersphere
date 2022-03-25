@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @JSONType(typeName = "JmeterElement")
 public class MsJmeterElement extends MsTestElement {
     private String type = "JmeterElement";
-    private String clazzName = "io.metersphere.api.dto.definition.request.unknown.MsJmeterElement";
+    private String clazzName = MsJmeterElement.class.getCanonicalName();
 
     private String elementType;
     private String jmeterElement;
@@ -77,7 +77,13 @@ public class MsJmeterElement extends MsTestElement {
                         config.getCsvFilePaths().add(csvPath);
                     }
                 }
-
+                // 取出导入的测试计划中变量
+                if (scriptWrapper instanceof TestPlan) {
+                    TestPlan testPlan = (TestPlan) scriptWrapper;
+                    if (testPlan.getArguments() != null) {
+                        elementTree.add(testPlan.getArguments());
+                    }
+                }
                 if (config.isOperating()) {
                     elementTree = tree.add(scriptWrapper);
                 } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
@@ -94,7 +100,6 @@ public class MsJmeterElement extends MsTestElement {
                         }
                     }
                 }
-
             }
         } catch (Exception ex) {
             ex.printStackTrace();

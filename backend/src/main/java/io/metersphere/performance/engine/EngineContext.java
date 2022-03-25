@@ -8,13 +8,15 @@ public class EngineContext {
     private String testName;
     private String namespace;
     private String fileType;
-    private String content;
+    private byte[] content;
     private String resourcePoolId;
     private String reportId;
     private Integer resourceIndex;
     private double[] ratios;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, byte[]> testResourceFiles = new HashMap<>();
+    private Map<String, Boolean> splitFlag = new HashMap<>();
+    private boolean checkBackendListener;
 
     public String getTestId() {
         return testId;
@@ -52,11 +54,11 @@ public class EngineContext {
         return this.properties.get(key);
     }
 
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 
@@ -107,5 +109,21 @@ public class EngineContext {
 
     public void setTestResourceFiles(Map<String, byte[]> testResourceFiles) {
         this.testResourceFiles = testResourceFiles;
+    }
+
+    public Map<String, Boolean> getSplitFlag() {
+        return splitFlag;
+    }
+
+    public void setSplitFlag(Map<String, Boolean> splitFlag) {
+        this.splitFlag = splitFlag;
+    }
+
+    public boolean isCheckBackendListener() {
+        return checkBackendListener;
+    }
+
+    public void setCheckBackendListener(boolean checkBackendListener) {
+        this.checkBackendListener = checkBackendListener;
     }
 }

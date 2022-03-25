@@ -57,8 +57,13 @@
         </el-card>
 
         <!-- 创建、编辑、复制环境时的对话框 -->
-        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :title="dialogTitle" width="66%" top="50px">
-          <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"
+        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px">
+          <template #title>
+            <ms-dialog-header :title="dialogTitle"
+                              @cancel="dialogVisible = false"
+                              @confirm="save"/>
+          </template>
+          <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
                             :project-id="currentProjectId" @refreshAfterSave="refresh">
           </environment-edit>
         </el-dialog>
@@ -126,6 +131,7 @@ import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsContainer from "@/business/components/common/components/MsContainer";
+import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 
 export default {
   name: "EnvironmentList",
@@ -138,7 +144,7 @@ export default {
     MsAsideItem,
     EnvironmentEdit,
     ApiEnvironmentConfig,
-    MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader
+    MsTablePagination, MsTableOperatorButton, MsTableOperator, MsTableButton, MsTableHeader, MsDialogHeader
   },
   data() {
     return {
@@ -162,6 +168,7 @@ export default {
       projectIds: [],   //当前工作空间所拥有的所有项目id
       projectFilters: [],
       screenHeight: 'calc(100vh - 195px)',
+      ifCreate: false, //是否是创建环境
     }
   },
   created() {
@@ -184,6 +191,9 @@ export default {
         this.conditions.push(condition);
       }
       this.domainVisible = true;
+    },
+    save(){
+      this.$refs.environmentEdit.save();
     },
     getName(row) {
       switch (row.type) {
@@ -253,6 +263,7 @@ export default {
       this.dialogVisible = true;
       this.currentEnvironment = new Environment();
       this.currentEnvironment.projectId = this.currentProjectId;
+      this.ifCreate = true;
     },
     search() {
       this.list()
@@ -265,6 +276,7 @@ export default {
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
       this.currentEnvironment = temEnv;
       this.dialogVisible = true;
+      this.ifCreate = false;
     },
 
     copyEnv(environment) {
@@ -364,8 +376,8 @@ export default {
               return "SHOW_INFO";
             }
             let obj = config.httpConfig.conditions[0];
-            if (obj.protocol && obj.domain) {
-              return obj.protocol + "://" + obj.domain;
+            if (obj.protocol && obj.socket) {
+              return obj.protocol + "://" + obj.socket;
             }
           } else if (config.httpConfig.conditions.length > 1) {
             return "SHOW_INFO";

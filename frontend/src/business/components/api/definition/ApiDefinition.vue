@@ -17,6 +17,7 @@
           :type="'edit'"
           page-source="definition"
           :total='total'
+          :current-version="currentVersion"
           ref="nodeTree"/>
       </ms-aside-container>
 
@@ -42,6 +43,9 @@
               left-content="API"
               right-content="CASE"
             >
+              <template v-slot:version>
+                <version-select v-xpack :project-id="projectId" :version-id="trashVersion" @changeVersion="changeVersion"/>
+              </template>
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="trashActiveDom==='left'"
@@ -51,6 +55,7 @@
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -70,6 +75,7 @@
               <api-case-simple-list
                 v-if="trashActiveDom==='right'"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -100,6 +106,9 @@
               :right-content="$t('api_test.definition.doc_title')"
               :right-button-enable="currentProtocol === 'HTTP' "
             >
+              <template v-slot:version>
+                <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
+              </template>
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
@@ -107,6 +116,7 @@
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -119,6 +129,7 @@
                 @refreshTree="refreshTree"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @editApi="editApi"
+                @copyApi="copyApi"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
                 @refreshTable="refresh"
@@ -129,6 +140,7 @@
               <api-case-simple-list
                 v-if="activeDom==='middle'"
                 :current-protocol="currentProtocol"
+                :current-version="currentVersion"
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
@@ -145,7 +157,9 @@
                 v-if="activeDom==='right' && currentProtocol==='HTTP'"
                 :project-id="projectId"
                 :trash-enable="trashEnable"
-                :module-ids="selectNodeIds"/>
+                :version-id="currentVersion"
+                :module-ids="selectNodeIds"
+                ref="documentsPage"/>
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
             <div v-if="item.type=== 'ADD' ||item.type === 'TEST'" class="ms-api-div">
@@ -185,6 +199,7 @@
               <ms-debug-tcp-page
                 :currentProtocol="currentProtocol"
                 :testCase="item.api"
+                :scenario="false"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
                 v-if="currentProtocol==='TCP'"/>
@@ -232,7 +247,6 @@ import MsApiList from './components/list/ApiList';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
-import MsApiConfig from "./components/ApiConfig";
 import MsDebugHttpPage from "./components/debug/DebugHttpPage";
 import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
 import MsDebugTcpPage from "./components/debug/DebugTcpPage";
@@ -254,7 +268,11 @@ import MockConfig from "@/business/components/api/definition/components/mock/Moc
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
-import {PROJECT_ID} from "@/common/js/constants";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
+
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 
 export default {
@@ -274,6 +292,7 @@ export default {
     },
   },
   components: {
+    'VersionSelect': VersionSelect.default,
     ApiSchedule,
     MsTabButton,
     MsTableButton,
@@ -283,7 +302,6 @@ export default {
     MsMainContainer,
     MsContainer,
     MsAsideContainer,
-    MsApiConfig,
     MsDebugHttpPage,
     MsRunTestHttpPage,
     MsDebugJdbcPage,
@@ -341,10 +359,13 @@ export default {
       initApiTableOpretion: 'init',
       param: {},
       useEnvironment: String,
-      activeTab: "api"
+      activeTab: "api",
+      currentVersion: null,
+      trashVersion: null,
     };
   },
   activated() {
+    this.selectNodeIds = [];
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
@@ -398,20 +419,28 @@ export default {
     },
   },
   created() {
-    let projectId = this.$route.params.projectId;
-    if(projectId){
-      sessionStorage.setItem(PROJECT_ID, projectId);
+    let workspaceId = this.$route.params.workspaceId;
+    if (workspaceId) {
+      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+    }else {
+      if(this.$route.query.workspaceId){
+        workspaceId = this.$route.query.workspaceId;
+        sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+      }
     }
-    if (this.$route.query.projectId){
-      sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+    let projectId = this.$route.params.projectId;
+    if (projectId) {
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }else {
+      if (this.$route.query.projectId) {
+        projectId = this.$route.query.projectId;
+        sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+      }
     }
     this.getEnv();
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.activeDom = 'middle';
-      // this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
-      //   this.edit(response.data);
-      // });
     }
   },
   mounted() {
@@ -435,11 +464,14 @@ export default {
       });
     },
     getEnv() {
-      this.$get("/api/definition/env/get/" + getCurrentUserId(), response => {
+      this.$get("/api/definition/env/get/" + getCurrentUserId() + "/" + getCurrentProjectID(), response => {
         let env = response.data;
         if (env) {
           this.$store.state.useEnvironment = env.envId;
           this.useEnvironment = env.envId;
+        } else {
+          this.$store.state.useEnvironment = "";
+          this.useEnvironment = "";
         }
       });
     },
@@ -464,9 +496,9 @@ export default {
     },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.result = this.$get('/project/get/' + this.projectId, res => {
+        this.result = this.$get('/project_application/get/config/' + this.projectId +"/API_QUICK_MENU", res => {
           let projectData = res.data;
-          if (projectData && projectData.apiQuick === 'api') {
+          if (projectData && projectData.apiQuickMenu === 'api') {
             this.handleTabAdd("ADD");
           } else {
             this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
@@ -546,11 +578,11 @@ export default {
       let tab = this.apiTabs;
       delete tab[0];
       tab.forEach(t => {
-        if (t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
+        if (t.type === 'ADD' && t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
           this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
           message += t.api.name + "，";
         }
-      })
+      });
       if (message !== "") {
         this.$alert(this.$t('commons.api') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
@@ -592,7 +624,7 @@ export default {
             this.handleTabRemove(targetName);
           }
         }
-      })
+      });
     },
     handleTabRemove(targetName) {
       let tabs = this.apiTabs;
@@ -660,15 +692,15 @@ export default {
     init() {
       let routeTestCase = this.$route.params.apiDefinition;
       if (routeTestCase) {
-        this.editApi(routeTestCase)
+        this.editApi(routeTestCase);
       }
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
-      if(dataRange){
+      if (dataRange) {
         let selectParamArr = dataRange.split("edit:");
         if (selectParamArr.length === 2) {
           let scenarioId = selectParamArr[1];
-          if(dataType==='api'){
+          if (dataType === 'api') {
             this.$get('/api/definition/get/' + scenarioId, (response) => {
               this.editApi(response.data);
             });
@@ -681,8 +713,8 @@ export default {
       if (!index) {
         let name = "";
         if (row.isCopy) {
-          name = "copy" + "-" + row.name;
-          row.name = "copy" + "-" + row.name;
+          name = "copy" + "_" + row.name;
+          row.name = "copy" + "_" + row.name;
         } else {
           if (row.name) {
             name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
@@ -701,6 +733,21 @@ export default {
       } else {
         this.apiDefaultTab = index.name;
       }
+    },
+    copyApi(row) {
+      let name = "";
+      if (row.isCopy) {
+        name = "copy" + "_" + row.name;
+        row.name = "copy" + "_" + row.name;
+      }
+      this.activeTab = "api";
+      if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
+        if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+          row.tags = JSON.parse(row.tags);
+        }
+      }
+      this.handleTabsEdit(name, "ADD", row);
     },
     handleCase(api) {
       this.currentApi = api;
@@ -729,10 +776,15 @@ export default {
       if (this.$refs.trashCaseList) {
         this.$refs.trashCaseList.initTable();
       }
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.list();
+      }
       if (this.$refs.apiDefList && this.$refs.apiDefList[0]) {
         this.$refs.apiDefList[0].initTable();
       }
-
+      if (this.$refs.documentsPage && this.$refs.documentsPage[0]) {
+        this.$refs.documentsPage[0].initApiDocSimpleList();
+      }
       //this.$refs.nodeTree.list();
     },
     refreshTree() {
@@ -800,14 +852,19 @@ export default {
     enableTrash(data) {
       this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
+      this.trashVersion = this.currentVersion
       if (data) {
         this.apiDefaultTab = "trash";
       } else {
-        this.apiDefaultTab = "default"
+        this.apiDefaultTab = "default";
       }
     },
     updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
+    },
+    changeVersion(currentVersion) {
+      this.trashVersion = null;
+      this.currentVersion = currentVersion || null;
     }
   }
 };
@@ -817,7 +874,7 @@ export default {
 
 .ms-api-div {
   overflow-y: auto;
-  height: calc(100vh - 155px)
+  height: calc(100vh - 125px)
 }
 
 /deep/ .el-main {
@@ -826,6 +883,10 @@ export default {
 
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
+}
+
+/deep/ .el-tabs__nav-scroll {
+  width: calc(100% - 200px);
 }
 
 /deep/ .el-card {
@@ -857,5 +918,9 @@ export default {
   min-width: 100%;
   max-width: 100%;
   padding-right: 100%;
+}
+
+.version-select {
+  padding-left: 10px;
 }
 </style>

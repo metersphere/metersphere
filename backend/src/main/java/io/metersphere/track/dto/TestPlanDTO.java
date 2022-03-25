@@ -22,4 +22,16 @@ public class TestPlanDTO extends TestPlanWithBLOBs {
      * 定时任务是否开启
      */
     private boolean scheduleOpen;
+    /**
+     * 定时任务状态
+     */
+    private String scheduleStatus;
+    /**
+     * 定时任务规则
+     */
+    private String scheduleCorn;
+    /**
+     * 定时任务下一次执行时间
+     */
+    private Long scheduleExecuteTime;
 }

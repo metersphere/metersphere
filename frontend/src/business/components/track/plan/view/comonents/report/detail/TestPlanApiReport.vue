@@ -1,20 +1,37 @@
 <template>
-  <test-plan-report-container id="api" :title="'接口用例统计分析'">
+  <test-plan-report-container id="api" :title="$t('test_track.report.analysis_api')">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
+      <el-tab-pane v-if="resultEnable" :label="$t('test_track.report.test_result')" name="first">
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" name="second">
         <template v-slot:label>
-          <tab-pane-count title="失败用例"  :count="failureSize"/>
+          <tab-pane-count :title="$t('test_track.report.fail_case')" :count="failureSize"/>
         </template>
-        <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setFailureSize"/>
+        <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate"
+                   :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane style="min-height: 500px" name="third" v-if="allEnable">
+      <el-tab-pane style="min-height: 500px" name="third" v-if="errorReportEnable">
         <template v-slot:label>
-          <tab-pane-count title="所有用例" :count="allSize"/>
+          <tab-pane-count :title="$t('error_report_library.option.name')" :count="errorReportSize"/>
         </template>
-        <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
+        <api-cases :is-db="isDb" :is-error-report="true" :share-id="shareId" :is-share="isShare" :report="report"
+                   :is-template="isTemplate" :plan-id="planId" @setSize="setErrorReportSize"/>
+      </el-tab-pane>
+      <el-tab-pane style="min-height: 500px" name="fourth" v-if="unExecuteEnable">
+        <template v-slot:label>
+          <tab-pane-count :title="$t('api_test.home_page.detail_card.unexecute')" :count="unExecuteSize"/>
+        </template>
+        <api-cases :is-db="isDb" :is-un-execute="true" :share-id="shareId" :is-share="isShare" :report="report"
+                   :is-template="isTemplate" :plan-id="planId" @setSize="setUnExecuteSize"/>
+      </el-tab-pane>
+
+      <el-tab-pane style="min-height: 500px" name="fifth" v-if="allEnable">
+        <template v-slot:label>
+          <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
+        </template>
+        <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report"
+                   :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -27,6 +44,7 @@ import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import ApiCases from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCases";
 import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
+
 export default {
   name: "TestPlanApiReport",
   components: {TabPaneCount, ApiCases, TestPlanReportContainer, ApiResult, MsFormDivider},
@@ -34,6 +52,8 @@ export default {
     return {
       activeName: 'first',
       failureSize: 0,
+      errorReportSize: 0,
+      unExecuteSize:0,
       allSize: 0,
     };
   },
@@ -49,6 +69,14 @@ export default {
       let disable = this.report.config && this.report.config.api.children.failure.enable === false;
       return !disable;
     },
+    errorReportEnable() {
+      let disable = this.report.config && this.report.config.api.children.errorReport && this.report.config.api.children.errorReport.enable === false;
+      return !disable;
+    },
+    unExecuteEnable() {
+      let disable = this.report.config && this.report.config.api.children.unExecute && this.report.config.api.children.unExecute.enable === false;
+      return !disable;
+    },
     allEnable() {
       let disable = this.report.config && this.report.config.api.children.all.enable === false;
       return !disable;
@@ -59,6 +87,9 @@ export default {
       this.initActiveName();
     },
     failureEnable() {
+      this.initActiveName();
+    },
+    errorReportEnable() {
       this.initActiveName();
     },
     allEnable() {
@@ -74,12 +105,20 @@ export default {
         this.activeName = 'first';
       } else if (this.failureEnable) {
         this.activeName = 'second';
-      } else if (this.allEnable) {
+      } else if (this.errorReportEnable) {
         this.activeName = 'third';
+      } else if (this.allEnable) {
+        this.activeName = 'fourth';
       }
     },
     setFailureSize(size) {
       this.failureSize = size;
+    },
+    setErrorReportSize(size) {
+      this.errorReportSize = size;
+    },
+    setUnExecuteSize(size){
+      this.unExecuteSize = size;
     },
     setAllSize(size) {
       this.allSize = size;

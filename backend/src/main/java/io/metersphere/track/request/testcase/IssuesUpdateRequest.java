@@ -10,7 +10,6 @@ import java.util.List;
 @Setter
 public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private String content;
-    private String testCaseId;
     private String workspaceId;
 
     private List<String> tapdUsers;
@@ -23,11 +22,12 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * zentao bug 影响版本
      */
     private List<String> zentaoBuilds;
-    private List<String> testCaseIds;
-
     private boolean thirdPartPlatform;
 
     private List<String> follows;
 
-    private boolean withoutTestCaseIssue; // 不更新用例和缺陷的关联关系
+    private List<String> addResourceIds;
+    private List<String> deleteResourceIds;
+    private Boolean isPlanEdit = false;
+    private String refId;
 }

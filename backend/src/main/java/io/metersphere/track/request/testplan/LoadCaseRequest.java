@@ -19,7 +19,10 @@ public class LoadCaseRequest extends TestPlanLoadCase {
     private Map<String, List<String>> filters;
     private List<OrderRequest> orders;
     private Map<String, Object> combine;
-
+    private String versionId;
+    private String refId;
     // 测试计划是否允许重复
     private boolean repeatCase;
+
+    private List<String> notInIds;
 }

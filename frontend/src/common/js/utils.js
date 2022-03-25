@@ -2,23 +2,15 @@ import {
   COUNT_NUMBER,
   COUNT_NUMBER_SHALLOW,
   LicenseKey,
-  ORGANIZATION_ID,
   ORIGIN_COLOR,
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
   PROJECT_ID,
-  ROLE_ADMIN,
-  ROLE_ORG_ADMIN,
-  ROLE_TEST_MANAGER,
-  ROLE_TEST_USER,
-  ROLE_TEST_VIEWER,
   TokenKey,
   WORKSPACE_ID
 } from "./constants";
-import axios from "axios";
 import {jsPDF} from "jspdf";
 import JSEncrypt from 'jsencrypt';
-import {CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
 import i18n from "@/i18n/i18n";
 
 export function hasRole(role) {
@@ -503,7 +495,7 @@ export function setCurTabId(vueObj, tab, ref) {
       let curTabId = cutEditTab ? cutEditTab.tabId : null;
       vueObj.$store.commit('setCurTabId', curTabId);
     }
-  })
+  });
 }
 
 export function getTranslateOptions(data) {
@@ -515,4 +507,19 @@ export function getTranslateOptions(data) {
     options.push(option);
   });
   return options;
+}
+
+export function parseTag(data) {
+  data.forEach(item => {
+    try {
+      let tags = JSON.parse(item.tags);
+      if (tags instanceof Array) {
+        item.tags = tags ? tags : [];
+      } else {
+        item.tags = tags ? [tags + ''] : [];
+      }
+    } catch (e) {
+      item.tags = [];
+    }
+  });
 }

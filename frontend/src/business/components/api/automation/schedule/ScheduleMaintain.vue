@@ -6,22 +6,29 @@
       <div>
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
-            <el-form :model="form" :rules="rules" ref="from">
-              <el-form-item
-                prop="cronValue">
-                <el-row>
+            <el-form :model="form" :rules="rules" ref="from" style="margin-top: 10px;">
+              <el-form-item :label="$t('commons.schedule_switch')">
+                <el-row :gutter="20">
                   <el-col :span="18">
-                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
-                              :placeholder="$t('schedule.please_input_cron_expression')"/>
+                    <el-tooltip effect="dark" placement="bottom"
+                                :content="schedule.enable ? $t('commons.close_schedule') : $t('commons.open_schedule')">
+                      <el-switch v-model="schedule.enable"></el-switch>
+                    </el-tooltip>
+                  </el-col>
+                  <el-col :span="2">
                     <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
                         $t('commons.save')
                       }}
                     </el-button>
                   </el-col>
-                  <el-col :span="6">
-                    <schedule-switch :schedule="schedule" :corn-value="form.cronValue"
-                                     @resultListChange="getExecuteTimeTemplate"
-                                     @scheduleChange="scheduleChange"></schedule-switch>
+                </el-row>
+              </el-form-item>
+              <el-form-item :label="$t('commons.schedule_cron_title')"
+                            prop="cronValue">
+                <el-row>
+                  <el-col :span="18">
+                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
+                              :placeholder="$t('schedule.please_input_cron_expression')"/>
                   </el-col>
                 </el-row>
 
@@ -116,6 +123,7 @@ export default {
       dialogVisible: false,
       schedule: {
         value: "",
+        enable: false
       },
       scheduleTaskType: "",
       testId: String,
@@ -177,7 +185,7 @@ export default {
       });
     },
     initUserList() {
-      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
+      this.result = this.$post('/user/project/member/list', {projectId: getCurrentProjectID()}, response => {
         this.scheduleReceiverOptions = response.data;
       });
 
@@ -211,19 +219,26 @@ export default {
       this.activeName = 'first';
     },
     findSchedule() {
-      var scheduleResourceID = this.testId;
-      var taskType = this.scheduleTaskType;
+      let scheduleResourceID = this.testId;
+      let taskType = this.scheduleTaskType;
       this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
         } else {
-          this.schedule = {};
+          this.schedule = {
+            value: '',
+            enable: false
+          };
         }
       });
     },
     crontabFill(value, resultList) {
       //确定后回传的值
       this.form.cronValue = value;
+      // 如果是第一次设置定时任务规则，则默认开启定时任务
+      if (!this.schedule.id){
+        this.schedule.enable = true;
+      }
       this.$refs.crontabResult.resultList = resultList;
       this.$refs['from'].validate();
     },
@@ -240,7 +255,6 @@ export default {
         if (valid) {
           this.intervalShortValidate();
           let formCronValue = this.form.cronValue;
-          this.schedule.enable = true;
           this.schedule.value = formCronValue;
           this.saveSchedule();
           this.dialogVisible = false;
@@ -311,7 +325,7 @@ export default {
       removeGoBackListener(this.close);
     },
     intervalShortValidate() {
-      if (this.getIntervalTime() < 3 * 60 * 1000) {
+      if (this.schedule.enable && this.getIntervalTime() < 3 * 60 * 1000) {
         // return false;
         this.$info(this.$t('schedule.cron_expression_interval_short_error'));
       }
@@ -343,5 +357,7 @@ export default {
 .el-form-item {
   margin-bottom: 10px;
 }
-
+>>> .el-form-item__error {
+  margin-left: 148px;
+}
 </style>

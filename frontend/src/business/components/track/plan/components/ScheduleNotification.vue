@@ -99,7 +99,7 @@
                 v-show="!scope.row.isSet"
                 :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+                v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
               <ms-tip-button
                 circle
                 type="danger"
@@ -108,7 +108,7 @@
                 v-show="!scope.row.isSet"
                 @click="deleteRowTask(scope.$index,scope.row)"
                 :tip="$t('commons.delete')"
-                v-permission="['WORKSPACE_MESSAGE:READ+EDIT']"/>
+                v-permission="['PROJECT_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
@@ -153,13 +153,13 @@ export default {
         '<body>\n' +
         '<div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        ${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}' +
+        '        ${operator}执行接口测试成功: ${name}, 报告: ${planShareUrl}' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
         '</body>\n' +
         '</html>',
-      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${reportUrl}",
+      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${planShareUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
@@ -172,8 +172,7 @@ export default {
         testId: this.testId,
       }],
       scheduleEventOptions: [
-        {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
-        {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
+        {value: 'COMPLETE', label: this.$t('commons.run_completed')},
       ],
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
@@ -193,10 +192,6 @@ export default {
         {
           label:this.$t('workspace.id'),
           value:'workspaceId',
-        },
-        {
-          label:this.$t('report.id'),
-          value:'reportId',
         },
         {
           label:this.$t('commons.name'),
@@ -252,15 +247,23 @@ export default {
         },
         {
           label:this.$t('project.id'),
-          value:'projectId',
+          value: 'projectId',
         },
         {
-          label:this.$t('commons.execution_times'),
-          value:'executionTimes',
+          label: this.$t('commons.execution_times'),
+          value: 'executionTimes',
         },
         {
-          label:this.$t('test_track.automatic_status_update'),
-          value:'automaticStatusUpdate',
+          label: this.$t('test_track.automatic_status_update'),
+          value: 'automaticStatusUpdate',
+        },
+        {
+          label: this.$t('test_track.pass_rate'),
+          value: 'passRate',
+        },
+        {
+          label: this.$t('report.plan_share_url'),
+          value: 'planShareUrl',
         },
       ],
     };
@@ -365,6 +368,10 @@ export default {
           case 'EXECUTE_FAILED':
             htmlTemplate = this.title.replace('成功', '失败');
             robotTemplate = this.robotTitle.replace('成功', '失败');
+            break;
+          case 'COMPLETE':
+            htmlTemplate = this.title.replace('成功', '完成');
+            robotTemplate = this.robotTitle.replace('成功', '完成');
             break;
           default:
             break;

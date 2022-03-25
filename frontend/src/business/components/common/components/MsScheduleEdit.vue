@@ -42,6 +42,7 @@
 
 <script>
 import {
+  getCurrentProjectID,
   getCurrentUser,
   getCurrentWorkspaceId,
   listenGoBack,
@@ -50,7 +51,7 @@ import {
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
-import ScheduleTaskNotification from "../../settings/workspace/components/ScheduleTaskNotification";
+import ScheduleTaskNotification from "../../project/notification/ScheduleTaskNotification";
 
 function defaultCustomValidate() {
   return {pass: true};
@@ -117,7 +118,7 @@ export default {
     initUserList() {
 
 
-      this.result = this.$get('user/ws/member/list/' + getCurrentWorkspaceId(), response => {
+      this.result = this.$post('/user/project/member/list', {projectId: getCurrentProjectID()}, response => {
         this.scheduleReceiverOptions = response.data;
       });
 

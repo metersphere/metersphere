@@ -1,9 +1,10 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
-import io.metersphere.api.jmeter.ExecutedHandleSingleton;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -43,13 +44,17 @@ public class TestResultService {
     @Resource
     private ApiAutomationService apiAutomationService;
     @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
-    private ApiScenarioReportMapper apiScenarioReportMapper;
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
+    private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
 
     public void saveResults(ResultDTO dto) {
         // 处理环境
@@ -60,7 +65,8 @@ public class TestResultService {
         List<RequestResult> requestResults = dto.getRequestResults();
         //处理环境参数
         if (CollectionUtils.isNotEmpty(environmentList)) {
-            ExecutedHandleSingleton.parseEnvironment(environmentList);
+            apiEnvironmentRunningParamService.parseEnvironment(environmentList);
+
         }
         //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
         if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
@@ -73,11 +79,32 @@ public class TestResultService {
         updateTestCaseStates(requestResults, dto.getRunMode());
     }
 
-    public void editReportTime(ResultDTO dto) {
-        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(dto.getReportId());
-        if (report != null) {
-            report.setUpdateTime(System.currentTimeMillis());
-            apiScenarioReportMapper.updateByPrimaryKey(report);
+    public void batchSaveResults(Map<String, List<ResultDTO>> resultDtoMap) {
+        // 处理环境
+        List<String> environmentList = new LinkedList<>();
+        for (String key : resultDtoMap.keySet()) {
+            List<ResultDTO> dtos = resultDtoMap.get(key);
+            for (ResultDTO dto : dtos) {
+                if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
+                    environmentList = (List<String>) dto.getArbitraryData().get("ENV");
+                }
+                //处理环境参数
+                if (CollectionUtils.isNotEmpty(environmentList)) {
+                    apiEnvironmentRunningParamService.parseEnvironment(environmentList);
+                }
+                // 处理用例/场景和计划关系
+                updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
+
+            }
+            //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
+            if (StringUtils.equals(key, "schedule-task")) {
+                apiDefinitionExecResultService.batchSaveApiResult(dtos, true);
+            } else if (StringUtils.equals(key, "api-test-case-task")) {
+                apiDefinitionExecResultService.batchSaveApiResult(dtos, false);
+            } else if (StringUtils.equalsAny(key, "api-scenario-task")) {
+                apiScenarioReportService.batchSaveResult(dtos);
+            }
+
         }
     }
 
@@ -85,7 +112,7 @@ public class TestResultService {
         if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
             if (scenarioReport != null) {
-                ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(scenarioReport.getScenarioId());
+                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                 String environment = "";
                 //执行人
                 String userName = "";
@@ -117,6 +144,14 @@ public class TestResultService {
                     }
                 }
             }
+        } else if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+            ApiDefinitionExecResult record = new ApiDefinitionExecResult();
+            record.setId(dto.getReportId());
+            record.setStatus("STOP");
+
+            ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+            example.createCriteria().andIdEqualTo(dto.getReportId()).andStatusEqualTo(APITestStatus.Running.name());
+            apiDefinitionExecResultMapper.updateByExampleSelective(record, example);
         }
     }
 
@@ -128,7 +163,7 @@ public class TestResultService {
             if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 TestPlanScenarioCaseService testPlanScenarioCaseService = CommonBeanFactory.getBean(TestPlanScenarioCaseService.class);
                 TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.get(testPlanScenarioId);
-                ApiScenarioWithBLOBs apiScenario = CommonBeanFactory.getBean(ApiAutomationService.class).getApiScenario(testPlanApiScenario.getApiScenarioId());
+                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
                 testPlanTestCaseService.updateTestCaseStates(apiScenario.getId(), apiScenario.getName(), testPlanApiScenario.getTestPlanId(), TrackCount.AUTOMATION);
             }
         } catch (Exception e) {
@@ -191,12 +226,14 @@ public class TestResultService {
         if (StringUtils.equals("error", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
+        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(testId);
         Map paramMap = new HashMap<>();
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("reportUrl", reportUrl);
         paramMap.put("operator", report.getExecutor());
         paramMap.putAll(new BeanMap(report));
+        paramMap.putAll(new BeanMap(scenario));
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(report.getUserId())
                 .successContext(successContext)

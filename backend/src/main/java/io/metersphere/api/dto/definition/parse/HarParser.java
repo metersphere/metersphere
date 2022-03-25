@@ -243,8 +243,10 @@ public class HarParser extends HarAbstractParser {
             return;
         }
         String contentType = content.mimeType;
-        body.setType(getBodyType(contentType));
-        body.setRaw(content.text);
+        if(body != null){
+            body.setType(getBodyType(contentType));
+            body.setRaw(content.text);
+        }
     }
 
     private String parseXmlBody(String xmlString) {

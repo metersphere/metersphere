@@ -15,6 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -33,10 +34,18 @@ import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 public class NodeResourcePoolService {
     private final static String nodeControllerUrl = "http://%s:%s/status";
 
-    @Resource(name = "restTemplateWithTimeOut")
-    private RestTemplate restTemplateWithTimeOut;
+    private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
+
     @Resource
     private TestResourceMapper testResourceMapper;
+
+    static {
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(2000);
+        httpRequestFactory.setConnectTimeout(2000);
+        httpRequestFactory.setReadTimeout(1000);
+        restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
+    }
 
     public boolean validate(TestResourcePoolDTO testResourcePool) {
         if (CollectionUtils.isEmpty(testResourcePool.getResources())) {

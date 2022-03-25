@@ -12,7 +12,7 @@
     <result column="is_set" jdbcType="BIT" property="isSet" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.MessageTask">
     <result column="template" jdbcType="LONGVARCHAR" property="template" />
@@ -77,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `type`, event, user_id, task_type, webhook, identification, is_set, test_id, 
-    create_time, workspace_id
+    create_time, project_id
   </sql>
   <sql id="Blob_Column_List">
     `template`
@@ -131,15 +131,15 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.MessageTask">
-    insert into message_task (id, `type`, event, 
+    INSERT INTO message_task (id, `type`, event,
       user_id, task_type, webhook, 
       identification, is_set, test_id, 
-      create_time, workspace_id, `template`
+      create_time, project_id, `template`
       )
-    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, 
+    VALUES (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR},
       #{userId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{webhook,jdbcType=VARCHAR}, 
       #{identification,jdbcType=VARCHAR}, #{isSet,jdbcType=BIT}, #{testId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{workspaceId,jdbcType=VARCHAR}, #{template,jdbcType=LONGVARCHAR}
+      #{createTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{template,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.MessageTask">
@@ -175,8 +175,8 @@
       <if test="createTime != null">
         create_time,
       </if>
-      <if test="workspaceId != null">
-        workspace_id,
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="template != null">
         `template`,
@@ -213,8 +213,8 @@
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="template != null">
         #{template,jdbcType=LONGVARCHAR},
@@ -260,8 +260,8 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.workspaceId != null">
-        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.template != null">
         `template` = #{record.template,jdbcType=LONGVARCHAR},
@@ -283,7 +283,7 @@
       is_set = #{record.isSet,jdbcType=BIT},
       test_id = #{record.testId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       `template` = #{record.template,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -301,7 +301,7 @@
       is_set = #{record.isSet,jdbcType=BIT},
       test_id = #{record.testId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -336,8 +336,8 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="workspaceId != null">
-        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="template != null">
         `template` = #{template,jdbcType=LONGVARCHAR},
@@ -356,7 +356,7 @@
       is_set = #{isSet,jdbcType=BIT},
       test_id = #{testId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       `template` = #{template,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -371,7 +371,7 @@
       is_set = #{isSet,jdbcType=BIT},
       test_id = #{testId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -2,40 +2,51 @@
   <div v-if="tableActive">
     <el-table
       border
+      class="test-content adjust-table ms-table"
+      v-loading="tableIsLoading"
       :data="data"
+      :default-sort="defaultSort"
+      :class="{'ms-select-all-fixed': showSelectAll}"
+      :height="screenHeight"
+      :row-key="rowKey"
+      :row-class-name="tableRowClassName"
+      :cell-class-name="addPaddingColClass"
+      :highlight-current-row="highlightCurrentRow"
       @sort-change="sort"
       @filter-change="filter"
       @select-all="handleSelectAll"
       @select="handleSelect"
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
-      :default-sort="defaultSort"
-      class="test-content adjust-table ms-table"
-      :class="{'ms-select-all-fixed': showSelectAll}"
-      :height="screenHeight"
-      v-loading="tableIsLoading"
-      :row-key="rowKey"
-      :cell-class-name="addPaddingColClass"
-      :highlight-current-row="highlightCurrentRow"
-      ref="table" @row-click="handleRowClick">
+      @row-click="handleRowClick"
+      ref="table">
 
-      <el-table-column v-if="enableSelection" width="50" type="selection"/>
+      <el-table-column
+        v-if="enableSelection"
+        width="50"
+        type="selection"/>
 
-      <ms-table-header-select-popover v-if="enableSelection && showSelectAll" ref="selectPopover"
+      <ms-table-header-select-popover v-if="enableSelection && showSelectAll"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :table-data-count-in-page="data.length"
                                       :total="total"
                                       :select-type="condition.selectAll"
                                       @selectPageAll="isSelectDataAll(false)"
-                                      @selectAll="isSelectDataAll(true)"/>
+                                      @selectAll="isSelectDataAll(true)"
+                                      ref="selectPopover"/>
 
-      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="15"
+      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0"
+                       width="15"
                        fixed="left"
                        column-key="batchBtnCol"
-                       :resizable="false" align="center">
+                       align="center"
+                       :resizable="false">
+
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-          <show-more-btn :has-showed="!scope.row.showBatchTip" :is-show="scope.row.showMore" :buttons="batchOperators"
+          <show-more-btn :has-showed="!scope.row.showBatchTip"
+                         :is-show="scope.row.showMore"
+                         :buttons="batchOperators"
                          :size="selectDataCounts"/>
         </template>
       </el-table-column>
@@ -46,9 +57,12 @@
         </template>
       </el-table-column>
 
-      <el-table-column v-if="enableOrderDrag" width="20" column-key="tableRowDropCol">
+      <!--   拖拽排序   -->
+      <el-table-column
+        v-if="enableOrderDrag"
+        width="20"
+        column-key="tableRowDropCol">
         <template v-slot:default="scope">
-<!--          <span class="table-row-drop-bar">-->
           <div class="table-row-drop-bar">
              <i class="el-icon-more ms-icon-more"/>
              <i class="el-icon-more ms-icon-more"/>
@@ -60,17 +74,30 @@
 
       <el-table-column
         v-if="operators && operators.length > 0"
-        :min-width="operatorWidth"
         fixed="right"
+        :min-width="operatorWidth"
         :label="$t('commons.operating')">
         <template slot="header">
-          <header-label-operate :disable-header-config="disableHeaderConfig" v-if="fieldKey" @exec="openCustomHeader"/>
+          <header-label-operate
+            v-if="fieldKey"
+            :disable-header-config="disableHeaderConfig"
+            @exec="openCustomHeader"/>
         </template>
-        <template v-slot:default="scope">
+        <template
+          v-slot:default="scope">
           <div>
-            <slot name="opt-before" :row="scope.row"></slot>
-            <ms-table-operators :buttons="operators" :row="scope.row" :index="scope.$index"/>
-            <slot name="opt-behind" :row="scope.row"></slot>
+            <slot
+              name="opt-before"
+              :row="scope.row">
+            </slot>
+            <ms-table-operators
+              :buttons="operators"
+              :row="scope.row"
+              :index="scope.$index"/>
+            <slot
+              name="opt-behind"
+              :row="scope.row">
+            </slot>
           </div>
         </template>
       </el-table-column>
@@ -78,9 +105,9 @@
 
     <ms-custom-table-header
       v-if="fieldKey"
-      @reload="resetHeader"
       :type="fieldKey"
       :custom-fields="customFields"
+      @reload="resetHeader"
       ref="customTableHeader"/>
 
   </div>
@@ -90,11 +117,17 @@
 import {
   _filter,
   _handleSelect,
-  _handleSelectAll, _sort,
+  _handleSelectAll,
+  _sort,
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection,
-  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth, saveLastTableSortField, handleRowDrop,
+  checkTableRowIsSelect,
+  getCustomTableHeader,
+  saveCustomTableWidth,
+  saveLastTableSortField,
+  handleRowDrop,
+  clearShareDragParam,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
@@ -233,6 +266,11 @@ export default {
     selectNodeIds() {
       this.selectDataCounts = 0;
     },
+    enableOrderDrag() {
+      if (!this.enableOrderDrag) {
+        clearShareDragParam();
+      }
+    },
     // 刷新列表后做统一处理
     data(newVar, oldVar) {
       // 不知为何，勾选选择框也会进到这里，但是这种情况 newVar === oldVar
@@ -245,12 +283,15 @@ export default {
           this.initData();
         });
       }
+    },
+    selectDataCounts(value) {
+      this.$emit("selectCountChange", value);
     }
   },
   methods: {
     initData(){
       //初始化数据是否显示提示块
-      if(this.data.length > 0){
+      if(this.data && this.data.length > 0){
         this.data[0].showBatchTip = true;
       }
     },
@@ -281,6 +322,7 @@ export default {
         }
       }
     },
+    // 拖拽排序
     listenRowDrop() {
       if (this.rowOrderGroupId) {
         handleRowDrop(this.data, (param) => {
@@ -400,6 +442,9 @@ export default {
     handlePageChange() {
       this.$emit('pageChange');
     },
+    cancelCurrentRow() {
+      this.$refs.table.setCurrentRow(-1);
+    },
     clear() {
       this.clearSelectRows();
     },
@@ -446,7 +491,13 @@ export default {
         || column.columnKey ==='batchBtnCol') {
         return 'padding-col';
       }
-    }
+    },
+    tableRowClassName(row) {
+      if (row.row.hidden) {
+        return 'ms-variable-hidden-row';
+      }
+      return '';
+    },
   }
 };
 </script>

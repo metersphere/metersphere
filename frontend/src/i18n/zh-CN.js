@@ -1,6 +1,7 @@
 export default {
   commons: {
     project_permission: '请先添加该项目权限',
+    no_permission: '暂无权限',
     failure_continues: "失败继续",
     full_screen_editing: "全屏编辑",
     trash: "回收站",
@@ -24,6 +25,7 @@ export default {
     import_success: '导入成功',
     import_mode: '导入模式',
     import_module: '导入模块',
+    module_deep_limit: '模块深度不超过8层!',
     import_user: '导入用户',
     export: '导出',
     please_fill_in_the_template: '请填写模版内容',
@@ -32,6 +34,9 @@ export default {
     cut_back_new_version: '切回新版',
     comment: '评论',
     close_schedule: '关闭定时任务',
+    open_schedule: '开启定时任务',
+    schedule_switch: '定时任务开关',
+    schedule_cron_title: '定时任务时间表达式',
     review_complete: '评审完成',
     examples: '示例',
     help_documentation: '帮助文档',
@@ -39,11 +44,14 @@ export default {
     confirm_delete: '是否删除',
     delete_cancelled: '已取消删除',
     workspace: '工作空间',
+    space:'空间',
+    current_workspace:"当前工作空间",
     organization: '组织',
     setting: '设置',
     project: '项目',
     about_us: '关于',
     current_project: '当前项目',
+    not_exist:"不存在",
     name: '名称',
     description: '描述',
     annotation: '注释',
@@ -155,6 +163,12 @@ export default {
     weeks_4: '周四',
     weeks_5: '周五',
     weeks_6: '周六',
+    date_unit: {
+      hour: "小时",
+      day: "天",
+      month: "月",
+      year: "年"
+    },
     test_unit: '测试',
     system_parameter_setting: '系统参数设置',
     connection_successful: '连接成功',
@@ -216,17 +230,25 @@ export default {
     debug_history: "调试历史",
     testing: "测试中",
     edit_info: "编辑详情",
-    enable_scene: "启用场景环境",
+    enable_scene: "原场景环境",
+    variable_scene: "原场景变量",
+    reference_settings: "场景设置",
     enable_scene_info: "启用场景环境：当前步骤使用场景原始环境配置运行",
     environment: "运行环境",
+    run: "运行",
+    delete_batch: "批量删除",
     run_success: "执行成功",
     run_completed: "执行完成",
     run_warning: "正在运行中，请稍后查看",
     run_stop: "当前任务已停止，无法查看报告",
+    report_delete: "报告已删除",
     run_fail: "执行失败",
     follow_success: "关注成功",
     cancel_follow_success: "取消关注成功",
     type: "类型",
+    type_of_integer: "请输入整数类型",
+    type_of_num: "请输入数字类型",
+    validity_period: '有效期',
     please_select_a_deadline: "请选择截止时间",
     relationship: {
       name: '依赖关系',
@@ -392,9 +414,11 @@ export default {
         end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
       },
     },
+    no_operation_permission: "无操作权限!",
     enterprise_edition: "企业版",
     open_source_version: "开源版",
     function_planning: "功能正在规划中...",
+    enterprise_edition_tips: "此功能为企业版功能，<a href='https://metersphere.io/enterprise.html' target='_blank'>详情请咨询</a>",
     system_data: "系统数据",
     system_user: "系统用户",
     system_workspace: "工作空间",
@@ -415,7 +439,11 @@ export default {
     version: '版本',
     is_new: "是否新建",
     form_config: "表单配置",
-    form_content: "表单内容"
+    form_content: "表单内容",
+    sync_other_info: "复制以下信息到新版本",
+    delete_current_version: '列表版本',
+    delete_all_version: '全部版本',
+    change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
   },
   login: {
     normal_Login: "普通登录",
@@ -493,6 +521,7 @@ export default {
     issue_status: '状态',
     issue_severity: '严重程度',
     create: '创建字段',
+    update: '更新字段',
     name: '自定义字段',
     system_field: '系统字段',
     scene: '使用场景',
@@ -757,6 +786,32 @@ export default {
     test_case_custom_id_info: '用例ID默认为系统自增ID',
     scenario_custom_id: '场景自定义ID',
     scenario_custom_id_info: '场景用例ID默认为系统自增ID',
+    version: {
+      name: '版本',
+      read: '查看',
+      create_version: '创建版本',
+      edit_version: '编辑版本',
+      version_closed: '已关闭',
+      version_open: '未关闭',
+      publish_time: '发布时间',
+      start_time: '开始时间',
+      end_time: '结束时间',
+      delete_version: '删除版本',
+      please_input_version: '请输入版本',
+      tips: '注意: 已关闭的版本不会出现在系统字段<strong>版本</strong>下拉框选项中',
+      enable: '启用版本管理',
+      latest: '最新版',
+      set_latest: '设置为最新版本',
+      delete_tip: '此版本已经关联系统资源，此操作会将所关联的资源一并删除',
+      checkout: '切换',
+      compare: '对比',
+      change_latest_tip: '此操作会修改接口，场景，测试用例等列表页面的默认展示，可能会消耗一些时间。请耐心等待！'
+    },
+    timing_clean_plan_report: "定时清理测试计划报告",
+    timing_clean_api_report: "定时清理接口测试报告",
+    timing_clean_load_report: "定时清理性能测试报告",
+    keep_recent: "保留最近",
+    please_select_cleaning_time: "请选择清理时间！"
   },
   member: {
     create: '添加成员',
@@ -820,12 +875,14 @@ export default {
     operator: '操作人',
     description: '描述',
     set_permission: '设置权限',
+    view_permission: '查看权限',
     delete: '删除用户组',
     edit: '编辑用户组',
     admin_not_allow_edit: '系统管理员不支持编辑!',
     admin_not_allow_delete: '系统用户组不支持删除!',
     select_type: '请选择所属类型',
     system: '系统',
+    personal: '个人信息',
     organization: '组织',
     workspace: '工作空间',
     project: '项目',
@@ -856,8 +913,10 @@ export default {
   report: {
     id: '报告ID',
     api_test_report: '接口测试报告',
+    scenario_test_report: '场景测试报告',
     load_test_report: '性能测试报告',
     test_plan_report: '测试计划报告',
+    report_sharing_link: '报告分享链接',
     recent: '我最近的报告',
     search_by_name: '根据名称搜索',
     batch_add_monitor_tips: '格式：名称,IP,Port,描述<br/>如：项目1,192.168.1.52,9100,测试',
@@ -899,12 +958,13 @@ export default {
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',
-    response_time: '响应时间(s)',
+    response_time: '响应(s)',
     max_users: '并发数',
     file_id: '文件ID',
     avg_response_time: '平均响应时间',
     tps: '每秒传输的事物处理个数',
-    plan_share_url: '链接跳转是否登陆'
+    plan_share_url: '链接跳转是否登陆',
+    rename_report: '重命名报告'
   },
   load_test: {
     id: '测试ID',
@@ -956,6 +1016,7 @@ export default {
     ramp_up_time_within: '在',
     ramp_up_time_minutes: '秒内，分',
     ramp_up_time_seconds: '秒内增加并发用户',
+    ramp_up_tips: 'RampUp 过大，图表渲染卡顿不予展示，这并不影响测试执行，请以实际结果为准',
     iterate_num: '迭代次数',
     by_iteration: '按迭代次数',
     by_duration: '按持续时间',
@@ -999,6 +1060,7 @@ export default {
     delete_threadgroup_confirm: '确认删除场景',
     scenario_list: '场景列表',
     scenario_name: "场景名称",
+    report_type: "报告类型",
     upload_jmx: '上传 JMX 文件',
     exist_jmx: '已存在的文件',
     other_resource: '资源文件',
@@ -1016,6 +1078,7 @@ export default {
     stopthread: '停止线程',
     stoptest: '停止测试',
     stoptestnow: '立即停止测试',
+    batch_delete_confirm: "确认批量删除性能测试",
     report: {
       diff: "对比",
       set_default: '恢复默认',
@@ -1062,6 +1125,7 @@ export default {
     create_performance_test_batch: "批量创建性能测试",
     batch_copy: "批量复制",
     export_config: "导出",
+    unplanned_case: "未规划用例",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
     please_select_case: "请选择用例",
@@ -1099,6 +1163,16 @@ export default {
       delete_mock_expect: "确认删除这条预期吗？",
       rule: {
         input_code: "请输入 HTTP Code"
+      },
+      range_type: {
+        value_eq: "值-等于[value=]",
+        value_not_eq: "值-不等于[value!=]",
+        value_contain: "值-包含[include=]",
+        length_eq: "长度-等于[length=]",
+        length_not_eq: "长度-不等于[length!=]",
+        length_large_than: "长度-大于[length>]",
+        length_shot_than: "长度-小于[length<]",
+        regular_match: "正则匹配",
       }
     },
     definition: {
@@ -1116,7 +1190,7 @@ export default {
       api_path: "路径",
       api_definition_path: "API路径",
       api_case_path: "用例路径",
-      api_principal: "负责人",
+      api_principal: "责任人",
       api_last_time: "最后更新时间",
       api_case_number: "用例数",
       api_case_status: "用例状态",
@@ -1175,6 +1249,8 @@ export default {
         delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
+        pre_operation: "前置操作",
+        post_operation: "后置操作",
         response_header: "响应头",
         response_body: "响应体",
         response_template: "响应报文模版",
@@ -1189,6 +1265,7 @@ export default {
         all_post_script: "全局后置脚本",
         pre_sql: "前置SQL",
         pre_return: "前置返回",
+        extract_params: "提取参数（变量名 / 表达式）",
         post_sql: "后置SQL",
         extract_param: "提取参数",
         add_module: "创建模块",
@@ -1216,6 +1293,8 @@ export default {
         esb_title: "可以在报文模板中使用${参数名} 或 ${父节点参数名.子节点参数名}来生成xml数据结构",
       },
       document: {
+        open: "展开",
+        close: "收起",
         order: "排序方式",
         create_time_sort: "按创建时间从后到前",
         edit_time_positive_sequence: "按更新时间从前到后",
@@ -1248,8 +1327,11 @@ export default {
       case_reduction_error_text: "请先恢复"
     },
     automation: {
-      open_expansion: "一键展开",
-      close_expansion: "一键收起",
+      open_expansion: "批量展开步骤",
+      close_expansion: "批量折叠步骤",
+      bulk_activation_steps: "批量启用步骤",
+      batch_disable_steps: "批量禁用步骤",
+      all: "全部",
       constant: "常量",
       counter: "计数器",
       random: "随机数",
@@ -1276,6 +1358,8 @@ export default {
       scenario_test: "场景",
       scenario_list: "场景列表",
       add_scenario: "创建场景",
+      all_scenario: "全部场景",
+      unplanned_scenario: "未规划场景",
       scenario_name: "场景名称",
       case_level: "用例等级",
       tag: "标签",
@@ -1320,6 +1404,7 @@ export default {
       loop_input_val: "变量前缀",
       loop_message: "当前循环下超过一个请求，不能关闭状态",
       env_message: "请在环境配置中为该步骤所属项目选择运行环境",
+      debug_message: "当前步骤是禁用状态不能调试",
       request_total: "请求",
       request_success: "成功",
       request_error: "失败",
@@ -1339,6 +1424,9 @@ export default {
       config_environment: "配置环境",
       copy_environment: "复制环境",
       environment: "环境",
+      environment_type: "环境类型",
+      environment_json: "环境配置",
+      environment_group_id: "环境组ID",
       select_environment: "请选择环境",
       please_save_test: "请先保存测试",
       common_config: "通用配置",
@@ -1349,7 +1437,9 @@ export default {
       request_timeout: "链接超时",
       response_timeout: "响应超时",
       repeat_warning: "启用条件为 '无' 的域名已经存在！",
-      copy_warning: "启用条件为 '无' 的域名不支持复制！"
+      copy_warning: "启用条件为 '无' 的域名不支持复制！",
+      path_warning: "路径不能为空",
+      module_warning: "模块不能为空"
     },
     scenario: {
       id: "场景ID",
@@ -1385,6 +1475,9 @@ export default {
       scenario_warning: "引用的场景步骤及子步骤都无法添加其他步骤",
       scenario_step_warning: "当前步骤下不能添加其他步骤",
       scenario_error: "不能引用或复制自身！",
+      integrated: "集合",
+      independent: "独立",
+      step_info: "在右侧添加场景步骤",
     },
     request: {
       debug: "调试",
@@ -1418,6 +1511,7 @@ export default {
       parameters_advance_add_func: "添加函数",
       parameters_advance_add_func_limit: "最多支持5个函数",
       parameters_advance_add_func_error: "请先选择函数",
+      parameters_advance_add_mock_error: "请先选择mock数据",
       parameters_advance_add_param_error: "请输入函数参数",
       parameters_desc: "参数追加到URL，例如https://fit2cloud.com/entries?key1=Value1&Key2=Value2",
       headers: "请求头",
@@ -1531,7 +1625,8 @@ export default {
         expected_results: '预期结果',
         check: '校验组内元素',
         add_check: '添加校验',
-        add_subfield: '添加子字段'
+        add_subfield: '添加子字段',
+        description: "添加断言规则校验响应结果是否符合预期",
       },
       extract: {
         label: "提取",
@@ -1643,6 +1738,10 @@ export default {
       cover_tip_1: "1. 接口路径不存在则新增",
       cover_tip_2: "2. 接口路径与原接口一致，内容不一致则覆盖原接口",
       cover_tip_3: "3. 接口路径、内容与原接口一致则不做变更",
+      import_version: '导入版本',
+      data_update_version: '数据更新版本',
+      data_new_version: '数据创建版本',
+      latest_version: '最新版本',
     },
     home_page: {
       unit_of_measurement: "个",
@@ -1688,6 +1787,7 @@ export default {
           success: "成功率",
           interface_coverage: "接口覆盖率",
         },
+        single_case: "单接口用例",
       },
       api_details_card: {
         title: "接口",
@@ -1767,6 +1867,7 @@ export default {
         swagger_schedule: "swagger",
         confirm: {
           close_title: "要关闭这条定时任务吗？",
+          open_title: "要开启这条定时任务吗？",
         }
       }
     },
@@ -1787,6 +1888,14 @@ export default {
       before_the_pre_script_step: "步骤内前置脚本前",
       after_the_post_script_step: "步骤内后置脚本后",
       before_the_post_script_step: "步骤内后置脚本前",
+      global_script_config: "全局脚本配置",
+
+      pre_script_filter_request_type: "前置脚本过滤请求类型",
+      post_script_filter_request_type: "后置脚本过滤请求类型",
+      pre_script_exec_order: "前置脚本执行顺序",
+      post_script_exec_order: "后置脚本执行顺序",
+      pre_link_scenario_result: "前置关联场景结果",
+      post_link_scenario_result: "后置关联场景结果",
     }
   },
   api_report: {
@@ -1879,6 +1988,10 @@ export default {
       text_describe_tip: "使用于简单的测试场景，没有明确的测试步骤",
       change_type: "更改类型",
       minder_create_tip: "失败, 无法在脑图创建其父模块",
+      minder_tem_node_tip: "无法在临时节点{0}下创建用例",
+      minder_is_module_tip: "{0}是模块，不能修改为用例",
+      minder_not_module_tip: "模块{0}，不能创建在非模块节点下",
+      minder_all_module_tip: "全部用例为虚拟模块，请在其他模块创建用例",
       minder_issue_delete_tip: "取消缺陷关联成功",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
@@ -1984,14 +2097,16 @@ export default {
         import_update: "导入更新",
         import_tip1: "项目设置中“测试用例自定义ID” 开关开启时ID为必填项",
         import_tip2: "导入更新时ID为必填项",
+        import_file_tips: "请先上传文件！",
       },
       export: {
         export: "导出用例",
-        export_tip: "请切换成接口列表勾选用例导出！"
+        export_tip: "请切换成用例列表勾选用例导出！"
       },
       case_desc: "用例描述",
-      passing_rate: '用例通过率'
-
+      passing_rate: '用例通过率',
+      version: "版本",
+      sync_to_new_version: "复制以下信息到新版本",
     },
     plan: {
       test_plan: "测试计划",
@@ -2040,6 +2155,15 @@ export default {
       test_plan_api_case_count: "接口用例数",
       test_plan_api_scenario_count: "场景用例数",
       test_plan_load_case_count: "性能用例数",
+      test_plan_component_case_count: "步骤用例数",
+      data_name: "数据名称",
+      test_plan_batch_switch: "批量开/关定时任务",
+      batch_update_schedule_enable: '更新{0}个测试计划的定时任务状态为',
+      batch_update_schedule_enable_alert: '注意：只能更新已设置了定时任务的测试计划',
+      next_run_time: '下次运行时间',
+      schedule_enabled: '已开启',
+      check_schedule_enabled: '您勾选的数据检测到有{0}条定时任务可以修改',
+      no_check_schedule_enabled: '您勾选的数据没有检测到定时任务',
       load_case: {
         case: "性能用例",
         execution_status: "执行状态",
@@ -2050,6 +2174,7 @@ export default {
         exec: "正在执行....",
         error: "用例执行错误，请单独调试该用例！",
         report_not_found: "报告不存在",
+        content_empty: "内容为空",
       }
     },
     demand: {
@@ -2094,6 +2219,7 @@ export default {
       send_success: "评论成功！",
       cannot_edit: "无法编辑此评论！",
       cannot_delete: "无法删除此评论！",
+      submit_description: "请先提交评论！",
     },
     review_view: {
       review: "评审",
@@ -2111,6 +2237,7 @@ export default {
       add_module: "添加模块",
       name: "模块名称",
       delete_confirm: "确认删除模块: ",
+      delete_batch_confirm: "确认批量删除勾选的场景步骤？",
       delete_all_resource: "以及模块下所有子模块和测试用例",
       module: "模块",
       title: "标题",
@@ -2153,6 +2280,7 @@ export default {
       not_pass: "不通过",
       failure: "失败",
       blocking: "阻塞",
+      stop: "停止",
       skip: "跳过",
       actual_result: "实际结果",
       step_result: "步骤执行结果",
@@ -2195,11 +2323,16 @@ export default {
       test_detail: "测试详情",
       failure_case: "失败用例",
       export_report: "导出报告",
+      share_report: "分享报告",
       no_case_relevance: "没有关联用例",
       automatically_update_status: "自动更新状态",
       automatically_update_status_tip: "当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态",
       allow_associated_repetitive_cases: "允许关联重复用例",
-      allow_associated_repetitive_cases_tip: "是否允许同一个测试计划中多次关联相同用例"
+      allow_associated_repetitive_cases_tip: "是否允许同一个测试计划中多次关联相同用例",
+      performance_case_count: "性能测试用例数",
+      running: "运行中",
+      please_choose_test_case: "请选择测试用例！",
+      execute_tip: "步骤执行结果中含有 失败 结果，无法标记该用例为 通过 状态！"
     },
     issue: {
       issue: "缺陷",
@@ -2223,6 +2356,7 @@ export default {
       delete: "删除缺陷",
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
+      delete_warning: "解除会影响测试计划相关统计，是否确认",
       preview: "预览",
       status_new: '新建',
       status_resolved: '已解决',
@@ -2242,6 +2376,9 @@ export default {
       update_third_party_bugs: "更新第三方平台的缺陷",
       sync_bugs: "同步缺陷",
       save_before_open_comment: "请先保存缺陷再添加评论",
+      delete_tip: "确认删除缺陷：",
+      check_id_exist: "检查",
+      save_project_first: "请先保存项目"
     },
     report: {
       name: "测试计划报告",
@@ -2251,6 +2388,8 @@ export default {
         creator: "创建人",
         create_time: "创建时间",
         trigger_mode: "触发方式",
+        run_time: "运行耗时(s)",
+        pass_rate: "成功率",
         status: "状态",
         operation: "操作",
       },
@@ -2291,6 +2430,7 @@ export default {
     update_resource_pool: '修改资源池',
     select_pool_type: '选择资源类型',
     max_threads: '最大并发数',
+    sync_jar: '定时同步JAR',
     input_pool_name: '请输入资源池名称',
     pool_name_valid: '资源池名称不支持特殊字符',
     cannot_remove_all_node: '不能删除所有独立节点',
@@ -2491,6 +2631,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上传CSV文件",
+    csv_message: "默认展示500条，完整的内容可点击下载查看。",
     end: "结束",
     start: "开始",
     increment: "增量",
@@ -2537,7 +2678,45 @@ export default {
     before_change: "变更前",
     after_change: "变更后",
     share: "分享",
-    change_history: "变更历史",
+    api_definition: "接口定义",
+    api_definition_case: "接口定义用例",
+    api_automation: "接口自动化",
+    api_automation_report: "测试报告",
+    track_test_case: "测试用例",
+    track_test_case_review: "用例评审",
+    track_test_plan: "测试计划",
+    track_bug: "缺陷管理",
+    track_report: "报告",
+    performance_test: "性能测试",
+    performance_test_report: "性能测试报告",
+    system_user: "系统-用户",
+    system_organization: "系统-组织",
+    system_workspace: "工作空间",
+    system_test_resource: "系统-测试资源池",
+    system_parameter_setting: "系统-系统参数设置",
+    system_quota_management: "系统-配额管理",
+    system_authorization_management: "系统-授权管理",
+    organization_member: "组织-成员",
+    organization_workspace: "组织-工作空间",
+    workspace_service_integration: "工作空间-服务集成",
+    workspace_message_settings: "工作空间-消息设置",
+    workspace_member: "工作空间-成员",
+    workspace_template_settings_field: "工作空间-模版设置-自定义字段",
+    workspace_template_settings: "工作空间-模版设置",
+    workspace_template_settings_case: "工作空间-模版设置-用例模版",
+    workspace_template_settings_issue: "工作空间-模版设置-缺陷模版",
+    project_project_manager: "项目-项目管理",
+    project_project_member: "项目-成员",
+    project_project_jar: "項目-JAR包管理",
+    project_environment_setting: "项目-环境设置",
+    project_file_management: "项目-文件管理",
+    personal_information_personal_settings: "个人信息-个人设置",
+    personal_information_apikeys: "个人信息-API Keys",
+    auth_title: "系统认证",
+    group_permission: "用户组与权限",
+    error_report_library: "误报库",
+    enterprise_test_report: "项目报告",
+    change_history: "变更记录",
     change_content: "变更内容"
   },
   plugin: {
@@ -2592,6 +2771,13 @@ export default {
     api_case: '接口用例'
   },
   permission: {
+    project_error_report_library: {
+      name: "误报库",
+      read: "查看误报",
+      create: "创建误报",
+      edit: "修改误报",
+      delete: "刪除误报",
+    },
     system_user: {
       name: "用户",
       read: "查询用户",
@@ -2654,12 +2840,12 @@ export default {
       read: "查询",
       edit: "编辑"
     },
-    workspace_message: {
+    project_message: {
       name: "消息设置",
       read: "查询",
       edit: "编辑"
     },
-    workspace_template: {
+    project_template: {
       name: "模版设置",
       read: "查询",
       case_template: "用例模版",
@@ -2878,12 +3064,41 @@ export default {
       delete: "删除",
       read: "查看脚本",
     },
+    personal_information: {
+      name: '设置',
+      personal_setting: '个人设置',
+      api_keys: 'API Keys',
+      edit_password: "修改密码",
+      third_account: '第三方平台账号',
+    },
     other: {
       track: "测试跟踪",
       api: "接口测试",
       performance: "性能测试",
       project: "项目设置",
-      report: "报表统计"
+      report: "报表统计",
+    }
+  },
+  env_options: {
+    all_assertions: "全局断言"
+  },
+  error_report_library: {
+    name: "误报库",
+    assertion: "误报断言",
+    tips: "注：在\"项目设置-设置环境-全局断言\"中启用误报将进行以下规则匹配",
+    use_error_report: "启用误报",
+    use_desc: "失败断言与误报规则冲突时统一处理为误报",
+    option: {
+      name: "误报",
+      error_code: "误报名称",
+      match_type: "匹配类型",
+      status: "状态",
+      is_open: "启用状态",
+      create: "创建误报",
+      match_rule: "匹配规则",
+    },
+    match_type: {
+      text: "文本"
     }
   }
 };

@@ -2,10 +2,10 @@
  <div>
    <el-row >
      <el-col :span="12">
-       <ms-doughnut-pie-chart :name="$t('功能用例数')" :data="caseCharData" ref="functionChar"/>
+       <ms-doughnut-pie-chart :name="$t('test_track.plan.test_plan_test_case_count')" :data="caseCharData" ref="functionChar"/>
      </el-col>
      <el-col :span="12">
-       <ms-doughnut-pie-chart :name="$t('缺陷数')" :data="issueCharData"/>
+       <ms-doughnut-pie-chart :name="$t('test_track.plan_view.issues_count')" :data="issueCharData"/>
      </el-col>
    </el-row>
  </div>
@@ -28,9 +28,9 @@ export default {
         ["Prepare", {name: this.$t('test_track.plan.plan_status_prepare'), itemStyle: {color: '#DEDE10'}}]
       ]),
       issueDataMap: new Map([
-        ["resolved", {name: this.$t('已解决'), itemStyle: {color: '#67C23A'}}],
-        ["new", {name: this.$t('新建'), itemStyle: {color: '#F56C6C'}}],
-        ["closed", {name: this.$t('已关闭'), itemStyle: {color: '#909399'}}],
+        ["resolved", {name: this.$t('test_track.issue.status_resolved'), itemStyle: {color: '#67C23A'}}],
+        ["new", {name: this.$t('test_track.issue.status_new'), itemStyle: {color: '#F56C6C'}}],
+        ["closed", {name: this.$t('test_track.issue.status_closed'), itemStyle: {color: '#909399'}}],
       ]),
       caseCharData: [],
       issueCharData: [],
