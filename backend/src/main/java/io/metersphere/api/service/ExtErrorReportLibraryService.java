@@ -36,7 +36,6 @@ public class ExtErrorReportLibraryService {
                     MsAssertions assertions = JSONObject.parseObject(item.getContent(), MsAssertions.class);
                     if (assertions != null && CollectionUtils.isNotEmpty(assertions.getRegex())) {
                         //误报的断言要设置取反
-                        assertions.getRegex().get(0).setTestType(6);
                         assertions.getRegex().get(0).setDescription("Check Error report:" + item.getErrorCode());
                         returnList.add(assertions);
                     }
