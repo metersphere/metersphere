@@ -67,7 +67,7 @@ import MsTcpBasisParameters from "../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import ApiBaseComponent from "../common/ApiBaseComponent";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, strMapToObj} from "@/common/js/utils";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
@@ -256,7 +256,7 @@ export default {
 
     },
     clickResource(resource) {
-      let workspaceId;
+      let workspaceId = getCurrentWorkspaceId();
       let isTurnSpace = true
       if(resource.projectId!==getCurrentProjectID()){
         isTurnSpace = false;
