@@ -1,6 +1,7 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
+import io.metersphere.dto.ErrorReportAssertionResult;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResponseAssertionResult;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,24 +15,24 @@ import java.util.List;
  */
 public class ErrorReportLibraryUtil {
 
-
     private static final String NEW_ERROR_CODE_STATE = "Check Error report:";
+
+    private static final String ERROR_REPORT_SUCCESS_MESSAGE_FLAG = "Final result is success";
 
     public static ErrorReportLibraryParseDTO parseAssertions(RequestResult result) {
         ErrorReportLibraryParseDTO returnDTO = new ErrorReportLibraryParseDTO();
         if (result != null && result.getResponseResult() != null && CollectionUtils.isNotEmpty(result.getResponseResult().getAssertions())) {
-            List<ResponseAssertionResult> errorReportAssertionList = new ArrayList<>();
+            List<ErrorReportAssertionResult> errorReportAssertionList = new ArrayList<>();
             for (ResponseAssertionResult assertion : result.getResponseResult().getAssertions()) {
-                if (StringUtils.startsWithAny(assertion.getContent(), NEW_ERROR_CODE_STATE)) {
-                    errorReportAssertionList.add(assertion);
+                if (StringUtils.equals(assertion.getName(), "ErrorReportAssertion") && assertion instanceof  ErrorReportAssertionResult) {
+                    errorReportAssertionList.add((ErrorReportAssertionResult)assertion);
                 }
             }
             if (CollectionUtils.isNotEmpty(errorReportAssertionList)) {
                 List<ResponseAssertionResult> unMatchErrorReportAssertions = new ArrayList<>();
                 int machedErrorPortAssertions = 0;
-                for (ResponseAssertionResult assertion : errorReportAssertionList) {
-                    if (!assertion.isPass()) {
-                        assertion.setPass(true);
+                for (ErrorReportAssertionResult assertion : errorReportAssertionList) {
+                    if(StringUtils.endsWith(assertion.getErrorReportMessage(),ERROR_REPORT_SUCCESS_MESSAGE_FLAG)) {
                         machedErrorPortAssertions ++;
                         String errorCode = StringUtils.substring(assertion.getContent(), NEW_ERROR_CODE_STATE.length());
                         returnDTO.getErrorCodeList().add(errorCode);

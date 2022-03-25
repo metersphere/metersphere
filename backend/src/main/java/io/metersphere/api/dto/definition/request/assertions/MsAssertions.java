@@ -102,7 +102,13 @@ public class MsAssertions extends MsTestElement {
     }
 
     private ResponseAssertion responseAssertion(MsAssertionRegex assertionRegex) {
-        ResponseAssertion assertion = new ResponseAssertion();
+        ResponseAssertion assertion = null;
+        if(StringUtils.startsWith(assertionRegex.getDescription(),"Check Error report:")){
+            this.setName("ErrorReportAssertion");
+            assertion = new ErrorReportAssertion();
+        }else {
+            assertion = new ResponseAssertion();
+        }
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionRegex.getDescription())) {
             assertion.setName(this.getName() + delimiter + assertionRegex.getDescription());
