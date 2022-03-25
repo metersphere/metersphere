@@ -3122,5 +3122,7 @@ export default {
     enable: "启用",
     disable: "禁用",
     resolution: "分辨率",
+    ignore_fail: "忽略异常并继续执行",
+    not_ignore_fail: "终止流程",
   }
 };
