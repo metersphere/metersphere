@@ -10,14 +10,15 @@
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.related_requirements')" name="demand">
-      <el-col :span="7">
+      <el-col :span="8">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
 
-          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" clearable filterable :filter-method="filterDemand"/>
+          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" style="width: 100%"
+                       clearable filterable :filter-method="filterDemand"/>
         </el-form-item>
       </el-col>
-      <el-col :span="7">
+      <el-col :span="8" :offset="2">
         <el-form-item :label="$t('test_track.case.demand_name_id')" :label-width="labelWidth" prop="demandName"
                       v-if="form.demandId=='other'">
           <el-input :disabled="readOnly" v-model="form.demandName"></el-input>
@@ -333,6 +334,5 @@ export default {
 
 .el-cascader >>> .el-input {
   cursor: pointer;
-  width: 250px;
 }
 </style>
