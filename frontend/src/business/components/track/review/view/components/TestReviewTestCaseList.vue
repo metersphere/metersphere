@@ -357,10 +357,7 @@ export default {
       });
     },
     initTableHeader() {
-      this.result.loading = true;
       this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, []);
-      this.result.loading = false;
-      setTimeout(this.$refs.table.reloadTable, 200);
     },
     customHeader() {
       const list = deepClone(this.tableLabel);
@@ -383,16 +380,14 @@ export default {
 
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
-        getTestReviewTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
+        this.result = getTestReviewTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
           this.total = data.itemCount;
           this.tableData = data.listObject;
-
         });
       }
-      setTimeout(this.$refs.table.reloadTable, 200);
     },
     getNexPageData() {
-      getTestReviewTestCase(this.currentPage * this.pageSize + 1, 1, this.condition, (data) => {
+      this.result = getTestReviewTestCase(this.currentPage * this.pageSize + 1, 1, this.condition, (data) => {
         if (data.listObject && data.listObject.length > 0) {
           this.nextPageData = {
             name: data.listObject[0].name
@@ -405,7 +400,7 @@ export default {
     getPreData() {
       // 如果不是第一页并且只有一条数据时，需要调用
       if (this.currentPage > 1 && this.tableData.length === 1) {
-        getTestReviewTestCase((this.currentPage - 1) * this.pageSize, 1, this.condition, (data) => {
+        this.result = getTestReviewTestCase((this.currentPage - 1) * this.pageSize, 1, this.condition, (data) => {
           if (data.listObject && data.listObject.length > 0) {
             this.prePageData = {
               name: data.listObject[0].name
@@ -553,6 +548,10 @@ export default {
 
 .ms-table-header {
   margin-bottom: 10px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 49px !important; /* 不同表格top值不一样 */
 }
 </style>
 
