@@ -150,9 +150,8 @@ public class ApiScenarioImportUtil {
         if (bloBs == null) {
             ApiDefinition apiDefinition = getApiDefinitionResult(object,apiDefinitionService,definitionMap);
             if(apiDefinition!=null){
-                if(MapUtils.isNotEmpty(definitionMap)){
+                if(MapUtils.isNotEmpty(definitionMap)||definitionMap.size()==0){
                     structureCaseByJson(i,object,testCaseService, apiDefinition,apiTestCaseMapper);
-
                 }
             }else{
                 ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(i,apiDefinitionService, object, versionId, projectId, apiDefinitionMapper,definitionMap);
