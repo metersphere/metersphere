@@ -204,6 +204,9 @@ export default {
         });
       }
     },
+    getLogModule(val) {
+      return this.LOG_MODULE_MAP.get(val) ? this.LOG_MODULE_MAP.get(val) : val;
+    },
     toPage(uri) {
       let id = "new_a";
       let a = document.createElement("a");
