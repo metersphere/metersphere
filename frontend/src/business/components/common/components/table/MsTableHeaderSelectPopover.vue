@@ -29,7 +29,7 @@
       name: "MsTableHeaderSelectPopover",
       // props: ['total', 'pageSize', 'selectDataCounts'],
       props: {
-        selectType: String,
+        selectType: Boolean,
         total: {
           type: Number,
           default() {
