@@ -124,7 +124,7 @@
 
             <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
               <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
-                         v-prevent-re-click @click="getApiScenario"></el-button>
+                         v-prevent-re-click @click="refreshApiScenario"></el-button>
             </el-tooltip>
             <!--操作按钮-->
             <el-link type="primary" @click.stop @click="showHistory" style="margin: 0px 5px">
@@ -183,7 +183,7 @@
                          highlight-current
                          :show-checkbox="isBatchProcess"
                          @check-change="chooseHeadsUp"
-                         @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
+                         @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree" :key="reloadTree">
 
                   <el-row class="custom-tree-node" :gutter="10" type="flex" align="middle" slot-scope="{node, data}"
                           style="width: 100%">
@@ -201,7 +201,7 @@
                       <show-more-btn :is-show="node.checked" :buttons="batchOperators" :size="selectDataCounts"
                                      v-show="data.checkBox" style="margin-right: 10px"/>
                     </span>
-                    <span style="width: calc(100% - 30px);">
+                    <span style="width: calc(100% - 40px);">
                       <!-- 步骤组件-->
                       <ms-component-config
                         :scenario-definition="scenarioDefinition"
@@ -556,6 +556,7 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
         },
       ],
+      reloadTree: "",
     }
   },
   created() {
@@ -597,6 +598,10 @@ export default {
     }
   },
   methods: {
+    refreshApiScenario() {
+      this.getApiScenario();
+      this.reloadTree = getUUID();
+    },
     recursiveSorting(arr) {
       for (let i in arr) {
         arr[i].disabled = true;
