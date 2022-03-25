@@ -42,7 +42,7 @@ public class ApiScenarioReportStructureService {
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
 
     private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");
-    private static final List<String> controls = Arrays.asList("Assertions","IfController","ConstantTimer");
+    private static final List<String> controls = Arrays.asList("Assertions", "IfController", "ConstantTimer");
 
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
@@ -266,7 +266,7 @@ public class ApiScenarioReportStructureService {
                 requestResultExpandDTO.setName(dto.getLabel());
                 dto.setTotalStatus("unexecute");
                 dto.setValue(requestResultExpandDTO);
-            } else if(StringUtils.isNotEmpty(dto.getType()) && controls.contains(dto.getType()) && dto.getValue() == null){
+            } else if (StringUtils.isNotEmpty(dto.getType()) && controls.contains(dto.getType()) && dto.getValue() == null) {
                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
                 requestResultExpandDTO.setStatus("success");
                 requestResultExpandDTO.setName(dto.getLabel());
@@ -351,12 +351,12 @@ public class ApiScenarioReportStructureService {
             if (dtoList.stream().filter(e -> e.getValue() != null).collect(Collectors.toList()).size() == dtoList.size()) {
                 List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
                         && StringUtils.equalsIgnoreCase(e.getTotalStatus(), "unexecute")).collect(Collectors.toList());
-                Map<String, Integer> map = unList.stream().collect(Collectors.toMap(StepTreeDTO::getResourceId, StepTreeDTO::getIndex));
-                List<StepTreeDTO> list = dtoList.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
-                for (int index = 0; index < list.size(); index++) {
-                    if (map.containsKey(list.get(index).getResourceId())) {
-                        Collections.swap(list, index, (map.get(list.get(index).getResourceId()) - 1));
-                    }
+                List<StepTreeDTO> list = dtoList.stream().filter(e -> e.getValue().getStartTime() != 0).collect(Collectors.toList());
+                list = list.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
+                unList = unList.stream().sorted(Comparator.comparing(x -> x.getIndex())).collect(Collectors.toList());
+                for (StepTreeDTO unListDTO : unList) {
+                    int index = unListDTO.getIndex();
+                    list.add(index - 1, unListDTO);
                 }
                 for (int index = 0; index < list.size(); index++) {
                     list.get(index).setIndex((index + 1));
@@ -435,7 +435,7 @@ public class ApiScenarioReportStructureService {
         if (CollectionUtils.isNotEmpty(reportResults)) {
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "Error")).collect(Collectors.toList()).size());
-            reportDTO.setUnExecute(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "STOP","unexecute")).collect(Collectors.toList()).size());
+            reportDTO.setUnExecute(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "STOP", "unexecute")).collect(Collectors.toList()).size());
             reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.equalsAnyIgnoreCase(e.getStatus(), "errorReportResult")).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiDefinitionExecResultVo::getTotalAssertions).sum());
@@ -498,7 +498,7 @@ public class ApiScenarioReportStructureService {
             AtomicLong stepError = new AtomicLong();
             AtomicLong stepTotal = new AtomicLong();
 
-            reportDTO.setScenarioSuccess((reportDTO.getScenarioTotal() - reportDTO.getScenarioError() - reportDTO.getScenarioUnExecute() -reportDTO.getScenarioErrorReport()));
+            reportDTO.setScenarioSuccess((reportDTO.getScenarioTotal() - reportDTO.getScenarioError() - reportDTO.getScenarioUnExecute() - reportDTO.getScenarioErrorReport()));
 
             //统计步骤数据
             AtomicLong stepErrorCode = new AtomicLong();
