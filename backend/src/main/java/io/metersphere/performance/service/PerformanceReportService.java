@@ -347,9 +347,18 @@ public class PerformanceReportService {
         loadTestReportMapper.updateByPrimaryKeySelective(report);
     }
 
-    public void deleteReportBatch(DeleteReportRequest reportRequest) {
-        List<String> ids = reportRequest.getIds();
+    public void deleteReportBatch(DeleteReportRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> getLoadTestReportIds(request.getProjectId()));
+
+        List<String> ids = request.getIds();
         ids.forEach(this::deleteReport);
+    }
+
+    private List<String> getLoadTestReportIds(String projectId) {
+        ReportRequest request = new ReportRequest();
+        request.setProjectId(projectId);
+        return this.getReportList(request).stream().map(LoadTestReport::getId).collect(Collectors.toList());
     }
 
     public List<ChartsData> getErrorChartData(String id) {
