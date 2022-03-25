@@ -20,14 +20,17 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
 ];
 
 export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
-  {value: 'id',text: 'id'},
-  {value: 'name',text: 'name'},
-  {value: 'class',text: 'class'},
-  {value: 'tag',text: 'tag'},
-  {value: 'link',text: 'link'},
-  {value: 'plink',text: 'plink'},
-  {value: 'css',text: 'css'},
-  {value: 'xpath',text: 'xpath'}
+  {value: 'id', text: 'id'},
+  {value: 'name', text: 'name'},
+  {value: 'className', text: 'class'},
+  {value: 'tagName', text: 'tag'},
+  {value: 'linkText', text: 'link'},
+  {value: 'partialLinkText', text: 'plink'},
+  {value: 'css', text: 'css'},
+  {value: 'xpath', text: 'xpath'},
+  {value: 'label', text: 'label'},
+  {value: 'value', text: 'value'},
+  {value: 'index', text: 'index'},
 ];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
