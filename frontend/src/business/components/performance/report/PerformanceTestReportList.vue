@@ -73,6 +73,7 @@
           </el-table-column>
           <el-table-column
             min-width="100"
+            show-overflow-tooltip
             prop="testStartTime"
             :label="$t('report.test_start_time') ">
             <template v-slot:default="scope">
@@ -81,6 +82,7 @@
           </el-table-column>
           <el-table-column
             min-width="100"
+            show-overflow-tooltip
             prop="testEndTime"
             :label="$t('report.test_end_time')">
             <template v-slot:default="scope">
@@ -432,6 +434,10 @@ export default {
 
 /deep/ .el-table__fixed-body-wrapper {
   top: 47px !important; /* 不同表格top值不一样 */
+}
+
+.table-card >>> .el-input__icon {
+  line-height: 23px;
 }
 
 </style>
