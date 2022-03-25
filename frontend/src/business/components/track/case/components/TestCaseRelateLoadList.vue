@@ -6,6 +6,10 @@
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                                v-if="condition.components !== undefined && condition.components.length > 0"
                                @search="initTable"/>
+
+      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"
+                    class="search-input"/>
+
       <ms-table v-loading="result.loading" :data="tableData" :condition="condition" :page-size="pageSize"
                 :total="total"
                 :showSelectAll="false"
@@ -23,6 +27,17 @@
         <ms-table-column
           prop="name"
           :label="$t('commons.name')"/>
+
+        <ms-table-column
+          v-if="versionEnable"
+          :label="$t('project.version.name')"
+          :filters="versionFilters"
+          min-width="100px"
+          prop="versionId">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="status"
@@ -67,6 +82,9 @@ import TableSelectCountBar from "@/business/components/api/automation/scenario/a
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {TEST_CASE_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
+import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseRelateLoadList",
@@ -77,6 +95,7 @@ export default {
     MsTable,
     MsTableColumn,
     MsTableAdvSearchBar,
+    'VersionSelect': VersionSelect.default,
   },
   data() {
     return {
@@ -84,18 +103,25 @@ export default {
         components: TEST_CASE_RELEVANCE_LOAD_CASE
       },
       result: {},
-      screenHeight: '600px',//屏幕高度
+      screenHeight: '100vh - 400px',//屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      versionFilters: [],
     }
   },
   props: {
     projectId: String,
+    versionEnable: Boolean,
+    notInIds: {
+      type: Array,
+      default: null
+    }
   },
   created: function () {
     this.initTable();
+    this.getVersionOptions();
   },
   watch: {
     projectId() {
@@ -119,6 +145,7 @@ export default {
       } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
       }
+      this.condition.notInIds = this.notInIds;
       let url = '/test/case/relevance/load/list/';
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;
@@ -141,6 +168,20 @@ export default {
         this.$refs.table.clearSelectRows();
       }
     },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data;
+          this.versionFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      }
+    },
+    changeVersion(currentVersion) {
+      this.condition.versionId = currentVersion || null;
+      this.initTable();
+    }
   },
 }
 </script>

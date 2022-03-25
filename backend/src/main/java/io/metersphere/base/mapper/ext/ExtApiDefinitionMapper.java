@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionExample;
 import io.metersphere.base.domain.ApiDefinitionExampleWithOperation;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.dto.RelationshipGraphData;
@@ -71,11 +72,20 @@ public interface ExtApiDefinitionMapper {
 
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
-    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+    Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
     long countQuotedApiByProjectId(String projectId);
 
     List<RelationshipGraphData.Node> getForGraph(@Param("ids") Set<String> ids);
 
     int countByIds(@Param("ids") List<String> ids);
+
+    long countByExample(ApiDefinitionExample example);
+
+    void clearLatestVersion(String refId);
+
+    void addLatestVersion(String refId);
+
+    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
+
 }

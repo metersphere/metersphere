@@ -1,22 +1,22 @@
 <template>
   <el-card class="card-content" v-if="isShow && !loading">
-    <el-button-group v-if="currentApi.id">
-      <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.api_title')" placement="left">
-        <el-button plain :class="{active: showApiList}" @click="changeTab('api')" size="small">API</el-button>
-      </el-tooltip>
-      <el-tooltip class="item" effect="dark" :content="$t('commons.test')" placement="top">
-        <el-button plain :class="{active: showTest}" @click="changeTab('test')" size="small">TEST</el-button>
-      </el-tooltip>
-      <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.case_title')" placement="top">
-        <el-button plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">CASE</el-button>
-      </el-tooltip>
-
-      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
-        <el-button plain :class="{active: showMock}" @click="changeTab('mock')" size="small"> Mock</el-button>
-      </el-tooltip>
+    <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed;">
+      <el-button class="item" plain :class="{active: showApiList}" @click="changeTab('api')" size="small">
+        API
+      </el-button>
+      <el-button class="item" plain :class="{active: showTest}" @click="changeTab('test')" size="small">
+        TEST
+      </el-button>
+      <el-button class="item" plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">
+        CASE
+      </el-button>
+      <el-button class="item" plain :class="{active: showMock}" @click="changeTab('mock')" size="small"
+                 v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
+        MOCK
+      </el-button>
 
     </el-button-group>
-
+    <div style="height: 40px"></div>
     <template v-slot:header>
       <slot name="header"></slot>
     </template>
@@ -30,11 +30,12 @@
         :moduleOptions="moduleOptions"
         @runTest="runTest"
         @saveApi="saveApi"
+        @checkout="checkout"
         @changeTab="changeTab"
         @createRootModel="createRootModel"
       />
     </div>
-    <div v-else-if="showTest" class="ms-api-div">
+    <div v-else-if="showTest">
       <ms-run-test-http-page
         :syncTabs="syncTabs"
         :currentProtocol="currentProtocol"
@@ -43,6 +44,7 @@
         @saveAsApi="editApi"
         @saveAsCase="saveAsCase"
         @refresh="refresh"
+        ref="httpTestPage"
         v-if="currentProtocol==='HTTP'"
       />
       <ms-run-test-tcp-page
@@ -53,6 +55,7 @@
         @saveAsApi="editApi"
         @saveAsCase="saveAsCase"
         @refresh="refresh"
+        ref="tcpTestPage"
         v-if="currentProtocol==='TCP'"
       />
       <ms-run-test-sql-page
@@ -77,16 +80,17 @@
       />
     </div>
 
-    <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
-      <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="false"/>
-    </div>
-    <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
-      <mock-tab :base-mock-config-data="baseMockConfigData" :is-tcp="true"/>
+    <div v-if="showMock && (currentProtocol === 'HTTP' || currentProtocol === 'TCP')">
+      <mock-tab :base-mock-config-data="baseMockConfigData" @redirectToTest="redirectToTest" :version-name="currentApi.versionName"
+                :is-tcp="currentProtocol === 'TCP'"/>
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
       <api-case-simple-list
+        class="api-case-simple-list"
         :apiDefinitionId="currentApi.id"
+        :apiDefinition="currentApi"
+        :current-version="currentApi.versionId"
         :trash-enable="false"
         @changeSelectDataRangeAll="changeSelectDataRangeAll"
         @handleCase="handleCase"
@@ -115,6 +119,7 @@ import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 import MsApiCaseList from "./case/ApiCaseList";
 import {getUUID} from "@/common/js/utils";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import _ from 'lodash';
 
 export default {
   name: "EditCompleteContainer",
@@ -140,7 +145,7 @@ export default {
       loading: false,
       createCase: "",
       api: {},
-    }
+    };
   },
   props: {
     activeDom: String,
@@ -194,7 +199,10 @@ export default {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
             this.sort(stepArray[i].hashTree);
@@ -211,6 +219,11 @@ export default {
       if (this.currentApi.request != null && this.currentApi.request != 'null' && this.currentApi.request != undefined) {
         if (Object.prototype.toString.call(this.currentApi.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
           this.currentApi.request = JSON.parse(this.currentApi.request);
+          if (this.currentApi.request.body && !this.currentApi.request.body.type) {
+            let tempRequest = _.cloneDeep(this.currentApi.request);
+            tempRequest.body = {type: null};
+            this.currentApi.request = tempRequest;
+          }
         }
       }
       if (this.currentApi && this.currentApi.request && !this.currentApi.request.hashTree) {
@@ -232,6 +245,7 @@ export default {
         this.$post('/mockConfig/genMockConfig', mockParam, response => {
           let mockConfig = response.data;
           mockConfig.apiName = this.currentApi.name;
+          mockConfig.versionName = this.currentApi.versionName;
           this.baseMockConfigData = mockConfig;
         });
       }
@@ -241,8 +255,8 @@ export default {
     },
     saveApi(data) {
       this.$emit("saveApi", data);
-      if (data != null && data.tags != 'null' && data.tags != undefined) {
-        if (Object.prototype.toString.call(data.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+      if (data != null && data.tags !== 'null' && data.tags !== undefined) {
+        if (Object.prototype.toString.call(data.tags) === "[object String]") {
           data.tags = JSON.parse(data.tags);
         }
       }
@@ -260,8 +274,31 @@ export default {
     refresh() {
       this.$emit("refresh");
     },
+    checkout(data) {
+      Object.assign(this.currentApi, data);
+      this.reload();
+    },
     changeTab(tabType) {
+      this.beforeChangeTab();
       this.refreshButtonActiveClass(tabType);
+    },
+    beforeChangeTab(){
+      //关闭接口用例弹窗
+      this.$refs.caseList.close();
+    },
+    redirectToTest(param) {
+      this.refreshButtonActiveClass("test");
+      this.$nextTick(() => {
+        if (this.currentProtocol === "HTTP" && this.$refs.httpTestPage) {
+          let requestParam = null;
+          if (param.params) {
+            requestParam = param.params;
+          }
+          this.$refs.httpTestPage.setRequestParam(requestParam,true);
+        } else if (this.currentProtocol === "TCP" && this.$refs.tcpTestPage) {
+          this.$refs.tcpTestPage.setRequestParam(param,true);
+        }
+      });
     },
     removeListener() {
       if (this.$refs && this.$refs.apiConfig) {
@@ -283,9 +320,9 @@ export default {
       }
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
+        this.loading = false;
       });
     },
     saveAsCase(api) {
@@ -317,15 +354,39 @@ export default {
         this.showMock = true;
         this.$store.state.currentApiCase = undefined;
       } else {
-        this.showApiList = true;
-        this.showTestCaseList = false;
-        this.showTest = false;
-        this.showMock = false;
-        this.$store.state.currentApiCase = undefined;
+        this.syncApi();
+      }
+    },
+    changeApi() {
+      this.showApiList = true;
+      this.showTestCaseList = false;
+      this.showTest = false;
+      this.showMock = false;
+      this.$store.state.currentApiCase = undefined;
+    },
+    syncApi() {
+      if (this.syncTabs && this.syncTabs.length > 0 && this.syncTabs.includes(this.currentApi.id)) {
+        // 标示接口在其他地方更新过，当前页面需要同步
+        let url = "/api/definition/get/";
+        this.$get(url + this.currentApi.id, response => {
+          if (response.data) {
+            let request = JSON.parse(response.data.request);
+            let index = this.syncTabs.findIndex(item => {
+              if (item === this.currentApi.id) {
+                return true;
+              }
+            });
+            this.syncTabs.splice(index, 1);
+            this.currentApi.request = request;
+            this.changeApi();
+          }
+        });
+      } else {
+        this.changeApi();
       }
     }
-  },
-}
+  }
+};
 </script>
 
 <style scoped>
@@ -341,5 +402,20 @@ export default {
 
 .item {
   border: solid 1px var(--primary_color);
+}
+
+
+.api-case-simple-list >>> .el-table {
+  height: calc(100vh - 262px) !important;
+}
+
+/deep/ .ms-opt-btn {
+  position: fixed;
+  right: 50px;
+  z-index: 1;
+  top: 128px;
+  float: right;
+  margin-right: 20px;
+  margin-top: 5px;
 }
 </style>

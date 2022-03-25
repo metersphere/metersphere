@@ -17,6 +17,7 @@
         :right-tip="$t('test_track.case.minder')"
         :right-content="$t('test_track.case.minder')"
         :middle-button-enable="false">
+
         <functional-test-case-list
           class="table-list"
           v-if="activeDom === 'left'"
@@ -26,6 +27,7 @@
           :plan-id="planId"
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
+          :version-enable="versionEnable"
           ref="testPlanTestCaseList"/>
         <test-plan-minder
           :tree-nodes="treeNodes"
@@ -41,6 +43,7 @@
     <test-plan-functional-relevance
       @refresh="refresh"
       :plan-id="planId"
+      :version-enable="versionEnable"
       ref="testCaseRelevance"/>
 
     <is-change-confirm
@@ -63,6 +66,7 @@ import TestPlanFunctionalRelevance
   from "@/business/components/track/plan/view/comonents/functional/TestPlanFunctionalRelevance";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 
 export default {
   name: "TestPlanFunctional",
@@ -90,7 +94,8 @@ export default {
   props: [
     'planId',
     'redirectCharType',
-    'clickType'
+    'clickType',
+    'versionEnable',
   ],
   mounted() {
     this.initData();
@@ -174,14 +179,11 @@ export default {
       } else {
         return true;
       }
-    },
+    }
   }
 };
 
 </script>
 
 <style scoped>
-/deep/ .el-button-group > .el-button:first-child {
-  padding: 4px 1px !important;
-}
 </style>

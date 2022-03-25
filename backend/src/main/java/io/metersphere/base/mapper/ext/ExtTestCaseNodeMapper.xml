@@ -29,6 +29,15 @@
         from test_case_node
         where parent_id = #{parentId}
     </select>
+    <select id="getNodeTreeByIds" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from test_case_node
+        where test_case_node.id in
+        <foreach collection="nodeIds" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
     <update id="updatePos">
         update test_case_node
         set pos = #{pos}

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
-    <api-base-component @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
+    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :saved="false" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
+    <api-base-component :if-from-variable-advance="ifFromVariableAdvance" @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" :show-version="showVersion" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
       <template v-slot:headerLeft>
         <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" style="margin-right: 10px" v-if="!isMax"/>
@@ -22,7 +22,7 @@
         <el-row>
           <el-col :span="8">
             <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
-            <el-input-number size="small" v-model="controller.countController.loops" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+            <el-input-number size="small" v-model="controller.countController.loops" :placeholder="$t('commons.millisecond')" :max="100000000" :min="0"/>
             <span class="ms-span ms-radio">次</span>
           </el-col>
           <el-col :span="8">
@@ -107,12 +107,20 @@ export default {
       type: Boolean,
       default: true,
     },
+    showVersion: {
+      type: Boolean,
+      default: true,
+    },
     index: Object,
     draggable: {
       type: Boolean,
       default: false,
     },
     envMap: Map,
+    ifFromVariableAdvance: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -156,9 +164,9 @@ export default {
           label: "commons.adv_search.operators.is_not_empty",
           value: "is not empty",
         },
-        stepFilter: new STEP,
-        messageWebSocket: {},
       },
+      stepFilter: new STEP,
+      messageWebSocket: {},
     };
   },
   watch: {
@@ -246,6 +254,10 @@ export default {
         this.$warning("当前循环下没有请求，不能执行");
         return;
       }
+      if(!this.controller.enable){
+        this.$warning(this.$t('api_test.automation.debug_message'));
+        return;
+      }
       this.loading = true;
       this.debugData = {
         id: this.currentScenario.id,
@@ -258,6 +270,9 @@ export default {
         environmentId: this.currentEnvironmentId,
         hashTree: [this.controller],
       };
+      if (this.node && this.node.data) {
+        this.node.data.debug = true;
+      }
       this.reportId = getUUID().substring(0, 8);
     },
 
@@ -298,7 +313,7 @@ export default {
           if (item.type === "HTTPSamplerProxy" || item.type === "DubboSampler" || item.type === "JDBCSampler" || item.type === "TCPSampler") {
             item.activeName = "0";
             item.active = true;
-            item.requestResult = this.requestResult.get(item.resourceId);
+            item.requestResult = this.requestResult.get(item.id);
           }
           if (item.hashTree && item.hashTree.length > 0) {
             this.setResult(item.hashTree);

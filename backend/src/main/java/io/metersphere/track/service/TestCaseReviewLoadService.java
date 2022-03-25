@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseReviewLoadMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.TestReviewLoadCaseDTO;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -46,7 +47,7 @@ public class TestCaseReviewLoadService {
     @Resource
     private LoadTestMapper loadTestMapper;
 
-    public List<LoadTest> relevanceList(TestReviewRequest request) {
+    public List<LoadTestDTO> relevanceList(TestReviewRequest request) {
         List<String> ids = extTestCaseReviewLoadMapper.selectIdsNotInPlan(request.getProjectId(), request.getTestCaseReviewId());
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();

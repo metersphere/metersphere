@@ -22,7 +22,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "Assertions")
 public class MsAssertions extends MsTestElement {
-    private String clazzName = "io.metersphere.api.dto.definition.request.assertions.MsAssertions";
+    private String clazzName = MsAssertions.class.getCanonicalName();
 
     private List<MsAssertionRegex> regex;
     private List<MsAssertionJsonPath> jsonPath;
@@ -33,6 +33,7 @@ public class MsAssertions extends MsTestElement {
     private MsAssertionDocument document;
 
     private static final String delimiter = "split==";
+    private static final String delimiterScript = "split&&";
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -41,12 +42,15 @@ public class MsAssertions extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
+        if (StringUtils.isEmpty(this.getName())) {
+            this.setName("Assertion");
+        }
         addAssertions(tree);
     }
 
     private void addAssertions(HashTree hashTree) {
         // 增加JSON文档结构校验
-        if (this.getDocument() != null && this.getDocument().getType().equals("JSON")) {
+        if (this.getDocument() != null && this.getDocument().getType().equals("JSON") && this.getDocument().isEnable()) {
             if (StringUtils.isNotEmpty(this.getDocument().getData().getJsonFollowAPI()) && !this.getDocument().getData().getJsonFollowAPI().equals("false")) {
                 ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 this.getDocument().getData().setJson(apiDefinitionService.getDocument(this.getDocument().getData().getJsonFollowAPI(), "JSON"));
@@ -56,7 +60,9 @@ public class MsAssertions extends MsTestElement {
             }
         }
         // 增加XML文档结构校验
-        if (this.getDocument() != null && this.getDocument().getType().equals("XML") && CollectionUtils.isNotEmpty(this.getDocument().getData().getXml())) {
+        if (this.getDocument() != null && this.getDocument().getType().equals("XML")
+                && CollectionUtils.isNotEmpty(this.getDocument().getData().getXml())
+                && this.getDocument().isEnable()) {
             if (StringUtils.isNotEmpty(this.getDocument().getData().getXmlFollowAPI()) && !this.getDocument().getData().getXmlFollowAPI().equals("false")) {
                 ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                 this.getDocument().getData().setXml(apiDefinitionService.getDocument(this.getDocument().getData().getXmlFollowAPI(), "XML"));
@@ -108,6 +114,10 @@ public class MsAssertions extends MsTestElement {
         assertion.setAssumeSuccess(assertionRegex.isAssumeSuccess());
         assertion.addTestString(assertionRegex.getExpression());
         assertion.setToContainsType();
+        if (assertionRegex.getTestType() != 2) {
+            assertion.setProperty("Assertion.test_type", assertionRegex.getTestType());
+        }
+
         switch (assertionRegex.getSubject()) {
             case "Response Code":
                 assertion.setTestFieldResponseCode();
@@ -176,9 +186,9 @@ public class MsAssertions extends MsTestElement {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
-            assertion.setName("JSR223" + delimiter + this.getName() + delimiter + assertionJSR223.getDesc() + "&&" + assertionJSR223.getScript());
+            assertion.setName("JSR223" + delimiter + this.getName() + delimiter + assertionJSR223.getDesc() + delimiterScript + assertionJSR223.getScript());
         } else {
-            assertion.setName("JSR223" + delimiter + this.getName() + delimiter + "JSR223Assertion" + "&&" + assertionJSR223.getScript());
+            assertion.setName("JSR223" + delimiter + this.getName() + delimiter + "JSR223Assertion" + delimiterScript + assertionJSR223.getScript());
         }
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));

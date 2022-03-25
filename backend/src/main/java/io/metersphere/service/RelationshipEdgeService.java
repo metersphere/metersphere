@@ -43,18 +43,18 @@ public class RelationshipEdgeService {
         example.createCriteria()
                 .andSourceIdEqualTo(sourceId)
                 .andTargetIdEqualTo(targetId);
-
-        String graphId = relationshipEdgeMapper.selectByExample(example).get(0).getGraphId();
-        updateGraphId(graphId, sourceId, targetId);
-
-        relationshipEdgeMapper.deleteByExample(example);
+        List<RelationshipEdge> list = relationshipEdgeMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            String graphId = relationshipEdgeMapper.selectByExample(example).get(0).getGraphId();
+            updateGraphId(graphId, sourceId, targetId);
+            relationshipEdgeMapper.deleteByExample(example);
+        }
     }
 
     public void delete(String sourceId ,List<String> targetIds) {
-        RelationshipEdgeExample example = new RelationshipEdgeExample();
-        example.createCriteria().andSourceIdEqualTo(sourceId).andTargetIdIn(targetIds);
-
-        relationshipEdgeMapper.deleteByExample(example);
+        targetIds.forEach(targetId -> {
+            delete(sourceId, targetId);
+        });
     }
 
     /**

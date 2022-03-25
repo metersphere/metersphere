@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class MessageTask implements Serializable {
@@ -25,7 +26,7 @@ public class MessageTask implements Serializable {
 
     private Long createTime;
 
-    private String workspaceId;
+    private String projectId;
 
     private String template;
 

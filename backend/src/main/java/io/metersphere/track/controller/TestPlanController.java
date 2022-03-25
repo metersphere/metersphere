@@ -9,6 +9,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -76,9 +77,9 @@ public class TestPlanController {
         return testPlanService.listTestAllPlan(request);
     }
 
-    @GetMapping("/get/stage/option/{workspaceId}")
-    public JSONArray getStageOption(@PathVariable("workspaceId") String workspaceId) {
-        return testPlanService.getStageOption(workspaceId);
+    @GetMapping("/get/stage/option/{projectId}")
+    public JSONArray getStageOption(@PathVariable("projectId") String projectId) {
+        return testPlanService.getStageOption(projectId);
     }
 
     @GetMapping("recent/{count}/{id}")
@@ -96,7 +97,7 @@ public class TestPlanController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_CREATE)
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.CREATE, title = "#testPlan.name", content = "#msClass.getLogDetails(#testPlan.id)", msClass = TestPlanService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.CREATE, title = "#testPlan.name", content = "#msClass.getLogDetails(#testPlan.id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestPlanStart", subject = "测试计划通知")
     public TestPlan addTestPlan(@RequestBody AddTestPlanRequest testPlan) {
         testPlan.setId(UUID.randomUUID().toString());
@@ -105,7 +106,7 @@ public class TestPlanController {
 
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanDTO.id)", content = "#msClass.getLogDetails(#testPlanDTO.id)", msClass = TestPlanService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanDTO.id)", content = "#msClass.getLogDetails(#testPlanDTO.id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestPlanUpdate", subject = "测试计划通知")
     public TestPlan editTestPlan(@RequestBody AddTestPlanRequest testPlanDTO) {
         return testPlanService.editTestPlanWithRequest(testPlanDTO);
@@ -113,7 +114,7 @@ public class TestPlanController {
 
     @PostMapping("/edit/status/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
     public void editTestPlanStatus(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);
         testPlanService.editTestPlanStatus(planId);
@@ -128,13 +129,13 @@ public class TestPlanController {
 
     @PostMapping("/edit/follows/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-    public void editTestFollows(@PathVariable String planId,@RequestBody List<String> follows) {
-        testPlanService.editTestFollows(planId,follows);
+    public void editTestFollows(@PathVariable String planId, @RequestBody List<String> follows) {
+        testPlanService.editTestFollows(planId, follows);
     }
 
     @PostMapping("/delete/{testPlanId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_DELETE)
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanId)", msClass = TestPlanService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanId)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, target = "#targetClass.get(#testPlanId)", targetClass = TestPlanService.class,
             event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestPlanDelete", subject = "测试计划通知")
     public int deleteTestPlan(@PathVariable String testPlanId) {
@@ -143,7 +144,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/relevance")
-    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = TestPlanService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = TestPlanService.class)
     public void testPlanRelevance(@RequestBody PlanCaseRelevanceRequest request) {
         testPlanService.testPlanRelevance(request);
     }
@@ -232,7 +233,7 @@ public class TestPlanController {
 
     @GetMapping("/report/{planId}")
     public TestPlanSimpleReportDTO getReport(@PathVariable String planId) {
-        return testPlanService.getReport(planId);
+        return testPlanService.getReport(planId, null);
     }
 
     @GetMapping("/report/functional/result")
@@ -275,5 +276,20 @@ public class TestPlanController {
     @GetMapping("/follow/{planId}")
     public List<User> getPlanFollow(@PathVariable String planId) {
         return testPlanService.getPlanFollow(planId);
+    }
+
+    @PostMapping(value = "/schedule/Batch/updateEnable")
+    public void updateBatchScheduleEnable(@RequestBody ScheduleInfoRequest request) {
+        testPlanService.batchUpdateScheduleEnable(request);
+    }
+
+    @PostMapping(value = "/schedule/enable/total")
+    public long countByScheduleEnableTotal(@RequestBody QueryTestPlanRequest request) {
+        return testPlanService.countScheduleEnableTotal(request);
+    }
+
+    @PostMapping(value = "/update/scheduleByEnable")
+    public ScheduleDTO updateTestPlanBySchedule(@RequestBody ScheduleInfoRequest request) {
+        return testPlanService.updateTestPlanBySchedule(request);
     }
 }

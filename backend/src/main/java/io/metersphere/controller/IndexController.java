@@ -41,4 +41,14 @@ public class IndexController {
     public String shareRedirect() {
         return "share-plan-report.html";
     }
+
+    @GetMapping(value = "/sharePerformanceReport")
+    public String sharePerformanceRedirect() {
+        return "share-performance-report.html";
+    }
+
+    @GetMapping(value = "/shareApiReport")
+    public String shareApiRedirect() {
+        return "share-api-report.html";
+    }
 }

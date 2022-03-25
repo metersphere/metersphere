@@ -14,7 +14,10 @@ import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
-import io.metersphere.dto.*;
+import io.metersphere.dto.RelatedSource;
+import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.dto.WorkspaceResource;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -82,8 +85,6 @@ public class WorkspaceService {
             userGroupMapper.insert(userGroup);
             // 新项目创建新工作空间时设置
             extUserMapper.updateLastWorkspaceIdIfNull(workspace.getId(), SessionUtils.getUserId());
-            // 设置默认的通知
-            extWorkspaceMapper.setDefaultMessageTask(workspace.getId());
         } else {
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);
@@ -216,8 +217,6 @@ public class WorkspaceService {
         userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
         userGroup.setSourceId(workspace.getId());
         userGroupMapper.insert(userGroup);
-        // 设置默认的通知
-        extWorkspaceMapper.setDefaultMessageTask(workspace.getId());
         return workspace;
     }
 

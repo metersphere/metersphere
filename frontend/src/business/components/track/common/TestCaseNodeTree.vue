@@ -9,7 +9,7 @@
       :delete-permission="['PROJECT_TRACK_CASE:READ+DELETE']"
       :add-permission="['PROJECT_TRACK_CASE:READ+CREATE']"
       :update-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
-      :default-label="'未规划用例'"
+      :default-label="$t('api_test.unplanned_case')"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -23,12 +23,23 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-          <module-trash-button :condition="condition" :total="total" :exe="enableTrash"/>
-        <module-public-button :condition="condition" :public-total="publicTotal" :exe="enablePublic"/>
+          <module-trash-button
+            :condition="condition"
+            :total="total"
+            :exe="enableTrash"/>
+        <module-public-button
+          :condition="condition"
+          :public-total="publicTotal"
+          :exe="enablePublic"/>
       </template>
     </ms-node-tree>
-    <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
-    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"/>
+    <test-case-import
+      @refreshAll="refreshAll"
+      ref="testCaseImport"/>
+    <test-case-export
+      @refreshAll="refreshAll"
+      @exportTestCase="exportTestCase"
+      ref="testCaseExport"/>
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
@@ -43,7 +54,7 @@
 import NodeEdit from "./NodeEdit";
 import MsNodeTree from "./NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
-import TestCaseImport from "@/business/components/track/case/components/TestCaseImport";
+import TestCaseImport from "@/business/components/track/case/components/import/TestCaseImport";
 import TestCaseExport from "@/business/components/track/case/components/TestCaseExport";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {buildTree} from "../../api/definition/model/NodeTree";
@@ -94,7 +105,8 @@ export default {
           callback: this.handleExport,
           permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
         }
-      ]
+      ],
+      currentNode: {}
     };
   },
   props: {
@@ -147,24 +159,36 @@ export default {
     },
     enableTrash() {
       this.condition.trashEnable = true;
+      // 隐藏公共用例库背景色
+      this.condition.publicEnable = false;
       this.$emit('enableTrash', this.condition.trashEnable);
+      this.$emit('toPublic', 'trash');
     },
     enablePublic() {
       this.condition.publicEnable = true;
+      this.condition.trashEnable = false;
       this.$emit('enablePublic', this.condition.publicEnable);
+      this.$emit('toPublic', 'public');
     },
     list() {
       if (this.projectId) {
         this.result = getTestCaseNodes(this.projectId, data => {
           this.treeNodes = data;
           this.treeNodes.forEach(node => {
+            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
             buildTree(node, {path: ''});
           });
           this.setModuleOptions();
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter(this.condition.filterText);
           }
+          this.setCurrentKey();
         });
+      }
+    },
+    setCurrentKey() {
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.setCurrentKey(this.currentNode);
       }
     },
     increase(id) {
@@ -236,9 +260,12 @@ export default {
 
       this.$store.commit('setTestCaseSelectNode', node);
       this.$store.commit('setTestCaseSelectNodeIds', nodeIds);
+      this.condition.trashEnable = false;
+      this.condition.publicEnable = false;
 
       this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       this.currentModule = node.data;
+      this.currentNode = node;
       if (node.data.id === 'root') {
         this.$emit("nodeSelectEvent", node, [], pNodes);
       } else {

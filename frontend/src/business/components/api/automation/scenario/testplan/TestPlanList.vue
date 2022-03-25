@@ -274,6 +274,7 @@ export default {
             params.ids.push(row.id);
           });
           params.condition = this.scenarioCondition;
+
           this.$post('/api/automation/getApiScenarioProjectIdByConditions', params, res => {
             let data = res.data;
             data.forEach(scenario => {
@@ -362,7 +363,7 @@ export default {
         return this.$refs.envPopover.checkEnv();
       },
       getWsProjects() {
-        this.$get("/project/listAll", res => {
+        this.$get("/project/getOwnerProjects", res => {
           this.projectList = res.data;
         })
       },

@@ -14,6 +14,7 @@ export const TEST_PLAN_SCENARIO_CASE = 'test_plan_scenario_case'
 
 export const TokenKey = 'Admin-Token';
 export const LicenseKey = 'License';
+export const PROJECT_VERSION_ENABLE = 'PROJECT_VERSION_ENABLE';
 export const DEFAULT_LANGUAGE = 'default_language';
 export const CURRENT_LANGUAGE = 'current_language';
 

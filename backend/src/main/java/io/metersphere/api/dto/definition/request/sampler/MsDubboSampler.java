@@ -26,6 +26,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,7 +36,6 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DubboSampler")
 public class MsDubboSampler extends MsTestElement {
-    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsDubboSampler";
+    private String clazzName = MsDubboSampler.class.getCanonicalName();
 
     /**
      * type 必须放最前面，以便能够转换正确的类
@@ -88,19 +88,24 @@ public class MsDubboSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.setRefElement();
+            boolean ref = this.setRefElement();
+            if (!ref) {
+                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                return;
+            }
             hashTree = this.getHashTree();
         }
 
         final HashTree testPlanTree = tree.add(dubboSample(config));
         if (CollectionUtils.isNotEmpty(hashTree)) {
+            hashTree = ElementUtil.order(hashTree);
             hashTree.forEach(el -> {
                 el.toHashTree(testPlanTree, el.getHashTree(), config);
             });
         }
     }
 
-    private void setRefElement() {
+    private boolean setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -139,26 +144,28 @@ public class MsDubboSampler extends MsTestElement {
                 this.setConsumerAndService(proxy.getConsumerAndService());
                 this.setRegistryCenter(proxy.getRegistryCenter());
                 this.setConfigCenter(proxy.getConfigCenter());
+                return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             LogUtil.error(ex);
         }
+        return false;
     }
 
     private DubboSample dubboSample(ParameterConfig config) {
         DubboSample sampler = new DubboSample();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
+        if (config.isOperating()) {
+            String[] testNameArr = sampler.getName().split("<->");
+            if (testNameArr.length > 0) {
+                String testName = testNameArr[0];
+                sampler.setName(testName);
+            }
+        }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
-        sampler.setProperty("MS-ID", this.getId());
-        String indexPath = this.getIndex();
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
-        List<String> id_names = new LinkedList<>();
-        ElementUtil.getScenarioSet(this, id_names);
-        sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
-
+        ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
         sampler.addTestElement(configCenter(this.getConfigCenter()));
         sampler.addTestElement(registryCenter(this.getRegistryCenter()));
         sampler.addTestElement(consumerAndService(this.getConsumerAndService()));

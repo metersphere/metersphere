@@ -1,14 +1,17 @@
 <template>
   <div>
     <div v-if="request.protocol === 'HTTP'">
-      <div v-if="request.url || isCustomizeReq">
+      <div v-if="isCustomizeReq">
         <el-select v-model="request.method" class="ms-select" size="small" :disabled="request.disabled">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
         <el-input v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly class="ms-input"/>
+
+        <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.path"
+                  style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled" v-if="request.isRefEnvironment"/>
+
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url"
-                  style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled">
-        </el-input>
+                  style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled" v-else/>
         <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment" @change="setDomain" :disabled="request.disabled">
           {{ $t('api_test.request.refer_to_environment') }}
         </el-checkbox>
@@ -55,26 +58,6 @@ export default {
       isUrl: false,
     }
   },
-  mounted() {
-    if (this.isCustomizeReq) {
-      if (this.request.isRefEnvironment === undefined || this.request.isRefEnvironment === null) {
-        // 兼容旧数据
-        if (this.request.url) {
-          this.$set(this.request, 'isRefEnvironment', false);
-        } else {
-          this.$set(this.request, 'isRefEnvironment', true);
-        }
-      }
-      // url和path设置成一样，根据是否引用环境判断用哪个
-      if (this.request.url) {
-        this.$set(this.request, 'path', this.request.url);
-
-      } else {
-        this.$set(this.request, 'url', this.request.path);
-
-      }
-    }
-  },
   methods: {
     pathChange() {
       this.isUrl = false;
@@ -86,18 +69,16 @@ export default {
     },
     urlChange() {
       this.isUrl = false;
-      if (this.isCustomizeReq) {
-        this.request.path = this.request.url;
-      }
-      if (!this.request.url || this.request.url.indexOf('?') === -1) return;
-      let url = this.getURL(this.addProtocol(this.request.url));
-      if (url) {
-        let paramUrl = this.request.url.substr(this.request.url.indexOf("?") + 1);
-        if (paramUrl && this.isUrl) {
-          this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
-        }
-        if (this.isCustomizeReq) {
-          this.request.path = this.request.url;
+      if (this.request.isRefEnvironment) {
+        this.pathChange();
+      } else {
+        if (!this.request.url || this.request.url.indexOf('?') === -1) return;
+        let url = this.getURL(this.addProtocol(this.request.url));
+        if (url) {
+          let paramUrl = this.request.url.substr(this.request.url.indexOf("?") + 1);
+          if (paramUrl && this.isUrl) {
+            this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
+          }
         }
       }
     },

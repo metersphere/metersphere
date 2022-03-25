@@ -7,7 +7,7 @@
             t.id,
             t.project_id,
             t.oper_user,
-            t.source_id,
+            t3.source_id,
             t.oper_type,
             t.oper_module,
             t.oper_title,
@@ -16,23 +16,24 @@
             t2.`name` projectName
         FROM
             operating_log t
-            LEFT JOIN `user` t1 ON t.oper_user = t1.id
-            LEFT JOIN project t2 ON t.project_id = t2.id
-            LEFT JOIN workspace w on t2.workspace_id = w.id
+        LEFT JOIN `user` t1 ON t.oper_user = t1.id
+        LEFT JOIN project t2 ON t.project_id = t2.id
+        LEFT JOIN workspace w on t2.workspace_id = w.id
+        LEFT JOIN operating_log_resource t3 ON t.id = t3.operating_log_id
         <where>
             (
-                <if test="request.projectIds != null and request.projectIds.size > 0 ">
-                    t.project_id in
-                    <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
-                        #{projectId}
-                    </foreach>
-                    or
-                </if>
-                t.project_id is null
-                or t.project_id = ""
+            <if test="request.projectIds != null and request.projectIds.size > 0 ">
+                t.project_id in
+                <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
+                    #{projectId}
+                </foreach>
+                or
+            </if>
+            t.project_id is null
+            or t.project_id = ""
             )
             <if test="request.operUser != null and request.operUser != ''">
-                and (t.oper_user like #{request.operUser, jdbcType=VARCHAR} or  t1.name like  #{request.operUser, jdbcType=VARCHAR})
+                and (t.oper_user like #{request.operUser, jdbcType=VARCHAR} or t1.name like #{request.operUser, jdbcType=VARCHAR})
             </if>
             <if test="request.projectId != null and request.projectId !=''">
                 and t.project_id = #{request.projectId}
@@ -48,41 +49,36 @@
             </if>
 
         </where>
-            order by t.oper_time desc
-     </select>
+        order by t.oper_time desc
+    </select>
 
 
     <select id="findBySourceId" resultType="io.metersphere.log.vo.OperatingLogDTO">
-        SELECT
-        t.id,
-        t.project_id,
-        t.oper_user,
-        t.source_id,
-        t.oper_type,
-        t.oper_module,
-        t.oper_title,
-        t.oper_time,
-        t.oper_content,
-        t1.NAME userName,
-        t2.`name` projectName
-        FROM
-        operating_log t
-        LEFT JOIN `user` t1 ON t.oper_user = t1.id
-        LEFT JOIN project t2 ON t.project_id = t2.id
-        LEFT JOIN workspace w on t2.workspace_id = w.id
-        <where>
-            t.oper_type in ('UPDATE','BATCH_UPDATE')
-            <if test="request.modules != null and request.modules.size > 0 ">
-               and t.oper_module in
-                <foreach collection="request.modules" item="module" separator="," open="(" close=")">
-                    #{module}
-                </foreach>
-            </if>
-            and t.oper_content is not null
-            <if test="request.sourceId != null and request.sourceId != ''">
-                and t.source_id like #{request.sourceId, jdbcType=VARCHAR}
-            </if>
-        </where>
-        order by t.oper_time desc
+        SELECT tt.*, t1.NAME userName,t2.`name` projectName
+        from (
+            SELECT
+            t.id,
+            t.project_id,
+            t.oper_user,
+            t.source_id,
+            t.oper_type,
+            t.oper_module,
+            t.oper_title,
+            t.oper_time,
+            t.oper_content
+            FROM
+            operating_log t
+            INNER JOIN operating_log_resource t3 ON t.id = t3.operating_log_id
+            <where>
+                t.oper_type in ('UPDATE','BATCH_UPDATE')
+                and t.oper_content is not null
+                <if test="request.sourceId != null and request.sourceId != ''">
+                    and t3.source_id = #{request.sourceId, jdbcType=VARCHAR}
+                </if>
+            </where>
+            order by t.oper_time desc limit 100
+        )tt
+        LEFT JOIN `user` t1 ON tt.oper_user = t1.id
+        LEFT JOIN project t2 ON tt.project_id = t2.id
     </select>
 </mapper>

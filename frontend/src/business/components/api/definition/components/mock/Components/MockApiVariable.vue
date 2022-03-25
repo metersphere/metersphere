@@ -21,9 +21,8 @@
               </el-select>
             </template>
           </el-input>
-
           <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit>
+                           :fetch-suggestions="querySearch" @input="change" @change="change" :placeholder="keyText" show-word-limit>
             <template v-slot:prepend>
               <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
                          @change="typeChange(item)">
@@ -37,7 +36,19 @@
         </el-col>
 
         <el-col class="item" v-if="isActive && item.type !== 'file'">
+          <el-select :disabled="isReadOnly" :maxlength="100" v-model="item.rangeType" size="small" style="width: 100%">
+            <el-option
+              v-for="item in rangeTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"></el-option>
+          </el-select>
+        </el-col>
+        <el-col class="item" v-if="isActive && item.type !== 'file'">
+          <el-input-number v-if="item.rangeType === 'length_eq' || item.rangeType === 'length_not_eq' || item.rangeType === 'length_large_than' || item.rangeType === 'length_shot_than'"
+                           v-model="item.value" size="small" :placeholder="valueText" show-word-limit />
           <el-autocomplete
+            v-else
             :disabled="isReadOnly"
             size="small"
             class="input-with-autocomplete"
@@ -81,13 +92,13 @@
     <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
     <api-variable-setting :append-to-body="appendDialogToBody"
-      ref="apiVariableSetting"/>
+                          ref="apiVariableSetting"/>
 
   </div>
 </template>
 
 <script>
-import {KeyValue,Scenario} from "@/business/components/api/definition/model/ApiTestModel";
+import {KeyValue, Scenario} from "@/business/components/api/definition/model/ApiTestModel";
 import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 import MsApiVariableAdvance from "@/business/components/api/definition/components/ApiVariableAdvance";
 import MsApiVariableJson from "@/business/components/api/definition/components/ApiVariableJson";
@@ -136,6 +147,44 @@ export default {
       ],
       isSelectAll: true,
       isActive: true,
+      rangeTypeOptions: [
+        {
+          value: "",
+          label: this.$t("commons.please_select"),
+        },
+        {
+          value: "value_eq",
+          label: this.$t("api_test.mock.range_type.value_eq"),
+        },
+        {
+          value: "value_not_eq",
+          label: this.$t("api_test.mock.range_type.value_not_eq"),
+        },
+        {
+          value: "value_contain",
+          label: this.$t("api_test.mock.range_type.value_contain"),
+        },
+        {
+          value: "length_eq",
+          label: this.$t("api_test.mock.range_type.length_eq"),
+        },
+        {
+          value: "length_not_eq",
+          label: this.$t("api_test.mock.range_type.length_not_eq"),
+        },
+        {
+          value: "length_large_than",
+          label: this.$t("api_test.mock.range_type.length_large_than"),
+        },
+        {
+          value: "length_shot_than",
+          label: this.$t("api_test.mock.range_type.length_shot_than"),
+        },
+        {
+          value: "regular_match",
+          label: this.$t("api_test.mock.range_type.regular_match"),
+        },
+      ],
     }
   },
   watch: {

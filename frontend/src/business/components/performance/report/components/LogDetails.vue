@@ -100,7 +100,9 @@ export default {
     },
     handleGetLogResourceDetail(data, resourceId) {
       data.listObject.forEach(log => {
-        this.logContent[resourceId].push(log);
+        if (this.logContent[resourceId]) {
+          this.logContent[resourceId].push(log);
+        }
       });
       this.page[resourceId]++;
       this.loading = false;
@@ -116,8 +118,12 @@ export default {
       this.load(instance);
     },
     downloadLogFile(resourceId) {
+      let url = '/performance/report/log/download/' + this.id + '/' + resourceId;
+      if (this.isShare) {
+        url = '/share/performance/report/log/download/' + this.id + '/' + resourceId;
+      }
       let config = {
-        url: '/performance/report/log/download/' + this.id + '/' + resourceId,
+        url: url,
         method: 'get',
         responseType: 'blob'
       };
@@ -140,7 +146,11 @@ export default {
     },
   },
   created() {
-    this.id = this.$route.path.split('/')[4];
+    if (this.report) {
+      this.id = this.report.id;
+    } else {
+      this.id = this.$route.path.split('/')[4];
+    }
     this.getResource();
   },
   watch: {
@@ -157,7 +167,7 @@ export default {
         }
         let status = val.status;
         this.id = val.id;
-        if (status === "Running") {
+        if (status === "Completed" || status === "Running") {
           this.getResource();
         }
       },

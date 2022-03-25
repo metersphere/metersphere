@@ -16,6 +16,8 @@ public class WebSocketUtils {
         if (session == null) {
             return;
         }
+        // 设置永不超时，一直保持会话连接
+        session.setMaxIdleTimeout(-1);
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async == null) {
             return;
@@ -48,7 +50,7 @@ public class WebSocketUtils {
                 WebSocketUtils.ONLINE_USER_SESSIONS.remove(("send." + reportId));
             }
         } catch (Exception e) {
-            LoggerUtil.error("关闭socket失败：" + e.getMessage());
+            LoggerUtil.error("关闭socket失败：", e);
         }
     }
 }

@@ -37,7 +37,6 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +50,7 @@ import java.util.stream.Collectors;
 public class MsJDBCPostProcessor extends MsTestElement {
     // type 必须放最前面，以便能够转换正确的类
     private String type = "JDBCPostProcessor";
-    private String clazzName = "io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor";
+    private String clazzName = MsJDBCPostProcessor.class.getCanonicalName();
 
     @JSONField(ordinal = 20)
     private DatabaseConfig dataSource;
@@ -131,7 +130,8 @@ public class MsJDBCPostProcessor extends MsTestElement {
                 this.initDataSource();
             }
             if (this.dataSource == null) {
-                MSException.throwException("数据源为空无法执行");
+                String message = "数据源为空请选择数据源";
+                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }
         }
         final HashTree samplerHashTree = tree.add(jdbcPostProcessor(config));
@@ -242,16 +242,11 @@ public class MsJDBCPostProcessor extends MsTestElement {
     private JDBCPostProcessor jdbcPostProcessor(ParameterConfig config) {
         JDBCPostProcessor jdbcPostProcessor = new JDBCPostProcessor();
         jdbcPostProcessor.setEnabled(this.isEnable());
-        jdbcPostProcessor.setName(this.getName() == null? "JDBCPostProcessor" : this.getName());
+        jdbcPostProcessor.setName(this.getName() == null ? "JDBCPostProcessor" : this.getName());
         jdbcPostProcessor.setProperty(TestElement.TEST_CLASS, JDBCPostProcessor.class.getName());
         jdbcPostProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        jdbcPostProcessor.setProperty("MS-ID", this.getId());
-        String indexPath = this.getIndex();
-        jdbcPostProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
-        List<String> id_names = new LinkedList<>();
-        ElementUtil.getScenarioSet(this, id_names);
-        jdbcPostProcessor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
+        ElementUtil.setBaseParams(jdbcPostProcessor, this.getParent(), config, this.getId(), this.getIndex());
         // request.getDataSource() 是ID，需要转换为Name
         jdbcPostProcessor.setProperty("dataSource", this.dataSource.getName());
         jdbcPostProcessor.setProperty("query", this.getQuery());

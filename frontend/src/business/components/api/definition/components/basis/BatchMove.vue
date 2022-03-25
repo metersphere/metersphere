@@ -62,7 +62,6 @@ export default {
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val);
-      console.log( this.treeNodes)
     }
   },
   methods: {

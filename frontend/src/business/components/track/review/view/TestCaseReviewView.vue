@@ -17,7 +17,8 @@
       </template>
     </ms-test-plan-header-bar>
     <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
-                          :clickType="clickType" :review-id="reviewId" ref="testReviewFunction"/>
+                          :clickType="clickType" :review-id="reviewId" :version-enable="versionEnable"
+                          ref="testReviewFunction"/>
   </div>
 
 </template>
@@ -35,6 +36,7 @@ import MsTestPlanHeaderBar from "@/business/components/track/plan/view/comonents
 import TestReviewFunction from "@/business/components/track/review/view/components/TestReviewFunction";
 import TestReviewApi from "@/business/components/track/review/view/components/TestReviewApi";
 import TestReviewLoad from "@/business/components/track/review/view/components/TestReviewLoad";
+import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
   name: "TestCaseReviewView",
@@ -65,6 +67,8 @@ export default {
       redirectCharType: '',
       //报表跳转过来的参数-通过哪种数据跳转的
       clickType: '',
+      projectId: null,
+      versionEnable: false,
     }
   },
   computed: {
@@ -85,6 +89,7 @@ export default {
   mounted() {
     this.initData();
     this.openTestCaseEdit(this.$route.path);
+    this.checkVersionEnable();
   },
   beforeRouteLeave(to, from, next) {
     if (!this.$refs.testReviewFunction) {
@@ -122,6 +127,7 @@ export default {
       }
     },
     initData() {
+      this.projectId = getCurrentProjectID();
       this.getTestReviews();
       this.getNodeTreeByReviewId();
     },
@@ -170,7 +176,17 @@ export default {
       this.$nextTick(() => {
         this.isMenuShow = true;
       });
-    }
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+        });
+      }
+    },
   }
 }
 </script>

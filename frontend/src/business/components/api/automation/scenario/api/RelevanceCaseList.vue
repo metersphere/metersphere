@@ -4,7 +4,11 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
-      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly"
+      <template>
+        <slot name="version"></slot>
+      </template>
+
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan || isScript" :is-read-only="isReadOnly"
                              @setEnvironment="setEnvironment" ref="msEnvironmentSelect"/>
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
@@ -54,6 +58,17 @@
         </ms-table-column>
 
         <ms-table-column
+          v-if="versionEnable"
+          :label="$t('project.version.name')"
+          :filters="versionFilters"
+          min-width="100px"
+          prop="versionId">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.versionName }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
           prop="createUser"
           :label="'创建人'"/>
 
@@ -96,6 +111,7 @@ import TableSelectCountBar from "./TableSelectCountBar";
 import {_filter, _sort, buildBatchParam} from "@/common/js/tableUtils";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {TEST_PLAN_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "RelevanceCaseList",
@@ -136,17 +152,20 @@ export default {
         priority: CASE_PRIORITY,
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
-      screenHeight: 'calc(100vh - 300px)',//屏幕高度
+      screenHeight: 'calc(100vh - 400px)',//屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      environmentId: ""
-    }
+      environmentId: "",
+      versionEnable: false,
+    };
   },
   props: {
     currentProtocol: String,
     selectNodeIds: Array,
+    versionFilters: Array,
+    currentVersion: String,
     visible: {
       type: Boolean,
       default: false,
@@ -154,6 +173,12 @@ export default {
     isApiListEnable: {
       type: Boolean,
       default: false,
+    },
+    isScript: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
     isReadOnly: {
       type: Boolean,
@@ -165,10 +190,12 @@ export default {
     },
     projectId: String,
     planId: String,
-    isTestPlan: Boolean
+    isTestPlan: Boolean,
   },
-  created: function () {
+  created() {
+    this.condition.versionId = this.currentVersion;
     this.initTable();
+    this.checkVersionEnable();
   },
   watch: {
     selectNodeIds() {
@@ -178,6 +205,11 @@ export default {
       this.initTable();
     },
     projectId() {
+      this.initTable();
+      this.checkVersionEnable();
+    },
+    currentVersion() {
+      this.condition.versionId = this.currentVersion;
       this.initTable();
     }
   },
@@ -292,9 +324,19 @@ export default {
       }
       param.ids = Array.from(sampleSelectRows).map(row => row.id);
       return param;
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.versionEnable = response.data;
+        });
+      }
     }
   },
-}
+};
 </script>
 
 <style scoped>
@@ -314,9 +356,7 @@ export default {
 
 .search-input {
   float: right;
-  width: 300px;
-  /*margin-bottom: 20px;*/
-  margin-right: 20px;
+  width: 200px;
 }
 
 .adv-search-bar {

@@ -42,7 +42,7 @@ public class TestCaseReviewApiCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
-        apiTestCaseService.buildUserInfo(apiTestCases);
+        apiTestCaseService.buildUserInfo(apiTestCases, request.isSelectEnvironment());
         return apiTestCases;
     }
     public List<String> getExecResultByReviewId(String reviewId) {

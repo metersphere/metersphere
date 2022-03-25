@@ -66,19 +66,12 @@ public class CatalogApi {
     @GetMapping("health/service/{service}")
     @NoResultHolder
     public ResponseEntity<JSONArray> health(@PathVariable String service) {
-        Map<String, List<String>> activeNodes = consulService.getActiveNodes();
         int index = RandomUtils.nextInt(1000, 20000);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("X-Consul-Default-Acl-Policy", "allow");
         responseHeaders.set("X-Consul-Index", index + "");
         responseHeaders.set("X-Consul-Knownleader", "true");
         responseHeaders.set("X-Consul-Lastcontact", "0");
-
-        if (!activeNodes.containsKey(service)) {
-            return ResponseEntity.ok()
-                    .headers(responseHeaders)
-                    .body(JSON.parseArray("[]"));
-        }
 
         int i = service.lastIndexOf("-");
         String address = service.substring(0, i);

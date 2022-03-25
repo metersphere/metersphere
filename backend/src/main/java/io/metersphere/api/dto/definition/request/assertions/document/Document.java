@@ -25,6 +25,8 @@ public class Document {
     private List<DocumentElement> xml;
     private String assertionName;
 
+    private static final String delimiter = "split==";
+
     public void parseJson(HashTree hashTree, String name) {
         this.assertionName = name;
         // 提取出合并的权限
@@ -56,20 +58,24 @@ public class Document {
     private void conditions(List<DocumentElement> dataList, Map<String, ElementCondition> conditionMap) {
         dataList.forEach(item -> {
             if (StringUtils.isEmpty(item.getGroupId())) {
-                conditionMap.put(item.getId(),
+                ElementCondition elementCondition =
                         new ElementCondition(item.isInclude(), item.isTypeVerification(), item.isArrayVerification(),
                                 new LinkedList<Condition>() {{
                                     this.add(new Condition(item.getContentVerification(), item.getExpectedOutcome()));
-                                }}));
+                                }});
+                elementCondition.setType(item.getType());
+                conditionMap.put(item.getId(), elementCondition);
             } else {
                 if (conditionMap.containsKey(item.getGroupId())) {
                     conditionMap.get(item.getGroupId()).getConditions().add(new Condition(item.getContentVerification(), item.getExpectedOutcome()));
                 } else {
-                    conditionMap.put(item.getGroupId(),
+                    ElementCondition elementCondition =
                             new ElementCondition(item.isInclude(), item.isTypeVerification(), item.isArrayVerification(),
                                     new LinkedList<Condition>() {{
                                         this.add(new Condition(item.getContentVerification(), item.getExpectedOutcome()));
-                                    }}));
+                                    }});
+                    elementCondition.setType(item.getType());
+                    conditionMap.put(item.getGroupId(), elementCondition);
                 }
             }
             if (CollectionUtils.isNotEmpty(item.getChildren())) {
@@ -147,9 +153,15 @@ public class Document {
     private String getConditionStr(DocumentElement item, ElementCondition elementCondition) {
         StringBuilder conditionStr = new StringBuilder();
         if (elementCondition != null && CollectionUtils.isNotEmpty(elementCondition.getConditions())) {
-            elementCondition.getConditions().forEach(condition -> {
-                conditionStr.append(item.getLabel(condition.getKey()).replace("'%'", (condition.getValue() != null ? condition.getValue().toString() : "")));
+            if (elementCondition.isTypeVerification()) {
+                conditionStr.append("类型：[ " + item.getType() + " ]");
                 conditionStr.append(" and ");
+            }
+            elementCondition.getConditions().forEach(condition -> {
+                if (!StringUtils.equals("none", condition.getKey())) {
+                    conditionStr.append(item.getLabel(condition.getKey()).replace("'%'", (condition.getValue() != null ? condition.getValue().toString() : "")));
+                    conditionStr.append(" and ");
+                }
             });
         }
         String label = "";
@@ -166,7 +178,7 @@ public class Document {
         assertion.setExpectNull(false);
         assertion.setInvert(false);
 
-        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "DocumentAssertion") + ("==" + item.getJsonPath() + " " + getConditionStr(item, elementCondition)));
+        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "DocumentAssertion") + (delimiter + item.getJsonPath() + " " + getConditionStr(item, elementCondition)));
         assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
         assertion.setJsonPath(item.getJsonPath());
@@ -185,7 +197,7 @@ public class Document {
     private XMLAssertion newXMLAssertion(DocumentElement item, ElementCondition elementCondition) {
         XMLAssertion assertion = new XMLAssertion();
         assertion.setEnabled(true);
-        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "XMLAssertion") + "==" + (item.getJsonPath() + " " + getConditionStr(item, elementCondition)));
+        assertion.setName((StringUtils.isNotEmpty(assertionName) ? assertionName : "XMLAssertion") + delimiter + (item.getJsonPath() + " " + getConditionStr(item, elementCondition)));
         assertion.setProperty(TestElement.TEST_CLASS, XMLAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XMLAssertionGui"));
         assertion.setProperty("XML_PATH", item.getJsonPath());

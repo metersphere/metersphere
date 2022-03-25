@@ -56,6 +56,47 @@ export function LOG_TYPE_MAP(_this) {
   return LOG_TYPE_MAP;
 }
 
+export function LOG_MODULE_MAP(_this) {
+  let LOG_MODULE_MAP = new Map([
+    ['SYSTEM_PARAMETER_SETTING', _this.$t('operating_log.system_parameter_setting')],
+    ['SYSTEM_TEST_RESOURCE', _this.$t('operating_log.system_test_resource')],
+    ['SYSTEM_USER', _this.$t('operating_log.system_user')],
+    ['SYSTEM_WORKSPACE', _this.$t('operating_log.system_workspace')],
+    ['WORKSPACE_TEMPLATE_SETTINGS', _this.$t('operating_log.workspace_template_settings')],
+    ['WORKSPACE_MESSAGE_SETTINGS', _this.$t('operating_log.workspace_message_settings')],
+    ['WORKSPACE_TEMPLATE_SETTINGS_FIELD', _this.$t('operating_log.workspace_template_settings_field')],
+    ['WORKSPACE_TEMPLATE_SETTINGS_ISSUE', _this.$t('operating_log.workspace_template_settings_issue')],
+    ['WORKSPACE_SERVICE_INTEGRATION', _this.$t('operating_log.workspace_service_integration')],
+    ['WORKSPACE_TEMPLATE_SETTINGS_CASE', _this.$t('operating_log.workspace_template_settings_case')],
+    ['WORKSPACE_MEMBER', _this.$t('operating_log.workspace_member')],
+    ['API_AUTOMATION', _this.$t('operating_log.api_automation')],
+    ['API_AUTOMATION_REPORT', _this.$t('operating_log.api_automation_report')],
+    ['API_DEFINITION', _this.$t('operating_log.api_definition')],
+    ['API_DEFINITION_CASE', _this.$t('operating_log.api_definition_case')],
+    ['TRACK_TEST_PLAN', _this.$t('operating_log.track_test_plan')],
+    ['TRACK_BUG', _this.$t('operating_log.track_bug')],
+    ['TRACK_TEST_CASE_REVIEW', _this.$t('operating_log.track_test_case_review')],
+    ['TRACK_TEST_CASE', _this.$t('operating_log.track_test_case')],
+    ['TRACK_REPORT', _this.$t('operating_log.track_report')],
+    ['AUTH_TITLE', _this.$t('operating_log.auth_title')],
+    ['PROJECT_PROJECT_JAR', _this.$t('operating_log.project_project_jar')],
+    ['PROJECT_ENVIRONMENT_SETTING', _this.$t('operating_log.project_environment_setting')],
+    ['PROJECT_PROJECT_MANAGER', _this.$t('operating_log.project_project_manager')],
+    ['PROJECT_FILE_MANAGEMENT', _this.$t('operating_log.project_file_management')],
+    ['PROJECT_PROJECT_MEMBER', _this.$t('operating_log.project_project_member')],
+    ['PERSONAL_INFORMATION_PERSONAL_SETTINGS', _this.$t('operating_log.personal_information_personal_settings')],
+    ['PERSONAL_INFORMATION_APIKEYS', _this.$t('operating_log.personal_information_apikeys')],
+    ['GROUP_PERMISSION', _this.$t('operating_log.group_permission')],
+    ['PERFORMANCE_TEST_REPORT', _this.$t('operating_log.performance_test_report')],
+    ['PERFORMANCE_TEST', _this.$t('operating_log.performance_test')],
+    ['ERROR_REPORT_LIBRARY', _this.$t('operating_log.error_report_library')],
+    ['SYSTEM_QUOTA_MANAGEMENT', _this.$t('operating_log.system_quota_management')],
+    ['ENTERPRISE_TEST_REPORT', _this.$t('operating_log.enterprise_test_report')],
+    ['SYSTEM_AUTHORIZATION_MANAGEMENT', _this.$t('operating_log.system_authorization_management')],
+  ]);
+  return LOG_MODULE_MAP;
+}
+
 export function SYSLIST() {
   let sysList = [
     {
@@ -201,7 +242,7 @@ export function SYSLIST() {
 }
 
 
-export function getUrl(d) {
+export function getUrl(d, _this) {
   let url = "/#";
   let resourceId = d.sourceId;
   if (resourceId && (resourceId.startsWith("\"") || resourceId.startsWith("["))) {
@@ -214,7 +255,9 @@ export function getUrl(d) {
       return url;
     }
   }
-  switch (d.operModule) {
+  let moduleMap = LOG_MODULE_MAP(_this);
+  let module = moduleMap.get(d.operModule) ? moduleMap.get(d.operModule) : d.operModule;
+  switch (module) {
     case "接口自动化" :
     case "Api automation" :
     case"接口自動化":

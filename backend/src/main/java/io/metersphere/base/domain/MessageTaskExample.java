@@ -784,73 +784,73 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdIsNull() {
-            addCriterion("workspace_id is null");
+        public Criteria andProjectIdIsNull() {
+            addCriterion("project_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdIsNotNull() {
-            addCriterion("workspace_id is not null");
+        public Criteria andProjectIdIsNotNull() {
+            addCriterion("project_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdEqualTo(String value) {
-            addCriterion("workspace_id =", value, "workspaceId");
+        public Criteria andProjectIdEqualTo(String value) {
+            addCriterion("project_id =", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotEqualTo(String value) {
-            addCriterion("workspace_id <>", value, "workspaceId");
+        public Criteria andProjectIdNotEqualTo(String value) {
+            addCriterion("project_id <>", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdGreaterThan(String value) {
-            addCriterion("workspace_id >", value, "workspaceId");
+        public Criteria andProjectIdGreaterThan(String value) {
+            addCriterion("project_id >", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdGreaterThanOrEqualTo(String value) {
-            addCriterion("workspace_id >=", value, "workspaceId");
+        public Criteria andProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_id >=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdLessThan(String value) {
-            addCriterion("workspace_id <", value, "workspaceId");
+        public Criteria andProjectIdLessThan(String value) {
+            addCriterion("project_id <", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdLessThanOrEqualTo(String value) {
-            addCriterion("workspace_id <=", value, "workspaceId");
+        public Criteria andProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("project_id <=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdLike(String value) {
-            addCriterion("workspace_id like", value, "workspaceId");
+        public Criteria andProjectIdLike(String value) {
+            addCriterion("project_id like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotLike(String value) {
-            addCriterion("workspace_id not like", value, "workspaceId");
+        public Criteria andProjectIdNotLike(String value) {
+            addCriterion("project_id not like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdIn(List<String> values) {
-            addCriterion("workspace_id in", values, "workspaceId");
+        public Criteria andProjectIdIn(List<String> values) {
+            addCriterion("project_id in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotIn(List<String> values) {
-            addCriterion("workspace_id not in", values, "workspaceId");
+        public Criteria andProjectIdNotIn(List<String> values) {
+            addCriterion("project_id not in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdBetween(String value1, String value2) {
-            addCriterion("workspace_id between", value1, value2, "workspaceId");
+        public Criteria andProjectIdBetween(String value1, String value2) {
+            addCriterion("project_id between", value1, value2, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotBetween(String value1, String value2) {
-            addCriterion("workspace_id not between", value1, value2, "workspaceId");
+        public Criteria andProjectIdNotBetween(String value1, String value2) {
+            addCriterion("project_id not between", value1, value2, "projectId");
             return (Criteria) this;
         }
     }

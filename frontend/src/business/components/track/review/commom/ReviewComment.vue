@@ -6,7 +6,7 @@
                            :comment="comment"
                            @refresh="refresh"
                            :review-status="reviewStatus" api-url="/test/case"/>
-      <div v-if="comments.length === 0" style="text-align: center" >
+      <div v-if="comments.length === 0" style="text-align: center">
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
         <span style="font-size: 15px; color: #8a8b8d;">
           {{ $t('test_track.comment.no_comment') }}
@@ -16,7 +16,7 @@
     </div>
     <div>
       <div class="editors_div_style">
-        <div id="editorsDiv" >
+        <div id="editorsDiv">
           <ms-mark-down-text prop="description" :data="form" :toolbars="toolbars" ref="md"/>
         </div>
       </div>
@@ -37,12 +37,13 @@ import MsMarkDownText from "@/business/components/track/case/components/MsMarkDo
 
 export default {
   name: "ReviewComment",
-  components: {MsMarkDownText, ReviewCommentItem,FormRichTextItem},
+  components: {MsMarkDownText, ReviewCommentItem, FormRichTextItem},
   props: {
     caseId: String,
     comments: Array,
     reviewId: String,
     reviewStatus: String,
+    oldReviewStatus: String,
   },
   data() {
     return {
@@ -50,9 +51,9 @@ export default {
       form: {
         description: ''
       },
-      loadCommenItem:true,
+      loadCommenItem: true,
       labelWidth: '120px',
-      showEditor:true,
+      showEditor: true,
       isReadOnly: false,
       toolbars: {
         bold: false, // 粗体
@@ -94,8 +95,8 @@ export default {
   created() {
     this.isReadOnly = false;
   },
-  watch:{
-    comments(){
+  watch: {
+    comments() {
     }
   },
   methods: {
@@ -113,23 +114,26 @@ export default {
         this.$success(this.$t('test_track.comment.send_success'));
         this.form.description = "";
         this.refresh();
-        if(this.$refs.md){
+        if (this.$refs.md) {
           this.$refs.md.toolbar_left_click('trash');
+        }
+        if ((this.oldReviewStatus === 'Prepare' || this.oldReviewStatus === 'Pass') && this.reviewStatus === 'UnPass') {
+          this.$emit('saveCaseReview');
         }
       });
     },
     inputLight() {
       let textAreaDom = this.$refs.md.getTextareaDom();
       let editorDivDom = document.getElementById("editorsDiv");
-      if(editorDivDom){
-        editorDivDom.setAttribute("style","-webkit-box-shadow: 0 0 8px rgb(205,51,43);");
+      if (editorDivDom) {
+        editorDivDom.setAttribute("style", "-webkit-box-shadow: 0 0 8px rgb(205,51,43);");
       }
       textAreaDom.focus();
-     },
-    resetInputLight(){
+    },
+    resetInputLight() {
       let editorDivDom = document.getElementById("editorsDiv");
-      if(editorDivDom){
-        editorDivDom.setAttribute("style","-webkit-box-shadow: 0 0 0px rgb(-1,0,0);");
+      if (editorDivDom) {
+        editorDivDom.setAttribute("style", "-webkit-box-shadow: 0 0 0px rgb(-1,0,0);");
       }
     },
     refresh() {
@@ -150,9 +154,11 @@ export default {
   overflow-y: scroll;
   height: calc(100vh - 450px);
 }
-.editors-div{
-  -webkit-box-shadow: 0 0 8px rgb(-1,0,0);
+
+.editors-div {
+  -webkit-box-shadow: 0 0 8px rgb(-1, 0, 0);
 }
+
 .editors_div_style {
   height: 300px;
   overflow: auto

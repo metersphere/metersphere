@@ -11,10 +11,13 @@ import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.LoadTestReportLog;
-import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.LogDetailDTO;
+import io.metersphere.dto.ReportDTO;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
@@ -22,6 +25,7 @@ import io.metersphere.performance.dto.Monitor;
 import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.service.TestResourcePoolService;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
@@ -64,17 +68,19 @@ public class ShareController {
     TestPlanReportService testPlanReportService;
     @Resource
     MetricQueryService metricService;
+    @Resource
+    private TestResourcePoolService testResourcePoolService;
 
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
-        return issuesService.getIssuesByPlanoId(planId);
+        return issuesService.getIssuesByPlanId(planId);
     }
 
     @GetMapping("/test/plan/report/{shareId}/{planId}")
     public TestPlanSimpleReportDTO getReport(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
-        return testPlanService.getReport(planId);
+        return testPlanService.getReport(planId, null);
     }
 
     @GetMapping("/report/export/{shareId}/{planId}")
@@ -113,6 +119,18 @@ public class ShareController {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
+    @GetMapping("/test/plan/api/case/list/errorReport/{shareId}/{planId}")
+    public List<TestPlanFailureApiDTO> getErrorReportApiCaseList(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanApiCaseService.getErrorReportCases(planId);
+    }
+
+    @GetMapping("/test/plan/api/case/list/unExecute/{shareId}/{planId}")
+    public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanApiCaseService.getUnExecuteCases(planId);
+    }
+
     @GetMapping("/test/plan/api/case/list/all/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
@@ -131,6 +149,18 @@ public class ShareController {
         return testPlanScenarioCaseService.getAllCases(planId);
     }
 
+    @GetMapping("/test/plan/scenario/case/list/errorReport/{shareId}/{planId}")
+    public List<TestPlanFailureScenarioDTO> getScenarioErrorReportList(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanScenarioCaseService.getErrorReportCases(planId);
+    }
+
+    @GetMapping("/test/plan/scenario/case/list/unExecute/{shareId}/{planId}")
+    public List<TestPlanFailureScenarioDTO> getUnExecuteScenarioCases(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanScenarioCaseService.getUnExecuteCases(planId);
+    }
+
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")
     public APIReportResult getApiReport(@PathVariable String shareId, @PathVariable String testId) {
 //        shareInfoService.apiReportValidate(shareId, testId);
@@ -139,14 +169,14 @@ public class ShareController {
 
     @GetMapping("/api/scenario/report/get/{shareId}/{reportId}")
     public APIScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
-//        shareInfoService.scenarioReportValidate(shareId, reportId);
+        shareInfoService.validateExpired(shareId); // 测试计划，和接口都会用这个
         return apiScenarioReportService.get(reportId);
     }
 
     @GetMapping("/performance/report/{shareId}/{reportId}")
-    public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String shareId, @PathVariable String reportId) {
+    public ReportDTO getLoadTestReport(@PathVariable String shareId, @PathVariable String reportId) {
         //todo
-        return performanceReportService.getLoadTestReport(reportId);
+        return performanceReportService.getReportTestAndProInfo(reportId);
     }
 
     @GetMapping("/performance/report/content/report_time/{shareId}/{reportId}")
@@ -159,6 +189,17 @@ public class ShareController {
     public Boolean isExistReport(@PathVariable String shareId, @RequestBody LoadCaseReportRequest request) {
         // testPlanLoadCaseService  todo checkout
         return testPlanLoadCaseService.isExistReport(request);
+    }
+
+    @GetMapping("/performance/report/get-advanced-config/{shareId}/{reportId}")
+    public String getAdvancedConfig(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validate(shareId, reportId);
+        return performanceReportService.getAdvancedConfiguration(reportId);
+    }
+
+    @GetMapping("/performance/report/get-jmx-content/{reportId}")
+    public List<LoadTestExportJmx> getJmxContents(@PathVariable String reportId) {
+        return performanceReportService.getJmxContent(reportId);
     }
 
     @GetMapping("/performance/report/get-jmx-content/{shareId}/{reportId}")
@@ -228,6 +269,11 @@ public class ShareController {
         return performanceReportService.getReportLogResource(reportId);
     }
 
+    @GetMapping("/performance/report/log/download/{reportId}/{resourceId}")
+    public void downloadLog(@PathVariable String reportId, @PathVariable String resourceId, HttpServletResponse response) throws Exception {
+        performanceReportService.downloadLog(response, reportId, resourceId);
+    }
+
     @GetMapping("/performance/report/log/{shareId}/{reportId}/{resourceId}/{goPage}")
     public Pager<List<LoadTestReportLog>> logs(@PathVariable String shareId, @PathVariable String reportId, @PathVariable String resourceId, @PathVariable int goPage) {
         Page<Object> page = PageHelper.startPage(goPage, 1, true);
@@ -248,5 +294,17 @@ public class ShareController {
     public String getLoadConfiguration(@PathVariable String shareId, @PathVariable String testId) {
         //checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadConfiguration(testId);
+    }
+
+    @GetMapping("/performance/report/get-load-config/{reportId}")
+    public String getLoadConfiguration(@PathVariable String reportId) {
+        return performanceReportService.getLoadConfiguration(reportId);
+    }
+
+    @GetMapping("/testresourcepool/list/quota/valid")
+    public List<TestResourcePoolDTO> getTestResourcePools() {
+        QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
+        resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
+        return testResourcePoolService.listResourcePools(resourcePoolRequest);
     }
 }

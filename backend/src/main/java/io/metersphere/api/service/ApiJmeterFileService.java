@@ -6,21 +6,21 @@ import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.JarConfig;
-import io.metersphere.base.domain.Plugin;
-import io.metersphere.base.domain.TestPlanApiScenario;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.PluginService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
@@ -44,22 +44,17 @@ public class ApiJmeterFileService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
+    private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
+
+    @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
 
-    public byte[] downloadJmeterFiles(List<BodyFile> bodyFileList) {
-        Map<String, byte[]> files = new LinkedHashMap<>();
-        Map<String, byte[]> multipartFiles = this.getMultipartFiles(bodyFileList);
-        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(multipartFiles)) {
-            for (String k : multipartFiles.keySet()) {
-                byte[] v = multipartFiles.get(k);
-                files.put(k, v);
-            }
-        }
-        return listBytesToZip(files);
-    }
-
-    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType) {
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
         Map<String, String> planEnvMap = new HashMap<>();
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode, null);
+        runRequest.setReportType(reportType);
+        runRequest.setQueueId(queueId);
+
         ApiScenarioWithBLOBs scenario = null;
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
             // 获取场景用例单独的执行环境
@@ -76,17 +71,37 @@ public class ApiJmeterFileService {
                 scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
             }
         }
-        HashTree hashTree;
+
+        ApiExecutionQueueDetail detail = executionQueueDetailMapper.selectByPrimaryKey(queueId);
+        if (detail == null) {
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andReportIdEqualTo(reportId);
+            List<ApiExecutionQueueDetail> list = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
+            if (CollectionUtils.isNotEmpty(list)) {
+                detail = list.get(0);
+            }
+        }
+        Map<String, String> envMap = new LinkedHashMap<>();
+        if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
+            envMap = JSON.parseObject(detail.getEvnMap(), Map.class);
+        }
+        if (MapUtils.isEmpty(envMap)) {
+            LoggerUtil.info("测试资源：【" + remoteTestId + "】未找到可执行的环境 >>>>>>> ");
+        }
+        HashTree hashTree = null;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId);
+            hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, envMap, runRequest);
         } else {
             if (scenario == null) {
                 scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
             }
             if (scenario == null) {
-                MSException.throwException("未找到执行场景。");
+                // 清除队列
+                executionQueueDetailMapper.deleteByPrimaryKey(queueId);
             }
-            if (!StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+            if (envMap != null && !envMap.isEmpty()) {
+                planEnvMap = envMap;
+            } else if (!StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                 String envType = scenario.getEnvironmentType();
                 String envJson = scenario.getEnvironmentJson();
                 String envGroupId = scenario.getEnvironmentGroupId();
@@ -96,7 +111,7 @@ public class ApiJmeterFileService {
                     planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
                 }
             }
-            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, reportId, planEnvMap, reportType);
+            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest);
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }
@@ -185,27 +200,10 @@ public class ApiJmeterFileService {
         if (CollectionUtils.isNotEmpty(files)) {
             for (BodyFile bodyFile : files) {
                 File file = new File(bodyFile.getName());
-                if (file != null && !file.exists()) {
+                if (file != null && file.exists()) {
                     byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
-                        multipartFiles.put(file.getName(), fileByte);
-                    }
-                }
-            }
-        }
-        return multipartFiles;
-    }
-
-    private Map<String, byte[]> getMultipartFiles(List<BodyFile> files) {
-        Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
-        // 获取附件
-        if (CollectionUtils.isNotEmpty(files)) {
-            for (BodyFile bodyFile : files) {
-                File file = new File(bodyFile.getName());
-                if (file != null && !file.exists()) {
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        multipartFiles.put(file.getName(), fileByte);
+                        multipartFiles.put(file.getAbsolutePath(), fileByte);
                     }
                 }
             }
@@ -214,6 +212,7 @@ public class ApiJmeterFileService {
     }
 
     private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
+        String bodyFilePath = FileUtils.BODY_FILE_DIR;
         String fileName = testId + ".jmx";
         String jmx = new MsTestPlan().getJmx(hashTree);
         Map<String, byte[]> files = new HashMap<>();
@@ -221,10 +220,15 @@ public class ApiJmeterFileService {
         files.put(fileName, jmx.getBytes(StandardCharsets.UTF_8));
         // 获取JMX使用到的附件
         Map<String, byte[]> multipartFiles = this.getMultipartFiles(hashTree);
-        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(multipartFiles)) {
+        if (multipartFiles != null && !multipartFiles.isEmpty()) {
             for (String k : multipartFiles.keySet()) {
                 byte[] v = multipartFiles.get(k);
-                files.put(k, v);
+                if (k.startsWith(bodyFilePath)) {
+                    files.put(StringUtils.substringAfter(k, bodyFilePath), v);
+                } else {
+                    LogUtil.error("WARNING:Attachment path is not in body_file_path: " + k);
+                    files.put(k, v);
+                }
             }
         }
         return listBytesToZip(files);

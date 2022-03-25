@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.i18n.Translator;
 import io.metersphere.track.issue.domain.jira.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
 import java.util.List;
@@ -33,23 +35,59 @@ public abstract class JiraAbstractClient extends BaseClient {
     }
 
     public Map<String, JiraCreateMetadataResponse.Field> getCreateMetadata(String projectKey, String issueType) {
-        String url = getBaseUrl() + "/issue/createmeta?projectKeys={1}&issuetypeNames={2}&expand=projects.issuetypes.fields";
+        String url = getBaseUrl() + "/issue/createmeta?projectKeys={1}&issuetypeIds={2}&expand=projects.issuetypes.fields";
         ResponseEntity<String> response = null;
+        Map<String, JiraCreateMetadataResponse.Field> fields = null;
         try {
             response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectKey, issueType);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
         }
-        Map<String, JiraCreateMetadataResponse.Field> fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
-                .getProjects().get(0).getIssuetypes().get(0).getFields();
+        try {
+             fields = ((JiraCreateMetadataResponse) getResultForObject(JiraCreateMetadataResponse.class, response))
+                    .getProjects().get(0).getIssuetypes().get(0).getFields();
+        } catch (Exception e) {
+            MSException.throwException(Translator.get("issue_jira_info_error"));
+        }
         fields.remove("project");
         fields.remove("issuetype");
         return fields;
     }
 
+    public List<JiraIssueType> getIssueType(String projectKey) {
+        JiraIssueProject project = getProject(projectKey);
+        String url = getUrl("/issuetype/project?projectId={0}");
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, project.getId());
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 404) { // Sass 的jira才有这个接口，报错则调用其他接口
+                return this.getProject(projectKey).getIssueTypes();
+            }
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        return (List<JiraIssueType>) getResultForList(JiraIssueType.class, response);
+    }
+
+    public JiraIssueProject getProject(String projectKey) {
+        String url = getUrl("/project/" + projectKey);
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        return (JiraIssueProject) getResultForObject(JiraIssueProject.class, response);
+    }
+
     public List<JiraUser> getAssignableUser(String projectKey) {
-        String url = getBaseUrl() + "/user/assignable/search?project={1}";
+        String url = getBaseUrl() + "/user/assignable/search?project={1}&maxResults=" + 1000 + "&startAt=" + 0;
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectKey);
@@ -104,7 +142,13 @@ public abstract class JiraAbstractClient extends BaseClient {
 
     public void deleteIssue(String id) {
         LogUtil.info("deleteIssue: " + id);
-        restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.DELETE, getAuthHttpEntity(), String.class);
+        try {
+            restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.DELETE, getAuthHttpEntity(), String.class);
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() != 404) {// 404说明jira没有，可以直接删
+                MSException.throwException(e.getMessage());
+            }
+        }
     }
 
 
@@ -122,7 +166,6 @@ public abstract class JiraAbstractClient extends BaseClient {
             response = restTemplate.exchange(getBaseUrl() + "/issue/" + issueKey + "/attachments", HttpMethod.POST, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException(e.getMessage());
         }
         System.out.println(response);
     }
@@ -130,6 +173,13 @@ public abstract class JiraAbstractClient extends BaseClient {
     public void auth() {
         try {
             restTemplate.exchange(getBaseUrl() + "/myself", HttpMethod.GET, getAuthHttpEntity(), String.class);
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 401) {
+                MSException.throwException(Translator.get("jira_auth_error"));
+            } else {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
+            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
@@ -146,6 +196,10 @@ public abstract class JiraAbstractClient extends BaseClient {
 
     protected String getBaseUrl() {
         return ENDPOINT + PREFIX;
+    }
+
+    protected String getUrl(String path) {
+        return getBaseUrl() + path;
     }
 
     public void setConfig(JiraConfig config) {

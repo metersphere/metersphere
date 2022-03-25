@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.TapdClient;
@@ -171,6 +172,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<PlatformUser> getPlatformUser() {
+        Boolean exist = checkProjectExist(getProjectId(projectId));
+        if (!exist) {
+            MSException.throwException(Translator.get("tapd_project_not_exist"));
+        }
         List<PlatformUser> users = new ArrayList<>();
         JSONArray res = tapdClient.getPlatformUser(getProjectId(projectId));
         for (int i = 0; i < res.size(); i++) {
@@ -183,10 +188,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
-        int pageNum = 1;
-        int limit = 50;
-        int count = 50;
-
         Map<String, String> idMap = tapdIssues.stream()
                 .collect(Collectors.toMap(IssuesDao::getPlatformId, IssuesDao::getId));
 
@@ -194,17 +195,17 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 .map(IssuesDao::getPlatformId)
                 .collect(Collectors.toList());
 
-        if (CollectionUtils.isEmpty(ids)) {
-            return;
-        }
+        if (CollectionUtils.isEmpty(ids)) return;
 
         Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
 
-        while (count == limit) {
-            TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), pageNum, limit, ids);
+        int index = 0;
+        int limit = 50;
+
+        while (index < ids.size()) {
+            List<String> subIds = ids.subList(index, (index + limit) > ids.size() ? ids.size() : (index + limit));
+            TapdGetIssueResponse result = tapdClient.getIssueForPageByIds(project.getTapdId(), 1, limit, subIds);
             List<JSONObject> datas = result.getData();
-            count = datas.size();
-            pageNum++;
             datas.forEach(issue -> {
                 JSONObject bug = issue.getJSONObject("Bug");
                 String platformId = bug.getString("id");
@@ -215,6 +216,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 issuesMapper.updateByPrimaryKeySelective(updateIssue);
                 ids.remove(platformId);
             });
+            index += limit;
         }
         // 查不到的设置为删除
         ids.forEach((id) -> {
@@ -266,5 +268,14 @@ public class TapdPlatform extends AbstractIssuePlatform {
             return userPlatInfo.getTapdUserName();
         }
         return null;
+    }
+
+    @Override
+    public Boolean checkProjectExist(String relateId) {
+        try {
+            return tapdClient.checkProjectExist(relateId);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

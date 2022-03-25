@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper">
+    <select id="getTestCaseWithNodeInfo" resultType="io.metersphere.base.domain.TestCase">
+        select DISTINCT tc.project_id, tc.node_id
+        from test_case_review_test_case tcrtc
+                 join test_case tc on tcrtc.case_id = tc.id
+        where tcrtc.review_id = #{reviewId}
+    </select>
+</mapper>

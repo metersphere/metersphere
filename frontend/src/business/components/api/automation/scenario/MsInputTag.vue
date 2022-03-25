@@ -69,7 +69,17 @@ export default {
   watch: {
     innerTags() {
       this.currentScenario[this.prop] = this.innerTags;
-    }
+    },
+    'currentScenario.tags'() {
+      if(this.prop==='tags'){
+        if(!this.currentScenario[this.prop]||this.currentScenario[this.prop]===''||this.currentScenario[this.prop].length===0){
+          if(this.innerTags.length!==0){
+            this.innerTags=[];
+          }
+        }
+      }
+
+    },
   },
   methods: {
     foucusTagInput() {

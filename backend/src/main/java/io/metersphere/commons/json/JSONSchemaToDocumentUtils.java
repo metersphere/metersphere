@@ -2,6 +2,7 @@ package io.metersphere.commons.json;
 
 import com.google.gson.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
+import io.metersphere.commons.utils.EnumPropertyUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -15,25 +16,25 @@ import java.util.Map.Entry;
 public class JSONSchemaToDocumentUtils {
 
     private static void analyzeRootSchemaElement(JsonObject rootElement, List<DocumentElement> roots) {
-        if (rootElement.has("type") || rootElement.has("allOf")) {
+        if (rootElement.has(BasicConstant.TYPE) || rootElement.has(BasicConstant.ALL_OF)) {
             analyzeObject(rootElement, roots);
         }
     }
 
     private static void analyzeObject(JsonObject object, List<DocumentElement> roots) {
         List<String> requiredList = new ArrayList<>();
-        if (object.get("required") != null) {
-            JsonArray jsonElements = object.get("required").getAsJsonArray();
+        if (object.get(BasicConstant.REQUIRED) != null) {
+            JsonArray jsonElements = object.get(BasicConstant.REQUIRED).getAsJsonArray();
             for (JsonElement jsonElement : jsonElements) {
                 requiredList.add(jsonElement.getAsString());
             }
         }
-        if (object.has("allOf")) {
-            JsonArray allOfArray = object.get("allOf").getAsJsonArray();
+        if (object.has(BasicConstant.ALL_OF)) {
+            JsonArray allOfArray = object.get(BasicConstant.ALL_OF).getAsJsonArray();
             for (JsonElement allOfElement : allOfArray) {
                 JsonObject allOfElementObj = allOfElement.getAsJsonObject();
-                if (allOfElementObj.has("properties")) {
-                    JsonObject propertiesObj = allOfElementObj.get("properties").getAsJsonObject();
+                if (allOfElementObj.has(BasicConstant.PROPERTIES)) {
+                    JsonObject propertiesObj = allOfElementObj.get(BasicConstant.PROPERTIES).getAsJsonObject();
                     for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                         String propertyKey = entry.getKey();
                         JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
@@ -41,48 +42,51 @@ public class JSONSchemaToDocumentUtils {
                     }
                 }
             }
-        } else if (object.has("properties")) {
-            JsonObject propertiesObj = object.get("properties").getAsJsonObject();
+        } else if (object.has(BasicConstant.PROPERTIES)) {
+            JsonObject propertiesObj = object.get(BasicConstant.PROPERTIES).getAsJsonObject();
             for (Entry<String, JsonElement> entry : propertiesObj.entrySet()) {
                 String propertyKey = entry.getKey();
                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
-                if (propertyObj.get("required") != null) {
-                    JsonArray jsonElements = propertyObj.get("required").getAsJsonArray();
+                if (propertyObj.get(BasicConstant.REQUIRED) != null) {
+                    JsonArray jsonElements = propertyObj.get(BasicConstant.REQUIRED).getAsJsonArray();
                     for (JsonElement jsonElement : jsonElements) {
                         requiredList.add(jsonElement.getAsString());
                     }
                 }
                 analyzeProperty(roots, propertyKey, propertyObj, requiredList);
             }
-        } else if (object.has("type") && object.get("type").getAsString().equals("array")) {
-            analyzeProperty(roots, "MS-OBJECT", object, requiredList);
-        } else if (object.has("type") && !object.get("type").getAsString().equals("object")) {
+        } else if (object.has(BasicConstant.TYPE)
+                && object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.ARRAY)) {
+            analyzeProperty(roots, BasicConstant.MS_OBJECT, object, requiredList);
+        } else if (object.has(BasicConstant.TYPE)
+                && !object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.OBJECT)) {
             analyzeProperty(roots, object.getAsString(), object, requiredList);
         }
     }
 
     private static void analyzeProperty(List<DocumentElement> concept,
                                         String propertyName, JsonObject object, List<String> requiredList) {
-        if (object.has("type")) {
+        if (object.has(BasicConstant.TYPE)) {
             String propertyObjType = null;
-            if (object.get("type") instanceof JsonPrimitive) {
-                propertyObjType = object.get("type").getAsString();
-            } else if (object.get("type") instanceof JsonArray) {
-                JsonArray typeArray = (JsonArray) object.get("type").getAsJsonArray();
+            if (object.get(BasicConstant.TYPE) instanceof JsonPrimitive) {
+                propertyObjType = object.get(BasicConstant.TYPE).getAsString();
+            } else if (object.get(BasicConstant.TYPE) instanceof JsonArray) {
+                JsonArray typeArray = (JsonArray) object.get(BasicConstant.TYPE).getAsJsonArray();
                 propertyObjType = typeArray.get(0).getAsString();
             }
             Object value = null;
             boolean required = requiredList.contains(propertyName);
-            if (object.has("default")) {
-                value = object.get("default") != null ? object.get("default").getAsString() : "";
+            if (object.has(BasicConstant.DEFAULT)) {
+                value = object.get(BasicConstant.DEFAULT) != null ? object.get(BasicConstant.DEFAULT).getAsString() : "";
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
-            } else if (object.has("enum")) {
+            } else if (object.has(BasicConstant.ENUM)) {
                 try {
-                    if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                        value = object.get("mock").getAsJsonObject().get("mock");
+                    if (object.has(BasicConstant.MOCK) && object.get(BasicConstant.MOCK).getAsJsonObject() != null
+                            && StringUtils.isNotEmpty(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString())) {
+                        value = object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK);
                     } else {
-                        List<Object> list = analyzeEnumProperty(object);
-                        if (list.size() > 0) {
+                        List<Object> list = EnumPropertyUtil.analyzeEnumProperty(object);
+                        if (CollectionUtils.isNotEmpty(list)) {
                             int index = (int) (Math.random() * list.size());
                             value = list.get(index).toString();
                         }
@@ -94,56 +98,60 @@ public class JSONSchemaToDocumentUtils {
                     LogUtil.error(e);
                 }
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
-            } else if (propertyObjType.equals("string")) {
+            } else if (propertyObjType.equals(BasicConstant.STRING)) {
                 // 先设置空值
-                if (object.has("default")) {
-                    value = object.get("default") != null ? object.get("default").getAsString() : "";
+                if (object.has(BasicConstant.DEFAULT)) {
+                    value = object.get(BasicConstant.DEFAULT) != null ? object.get(BasicConstant.DEFAULT).getAsString() : "";
                 }
-                if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString()) && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                if (object.has(BasicConstant.MOCK) && object.get(BasicConstant.MOCK).getAsJsonObject() != null
+                        && StringUtils.isNotEmpty(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString())) {
+                    value = ScriptEngineUtils.buildFunctionCallString(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
                 }
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
-            } else if (propertyObjType.equals("integer")) {
-                if (object.has("default")) {
-                    value = object.get("default");
+            } else if (propertyObjType.equals(BasicConstant.INTEGER)) {
+                if (object.has(BasicConstant.DEFAULT)) {
+                    value = object.get(BasicConstant.DEFAULT);
                 }
-                if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                if (object.has(BasicConstant.MOCK) && object.get(BasicConstant.MOCK).getAsJsonObject() != null
+                        && StringUtils.isNotEmpty(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString())) {
                     try {
-                        value = object.get("mock").getAsJsonObject().get("mock").getAsInt();
+                        value = object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsInt();
                     } catch (Exception e) {
-                        value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        value = ScriptEngineUtils.buildFunctionCallString(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
                     }
                 }
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
-            } else if (propertyObjType.equals("number")) {
-                if (object.has("default")) {
-                    value = object.get("default");
+            } else if (propertyObjType.equals(BasicConstant.NUMBER)) {
+                if (object.has(BasicConstant.DEFAULT)) {
+                    value = object.get(BasicConstant.DEFAULT);
                 }
-                if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                if (object.has(BasicConstant.MOCK) && object.get(BasicConstant.MOCK).getAsJsonObject() != null
+                        && StringUtils.isNotEmpty(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString())) {
                     try {
-                        value = object.get("mock").getAsJsonObject().get("mock").getAsNumber();
+                        value = object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsNumber();
                     } catch (Exception e) {
-                        value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        value = ScriptEngineUtils.buildFunctionCallString(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
                     }
                 }
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
-            } else if (propertyObjType.equals("boolean")) {
-                if (object.has("default")) {
-                    value = object.get("default");
+            } else if (propertyObjType.equals(BasicConstant.BOOLEAN)) {
+                if (object.has(BasicConstant.DEFAULT)) {
+                    value = object.get(BasicConstant.DEFAULT);
                 }
-                if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                if (object.has(BasicConstant.MOCK) && object.get(BasicConstant.MOCK).getAsJsonObject() != null
+                        && StringUtils.isNotEmpty(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString())) {
                     try {
-                        value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").toString());
+                        value = ScriptEngineUtils.buildFunctionCallString(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).toString());
                     } catch (Exception e) {
                     }
                 }
                 concept.add(new DocumentElement(propertyName, propertyObjType, value, required, null));
-            } else if (propertyObjType.equals("array")) {
+            } else if (propertyObjType.equals(BasicConstant.ARRAY)) {
                 List<DocumentElement> elements = new LinkedList<>();
                 concept.add(new DocumentElement(propertyName, propertyObjType, "", requiredList.contains(propertyName), true, elements));
                 JsonArray jsonArray = object.get("items").getAsJsonArray();
                 analyzeArray(propertyName, jsonArray, elements, requiredList);
-            } else if (propertyObjType.equals("object")) {
+            } else if (propertyObjType.equals(BasicConstant.OBJECT)) {
                 List<DocumentElement> list = new LinkedList<>();
                 concept.add(new DocumentElement(propertyName, propertyObjType, "", list));
                 analyzeObject(object, list);
@@ -161,8 +169,8 @@ public class JSONSchemaToDocumentUtils {
                 analyzeArray("", itemsObject, elements, requiredList);
             } else if (obj.isJsonObject()) {
                 List<String> requiredItems = new ArrayList<>();
-                if (obj.getAsJsonObject().get("required") != null) {
-                    JsonArray jsonElements = obj.getAsJsonObject().get("required").getAsJsonArray();
+                if (obj.getAsJsonObject().get(BasicConstant.REQUIRED) != null) {
+                    JsonArray jsonElements = obj.getAsJsonObject().get(BasicConstant.REQUIRED).getAsJsonArray();
                     for (JsonElement jsonElement : jsonElements) {
                         requiredItems.add(jsonElement.getAsString());
                     }
@@ -175,41 +183,23 @@ public class JSONSchemaToDocumentUtils {
         }
     }
 
-    private static List<Object> analyzeEnumProperty(JsonObject object) {
-        List<Object> list = new LinkedList<>();
-        String jsonStr = null;
-        try {
-            JsonArray enumValues = object.get("enum").getAsJsonArray();
-            for (JsonElement enumValueElem : enumValues) {
-                String enumValue = enumValueElem.getAsString();
-                list.add(enumValue);
-            }
-        } catch (Exception e) {
-            jsonStr = object.get("enum").getAsString();
-        }
-        if (jsonStr != null && list.isEmpty()) {
-            String[] arrays = jsonStr.split("\n");
-            for (String str : arrays) {
-                list.add(str);
-            }
-        }
-        return list;
-    }
-
     public static List<DocumentElement> getDocument(String jsonSchema) {
         Gson gson = new Gson();
         JsonElement element = gson.fromJson(jsonSchema, JsonElement.class);
         JsonObject rootElement = element.getAsJsonObject();
         List<DocumentElement> roots = new LinkedList<>();
         analyzeRootSchemaElement(rootElement, roots);
-        if (rootElement.get("type") != null) {
-            if (rootElement.get("type").toString().equals("object") || rootElement.get("type").toString().equals("\"object\"")) {
+        if (rootElement.get(BasicConstant.TYPE) != null) {
+            if (rootElement.get(BasicConstant.TYPE).toString().equals(BasicConstant.OBJECT)
+                    || rootElement.get(BasicConstant.TYPE).toString().equals("\"object\"")) {
+
                 return new LinkedList<DocumentElement>() {{
                     this.add(new DocumentElement().newRoot("root", roots));
                 }};
+
             } else {
                 return new LinkedList<DocumentElement>() {{
-                    this.add(new DocumentElement().newRoot("array", roots));
+                    this.add(new DocumentElement().newRoot(BasicConstant.ARRAY, roots));
                 }};
             }
         }

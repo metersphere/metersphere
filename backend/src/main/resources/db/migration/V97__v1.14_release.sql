@@ -14,10 +14,10 @@ BEGIN
     DECLARE updateTime BIGINT(13);
     DECLARE done INT DEFAULT 0;
     DECLARE sourceUserGroupId VARCHAR(64);
-    declare temp int default 0;
+    DECLARE temp int DEFAULT 0;
     DECLARE cursor1 CURSOR FOR (SELECT user_id, source_id, group_id, id, create_time, update_time
                                 FROM user_group
-                                WHERE group_id IN (select id from `group` where type = 'ORGANIZATION'));
+                                WHERE group_id IN (SELECT id FROM `group` WHERE type = 'ORGANIZATION'));
     DECLARE cursor2 CURSOR FOR (SELECT id
                                 FROM workspace
                                 WHERE organization_id = sourceId);
@@ -41,16 +41,19 @@ BEGIN
             THEN
                 LEAVE inner_loop;
             END IF;
-            set temp = 0;
-            select count(*) from user_group where user_id = userId and group_id = 'ws_admin' and source_id = workspaceId into temp;
-            select temp;
+            SET temp = 0;
+            SELECT COUNT(*)
+            FROM user_group
+            WHERE user_id = userId AND group_id = 'ws_admin' AND source_id = workspaceId
+            INTO temp;
+            SELECT temp;
             -- 不存在就新增数据
-            IF temp = 0 then
+            IF temp = 0 THEN
                 INSERT INTO user_group (id, user_id, group_id, source_id, create_time, update_time)
-                values (UUID(), userId, 'ws_admin', workspaceId, createTime, updateTime);
+                VALUES (UUID(), userId, 'ws_admin', workspaceId, createTime, updateTime);
             END IF;
         END LOOP;
-        DELETE FROM user_group where id = sourceUserGroupId;
+        DELETE FROM user_group WHERE id = sourceUserGroupId;
         SET done = 0;
         CLOSE cursor2;
     END LOOP;
@@ -62,20 +65,22 @@ DELIMITER ;
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
 
-create table if not exists relationship_edge (
-    source_id varchar(50) not null comment '源节点的ID',
-    target_id varchar(50) not null comment '目标节点的ID',
-    `type` varchar(20) not null comment '边的分类',
-    graph_id  varchar(50) not null comment '所属关系图的ID',
-    creator varchar(50) not null comment '创建人',
-    create_time bigint(13) not null,
+CREATE TABLE IF NOT EXISTS relationship_edge
+(
+    source_id   varchar(50) NOT NULL COMMENT '源节点的ID',
+    target_id   varchar(50) NOT NULL COMMENT '目标节点的ID',
+    `type`      varchar(20) NOT NULL COMMENT '边的分类',
+    graph_id    varchar(50) NOT NULL COMMENT '所属关系图的ID',
+    creator     varchar(50) NOT NULL COMMENT '创建人',
+    create_time bigint(13)  NOT NULL,
     PRIMARY KEY (source_id, target_id)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
 
-ALTER TABLE api_definition ADD remark TEXT NULL;
+ALTER TABLE api_definition
+    ADD remark TEXT NULL;
 --
 ALTER TABLE message_task
     ADD workspace_id VARCHAR(64) NULL;
@@ -158,11 +163,13 @@ ALTER TABLE message_task
 ALTER TABLE user
     DROP COLUMN last_organization_id;
 
-alter table service_integration
-    add workspace_id varchar(50) null;
+ALTER TABLE service_integration
+    ADD workspace_id varchar(50) NULL;
 
-ALTER TABLE test_case_review ADD COLUMN follow_people varchar(50);
-ALTER TABLE test_plan ADD COLUMN follow_people varchar(50);
+ALTER TABLE test_case_review
+    ADD COLUMN follow_people varchar(50);
+ALTER TABLE test_plan
+    ADD COLUMN follow_people varchar(50);
 
 -- 服务集成从组织转移到工作空间
 DROP PROCEDURE IF EXISTS test_cursor;
@@ -174,7 +181,7 @@ BEGIN
     DECLARE sourcePlatform VARCHAR(64);
     DECLARE sourceId VARCHAR(64);
     DECLARE done INT DEFAULT 0;
-    DECLARE cursor1 CURSOR FOR (SELECT organization_id, configuration, platform, id from service_integration);
+    DECLARE cursor1 CURSOR FOR (SELECT organization_id, configuration, platform, id FROM service_integration);
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     OPEN cursor1;
@@ -189,7 +196,7 @@ BEGIN
         SELECT UUID(), organizationId, id, sourceConfig, sourcePlatform
         FROM workspace
         WHERE organization_id = organizationId;
-        DELETE FROM service_integration where id = sourceId;
+        DELETE FROM service_integration WHERE id = sourceId;
     END LOOP;
     CLOSE cursor1;
 END
@@ -200,9 +207,11 @@ CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
 
 
-
 -- 处理组织级别全局用户组
-delete from `group` where type = 'ORGANIZATION' and scope_id = 'global';
+DELETE
+FROM `group`
+WHERE type = 'ORGANIZATION'
+  AND scope_id = 'global';
 -- 处理组织级别非全局用户组
 DROP PROCEDURE IF EXISTS test_cursor;
 DELIMITER //
@@ -218,9 +227,18 @@ BEGIN
     DECLARE sourceCreator VARCHAR(64);
     DECLARE sourceOrganizationId VARCHAR(64);
     DECLARE done INT DEFAULT 0;
-    DECLARE cursor1 CURSOR FOR (select id, name, description, `system`, type, create_time, update_time, creator, scope_id
-                                from `group`
-                                where type = 'ORGANIZATION' and scope_id != 'global');
+    DECLARE cursor1 CURSOR FOR (SELECT id,
+                                       name,
+                                       description,
+                                       `system`,
+                                       type,
+                                       create_time,
+                                       update_time,
+                                       creator,
+                                       scope_id
+                                FROM `group`
+                                WHERE type = 'ORGANIZATION'
+                                  AND scope_id != 'global');
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     OPEN cursor1;
@@ -233,10 +251,18 @@ BEGIN
             LEAVE outer_loop;
         END IF;
         INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-        SELECT UUID(), sourceName, sourceDescription, sourceSystem, 'WORKSPACE', sourceCreateTime, sourceUpdateTime, sourceCreator, id
+        SELECT UUID(),
+               sourceName,
+               sourceDescription,
+               sourceSystem,
+               'WORKSPACE',
+               sourceCreateTime,
+               sourceUpdateTime,
+               sourceCreator,
+               id
         FROM workspace
         WHERE organization_id = sourceOrganizationId;
-        DELETE FROM `group` where id = sourceGroupId;
+        DELETE FROM `group` WHERE id = sourceGroupId;
     END LOOP;
     CLOSE cursor1;
 END
@@ -247,99 +273,114 @@ CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
 
 -- 工作空间服务集成
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'ws_admin', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_SERVICE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'ws_member', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_SERVICE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'ws_admin', 'WORKSPACE_SERVICE:READ+EDIT', 'WORKSPACE_SERVICE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_admin', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_SERVICE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_member', 'WORKSPACE_SERVICE:READ', 'WORKSPACE_SERVICE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_admin', 'WORKSPACE_SERVICE:READ+EDIT', 'WORKSPACE_SERVICE');
 -- 工作空间消息设置
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'ws_admin', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_MESSAGE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'ws_member', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_MESSAGE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'ws_admin', 'WORKSPACE_MESSAGE:READ+EDIT', 'WORKSPACE_MESSAGE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_admin', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_MESSAGE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_member', 'WORKSPACE_MESSAGE:READ', 'WORKSPACE_MESSAGE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_admin', 'WORKSPACE_MESSAGE:READ+EDIT', 'WORKSPACE_MESSAGE');
 -- 项目权限设置
 -- jar
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_FILE:READ+UPLOAD+JAR', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_FILE:READ+DELETE+JAR', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_FILE:READ+UPLOAD+JAR', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_FILE:READ+DELETE+JAR', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'read_only', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+UPLOAD+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+DELETE+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_FILE:READ+UPLOAD+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_FILE:READ+DELETE+JAR', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'read_only', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE');
 -- file
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_FILE:READ+UPLOAD+FILE', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_FILE:READ+DELETE+FILE', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_FILE:READ+UPLOAD+FILE', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_FILE:READ+DELETE+FILE', 'PROJECT_FILE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'read_only', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+UPLOAD+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+DELETE+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_FILE:READ+UPLOAD+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_FILE:READ+DELETE+FILE', 'PROJECT_FILE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'read_only', 'PROJECT_FILE:READ+FILE', 'PROJECT_FILE');
 -- custom code
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+CREATE', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+EDIT', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+DELETE', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+COPY', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+CREATE', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+EDIT', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+DELETE', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_CUSTOM_CODE:READ+COPY', 'PROJECT_CUSTOM_CODE');
 -- member
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+CREATE', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+EDIT', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+DELETE', 'PROJECT_CUSTOM_CODE');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+COPY', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+CREATE', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+EDIT', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+DELETE', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_CUSTOM_CODE:READ+COPY', 'PROJECT_CUSTOM_CODE');
 
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (UUID(), 'read_only', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'read_only', 'PROJECT_CUSTOM_CODE:READ', 'PROJECT_CUSTOM_CODE');
 
 -- 删除组织相关权限
-delete from user_group_permission where module_id = 'ORGANIZATION_OPERATING_LOG';
-delete from user_group_permission where module_id = 'ORGANIZATION_MESSAGE';
-delete from user_group_permission where module_id = 'ORGANIZATION_SERVICE';
-delete from user_group_permission where module_id = 'ORGANIZATION_GROUP';
-delete from user_group_permission where module_id = 'ORGANIZATION_WORKSPACE';
-delete from user_group_permission where module_id = 'ORGANIZATION_USER';
-delete from user_group_permission where module_id = 'SYSTEM_ORGANIZATION';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'ORGANIZATION_OPERATING_LOG';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'ORGANIZATION_MESSAGE';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'ORGANIZATION_SERVICE';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'ORGANIZATION_GROUP';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'ORGANIZATION_WORKSPACE';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'ORGANIZATION_USER';
+DELETE
+FROM user_group_permission
+WHERE module_id = 'SYSTEM_ORGANIZATION';
 
 
-insert into system_parameter (param_key, param_value, type, sort) values ('project.jar.limit.size', 1, 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('project.jar.limit.size', 1, 'text', 1);
 
 ALTER TABLE quota
-DROP
-COLUMN organization_id;
+    DROP
+        COLUMN organization_id;
 
 ALTER TABLE service_integration
-DROP
-COLUMN organization_id;
+    DROP
+        COLUMN organization_id;
 
 ALTER TABLE workspace
-DROP
-COLUMN organization_id;
+    DROP
+        COLUMN organization_id;
 
 
 DROP TABLE IF EXISTS `test_plan_follow`;
@@ -347,8 +388,9 @@ CREATE TABLE `test_plan_follow`
 (
     `test_plan_id` varchar(50) DEFAULT NULL,
     `follow_id`    varchar(50) DEFAULT NULL COMMENT '关注人',
-    UNIQUE KEY `test_plan_principal_pk` (`test_plan_id`,`follow_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    UNIQUE KEY `test_plan_principal_pk` (`test_plan_id`, `follow_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 INSERT INTO test_plan_follow
 SELECT id, follow_people
@@ -356,16 +398,18 @@ FROM test_plan
 WHERE follow_people IS NOT NULL;
 
 ALTER TABLE test_plan
-DROP
-COLUMN follow_people;
+    DROP
+        COLUMN follow_people;
 
 DROP TABLE IF EXISTS `test_case_review_follow`;
 CREATE TABLE `test_case_review_follow`
 (
-    `review_id` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,
-    `follow_id` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '关注人',
-    UNIQUE KEY `test_case_review_users_pk` (`review_id`,`follow_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT=' review and user association table';
+    `review_id` varchar(50) DEFAULT NULL,
+    `follow_id` varchar(50) DEFAULT NULL COMMENT '关注人',
+    UNIQUE KEY `test_case_review_users_pk` (`review_id`, `follow_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT =' review and user association table';
 
 INSERT INTO test_case_review_follow
 SELECT id, follow_people
@@ -373,53 +417,68 @@ FROM test_case_review
 WHERE follow_people IS NOT NULL;
 
 ALTER TABLE test_case_review
-DROP
-COLUMN follow_people;
+    DROP
+        COLUMN follow_people;
 
-ALTER TABLE api_test_case ADD COLUMN case_status VARCHAR(100) comment '用例状态等同场景的status';
-UPDATE api_test_case set case_status = 'Underway' where case_status is null;
+ALTER TABLE api_test_case
+    ADD COLUMN case_status VARCHAR(100) COMMENT '用例状态等同场景的status';
+UPDATE api_test_case
+SET case_status = 'Underway'
+WHERE case_status IS NULL;
 
 -- 性能测试关注人
-CREATE TABLE IF NOT EXISTS `load_test_follow` (
+CREATE TABLE IF NOT EXISTS `load_test_follow`
+(
     `test_id`   VARCHAR(50) DEFAULT NULL,
     `follow_id` VARCHAR(50) DEFAULT NULL,
     UNIQUE KEY `load_test_follow_test_id_follow_id_pk` (`test_id`, `follow_id`),
     KEY `load_test_follow_follow_id_index` (`follow_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
 -- 性能测试关注人数据迁移
 INSERT INTO load_test_follow
 SELECT id, follow_people
 FROM load_test
 WHERE follow_people IS NOT NULL;
-ALTER TABLE load_test DROP COLUMN follow_people;
+ALTER TABLE load_test
+    DROP COLUMN follow_people;
 
 -- 自动化关注人
-CREATE TABLE IF NOT EXISTS `api_scenario_follow` (
-    `scenario_id`   VARCHAR(50) DEFAULT NULL,
-    `follow_id` VARCHAR(50) DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `api_scenario_follow`
+(
+    `scenario_id` VARCHAR(50) DEFAULT NULL,
+    `follow_id`   VARCHAR(50) DEFAULT NULL,
     UNIQUE KEY `api_scenario_follow_scenario_id_follow_id_pk` (`scenario_id`, `follow_id`),
     KEY `api_scenario_follow_id_index` (`follow_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
 -- 自动化关注人数据迁移
 INSERT INTO api_scenario_follow
 SELECT id, follow_people
 FROM api_scenario
 WHERE follow_people IS NOT NULL;
-ALTER TABLE api_scenario DROP COLUMN follow_people;
+ALTER TABLE api_scenario
+    DROP COLUMN follow_people;
 
 -- 接口定义关注人
-CREATE TABLE IF NOT EXISTS `api_definition_follow` (
-    `definition_id`   VARCHAR(50) DEFAULT NULL,
-    `follow_id` VARCHAR(50) DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `api_definition_follow`
+(
+    `definition_id` VARCHAR(50) DEFAULT NULL,
+    `follow_id`     VARCHAR(50) DEFAULT NULL,
     UNIQUE KEY `api_definition_follow_scenario_id_follow_id_pk` (`definition_id`, `follow_id`),
     KEY `api_definition_follow_id_index` (`follow_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
 -- 接口定义数据迁移
 INSERT INTO api_definition_follow
 SELECT id, follow_people
 FROM api_definition
 WHERE follow_people IS NOT NULL;
-ALTER TABLE api_definition DROP COLUMN follow_people;
+ALTER TABLE api_definition
+    DROP COLUMN follow_people;
 
 -- 接口定义关注人
 CREATE TABLE IF NOT EXISTS `api_test_case_follow`
@@ -428,13 +487,16 @@ CREATE TABLE IF NOT EXISTS `api_test_case_follow`
     `follow_id` VARCHAR(50) DEFAULT NULL,
     UNIQUE KEY `api_case_follow_scenario_id_follow_id_pk` (`case_id`, `follow_id`),
     KEY `api_case_follow_id_index` (`follow_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
 -- 接口定义数据迁移
 INSERT INTO api_test_case_follow
 SELECT id, follow_people
 FROM api_test_case
 WHERE follow_people IS NOT NULL;
-ALTER TABLE api_test_case DROP COLUMN follow_people;
+ALTER TABLE api_test_case
+    DROP COLUMN follow_people;
 
 
 -- 测试用例关注人
@@ -444,17 +506,27 @@ CREATE TABLE IF NOT EXISTS `test_case_follow`
     `follow_id` VARCHAR(50) DEFAULT NULL,
     UNIQUE KEY `test_case_follow_scenario_id_follow_id_pk` (`case_id`, `follow_id`),
     KEY `test_case_follow_id_index` (`follow_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
 -- 测试用例数据迁移
 INSERT INTO test_case_follow
 SELECT id, follow_people
 FROM test_case
-WHERE follow_people IS NOT NULL AND follow_people != '';
-ALTER TABLE test_case DROP COLUMN follow_people;
+WHERE follow_people IS NOT NULL
+  AND follow_people != '';
+ALTER TABLE test_case
+    DROP COLUMN follow_people;
 -- 操作日志类型增加普通索引
-ALTER TABLE `operating_log` ADD INDEX oper_module_index ( `oper_module` );
+ALTER TABLE `operating_log`
+    ADD INDEX oper_module_index (`oper_module`);
 
-ALTER TABLE issues ADD platform_id varchar(50) NOT NULL;
-UPDATE issues SET platform_id = id WHERE 1;
+ALTER TABLE issues
+    ADD platform_id varchar(50) NOT NULL;
+UPDATE issues
+SET platform_id = id
+WHERE 1;
 
-UPDATE test_case SET status = 'Prepare' WHERE status IS NULL;
+UPDATE test_case
+SET status = 'Prepare'
+WHERE status IS NULL;

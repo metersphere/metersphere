@@ -19,15 +19,32 @@ public abstract class SwaggerAbstractParser extends ApiImportAbstractParser<ApiD
             }
         } else {
             tags.forEach(tag -> {
-                ApiModule module = ApiDefinitionImportUtil.buildModule(parentModule, tag, this.projectId);
-                apiDefinition.setModuleId(module.getId());
-                if (StringUtils.isNotBlank(selectModulePath)) {
-                    apiDefinition.setModulePath(selectModulePath + "/" + tag);
+                // 涉及到多级目录的结构，如： 一级目录/二级目录
+                if (tag.contains("/")) {
+                    String[] tagTree = tag.split("/");
+                    ApiModule pModule = parentModule;
+                    String prefix = selectModulePath;
+                    for (String item : tagTree) {
+                        pModule = buildModule(pModule, apiDefinition, item, prefix);
+                        prefix += "/" + item;
+                    }
                 } else {
-                    apiDefinition.setModulePath("/" + tag);
+                    buildModule(parentModule, apiDefinition, tag, selectModulePath);
                 }
             });
         }
+    }
+
+    private ApiModule buildModule(ApiModule parentModule, ApiDefinitionWithBLOBs apiDefinition,
+                               String tag, String selectModulePath) {
+        ApiModule module = ApiDefinitionImportUtil.buildModule(parentModule, tag, this.projectId);
+        apiDefinition.setModuleId(module.getId());
+        if (StringUtils.isNotBlank(selectModulePath)) {
+            apiDefinition.setModulePath(selectModulePath + "/" + tag);
+        } else {
+            apiDefinition.setModulePath("/" + tag);
+        }
+        return module;
     }
 
 }

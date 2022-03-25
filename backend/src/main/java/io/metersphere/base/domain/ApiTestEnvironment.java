@@ -21,5 +21,9 @@ public class ApiTestEnvironment implements Serializable {
 
     private String createUser;
 
+    private Long createTime;
+
+    private Long updateTime;
+
     private static final long serialVersionUID = 1L;
 }

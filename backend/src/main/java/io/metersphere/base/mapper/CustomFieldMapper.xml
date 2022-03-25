@@ -9,10 +9,10 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="system" jdbcType="BIT" property="system" />
     <result column="global" jdbcType="BIT" property="global" />
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.CustomField">
     <result column="options" jdbcType="LONGVARCHAR" property="options" />
@@ -76,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, scene, `type`, remark, `system`, `global`, workspace_id, create_time, 
-    update_time, create_user
+    id, `name`, scene, `type`, remark, `system`, `global`, create_time, update_time, 
+    create_user, project_id
   </sql>
   <sql id="Blob_Column_List">
     `options`
@@ -131,14 +131,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.CustomField">
-    insert into custom_field (id, `name`, scene, 
+    INSERT INTO custom_field (id, `name`, scene,
       `type`, remark, `system`, `global`, 
-      workspace_id, create_time, update_time, 
-      create_user, `options`)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scene,jdbcType=VARCHAR}, 
+      create_time, update_time, create_user, 
+      project_id, `options`)
+    VALUES (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scene,jdbcType=VARCHAR},
       #{type,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, #{global,jdbcType=BIT}, 
-      #{workspaceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{options,jdbcType=LONGVARCHAR})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{options,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.CustomField">
     insert into custom_field
@@ -164,9 +164,6 @@
       <if test="global != null">
         `global`,
       </if>
-      <if test="workspaceId != null">
-        workspace_id,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -175,6 +172,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="options != null">
         `options`,
@@ -202,9 +202,6 @@
       <if test="global != null">
         #{global,jdbcType=BIT},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
@@ -213,6 +210,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="options != null">
         #{options,jdbcType=LONGVARCHAR},
@@ -249,9 +249,6 @@
       <if test="record.global != null">
         `global` = #{record.global,jdbcType=BIT},
       </if>
-      <if test="record.workspaceId != null">
-        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -260,6 +257,9 @@
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.options != null">
         `options` = #{record.options,jdbcType=LONGVARCHAR},
@@ -278,10 +278,10 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       `system` = #{record.system,jdbcType=BIT},
       `global` = #{record.global,jdbcType=BIT},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       `options` = #{record.options,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -296,10 +296,10 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       `system` = #{record.system,jdbcType=BIT},
       `global` = #{record.global,jdbcType=BIT},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -325,9 +325,6 @@
       <if test="global != null">
         `global` = #{global,jdbcType=BIT},
       </if>
-      <if test="workspaceId != null">
-        workspace_id = #{workspaceId,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -336,6 +333,9 @@
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="options != null">
         `options` = #{options,jdbcType=LONGVARCHAR},
@@ -351,25 +351,25 @@
       remark = #{remark,jdbcType=VARCHAR},
       `system` = #{system,jdbcType=BIT},
       `global` = #{global,jdbcType=BIT},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       `options` = #{options,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.CustomField">
-    update custom_field
-    set `name` = #{name,jdbcType=VARCHAR},
+    UPDATE custom_field
+    SET `name` = #{name,jdbcType=VARCHAR},
       scene = #{scene,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       `system` = #{system,jdbcType=BIT},
       `global` = #{global,jdbcType=BIT},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR}
+    WHERE id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

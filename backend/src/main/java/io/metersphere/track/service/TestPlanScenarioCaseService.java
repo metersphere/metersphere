@@ -15,6 +15,8 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExecuteResult;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
@@ -23,8 +25,10 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
@@ -67,6 +71,8 @@ public class TestPlanScenarioCaseService {
     @Resource
     @Lazy
     private TestPlanService testPlanService;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -91,7 +97,9 @@ public class TestPlanScenarioCaseService {
 
         apiTestCases.forEach(item -> {
             Project project = projectMap.get(item.getProjectId());
-            if (project != null && project.getScenarioCustomNum() != null && project.getScenarioCustomNum()) {
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
+            boolean custom = config.getCaseCustomNum();
+            if (project != null && custom) {
                 item.setCustomNum(item.getCustomNum());
             } else {
                 item.setCustomNum(item.getNum().toString());
@@ -214,6 +222,7 @@ public class TestPlanScenarioCaseService {
     }
 
     public void setScenarioEnv(List<String> planScenarioIds, RunModeConfigDTO runModeConfig) {
+        if (CollectionUtils.isEmpty(planScenarioIds)) return;
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
         testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
@@ -430,25 +439,32 @@ public class TestPlanScenarioCaseService {
 
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanScenarioCaseMapper.selectForPlanReport(planId);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = apiScenarioReportService.selectForPlanReport(reportIds);
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
+    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
 
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
-        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "Success");
+        TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, "Success");
         TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
         TestPlanScenarioStepCountDTO stepCount = new TestPlanScenarioStepCountDTO();
         for (PlanReportCaseDTO item : planReportCaseDTOS) {
             calculateScenarioResultDTO(item, stepCount);
         }
-
         int underwayStepsCounts = getUnderwayStepsCounts(stepCount.getUnderwayIds());
-
         List<TestCaseReportStatusResultDTO> stepResult = new ArrayList<>();
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Failure.name(), stepCount.getScenarioStepError(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Pass.name(), stepCount.getScenarioStepSuccess(), stepResult);
+        getScenarioCaseReportStatusResultDTO(ExecuteResult.errorReportResult.name(), stepCount.getScenarioStepErrorReport(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Underway.name(),
-                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() + underwayStepsCounts, stepResult);
-
+                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() - stepCount.getScenarioStepErrorReport() + underwayStepsCounts, stepResult);
         apiResult.setApiScenarioData(statusResult);
         apiResult.setApiScenarioStepData(stepResult);
     }
@@ -456,13 +472,7 @@ public class TestPlanScenarioCaseService {
     private int getUnderwayStepsCounts(List<String> underwayIds) {
         if (CollectionUtils.isNotEmpty(underwayIds)) {
             List<Integer> underwayStepsCounts = extTestPlanScenarioCaseMapper.getUnderwaySteps(underwayIds);
-            Optional<Integer> underwayStepCount = underwayStepsCounts.stream().reduce((total, count) -> {
-                if (count != null) {
-                    total += count;
-                }
-                return total;
-            });
-            return underwayStepCount.orElse(0);
+            return underwayStepsCounts.stream().filter(Objects::nonNull).reduce(0,Integer::sum);
         }
         return 0;
     }
@@ -478,6 +488,8 @@ public class TestPlanScenarioCaseService {
                     stepCount.setScenarioStepTotal(stepCount.getScenarioStepTotal() + jsonObject.getIntValue("scenarioStepTotal"));
                     stepCount.setScenarioStepSuccess(stepCount.getScenarioStepSuccess() + jsonObject.getIntValue("scenarioStepSuccess"));
                     stepCount.setScenarioStepError(stepCount.getScenarioStepError() + jsonObject.getIntValue("scenarioStepError"));
+                    stepCount.setScenarioStepErrorReport(stepCount.getScenarioStepErrorReport() + jsonObject.getIntValue("scenarioStepErrorReport"));
+                    stepCount.setScenarioStepUnExecute(stepCount.getScenarioStepUnExecute() + jsonObject.getIntValue("scenarioStepUnExecuteReport"));
                 }
             }
         } else {
@@ -500,24 +512,21 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String,String> idMap, boolean isFinish) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
                 extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
 
-        String defaultStatus = "Running";
-        if(isFinish){
-            defaultStatus = "Fail";
-        }
-        Map<String,String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
-        for (TestPlanFailureScenarioDTO dto: apiTestCases) {
+        String defaultStatus = "Fail";
+        Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
+        for (TestPlanFailureScenarioDTO dto : apiTestCases) {
             String reportId = idMap.get(dto.getId());
             dto.setReportId(reportId);
-            if(reportId != null){
+            if (reportId != null) {
                 String status = reportStatus.get(reportId);
-                if(status == null ){
+                if (status == null) {
                     status = defaultStatus;
-                }else {
-                    if(StringUtils.equalsIgnoreCase(status,"Error")){
+                } else {
+                    if (StringUtils.equalsIgnoreCase(status, "Error")) {
                         status = "Fail";
                     }
                 }
@@ -576,4 +585,15 @@ public class TestPlanScenarioCaseService {
                 testPlanApiScenarioMapper::updateByPrimaryKeySelective);
     }
 
+    public List<TestPlanFailureScenarioDTO> getErrorReportCases(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureList(planId, ExecuteResult.errorReportResult.name());
+        return buildCases(apiTestCases);
+    }
+
+    public List<TestPlanFailureScenarioDTO> getUnExecuteCases(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureList(planId, "unExecute");
+        return buildCases(apiTestCases);
+    }
 }

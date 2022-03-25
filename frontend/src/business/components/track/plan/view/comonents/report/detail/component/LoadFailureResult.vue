@@ -1,34 +1,34 @@
 <template>
   <el-card>
-   <el-scrollbar>
+    <el-scrollbar>
       <el-table
-        row-key="id"
-        @row-click="rowClick"
-        :highlight-current-row="true"
-        :data="loadTestCases">
+          row-key="id"
+          @row-click="rowClick"
+          :highlight-current-row="true"
+          :data="loadTestCases">
         <el-table-column
-          prop="num"
-          :label="$t('commons.id')"
-          show-overflow-tooltip>
+            prop="num"
+            :label="$t('commons.id')"
+            show-overflow-tooltip>
           <template v-slot:default="{row}">
-            {{row.isCustomNum ? row.customNum : row.num }}
+            {{ isCustomNum ? row.customNum : row.num }}
           </template>
         </el-table-column>
         <el-table-column
-          prop="name"
-          :label="$t('commons.name')"
-          show-overflow-tooltip>
+            prop="name"
+            :label="$t('commons.name')"
+            show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
-          prop="userName"
-          :label="$t('commons.create_user')">
+            prop="userName"
+            :label="$t('commons.create_user')">
         </el-table-column>
 
         <el-table-column
-          prop="status"
-          column-key="status"
-          :label="$t('test_track.plan_view.execute_result')">
+            prop="status"
+            column-key="status"
+            :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="{row}">
             <el-tag size="mini" type="danger" v-if="row.status === 'error'">
               {{ row.status }}
@@ -39,7 +39,15 @@
             <el-tag size="mini" v-else-if="row.status === 'run'">
               {{ row.status }}
             </el-tag>
-            <span v-else>-</span>
+            <el-tag size="mini" v-else-if="row.status === 'Completed'">
+              {{ row.status }}
+            </el-tag>
+            <el-tag size="mini"  v-else-if="!row.status || row.status === '' ">
+              Prepare
+            </el-tag>
+            <el-tag size="mini" v-else>
+              {{ row.status }}
+            </el-tag>
           </template>
         </el-table-column>
 
@@ -58,6 +66,7 @@ import {
   getSharePlanLoadAllCase,
   getSharePlanLoadFailureCase
 } from "@/network/test-plan";
+
 export default {
   name: "LoadFailureResult",
   components: {StatusTableItem, MethodTableItem, TypeTableItem},
@@ -72,7 +81,7 @@ export default {
   },
   data() {
     return {
-      loadTestCases:  []
+      loadTestCases: []
     }
   },
   mounted() {
@@ -84,6 +93,11 @@ export default {
         this.$emit('setSize', this.loadTestCases.length);
       }
     }
+  },
+  computed: {
+    isCustomNum() {
+      return this.$store.state.currentProjectIsCustomNum;
+    },
   },
   methods: {
     getFailureTestCase() {

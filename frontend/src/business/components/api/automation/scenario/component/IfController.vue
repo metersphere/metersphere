@@ -7,8 +7,10 @@
     :draggable="draggable"
     :is-max="isMax"
     :show-btn="showBtn"
+    :show-version="showVersion"
     color="#E6A23C"
     background-color="#FCF6EE"
+    :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('api_test.automation.if_controller')">
 
     <template v-slot:headerLeft>
@@ -56,8 +58,16 @@
         type: Boolean,
         default: true,
       },
+      showVersion: {
+        type: Boolean,
+        default: true,
+      },
       index: Object,
       draggable: {
+        type: Boolean,
+        default: false,
+      },
+      ifFromVariableAdvance: {
         type: Boolean,
         default: false,
       },
@@ -133,7 +143,7 @@
         if (value.indexOf("empty") > 0 && !!this.controller.value) {
           this.controller.value = "";
         }
-      }
+      },
     },
     computed: {
       hasEmptyOperator() {

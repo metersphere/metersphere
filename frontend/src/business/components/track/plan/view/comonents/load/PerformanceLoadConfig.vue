@@ -378,17 +378,7 @@ export default {
           let data = JSON.parse(response.data);
 
           for (let i = 0; i < this.threadGroups.length; i++) {
-            let handler = this.threadGroups[i].handler;
-
-            let j = 0;
-            for (; j < data.length; j++) {
-              let res = data[j].filter(v => v.key === HANDLER && v.value === handler);
-              if (res.length > 0) {
-                break;
-              }
-            }
-
-            data[j].forEach(item => {
+            data[i].forEach(item => {
               switch (item.key) {
                 case TARGET_LEVEL:
                   this.threadGroups[i].threadNumber = item.value;

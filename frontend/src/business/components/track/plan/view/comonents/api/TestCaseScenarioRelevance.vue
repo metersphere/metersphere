@@ -19,6 +19,7 @@
     <relevance-scenario-list
       :select-node-ids="selectNodeIds"
       :trash-enable="trashEnable"
+      :version-enable="versionEnable"
       :plan-id="planId"
       :project-id="projectId"
       ref="apiScenarioList"/>
@@ -32,7 +33,6 @@
   import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
   import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
   import {getCurrentProjectID, strMapToObj} from "../../../../../../../common/js/utils";
-  import ApiList from "../../../../../api/definition/components/list/ApiList";
   import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
   import MsApiScenarioList from "../../../../../api/automation/scenario/ApiScenarioList";
   import MsApiScenarioModule from "../../../../../api/automation/scenario/ApiScenarioModule";
@@ -46,7 +46,6 @@
       MsApiScenarioModule,
       MsApiScenarioList,
       ApiCaseSimpleList,
-      ApiList,
       MsApiModule,
       TestCaseRelevanceBase,
     },
@@ -67,6 +66,10 @@
       planId: {
         type: String
       },
+      versionEnable: {
+        type: Boolean,
+        default: false
+      }
     },
     watch: {
       planId() {

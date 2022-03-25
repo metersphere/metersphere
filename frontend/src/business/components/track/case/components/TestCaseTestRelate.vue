@@ -30,6 +30,15 @@
         :label="$t('test_track.case.name')"/>
 
       <ms-table-column
+        prop="projectName"
+        :label="$t('commons.project')"/>
+
+      <ms-table-column
+        v-if="versionEnable"
+        prop="versionName"
+        :label="$t('commons.version')"/>
+
+      <ms-table-column
         :label="$t('test_resource_pool.type')"
         prop="type">
         <template v-slot:default="{row}">
@@ -40,16 +49,22 @@
 
     <test-case-api-relate
       :case-id="caseId"
+      :versionEnable="versionEnable"
+      :not-in-ids="notInIds"
       @refresh="initTable"
       ref="apiCaseRelevance"/>
 
     <test-case-scenario-relate
       :case-id="caseId"
+      :versionEnable="versionEnable"
+      :not-in-ids="notInIds"
       @refresh="initTable"
       ref="apiScenarioRelevance"/>
 
     <test-case-load-relate
       :case-id="caseId"
+      :not-in-ids="notInIds"
+      :versionEnable="versionEnable"
       @refresh="initTable"
       ref="loadRelevance"/>
 
@@ -85,9 +100,10 @@ export default {
           }
         }
       ],
+      notInIds: null
     }
   },
-  props: ['caseId', 'readOnly'],
+  props: ['caseId', 'readOnly', 'versionEnable'],
   watch: {
     caseId() {
       this.initTable();
@@ -115,6 +131,7 @@ export default {
     initTable() {
       this.result = getRelateTest(this.caseId, (data) => {
         this.data = data;
+        this.notInIds = data.map(i => i.testId);
       });
     },
   }

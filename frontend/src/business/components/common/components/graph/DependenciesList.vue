@@ -9,11 +9,13 @@
       class="pre-list"
       :read-only="readOnly" :title="resourceType === 'TEST_CASE' ? $t('commons.relationship.pre_case') : $t('commons.relationship.pre_api')"
       relationship-type="PRE" :resource-id="resourceId"
+      :version-enable="versionEnable"
       @setCount="setPreCount"
       :resource-type="resourceType" ref="preRelationshipList"/>
     <relationship-list
       class="post-list"
       :read-only="readOnly"
+      :version-enable="versionEnable"
       :title="resourceType === 'TEST_CASE' ? $t('commons.relationship.post_case') : $t('commons.relationship.post_api')"
       relationship-type="POST" :resource-id="resourceId"
       @setCount="setPostCount"
@@ -38,7 +40,8 @@ export default {
   props: [
     'resourceId',
     'resourceType',
-    'readOnly'
+    'readOnly',
+    'versionEnable',
   ],
   data() {
     return {
@@ -53,6 +56,10 @@ export default {
       this.$refs.postRelationshipList.getTableData();
     },
     openGraph() {
+      if (!this.resourceId) {
+        this.$warning(this.$t('api_test.automation.save_case_info'));
+        return;
+      }
       getRelationshipGraph(this.resourceId, this.resourceType,  (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();

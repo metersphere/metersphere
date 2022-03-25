@@ -66,21 +66,12 @@
         </el-table-column>
       </el-table>
     </el-card>
-<!--    <el-dialog title="Secret Key" :visible.sync="apiKeysVisible">
-      <div class="variable">
-        {{ currentRow.secretKey }}
-        <el-tooltip :content="$t('api_test.copied')" manual v-model="currentRow.visible2" placement="top"
-                    :visible-arrow="false">
-          <i class="el-icon-copy-document copy" @click="copy(currentRow, 'secretKey', 'visible2')"/>
-        </el-tooltip>
-      </div>
-    </el-dialog>-->
   </div>
 </template>
 
 <script>
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {getCurrentUser} from "../../../../common/js/utils";
+import {getCurrentUser} from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import MsTableHeader from "../../common/components/MsTableHeader";
 

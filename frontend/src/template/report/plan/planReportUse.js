@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import ElementUI, {Button, Col, Form, FormItem, Input, Row, Main, Card, Table, TableColumn} from 'element-ui';
+import ElementUI, {Button, Col, Form, FormItem, Input, Row, Main, Card, Table, TableColumn, Popover} from 'element-ui';
 import '@/assets/theme/index.css';
 import '@/common/css/menu-header.css';
 import '@/common/css/main.css';
@@ -8,6 +8,7 @@ import chart from "@/common/js/chart";
 import filters from "@/common/js/filter";
 import icon from "@/common/js/icon";
 import message from "@/common/js/message";
+import mavonEditor from "mavon-editor";
 
 // import CKEditor from '@ckeditor/ckeditor5-vue';
 
@@ -31,6 +32,8 @@ function planReportUse(id, template) {
   Vue.use(icon);
   Vue.use(message);
 // Vue.use(CKEditor);
+  Vue.use(mavonEditor);
+  Vue.use(Popover);
 
   new Vue({
     el: id,
