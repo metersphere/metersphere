@@ -5,7 +5,7 @@
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" :show-create="false">
             <template v-slot:button>
-              <el-button-group>
+              <el-button-group v-if="!isUI">
 
                 <el-tooltip class="item" effect="dark" content="left" :disabled="true" placement="left">
                   <el-button plain :class="{active: leftActive}" @click="changeTab('left')">{{$t('commons.scenario')}}</el-button>
@@ -263,6 +263,10 @@ export default {
       if(this.trashActiveDom==='left'){
         this.reportTypeFilters =this.reportScenarioFilters;
         url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
+        this.condition.isUi = false;
+        if (this.isUI) {
+          this.condition.isUi = true;
+        }
       }else{
         this.reportTypeFilters =this.reportCaseFilters;
         url = "/api/execute/result/list/" + this.currentPage + "/" + this.pageSize;
