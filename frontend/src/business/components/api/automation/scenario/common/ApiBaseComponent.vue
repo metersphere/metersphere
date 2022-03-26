@@ -42,10 +42,6 @@
 
         <slot name="button" v-if="showVersion"></slot>
 
-        <el-tooltip content="Copy" placement="top" v-if="showVersion && showCopy">
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
-        </el-tooltip>
-
         <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"
                    :disabled="(data.disabled && !data.root) || !showVersion "/>
 
