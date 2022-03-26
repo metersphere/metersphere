@@ -14,6 +14,8 @@ import io.metersphere.controller.request.PluginRequest;
 import io.metersphere.controller.request.PluginResourceDTO;
 import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.service.utils.CommonUtil;
+import io.metersphere.service.utils.MsClassLoader;
+import io.metersphere.service.utils.MsURLClassLoader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
 public class PluginService {
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private MsClassLoader msClassLoader;
 
     public String editPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
@@ -110,24 +113,9 @@ public class PluginService {
     }
 
     private void loadJar(String jarPath) {
-        File jarFile = new File(jarPath);
         // 从URLClassLoader类中获取类所在文件夹的方法，jar也可以认为是一个文件夹
-        Method method = null;
         try {
-            method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        } catch (NoSuchMethodException | SecurityException e1) {
-            e1.printStackTrace();
-        }
-        // 获取方法的访问权限以便写回
-        try {
-            method.setAccessible(true);
-            // 获取系统类加载器
-            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-
-            URL url = jarFile.toURI().toURL();
-            //URLClassLoader classLoader = new URLClassLoader(new URL[]{url});
-
-            method.invoke(classLoader, url);
+            msClassLoader.loadJar(jarPath);
         } catch (Exception e) {
             LogUtil.error(e);
         }
