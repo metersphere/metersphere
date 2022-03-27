@@ -432,9 +432,6 @@ export default {
   width: 100%;
 }
 
-/deep/ .el-table__fixed-body-wrapper {
-  top: 47px !important; /* 不同表格top值不一样 */
-}
 
 .table-card >>> .el-input__icon {
   line-height: 23px;
