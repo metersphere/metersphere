@@ -15,7 +15,49 @@
     </el-form-item>
     <el-tabs v-model="activeName" @tab-click="handleClick" style="margin-left: 40px">
       <el-tab-pane :label="$t('variables.config')" name="config">
-        <el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="hasLicense() && (repositoryOptions.length>0 || editData.id)">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.file_resource')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-radio v-model="editData.fileResource" label="local">{{$t('variables.local_file')}}</el-radio>
+            <el-radio v-model="editData.fileResource" label="repository">{{$t('variables.git_repository')}}</el-radio>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="hasLicense() && editData.fileResource == 'repository'">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.git_repository')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-select v-model="editData.repositoryId"
+                       :placeholder="$t('variables.choose_git_repository')" filterable size="small"
+                       class="ms-scenario-input">
+              <el-option
+                v-for="item in repositoryOptions"
+                :key="item.repositoryName"
+                :label="item.repositoryName"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="hasLicense() && editData.fileResource == 'repository'">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.git_branch')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-input v-model="editData.repositoryBranch" size="small" :placeholder="$t('variables.git_branch_placeholder')"/>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-xpack v-if="hasLicense() && editData.fileResource == 'repository'">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.git_file_path')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-input v-model="editData.repositoryFilePath" size="small" :placeholder="$t('variables.git_file_path_placeholder')"/>
+          </el-col>
+        </el-row>
+        <el-row style="margin-top: 10px" v-if="!editData.fileResource || editData.fileResource === 'local'">
           <el-col :span="5" style="margin-top: 5px">
             <span>{{$t('variables.add_file')}}</span>
           </el-col>
@@ -80,6 +122,7 @@
 
 <script>
   import MsCsvFileUpload from "./CsvFileUpload";
+  import {getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 
   export default {
     name: "MsEditCsv",
@@ -102,8 +145,10 @@
         rules: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          ],
+          ]
         },
+        repositoryOptions: [],
+        queryRepositoryPath: "/repository/list",
       }
     },
     computed: {
@@ -112,6 +157,7 @@
       }
     },
     methods: {
+      hasLicense,
       complete(results) {
         if (results.errors && results.errors.length > 0) {
           this.$error(results.errors);
@@ -136,7 +182,7 @@
         let config = {complete: this.complete, step: this.step, delimiter: this.editData.delimiter ? this.editData.delimiter : ","};
         this.allData = [];
         // 本地文件
-        if (this.editData.files && this.editData.files.length > 0 && this.editData.files[0].file) {
+        if (this.editData.files &&  this.editData.files.length > 0 && this.editData.files[0].file) {
           this.loading = true;
           this.$papa.parse(this.editData.files[0].file, config);
         }
@@ -170,7 +216,26 @@
         cb(results);
       },
 
-    }
+      loadWorkspaceReposiroty() {
+        if (getCurrentWorkspaceId() === null) {
+          this.repositoryOptions = [];
+          return;
+        }
+        let param = {
+          workspaceId: getCurrentWorkspaceId()
+        };
+        this.$post(this.queryRepositoryPath, param, response => {
+          this.repositoryOptions = response.data;
+        });
+      },
+
+    },
+    mounted() {
+      if (hasLicense()) {
+        // 查询当前工作空间下的存储库信息
+        this.loadWorkspaceReposiroty();
+      }
+    },
   }
 </script>
 

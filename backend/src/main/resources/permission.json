@@ -161,6 +161,26 @@
       "resourceId": "WORKSPACE_USER"
     },
     {
+      "id": "WORKSPACE_REPOSITORY:READ",
+      "name": "permission.workspace_repository.read",
+      "resourceId": "WORKSPACE_REPOSITORY"
+    },
+    {
+      "id": "WORKSPACE_REPOSITORY:READ+CREATE",
+      "name": "permission.workspace_repository.create",
+      "resourceId": "WORKSPACE_REPOSITORY"
+    },
+    {
+      "id": "WORKSPACE_REPOSITORY:READ+EDIT",
+      "name": "permission.workspace_repository.edit",
+      "resourceId": "WORKSPACE_REPOSITORY"
+    },
+    {
+      "id": "WORKSPACE_REPOSITORY:READ+DELETE",
+      "name": "permission.workspace_repository.delete",
+      "resourceId": "WORKSPACE_REPOSITORY"
+    },
+    {
       "id": "WORKSPACE_PROJECT_MANAGER:READ",
       "name": "permission.workspace_project_manager.read",
       "resourceId": "WORKSPACE_PROJECT_MANAGER"

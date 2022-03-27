@@ -76,6 +76,55 @@ public class FileUtils {
         }
     }
 
+    private static void copyFile(List<String> bodyUploadIds, List<String> existfilePaths, String path) {
+        String filePath = BODY_FILE_DIR;
+        if (StringUtils.isNotEmpty(path)) {
+            filePath = path;
+        }
+        if (CollectionUtils.isNotEmpty(bodyUploadIds) && CollectionUtils.isNotEmpty(existfilePaths)) {
+            File testDir = new File(filePath);
+            if (!testDir.exists()) {
+                testDir.mkdirs();
+            }
+            for (int i = 0; i < bodyUploadIds.size(); i++) {
+                String oldFilePath = existfilePaths.get(i);
+                String[] oldFilePathSplits = oldFilePath.split("/");
+                String newFilePath = filePath + "/" + bodyUploadIds.get(i) + "_" + oldFilePathSplits[oldFilePathSplits.length-1];
+                File existfile = new File(oldFilePath);
+                if (existfile.exists()) {
+                    try {
+                        FileUtil.copyFile(existfile, new File(newFilePath));
+                    } catch (Exception e) {
+                        LogUtil.error(e.getMessage(), e);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void copyFile(String bodyUploadId, String existfilePath, String path) {
+        String filePath = BODY_FILE_DIR;
+        if (StringUtils.isNotEmpty(path)) {
+            filePath = path;
+        }
+        if (StringUtils.isNotEmpty(bodyUploadId) && StringUtils.isNotEmpty(existfilePath)) {
+            File testDir = new File(filePath);
+            if (!testDir.exists()) {
+                testDir.mkdirs();
+            }
+            String[] oldFilePathSplits = existfilePath.split("/");
+            String newFilePath = filePath + "/" + bodyUploadId + "_" + oldFilePathSplits[oldFilePathSplits.length-1];
+            File existfile = new File(existfilePath);
+            if (existfile.exists()) {
+                try {
+                    FileUtil.copyFile(existfile, new File(newFilePath));
+                } catch (Exception e) {
+                    LogUtil.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
     public static String create(String id, MultipartFile item) {
         String filePath = BODY_FILE_DIR + "/plugin";
         if (item != null) {
@@ -199,6 +248,14 @@ public class FileUtils {
 
     public static void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
         FileUtils.create(bodyUploadIds, bodyFiles, null);
+    }
+
+//    public static void createBodyFileByCopy(List<String> bodyUploadIds, List<String> existfilePaths) {
+//        FileUtils.copyFile(bodyUploadIds, existfilePaths, null);
+//    }
+
+    public static void createBodyFileByCopy(String bodyUploadIds, String existfilePaths) {
+        FileUtils.copyFile(bodyUploadIds, existfilePaths, null);
     }
 
     public static void createFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles, String path) {

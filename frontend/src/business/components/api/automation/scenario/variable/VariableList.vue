@@ -7,7 +7,7 @@
 
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
-            <div>
+            <div v-loading="result.loading">
               <el-row style="margin-bottom: 10px">
                 <div style="float: left">
                   <el-input :placeholder="$t('commons.search_by_name')" v-model="selectVariable" size="small"
@@ -150,7 +150,7 @@
   import MsEditRandom from "./EditRandom";
   import MsEditListValue from "./EditListValue";
   import MsEditCsv from "./EditCsv";
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, hasLicense} from "@/common/js/utils";
   import MsApiKeyValue from "../../../definition/components/ApiKeyValue";
   import BatchAddParameter from "../../../definition/components/basis/BatchAddParameter";
   import {KeyValue} from "../../../definition/model/ApiTestModel";
@@ -215,9 +215,12 @@
             handleClick: this.handleDeleteBatch,
           },
         ],
+        validateRepositoryPath: "/repository/validate/exist",
+        result: {},
       };
     },
     methods: {
+      hasLicense,
       batchAddParameter() {
         this.$refs.batchAddParameter.open();
       },
@@ -347,7 +350,8 @@
         this.$emit('setVariables', saveVariables, this.headers);
       },
       addVariable() {
-        this.editData = {delimiter: ",", quotedData: 'false',files:[]};
+        this.editData = {delimiter: ",", quotedData: 'false',files:[], fileResource: 'local', repositoryBranch: 'master'};
+        console.log('this.selectType', this.selectType);
         this.editData.type = this.selectType;
         this.showDelete = false;
         this.$refs.variableTable.cancelCurrentRow();
@@ -357,16 +361,63 @@
           this.$warning("变量名不能为空");
           return;
         }
-        // 更新场景，修改左边数据
-        if(this.showDelete){
-          this.updateParameters(this.editData);
-        }else{
-          // 新增场景，往左边新加
-          this.addParameters(this.editData);
-          this.addVariable();
-          this.$refs.variableTable.cancelCurrentRow();
+        if (hasLicense()) {
+          // 校验并拉取git仓库中的文件，并复制文件到本地路径下，返回文件的ID和文件的名称,以及文件的commitId
+          this.validateRepository(res => {
+            if (res) {
+              // 更新场景，修改左边数据
+              if (this.showDelete) {
+                this.updateParameters(this.editData);
+              } else {
+                // 新增场景，往左边新加
+                this.addParameters(this.editData);
+                this.addVariable();
+                this.$refs.variableTable.cancelCurrentRow();
+              }
+              this.$success(this.$t('commons.save_success'));
+            }
+          });
+        } else {
+          // 更新场景，修改左边数据
+          if (this.showDelete) {
+            this.updateParameters(this.editData);
+          } else {
+            // 新增场景，往左边新加
+            this.addParameters(this.editData);
+            this.addVariable();
+            this.$refs.variableTable.cancelCurrentRow();
+          }
+          this.$success(this.$t('commons.save_success'));
         }
-        this.$success(this.$t('commons.save_success'));
+      },
+      validateRepository(callback) {
+        // 校验所选的Git仓库、Git分支下有没有对应的文件
+        if (this.editData.type === 'CSV' && this.editData.fileResource && this.editData.fileResource === 'repository') {
+          let param = {
+            repositoryId: this.editData.repositoryId,
+            repositoryBranch: this.editData.repositoryBranch,
+            repositoryFilePath: this.editData.repositoryFilePath,
+            fileId: getUUID().substring(0, 12)
+          };
+          this.result = this.$post(this.validateRepositoryPath, param, response => {
+            if (!response.data.success) {
+              this.$error(response.data.message);
+              callback(false);
+            } else {
+              // 将文件ID和文件名称保存至当前场景变量的files中
+              this.editData.files = [
+                {
+                  id: response.data.fileId,
+                  name: response.data.fileName,
+                  commitId: response.data.commitId
+                }
+              ];
+              callback(true);
+            }
+          });
+        } else {
+          callback(true);
+        }
       },
       cancelVariable() {
         this.$refs.variableTable.cancelCurrentRow();
@@ -470,6 +521,9 @@
         // 做深拷贝
         this.editData = JSON.parse(JSON.stringify(row));
         this.updateFiles();
+        if (!hasLicense() && this.editData.type === 'CSV' && this.editData.fileResource === "repository") {
+          this.editData.fileResource = "local";
+        }
         this.showDelete = true;
       },
       updateFiles(){
