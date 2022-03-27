@@ -1,5 +1,4 @@
 <template>
-
   <el-drawer
     :before-close="handleClose"
     :visible.sync="showDialog"
@@ -10,119 +9,118 @@
     v-loading="result.loading">
 
     <template v-slot:default="scope">
-      <el-row :gutter="10">
-        <div class="container">
+      <el-row>
           <el-col :span="17">
-            <el-card>
-              <el-scrollbar>
+            <div class="container">
+              <el-card>
+                <el-scrollbar>
+                  <el-header>
+                    <el-row type="flex" class="head-bar">
 
-                <el-header>
-                  <el-row type="flex" class="head-bar">
-
-                    <el-col :span="4">
-                      <el-button plain size="mini"
-                                 icon="el-icon-back"
-                                 @click="cancel">{{ $t('test_track.return') }}
-                      </el-button>
-                    </el-col>
-
-                    <el-col class="head-right" :span="20">
-                      <ms-previous-next-button
-                        :index="index"
-                        :page-num="pageNum"
-                        :page-size="pageSize"
-                        :page-total="pageTotal"
-                        :total="total"
-                        :next-page-data="nextPageData"
-                        :pre-page-data="prePageData"
-                        @pre="handlePre"
-                        @next="saveCase(true, true)"
-                        :list="testCases"/>
-                      <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
-                        {{$t('test_track.save')}} & {{$t('test_track.next')}}
-                      </el-button>
-                    </el-col>
-
-                  </el-row>
-
-                  <el-row class="head-bar">
-                    <el-col>
-                      <el-divider content-position="left">
-                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.num }}-{{ testCase.name }}</el-button>
-                      </el-divider>
-                    </el-col>
-                  </el-row>
-                </el-header>
-
-                <div class="case_container">
-
-                  <el-form :model="testCase">
-
-                    <el-row>
-                      <el-col :span="7">
-                        <el-form-item :label="$t('test_track.case.module')" prop="nodePath" :label-width="formLabelWidth">
-                          {{testCase.nodePath}}
-                        </el-form-item >
+                      <el-col :span="4">
+                        <el-button plain size="mini"
+                                   icon="el-icon-back"
+                                   @click="cancel">{{ $t('test_track.return') }}
+                        </el-button>
                       </el-col>
-                      <el-col :span="7">
-                        <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName" :label-width="formLabelWidth">
-                          {{testCase.projectName}}
-                        </el-form-item >
+
+                      <el-col class="head-right" :span="20">
+                        <ms-previous-next-button
+                          :index="index"
+                          :page-num="pageNum"
+                          :page-size="pageSize"
+                          :page-total="pageTotal"
+                          :total="total"
+                          :next-page-data="nextPageData"
+                          :pre-page-data="prePageData"
+                          @pre="handlePre"
+                          @next="saveCase(true, true)"
+                          :list="testCases"/>
+                        <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
+                          {{$t('test_track.save')}} & {{$t('test_track.next')}}
+                        </el-button>
                       </el-col>
-                      <el-col :span="10">
-                        <test-plan-test-case-status-button class="status-button"
-                                                           @statusChange="statusChange"
-                                                           :is-read-only="statusReadOnly"
-                                                           :status="testCase.status"/>
-                      </el-col>
+
                     </el-row>
 
-                    <el-form ref="customFieldForm"
-                             v-if="isCustomFiledActive"
-                             class="case-form">
+                    <el-row class="head-bar">
+                      <el-col>
+                        <el-divider content-position="left">
+                          <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.num }}-{{ testCase.name }}</el-button>
+                        </el-divider>
+                      </el-col>
+                    </el-row>
+                  </el-header>
+                  <div class="case_container">
+
+                    <el-form :model="testCase">
+
                       <el-row>
-                        <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
-                          <el-form-item :label-width="formLabelWidth"
-                                        :label="item.system ? $t(systemNameMap[item.name]) : item.name"
-                                        :prop="item.name">
-                            <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
-                          </el-form-item>
+                        <el-col :span="7">
+                          <el-form-item :label="$t('test_track.case.module')" prop="nodePath" :label-width="formLabelWidth">
+                            {{testCase.nodePath}}
+                          </el-form-item >
+                        </el-col>
+                        <el-col :span="7">
+                          <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName" :label-width="formLabelWidth">
+                            {{testCase.projectName}}
+                          </el-form-item >
+                        </el-col>
+                        <el-col :span="10">
+                          <test-plan-test-case-status-button class="status-button"
+                                                             @statusChange="statusChange"
+                                                             :is-read-only="statusReadOnly"
+                                                             :status="testCase.status"/>
                         </el-col>
                       </el-row>
+
+                      <el-form ref="customFieldForm"
+                               v-if="isCustomFiledActive"
+                               class="case-form">
+                        <el-row>
+                          <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                            <el-form-item :label-width="formLabelWidth"
+                                          :label="item.system ? $t(systemNameMap[item.name]) : item.name"
+                                          :prop="item.name">
+                              <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                            </el-form-item>
+                          </el-col>
+                        </el-row>
+                      </el-form>
+
+                      <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
+                                           :title="$t('test_track.case.prerequisite')" :data="testCase"
+                                           prop="prerequisite"/>
+                      <step-change-item :disable="true" :label-width="formLabelWidth" :form="testCase"/>
+                      <test-plan-case-step-results-item :label-width="formLabelWidth" :is-read-only="isReadOnly"
+                                                        v-if="testCase.stepModel === 'STEP'" :test-case="testCase"/>
+                      <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
+                                           :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase"
+                                           prop="stepDescription"/>
+                      <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
+                                           :disabled="true" :title="$t('test_track.case.expected_results')"
+                                           :data="testCase" prop="expectedResult"/>
+                      <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
+                                           :title="$t('test_track.plan_view.actual_result')"
+                                           :data="testCase" prop="actualResult"/>
+
+
+                      <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
+                        <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
+                                                   :is-test-plan-edit="true"
+                                                   :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
+                                                   :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                      </el-form-item >
+
                     </el-form>
-
-                    <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
-                                         :title="$t('test_track.case.prerequisite')" :data="testCase"
-                                         prop="prerequisite"/>
-                    <step-change-item :disable="true" :label-width="formLabelWidth" :form="testCase"/>
-                    <test-plan-case-step-results-item :label-width="formLabelWidth" :is-read-only="isReadOnly"
-                                                      v-if="testCase.stepModel === 'STEP'" :test-case="testCase"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase"
-                                         prop="stepDescription"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :disabled="true" :title="$t('test_track.case.expected_results')"
-                                         :data="testCase" prop="expectedResult"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :title="$t('test_track.plan_view.actual_result')"
-                                         :data="testCase" prop="actualResult"/>
-
-
-                    <el-form-item :label="$t('test_track.case.other_info')" :label-width="formLabelWidth">
-                      <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
-                                                 :is-test-plan-edit="true"
-                                                 :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
-                                                 :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
-                    </el-form-item >
-
-                  </el-form>
-                </div>
-
-              </el-scrollbar>
-            </el-card>
+                  </div>
+                </el-scrollbar>
+              </el-card>
+            </div>
           </el-col>
           <el-col :span="7">
-            <el-card class="comment-card">
+            <div class="comment-card">
+            <el-card>
               <template slot="header">
                 <span style="font-size: 15px; color: #1E90FF">{{ $t('test_track.review.comment') }}</span>
                 <i class="el-icon-refresh" @click="getComments(testCase)"
@@ -131,19 +129,11 @@
               <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
                               @getComments="getComments"/>
             </el-card>
-            <!--            <case-comment :case-id="testCase ? testCase.caseId : ''" class="comment-card"/>-->
+            </div>
           </el-col>
-
-
-        </div>
       </el-row>
-
-
     </template>
-
   </el-drawer>
-
-
 </template>
 
 <script>
@@ -558,10 +548,17 @@ export default {
 
 .container {
   height: 100vh;
+  padding-right: 10px;
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 60px);
+  height: calc(100vh - 50px);
+}
+
+.comment-card {
+  padding-left: 0;
+  padding-right: 15px;
+  padding-top: 15px;
 }
 
 .comment-card >>> .el-card__header {
@@ -588,9 +585,7 @@ p {
 .head-bar {
   z-index: 999;
 }
-</style>
 
-<style>
 .issues-popover {
   height: 550px;
   overflow: auto;
@@ -607,5 +602,9 @@ p {
 
 .test-case-name {
   padding: 0;
+}
+
+/deep/ .el-drawer__body {
+  overflow: unset;
 }
 </style>
