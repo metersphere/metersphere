@@ -21,6 +21,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.task.service.TaskService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.xpack.repository.dto.SaveApiScenarioRepositoryFile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -102,8 +103,9 @@ public class ApiAutomationController {
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/AutomationCreate", subject = "接口自动化通知")
     public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
-                              @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
-        return apiAutomationService.create(request, bodyFiles, scenarioFiles);
+                              @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles,
+                              @RequestPart(value = "repositoryFiles", required = false) List<SaveApiScenarioRepositoryFile> repositoryFiles) {
+        return apiAutomationService.create(request, bodyFiles, scenarioFiles, repositoryFiles);
     }
 
     @PostMapping(value = "/update")
@@ -111,8 +113,9 @@ public class ApiAutomationController {
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
     public ApiScenario update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
-                              @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
-        return apiAutomationService.update(request, bodyFiles, scenarioFiles);
+                              @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles,
+                              @RequestPart(value = "repositoryFiles", required = false) List<SaveApiScenarioRepositoryFile> repositoryFiles) {
+        return apiAutomationService.update(request, bodyFiles, scenarioFiles, repositoryFiles);
     }
 
 

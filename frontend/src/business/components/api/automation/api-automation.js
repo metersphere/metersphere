@@ -1,4 +1,4 @@
-import {getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense} from "@/common/js/utils";
 import {getUploadConfig, request} from "@/common/js/ajax";
 import {basePost} from "@/network/base-network";
 import {ELEMENT_TYPE} from "@/business/components/api/automation/scenario/Setting";
@@ -71,6 +71,41 @@ function getScenarioFiles(obj) {
   return scenarioFiles;
 }
 
+function getRepositoryFiles(obj) {
+  // 组织repositoryFiles数据
+  let repositoryFiles = [];
+  // 场景变量csv 文件
+  if (obj.variables) {
+    obj.variables.forEach(param => {
+      if (param.type === 'CSV' && param.fileResource === 'repository') {
+        param.files.forEach(item => {
+          if (!item.id) {
+            let fileId = getUUID().substring(0, 12);
+            let repositoryFile = {
+              repositoryId: param.repositoryId,
+              repositoryBranch: param.repositoryBranch,
+              repositoryFilePath: param.repositoryFilePath,
+              fileId: fileId,
+              commitId: ""
+            };
+            repositoryFiles.push(repositoryFile);
+          } else {
+            let repositoryFile = {
+              repositoryId: param.repositoryId,
+              repositoryBranch: param.repositoryBranch,
+              repositoryFilePath: param.repositoryFilePath,
+              fileId: item.id,
+              commitId: item.commitId
+            };
+            repositoryFiles.push(repositoryFile);
+          }
+        });
+      }
+    });
+  }
+  return repositoryFiles;
+}
+
 export function saveScenario(url, scenario, scenarioDefinition, _this, success) {
   let bodyFiles = getBodyUploadFiles(scenario, scenarioDefinition);
   if (_this && _this.$store && _this.$store.state && _this.$store.state.pluginFiles && _this.$store.state.pluginFiles.length > 0) {
@@ -92,6 +127,10 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
     scenarioFiles.forEach(f => {
       formData.append("scenarioFiles", f);
     })
+  }
+  if (hasLicense()) {
+    let repositoryFiles = getRepositoryFiles(scenario);
+    formData.append('repositoryFiles', new Blob([JSON.stringify(repositoryFiles)], {type: "application/json"}));
   }
   formData.append('request', new Blob([JSON.stringify(scenario)], {type: "application/json"}));
   let axiosRequestConfig = getUploadConfig(url, formData);

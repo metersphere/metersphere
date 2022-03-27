@@ -445,6 +445,10 @@ export default {
     delete_all_version: '全部版本',
     change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
     ui: 'UI 测试',
+    git_repository: 'Git存储库',
+    repositoryUrl: 'Git存储库地址',
+    repositoryName: 'Git存储库名称',
+    repositoryUsername: '用户名'
   },
   login: {
     normal_Login: "普通登录",
@@ -568,6 +572,7 @@ export default {
     template_manage: "模版管理",
     case_template_manage: "用例模版",
     issue_template_manage: "缺陷模版",
+    system_setting_git_repository: 'MS在系统级别设置git仓库',
     custom_filed: {
       input: '输入框',
       textarea: '文本框',
@@ -624,6 +629,7 @@ export default {
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
     defect_manage: '项目管理平台',
+    git_repository: 'Git存储库',
     message_settings: '消息设置',
     message: {
       jenkins_task_notification: 'Jenkins 任务通知',
@@ -837,6 +843,19 @@ export default {
     org_remove_member: '将该用户从组织中移除，将同时移除该组织下所有工作空间的权限，确定要移除该成员吗？',
     input_id_or_email: '请输入用户 ID, 或者 用户邮箱',
     no_such_user: '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
+  },
+  repository: {
+    create: '添加存储库',
+    modify: '修改存储库',
+    delete_confirm: '确定要删除这个存储库吗?',
+    please_choose_repository: '请选择存储库',
+    search_by_name: '根据名称搜索',
+    modify_repository_info: '修改存储库信息',
+    input_repository_name: '请输入存储库名称',
+    special_characters_are_not_supported: '不支持特殊字符',
+    input_repository_url: '请输入存储库地址',
+    input_username: '请输入用户名',
+    input_password: '请输入密码',
   },
   user: {
     id: '用户ID',
@@ -2642,6 +2661,14 @@ export default {
     delimiter: "分隔符",
     format: "输出格式",
     quoted_data: "是否允许带引号",
+    file_resource: "文件来源",
+    local_file: "本地文件",
+    git_repository: "Git存储库",
+    git_branch: "Git分支",
+    git_branch_placeholder: "Git分支名，区分大小写",
+    git_file_path: "文件路径",
+    git_file_path_placeholder: "存储库中的CSV文件的所在路径",
+    choose_git_repository: "请选择Git存储库"
   },
   auth_source: {
     delete_prompt: '此操作会删除认证源，是否继续？',
@@ -3078,7 +3105,14 @@ export default {
       performance: "性能测试",
       project: "项目设置",
       report: "报表统计",
-    }
+    },
+    workspace_repository: {
+      name: "Git存储库",
+      read: "查询存储库",
+      create: "添加存储库",
+      edit: "编辑存储库",
+      delete: "删除存储库",
+    },
   },
   env_options: {
     all_assertions: "全局断言"
