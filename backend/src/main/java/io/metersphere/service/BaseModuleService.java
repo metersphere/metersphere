@@ -108,15 +108,15 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         }
     }
 
-    public ModuleNode getDefaultNode(String projectId) {
+    public ModuleNode getDefaultNode(String projectId, String defaultName) {
         TestCaseNodeExample example = new TestCaseNodeExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("未规划用例").andParentIdIsNull();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(Optional.ofNullable(defaultName).orElse("未规划用例")).andParentIdIsNull();
         List<ModuleNode> list = extModuleNodeMapper.selectByExample(tableName, example);
-        if(CollectionUtils.isEmpty(list)){
+        if (CollectionUtils.isEmpty(list)) {
             ModuleNode record = new ModuleNode();
             record.setId(UUID.randomUUID().toString());
             record.setCreateUser(SessionUtils.getUserId());
-            record.setName("未规划用例");
+            record.setName(Optional.ofNullable(defaultName).orElse("未规划用例"));
             record.setPos(1.0);
             record.setLevel(1);
             record.setCreateTime(System.currentTimeMillis());
@@ -125,14 +125,14 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             extModuleNodeMapper.insert(tableName, record);
             record.setCaseNum(0);
             return record;
-        }else {
+        } else {
             return list.get(0);
         }
     }
 
-    public List<ModuleNodeDTO> getNodeTreeByProjectIdWithCount(String projectId, Function<QueryNodeRequest, List<Map<String,Object>>> getModuleCountFunc) {
+    public List<ModuleNodeDTO> getNodeTreeByProjectIdWithCount(String projectId, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc, String defaultName) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
+        this.getDefaultNode(projectId, defaultName);
 
         List<ModuleNodeDTO> moduleNodes = extModuleNodeMapper.getNodeTreeByProjectId(tableName, projectId);
 
@@ -143,11 +143,11 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         return getNodeTrees(moduleNodes);
     }
 
-    public List<ModuleNodeDTO> getNodeTreeByProjectId(String projectId) {
-        return getNodeTreeByProjectIdWithCount(projectId, null);
+    public List<ModuleNodeDTO> getNodeTreeByProjectId(String projectId, String defaultName) {
+        return getNodeTreeByProjectIdWithCount(projectId, null, defaultName);
     }
 
-    private void buildNodeCount(String projectId, List<ModuleNodeDTO> moduleNodes, Function<QueryNodeRequest, List<Map<String,Object>>> getModuleCountFunc) {
+    private void buildNodeCount(String projectId, List<ModuleNodeDTO> moduleNodes, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc) {
         QueryNodeRequest request = new QueryNodeRequest();
         request.setProjectId(projectId);
 
@@ -158,24 +158,24 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             moduleIds = nodeList(moduleNodes, node.getId(), moduleIds);
             moduleIds.add(node.getId());
             for (String moduleId : moduleIds) {
-                if(!allModuleIdList.contains(moduleId)){
+                if (!allModuleIdList.contains(moduleId)) {
                     allModuleIdList.add(moduleId);
                 }
             }
         }
         request.setModuleIds(allModuleIdList);
 
-        List<Map<String,Object>> moduleCountList = getModuleCountFunc.apply(request);
+        List<Map<String, Object>> moduleCountList = getModuleCountFunc.apply(request);
 //        List<Map<String,Object>> moduleCountList = extTestCaseMapper.moduleCountByCollection(request);
 
-        Map<String,Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
+        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
         moduleNodes.forEach(node -> {
             List<String> moduleIds = new ArrayList<>();
             moduleIds = nodeList(moduleNodes, node.getId(), moduleIds);
             moduleIds.add(node.getId());
             int countNum = 0;
             for (String moduleId : moduleIds) {
-                if(moduleCountMap.containsKey(moduleId)){
+                if (moduleCountMap.containsKey(moduleId)) {
                     countNum += moduleCountMap.get(moduleId).intValue();
                 }
             }
@@ -184,16 +184,16 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
     }
 
     private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
-        Map<String,Integer> returnMap = new HashMap<>();
-        for (Map<String, Object> map: moduleCountList){
+        Map<String, Integer> returnMap = new HashMap<>();
+        for (Map<String, Object> map : moduleCountList) {
             Object moduleIdObj = map.get("moduleId");
             Object countNumObj = map.get("countNum");
-            if(moduleIdObj!= null && countNumObj != null){
+            if (moduleIdObj != null && countNumObj != null) {
                 String moduleId = String.valueOf(moduleIdObj);
                 try {
                     Integer countNumInteger = new Integer(String.valueOf(countNumObj));
-                    returnMap.put(moduleId,countNumInteger);
-                }catch (Exception e){
+                    returnMap.put(moduleId, countNumInteger);
+                } catch (Exception e) {
                 }
             }
         }
@@ -227,6 +227,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
 
     /**
      * nodeIds 包含了删除节点ID及其所有子节点ID
+     *
      * @param nodeIds
      * @param deleteNodeDataFunc
      * @return
@@ -268,6 +269,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
 
     /**
      * 获取当前项目下的
+     *
      * @param projectId
      * @param pruningTreeIds
      * @return
@@ -285,15 +287,15 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         return nodeTrees;
     }
 
-    public Map<String, String> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {
+    public Map<String, String> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId, String defaultName) {
         List<String> nodePaths = testCases.stream()
                 .map(TestCase::getNodePath)
                 .collect(Collectors.toList());
-        return this.createNodes(nodePaths, projectId);
+        return this.createNodes(nodePaths, projectId, defaultName);
     }
 
-    public Map<String, String> createNodes(List<String> nodePaths, String projectId) {
-        List<ModuleNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
+    public Map<String, String> createNodes(List<String> nodePaths, String projectId, String defaultName) {
+        List<ModuleNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId, defaultName);
         Map<String, String> pathMap = new HashMap<>();
         for (String item : nodePaths) {
             if (item == null) {
@@ -351,15 +353,18 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
 
     /**
      * 拖拽批量修改模块，以及模块下数据的 modulePath 字段
+     *
      * @param request
-     * @param getNodeDataFunc 通过 nodeIds 获取需要修改的数据
+     * @param getNodeDataFunc  通过 nodeIds 获取需要修改的数据
      * @param editNodeDataFunc 修改 modulePath 的方法
      */
     protected void dragNodeAndDataEdit(DragNodeRequest request,
-                                    Function<List<String>, List<EditModuleDateDTO>> getNodeDataFunc,
-                                    Consumer<List<EditModuleDateDTO>> editNodeDataFunc) {
+                                       Function<List<String>, List<EditModuleDateDTO>> getNodeDataFunc,
+                                       Consumer<List<EditModuleDateDTO>> editNodeDataFunc) {
 
-        if (request.getNodeTree() == null) { return; }
+        if (request.getNodeTree() == null) {
+            return;
+        }
 
         checkTestCaseNodeExist(request);
 
@@ -395,7 +400,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
     }
 
     private void buildUpdateModule(TestCaseNodeDTO rootNode,
-                                     List<ModuleNode> updateNodes, String pId, int level) {
+                                   List<ModuleNode> updateNodes, String pId, int level) {
         checkoutNodeLimit(level);
 
         ModuleNode moduleNode = new ModuleNode();
