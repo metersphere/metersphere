@@ -10,6 +10,7 @@ import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -131,6 +132,8 @@ public class ApiAutomationService {
     private MsHashTreeService hashTreeService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -1367,15 +1370,64 @@ public class ApiAutomationService {
         result.setProjectId(request.getProjectId());
         result.setVersion(System.getenv("MS_VERSION"));
         if (CollectionUtils.isNotEmpty(result.getData())) {
-            List<String> names = result.getData().stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
+            List<String> names = new ArrayList<>();
+            List<String> ids = new ArrayList<>();
+            checkDefinition(result,names,ids);
             request.setName(String.join(",", names));
-            List<String> ids = result.getData().stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
             request.setId(JSON.toJSONString(ids));
         }
         return result;
     }
 
-    public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
+    public void checkDefinition(ApiScenrioExportResult result, List<String> names, List<String> ids){
+        for (ApiScenarioWithBLOBs scenario : result.getData()) {
+            if (scenario == null || StringUtils.isEmpty(scenario.getScenarioDefinition())) {
+                return;
+            }
+            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+            JSONArray hashTree = element.getJSONArray("hashTree");
+            ApiScenarioImportUtil.formatHashTree(hashTree);
+            setHashTree(hashTree);
+            scenario.setScenarioDefinition(JSONObject.toJSONString(element));
+            names.add(scenario.getName());
+            ids.add(scenario.getId());
+        }
+    }
+    public void setHashTree(JSONArray hashTree){
+        try {
+            if (CollectionUtils.isNotEmpty(hashTree)) {
+                for (int i = 0; i < hashTree.size(); i++) {
+                    JSONObject object = (JSONObject) hashTree.get(i);
+                    String referenced = object.getString("referenced");
+                    if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
+                        // 检测引用对象是否存在，若果不存在则改成复制对象
+                        String refType = object.getString("refType");
+                        if (StringUtils.isNotEmpty(refType)) {
+                            if (refType.equals("CASE")) {
+                                if (CollectionUtils.isEmpty(object.getJSONArray("hashTree"))) {
+                                    ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(object.getString("id"));
+                                    if (model != null) {
+                                        JSONObject element = JSON.parseObject(model.getRequest());
+                                        object.put("hashTree",element.getJSONArray("hashTree"));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(StringUtils.isNotEmpty(object.getString("refType"))){
+                        if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                            setHashTree(object.getJSONArray("hashTree"));
+                        }
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
         // 生成jmx
         List<ApiScenarioExportJmxDTO> resList = new ArrayList<>();
