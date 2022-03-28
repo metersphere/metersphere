@@ -8,6 +8,7 @@ import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +34,8 @@ public class ApiCaseParallelExecuteService {
             runRequest.setReportType(executionQueue.getReportType());
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             runRequest.setQueueId(executionQueue.getId());
-            if (executionQueue.getQueue() != null) {
-                runRequest.setPlatformUrl(executionQueue.getQueue().getId());
+            if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
+                runRequest.setPlatformUrl(executionQueue.getDetailMap().get(result.getId()));
             }
             if (!GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()).isPool()) {
                 hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
