@@ -206,3 +206,12 @@ export function resetResourceId(hashTree) {
     }
   })
 }
+
+export function getReportMessageSocket(reportId, onmessage) {
+  let protocol = "ws://";
+  if (window.location.protocol === 'https:') {
+    protocol = "wss://";
+  }
+  const uri = protocol + window.location.host + "/ws/" + reportId;
+  return new WebSocket(uri);
+}

@@ -387,6 +387,7 @@ import {
 import "@/common/css/material-icons.css";
 import OutsideClick from "@/common/js/outside-click";
 import {
+  getReportMessageSocket,
   savePreciseEnvProjectIds,
   saveScenario
 } from "@/business/components/api/automation/api-automation";
@@ -903,12 +904,7 @@ export default {
       }
     },
     initMessageSocket() {
-      let protocol = "ws://";
-      if (window.location.protocol === 'https:') {
-        protocol = "wss://";
-      }
-      const uri = protocol + window.location.host + "/ws/" + this.reportId;
-      this.messageWebSocket = new WebSocket(uri);
+      this.messageWebSocket = getReportMessageSocket(this.reportId);
       this.messageWebSocket.onmessage = this.onDebugMessage;
     },
     runningEditParent(node) {
