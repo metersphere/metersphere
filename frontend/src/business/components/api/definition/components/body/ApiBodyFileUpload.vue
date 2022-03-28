@@ -115,6 +115,10 @@
   }
 
   .upload-item {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 180px;
   }
 
 </style>
