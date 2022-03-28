@@ -74,7 +74,7 @@
 
       <el-table-column
         v-if="operators && operators.length > 0"
-        fixed="right"
+        :fixed="operatorFixed"
         :min-width="operatorWidth"
         :label="$t('commons.operating')">
         <template slot="header">
@@ -222,6 +222,13 @@ export default {
       type: String,
       default() {
         return "150px";
+      }
+    },
+    // 操作列的宽度
+    operatorFixed: {
+      type: [String, Boolean],
+      default() {
+        return "right";
       }
     },
     //开启全选
