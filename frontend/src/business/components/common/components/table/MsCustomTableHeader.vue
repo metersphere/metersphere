@@ -52,19 +52,29 @@ export default {
           it.label = SYSTEM_FIELD_NAME_MAP[it.id] ? this.$t(SYSTEM_FIELD_NAME_MAP[it.id]) : it.label;
         }
       })
+      let hasRemoveField = undefined;
+      if (this.customFields) {
+        let index = this.customFields.findIndex(c => c.remove === true);
+        if (index > -1) {
+          hasRemoveField = this.customFields[index];
+        }
+      }
       let fields = getAllFieldWithCustomFields(this.type, this.customFields);
       this.selectedKeys = [];
       this.fromFields = [];
       this.selectedKeys = items.map(item => item.key);
       this.selectedFields = items;
-      fields.forEach(field => {
+      for (let field of fields) {
         if (this.selectedKeys.indexOf(field.key) < 0) {
           if (field.isCustom) {
             field.label = SYSTEM_FIELD_NAME_MAP[field.id] ? this.$t(SYSTEM_FIELD_NAME_MAP[field.id]) : field.label
           }
+          if (hasRemoveField && field.id === hasRemoveField.id) {
+            continue;
+          }
           this.fromFields.push(field);
         }
-      });
+      }
       this.visible = true;
     },
     saveHeader() {
