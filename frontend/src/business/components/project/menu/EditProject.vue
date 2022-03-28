@@ -155,7 +155,8 @@ export default {
       screenHeight: 'calc(100vh - 195px)',
       labelWidth: '150px',
       platformOptions: [],
-      issueOptions: []
+      issueOptions: [],
+      issueTemplateId: ""
     };
   },
   props: {
@@ -220,6 +221,7 @@ export default {
         this.title = this.$t('project.edit');
         row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {};
         this.form = Object.assign({}, row);
+        this.issueTemplateId = row.issueTemplateId;
       } else {
         this.form = {issueConfigObj: {}};
       }
@@ -258,6 +260,10 @@ export default {
           this.form.workspaceId = getCurrentWorkspaceId();
           this.form.createUser = getCurrentUserId();
           this.form.issueConfig = JSON.stringify(this.form.issueConfigObj);
+          if (this.issueTemplateId !== this.form.issueTemplateId) {
+            // 更换缺陷模版移除字段
+            localStorage.removeItem("ISSUE_LIST");
+          }
           this.result = this.$post("/project/" + saveType, this.form, () => {
             this.createVisible = false;
             this.reload();

@@ -280,6 +280,9 @@ export default {
             break;
           }
         }
+        // 如果不是三方平台则移除备选字段中的平台状态
+        let removeField = {id: 'platformStatus', name: 'platformStatus', remove: true};
+        this.issueTemplate.customFields.push(removeField);
       }
       if (this.$refs.table) this.$refs.table.reloadTable();
     },
