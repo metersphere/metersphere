@@ -3,6 +3,10 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
@@ -10,6 +14,7 @@ import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -131,6 +136,12 @@ public class ApiAutomationService {
     private MsHashTreeService hashTreeService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+
+
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -1367,6 +1378,7 @@ public class ApiAutomationService {
         result.setProjectId(request.getProjectId());
         result.setVersion(System.getenv("MS_VERSION"));
         if (CollectionUtils.isNotEmpty(result.getData())) {
+            checkDefinition(result);
             List<String> names = result.getData().stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
             request.setName(String.join(",", names));
             List<String> ids = result.getData().stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
@@ -1375,7 +1387,56 @@ public class ApiAutomationService {
         return result;
     }
 
-    public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
+    public void checkDefinition(ApiScenrioExportResult result){
+        for (ApiScenarioWithBLOBs scenario : result.getData()) {
+            if (scenario == null || StringUtils.isEmpty(scenario.getScenarioDefinition())) {
+                return;
+            }
+            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+            JSONArray hashTree = element.getJSONArray("hashTree");
+            ApiScenarioImportUtil.formatHashTree(hashTree);
+            setHashTree(hashTree);
+            scenario.setScenarioDefinition(JSONObject.toJSONString(element));
+        }
+    }
+    public void setHashTree(JSONArray hashTree){
+        try {
+            if (CollectionUtils.isNotEmpty(hashTree)) {
+                for (int i = 0; i < hashTree.size(); i++) {
+                    JSONObject object = (JSONObject) hashTree.get(i);
+                    String referenced = object.getString("referenced");
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    MsHTTPSamplerProxy proxy = null;
+                    if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
+                        // 检测引用对象是否存在，若果不存在则改成复制对象
+                        String refType = object.getString("refType");
+                        if (StringUtils.isNotEmpty(refType)) {
+                            if (refType.equals("CASE")) {
+                                if (CollectionUtils.isEmpty(object.getJSONArray("hashTree"))) {
+                                    ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(object.getString("id"));
+                                    if (model != null) {
+                                        object.put("hashTree",proxy.getHashTree());
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(StringUtils.isNotEmpty(object.getString("refType"))){
+                        if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                            setHashTree(object.getJSONArray("hashTree"));
+                        }
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
         // 生成jmx
         List<ApiScenarioExportJmxDTO> resList = new ArrayList<>();
