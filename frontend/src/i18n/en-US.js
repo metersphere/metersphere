@@ -2452,6 +2452,7 @@ export default {
     SMTP_port: 'SMTP port',
     SMTP_account: 'SMTP account',
     SMTP_password: 'SMTP password',
+    SMTP_from: 'From',
     SSL: 'Turn on SSL (if the SMTP port is 465, you usually need to enable SSL)',
     TLS: 'Turn on TLS (if the SMTP port is 587, you usually need to enable TLS)',
     SMTP: 'Anonymous SMTP or not',
@@ -2460,7 +2461,6 @@ export default {
     account: 'Account cannot be empty',
     test_recipients: 'Test recipients',
     tip: 'Tip: use as test mail recipient only',
-
   },
   i18n: {
     home: 'Home',
