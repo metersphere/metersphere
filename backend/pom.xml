@@ -113,6 +113,10 @@
                     <artifactId>mail</artifactId>
                     <groupId>javax.mail</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>geronimo-spec-javamail</artifactId>
+                    <groupId>geronimo-spec</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -187,6 +191,10 @@
                 <exclusion>
                     <artifactId>netty</artifactId>
                     <groupId>io.netty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>mail</artifactId>
+                    <groupId>javax.mail</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
