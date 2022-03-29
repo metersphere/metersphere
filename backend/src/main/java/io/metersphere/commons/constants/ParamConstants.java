@@ -92,6 +92,7 @@ public interface ParamConstants {
         SERVER("smtp.host"),
         PORT("smtp.port"),
         ACCOUNT("smtp.account"),
+        FROM("smtp.from"),
         PASSWORD("smtp.password"),
         SSL("smtp.ssl"),
         TLS("smtp.tls"),

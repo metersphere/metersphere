@@ -2455,6 +2455,7 @@ export default {
     SMTP_port: 'SMTP端口',
     SMTP_account: 'SMTP賬戶',
     SMTP_password: 'SMTP密碼',
+    SMTP_from: '指定发件人',
     SSL: '開啟SSL(如果SMTP端口是465，通常需要啟用SSL)',
     TLS: '開啟TLS(如果SMTP端口是587，通常需要啟用TLS)',
     SMTP: '是否免密 SMTP',
