@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +105,7 @@ public class SystemParameterService {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setDefaultEncoding("UTF-8");
         javaMailSender.setHost(hashMap.get(ParamConstants.MAIL.SERVER.getValue()));
-        javaMailSender.setPort(Integer.valueOf(hashMap.get(ParamConstants.MAIL.PORT.getValue())));
+        javaMailSender.setPort(Integer.parseInt(hashMap.get(ParamConstants.MAIL.PORT.getValue())));
         javaMailSender.setUsername(hashMap.get(ParamConstants.MAIL.ACCOUNT.getValue()));
         javaMailSender.setPassword(hashMap.get(ParamConstants.MAIL.PASSWORD.getValue()));
         Properties props = new Properties();
@@ -131,18 +132,26 @@ public class SystemParameterService {
             MimeMessageHelper helper = null;
             try {
                 helper = new MimeMessageHelper(mimeMessage, true);
-                if (javaMailSender.getUsername().contains("@")) {
-                    helper.setFrom(javaMailSender.getUsername());
+                String username = javaMailSender.getUsername();
+                String email;
+                if (username.contains("@")) {
+                    email = username;
                 } else {
                     String mailHost = javaMailSender.getHost();
-                    String domainName = mailHost.substring(mailHost.indexOf(".") + 1, mailHost.length());
-                    helper.setFrom(javaMailSender.getUsername() + "@" + domainName);
+                    String domainName = mailHost.substring(mailHost.indexOf(".") + 1);
+                    email = username + "@" + domainName;
                 }
+
+                InternetAddress from = new InternetAddress();
+                from.setAddress(email);
+                from.setPersonal(hashMap.getOrDefault(ParamConstants.MAIL.FROM.getValue(), username));
+                helper.setFrom(from);
+
                 helper.setSubject("MeterSphere测试邮件 ");
                 helper.setText("这是一封测试邮件，邮件发送成功", true);
                 helper.setTo(recipients);
                 javaMailSender.send(mimeMessage);
-            } catch (MessagingException e) {
+            } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException(Translator.get("connection_failed"));
             }
@@ -166,6 +175,8 @@ public class SystemParameterService {
                     mailInfo.setPort(param.getParamValue());
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.ACCOUNT.getValue())) {
                     mailInfo.setAccount(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.FROM.getValue())) {
+                    mailInfo.setFrom(param.getParamValue());
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.PASSWORD.getValue())) {
                     String password = EncryptUtils.aesDecrypt(param.getParamValue()).toString();
                     mailInfo.setPassword(password);
