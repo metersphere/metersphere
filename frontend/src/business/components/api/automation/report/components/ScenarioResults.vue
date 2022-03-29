@@ -50,9 +50,6 @@ export default {
   },
   methods: {
     filterNode(value, data) {
-      if (!data.value && data.children && data.children.length > 0) {
-        return true;
-      }
       if (!data.value && !data.children && data.children.length === 0) {
         return false;
       }
