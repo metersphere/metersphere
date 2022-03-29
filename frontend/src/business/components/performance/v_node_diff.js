@@ -233,12 +233,16 @@ function sameDetail(oldVnode,newVnode,sameNode){
         }else{
           sameNode.nodeArray = [];
         }
-      }else if(oldVnode.tag==='textarea'&&newVnode.tag==='textarea'){
+      }
+      else if(oldVnode.tag==='textarea'&&newVnode.tag==='textarea'){
         if(oldVnode.elm.value===newVnode.elm.value){
           sameNode.nodeArray.push(newVnode.elm);
         }else {
           sameNode.nodeArray = [];
         }
+      }
+      else {
+        sameNode.nodeArray.push(newVnode.elm);
       }
     }
     else {
