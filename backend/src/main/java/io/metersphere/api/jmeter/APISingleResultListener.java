@@ -4,6 +4,7 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
+import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.MsExecListener;
@@ -26,6 +27,9 @@ public class APISingleResultListener extends MsExecListener {
     @Override
     public void testEnded(ResultDTO dto, Map<String, Object> kafkaConfig) {
         try {
+            if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
+                JMeterEngineCache.runningEngine.remove(dto.getReportId());
+            }
             LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】整体执行完成；" + dto.getRunMode());
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
