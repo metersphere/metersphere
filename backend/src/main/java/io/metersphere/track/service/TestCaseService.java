@@ -71,6 +71,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -288,6 +289,10 @@ public class TestCaseService {
         if (StringUtils.isNotBlank(testCase.getVersionId())) {
             example.getOredCriteria().get(0).andVersionIdEqualTo(testCase.getVersionId());
         }
+        updateThirdPartyIssuesLink(testCase);
+        if (StringUtils.isEmpty(testCase.getDemandId())) {
+            testCase.setDemandId("");
+        }
         createNewVersionOrNot(testCase, example);
 
         if (StringUtils.isNotBlank(testCase.getCustomNum()) && StringUtils.isNotBlank(testCase.getId())) {
@@ -304,6 +309,22 @@ public class TestCaseService {
         testCase.setLatest(null);
         testCaseMapper.updateByPrimaryKeySelective(testCase);
         return testCaseMapper.selectByPrimaryKey(testCase.getId());
+    }
+
+    /**
+     * 判断azure devops用例关联的需求是否发生变更，若发生变更，则重新建立需求与缺陷的关联关系
+     * @param testCase
+     */
+    private void updateThirdPartyIssuesLink(EditTestCaseRequest testCase) {
+        try {
+            if (Class.forName("io.metersphere.xpack.issue.service.XpackIssueService") != null) {
+                Class clazz = Class.forName("io.metersphere.xpack.issue.service.XpackIssueService");
+                Method method = clazz.getMethod("updateThirdPartyIssuesLink", EditTestCaseRequest.class);
+                method.invoke(CommonBeanFactory.getBean("xpackIssueService"), testCase);
+            }
+        } catch (Exception exception) {
+            LogUtil.error("不存在XpackIssueService类");
+        }
     }
 
     /**
