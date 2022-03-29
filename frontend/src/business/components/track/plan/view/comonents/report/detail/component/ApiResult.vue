@@ -2,7 +2,7 @@
   <div>
     <el-row >
       <el-col :span="12" v-if="caseCharData && caseCharData.length > 0">
-        <ms-doughnut-pie-chart :name="$t('api_test.home_page.detail_card.single_case')" :data="caseCharData" ref="functionChar"/>
+        <ms-doughnut-pie-chart style="margin-right: 200px" :name="$t('api_test.home_page.detail_card.single_case')" :data="caseCharData" ref="functionChar"/>
       </el-col>
       <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
         <api-scenario-char-result :name="$t('test_track.plan.test_plan_api_scenario_count')" :data="scenarioCharData"/>
