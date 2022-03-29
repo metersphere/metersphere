@@ -117,6 +117,10 @@ public class ApiDefinitionService {
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
+    private MockConfigMapper mockConfigMapper;
+    @Resource
+    private MockExpectConfigMapper mockExpectConfigMapper;
+    @Resource
     private RelationshipEdgeService relationshipEdgeService;
     @Resource
     private ApiDefinitionFollowMapper apiDefinitionFollowMapper;
@@ -611,30 +615,10 @@ public class ApiDefinitionService {
             test.setCreateUser(SessionUtils.getUserId());
             test.setOrder(oldApi.getOrder());
             test.setRefId(oldApi.getRefId());
-            // 创建新版是否关联备注
-            if (!request.isNewVersionRemark()) {
-                test.setRemark(null);
-            }
+            // 保存扩展信息
+            saveExtendInfo(request, test, oldApi);
+
             apiDefinitionMapper.insertSelective(test);
-
-            // 创建新版是否关联依赖关系
-            if (request.isNewVersionDeps()) {
-                List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
-                List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
-                RelationshipEdgeRequest req = new RelationshipEdgeRequest();
-                req.setTargetIds(targetIds);
-                req.setType("API");
-                req.setId(test.getId());
-                relationshipEdgeService.saveBatch(req);
-
-                List<RelationshipEdgeDTO> post = this.getRelationshipApi(oldApi.getId(), "POST");
-                List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toList());
-                RelationshipEdgeRequest req2 = new RelationshipEdgeRequest();
-                req2.setSourceIds(sourceIds);
-                req2.setType("API");
-                req2.setId(test.getId());
-                relationshipEdgeService.saveBatch(req2);
-            }
         }
 
         // 同步修改用例路径
@@ -647,6 +631,58 @@ public class ApiDefinitionService {
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
         checkAndSetLatestVersion(result.getRefId());
         return result;
+    }
+
+    private void saveExtendInfo(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs test, ApiDefinitionWithBLOBs oldApi) {
+        // 创建新版是否关联备注
+        if (!request.isNewVersionRemark()) {
+            test.setRemark(null);
+        }
+        if (request.isNewVersionCase()) {
+            test.setCaseTotal(oldApi.getCaseTotal());
+            extApiTestCaseMapper.insertNewVersionCases(test, oldApi);
+        }
+        if (request.isNewVersionMock()) {
+            MockConfigExample mockConfigExample = new MockConfigExample();
+            mockConfigExample.createCriteria().andApiIdEqualTo(oldApi.getId());
+            List<MockConfig> mockConfigs = mockConfigMapper.selectByExample(mockConfigExample);
+            mockConfigs.forEach(config -> {
+                String newMockConfigId = UUID.randomUUID().toString();
+                // 1
+                MockExpectConfigExample expectConfigExample = new MockExpectConfigExample();
+                expectConfigExample.createCriteria().andMockConfigIdEqualTo(config.getId());
+                List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBs = mockExpectConfigMapper.selectByExampleWithBLOBs(expectConfigExample);
+                mockExpectConfigWithBLOBs.forEach(expectConfig -> {
+                    expectConfig.setId(UUID.randomUUID().toString());
+                    expectConfig.setMockConfigId(newMockConfigId);
+                    mockExpectConfigMapper.insert(expectConfig);
+                });
+
+                // 2
+                config.setId(newMockConfigId);
+                config.setApiId(test.getId());
+                mockConfigMapper.insert(config);
+            });
+        }
+
+        // 创建新版是否关联依赖关系
+        if (request.isNewVersionDeps()) {
+            List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
+            List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
+            RelationshipEdgeRequest req = new RelationshipEdgeRequest();
+            req.setTargetIds(targetIds);
+            req.setType("API");
+            req.setId(test.getId());
+            relationshipEdgeService.saveBatch(req);
+
+            List<RelationshipEdgeDTO> post = this.getRelationshipApi(oldApi.getId(), "POST");
+            List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toList());
+            RelationshipEdgeRequest req2 = new RelationshipEdgeRequest();
+            req2.setSourceIds(sourceIds);
+            req2.setType("API");
+            req2.setId(test.getId());
+            relationshipEdgeService.saveBatch(req2);
+        }
     }
 
     /**
@@ -746,7 +782,7 @@ public class ApiDefinitionService {
         } else {
             apiDefinition.setUserId(apiDefinition.getUserId());
         }
-        if(apiDefinition.getModuleId()==null){
+        if (apiDefinition.getModuleId() == null) {
             if (StringUtils.isEmpty(apiDefinition.getModuleId()) || "default-module".equals(apiDefinition.getModuleId())) {
                 initModulePathAndId(apiDefinition.getProjectId(), apiDefinition);
             }
@@ -867,7 +903,7 @@ public class ApiDefinitionService {
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
-                if(sameRequest.get(0).getUserId()!=null){
+                if (sameRequest.get(0).getUserId() != null) {
                     apiDefinition.setUserId(sameRequest.get(0).getUserId());
                 }
                 batchMapper.insert(apiDefinition);
@@ -879,7 +915,7 @@ public class ApiDefinitionService {
                 apiDefinition.setNum(existApi.getNum()); //id 不变
                 apiDefinition.setRefId(existApi.getRefId());
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
-                if(existApi.getUserId()!=null){
+                if (existApi.getUserId() != null) {
                     apiDefinition.setUserId(existApi.getUserId());
                 }
                 // case 设置版本
@@ -1671,9 +1707,9 @@ public class ApiDefinitionService {
                 urlParams[urlParams.length - 1] = "";
             }
             for (ApiDefinition api : apiList) {
-                if(StringUtils.equalsAny(api.getPath(),baseUrlSuffix,"/"+baseUrlSuffix)){
+                if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {
                     apiIdList.add(api.getId());
-                }else {
+                } else {
                     String path = api.getPath();
                     if (StringUtils.isEmpty(path)) {
                         continue;
@@ -2024,7 +2060,7 @@ public class ApiDefinitionService {
 
     public ApiDefinition getApiDefinition(ApiDefinitionExample apiDefinitionExample) {
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        if(apiDefinitions==null||apiDefinitions.size()==0){
+        if (apiDefinitions == null || apiDefinitions.size() == 0) {
             return null;
         }
         return apiDefinitions.get(0);

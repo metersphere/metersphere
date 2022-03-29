@@ -72,4 +72,6 @@ public interface ExtApiTestCaseMapper {
     List<ParamsDTO> findPassRateByIds(@Param("ids") List<String> ids);
 
     List<ParamsDTO> getApiCaseEnvironments(@Param("caseIds") List<String> caseIds);
+
+    void insertNewVersionCases(@Param("api") ApiDefinition apiDefinition, @Param("old") ApiDefinition old);
 }

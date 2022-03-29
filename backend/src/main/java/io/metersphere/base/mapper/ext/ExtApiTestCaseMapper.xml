@@ -809,4 +809,15 @@
             AND a.latest = 1
         </if>
     </sql>
+
+    <insert id="insertNewVersionCases">
+        INSERT INTO api_test_case(id, project_id, name, priority, api_definition_id, description, request, create_user_id,
+        update_user_id, create_time, update_time, num, tags, last_result_id, status, original_status,
+        delete_time, delete_user_id, version, `order`, case_status, version_id)
+        SELECT UUID(), project_id, name, priority, #{api.id}, description, request, #{api.createUser}, update_user_id,
+        create_time, update_time, num, tags, last_result_id, status, original_status, delete_time, delete_user_id,
+        version, `order`, case_status, #{api.versionId}
+        FROM api_test_case
+        WHERE api_definition_id = #{old.id};
+    </insert>
 </mapper>
