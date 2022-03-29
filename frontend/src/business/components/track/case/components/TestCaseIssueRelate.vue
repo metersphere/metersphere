@@ -111,6 +111,7 @@ import IssueRelateList from "@/business/components/track/case/components/IssueRe
 import {deleteIssueRelate, getIssuePartTemplateWithProject, getIssuesByCaseId} from "@/network/Issue";
 import {getCustomFieldValue, getTableHeaderWithCustomFields} from "@/common/js/tableUtils";
 import {LOCAL} from "@/common/js/constants";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 export default {
   name: "TestCaseIssueRelate",
   components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
@@ -148,6 +149,9 @@ export default {
     },
     notInIds() {
       return this.page.data ? this.page.data.map(i => i.id) : [];
+    },
+    projectId() {
+      return getCurrentProjectID();
     }
   },
   created() {
@@ -236,7 +240,9 @@ export default {
             this.page.result = deleteIssueRelate({
               id: row.id,
               caseResourceId: this.getCaseResourceId(),
-              isPlanEdit: this.planId ? true : false
+              isPlanEdit: this.planId ? true : false,
+              projectId: this.projectId,
+              workspaceId: getCurrentWorkspaceId()
             }, () => {
               this.getIssues();
               this.$success(this.$t('commons.delete_success'));
