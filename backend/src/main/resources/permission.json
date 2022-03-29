@@ -241,6 +241,18 @@
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
+      "id": "WORKSPACE_QUOTA:READ",
+      "name": "permission.workspace_quota.read",
+      "resourceId": "WORKSPACE_QUOTA",
+      "license": true
+    },
+    {
+      "id": "WORKSPACE_QUOTA:READ+EDIT",
+      "name": "permission.workspace_quota.edit",
+      "resourceId": "WORKSPACE_QUOTA",
+      "license": true
+    },
+    {
       "id": "WORKSPACE_OPERATING_LOG:READ",
       "name": "permission.workspace_operation_log.read",
       "resourceId": "WORKSPACE_OPERATING_LOG"
@@ -1115,6 +1127,11 @@
     {
       "id": "WORKSPACE_PROJECT_ENVIRONMENT",
       "name": "permission.workspace_project_environment.name"
+    },
+    {
+      "id": "WORKSPACE_QUOTA",
+      "name": "permission.workspace_quota.name",
+      "license": true
     },
     {
       "id": "WORKSPACE_OPERATING_LOG",

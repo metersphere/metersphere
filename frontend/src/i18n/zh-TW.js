@@ -2562,13 +2562,13 @@ export default {
   },
   quota: {
     default: {
-      organization: "組織默認配額",
+      project: "項目默認配額",
       workspace: "工作空間默認配額",
     },
     api: "接口測試數量",
     performance: "性能測試數量",
     resource_pool: "可用測試資源池",
-    max_threads: "最大並發數",
+    max_threads: "同一時段最大並發數",
     duration: "壓測時長(秒)",
     use_default: "使用默認配額",
     yes: "是",
@@ -2579,6 +2579,10 @@ export default {
     edit_quota_title: "{0}的配額",
     workspace_quota_list: "{0}的工作空間配額列表",
     unlimited: "無限製",
+    member: "成員數",
+    project: "項目數",
+    vum_total: "總vum數量",
+    vum_used: "消耗vum數量",
     clean: "清空"
   },
   schema: {
@@ -2843,6 +2847,11 @@ export default {
     workspace_service: {
       name: "服務集成",
       read: "查詢",
+      edit: "編輯"
+    },
+    workspace_quota: {
+      name: "配額管理",
+      read: "查詢配額",
       edit: "編輯"
     },
     project_message: {
