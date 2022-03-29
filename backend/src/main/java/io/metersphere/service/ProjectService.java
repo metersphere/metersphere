@@ -6,7 +6,6 @@ import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiTestDelService;
-import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -125,6 +124,11 @@ public class ProjectService {
                 .andNameEqualTo(project.getName());
         if (projectMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("project_name_already_exists"));
+        }
+
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        if (quotaService != null) {
+            quotaService.checkWorkspaceProject(project.getWorkspaceId());
         }
 
         if (project.getMockTcpPort() != null && project.getMockTcpPort().intValue() > 0) {

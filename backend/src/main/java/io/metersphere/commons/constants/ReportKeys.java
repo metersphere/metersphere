@@ -22,4 +22,5 @@ public enum ReportKeys {
     TimeInfo,
     ResultStatus,
     ReportCompleteCount,
+    VumProcessedStatus
 }
