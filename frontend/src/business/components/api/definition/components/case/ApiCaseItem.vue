@@ -262,7 +262,9 @@ export default {
       showFollow: false,
       beforeRequest: {},
       compare: [],
-      isSave: false
+      isSave: false,
+      tagCount: 0,
+      requestCount: 0,
     }
   },
   props: {
@@ -320,8 +322,57 @@ export default {
     if (this.currentApi && this.currentApi.request) {
       this.beforeRequest = JSON.parse(JSON.stringify(this.currentApi.request));
     }
+    this.reload();
+  },
+  watch: {
+    'apiCase.name': {
+      handler(v) {
+        this.saveStatus();
+      }
+    },
+    'apiCase.priority': {
+      handler(v) {
+        this.saveStatus();
+      }
+    },
+    'apiCase.caseStatus': {
+      handler(v) {
+        this.saveStatus();
+      }
+    },
+    'apiCase.tags': {
+      handler(v) {
+        this.tagCount++;
+        if (this.tagCount > 2) {
+          this.saveStatus();
+        }
+      }
+    },
+    'apiCase.request': {
+      handler(v) {
+        this.requestCount++;
+        if (this.requestCount > 1) {
+          this.saveStatus();
+        }
+      }
+    }
+  },
+  mounted() {
+    if (!(this.$store.state.apiCaseMap instanceof Map)) {
+      this.$store.state.apiCaseMap = new Map();
+    }
+    if (this.apiCase.id) {
+      this.$store.state.apiCaseMap.set(this.apiCase.id, 0);
+    }
   },
   methods: {
+    saveStatus() {
+      if (this.$store.state.apiCaseMap && this.apiCase.id) {
+        let change = this.$store.state.apiCaseMap.get(this.apiCase.id);
+        change = change + 1;
+        this.$store.state.apiCaseMap.set(this.apiCase.id, change);
+      }
+    },
     currentUser: () => {
       return getCurrentUser();
     },
@@ -434,7 +485,10 @@ export default {
     reload() {
       this.saveLoading = true
       this.$nextTick(() => {
-        this.saveLoading = false
+        this.saveLoading = false;
+        if (this.apiCase.id) {
+          this.$store.state.apiCaseMap.set(this.apiCase.id, 0);
+        }
       });
     },
     sort(stepArray) {
@@ -505,7 +559,10 @@ export default {
         row.createTime = data.createTime;
         row.updateTime = data.updateTime;
         this.compare = [];
+        row.type = null;
         this.$success(this.$t('commons.save_success'));
+        this.tagCount = 0;
+        this.requestCount = 0;
         this.reload();
         this.isSave = false;
         // 刷新编辑后用例列表

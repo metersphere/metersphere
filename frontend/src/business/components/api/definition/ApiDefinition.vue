@@ -548,6 +548,7 @@ export default {
         return;
       }
       let api = {
+        name: '',
         status: "Underway",
         method: "GET",
         userId: getCurrentUser().id,
@@ -576,10 +577,14 @@ export default {
       let tabs = this.apiTabs[0];
       let message = "";
       let tab = this.apiTabs;
-      delete tab[0];
       tab.forEach(t => {
         if (t.type === 'ADD' && t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
           this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
+          message += t.api.name + "，";
+        } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
+          message += this.$t('api_test.definition.request.title') + "，";
+        }
+        if (t.type === 'ADD' && t.isCopy) {
           message += t.api.name + "，";
         }
       });
@@ -603,28 +608,45 @@ export default {
       }
     },
     closeConfirm(targetName) {
+      let message = "";
       let tab = this.apiTabs;
+      let id;
       tab.forEach(t => {
         if (t.name === targetName) {
           if (t.api && this.$store.state.apiMap.size > 0 && this.$store.state.apiMap.has(t.api.id)) {
+            id = t.api.id;
             if (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
               this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
-              this.$alert(this.$t('commons.api') + " [ " + t.api.name + " ] " + this.$t('commons.confirm_info'), '', {
-                confirmButtonText: this.$t('commons.confirm'),
-                cancelButtonText: this.$t('commons.cancel'),
-                callback: (action) => {
-                  if (action === 'confirm') {
-                    this.$store.state.apiMap.delete(t.api.id);
-                    this.handleTabRemove(targetName);
-                  }
-                }
-              });
+              message += t.api.name + "，";
+              id = t.api.id;
             }
-          } else {
-            this.handleTabRemove(targetName);
+          } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
+            message += this.$t('api_test.definition.request.title') + "，";
+            id = t.api.id;
+          }
+          if (t.type === 'ADD' && t.isCopy) {
+            message += t.api.name + "，";
+            id = t.api.id;
           }
         }
       });
+      if (message !== "") {
+        this.$alert(this.$t('commons.api') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$store.state.apiMap.delete(id);
+              this.handleTabRemove(targetName);
+            }
+          }
+        });
+      } else {
+        if (id) {
+          this.$store.state.apiMap.delete(id);
+        }
+        this.handleTabRemove(targetName);
+      }
     },
     handleTabRemove(targetName) {
       let tabs = this.apiTabs;
@@ -680,6 +702,7 @@ export default {
         closable: true,
         type: action,
         api: api,
+        isCopy: api ? api.isCopy : false
       });
       if (action === "ADD") {
         this.activeTab = "api";
@@ -827,6 +850,11 @@ export default {
     saveApi(data) {
       this.setTabTitle(data);
       this.refresh(data);
+      this.apiTabs.forEach(t => {
+        if (t.api && t.api.id === data.id) {
+          t.isCopy = false;
+        }
+      })
     },
 
     showExecResult(row) {
