@@ -263,6 +263,35 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'updateTime', key: '8', label: 'commons.update_time'},
   ],
 
+  //空间配额
+  QUOTA_WS_LIST: [
+    {id: 'workspaceName', key: 'a', label: 'commons.workspace'},
+    {id: 'api', key: 'b', label: 'quota.api'},
+    {id: 'performance', key: 'c', label: 'quota.performance'},
+    {id: 'maxThreads', key: 'd', label: 'quota.max_threads'},
+    {id: 'duration', key: 'e', label: 'quota.duration'},
+    {id: 'resourcePool', key: 'f', label: 'quota.resource_pool'},
+    {id: 'useDefault', key: 'j', label: 'quota.use_default'},
+    {id: 'vumTotal', key: 'h', label: 'quota.vum_total'},
+    {id: 'vumUsed', key: 'i', label: 'quota.vum_used'},
+    {id: 'member', key: 'g', label: 'quota.member'},
+    {id: 'project', key: 'k', label: 'quota.project'},
+  ],
+
+  //项目配额
+  QUOTA_PJ_LIST: [
+    {id: 'projectName', key: 'a', label: 'commons.project'},
+    {id: 'api', key: 'b', label: 'quota.api'},
+    {id: 'performance', key: 'c', label: 'quota.performance'},
+    {id: 'maxThreads', key: 'd', label: 'quota.max_threads'},
+    {id: 'duration', key: 'e', label: 'quota.duration'},
+    {id: 'resourcePool', key: 'f', label: 'quota.resource_pool'},
+    {id: 'useDefault', key: 'j', label: 'quota.use_default'},
+    {id: 'vumTotal', key: 'h', label: 'quota.vum_total'},
+    {id: 'vumUsed', key: 'i', label: 'quota.vum_used'},
+    {id: 'member', key: 'g', label: 'quota.member'},
+  ],
+
   // 测试报告列表
   PERFORMANCE_REPORT_TABLE: [
     {id: 'testName', key: 'a', label: 'report.test_name'},

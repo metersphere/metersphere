@@ -186,4 +186,12 @@
           and jmx_content is null
     </update>
 
+    <update id="updateReportVumStatus">
+        update load_test_report_result
+        set report_value = #{nextStatus,jdbcType=VARCHAR}
+        WHERE report_id = #{reportId,jdbcType=VARCHAR}
+          and report_key = #{reportKey,jdbcType=VARCHAR}
+          and report_value = #{preStatus,jdbcType=VARCHAR}
+    </update>
+
 </mapper>

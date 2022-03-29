@@ -2559,13 +2559,13 @@ export default {
   },
   quota: {
     default: {
-      organization: "Organization Default Quota",
+      project: "Project Default Quota",
       workspace: "Workspace Default Quota",
     },
     api: "Number of interface tests",
     performance: "Number of performance tests",
     resource_pool: "Available test resource pool",
-    max_threads: "Maximum Concurrency",
+    max_threads: "Same Period Maximum Concurrency",
     duration: "Stress test duration(seconds)",
     use_default: "Default Quota",
     yes: "Yes",
@@ -2576,6 +2576,10 @@ export default {
     edit_quota_title: "{0} quota",
     workspace_quota_list: "Workspace quota list of {0}",
     unlimited: "Unlimited",
+    member: "Member",
+    project: "Project",
+    vum_total: "Total vum",
+    vum_used: "Used vum",
     clean: "Clean"
   },
   schema: {
@@ -2841,6 +2845,11 @@ export default {
       name: "Service",
       read: "READ",
       edit: "EDIT",
+    },
+    workspace_quota: {
+      name: "Quota",
+      read: "READ",
+      edit: "EDIT"
     },
     project_message: {
       name: "Message",

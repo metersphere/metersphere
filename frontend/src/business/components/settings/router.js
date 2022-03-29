@@ -70,6 +70,7 @@ export default {
       component: () => import('@/business/components/settings/workspace/MsProject'),
       meta: {workspace: true, title: 'project.manager', permissions: ['WORKSPACE_PROJECT_MANAGER:READ']}
     },
+    ...requireContext.keys().map(key => requireContext(key).quota),
     {
       path: 'wsenvlist',
       component: () => import('@/business/components/settings/workspace/environment/EnvironmentManage'),
