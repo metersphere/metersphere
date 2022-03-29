@@ -599,8 +599,7 @@ export default {
   },
   methods: {
     refreshApiScenario() {
-      this.getApiScenario();
-      this.reloadTree = getUUID();
+      this.getApiScenario(true);
     },
     recursiveSorting(arr) {
       for (let i in arr) {
@@ -1154,6 +1153,9 @@ export default {
       this.$store.state.selectStep = data;
       this.buttonData = buttons(this);
       this.initPlugins();
+      if (this.buttonData.length === 0 && this.$refs.refFab && this.$refs.refFab.active) {
+        this.$refs.refFab.openMenu();
+      }
     },
     suggestClick(node) {
       this.response = {};
@@ -1538,7 +1540,7 @@ export default {
         })
       });
     },
-    getApiScenario() {
+    getApiScenario(isRefresh) {
       this.loading = true;
       this.isBatchProcess = false;
       this.stepEnable = true;
@@ -1622,6 +1624,9 @@ export default {
           this.sort();
           this.$nextTick(() => {
             this.cancelBatchProcessing();
+            if (isRefresh) {
+              this.reloadTree = getUUID();
+            }
           });
           // 记录初始化数据
           let v1 = {
