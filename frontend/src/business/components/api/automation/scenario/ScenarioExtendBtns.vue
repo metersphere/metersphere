@@ -16,7 +16,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <ms-reference-view @openScenario="openScenario" ref="viewRef"/>
-    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable"/>
+    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable" :request="request"/>
 
   </div>
 </template>
@@ -30,7 +30,8 @@ export default {
   name: "MsScenarioExtendButtons",
   components: {MsReferenceView, MsScheduleMaintain},
   props: {
-    row: Object
+    row: Object,
+    request: {}
   },
   methods: {
     handleCommand(cmd) {
@@ -39,6 +40,7 @@ export default {
           this.$refs.viewRef.open(this.row);
           break;
         case "schedule":
+          this.$emit('openSchedule');
           this.$refs.scheduleMaintain.open(this.row);
           break;
         case "create_performance":
@@ -78,7 +80,7 @@ export default {
     },
     refreshTable() {
 
-    }
+    },
   }
 };
 </script>

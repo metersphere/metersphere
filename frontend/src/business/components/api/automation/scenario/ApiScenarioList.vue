@@ -252,7 +252,8 @@
 
         <template v-slot:opt-behind="scope">
           <ms-scenario-extend-buttons v-if="!trashEnable" style="display: contents" @openScenario="openScenario"
-                                      :row="scope.row"/>
+                                      :request="runRequest"
+                                      :row="scope.row" @openSchedule="openSchedule(scope.row)"/>
         </template>
 
       </ms-table>
@@ -915,6 +916,14 @@ export default {
       this.runRequest = run;
       this.$refs.runMode.open();
 
+    },
+    openSchedule(row) {
+      let run = {};
+      run.id = getUUID();
+      run.ids = [row.id];
+      run.projectId = this.projectId;
+      run.condition = this.condition;
+      this.runRequest = run;
     },
     orderBySelectRows() {
       let selectIds = this.$refs.scenarioTable.selectIds;
