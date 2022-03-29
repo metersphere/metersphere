@@ -23,7 +23,8 @@
                :project-ids="projectIds"
                @setEnvGroup="setEnvGroup" :group-id="groupId"></env-group>
     <!-- 对环境组选项进行分类 可用｜不可用 -->
-    <env-group-with-option ref="envOptionGroup" v-show="radio === ENV_TYPE.GROUP && hasOptionGroup" @close="visible = false"
+    <env-group-with-option ref="envOptionGroup" v-show="radio === ENV_TYPE.GROUP && hasOptionGroup"
+                           @close="visible = false"
                            :project-ids="projectIds"
                            @setEnvGroup="setEnvGroup" :group-id="groupId"></env-group-with-option>
     <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px;">

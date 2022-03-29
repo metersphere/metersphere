@@ -286,7 +286,7 @@ public class ScheduleManager {
         jobDataMap.put("expression", expression);
         jobDataMap.put("userId", userId);
         jobDataMap.put("config", schedule.getConfig());
-
+        jobDataMap.put("projectId", schedule.getProjectId());
         return jobDataMap;
     }
 
