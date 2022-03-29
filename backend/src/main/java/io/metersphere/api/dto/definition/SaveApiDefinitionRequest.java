@@ -64,6 +64,8 @@ public class SaveApiDefinitionRequest {
     // 创建新版本时用到的
     private boolean newVersionRemark;
     private boolean newVersionDeps;
+    private boolean newVersionCase;
+    private boolean newVersionMock;
     // 复制的请求Id
     private String sourceId;
 }

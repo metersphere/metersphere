@@ -31,4 +31,20 @@
             select api_id from  mock_config WHERE id = #{0}
             )
     </select>
+
+    <insert id="insertNewVersionMockConfigs">
+        INSERT INTO mock_config (id, project_id, api_id, api_path, api_method, create_time, update_time, create_user_id)
+        SELECT UUID(), project_id, #{api.id}, api_path, api_method, create_time, update_time, #{api.createUser}
+        FROM mock_config
+        WHERE api_id = #{old.id}
+    </insert>
+
+    <insert id="insertNewVersionMockExpectConfigs">
+        INSERT INTO mock_expect_config(id, mock_config_id, name, tags, request, response, status, create_time, update_time,
+                                       create_user_id, expect_num)
+        SELECT UUID(), mock_config_id, name, tags, request, response, status, create_time, update_time, #{api.createUser},
+               expect_num
+        FROM mock_expect_config
+        WHERE mock_config_id IN (SELECT id FROM mock_config WHERE api_id = '')
+    </insert>
 </mapper>
