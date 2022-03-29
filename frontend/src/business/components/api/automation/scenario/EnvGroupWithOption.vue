@@ -1,7 +1,8 @@
 <template>
   <div>
     <div style="margin-left: 20px;">
-      <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')" style="margin-top: 8px;width: 200px;" size="small">
+      <el-select v-model="envGroupId" :placeholder="$t('workspace.env_group.select')"
+                 style="margin-top: 8px;width: 200px;" size="small" clearable>
         <el-option-group
           v-for="group in groups"
           :key="group.label"
