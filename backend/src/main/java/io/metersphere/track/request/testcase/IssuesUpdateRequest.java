@@ -30,4 +30,8 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private List<String> deleteResourceIds;
     private Boolean isPlanEdit = false;
     private String refId;
+    /**
+     * azure devops bug同步fields
+     */
+    private String devopsFields;
 }

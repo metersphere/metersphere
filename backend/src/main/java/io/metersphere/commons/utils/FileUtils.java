@@ -309,6 +309,21 @@ public class FileUtils {
         return buffer;
     }
 
+    public static String fileToStr(File tradeFile) {
+        String buffer = null;
+        try (FileInputStream fis = new FileInputStream(tradeFile);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
+            byte[] b = new byte[1024];
+            int n;
+            while ((n = fis.read(b)) != -1) {
+                bos.write(b, 0, n);
+            }
+            buffer = bos.toString();
+        } catch (Exception e) {
+        }
+        return buffer;
+    }
+
     public List<Object> getZipJar() {
         List<Object> jarFiles = new LinkedList<>();
         // jar 包
