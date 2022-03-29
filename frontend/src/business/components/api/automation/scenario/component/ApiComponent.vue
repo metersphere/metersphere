@@ -688,11 +688,11 @@ export default {
           if (response.data) {
             workspaceId = response.data.workspaceId;
             isTurnSpace = true;
-            this.gotoTurn(resource, workspaceId, isTurnSpace);
+            this.checkPermission(resource, workspaceId, isTurnSpace);
           }
         });
       } else {
-        this.gotoTurn(resource, workspaceId, isTurnSpace);
+        this.checkPermission(resource, workspaceId, isTurnSpace);
       }
     },
     clickCase(resource) {
@@ -757,6 +757,17 @@ export default {
           }
         });
       }
+    },
+    checkPermission(resource, workspaceId, isTurnSpace){
+      this.$get('/project/getOwnerProjectIds', res => {
+        const project = res.data.find(p => p === resource.projectId);
+        if(!project){
+          this.$warning(this.$t('commons.no_permission'));
+        }else{
+          this.gotoTurn(resource, workspaceId, isTurnSpace)
+        }
+
+      })
     }
   }
 }
