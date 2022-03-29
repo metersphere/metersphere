@@ -43,14 +43,14 @@
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
                   <template slot="label">
-                    <span class="fail">{{ $t('error_report_library.option.name') }}</span>
+                    <span class="fail" style="color: #F6972A">{{ $t('error_report_library.option.name') }}</span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
                                        :treeData="fullTreeNodes" ref="errorReportTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
-                    <span class="fail">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
+                    <span class="fail" style="color: #9C9B9A">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
                                        :treeData="fullTreeNodes" ref="unExecuteTree"/>
