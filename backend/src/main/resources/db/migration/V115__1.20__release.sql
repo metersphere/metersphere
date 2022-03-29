@@ -104,3 +104,9 @@ CREATE TABLE `ui_scenario_reference` (
 -- module management
 INSERT INTO system_parameter (param_key, param_value, type, sort)
 VALUES ('metersphere.module.ui', 'ENABLE', 'text', 1);
+
+-- 邮件默认发件人
+INSERT INTO system_parameter
+SELECT 'smtp.from', param_value, type, sort
+FROM system_parameter
+WHERE param_key = 'smtp.account';

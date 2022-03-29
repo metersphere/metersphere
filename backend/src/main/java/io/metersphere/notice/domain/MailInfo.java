@@ -7,6 +7,7 @@ public class MailInfo {
     private String host;
     private String port;
     private String account;
+    private String from;
     private String password;
     private String ssl;
     private String tls;
