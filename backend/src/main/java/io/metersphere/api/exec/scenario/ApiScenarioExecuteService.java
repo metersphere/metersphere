@@ -149,7 +149,7 @@ public class ApiScenarioExecuteService {
 
             String reportScenarioIds = JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 50 ? scenarioIds.subList(0, 50) : scenarioIds);
             APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), reportScenarioIds,
-                    scenarioNames.toString(), ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(),
+                    scenarioNames.toString(), request.getTriggerMode(), ExecuteType.Saved.name(), request.getProjectId(),
                     request.getReportUserID(), request.getConfig());
 
             report.setVersionId(apiScenarios.get(0).getVersionId());
