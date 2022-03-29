@@ -73,6 +73,7 @@
       <div>
         <el-checkbox v-model="basisData.newVersionRemark">{{ $t('commons.remark') }}</el-checkbox>
         <el-checkbox v-model="basisData.newVersionDeps">{{ $t('commons.relationship.name') }}</el-checkbox>
+        <el-checkbox v-model="basisData.newVersionCase">CASE</el-checkbox>
       </div>
 
       <template v-slot:footer>
@@ -352,7 +353,9 @@ export default {
       this.basisData.versionName = row.name;
       this.$set(this.basisData, 'newVersionRemark', !!this.basisData.remark);
       this.$set(this.basisData, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
-      if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark) {
+      this.$set(this.basisData, 'newVersionCase', this.basisData.caseTotal > 0);
+
+      if (this.$refs.apiOtherInfo.relationshipCount > 0 || this.basisData.remark || this.basisData.newVersionCase) {
         this.createNewVersionVisible = true;
       } else {
         this.saveApi();
