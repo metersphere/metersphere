@@ -329,34 +329,27 @@ export default {
     },
     handleTabClose() {
       let message = "";
-      if (!this.isSave) {
-        this.tabs.forEach(t => {
-          this.diff(t);
-          if (t && this.isSave) {
-            message += t.currentScenario.name + "，";
-            this.isSave = false;
-          }
-        });
-        if (message !== "") {
-          this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.tabs = [];
-                this.activeName = "default";
-                this.isSave = false;
-              } else {
-                this.isSave = false;
-              }
-            }
-          });
-        } else {
-          this.tabs = [];
-          this.activeName = "default";
-          this.refresh();
+      this.tabs.forEach(t => {
+        this.diff(t);
+        if (t && this.isSave) {
+          message += t.currentScenario.name + "，";
           this.isSave = false;
         }
+      });
+      if (message !== "") {
+        this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.tabs = [];
+              this.activeName = "default";
+              this.isSave = false;
+            } else {
+              this.isSave = false;
+            }
+          }
+        });
       } else {
         this.tabs = [];
         this.activeName = "default";
@@ -391,6 +384,7 @@ export default {
     },
     diff(t) {
       if (t.currentScenario.type !== "add") {
+
         let v1 = t.currentScenario.scenarioDefinitionOrg;
         let v2 = {
           apiScenarioModuleId: t.currentScenario.apiScenarioModuleId,
@@ -413,6 +407,12 @@ export default {
         if (delta) {
           this.isSave = true;
         }
+      }
+      if (t.currentScenario.type === 'add') {
+        this.isSave = true;
+      }
+      if (t.currentScenario.copy === true) {
+        this.isSave = true;
       }
     },
     deleteResourceIds(array) {
@@ -500,38 +500,35 @@ export default {
     },
     closeConfirm(targetName) {
       let message = "";
-      let tab = this.tabs.filter(tab => tab.name === targetName);
-      if (!this.isSave) {
-        tab.forEach(t => {
-          this.diff(t);
-          if (t && this.isSave) {
-            message += t.currentScenario.name + "，";
+      this.tabs.forEach(tab => {
+        if (tab.name === targetName) {
+          this.diff(tab);
+          if (tab && this.isSave) {
+            message += tab.currentScenario.name + "，";
+          }
+          if (tab) {
+            let index = this.tabs.filter(t => t === tab);
+            index.splice(0, 1);
+            tab = undefined;
+          }
+        }
+      })
+      if (message !== "") {
+        this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.removeTab(targetName);
+              this.isSave = false;
+            } else {
+              this.isSave = false;
+            }
           }
         });
-        if (message !== "") {
-          this.$alert(this.$t('commons.scenario') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            cancelButtonText: this.$t('commons.cancel'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.removeTab(targetName);
-                this.isSave = false;
-              } else {
-                this.isSave = false;
-              }
-            }
-          });
-        } else {
-          this.isSave = false;
-          this.removeTab(targetName);
-        }
       } else {
         this.isSave = false;
         this.removeTab(targetName);
-      }
-      if (tab) {
-        tab.splice(0, 1);
-        tab = undefined;
       }
       if (this.tabs && this.tabs.length === 0) {
         this.refreshAll();
@@ -572,7 +569,6 @@ export default {
       if (data) {
         this.setTabTitle(data);
       }
-      this.isSave = true;
     },
     refreshTree() {
       if (this.$refs.nodeTree) {

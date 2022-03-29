@@ -32,6 +32,7 @@ const state = {
   scenarioEnvMap: new Map(),
   apiMap: new Map(),
   apiStatus: new Map(),
+  apiCaseMap: new Map(),
   testCaseMap: new Map(),
   curTabId: null,
   testCaseDefaultValue: {},

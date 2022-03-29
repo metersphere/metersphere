@@ -467,7 +467,8 @@ export default {
           }
           this.$emit('saveApi', this.httpForm);
           this.count = 0;
-          this.$store.state.apiMap.delete(this.httpForm.id);
+          this.$store.state.apiStatus.set("fromChange", false);
+          this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
         } else {
           return false;
         }
