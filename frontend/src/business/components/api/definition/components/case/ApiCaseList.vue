@@ -236,12 +236,48 @@ export default {
       }
     },
     apiCaseClose() {
-      this.apiCaseList = [];
-      this.visible = false;
-      if (this.$route.fullPath !== this.$route.path) {
-        this.$router.replace({path: '/api/definition'});
+      if (this.apiCaseList && this.apiCaseList.length > 0) {
+        console.log(this.apiCaseList)
+        let message = "";
+        if (this.$store.state.apiCaseMap.has(this.apiCaseList[0].id) && this.$store.state.apiCaseMap.get(this.apiCaseList[0].id) > 1) {
+          message += this.apiCaseList[0].name + "，";
+        }
+        if (this.apiCaseList[0].type === 'AddCase') {
+          message += this.apiCaseList[0].name + "，";
+        }
+        if (message !== "") {
+          this.$alert(this.$t('commons.api_case') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$store.state.apiCaseMap.delete(this.apiCaseList[0].id);
+                this.apiCaseList = [];
+                this.visible = false;
+                if (this.$route.fullPath !== this.$route.path) {
+                  this.$router.replace({path: '/api/definition'});
+                }
+                this.$emit('refresh');
+              }
+            }
+          });
+        } else {
+          this.apiCaseList = [];
+          this.visible = false;
+          if (this.$route.fullPath !== this.$route.path) {
+            this.$router.replace({path: '/api/definition'});
+          }
+          this.$emit('refresh');
+        }
+      } else {
+        this.apiCaseList = [];
+        this.visible = false;
+        if (this.$route.fullPath !== this.$route.path) {
+          this.$router.replace({path: '/api/definition'});
+        }
+        this.$emit('refresh');
       }
-      this.$emit('refresh');
+
     },
     refreshModule() {
       this.$emit('refreshModule');
@@ -367,7 +403,8 @@ export default {
           active: true,
           tags: [],
           uuid: newUuid,
-          caseStatus: "Underway"
+          caseStatus: "Underway",
+          type: 'AddCase'
         };
         request.projectId = getCurrentProjectID();
         obj.request = request;
@@ -375,6 +412,7 @@ export default {
       }
     },
     copyCase(data) {
+      data.type = 'AddCase';
       this.apiCaseList.unshift(data);
     },
 

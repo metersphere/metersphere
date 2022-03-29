@@ -254,7 +254,6 @@ export default {
       this.$emit("runTest", data);
     },
     saveApi(data) {
-      this.$emit("saveApi", data);
       if (data != null && data.tags !== 'null' && data.tags !== undefined) {
         if (Object.prototype.toString.call(data.tags) === "[object String]") {
           data.tags = JSON.parse(data.tags);
@@ -263,7 +262,9 @@ export default {
       Object.assign(this.currentApi, data);
       this.currentApi.isCopy = false;
       this.mockSetting();
+      this.$emit("saveApi", data);
       this.reload();
+
     },
     createRootModel() {
       this.$emit("createRootModel");
