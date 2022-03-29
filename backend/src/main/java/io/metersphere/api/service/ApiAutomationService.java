@@ -2067,6 +2067,12 @@ public class ApiAutomationService {
         ApiScenarioWithBLOBs bloBs = getDto(object.getString("id"));
         if (bloBs == null) {
             object.put("referenced", "Copy");
+        }else{
+            CheckPermissionService checkPermissionService = CommonBeanFactory.getBean(CheckPermissionService.class);
+            Set<String> userRelatedProjectIds = checkPermissionService.getUserRelatedProjectIds();
+            if(!userRelatedProjectIds.contains(bloBs.getProjectId())){
+                object.put("referenced", "Copy");
+            }
         }
     }
 
