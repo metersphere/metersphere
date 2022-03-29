@@ -41,7 +41,8 @@ const state = {
   selectCommand: {},
   //按照type分组的指令
   groupedCmd: {},
-  librarySelectElement: {}
+  librarySelectElement: {},
+  uiElementLibraryModuleIds: null,
 }
 
 const store = new Vuex.Store({

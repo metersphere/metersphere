@@ -6,7 +6,7 @@
       v-loading="tableIsLoading"
       :data="data"
       :default-sort="defaultSort"
-      :class="{'ms-select-all-fixed': showSelectAll}"
+      :class="{'ms-select-all-fixed': showSelectAll, 'row-click': rowClickStyle}"
       :height="screenHeight"
       :row-key="rowKey"
       :row-class-name="tableRowClassName"
@@ -242,6 +242,13 @@ export default {
       type: Boolean,
       default() {
         return true;
+      }
+    },
+    // 添加鼠标移入小手样式
+    rowClickStyle: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
     tableIsLoading:{
@@ -556,6 +563,10 @@ export default {
 
 .disable-hover >>> tr:hover>td{
   background-color: #ffffff !important;
+}
+
+.row-click {
+  cursor:pointer;
 }
 
 </style>
