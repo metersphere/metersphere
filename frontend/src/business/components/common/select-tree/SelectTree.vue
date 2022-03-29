@@ -156,6 +156,7 @@ export default {
       filterText: "",
       loading: false,
       checkedId: [],
+      selectNodeIds: []
     };
   },
   computed: {
@@ -270,6 +271,17 @@ export default {
         });
         this.returnDatas = t;
       }
+      this.selectNodeIds = [];
+      this.getChildNodeId(data, this.selectNodeIds);
+    },
+    getChildNodeId(rootNode, nodeIds) {
+      //递归获取所有子节点ID
+      nodeIds.push(rootNode.id);
+      if (rootNode.children) {
+        for (let i = 0; i < rootNode.children.length; i++) {
+          this.getChildNodeId(rootNode.children[i], nodeIds);
+        }
+      }
     },
     //单选:清空选中
     clean() {
@@ -341,6 +353,7 @@ export default {
     //下拉框关闭执行
     popoverHide() {
       this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
+      this.$emit('setSelectNodeIds', this.selectNodeIds);
     },
     // 多选，清空所有勾选
     clearSelectedNodes() {
