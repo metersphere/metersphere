@@ -116,9 +116,7 @@ public class ApiScenarioImportUtil {
         }
     }
 
-    private static ApiDefinition getApiDefinitionResult(JSONObject object, ApiDefinitionService apiDefinitionService,Map<String,ApiDefinition>definitionMap) {
-        CheckPermissionService checkPermissionService = CommonBeanFactory.getBean(CheckPermissionService.class);
-        Set<String> userRelatedProjectIds = checkPermissionService.getUserRelatedProjectIds();
+    private static ApiDefinition getApiDefinitionResult(JSONObject object, ApiDefinitionService apiDefinitionService,Map<String,ApiDefinition>definitionMap,Set<String> userRelatedProjectIds) {
         List<String> projectIds = new ArrayList<>(userRelatedProjectIds);
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria()
@@ -147,8 +145,10 @@ public class ApiScenarioImportUtil {
         ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.getString("id"));
-        if (bloBs == null) {
-            ApiDefinition apiDefinition = getApiDefinitionResult(object,apiDefinitionService,definitionMap);
+        CheckPermissionService checkPermissionService = CommonBeanFactory.getBean(CheckPermissionService.class);
+        Set<String> userRelatedProjectIds = checkPermissionService.getUserRelatedProjectIds();
+        if (bloBs == null||!userRelatedProjectIds.contains(bloBs.getProjectId())) {
+            ApiDefinition apiDefinition = getApiDefinitionResult(object,apiDefinitionService,definitionMap,userRelatedProjectIds);
             if(apiDefinition!=null){
                 if(MapUtils.isNotEmpty(definitionMap)||definitionMap.size()==0){
                     structureCaseByJson(i,object,testCaseService, apiDefinition,apiTestCaseMapper);

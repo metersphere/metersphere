@@ -1299,6 +1299,9 @@ public class ApiAutomationService {
             if (StringUtils.isBlank(item.getId())) {
                 item.setId(UUID.randomUUID().toString());
             }
+            item.setCreateUser(SessionUtils.getUserId());
+            item.setUserId(SessionUtils.getUserId());
+            item.setPrincipal(SessionUtils.getUserId());
             // 导入之后刷新latest
             importCreate(item, batchMapper, extApiScenarioMapper, request,apiTestCaseMapper,apiDefinitionMapper);
             if (i % 300 == 0) {
