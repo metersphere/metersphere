@@ -2075,6 +2075,9 @@ public class ApiAutomationService {
             Set<String> userRelatedProjectIds = checkPermissionService.getUserRelatedProjectIds();
             if(!userRelatedProjectIds.contains(bloBs.getProjectId())){
                 object.put("referenced", "Copy");
+            }else{
+                object.put("id", bloBs.getId());
+                object.put("resourceId", bloBs.getId());
             }
         }
     }
