@@ -435,6 +435,12 @@ export default {
         if (t && this.$store.state.testCaseMap.has(t.testCaseInfo.id) && this.$store.state.testCaseMap.get(t.testCaseInfo.id) > 1) {
           message += t.testCaseInfo.name + "，";
         }
+        if (t.label === this.$t('test_track.case.create')) {
+          message += this.$t('test_track.case.create') + "，";
+        }
+        if (t.testCaseInfo.isCopy) {
+          message += t.testCaseInfo.name + "，";
+        }
       })
       if (message !== "") {
         this.$alert(this.$t('commons.track') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
@@ -457,8 +463,18 @@ export default {
     },
     closeConfirm(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
+      let message = "";
       if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 0) {
-        this.$alert(this.$t('commons.track') + " [ " + t[0].testCaseInfo.name + " ] " + this.$t('commons.confirm_info'), '', {
+        message += t[0].testCaseInfo.name + "，";
+      }
+      if (t[0].label === this.$t('test_track.case.create')) {
+        message += this.$t('test_track.case.create') + "，";
+      }
+      if (t[0].testCaseInfo.isCopy) {
+        message += t[0].testCaseInfo.name + "，";
+      }
+      if (message !== "") {
+        this.$alert(this.$t('commons.track') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           callback: (action) => {

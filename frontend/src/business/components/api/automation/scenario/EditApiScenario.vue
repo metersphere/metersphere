@@ -1510,7 +1510,26 @@ export default {
                 if (this.currentScenario.tags instanceof String) {
                   this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
                 }
+                if (this.currentScenario.copy) {
+                  this.currentScenario.copy = null;
+                }
+                if (this.currentScenario.type) {
+                  this.currentScenario.type = null;
+                }
                 this.pluginDelStep = false;
+                // 记录改变后的数据数据
+                let v1 = {
+                  apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,
+                  name: this.currentScenario.name,
+                  status: this.currentScenario.status,
+                  principal: this.currentScenario.principal,
+                  level: this.currentScenario.level,
+                  tags: this.currentScenario.tags,
+                  description: this.currentScenario.description,
+                  scenarioDefinition: JSON.parse(JSON.stringify(this.scenarioDefinition))
+                };
+                this.currentScenario.scenarioDefinitionOrg = v1;
+                this.currentScenario.scenarioDefinition = this.scenarioDefinition;
                 this.$emit('refresh', this.currentScenario);
                 resolve();
               });

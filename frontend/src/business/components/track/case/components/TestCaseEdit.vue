@@ -696,7 +696,7 @@ export default {
           this.path = "/test/case/edit";
           // this.operationType = "edit"
           this.$emit("refreshTestCase",);
-          this.$store.state.testCaseMap.delete(this.form.id);
+          this.$store.state.testCaseMap.set(this.form.id, 0);
           //this.tableType = 'edit';
           this.$emit("refresh", response.data);
           if (this.form.id) {
@@ -709,7 +709,9 @@ export default {
           }
           this.form.id = response.data.id;
           this.currentTestCaseInfo.id = response.data.id;
-
+          if (this.currentTestCaseInfo.isCopy) {
+            this.currentTestCaseInfo.isCopy = null;
+          }
           if (callback) {
             callback(this);
           }

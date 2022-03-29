@@ -276,7 +276,8 @@ export default {
         data.remark = response.data.remark;
         this.$emit('saveApi', data);
       });
-      this.$store.state.apiMap.delete(this.currentApi.id);
+      this.$store.state.apiStatus.set("responseChange", false);
+      this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
       this.responseCount = 0;
       this.count = 0
     },
