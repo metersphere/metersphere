@@ -429,8 +429,10 @@ public class GroupService {
             userGroup.setUpdateTime(System.currentTimeMillis());
             userGroupMapper.insertSelective(userGroup);
         } else {
+            QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+            checkQuota(quotaService, type, sourceIds, 1);
             for (String sourceId : sourceIds) {
                 UserGroup userGroup = new UserGroup();
                 userGroup.setId(UUID.randomUUID().toString());
@@ -445,6 +447,13 @@ public class GroupService {
             if (sqlSession != null && sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
+        }
+    }
+
+    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, int size) {
+        if (quotaService != null) {
+            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> size));
+            quotaService.checkMemberCount(addMemberMap, type);
         }
     }
 

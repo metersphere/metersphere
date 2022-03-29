@@ -180,3 +180,35 @@ CREATE TABLE IF NOT EXISTS `test_plan_execution_queue`
 
 -- 场景步骤结果增加简要信息
 ALTER TABLE api_scenario_report_result ADD `base_info` LONGTEXT NULL;
+
+
+
+
+-- quota
+-- 处理移除组织时遗留的脏数据
+delete
+from quota
+where workspace_id is null
+  and id != 'workspace';
+
+alter table quota
+    add member int(10) null comment '成员数量限制';
+
+alter table quota
+    add project int(10) null comment '项目数量限制';
+
+alter table quota
+    add project_id varchar(50) null comment '项目类型配额';
+
+alter table quota
+    add vum_total decimal(10,2) null comment '总vum数';
+
+alter table quota
+    add vum_used decimal(10,2) null comment '消耗的vum数';
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_admin', 'WORKSPACE_QUOTA:READ', 'WORKSPACE_QUOTA') ;
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'ws_admin', 'WORKSPACE_QUOTA:READ+EDIT', 'WORKSPACE_QUOTA');
