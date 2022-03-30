@@ -118,11 +118,13 @@ import CustomFiledComponent from "@/business/components/project/template/CustomF
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId,} from "@/common/js/utils";
-import {enableThirdPartTemplate, getIssuePartTemplateWithProject} from "@/network/Issue";
+import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getIssuesListById} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 import IssueComment from "@/business/components/track/issue/IssueComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
+
+const {getIssuesById} = require("@/network/Issue");
 
 export default {
   name: "IssueEditDetail",
@@ -260,6 +262,11 @@ export default {
             }
           }
         })
+        getIssuesById(data.id, (data) => {
+          this.form.tapdUsers = data.tapdUsers;
+          this.form.zentaoBuilds = data.zentaoBuilds;
+          this.form.zentaoAssigned = data.zentaoAssigned;
+        });
       } else {
         this.issueId = null;
         this.form.follows = [];

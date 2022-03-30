@@ -565,8 +565,7 @@ public class ProjectService {
     }
 
 
-    public boolean isThirdPartTemplate(String projectId) {
-        Project project = getProjectById(projectId);
+    public boolean isThirdPartTemplate(Project project) {
         if (project.getThirdPartTemplate() != null && project.getThirdPartTemplate()
                 && project.getPlatform().equals(IssuesManagePlatform.Jira.name())) {
             return true;

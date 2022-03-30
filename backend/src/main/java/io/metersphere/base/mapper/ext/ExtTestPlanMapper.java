@@ -1,12 +1,15 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.api.dto.definition.ParamsDTO;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface ExtTestPlanMapper {
@@ -37,4 +40,16 @@ public interface ExtTestPlanMapper {
     List<TestPlan> listRecent(@Param("userId") String userId, @Param("projectId") String currentProjectId);
 
     int updateActualEndTimeIsNullById(String testPlanID);
+
+    @MapKey("id")
+    Map<String, ParamsDTO> testPlanTestCaseCount(@Param("planIds")Set<String> planIds);
+
+    @MapKey("id")
+    Map<String, ParamsDTO> testPlanApiCaseCount(@Param("planIds")Set<String> planIds);
+
+    @MapKey("id")
+    Map<String, ParamsDTO> testPlanApiScenarioCount(@Param("planIds")Set<String> planIds);
+
+    @MapKey("id")
+    Map<String, ParamsDTO> testPlanLoadCaseCount(@Param("planIds")Set<String> planIds);
 }
