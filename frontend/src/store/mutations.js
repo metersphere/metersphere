@@ -26,6 +26,7 @@ const mutations = {
   setScenarioDefinition: (state, value) => state.scenarioDefinition = value,
   setGroupedCmd: (state, value) => state.groupedCmd = value,
   setUiElementLibraryModuleIds: (state, value) => state.uiElementLibraryModuleIds = value,
+  setRefreshUiScenario: (state, value) => state.refreshUiScenario = value,
 }
 
 export default mutations;
