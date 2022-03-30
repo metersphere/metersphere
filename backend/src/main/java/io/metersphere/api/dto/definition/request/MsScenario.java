@@ -146,7 +146,7 @@ public class MsScenario extends MsTestElement {
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
             scenarioTree.add(valueSupposeMock);
             if (this.variableEnable != null && this.variableEnable) {
-                scenarioTree.add(ElementUtil.argumentsToProcessor(valueSupposeMock));
+                scenarioTree.add(ElementUtil.argumentsToUserParameters(valueSupposeMock));
             }
         }
         if (this.variableEnable == null || this.variableEnable) {
