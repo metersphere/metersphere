@@ -121,26 +121,6 @@ public class EsbApiParamService {
             }
 
         }
-
-//        try {
-//            if (StringUtils.isNotEmpty(res.getRequest())) {
-//                JSONObject jsonObj = JSONObject.parseObject(res.getRequest());
-//
-//                JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
-//                jsonObj.put("esbDataStruct", esbDataArray);
-//
-//                JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
-//                jsonObj.put("backEsbDataStruct", responseDataArray);
-//
-//                JSONObject backedScriptObj = JSONObject.parseObject(esbParamBlobs.getBackedScript());
-//                jsonObj.put("backScript", backedScriptObj);
-//
-//                jsonObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
-//
-//                res.setRequest(jsonObj.toJSONString());
-//            }
-//        } catch (Exception e) {
-//        }
     }
 
     public void handleApiEsbParams(ApiTestCaseWithBLOBs res) {
@@ -313,7 +293,7 @@ public class EsbApiParamService {
         return keyValueList;
     }
 
-    private List<KeyValue> genKeyValueListByDataStruct(MsTCPSampler tcpSampler, List<EsbDataStruct> dataStructRequestList) {
+    public List<KeyValue> genKeyValueListByDataStruct(MsTCPSampler tcpSampler, List<EsbDataStruct> dataStructRequestList) {
         List<KeyValue> keyValueList = new ArrayList<>();
         String sendRequest = tcpSampler.getRequest();
           String paramRegexStr = "\\$\\{([^}]*)\\}";

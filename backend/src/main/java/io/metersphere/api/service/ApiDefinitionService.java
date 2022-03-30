@@ -1823,10 +1823,18 @@ public class ApiDefinitionService {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setId(id);
         List<ApiDefinitionResult> list = extApiDefinitionMapper.list(request);
+        ApiDefinitionResult result = null;
         if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0);
+            result = list.get(0);
+            this.checkApiAttachInfo(result);
         }
-        return null;
+        return result;
+    }
+
+    private void checkApiAttachInfo(ApiDefinitionResult result) {
+        if (StringUtils.equalsIgnoreCase("esb", result.getMethod())) {
+            esbApiParamService.handleApiEsbParams(result);
+        }
     }
 
 
