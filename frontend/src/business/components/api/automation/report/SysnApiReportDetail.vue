@@ -310,6 +310,9 @@ export default {
           this.recursiveSorting(this.fullTreeNodes);
           this.reload();
         }
+        if ("Running" !== this.report.status) {
+          this.$emit('finish');
+        }
       });
     },
     runningNodeChild(arr, resourceId) {
