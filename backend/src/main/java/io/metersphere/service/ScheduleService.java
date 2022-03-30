@@ -81,12 +81,21 @@ public class ScheduleService {
     }
 
     public Schedule getScheduleByResource(String resourceId, String group) {
-
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(resourceId).andGroupEqualTo(group);
         List<Schedule> schedules = scheduleMapper.selectByExample(example);
         if (schedules.size() > 0) {
             return schedules.get(0);
+        }
+        return null;
+    }
+
+    public List<Schedule> getScheduleByResourceIds(List<String>resourceIds, String group) {
+        ScheduleExample example = new ScheduleExample();
+        example.createCriteria().andResourceIdIn(resourceIds).andGroupEqualTo(group);
+        List<Schedule> schedules = scheduleMapper.selectByExample(example);
+        if (schedules.size() > 0) {
+            return schedules;
         }
         return null;
     }
