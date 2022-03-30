@@ -32,9 +32,10 @@ public class OperatingLogController {
     }
 
 
-    @PostMapping("/get/source")
-    public List<OperatingLogDTO> findBySourceId(@RequestBody OperatingLogRequest request) {
-        return operatingLogService.findBySourceId(request);
+    @PostMapping("/get/source/{goPage}/{pageSize}")
+    public Pager<List<OperatingLogDTO>> findBySourceId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody OperatingLogRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, operatingLogService.findBySourceId(request));
     }
 
     @PostMapping("/save")

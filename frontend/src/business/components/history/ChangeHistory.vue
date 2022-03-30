@@ -35,7 +35,10 @@
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
               <div v-if="linkDatas.indexOf(detail.columnName)!== -1">
-                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{ $t('operating_log.info') }}</el-link>
+                <el-link style="color: #409EFF" @click="openDetail(scope.row,detail)">{{
+                    $t('operating_log.info')
+                  }}
+                </el-link>
               </div>
               <el-tooltip :content="detail.newValue" v-else>
                 <div class="current-value">{{ detail.newValue ? detail.newValue : "空值" }}</div>
@@ -45,6 +48,8 @@
         </template>
       </el-table-column>
     </el-table>
+    <ms-table-pagination :change="getDetails" :current-page.sync="goPage" :page-size.sync="pageSize"
+                         :total="totalCount"/>
 
     <ms-history-detail ref="historyDetail"/>
     <ms-tags-history-detail ref="tagsHistoryDetail"/>
@@ -58,9 +63,13 @@ import MsTagsHistoryDetail from "./tags/TagsHistoryDetail";
 import MsApiHistoryDetail from "./api/ApiHistoryDetail";
 import MsEnvironmentHistoryDetail from "./api/EnvironmentHistoryDetail";
 
+
 export default {
   name: "MsChangeHistory",
-  components: {MsHistoryDetail, MsTagsHistoryDetail, MsApiHistoryDetail, MsEnvironmentHistoryDetail},
+  components: {
+    MsHistoryDetail, MsTagsHistoryDetail, MsApiHistoryDetail, MsEnvironmentHistoryDetail,
+    MsTablePagination: () => import("@/business/components/common/pagination/TablePagination"),
+  },
   props: {
     title: String,
   },
@@ -72,6 +81,11 @@ export default {
       linkDatas: ["prerequisite", "steps", "remark", "request", "config",
         "response", "scenarioDefinition", "tags", "loadConfiguration", "advancedConfiguration"],
       showChangeField: true,
+      pageSize: 10,
+      goPage: 1,
+      totalCount: 0,
+      id: String,
+      module: String
     }
   },
   methods: {
@@ -79,18 +93,24 @@ export default {
       this.infoVisible = false;
     },
     getDetails(id, modules) {
-      this.result = this.$post("/operating/log/get/source/", {sourceId: id, modules: modules}, response => {
-        let data = response.data;
+      id = this.id;
+      modules = this.module;
+      this.result = this.$post("/operating/log/get/source/" + this.goPage + '/' + this.pageSize, {
+        sourceId: id,
+        modules: modules
+      }, response => {
+        let data = response.data.listObject;
+        this.totalCount = response.data.itemCount;
         this.loading = false;
         if (data) {
           // 过滤非全局脚本历史变更数据
-          if(modules.length > 0 && modules[0] === '项目-环境设置'){
+          if (modules.length > 0 && modules[0] === '项目-环境设置') {
             // 环境设置不显示变更字段
             this.showChangeField = false;
             // 不显示的节点 id
             let ids = [];
-            for(let i=0; i<data.length; i++){
-              if(data[i].details.columns.findIndex(d => (d.diffValue === null || d.diffValue === '')) !== -1){
+            for (let i = 0; i < data.length; i++) {
+              if (data[i].details.columns.findIndex(d => (d.diffValue === null || d.diffValue === '')) !== -1) {
                 ids.push(data[i].id);
                 continue;
               }
@@ -111,6 +131,8 @@ export default {
     open(id, modules) {
       this.infoVisible = true;
       this.loading = true;
+      this.id = id;
+      this.module = modules;
       this.getDetails(id, modules);
     },
     openDetail(row, value) {

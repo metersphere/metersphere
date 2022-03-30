@@ -75,8 +75,9 @@
                 <if test="request.sourceId != null and request.sourceId != ''">
                     and t3.source_id = #{request.sourceId, jdbcType=VARCHAR}
                 </if>
+                and JSON_UNQUOTE(JSON_EXTRACT(t.oper_content, '$.columns[*]')) is not null
             </where>
-            order by t.oper_time desc limit 100
+        order by t.oper_time desc
         )tt
         LEFT JOIN `user` t1 ON tt.oper_user = t1.id
         LEFT JOIN project t2 ON tt.project_id = t2.id
