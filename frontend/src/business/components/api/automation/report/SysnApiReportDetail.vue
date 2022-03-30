@@ -142,7 +142,6 @@ export default {
   },
   props: {
     reportId: String,
-    currentProjectId: String,
     infoDb: Boolean,
     debug: Boolean,
     scenario: {},

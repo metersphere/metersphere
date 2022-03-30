@@ -568,7 +568,7 @@ public class ApiScenarioReportStructureService {
                 ApiScenarioReportResult item = iterator.next();
                 String result = new String(item.getContent(), StandardCharsets.UTF_8);
                 if (StringUtils.isNotBlank(result)) {
-                    Boolean isNoStep = JSONObject.parseObject(result).getBoolean("isNoStep");
+                    Boolean isNoStep = JSONObject.parseObject(result).getBoolean("isNotStep");
                     if (BooleanUtils.isTrue(isNoStep)) {
                         iterator.remove();
                     }
