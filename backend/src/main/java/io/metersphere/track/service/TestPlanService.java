@@ -11,6 +11,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
+import io.metersphere.api.dto.definition.ParamsDTO;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
@@ -100,8 +101,6 @@ public class TestPlanService {
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
     @Resource
-    ExtApiScenarioMapper extApiScenarioMapper;
-    @Resource
     SqlSessionFactory sqlSessionFactory;
     @Lazy
     @Resource
@@ -149,8 +148,6 @@ public class TestPlanService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestCaseTestMapper testCaseTestMapper;
-    @Resource
-    private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
     @Resource
@@ -432,14 +429,22 @@ public class TestPlanService {
             request.setProjectId(request.getProjectId());
         }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
+        Set<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toSet());
+        Map<String, ParamsDTO> planTestCaseCountMap = extTestPlanMapper.testPlanTestCaseCount(ids);
+        Map<String, ParamsDTO> planApiCaseMap = extTestPlanMapper.testPlanApiCaseCount(ids);
+        Map<String, ParamsDTO> planApiScenarioMap = extTestPlanMapper.testPlanApiScenarioCount(ids);
+        Map<String, ParamsDTO> planLoadCaseMap = extTestPlanMapper.testPlanLoadCaseCount(ids);
+        ArrayList<String> idList = new ArrayList<>(ids);
+        List<Schedule> scheduleByResourceIds = scheduleService.getScheduleByResourceIds(idList, ScheduleGroup.TEST_PLAN_TEST.name());
+        Map<String, Schedule> scheduleMap = scheduleByResourceIds.stream().collect(Collectors.toMap(Schedule::getResourceId, Schedule -> Schedule));
+        Map<String, ParamsDTO> stringParamsDTOMap = testPlanReportMapper.reportCount(ids);
+
         testPlans.forEach(item -> {
-            TestPlanReportExample example = new TestPlanReportExample();
-            example.createCriteria().andTestPlanIdEqualTo(item.getId());
-            item.setExecutionTimes((int) testPlanReportMapper.countByExample(example));
+            item.setExecutionTimes(stringParamsDTOMap.get(item.getId()) == null ? 0 : Integer.parseInt(stringParamsDTOMap.get(item.getId()).getValue() == null ?  "0" : stringParamsDTOMap.get(item.getId()).getValue()));
             if (StringUtils.isNotBlank(item.getScheduleId())) {
                 if (item.isScheduleOpen()) {
                     item.setScheduleStatus(ScheduleStatus.OPEN.name());
-                    Schedule schedule = scheduleService.getScheduleByResource(item.getId(), ScheduleGroup.TEST_PLAN_TEST.name());
+                    Schedule schedule = scheduleMap.get(item.getId());
                     item.setScheduleCorn(schedule.getValue());
                     item.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
                 } else {
@@ -448,6 +453,10 @@ public class TestPlanService {
             } else {
                 item.setScheduleStatus(ScheduleStatus.NOTSET.name());
             }
+            item.setTestPlanTestCaseCount(planTestCaseCountMap.get(item.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(item.getId()).getValue() == null ?  "0" : planTestCaseCountMap.get(item.getId()).getValue()));
+            item.setTestPlanApiCaseCount(planApiCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(item.getId()).getValue() == null ?  "0" : planApiCaseMap.get(item.getId()).getValue()));
+            item.setTestPlanApiScenarioCount(planApiScenarioMap.get(item.getId()) == null? 0 : Integer.parseInt(planApiScenarioMap.get(item.getId()).getValue() == null ?  "0" : planApiScenarioMap.get(item.getId()).getValue()));
+            item.setTestPlanLoadCaseCount(planLoadCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(item.getId()).getValue() == null ?  "0" : planLoadCaseMap.get(item.getId()).getValue()));
         });
         calcTestPlanRate(testPlans);
         return testPlans;
@@ -2066,5 +2075,10 @@ public class TestPlanService {
             scheduleDTO.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
         }
         return scheduleDTO;
+    }
+
+    public List<TestPlanDTOWithMetric> listByWorkspaceId(QueryTestPlanRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extTestPlanMapper.list(request);
     }
 }

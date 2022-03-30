@@ -112,6 +112,12 @@
             #{value}
         </foreach>
     </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String"  resultType="io.metersphere.base.domain.IssuesDao">
+        select
+        <include refid="Issue_List_Column" />
+        from issues
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
 
     <sql id="queryWhereCondition">
         <where>

@@ -111,34 +111,24 @@
         </if>
     </sql>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select DISTINCT test_plan.*, project.name as projectName,schedule.id as scheduleId,
         (select name from user where user.id = test_plan.creator) as createUser,
-        IF(schedule.enable = true,true,false) as scheduleOpen,
-        (select COUNT(*) from test_plan_test_case t
-        inner join test_case on t.case_id = test_case.id
-        left join test_case_node on test_case_node.id = test_case.node_id
-        inner join project on project.id = test_case.project_id
-        where (test_case.status != 'Trash' or test_case.status is null )
-            and t.plan_id = test_plan.id) as testPlanTestCaseCount,
-
-        (select COUNT(*) from test_plan_api_case t
-        inner join api_test_case c on t.api_case_id = c.id
-        inner join api_definition a on c.api_definition_id = a.id
-        where t.test_plan_id = test_plan.id and (c.status  != 'Trash' or c.status is null)) as testPlanApiCaseCount,
-
-        (select COUNT(*) from test_plan_api_scenario t
-        inner join api_scenario c on t.api_scenario_id = c.id
-              and (c.status != 'Trash' or c.status is null)
-        where t.test_plan_id = test_plan.id) as testPlanApiScenarioCount,
-
-        (select COUNT(*) from test_plan_load_case t
-        inner join load_test lt on t.load_case_id = lt.id
-        left join user u on lt.user_id = u.id
-        left join project p on lt.project_id = p.id
-        where t.test_plan_id = test_plan.id) as testPlanLoadCaseCount
-
+        IF(schedule.enable = true,true,false) as scheduleOpen
         from test_plan
         LEFT JOIN schedule ON schedule.resource_id = test_plan.id
         JOIN project on project.id = test_plan.project_id
@@ -346,6 +336,56 @@
             and (test_plan.creator = #{userId} or test_plan.principal = #{userId})
         </where>
         order by test_plan.update_time desc
+    </select>
+    <select id="testPlanTestCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
+        select t.plan_id as id, COUNT(*) as countNum from test_plan_test_case t
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                and t.plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t.plan_id
+    </select>
+    <select id="testPlanApiCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
+        select t.test_plan_id as id, COUNT(*) as countNum from test_plan_api_case t
+                                  inner join api_test_case c on t.api_case_id = c.id
+                                  inner join api_definition a on c.api_definition_id = a.id
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                and t.test_plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t.test_plan_id
+    </select>
+    <select id="testPlanApiScenarioCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
+        select t.test_plan_id as id , COUNT(*) as countNum from test_plan_api_scenario t
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                and t.test_plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t.test_plan_id
+    </select>
+    <select id="testPlanLoadCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
+        select t.test_plan_id as id,COUNT(*) as countNum from test_plan_load_case t
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                and t.test_plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t.test_plan_id
     </select>
     <update id="updateActualEndTimeIsNullById">
         update test_plan
