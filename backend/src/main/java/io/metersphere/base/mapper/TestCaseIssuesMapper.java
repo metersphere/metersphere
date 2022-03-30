@@ -1,8 +1,13 @@
 package io.metersphere.base.mapper;
 
+import io.metersphere.api.dto.definition.ParamsDTO;
 import io.metersphere.base.domain.TestCaseIssues;
 import io.metersphere.base.domain.TestCaseIssuesExample;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 public interface TestCaseIssuesMapper {
@@ -27,4 +32,5 @@ public interface TestCaseIssuesMapper {
     int updateByPrimaryKeySelective(TestCaseIssues record);
 
     int updateByPrimaryKey(TestCaseIssues record);
+
 }

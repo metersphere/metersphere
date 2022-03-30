@@ -31,4 +31,6 @@ public interface ExtIssuesMapper {
     List<IssuesDao> getPlanIssues(@Param("request") IssuesRequest issueRequest);
 
     int deleteIssues(@Param("issuesId") String issuesId, @Param("resourceId") String resourceId);
+
+    IssuesDao selectByPrimaryKey(String id);
 }
