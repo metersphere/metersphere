@@ -548,5 +548,16 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         // 添加方法体逻辑可重写改方法
     }
 
+    /**
+     * 更新需求与用例的关联关系
+     * @param request
+     * @param project
+     * @param type   add or edit
+     */
+    @Override
+    public void updateDemandHyperLink(EditTestCaseRequest request, Project project, String type) {
+        // 添加方法体逻辑可重写改方法
+    }
+
 
 }
