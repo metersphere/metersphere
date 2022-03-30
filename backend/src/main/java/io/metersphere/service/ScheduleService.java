@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,6 +89,9 @@ public class ScheduleService {
 
     public List<Schedule> getScheduleByResourceIds(List<String>resourceIds, String group) {
         ScheduleExample example = new ScheduleExample();
+        if(resourceIds.size()==0){
+            return new ArrayList<>();
+        }
         example.createCriteria().andResourceIdIn(resourceIds).andGroupEqualTo(group);
         List<Schedule> schedules = scheduleMapper.selectByExample(example);
         if (schedules.size() > 0) {
