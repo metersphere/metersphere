@@ -43,6 +43,7 @@ const state = {
   groupedCmd: {},
   librarySelectElement: {},
   uiElementLibraryModuleIds: null,
+  refreshUiScenario: false,
 }
 
 const store = new Vuex.Store({
