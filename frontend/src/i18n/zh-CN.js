@@ -1328,6 +1328,7 @@ export default {
       case_reduction_error_text: "请先恢复"
     },
     automation: {
+      open_check_message: "勾选步骤太多，最大可支持展开20个一级步骤",
       open_expansion: "批量展开步骤",
       close_expansion: "批量折叠步骤",
       bulk_activation_steps: "批量启用步骤",
