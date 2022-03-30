@@ -507,6 +507,8 @@ public class ApiScenarioReportStructureService {
         example.createCriteria().andReportIdEqualTo(reportId);
         List<ApiScenarioReportResult> reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
 
+        removeUiResultIfNotStep(reportResults, reportId);
+
         ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
         structureExample.createCriteria().andReportIdEqualTo(reportId);
         List<ApiScenarioReportStructureWithBLOBs> reportStructureWithBLOBs = mapper.selectByExampleWithBLOBs(structureExample);
@@ -551,6 +553,28 @@ public class ApiScenarioReportStructureService {
             reportDTO.setUnExecute(allUnExecute.longValue());
         }
         return reportDTO;
+    }
+
+    /**
+     * UI 测试结果统计去掉前后置或其他不算步骤的执行结果
+     * @param reportResults
+     * @param reportId
+     */
+    private void removeUiResultIfNotStep(List<ApiScenarioReportResult> reportResults, String reportId) {
+        ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
+        if (report.getReportType() != null && report.getReportType().startsWith("UI")) {
+            Iterator<ApiScenarioReportResult> iterator = reportResults.iterator();
+            while (iterator.hasNext()) {
+                ApiScenarioReportResult item = iterator.next();
+                String result = new String(item.getContent(), StandardCharsets.UTF_8);
+                if (StringUtils.isNotBlank(result)) {
+                    Boolean isNoStep = JSONObject.parseObject(result).getBoolean("isNoStep");
+                    if (BooleanUtils.isTrue(isNoStep)) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
     }
 
     private void countAllUnexecute(List<StepTreeDTO> stepList, AtomicLong allUnExecute) {

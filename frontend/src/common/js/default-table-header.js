@@ -82,6 +82,23 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'passRate', key: 'b', label: 'api_test.automation.passing_rate'},
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
   ],
+  //场景测试
+  UI_SCENARIO: [
+    {id: 'num', key: '1', label: "ID"},
+    {id: 'name', key: '2', label: 'api_report.scenario_name'},
+    {id: 'level', key: '3', label: 'api_test.automation.case_level'},
+    {id: 'status', key: '4', label: 'test_track.plan.plan_status'},
+    {id: 'tags', key: '5', label: 'commons.tag'},
+    {id: 'versionId', key: 'f', label: 'project.version.name', xpack: true},
+    {id: 'creatorName', key: 'd', label: 'api_test.automation.creator'},
+    {id: 'principalName', key: '6', label: 'api_test.definition.api_principal'},
+    {id: 'environmentMap', key: 'e', label: 'commons.environment'},
+    {id: 'updateTime', key: '7', label: 'api_test.definition.api_last_time'},
+    {id: 'stepTotal', key: '8', label: 'api_test.automation.step'},
+    {id: 'lastResult', key: 'a', label: 'api_test.automation.last_result'},
+    {id: 'passRate', key: 'b', label: 'api_test.automation.passing_rate'},
+    {id: 'createTime', key: 'c', label: 'commons.create_time'},
+  ],
   //用例评审
   TEST_CASE_REVIEW: [
     {id: 'name', key: '1', label: 'test_track.review.review_name'},
