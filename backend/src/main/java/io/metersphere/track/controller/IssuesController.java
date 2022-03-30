@@ -43,6 +43,13 @@ public class IssuesController {
         return PageUtils.setPageInfo(page, issuesService.list(request));
     }
 
+    @PostMapping("/dashboard/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
+    public Pager<List<IssuesDao>> listByWorkspaceId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
+        Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, issuesService.listByWorkspaceId(request));
+    }
+
     @PostMapping("/list/relate/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public Pager<List<IssuesDao>> relateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {

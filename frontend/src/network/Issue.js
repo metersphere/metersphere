@@ -24,6 +24,14 @@ export function getIssues(page) {
   });
 }
 
+
+export function getDashboardIssues(page) {
+  return post('issues/dashboard/list/' + page.currentPage + '/' + page.pageSize, page.condition, (response) => {
+    getPageDate(response, page);
+    buildIssues(page);
+  });
+}
+
 export function getIssuesByCaseId(refType, caseId, page) {
   if (caseId) {
     return get('issues/get/case/' + refType + '/' + caseId, (response) => {
