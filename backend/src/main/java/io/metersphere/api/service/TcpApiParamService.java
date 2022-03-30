@@ -4,13 +4,16 @@ import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -21,6 +24,8 @@ import java.util.List;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TcpApiParamService {
+    @Resource
+    private EsbApiParamService esbApiParamService;
 
     public SaveApiDefinitionRequest handleTcpRequest(SaveApiDefinitionRequest request) {
         MsTCPSampler tcpSampler = this.handleTcpRequest(request.getRequest());
@@ -51,19 +56,27 @@ public class TcpApiParamService {
         try {
             if (testElement instanceof MsTCPSampler) {
                 tcpSampler = (MsTCPSampler) testElement;
-                String reportType = tcpSampler.getReportType();
-                if (StringUtils.isNotEmpty(reportType)) {
-                    switch (reportType) {
-                        case "raw":
-                            tcpSampler.setRequest(tcpSampler.getRawDataStruct());
-                            break;
-                        case "xml":
-                            String xmlDataStruct = this.genValueFromEsbDataStructByParam(tcpSampler.getXmlDataStruct());
-                            tcpSampler.setRequest(xmlDataStruct);
-                            break;
-                        case "json":
-                            tcpSampler.setRequest(tcpSampler.getJsonDataStruct());
-                            break;
+                String protocol = tcpSampler.getProtocol();
+                if(StringUtils.equalsIgnoreCase(protocol,"esb")){
+                    if(CollectionUtils.isNotEmpty(tcpSampler.getEsbDataStruct())){
+                        List<KeyValue> keyValueList = esbApiParamService.genKeyValueListByDataStruct(tcpSampler, tcpSampler.getEsbDataStruct());
+                        tcpSampler.setParameters(keyValueList);
+                    }
+                }else {
+                    String reportType = tcpSampler.getReportType();
+                    if (StringUtils.isNotEmpty(reportType)) {
+                        switch (reportType) {
+                            case "raw":
+                                tcpSampler.setRequest(tcpSampler.getRawDataStruct());
+                                break;
+                            case "xml":
+                                String xmlDataStruct = this.genValueFromEsbDataStructByParam(tcpSampler.getXmlDataStruct());
+                                tcpSampler.setRequest(xmlDataStruct);
+                                break;
+                            case "json":
+                                tcpSampler.setRequest(tcpSampler.getJsonDataStruct());
+                                break;
+                        }
                     }
                 }
             }
