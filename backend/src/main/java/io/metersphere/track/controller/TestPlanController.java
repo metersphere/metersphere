@@ -62,6 +62,13 @@ public class TestPlanController {
         return PageUtils.setPageInfo(page, testPlanService.listTestPlan(request));
     }
 
+    @PostMapping("/dashboard/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ")
+    public Pager<List<TestPlanDTOWithMetric>> listByWorkspaceId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testPlanService.listByWorkspaceId(request));
+    }
+
     /*jenkins测试计划*/
     @GetMapping("/list/all/{projectId}/{workspaceId}")
     public List<TestPlanDTOWithMetric> listByProjectId(@PathVariable String projectId, @PathVariable String workspaceId) {
