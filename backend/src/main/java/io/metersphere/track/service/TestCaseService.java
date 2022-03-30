@@ -19,10 +19,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
-import io.metersphere.commons.constants.IssueRefType;
-import io.metersphere.commons.constants.ProjectApplicationType;
-import io.metersphere.commons.constants.TestCaseConstants;
-import io.metersphere.commons.constants.TestCaseReviewStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -48,6 +45,8 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.issue.AbstractIssuePlatform;
+import io.metersphere.track.issue.IssueFactory;
 import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.xmind.XmindCaseParser;
@@ -207,9 +206,40 @@ public class TestCaseService {
         }
         //完全新增一条记录直接就是最新
         request.setLatest(true);
+
+        // 同步用例与需求的关联关系
+        addDemandHyperLink(request, "add");
+
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
         return request;
+    }
+
+    private void addDemandHyperLink(EditTestCaseRequest request, String type) {
+        if (StringUtils.isNotEmpty(request.getDemandId())) {
+            IssuesRequest updateRequest = new IssuesRequest();
+            updateRequest.setId(request.getId());
+            updateRequest.setResourceId(request.getDemandId());
+            updateRequest.setProjectId(request.getProjectId());
+            updateRequest.setTestCaseId(request.getId());
+            Project project = projectService.getProjectById(request.getProjectId());
+            updateRequest.setWorkspaceId(project.getWorkspaceId());
+            List<AbstractIssuePlatform> platformList = getAddPlatforms(updateRequest);
+            platformList.forEach(platform -> {
+                platform.updateDemandHyperLink(request, project, type);
+            });
+        }
+    }
+
+    private List<AbstractIssuePlatform> getAddPlatforms(IssuesRequest request) {
+        List<String> platforms = new ArrayList<>();
+        // 缺陷管理关联
+        platforms.add(issuesService.getPlatform(request.getProjectId()));
+
+        if (CollectionUtils.isEmpty(platforms)) {
+            platforms.add(IssuesManagePlatform.Local.toString());
+        }
+        return IssueFactory.createPlatforms(platforms, request);
     }
 
     private void dealWithCopyOtherInfo(TestCaseWithBLOBs testCase, String oldTestCaseId) {
@@ -289,7 +319,13 @@ public class TestCaseService {
         if (StringUtils.isNotBlank(testCase.getVersionId())) {
             example.getOredCriteria().get(0).andVersionIdEqualTo(testCase.getVersionId());
         }
+
+        // 同步缺陷与需求的关联关系
         updateThirdPartyIssuesLink(testCase);
+
+        // 同步用例与需求的关联关系
+        addDemandHyperLink(testCase, "edit");
+
         if (StringUtils.isEmpty(testCase.getDemandId())) {
             testCase.setDemandId("");
         }
@@ -307,6 +343,7 @@ public class TestCaseService {
         }
 
         testCase.setLatest(null);
+
         testCaseMapper.updateByPrimaryKeySelective(testCase);
         return testCaseMapper.selectByPrimaryKey(testCase.getId());
     }
