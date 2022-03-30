@@ -17,7 +17,6 @@
           :page-size="pageSize"
           :total="total"
           :operators="operators"
-          :screenHeight="screenHeight"
           :field-key="tableHeaderKey"
           :remember-order="true"
           :enable-order-drag="enableOrderDrag"
@@ -65,19 +64,19 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            width="200"
             sortable
             prop="createTime"
-            :label="$t('commons.create_time')">
+            :label="$t('commons.create_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            width="200"
             sortable
             prop="updateTime"
-            :label="$t('commons.update_time')">
+            :label="$t('commons.update_time')"
+            show-overflow-tooltip>
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
