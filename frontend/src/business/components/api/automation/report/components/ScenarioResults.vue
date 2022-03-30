@@ -48,6 +48,11 @@ export default {
       this.$refs.resultsTree.root.expanded = true;
     }
   },
+  computed: {
+    isUi() {
+      return this.$route && this.$route.meta && this.$route.meta.isUi;
+    },
+  },
   methods: {
     filterNode(value, data) {
       if (!data.value && !data.children && data.children.length === 0) {
@@ -65,7 +70,7 @@ export default {
           }
         }else {
           if (!data.errorCode || data.errorCode === "") {
-            return data.value.error > 0;
+            return data.value.error > 0 || (this.isUi && !data.value.success && data.value.body);
           }
         }
       }
