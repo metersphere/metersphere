@@ -298,7 +298,6 @@ export default {
           return {text: u.name, value: u.id};
         });
       });
-
     },
     handleEdit(data) {
       this.$refs.issueEdit.open(data, 'edit');

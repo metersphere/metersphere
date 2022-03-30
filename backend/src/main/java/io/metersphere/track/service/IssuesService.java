@@ -393,6 +393,9 @@ public class IssuesService {
     private Map<String, Set<String>> getCaseSetMap(List<IssuesDao> issues) {
         List<String> ids = issues.stream().map(Issues::getId).collect(Collectors.toList());
         Map<String,Set<String>>map = new HashMap<>();
+        if(ids.size()==0){
+            return  map;
+        }
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andIssuesIdIn(ids);
         List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
