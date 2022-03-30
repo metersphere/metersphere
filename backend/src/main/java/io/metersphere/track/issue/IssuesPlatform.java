@@ -99,4 +99,10 @@ public interface IssuesPlatform {
      * @param testCase
      */
     void updateDemandIssueLink(EditTestCaseRequest testCase, Project project);
+
+    /**
+     * @param request
+     * @param type    add or edit
+     */
+    void updateDemandHyperLink(EditTestCaseRequest request, Project project, String type);
 }
