@@ -21,10 +21,8 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.ssl.KeyStoreConfig;
 import io.metersphere.api.dto.ssl.KeyStoreFile;
 import io.metersphere.api.dto.ssl.MsKeyStore;
-import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.CommandService;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
@@ -284,13 +282,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private boolean setRefElement() {
         try {
-            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MsHTTPSamplerProxy proxy = null;
             if (StringUtils.equals(this.getRefType(), "CASE")) {
-                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
+                ApiTestCaseWithBLOBs bloBs = CommonBeanFactory.getBean(ApiTestCaseService.class).get(this.getId());
                 if (bloBs != null) {
                     this.setProjectId(bloBs.getProjectId());
                     JSONObject element = JSON.parseObject(bloBs.getRequest());
@@ -298,14 +294,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     proxy = mapper.readValue(element.toJSONString(), new TypeReference<MsHTTPSamplerProxy>() {
                     });
                     this.setName(bloBs.getName());
-                }
-            } else {
-                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
-                if (apiDefinition != null) {
-                    this.setName(apiDefinition.getName());
-                    this.setProjectId(apiDefinition.getProjectId());
-                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
-                    });
                 }
             }
             if (proxy != null) {

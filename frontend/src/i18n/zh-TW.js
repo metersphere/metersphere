@@ -1327,6 +1327,7 @@ export default {
       case_reduction_error_text: "請先恢復"
     },
     automation: {
+      open_check_message: "勾選步驟太多，最大可支持展開20個一級步驟",
       open_expansion: "批量展開步驟",
       close_expansion: "批量折疊步驟",
       bulk_activation_steps: "批量啟用步驟",
