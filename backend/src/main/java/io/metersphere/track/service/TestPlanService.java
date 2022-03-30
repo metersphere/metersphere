@@ -429,6 +429,9 @@ public class TestPlanService {
             request.setProjectId(request.getProjectId());
         }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
+        if(testPlans.size()==0){
+            return new ArrayList<>();
+        }
         Set<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toSet());
         Map<String, ParamsDTO> planTestCaseCountMap = extTestPlanMapper.testPlanTestCaseCount(ids);
         Map<String, ParamsDTO> planApiCaseMap = extTestPlanMapper.testPlanApiCaseCount(ids);
