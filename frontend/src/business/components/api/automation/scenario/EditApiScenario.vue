@@ -1814,21 +1814,32 @@ export default {
           if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
             nodes[i].active = this.expandedStatus;
           }
-          if (nodes[i].hashTree && nodes[i].hashTree.length > 0 && resourceIds.length < 60) {
+          if (nodes[i].hashTree && nodes[i].hashTree.length > 0 && !this.expandedStatus) {
             this.changeNodeStatus(resourceIds, nodes[i].hashTree);
           }
         }
       }
     },
     getAllResourceIds() {
-      let selectValueArr = [];
       if (this.$refs.stepTree) {
-        let checkNodes = this.$refs.stepTree.getCheckedNodes();
-        for (let node of checkNodes) {
-          selectValueArr.push(node.resourceId);
+        return this.$refs.stepTree.getCheckedKeys();
+      }
+      return [];
+    },
+    checkALevelChecked() {
+      if (this.$refs.stepTree) {
+        let resourceIds = [];
+        this.$refs.stepTree.root.childNodes.forEach(item => {
+          if (item.checked) {
+            resourceIds.push(item.data.resourceId);
+          }
+        })
+        if (resourceIds.length > 20) {
+          this.$warning(this.$t('api_test.automation.open_check_message'));
+          return false;
         }
       }
-      return selectValueArr;
+      return true;
     },
     recursionExpansion(resourceIds, array) {
       if (array) {
@@ -1848,9 +1859,11 @@ export default {
     },
     openExpansion() {
       this.expandedStatus = true;
-      let resourceIds = this.getAllResourceIds();
-      this.changeNodeStatus(resourceIds, this.scenarioDefinition);
-      this.recursionExpansion(resourceIds, this.$refs.stepTree.root.childNodes);
+      if (this.checkALevelChecked()) {
+        let resourceIds = this.getAllResourceIds();
+        this.changeNodeStatus(resourceIds, this.scenarioDefinition);
+        this.recursionExpansion(resourceIds, this.$refs.stepTree.root.childNodes);
+      }
     },
     closeExpansion() {
       this.expandedStatus = false;

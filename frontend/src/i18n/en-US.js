@@ -1322,6 +1322,7 @@ export default {
       case_reduction_error_text: "Please restore first"
     },
     automation: {
+      open_check_message: "There are too many steps to check, and a maximum of 20 first-level steps can be supported.",
       open_expansion: "Batch Folding Steps",
       close_expansion: "Bulk Expand Steps",
       bulk_activation_steps: "Bulk activation steps",
