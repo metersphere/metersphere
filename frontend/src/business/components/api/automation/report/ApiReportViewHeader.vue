@@ -20,11 +20,12 @@
           <span style="margin-left: 10px">{{$t('report.test_end_time')}}：</span>
           <span class="time"> {{ report.endTime | timestampFormatDate }}</span>
         </span>
-        <el-button v-if="!isPlan && (!debug || exportFlag) && !isTemplate" v-permission="['PROJECT_API_REPORT:READ+EXPORT']" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
+        <el-button v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi" v-permission="['PROJECT_API_REPORT:READ+EXPORT']" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
           {{ $t('test_track.plan_view.export_report') }}
         </el-button>
+
         <el-popover
-          v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
+          v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi"
           v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
           style="margin-right: 10px;float: right;"
           placement="bottom"
@@ -43,6 +44,7 @@
             {{ $t('test_track.plan_view.share_report') }}
           </el-button>
         </el-popover>
+
         <el-button v-if="showCancelButton" class="export-button" plain  size="mini" @click="returnView()" >
           {{$t('commons.cancel')}}
         </el-button>
@@ -91,7 +93,10 @@ export default {
       } catch (e) {
         return true;
       }
-    }
+    },
+    isUi() {
+      return this.$route && this.$route.meta && this.$route.meta.isUi;
+    },
   },
   data() {
     return {
@@ -116,7 +121,11 @@ export default {
       $event.target.blur();
     },
     returnView(){
-      this.$router.push('/api/automation/report');
+      if (this.isUi) {
+        this.$router.push('/ui/report');
+      } else {
+        this.$router.push('/api/automation/report');
+      }
     },
     handleShare(report) {
       this.getProjectApplication();
