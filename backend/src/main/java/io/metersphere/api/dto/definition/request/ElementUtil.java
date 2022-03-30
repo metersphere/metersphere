@@ -36,6 +36,7 @@ import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
+import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.AbstractTestElement;
@@ -588,6 +589,30 @@ public class ElementUtil {
                 script.append("vars.put(\"" + arguments.getArgument(i).getName() + "\",\"" + argValue + "\");").append("\n");
             }
             processor.setProperty("script", script.toString());
+        }
+        return processor;
+    }
+
+    public static UserParameters argumentsToUserParameters(Arguments arguments) {
+        UserParameters processor = new UserParameters();
+        processor.setEnabled(true);
+        processor.setName("User Defined Variables");
+        processor.setPerIteration(true);
+        processor.setProperty(TestElement.TEST_CLASS, UserParameters.class.getName());
+        processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("UserParametersGui"));
+        if (arguments != null && arguments.getArguments().size() > 0) {
+            List<String> names = new LinkedList<>();
+            List<Object> values = new LinkedList<>();
+            List<Object> threadValues = new LinkedList<>();
+            for (int i = 0; i < arguments.getArguments().size(); ++i) {
+                String argValue = arguments.getArgument(i).getValue();
+                String name = arguments.getArgument(i).getName();
+                names.add(name);
+                values.add(argValue);
+            }
+            processor.setNames(names);
+            threadValues.add(values);
+            processor.setThreadLists(threadValues);
         }
         return processor;
     }
