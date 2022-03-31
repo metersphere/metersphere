@@ -40,7 +40,7 @@
     </ms-drawer>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
+    <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap" :edit-case-request="true"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
@@ -132,8 +132,8 @@ export default {
         this.maintainerOptions = response.data;
       });
     },
-    close(){
-      if(this.$refs.testCaseDrawer){
+    close() {
+      if (this.$refs.testCaseDrawer) {
         this.$refs.testCaseDrawer.close();
       }
     },
@@ -142,7 +142,7 @@ export default {
       // testCaseId 不为空则为用例编辑页面
       this.testCaseId = testCaseId;
       this.condition = {components: API_CASE_CONFIGS};
-      this.getApiTest(true,true);
+      this.getApiTest(true, true);
       this.visible = true;
       this.$store.state.currentApiCase = undefined;
 
@@ -240,18 +240,18 @@ export default {
     refreshModule() {
       this.$emit('refreshModule');
     },
-    runRefresh() {
+    runRefresh(data) {
       this.batchLoadingIds = [];
       this.singleLoading = false;
       this.singleRunId = "";
-      // 批量更新最后执行环境
-      let obj = {envId: this.environment, show: true};
-      this.batchEdit(obj);
-      this.runResult = {testId: getUUID()};
-      this.$refs.apiCaseItem.runLoading = false;
-      this.$success(this.$t('organization.integration.successful_operation'));
-      this.$store.state.currentApiCase = {refresh: true};
-      this.getTestCase();
+      this.apiCaseList[0].active = true;
+      if (data) {
+        let status = data.error > 0 ? "error" : "success";
+        this.apiCaseList[0].execResult = status
+        this.runResult = data;
+        this.$refs.apiCaseItem.runLoading = false;
+        this.$store.state.currentApiCase = {refresh: true, id: data.id, status: status};
+      }
     },
     errorRefresh() {
       this.batchLoadingIds = [];
@@ -302,7 +302,7 @@ export default {
           let apiCase = response.data;
           if (apiCase) {
             this.formatCase(apiCase);
-            if(openCase){
+            if (openCase) {
               apiCase.active = true;
             }
             this.apiCaseList = [apiCase];
@@ -326,7 +326,7 @@ export default {
         });
       }
     },
-    getApiTest(addCase,openCase) {
+    getApiTest(addCase, openCase) {
       if (this.loaded) {
         this.getApiLoadCase();
       } else {
@@ -389,6 +389,7 @@ export default {
       row.request.name = row.id;
       row.request.useEnvironment = this.environment;
       row.request.projectId = this.projectId;
+      row.request.id = row.id;
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);

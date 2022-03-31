@@ -51,4 +51,7 @@ public class RunDefinitionRequest {
     private String environmentType;
     private String environmentJson;
     private String environmentGroupId;
+
+    private boolean syncResult;
+    private boolean editCaseRequest;
 }

@@ -8,7 +8,7 @@
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
                       :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
-                       :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                      :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
                 <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
@@ -193,7 +193,7 @@ export default {
     ShowMoreBtn,
     MsChangeHistory,
     "esbDefinition": esbDefinition.default,
-    "esbDefinitionResponse": esbDefinitionResponse.default ,
+    "esbDefinitionResponse": esbDefinitionResponse.default,
     ApiCaseHeader
   },
   data() {
@@ -314,7 +314,6 @@ export default {
       }
       data.message = true;
       data.request.useEnvironment = this.environment;
-      this.saveTestCase(data);
       this.$emit('singleRun', data);
     },
     stop(data) {
@@ -480,14 +479,13 @@ export default {
           this.addModule(row);
         } else {
           this.api.source = "editCase";
-          if (!this.isSave){
+          if (!this.isSave) {
             this.saveCase(row, hideAlert);
           }
         }
       }
     },
     showInput(row) {
-      // row.type = "create";
       this.isShowInput = true;
       row.active = true;
       this.active(row);
@@ -570,33 +568,12 @@ export default {
   min-width: 100px;
 }
 
-.ms-api-label {
-  color: #CCCCCC;
-}
-
-.ms-api-col {
-  background-color: #7C3985;
-  border-color: #7C3985;
-  margin-right: 10px;
-  color: white;
-}
-
 .is-selected {
   background: #EFF7FF;
 }
 
 .icon.is-active {
   transform: rotate(90deg);
-}
-
-.item-select {
-  margin-right: 10px;
-}
-
-.ms-opt-btn {
-  position: fixed;
-  left: 60px;
-  z-index: 1;
 }
 
 .api-el-tag {
@@ -622,5 +599,9 @@ export default {
   background-color: #E62424;
   border-color: #dd3636;
   color: white;
+}
+
+/deep/ .el-card__body {
+  padding: 5px 10px;
 }
 </style>
