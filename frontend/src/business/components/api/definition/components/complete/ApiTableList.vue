@@ -197,6 +197,10 @@ export default {
     } else {
       this.$emit('setSelectRow', new Set());
     }
+
+    if (this.$refs.apitable) {
+      this.$refs.apitable.doLayout();
+    }
   },
   computed: {
     getApiRequestTypeName() {
