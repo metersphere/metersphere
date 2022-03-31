@@ -165,6 +165,11 @@ public class ApiExecuteService {
         //检查TCP数据结构，等其他进行处理
         tcpApiParamService.checkTestElement(request.getTestElement());
 
+        String testId = request.getTestElement() != null &&
+                CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
+                CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
+                request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
+
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         if (LoggerUtil.getLogger().isDebugEnabled()) {
             LoggerUtil.debug("生成执行JMX内容【 " + request.getTestElement().getJmx(hashTree) + " 】");
@@ -175,10 +180,6 @@ public class ApiExecuteService {
             runMode = ApiRunMode.API_PLAN.name();
         }
 
-        String testId = request.getTestElement() != null &&
-                CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
-                CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
-                request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
         runRequest.setDebug(request.isDebug());
         // 开始执行
