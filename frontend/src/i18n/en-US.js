@@ -2138,6 +2138,7 @@ export default {
       plan_status_running: "Starting",
       plan_status_finished: "Finished",
       plan_status_completed: "Completed",
+      plan_status_archived: "Archived",
       plan_status_trash: "Trashed",
       planned_start_time: "Start Time",
       planned_end_time: "End Time",
