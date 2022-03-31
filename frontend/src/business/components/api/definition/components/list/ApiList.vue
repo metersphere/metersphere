@@ -632,6 +632,7 @@ export default {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
+            item.caseTotal = parseInt(item.caseTotal);
           });
           this.$emit('getTrashApi');
         });
