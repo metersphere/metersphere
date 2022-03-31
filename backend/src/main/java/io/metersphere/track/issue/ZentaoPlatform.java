@@ -413,8 +413,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     private String zentao2MsDescription(String ztDescription) {
-        StringBuilder resultStr = new StringBuilder();
-
         String imgRegex ="<img src.*?/>";
         Pattern pattern = Pattern.compile(imgRegex);
         Matcher matcher = pattern.matcher(ztDescription);
