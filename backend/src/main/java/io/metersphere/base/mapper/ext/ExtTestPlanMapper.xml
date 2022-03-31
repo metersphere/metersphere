@@ -111,19 +111,6 @@
         </if>
     </sql>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select DISTINCT test_plan.*, project.name as projectName,schedule.id as scheduleId,
@@ -164,6 +151,7 @@
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
+                                and test_plan.status != 'Archived'
                             </when>
                             <when test="key=='status'">
                                 <choose>
@@ -205,10 +193,17 @@
                                         schedule.id is null
                                     </if>
                                 </foreach>
+                                and test_plan.status != 'Archived'
                             </when>
                         </choose>
                     </if>
+                    <if test="(values == null or values.size() == 0) and request.filters.get('status') == null">
+                        and test_plan.status != 'Archived'
+                    </if>
                 </foreach>
+            </if>
+            <if test="request.filters == null or request.filters.size() == 0">
+                and test_plan.status != 'Archived'
             </if>
             <if test="request.byFilter == true">
                 and test_plan.status in
