@@ -97,7 +97,7 @@ public class ScheduleService {
         if (schedules.size() > 0) {
             return schedules;
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public int deleteByResourceId(String resourceId, String group) {
