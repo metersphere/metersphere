@@ -257,7 +257,10 @@
                 <if test="order.name == 'user_name'">
                     user_name ${order.type}
                 </if>
-                <if test="order.name != 'user_name'">
+                <if test="order.name == 'case_total'">
+                    CONVERT(api_definition.${order.name},SIGNED) ${order.type}
+                </if>
+                <if test="order.name != 'user_name' and order.name != 'case_total'">
                     api_definition.${order.name} ${order.type}
                 </if>
             </foreach>
