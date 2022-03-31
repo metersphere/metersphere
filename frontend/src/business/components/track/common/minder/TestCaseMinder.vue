@@ -75,7 +75,8 @@ name: "TestCaseMinder",
       saveModules: [],
       saveModuleNodeMap: new Map(),
       deleteNodes: [], // 包含测试模块、用例和临时节点
-      saveExtraNode: {}
+      saveExtraNode: {},
+      extraNodeChanged: [] // 记录转成用例或模块的临时节点
     }
   },
   props: {
@@ -215,6 +216,10 @@ name: "TestCaseMinder",
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         handleAfterSave(window.minder.getRoot());
+        this.extraNodeChanged.forEach(item => {
+          item.isExtraNode = false;
+        });
+        this.extraNodeChanged = [];
         this.$emit('refresh');
         this.setIsChange(false);
       });
@@ -285,6 +290,7 @@ name: "TestCaseMinder",
         // 如果是临时节点，打上了模块标签，则删除临时节点并新建模块
         this.pushDeleteNode(data);
         module.id = null;
+        this.extraNodeChanged.push(data);
       }
 
       if (data.type === 'case') {
@@ -410,6 +416,7 @@ name: "TestCaseMinder",
         // 如果是临时节点，打上了用例标签，则删除临时节点并新建用例节点
         this.pushDeleteNode(data);
         testCase.id = null;
+        this.extraNodeChanged.push(data);
       }
 
       if (isChange) {
