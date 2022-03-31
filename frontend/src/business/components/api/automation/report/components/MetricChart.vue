@@ -242,6 +242,9 @@ export default {
             radius: ['80%', '90%'],
             avoidLabelOverlap: false,
             hoverAnimation: false,
+            label: {
+              show: false,
+            },
             itemStyle: {
               borderColor: "#FFF",
               shadowColor: '#E1E1E1',
@@ -251,10 +254,10 @@ export default {
               show: false
             },
             data: [
-              {value: this.content.success},
-              {value: this.content.error},
-              {value: this.content.errorCode},
-              {value: this.content.unExecute},
+              {value: this.content.success, name:this.$t('api_report.success')},
+              {value: this.content.error, name:this.$t('api_report.fail')},
+              {value: this.content.errorCode, name:this.$t('error_report_library.option.name')},
+              {value: this.content.unExecute, name:this.$t('api_test.home_page.detail_card.unexecute')},
             ]
           }
         ]
