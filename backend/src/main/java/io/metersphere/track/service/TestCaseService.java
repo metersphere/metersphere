@@ -1976,18 +1976,12 @@ public class TestCaseService {
         if (CollectionUtils.isNotEmpty(caseIds)) {
             List<IssuesDao> issues = extIssuesMapper.getIssueForMinder(caseIds, refType);
             for (IssuesDao item : issues) {
-                String key;
-                if (item.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
-                    key = item.getRefId();
-                } else {
-                    key = item.getResourceId();
-                }
-                List<IssuesDao> list = issueMap.get(key);
+                List<IssuesDao> list = issueMap.get(item.getResourceId());
                 if (list == null) {
                     list = new ArrayList<>();
                 }
                 list.add(item);
-                issueMap.put(key, list);
+                issueMap.put(item.getResourceId(), list);
             }
         }
         return issueMap;
