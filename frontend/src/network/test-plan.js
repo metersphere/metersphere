@@ -2,7 +2,7 @@ import {post, get} from "@/common/js/ajax";
 import {success} from "@/common/js/message";
 import i18n from "@/i18n/i18n";
 import {baseGet, basePost} from "@/network/base-network";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export function getTestPlanReport(planId, callback) {
   if (planId) {
@@ -172,8 +172,8 @@ export function editTestPlanLoadCaseOrder(request, callback) {
 }
 
 export function getPlanStageOption(callback) {
-  let wId = getCurrentWorkspaceId();
-  return wId ? baseGet('/test/plan/get/stage/option/' + wId, callback) : {};
+  let projectID = getCurrentProjectID();
+  return projectID ? baseGet('/test/plan/get/stage/option/' + projectID, callback) : {};
 }
 
 
