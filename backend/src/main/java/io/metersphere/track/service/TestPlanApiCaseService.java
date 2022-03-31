@@ -29,6 +29,7 @@ import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.track.dto.TestPlanApiResultReportDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -128,7 +129,6 @@ public class TestPlanApiCaseService {
     }
 
     public int delete(String id) {
-        apiDefinitionExecResultService.deleteByResourceId(id);
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
                 .andIdEqualTo(id);
@@ -138,7 +138,6 @@ public class TestPlanApiCaseService {
 
     public int deleteByPlanId(String planId) {
         List<String> ids = extTestPlanApiCaseMapper.getIdsByPlanId(planId);
-        apiDefinitionExecResultService.deleteByResourceIds(ids);
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
                 .andTestPlanIdEqualTo(planId);
@@ -157,7 +156,6 @@ public class TestPlanApiCaseService {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
-        apiDefinitionExecResultService.deleteByResourceIds(deleteIds);
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
                 .andIdIn(deleteIds)
@@ -366,6 +364,19 @@ public class TestPlanApiCaseService {
         calculatePlanReport(report, planReportCaseDTOS);
     }
 
+    public void calculatePlanReportByApiCaseList(List<TestPlanFailureApiDTO> apiCaseList, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = new ArrayList<>();
+        for (TestPlanFailureApiDTO dto : apiCaseList) {
+            PlanReportCaseDTO reportCaseDTO = new PlanReportCaseDTO();
+            reportCaseDTO.setId(dto.getId());
+            reportCaseDTO.setCaseId(dto.getCaseId());
+            reportCaseDTO.setReportId(dto.getReportId());
+            reportCaseDTO.setStatus(dto.getExecResult());
+            planReportCaseDTOS.add(reportCaseDTO);
+        }
+        calculatePlanReport(report, planReportCaseDTOS);
+    }
+
     private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
@@ -422,9 +433,11 @@ public class TestPlanApiCaseService {
         String defaultStatus = "error";
         List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(testPlanApiCaseReportMap.keySet(), null);
         Map<String, String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(testPlanApiCaseReportMap.values());
+        Map<String, String> savedReportMap = new HashMap<>(testPlanApiCaseReportMap);
         for (TestPlanFailureApiDTO dto : apiTestCases) {
             String testPlanApiCaseId = dto.getId();
-            String reportId = testPlanApiCaseReportMap.get(testPlanApiCaseId);
+            String reportId = savedReportMap.get(testPlanApiCaseId);
+            savedReportMap.remove(testPlanApiCaseId);
             dto.setReportId(reportId);
             if (StringUtils.isEmpty(reportId)) {
                 dto.setExecResult(defaultStatus);
@@ -434,6 +447,27 @@ public class TestPlanApiCaseService {
                     status = defaultStatus;
                 }
                 dto.setExecResult(status);
+            }
+        }
+        if (!MapUtils.isEmpty(savedReportMap)) {
+            for (Map.Entry<String, String> entry : savedReportMap.entrySet()) {
+                String testPlanApiCaseId = entry.getKey();
+                String reportId = entry.getValue();
+                TestPlanFailureApiDTO dto = new TestPlanFailureApiDTO();
+                dto.setId(testPlanApiCaseId);
+                dto.setReportId(reportId);
+                dto.setName("DELETED");
+                dto.setNum(0);
+                if (StringUtils.isEmpty(reportId)) {
+                    dto.setExecResult(defaultStatus);
+                } else {
+                    String status = reportResult.get(reportId);
+                    if (status == null) {
+                        status = defaultStatus;
+                    }
+                    dto.setExecResult(status);
+                }
+                apiTestCases.add(dto);
             }
         }
         return buildCases(apiTestCases);
