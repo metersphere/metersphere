@@ -193,6 +193,9 @@ public class ApiScenarioImportUtil {
         object.put("resourceId", test.getId());
         object.put("projectId", projectId);
         object.put("useEnvironment","");
+        JSONObject objectNew = JSONObject.parseObject(object.toJSONString());
+        objectNew.remove("refType");
+        objectNew.remove("referenced");
         test.setRequest(object.toJSONString());
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
@@ -223,7 +226,10 @@ public class ApiScenarioImportUtil {
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
         object.put("useEnvironment","");
-        apiTestCase.setRequest(object.toJSONString());
+        JSONObject objectNew = JSONObject.parseObject(object.toJSONString());
+        objectNew.remove("refType");
+        objectNew.remove("referenced");
+        apiTestCase.setRequest(objectNew.toJSONString());
         apiTestCase.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
         apiTestCaseMapper.insert(apiTestCase);
     }
