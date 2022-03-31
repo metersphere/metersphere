@@ -2065,7 +2065,7 @@ public class TestPlanService {
         CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Caclulate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
         Date time0 = trigger.getStartTime();
         Date time1 = trigger.getFireTimeAfter(time0);
-        return time1.getTime();
+        return time1 == null ? 0 : time1.getTime();
     }
 
     public ScheduleDTO updateTestPlanBySchedule(ScheduleInfoRequest request) {
