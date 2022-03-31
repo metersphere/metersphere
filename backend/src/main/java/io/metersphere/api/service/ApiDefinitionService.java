@@ -1474,7 +1474,7 @@ public class ApiDefinitionService {
                     }
                 } else {
                     res.setCaseType("apiCase");
-                    res.setCaseTotal("-");
+                    res.setCaseTotal("0");
                     res.setCasePassingRate("-");
                     res.setCaseStatus("-");
                 }
