@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -180,7 +179,6 @@ public class ApiDefinitionController {
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
     public MsExecResponseDTO runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
-        request.setDebug(true);
         return apiDefinitionService.run(request, bodyFiles);
     }
 
