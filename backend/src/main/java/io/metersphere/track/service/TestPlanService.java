@@ -429,7 +429,7 @@ public class TestPlanService {
             request.setProjectId(request.getProjectId());
         }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
-        if(testPlans.size()==0){
+        if (testPlans.size() == 0) {
             return new ArrayList<>();
         }
         Set<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toSet());
@@ -443,7 +443,7 @@ public class TestPlanService {
         Map<String, ParamsDTO> stringParamsDTOMap = testPlanReportMapper.reportCount(ids);
 
         testPlans.forEach(item -> {
-            item.setExecutionTimes(stringParamsDTOMap.get(item.getId()) == null ? 0 : Integer.parseInt(stringParamsDTOMap.get(item.getId()).getValue() == null ?  "0" : stringParamsDTOMap.get(item.getId()).getValue()));
+            item.setExecutionTimes(stringParamsDTOMap.get(item.getId()) == null ? 0 : Integer.parseInt(stringParamsDTOMap.get(item.getId()).getValue() == null ? "0" : stringParamsDTOMap.get(item.getId()).getValue()));
             if (StringUtils.isNotBlank(item.getScheduleId())) {
                 if (item.isScheduleOpen()) {
                     item.setScheduleStatus(ScheduleStatus.OPEN.name());
@@ -456,10 +456,10 @@ public class TestPlanService {
             } else {
                 item.setScheduleStatus(ScheduleStatus.NOTSET.name());
             }
-            item.setTestPlanTestCaseCount(planTestCaseCountMap.get(item.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(item.getId()).getValue() == null ?  "0" : planTestCaseCountMap.get(item.getId()).getValue()));
-            item.setTestPlanApiCaseCount(planApiCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(item.getId()).getValue() == null ?  "0" : planApiCaseMap.get(item.getId()).getValue()));
-            item.setTestPlanApiScenarioCount(planApiScenarioMap.get(item.getId()) == null? 0 : Integer.parseInt(planApiScenarioMap.get(item.getId()).getValue() == null ?  "0" : planApiScenarioMap.get(item.getId()).getValue()));
-            item.setTestPlanLoadCaseCount(planLoadCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(item.getId()).getValue() == null ?  "0" : planLoadCaseMap.get(item.getId()).getValue()));
+            item.setTestPlanTestCaseCount(planTestCaseCountMap.get(item.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(item.getId()).getValue() == null ? "0" : planTestCaseCountMap.get(item.getId()).getValue()));
+            item.setTestPlanApiCaseCount(planApiCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(item.getId()).getValue() == null ? "0" : planApiCaseMap.get(item.getId()).getValue()));
+            item.setTestPlanApiScenarioCount(planApiScenarioMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiScenarioMap.get(item.getId()).getValue() == null ? "0" : planApiScenarioMap.get(item.getId()).getValue()));
+            item.setTestPlanLoadCaseCount(planLoadCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(item.getId()).getValue() == null ? "0" : planLoadCaseMap.get(item.getId()).getValue()));
         });
         calcTestPlanRate(testPlans);
         return testPlans;
@@ -1581,23 +1581,31 @@ public class TestPlanService {
     }
 
     public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, TestPlanExecuteReportDTO testPlanExecuteReportDTO) {
-        if (MapUtils.isEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap()) && MapUtils.isEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
+        if (MapUtils.isEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())
+                && MapUtils.isEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())
+                && CollectionUtils.isEmpty(testPlanExecuteReportDTO.getApiCaseInfoDTOList())
+                && CollectionUtils.isEmpty(testPlanExecuteReportDTO.getScenarioInfoDTOList())) {
             return;
         }
         if (checkReportConfig(config, "api")) {
             List<TestPlanFailureApiDTO> apiAllCases = null;
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
             if (checkReportConfig(config, "api", "all")) {
-                if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
-                    // 接口
+                // 接口
+                if(CollectionUtils.isNotEmpty(testPlanExecuteReportDTO.getApiCaseInfoDTOList())){
+                    apiAllCases = testPlanExecuteReportDTO.getApiCaseInfoDTOList();
+                }else if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
                     apiAllCases = testPlanApiCaseService.getByApiExecReportIds(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap());
-                    report.setApiAllCases(apiAllCases);
                 }
-                if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
-                    //场景
+                report.setApiAllCases(apiAllCases);
+
+                //场景
+                if(CollectionUtils.isNotEmpty(testPlanExecuteReportDTO.getScenarioInfoDTOList())){
+                    scenarioAllCases = testPlanExecuteReportDTO.getScenarioInfoDTOList();
+                }else if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
                     scenarioAllCases = testPlanScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap());
-                    report.setScenarioAllCases(scenarioAllCases);
                 }
+                report.setScenarioAllCases(scenarioAllCases);
             }
 
             //筛选符合配置需要的执行结果的用例和场景
@@ -1617,7 +1625,7 @@ public class TestPlanService {
                     failureScenarios.add(scenario);
                 } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.errorReportResult.name())) {
                     errorReportScenarios.add(scenario);
-                } else if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "stop","unexecute")) {
+                } else if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "stop", "unexecute")) {
                     unExecuteScenarios.add(scenario);
                 }
             }
@@ -1643,7 +1651,7 @@ public class TestPlanService {
                     apiFailureCases.add(apiDTO);
                 } else if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), ExecuteResult.errorReportResult.name())) {
                     apiErrorReportCases.add(apiDTO);
-                } else if (StringUtils.equalsAnyIgnoreCase(apiDTO.getExecResult(), "stop","unexecute")) {
+                } else if (StringUtils.equalsAnyIgnoreCase(apiDTO.getExecResult(), "stop", "unexecute")) {
                     apiUnExecuteCases.add(apiDTO);
                 }
             }
@@ -1817,12 +1825,18 @@ public class TestPlanService {
             testPlanScenarioCaseService.calculatePlanReport(planId, report);
             testPlanLoadCaseService.calculatePlanReport(planId, report);
         } else {
-            if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
+            if(CollectionUtils.isNotEmpty(testPlanExecuteReportDTO.getApiCaseInfoDTOList())){
+                testPlanApiCaseService.calculatePlanReportByApiCaseList(testPlanExecuteReportDTO.getApiCaseInfoDTOList(), report);
+            }else if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
                 testPlanApiCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap().values()), report);
             }
-            if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
+
+            if(CollectionUtils.isNotEmpty(testPlanExecuteReportDTO.getScenarioInfoDTOList())){
+                testPlanScenarioCaseService.calculatePlanReportByScenarioList(testPlanExecuteReportDTO.getScenarioInfoDTOList(), report);
+            }else if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
                 testPlanScenarioCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap().values()), report);
             }
+
             if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap())) {
                 testPlanLoadCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap().values()), report);
             }
