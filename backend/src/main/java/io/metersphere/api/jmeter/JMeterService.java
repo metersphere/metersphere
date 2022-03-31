@@ -19,6 +19,7 @@ import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -90,6 +91,14 @@ public class JMeterService {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addBackendListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
         }
+
+        if (MapUtils.isNotEmpty(request.getExtendedParameters())
+                && request.getExtendedParameters().containsKey("SYN_RES")
+                && (Boolean) request.getExtendedParameters().get("SYN_RES")) {
+            LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
+            addDebugListener(request.getReportId(), request.getHashTree());
+        }
+
         if (request.isDebug()) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
             addDebugListener(request.getReportId(), request.getHashTree());

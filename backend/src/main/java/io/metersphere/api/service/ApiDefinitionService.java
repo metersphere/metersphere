@@ -746,7 +746,7 @@ public class ApiDefinitionService {
         } else {
             apiDefinition.setUserId(apiDefinition.getUserId());
         }
-        if(apiDefinition.getModuleId()==null){
+        if (apiDefinition.getModuleId() == null) {
             if (StringUtils.isEmpty(apiDefinition.getModuleId()) || "default-module".equals(apiDefinition.getModuleId())) {
                 initModulePathAndId(apiDefinition.getProjectId(), apiDefinition);
             }
@@ -867,7 +867,7 @@ public class ApiDefinitionService {
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
-                if(sameRequest.get(0).getUserId()!=null){
+                if (sameRequest.get(0).getUserId() != null) {
                     apiDefinition.setUserId(sameRequest.get(0).getUserId());
                 }
                 batchMapper.insert(apiDefinition);
@@ -879,7 +879,7 @@ public class ApiDefinitionService {
                 apiDefinition.setNum(existApi.getNum()); //id 不变
                 apiDefinition.setRefId(existApi.getRefId());
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
-                if(existApi.getUserId()!=null){
+                if (existApi.getUserId() != null) {
                     apiDefinition.setUserId(existApi.getUserId());
                 }
                 // case 设置版本
@@ -1068,6 +1068,13 @@ public class ApiDefinitionService {
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
             apiDefinitionExecResultMapper.insert(result);
+        }
+        if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
+                CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree())) {
+            ApiTestCaseWithBLOBs record = new ApiTestCaseWithBLOBs();
+            record.setRequest(JSON.toJSONString(request.getTestElement().getHashTree().get(0).getHashTree().get(0)));
+            record.setId(request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName());
+            apiTestCaseMapper.updateByPrimaryKeySelective(record);
         }
         return apiExecuteService.debug(request, bodyFiles);
     }
@@ -1671,9 +1678,9 @@ public class ApiDefinitionService {
                 urlParams[urlParams.length - 1] = "";
             }
             for (ApiDefinition api : apiList) {
-                if(StringUtils.equalsAny(api.getPath(),baseUrlSuffix,"/"+baseUrlSuffix)){
+                if (StringUtils.equalsAny(api.getPath(), baseUrlSuffix, "/" + baseUrlSuffix)) {
                     apiIdList.add(api.getId());
-                }else {
+                } else {
                     String path = api.getPath();
                     if (StringUtils.isEmpty(path)) {
                         continue;
@@ -2032,7 +2039,7 @@ public class ApiDefinitionService {
 
     public ApiDefinition getApiDefinition(ApiDefinitionExample apiDefinitionExample) {
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        if(apiDefinitions==null||apiDefinitions.size()==0){
+        if (apiDefinitions == null || apiDefinitions.size() == 0) {
             return null;
         }
         return apiDefinitions.get(0);

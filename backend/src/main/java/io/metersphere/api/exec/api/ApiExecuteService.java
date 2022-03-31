@@ -170,18 +170,21 @@ public class ApiExecuteService {
                 CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                 request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
 
-        HashTree hashTree = request.getTestElement().generateHashTree(config);
-        if (LoggerUtil.getLogger().isDebugEnabled()) {
-            LoggerUtil.debug("生成执行JMX内容【 " + request.getTestElement().getJmx(hashTree) + " 】");
-        }
-
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
 
+        HashTree hashTree = request.getTestElement().generateHashTree(config);
+        if (LoggerUtil.getLogger().isDebugEnabled()) {
+            LoggerUtil.debug("生成执行JMX内容【 " + request.getTestElement().getJmx(hashTree) + " 】");
+        }
+
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
         runRequest.setDebug(request.isDebug());
+        runRequest.setExtendedParameters(new HashMap<String, Object>() {{
+            this.put("SYN_RES", request.isSyncResult());
+        }});
         // 开始执行
         jMeterService.run(runRequest);
         return new MsExecResponseDTO(runRequest.getTestId(), runRequest.getReportId(), runMode);
