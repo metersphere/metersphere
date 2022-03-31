@@ -160,7 +160,7 @@ public abstract class ZentaoClient extends BaseClient {
         return JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("bugs");
     }
 
-    protected String getBaseUrl() {
+    public String getBaseUrl() {
         if (ENDPOINT.endsWith("/")) {
             return ENDPOINT.substring(0, ENDPOINT.length() - 1);
         }

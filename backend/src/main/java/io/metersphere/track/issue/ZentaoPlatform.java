@@ -134,6 +134,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         return list;
     }
 
+    /**
+     * 更新缺陷数据
+     * @param issue 待更新缺陷数据
+     * @param bug 平台缺陷数据
+     * @return
+     */
     public IssuesWithBLOBs getUpdateIssues(IssuesWithBLOBs issue, JSONObject bug) {
         GetIssueResponse.Issue bugObj = JSONObject.parseObject(bug.toJSONString(), GetIssueResponse.Issue.class);
         String description = bugObj.getSteps();
@@ -155,11 +161,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             issuesMapper.updateByPrimaryKeySelective(issue);
         }
         issue.setTitle(bugObj.getTitle());
-
-        // 保留之前上传的图片
-        String images = getImages(issue.getDescription());
-        issue.setDescription(steps + "\n" + images);
-
+        issue.setDescription(steps);
         issue.setReporter(bugObj.getOpenedBy());
         issue.setPlatform(key);
         try {
@@ -411,9 +413,55 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     private String zentao2MsDescription(String ztDescription) {
-        // todo 图片回显
-        String imgRegex = "<img src.*?/>";
-        return ztDescription.replaceAll(imgRegex, "");
+        StringBuilder resultStr = new StringBuilder();
+
+        String imgRegex ="<img src.*?/>";
+        Pattern pattern = Pattern.compile(imgRegex);
+        Matcher matcher = pattern.matcher(ztDescription);
+        while (matcher.find()) {
+            if (StringUtils.isNotEmpty(matcher.group())) {
+                // img标签内容
+                String imgPath = matcher.group();
+                // 解析标签内容为图片超链接格式，进行替换，
+                String src = getMatcherResultForImg("src\\s*=\\s*\"?(.*?)(\"|>|\\s+)", imgPath);
+                String alt = getMatcherResultForImg("alt\\s*=\\s*\"?(.*?)(\"|>|\\s+)", imgPath);
+                String hyperLinkPath = packageDescriptionByPathAndName(src, alt);
+                imgPath = imgPath.replace("{", "\\{").replace("}", "\\}");
+                ztDescription = ztDescription.replaceAll(imgPath, hyperLinkPath);
+            }
+        }
+
+        return ztDescription;
+    }
+
+    private String packageDescriptionByPathAndName(String path, String name) {
+        String result = "";
+
+        if (StringUtils.isNotEmpty(path)) {
+            if (path.startsWith("{") && path.endsWith("}")) {
+                String srcContent = path.substring(1, path.length() - 1);
+                if (StringUtils.isEmpty(name)) {
+                    name = srcContent;
+                }
+                path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+            }
+            // 图片与描述信息之间需换行，否则无法预览图片
+            result = "\n\n![" + name + "](" + path + ")";
+        }
+
+        return result;
+    }
+
+    private String getMatcherResultForImg(String regex, String targetStr) {
+        String result = "";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(targetStr);
+        while (matcher.find()) {
+            result = matcher.group(1);
+        }
+
+        return result;
     }
 
     @Override
