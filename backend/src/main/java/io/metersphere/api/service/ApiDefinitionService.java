@@ -1105,6 +1105,13 @@ public class ApiDefinitionService {
             result.setTriggerMode(TriggerMode.MANUAL.name());
             apiDefinitionExecResultMapper.insert(result);
         }
+        if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
+                CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree())) {
+            ApiTestCaseWithBLOBs record = new ApiTestCaseWithBLOBs();
+            record.setRequest(JSON.toJSONString(request.getTestElement().getHashTree().get(0).getHashTree().get(0)));
+            record.setId(request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName());
+            apiTestCaseMapper.updateByPrimaryKeySelective(record);
+        }
         return apiExecuteService.debug(request, bodyFiles);
     }
 
