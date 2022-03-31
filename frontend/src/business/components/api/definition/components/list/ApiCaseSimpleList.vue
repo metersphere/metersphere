@@ -536,7 +536,7 @@ export default {
     },
     '$store.state.currentApiCase.refresh'() {
       if (this.$store.state.currentApiCase.refresh) {
-        this.initTable();
+        this.setStatus(this.$store.state.currentApiCase.id, this.$store.state.currentApiCase.status);
       }
       this.$store.state.currentApiCase = {};
     }
@@ -635,6 +635,14 @@ export default {
     },
     customHeader() {
       this.$refs.caseTable.openCustomHeader();
+    },
+    setStatus(id, status) {
+      this.tableData.forEach(item => {
+        if (id && id === item.id) {
+          item.status = status;
+          item.execResult = status;
+        }
+      });
     },
     initTable(id) {
       this.timeoutIndex = 0;
