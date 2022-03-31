@@ -110,3 +110,15 @@ INSERT INTO system_parameter
 SELECT 'smtp.from', param_value, type, sort
 FROM system_parameter
 WHERE param_key = 'smtp.account';
+
+DROP PROCEDURE IF EXISTS schema_change;
+DELIMITER //
+CREATE PROCEDURE schema_change() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'test_plan' AND index_name = 'project_id_index') THEN
+        ALTER TABLE `test_plan` ADD INDEX project_id_index ( `project_id` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change();
