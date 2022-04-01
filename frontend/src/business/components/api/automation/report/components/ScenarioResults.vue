@@ -50,7 +50,7 @@ export default {
   },
   computed: {
     isUi() {
-      return this.$route && this.$route.meta && this.$route.meta.isUi;
+      return this.report.reportType.startsWith("UI");
     },
   },
   methods: {
