@@ -39,6 +39,11 @@ import java.util.regex.Pattern;
 public class ZentaoPlatform extends AbstractIssuePlatform {
     protected final ZentaoClient zentaoClient;
 
+    protected final String[] imgArray = {
+        "bmp", "jpg", "png", "tif", "gif", "jpeg"
+    };
+
+
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         this.key = IssuesManagePlatform.Zentao.name();
@@ -441,7 +446,11 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 if (StringUtils.isEmpty(name)) {
                     name = srcContent;
                 }
-                path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+                if (Arrays.stream(imgArray).anyMatch(imgType -> StringUtils.equals(imgType, srcContent.substring(srcContent.indexOf('.') + 1)))) {
+                    path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+                } else {
+                    return result;
+                }
             }
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
