@@ -78,6 +78,7 @@
                       :refreshSign="refreshSign"
                       :createCase="createCase"
                       :currentApi="api"
+                      :save-button-text="loadCaseConfirmButton"
                       ref="caseList"/>
 
     <!-- 执行组件 -->
@@ -118,6 +119,7 @@ export default {
       createCase: "",
       currentRequest: {},
       refreshSign: "",
+      loadCaseConfirmButton:this.$t("commons.confirm"),
       responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
       reqOptions: REQ_METHOD,
       rules: {
