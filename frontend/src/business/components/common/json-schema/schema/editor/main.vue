@@ -3,7 +3,7 @@
     <el-row class="row" :gutter="20">
       <el-col :span="8" class="ms-col-name">
         <div :style="{marginLeft:`${10*deep}px`}" class="ms-col-name-c"/>
-        <span v-if="pickValue.type==='object'" :class="hidden? 'el-icon-caret-left ms-transform':
+        <span v-if="pickValue.type==='object'" :class="hidden ? 'el-icon-caret-left ms-transform':
             'el-icon-caret-bottom'" @click="hidden = !hidden"/>
         <span v-else style="width:10px;display:inline-block"></span>
         <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
@@ -171,7 +171,7 @@ export default {
     advanced() {
       return TYPE[this.pickValue.type]
     },
-    types(){
+    types() {
       return TYPES(this.pickKey);
     },
     advancedAttr() {
@@ -203,6 +203,11 @@ export default {
       addProp: {},// 自定义属性
       customProps: [],
       customing: false
+    }
+  },
+  created() {
+    if (this.pickValue) {
+      this.hidden = this.pickValue.hidden;
     }
   },
   methods: {
