@@ -59,6 +59,7 @@ public class ApiExecutionQueueService {
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
 
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
