@@ -40,7 +40,6 @@
           prop="principalName"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
           :label="$t('test_track.plan.plan_principal')"
           min-width="200px">
         </ms-table-column>
