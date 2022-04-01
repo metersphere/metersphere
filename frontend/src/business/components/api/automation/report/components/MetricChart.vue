@@ -273,7 +273,7 @@ export default {
       return this.content.errorCode + " / " + this.content.totalAssertions;
     },
     isUi() {
-      return this.$route && this.$route.meta && this.$route.meta.isUi;
+      return this.report.reportType.startsWith("UI");
     },
   },
 }
