@@ -75,7 +75,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
                 bodyType = Body.FORM_DATA;
                 break;
             case "application/json":
-                bodyType = Body.JSON;
+                bodyType = Body.JSON_STR;
                 break;
             case "application/xml":
                 bodyType = Body.XML;
@@ -96,7 +96,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
                 case Body.WWW_FROM:
                     contentType = "application/x-www-form-urlencoded";
                     break;
-                case Body.JSON:
+                case Body.JSON_STR:
                     contentType = "application/json";
                     break;
                 case Body.XML:

@@ -723,7 +723,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                     if (CollectionUtils.isNotEmpty(headers)) {
                         for (KeyValue header : headers) {
                             if (StringUtils.equals(header.getName(), "Content-Type") && StringUtils.equals(header.getValue(), "application/json")) {
-                                samplerProxy.getBody().setType(Body.JSON);
+                                samplerProxy.getBody().setType(Body.JSON_STR);
                                 jsonType = true;
                                 break;
                             }
