@@ -25,7 +25,7 @@
         </el-button>
 
         <el-popover
-          v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi"
+          v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
           v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
           style="margin-right: 10px;float: right;"
           placement="bottom"
@@ -95,7 +95,7 @@ export default {
       }
     },
     isUi() {
-      return this.$route && this.$route.meta && this.$route.meta.isUi;
+      return this.report.reportType.startsWith("UI");
     },
   },
   data() {

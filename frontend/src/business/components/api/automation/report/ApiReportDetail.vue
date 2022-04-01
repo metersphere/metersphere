@@ -482,14 +482,14 @@ export default {
     },
     handleExport() {
       if (this.report.reportVersion && this.report.reportVersion > 1) {
-        if (this.report.reportType === 'API_INTEGRATED') {
+        if (this.report.reportType === 'API_INTEGRATED' || this.report.reportType === 'UI_INTEGRATED') {
           let scenario = {name: "", requestResults: []};
           this.content.scenarios = [scenario];
           this.formatExportApi(this.fullTreeNodes, scenario);
         } else {
           if (this.fullTreeNodes) {
             this.fullTreeNodes.forEach(item => {
-              if (item.type === "scenario") {
+              if (item.type === "scenario" || item.type === "UiScenario") {
                 let scenario = {name: item.label, requestResults: []};
                 if (this.content.scenarios && this.content.scenarios.length > 0) {
                   this.content.scenarios.push(scenario);
@@ -543,6 +543,9 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+    isUi() {
+      return this.report.reportType.startsWith("UI");
     },
   }
 }
