@@ -6,6 +6,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.notice.annotation.SendNotice;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -22,10 +23,9 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue;
@@ -38,7 +38,7 @@ public class SendNoticeAspect {
 
     private ExpressionParser parser = new SpelExpressionParser();
     private LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
-
+    private ThreadLocal<String> source = new ThreadLocal<>();
 
     @Pointcut("@annotation(io.metersphere.notice.annotation.SendNotice)")
     public void pointcut() {
@@ -55,10 +55,6 @@ public class SendNoticeAspect {
             Object[] args = joinPoint.getArgs();
             SendNotice sendNotice = method.getAnnotation(SendNotice.class);
 
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(sendNotice);
-            Field value = invocationHandler.getClass().getDeclaredField("memberValues");
-            value.setAccessible(true);
-
             if (StringUtils.isNotEmpty(sendNotice.target())) {
                 // 操作内容
                 //获取方法参数名
@@ -73,8 +69,7 @@ public class SendNoticeAspect {
                 String target = sendNotice.target();
                 Expression titleExp = parser.parseExpression(target);
                 Object v = titleExp.getValue(context, Object.class);
-                Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
-                memberValues.put("source", JSON.toJSONString(v, WriteMapNullValue));
+                source.set(JSON.toJSONString(v, WriteMapNullValue));
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -95,9 +90,6 @@ public class SendNoticeAspect {
             //获取操作
             SendNotice sendNotice = method.getAnnotation(SendNotice.class);
             // 再次从数据库查询一次内容，方便获取最新参数
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(sendNotice);
-            Field value = invocationHandler.getClass().getDeclaredField("memberValues");
-            value.setAccessible(true);
 
             if (StringUtils.isNotEmpty(sendNotice.target())) {
                 //将参数纳入Spring管理
@@ -113,20 +105,35 @@ public class SendNoticeAspect {
                 // 查询结果如果是null或者是{}，不使用这个值
                 String jsonObject = JSON.toJSONString(v);
                 if (v != null && !StringUtils.equals("{}", jsonObject) && !StringUtils.equals("[]", jsonObject)) {
-                    Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
-                    memberValues.put("source", JSON.toJSONString(v, WriteMapNullValue));
+                    source.set(JSON.toJSONString(v, WriteMapNullValue));
                 }
             }
 
-            EvaluationContext context = new StandardEvaluationContext();
-            for (int len = 0; len < params.length; len++) {
-                context.setVariable(params[len], args[len]);
+            //
+            List<Map> resources = new ArrayList<>();
+            String v = source.get();
+            if (StringUtils.isNotBlank(v)) {
+                // array
+                if (StringUtils.startsWith(v, "[")) {
+                    resources.addAll(JSON.parseArray(v, Map.class));
+                }
+                // map
+                else {
+                    Map<?, ?> value = JSON.parseObject(v, Map.class);
+                    resources.add(value);
+                }
+            } else {
+                resources.add(new BeanMap(retValue));
             }
+
+
             SessionUser sessionUser = SessionUtils.getUser();
             String currentProjectId = SessionUtils.getCurrentProjectId();
-            afterReturningNoticeSendService.sendNotice(sendNotice, retValue, sessionUser, currentProjectId);
+            afterReturningNoticeSendService.sendNotice(sendNotice, resources, sessionUser, currentProjectId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
+        } finally {
+            source.remove();
         }
     }
 }
