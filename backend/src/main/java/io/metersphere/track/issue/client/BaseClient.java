@@ -45,6 +45,7 @@ public abstract class BaseClient {
         String authKey = EncryptUtils.base64Encoding(userName + ":" + passWd);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + authKey);
+        headers.add("Accept", "application/json");
         return headers;
     }
 

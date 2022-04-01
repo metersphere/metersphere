@@ -25,6 +25,7 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -32,10 +33,13 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
+import java.net.URLDecoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class JiraPlatform extends AbstractIssuePlatform {
@@ -71,14 +75,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         JSONObject fields = jiraIssue.getFields();
         String status = getStatus(fields);
-        String description = fields.getString("description");
 
-        Parser parser = Parser.builder().build();
-        if (StringUtils.isNotBlank(description)) {
-            Node document = parser.parse(description);
-            HtmlRenderer renderer = HtmlRenderer.builder().build();
-            description = renderer.render(document);
-        }
+        String description = dealWithDescription(fields.getString("description"), fields.getJSONArray("attachment"));
 
         JSONObject assignee = (JSONObject) fields.get("assignee");
         issue.setTitle(fields.getString("summary"));
@@ -90,6 +88,49 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issue.setPlatform(key);
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), jiraIssue.getFields()));
         return issue;
+    }
+
+    private String dealWithDescription(String description, JSONArray attachments) {
+        if (StringUtils.isBlank(description)) {
+            return description;
+        }
+
+        // 附件处理
+        Map<String, String> fileContentMap = new HashMap<>();
+        for (int i = 0; i < attachments.size(); i++) {
+            JSONObject attachment = attachments.getJSONObject(i);
+            String filename = attachment.getString("filename");
+            String content = attachment.getString("content");
+            if (StringUtils.equals(attachment.getString("mimeType"), "image/jpeg")) {
+                String contentUrl = "![" + filename + "](" + content + ")";
+                fileContentMap.put(filename, contentUrl);
+            } else {
+                String contentUrl = "附件[" + filename + "]下载地址:" + content;
+                fileContentMap.put(filename, contentUrl);
+            }
+        }
+
+        String[] splitStrs = description.split("\\n\\n");
+        for (int j = 0; j < splitStrs.length; j++) {
+            String splitStr = splitStrs[j];
+            if (StringUtils.isNotEmpty(splitStr)) {
+                List<String> keys = fileContentMap.keySet().stream().filter(key -> splitStr.contains(key)).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(keys)) {
+                    description = description.replace(splitStr, fileContentMap.get(keys.get(0)));
+                } else {
+                    if (splitStr.contains("MS附件：")) {
+                        // 解析标签内容
+                        String name = getHyperLinkPathForImg("\\!\\[(.*?)\\]", StringEscapeUtils.unescapeJava(splitStr));
+                        String path = getHyperLinkPathForImg("\\|(.*?)\\)", splitStr);
+                        // 解析标签内容为图片超链接格式，进行替换
+                        description = description.replace(splitStr, "\n\n![" + name + "](" + path + ")");
+                    }
+                    description = description.replace(splitStr, StringEscapeUtils.unescapeJava(splitStr.replace("MS附件：", "")));
+                }
+            }
+        }
+
+        return description;
     }
 
     private String getStatus(JSONObject fields) {
@@ -151,6 +192,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
+        // 上传附件
         imageFiles.forEach(img -> jiraClientV2.uploadAttachment(result.getKey(), img));
 
         String status = getStatus(issues.getFields());
@@ -241,13 +283,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     private JSONObject buildUpdateParam(IssuesUpdateRequest issuesRequest, String issuetypeStr, String jiraKey) {
-
         issuesRequest.setPlatform(key);
         JSONObject fields = new JSONObject();
         JSONObject project = new JSONObject();
 
         String desc = issuesRequest.getDescription();
-        desc = removeImage(desc);
+        // 附件描述信息处理
+        desc = dealWithImage(issuesRequest.getDescription());
 
         fields.put("project", project);
         project.put("key", jiraKey);
@@ -270,6 +312,42 @@ public class JiraPlatform extends AbstractIssuePlatform {
         setSpecialParam(fields);
 
         return addJiraIssueParam;
+    }
+
+    private String dealWithImage(String description) {
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        Matcher matcher = Pattern.compile(regex).matcher(description);
+
+        try {
+            while (matcher.find()) {
+                if (StringUtils.isNotEmpty(matcher.group())) {
+                    // img标签内容
+                    String imgPath = matcher.group();
+                    // 解析标签内容为图片超链接格式，进行替换
+                    description = description.replace(imgPath, "\nMS附件：" + imgPath);
+                }
+            }
+        } catch (Exception exception) {
+        }
+
+        return description;
+    }
+
+    private String getHyperLinkPathForImg(String regex, String targetStr) {
+        String result = "";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(targetStr);
+
+        try {
+            while (matcher.find()) {
+                String url = matcher.group(1);
+                result = URLDecoder.decode(url, "UTF-8");
+            }
+        } catch (Exception exception) {
+            return targetStr;
+        }
+
+        return result;
     }
 
     private void parseCustomFiled(IssuesUpdateRequest issuesRequest, JSONObject fields) {
@@ -342,9 +420,31 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         setUserConfig();
         Project project = getProject();
+        List<File> imageFiles = getImageFiles(request);
+
         JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
-        handleIssueUpdate(request);
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
+
+        // 更新附件
+        JiraIssue jiraIssue = jiraClientV2.getIssues(request.getPlatformId());
+        JSONObject fields = jiraIssue.getFields();
+        JSONArray attachments = fields.getJSONArray("attachment");
+        if (!attachments.isEmpty() && attachments.size() > 0) {
+            // 删除旧附件，若缺陷描述中存在则不删除
+            for (int i = 0; i < attachments.size(); i++) {
+                JSONObject attachment = attachments.getJSONObject(i);
+                String filename = attachment.getString("filename");
+                if (!request.getDescription().contains(filename)) {
+                    String fileId = attachment.getString("id");
+                    jiraClientV2.deleteAttachment(fileId);
+                }
+            }
+        }
+
+        // 上传新附件
+        imageFiles.forEach(img -> jiraClientV2.uploadAttachment(request.getPlatformId(), img));
+
+        handleIssueUpdate(request);
     }
 
     @Override
@@ -381,13 +481,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         issues.forEach(item -> {
             try {
-                IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
                 getUpdateIssue(item, jiraClientV2.getIssues(item.getPlatformId()));
-                String desc = htmlDesc2MsDesc(item.getDescription());
-                // 保留之前上传的图片
-                String images = getImages(issuesWithBLOBs.getDescription());
-                item.setDescription(desc + "\n" + images);
-
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
