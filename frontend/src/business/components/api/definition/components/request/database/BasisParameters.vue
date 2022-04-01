@@ -108,252 +108,263 @@
 </template>
 
 <script>
-  import MsApiKeyValue from "../../ApiKeyValue";
-  import MsApiAssertions from "../../assertion/ApiAssertions";
-  import MsApiExtract from "../../extract/ApiExtract";
-  import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
-  import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
-  import MsApiScenarioVariables from "../../ApiScenarioVariables";
-  import {createComponent} from "../../jmeter/components";
-  import {Assertions, Extract} from "../../../model/ApiTestModel";
-  import {parseEnvironment} from "../../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-  import {getCurrentProjectID} from "@/common/js/utils";
-  import {getUUID} from "@/common/js/utils";
-  import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
-  import MsJmxStep from "../../step/JmxStep";
-  import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import MsApiKeyValue from "../../ApiKeyValue";
+import MsApiAssertions from "../../assertion/ApiAssertions";
+import MsApiExtract from "../../extract/ApiExtract";
+import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
+import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
+import MsApiScenarioVariables from "../../ApiScenarioVariables";
+import {createComponent} from "../../jmeter/components";
+import {Assertions, Extract} from "../../../model/ApiTestModel";
+import {parseEnvironment} from "../../../model/EnvironmentModel";
+import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
+import {getCurrentProjectID} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
+import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
+import MsJmxStep from "../../step/JmxStep";
+import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
 
 
-  export default {
-    name: "MsDatabaseConfig",
-    components: {
-      MsJsr233Processor,
-      MsApiScenarioVariables,
-      MsCodeEdit,
-      ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig,
-      MsJmxStep
+export default {
+  name: "MsDatabaseConfig",
+  components: {
+    MsJsr233Processor,
+    MsApiScenarioVariables,
+    MsCodeEdit,
+    ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig,
+    MsJmxStep
+  },
+  props: {
+    request: {},
+    basisData: {},
+    response: {},
+    moduleOptions: Array,
+    showScript: {
+      type: Boolean,
+      default: true,
     },
-    props: {
-      request: {},
-      basisData: {},
-      response: {},
-      moduleOptions: Array,
-      showScript: {
-        type: Boolean,
-        default: true,
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
+    isReadOnly: {
+      type: Boolean,
+      default: false
     },
-    data() {
-      return {
-        spanNum: 24,
-        environments: [],
-        isBodyShow: true,
-        currentEnvironment: {},
-        databaseConfigsOptions: [],
-        isReloadData: false,
-        activeName: "variables",
-        rules: {},
-      }
-    },
-    watch: {
-      'request.dataSourceId'() {
-        this.setDataSource();
-      },
-      'request.hashTree': {
-        handler(v) {
-          this.initStepSize(this.request.hashTree);
-        },
-        deep: true
-      }
-    },
-    created() {
-      this.getEnvironments();
-      if (this.request.hashTree) {
+  },
+  data() {
+    return {
+      spanNum: 24,
+      environments: [],
+      isBodyShow: true,
+      currentEnvironment: {},
+      databaseConfigsOptions: [],
+      isReloadData: false,
+      activeName: "variables",
+      rules: {},
+    }
+  },
+  watch: {
+    'request.hashTree': {
+      handler(v) {
         this.initStepSize(this.request.hashTree);
-        this.historicalDataProcessing(this.request.hashTree);
-      }
+      },
+      deep: true
     },
-    computed: {
-      projectId() {
-        return getCurrentProjectID();
-      },
-    },
-    methods: {
-      tabClick() {
-        if (this.activeName === 'preOperate') {
-          this.$refs.preStep.filter();
-        }
-        if (this.activeName === 'postOperate') {
-          this.$refs.postStep.filter();
-        }
-        if (this.activeName === 'assertionsRule') {
-          this.$refs.assertionsRule.filter();
-        }
-      },
-      historicalDataProcessing(array) {
-        hisDataProcessing(array, this.request);
-      },
-      initStepSize(array) {
-        stepCompute(array, this.request);
-        this.reloadBody();
-      },
-      reloadBody() {
-        // 解决修改请求头后 body 显示错位
-        this.isBodyShow = false;
-        this.$nextTick(() => {
-          this.isBodyShow = true;
-        });
-      },
-      remove(row) {
-        let index = this.request.hashTree.indexOf(row);
-        this.request.hashTree.splice(index, 1);
-        this.reload();
-      },
-      copyRow(row) {
-        let obj = JSON.parse(JSON.stringify(row));
-        obj.id = getUUID();
-        this.request.hashTree.push(obj);
-        this.reload();
-      },
-      reload() {
-        this.isReloadData = true
-        this.$nextTick(() => {
-          this.isReloadData = false
-        })
-      },
-      validate() {
-        this.$refs['request'].validate((valid) => {
-          if (valid) {
-            this.$emit('callback');
-          }
-        })
-      },
-      saveApi() {
-        this.basisData.method = this.basisData.protocol;
-        this.$emit('saveApi', this.basisData);
-      },
-      runTest() {
-
-      },
-      getEnvironments() {
-        this.environments = [];
-        let id = this.request.projectId ? this.request.projectId : this.projectId;
-        this.$get('/api/environment/list/' + id, response => {
-          this.environments = response.data;
-          this.environments.forEach(environment => {
-            parseEnvironment(environment);
-          });
-          if (!this.request.environmentId) {
-            this.request.environmentId = this.$store.state.useEnvironment;
-          }
-          let hasEnvironment = false;
-          for (let i in this.environments) {
-            if (this.environments[i].id === this.request.environmentId) {
-              hasEnvironment = true;
-              break;
-            }
-          }
-          if (!hasEnvironment) {
-            this.request.environmentId = undefined;
-          }
-          if (!this.request.environmentId) {
-            this.request.dataSourceId = undefined;
-          }
-          this.initDataSource();
-        });
-      },
-      openEnvironmentConfig() {
-        this.$refs.environmentConfig.open(getCurrentProjectID());
-      },
-      initDataSource() {
-        let flag = false;
-        for (let i in this.environments) {
-          if (this.environments[i].id === this.request.environmentId) {
-            this.databaseConfigsOptions = [];
-            this.environments[i].config.databaseConfigs.forEach(item => {
-              if (item.id === this.request.dataSourceId) {
-                flag = true;
-              }
-              this.databaseConfigsOptions.push(item);
-            });
-            break;
-          }
-        }
-        if (!flag) {
-          this.request.dataSourceId = "";
-        }
-      },
-      setDataSource() {
-        this.initDataSource();
-
-        for (let item of this.databaseConfigsOptions) {
-          if (this.request.dataSourceId === item.id) {
-            this.request.dataSource = item;
-            break;
-          }
-        }
-      },
-      environmentChange(value) {
-        this.request.dataSource = undefined;
-        this.request.dataSourceId = "";
-        for (let i in this.environments) {
-          if (this.environments[i].id === value) {
-            this.databaseConfigsOptions = [];
-            this.environments[i].config.databaseConfigs.forEach(item => {
-              this.databaseConfigsOptions.push(item);
-            })
-            break;
-          }
-        }
-      },
-      environmentConfigClose() {
+    '$store.state.scenarioEnvMap': {
+      handler(v) {
         this.getEnvironments();
       },
+      deep: true
     }
+  },
+  created() {
+    this.getEnvironments();
+    if (this.request.hashTree) {
+      this.initStepSize(this.request.hashTree);
+      this.historicalDataProcessing(this.request.hashTree);
+    }
+  },
+  computed: {
+    projectId() {
+      return getCurrentProjectID();
+    },
+  },
+  methods: {
+    tabClick() {
+      if (this.activeName === 'preOperate') {
+        this.$refs.preStep.filter();
+      }
+      if (this.activeName === 'postOperate') {
+        this.$refs.postStep.filter();
+      }
+      if (this.activeName === 'assertionsRule') {
+        this.$refs.assertionsRule.filter();
+      }
+    },
+    historicalDataProcessing(array) {
+      hisDataProcessing(array, this.request);
+    },
+    initStepSize(array) {
+      stepCompute(array, this.request);
+      this.reloadBody();
+    },
+    reloadBody() {
+      // 解决修改请求头后 body 显示错位
+      this.isBodyShow = false;
+      this.$nextTick(() => {
+        this.isBodyShow = true;
+      });
+    },
+    remove(row) {
+      let index = this.request.hashTree.indexOf(row);
+      this.request.hashTree.splice(index, 1);
+      this.reload();
+    },
+    copyRow(row) {
+      let obj = JSON.parse(JSON.stringify(row));
+      obj.id = getUUID();
+      this.request.hashTree.push(obj);
+      this.reload();
+    },
+    reload() {
+      this.isReloadData = true
+      this.$nextTick(() => {
+        this.isReloadData = false
+      })
+    },
+    validate() {
+      this.$refs['request'].validate((valid) => {
+        if (valid) {
+          this.$emit('callback');
+        }
+      })
+    },
+    saveApi() {
+      this.basisData.method = this.basisData.protocol;
+      this.$emit('saveApi', this.basisData);
+    },
+    runTest() {
 
+    },
+    getEnvironments() {
+      this.environments = [];
+      let id = this.request.projectId ? this.request.projectId : this.projectId;
+      this.$get('/api/environment/list/' + id, response => {
+        this.environments = response.data;
+        this.environments.forEach(environment => {
+          parseEnvironment(environment);
+        });
+        let hasEnvironment = false;
+        for (let i in this.environments) {
+          if (this.environments[i].id === this.request.environmentId) {
+            if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map) {
+              if (this.$store.state.scenarioEnvMap.has(this.projectId) &&
+                this.$store.state.scenarioEnvMap.get(this.projectId) === this.request.environmentId) {
+                hasEnvironment = true;
+              }
+            } else {
+              hasEnvironment = true;
+            }
+            break;
+          }
+        }
+        if (!hasEnvironment) {
+          if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+            && this.$store.state.scenarioEnvMap.has(this.projectId)) {
+            this.request.environmentId = this.$store.state.scenarioEnvMap.get(this.projectId);
+          }
+        }
+        if (!this.request.environmentId) {
+          this.request.dataSourceId = undefined;
+        }
+        this.initDataSource();
+      });
+    },
+    openEnvironmentConfig() {
+      this.$refs.environmentConfig.open(getCurrentProjectID());
+    },
+    initDataSource() {
+      let flag = false;
+      let environment = {};
+      for (let i in this.environments) {
+        if (this.environments[i].id === this.request.environmentId) {
+          environment = this.environments[i];
+          break;
+        }
+      }
+
+      this.databaseConfigsOptions = [];
+      if (environment.config && environment.config.databaseConfigs) {
+        environment.config.databaseConfigs.forEach(item => {
+          if (item.id === this.request.dataSourceId) {
+            flag = true;
+          }
+          this.databaseConfigsOptions.push(item);
+        });
+        if (!flag && environment.config.databaseConfigs.length > 0) {
+          this.request.dataSourceId = environment.config.databaseConfigs[0].id;
+          flag = true;
+        }
+      }
+      if (!flag) {
+        this.request.dataSourceId = "";
+      }
+    },
+    setDataSource() {
+      this.initDataSource();
+
+      for (let item of this.databaseConfigsOptions) {
+        if (this.request.dataSourceId === item.id) {
+          this.request.dataSource = item;
+          break;
+        }
+      }
+    },
+    environmentChange(value) {
+      this.request.dataSource = undefined;
+      this.request.dataSourceId = "";
+      for (let i in this.environments) {
+        if (this.environments[i].id === value) {
+          this.databaseConfigsOptions = [];
+          this.environments[i].config.databaseConfigs.forEach(item => {
+            this.databaseConfigsOptions.push(item);
+          })
+          break;
+        }
+      }
+    },
+    environmentConfigClose() {
+      this.getEnvironments();
+    },
   }
+
+}
 </script>
 
 <style scoped>
-  .sql-content {
-    height: calc(100vh - 570px);
-  }
+.sql-content {
+  height: calc(100vh - 570px);
+}
 
-  .one-row .el-form-item {
-    display: inline-block;
-  }
+.one-row .el-form-item {
+  display: inline-block;
+}
 
-  .one-row .el-form-item:nth-child(2) {
-    margin-left: 60px;
-  }
+.one-row .el-form-item:nth-child(2) {
+  margin-left: 60px;
+}
 
-  .ms-left-cell {
-    margin-top: 40px;
-  }
+.ms-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  font-size: xx-small;
+  border-radius: 50%;
+}
 
-  .ms-header {
-    background: #783887;
-    color: white;
-    height: 18px;
-    font-size: xx-small;
-    border-radius: 50%;
-  }
+.environment-button {
+  margin-left: 20px;
+  padding: 7px;
+}
 
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
-  }
-
-  .ms-left-buttion {
-    margin: 6px 0px 8px 30px;
-  }
-
-  /deep/ .el-form-item {
-    margin-bottom: 15px;
-  }
+/deep/ .el-form-item {
+  margin-bottom: 15px;
+}
 </style>
