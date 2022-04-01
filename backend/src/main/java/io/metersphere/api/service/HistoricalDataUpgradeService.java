@@ -131,7 +131,7 @@ public class HistoricalDataUpgradeService {
                     }
                     if ("json".equals(request1.getBody().getFormat())) {
                         if ("Raw".equals(request1.getBody().getType())) {
-                            request1.getBody().setType(Body.JSON);
+                            request1.getBody().setType(Body.JSON_STR);
                             if (CollectionUtils.isEmpty(request1.getHeaders())) {
                                 List<KeyValue> headers = new LinkedList<>();
                                 headers.add(new KeyValue("Content-Type", "application/json"));
