@@ -28,13 +28,6 @@ public @interface MsAuditLog {
     String project() default "";
 
     /**
-     * 操作人
-     *
-     * @return
-     */
-    String operUser() default "";
-
-    /**
      * 操作类型
      *
      * @return
@@ -65,12 +58,6 @@ public @interface MsAuditLog {
      * @return
      */
     String beforeEvent() default "";
-
-    /**
-     *
-     * @return
-     */
-    String beforeValue() default "";
 
     /**
      * 传入执行类
