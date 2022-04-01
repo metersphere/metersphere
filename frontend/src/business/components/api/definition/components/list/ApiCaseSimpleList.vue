@@ -807,6 +807,8 @@ export default {
         }
         selectApi.url = request.path;
         this.$refs.caseList.runTestCase(selectApi, testCase.id);
+        let obj = {id:testCase.id};
+        this.$post('/api/testcase/updateExecuteInfo', obj);
       });
     },
     handleTestCase(testCase) {
