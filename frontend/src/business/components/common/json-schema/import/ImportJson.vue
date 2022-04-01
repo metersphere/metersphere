@@ -94,7 +94,6 @@
             return;
           }
           let jsonData = MsConvert.format(json5.parse(this.json));
-          //let jsonData = GenerateSchema(json5.parse(this.json));
           this.$emit('jsonData', jsonData);
         } else {
           if (!this.checkIsJsonSchema(this.jsonSchema)) {
