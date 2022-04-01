@@ -270,31 +270,15 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
-    this.getEnvironments(this.environmentGroupId);
   },
   watch: {
-    envMap(val) {
-      this.getEnvironments();
-      this.environmentMap = val;
-    },
     message() {
       this.forStatus();
       this.reload();
     },
-    environmentGroupId(val) {
-      this.getEnvironments(val);
-    },
-    environmentType(val) {
-      this.envType = val;
-    },
     '$store.state.currentApiCase.debugLoop'() {
       this.forStatus();
       this.reload();
-    },
-    '$store.state.currentApiCase.resetDataSource'() {
-      if (this.request.id && this.request.referenced !== 'REF') {
-        this.initDataSource();
-      }
     },
   },
   computed: {
@@ -391,50 +375,7 @@ export default {
         this.response = this.request.requestResult[0];
       }
     },
-    initDataSource() {
-      let databaseConfigsOptions = [];
-      if (this.request.protocol === 'SQL' || this.request.type === 'JDBCSampler') {
-        if (this.environment && this.environment.config) {
-          let config = JSON.parse(this.environment.config);
-          if (config && config.databaseConfigs) {
-            config.databaseConfigs.forEach(item => {
-              databaseConfigsOptions.push(item);
-            });
-          }
-        }
-      }
-      if (databaseConfigsOptions.length > 0 && this.request.environmentId !== this.environment.id) {
-        this.request.dataSourceId = databaseConfigsOptions[0].id;
-        this.request.environmentId = this.environment.id;
-      }
-    },
-    getEnvironments(groupId) {
-      this.environment = {};
-      let id = undefined;
-      if (groupId) {
-        this.$get("/environment/group/project/map/" + groupId, res => {
-          let data = res.data;
-          if (data) {
-            this.environmentMap = new Map(Object.entries(data));
-            id = new Map(Object.entries(data)).get(this.request.projectId);
-            if (id) {
-              this.$get('/api/environment/get/' + id, response => {
-                this.environment = response.data;
-                this.initDataSource();
-              });
-            }
-          }
-        })
-      } else {
-        id = this.envMap.get(this.request.projectId);
-        if (id) {
-          this.$get('/api/environment/get/' + id, response => {
-            this.environment = response.data;
-            this.initDataSource();
-          });
-        }
-      }
-    },
+
     remove() {
       this.$emit('remove', this.request, this.node);
     },
@@ -451,78 +392,6 @@ export default {
             this.request.path = url;
             this.request.url = undefined;
           }
-        }
-      }
-    },
-    getApiInfo() {
-      if (this.request.id && this.request.referenced === 'REF') {
-        let requestResult = this.request.requestResult;
-        let enable = this.request.enable;
-        this.$get("/api/testcase/get/" + this.request.id, response => {
-          if (response.data) {
-            let hashTree = [];
-            if (this.request.hashTree) {
-              hashTree = JSON.parse(JSON.stringify(this.request.hashTree));
-            }
-            Object.assign(this.request, JSON.parse(response.data.request));
-            this.request.name = response.data.name;
-            this.request.referenced = "REF";
-            this.request.enable = enable;
-            if (response.data.path && response.data.path != null) {
-              this.request.path = response.data.path;
-              this.request.url = response.data.url;
-            }
-            if (response.data.method && response.data.method != null) {
-              this.request.method = response.data.method;
-            }
-            if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
-              this.request.requestResult = [requestResult];
-            } else {
-              this.request.requestResult = requestResult;
-            }
-            if (response.data.num) {
-              this.request.num = response.data.num;
-            }
-            this.request.id = response.data.id;
-            this.request.disabled = true;
-            this.request.root = true;
-            this.request.projectId = response.data.projectId;
-            this.request.versionName = response.data.versionName;
-            this.request.versionEnable = response.data.versionEnable;
-            let req = JSON.parse(response.data.request);
-            if (req && this.request) {
-              this.request.hashTree = hashTree;
-              this.mergeHashTree(req.hashTree);
-            }
-            this.initDataSource();
-            this.forStatus();
-            this.sort();
-            this.reload();
-          }
-        })
-      } else if (this.request.id && this.request.referenced === 'Copy') {
-        if (this.request.refType === 'CASE') {
-          this.$get("/api/testcase/get/" + this.request.id, response => {
-            if (response.data) {
-              if (response.data.num) {
-                this.request.num = response.data.num;
-              }
-              this.request.id = response.data.id;
-              this.request.versionName = response.data.versionName;
-              this.request.versionEnable = response.data.versionEnable;
-            }
-          })
-        } else if (this.request.refType === 'API') {
-          this.$get("/api/definition/get/" + this.request.id, response => {
-            if (response.data) {
-              if (response.data.num) {
-                this.request.num = response.data.num;
-              }
-              this.request.id = response.data.id;
-              this.request.versionName = response.data.versionName;
-              this.request.versionEnable = response.data.versionEnable;
-            }
-          })
         }
       }
     },
