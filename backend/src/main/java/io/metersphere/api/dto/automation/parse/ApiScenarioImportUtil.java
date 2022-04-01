@@ -197,6 +197,16 @@ public class ApiScenarioImportUtil {
         objectNew.remove("refType");
         objectNew.remove("referenced");
         test.setRequest(objectNew.toJSONString());
+        JSONObject obj = new JSONObject();
+        obj.put("type", object.get("protocol"));
+        obj.put("body", object.get("body"));
+        obj.put("headers", object.get("headers"));
+        Map<String, Boolean>map = new HashMap<>();
+        map.put("enable", true);
+        List<Map<String, Boolean>> list = new ArrayList<>();
+        list.add(map);
+        obj.put("statusCode",list);
+        test.setResponse(obj.toJSONString());
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
