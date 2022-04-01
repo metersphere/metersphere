@@ -204,7 +204,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private String getBodyType(Operation operation) {
         if (CollectionUtils.isEmpty(operation.getConsumes())) {
-            return Body.JSON;
+            return Body.JSON_STR;
         }
         String contentType = operation.getConsumes().get(0);
         return getBodyType(contentType);
@@ -212,7 +212,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private String getResponseBodyType(Operation operation) {
         if (CollectionUtils.isEmpty(operation.getProduces())) {
-            return Body.JSON;
+            return Body.JSON_STR;
         }
         String contentType = operation.getProduces().get(0);
         return getBodyType(contentType);
@@ -355,7 +355,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseRequestBodyParameters(Parameter parameter, Body body) {
         BodyParameter bodyParameter = (BodyParameter) parameter;
-        if (body.getType().equals(Body.JSON)) {
+        if (body.getType().equals(Body.JSON_STR)) {
             body.setJsonSchema(parseSchema2JsonSchema(bodyParameter.getSchema()));
             body.setFormat("JSON-SCHEMA");
         } else {
