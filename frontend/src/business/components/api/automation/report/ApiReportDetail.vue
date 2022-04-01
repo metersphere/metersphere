@@ -545,7 +545,7 @@ export default {
       return getCurrentProjectID();
     },
     isUi() {
-      return this.report.reportType.startsWith("UI");
+      return this.report.reportType && this.report.reportType.startsWith("UI");
     },
   }
 }

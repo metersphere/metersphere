@@ -50,7 +50,7 @@ export default {
   },
   computed: {
     isUi() {
-      return this.report.reportType.startsWith("UI");
+      return this.report.reportType && this.report.reportType.startsWith("UI");
     },
   },
   methods: {
