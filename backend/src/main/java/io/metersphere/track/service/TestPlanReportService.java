@@ -29,6 +29,7 @@ import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.TestplanRunRequest;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -37,8 +38,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,6 +99,8 @@ public class TestPlanReportService {
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private TestPlanExecutionQueueMapper testPlanExecutionQueueMapper;
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         List<TestPlanReportDTO> list = new ArrayList<>();
@@ -218,7 +219,7 @@ public class TestPlanReportService {
         }
     }
 
-    public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String projectID, String planId, String userId, String triggerMode) {
+    public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String projectID, String planReportId, String planId, String userId, String triggerMode) {
         Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
         Map<String, String> planTestCaseIdMap = new LinkedHashMap<>();
         Map<String, String> performanceIdMap = new LinkedHashMap<>();
@@ -236,7 +237,7 @@ public class TestPlanReportService {
         for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
             performanceIdMap.put(dto.getId(), dto.getLoadCaseId());
         }
-        String planReportId = UUID.randomUUID().toString();
+
 
         Map<String, String> apiCaseInfoMap = new HashMap<>();
         for (String id : planTestCaseIdMap.keySet()) {
@@ -250,10 +251,21 @@ public class TestPlanReportService {
         for (String id : performanceIdMap.values()) {
             performanceInfoMap.put(id, TestPlanApiExecuteStatus.PREPARE.name());
         }
+
+        if(StringUtils.isBlank(planReportId)){
+            planReportId = UUID.randomUUID().toString();
+        }
+
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(planReportId, planId, userId, triggerMode,
                 planTestCaseIdMap.size() > 0, planScenarioIdMap.size() > 0, performanceIdMap.size() > 0,
                 apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
-        TestPlanScheduleReportInfoDTO returnDTO = this.genTestPlanReport(saveRequest);
+        TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
+        TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
+        if(testPlanReport==null){
+            returnDTO = this.genTestPlanReport(saveRequest);
+        }else{
+            returnDTO.setTestPlanReport(testPlanReport);
+        }
         returnDTO.setPlanScenarioIdMap(planScenarioIdMap);
         returnDTO.setApiTestCaseDataMap(planTestCaseIdMap);
         returnDTO.setPerformanceIdMap(performanceIdMap);
@@ -446,7 +458,6 @@ public class TestPlanReportService {
                 testPlanReport.setUpdateTime(endTime);
             }
 
-
             TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
             contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
             List<TestPlanReportContentWithBLOBs> contents = testPlanReportContentMapper.selectByExampleWithBLOBs(contentExample);
@@ -527,6 +538,26 @@ public class TestPlanReportService {
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
             testPlanReport = this.update(testPlanReport);
+            TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
+            testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
+            List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
+            String runMode=null;
+            if(planExecutionQueues!=null&&planExecutionQueues.size()>0){
+                runMode = planExecutionQueues.get(0).getRunMode();
+                testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
+            }
+            if(runMode!=null&&StringUtils.equalsIgnoreCase(runMode,"serial")){
+                TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
+                queueExample.createCriteria().andReportIdIsNotNull();
+                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
+                TestPlanExecutionQueue testPlanExecutionQueue = planExecutionQueueList.get(0);
+                TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanExecutionQueue.getTestPlanId());
+                JSONObject jsonObject = JSONObject.parseObject(testPlan.getRequest());
+                TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject,TestplanRunRequest.class);
+                TestPlanScheduleReportInfoDTO testPlanScheduleReportInfoDTO = this.genTestPlanReportBySchedule(null, testPlanExecutionQueue.getReportId(), testPlanExecutionQueue.getTestPlanId(), runRequest.getUserId(), runRequest.getTriggerMode());
+                runRequest.setPlanScheduleReportInfoDTO(testPlanScheduleReportInfoDTO);
+                testPlanService.runPlan(runRequest);
+            }
         }
         return testPlanReport;
     }
