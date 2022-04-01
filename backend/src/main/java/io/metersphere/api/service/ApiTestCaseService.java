@@ -258,6 +258,15 @@ public class ApiTestCaseService {
         return test;
     }
 
+    public ApiTestCase updateExecuteInfo(SaveApiTestCaseRequest request) {
+        ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
+        test.setId(request.getId());
+        test.setUpdateTime(System.currentTimeMillis());
+        test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        apiTestCaseMapper.updateByPrimaryKeySelective(test);
+        return test;
+    }
+
     public ApiTestCase update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         deleteFileByTestId(request.getId());
         request.setBodyUploadIds(null);
