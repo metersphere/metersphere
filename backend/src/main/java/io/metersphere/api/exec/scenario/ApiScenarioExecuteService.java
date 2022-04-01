@@ -320,6 +320,7 @@ public class ApiScenarioExecuteService {
             map = environmentGroupProjectService.getEnvMap(environmentGroupId);
         }
         ParameterConfig config = new ParameterConfig();
+        config.setScenarioId(request.getScenarioId());
         if (map != null) {
             apiScenarioEnvService.setEnvConfig(map, config);
         }
