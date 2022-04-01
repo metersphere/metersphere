@@ -27,7 +27,7 @@
           <el-button type="primary" size="small" @click="saveTestCase()"
                      v-prevent-re-click
                      v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
-            {{ $t('commons.save') }}
+            {{ saveButtonText }}
           </el-button>
         </el-col>
       </el-row>
@@ -50,6 +50,7 @@ export default {
   data() {
     return {
       methodColorMap: new Map(API_METHOD_COLOUR),
+      saveButtonText: this.$t('commons.save'),
     }
   },
   props: {
@@ -59,6 +60,7 @@ export default {
     isReadOnly: Boolean,
     useEnvironment: String,
     isCaseEdit: Boolean,
+    buttonText: String,
     condition: {
       type: Object,
       default() {
@@ -77,6 +79,11 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('keydown', this.keyDown) // 在页面销毁的时候记得解除
+  },
+  created() {
+    if (this.buttonText) {
+      this.saveButtonText = this.buttonText;
+    }
   },
   methods: {
     keyDown(e) {

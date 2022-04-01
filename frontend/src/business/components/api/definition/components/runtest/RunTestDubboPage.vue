@@ -18,7 +18,9 @@
           <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">{{ $t('report.stop_btn') }}</el-button>
+      <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">
+        {{ $t('report.stop_btn') }}
+      </el-button>
 
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <div v-loading="loading">
@@ -35,6 +37,7 @@
     <!-- 加载用例 -->
     <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api"
                       :loaded="loaded" :refreshSign="refreshSign" :createCase="createCase"
+                      :save-button-text="loadCaseConfirmButton"
                       ref="caseList"/>
 
     <!-- 环境 -->
@@ -77,6 +80,7 @@ export default {
       loaded: false,
       loading: false,
       currentRequest: {},
+      loadCaseConfirmButton: this.$t("commons.confirm"),
       createCase: "",
       refreshSign: "",
       responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
