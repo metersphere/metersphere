@@ -8,7 +8,7 @@
               <img :src="'/display/file/loginLogo'" alt="">
             </div>
             <div class="welcome">
-              <span>{{ $t("commons.welcome") }}</span>
+              <span>{{ loginTitle }}</span>
             </div>
           </div>
           <div class="form">
@@ -82,7 +82,8 @@ export default {
       openLdap: false,
       authSources: [],
       loginUrl: 'signin',
-      lastUser: null
+      lastUser: null,
+      loginTitle: this.$t('commons.welcome')
     };
   },
   beforeCreate() {
