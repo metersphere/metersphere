@@ -112,6 +112,13 @@ public class ApiTestCaseController {
         return apiTestCaseService.update(request, bodyFiles);
     }
 
+    @PostMapping(value = "/updateExecuteInfo")
+    @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, mailTemplate = "api/CaseUpdate", subject = "接口用例通知")
+    public ApiTestCase updateExecuteInfo(@RequestBody SaveApiTestCaseRequest request) {
+        return apiTestCaseService.updateExecuteInfo(request);
+    }
+
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
     public void delete(@PathVariable String id) {
