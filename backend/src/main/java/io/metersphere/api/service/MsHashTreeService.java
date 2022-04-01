@@ -58,6 +58,8 @@ public class MsHashTreeService {
     private static final String BODY = "body";
     private static final String ARGUMENTS = "arguments";
     private static final String AUTH_MANAGER = "authManager";
+    private static final String PROJECT_ID = "projectId";
+    private static final String ACTIVE = "active";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -187,11 +189,12 @@ public class MsHashTreeService {
                     element.put(REST, refElement.get(REST));
                     element.put(PATH, refElement.get(PATH));
                     element.put(BODY, refElement.get(BODY));
-                    element.put("active", false);
+                    element.put(ACTIVE, false);
                     element.put(AUTH_MANAGER, refElement.get(AUTH_MANAGER));
                     element.put(ARGUMENTS, refElement.get(ARGUMENTS));
+                    element.put(PROJECT_ID, apiTestCase.getProjectId());
                     if (array != null) {
-                        JSONArray sourceHashTree = element.getJSONArray("hashTree");
+                        JSONArray sourceHashTree = element.getJSONArray(HASH_TREE);
                         Map<String, List<JSONObject>> groupMap = ElementUtil.group(sourceHashTree);
                         Map<String, List<JSONObject>> targetGroupMap = ElementUtil.group(refElement.getJSONArray(HASH_TREE));
 
@@ -208,7 +211,7 @@ public class MsHashTreeService {
                         if (CollectionUtils.isNotEmpty(rules)) {
                             step.addAll(rules);
                         }
-                        element.put("hashTree", step);
+                        element.put(HASH_TREE, step);
                     }
                     element.put(REFERENCED, REF);
                     element.put(DISABLED, true);
