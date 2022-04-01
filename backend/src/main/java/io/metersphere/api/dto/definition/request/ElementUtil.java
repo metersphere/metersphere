@@ -101,6 +101,9 @@ public class ElementUtil {
     public static void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(list) && CollectionUtils.isNotEmpty(config.getTransferVariables())) {
+                list = config.getTransferVariables().stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
+            }
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(item -> {
                     CSVDataSet csvDataSet = new CSVDataSet();

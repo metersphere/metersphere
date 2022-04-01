@@ -40,6 +40,10 @@ public class ParameterConfig extends MsParameter {
      * 公共场景参数
      */
     private List<ScenarioVariable> variables;
+    /**
+     * 当前场景变量，逐层传递
+     */
+    private List<ScenarioVariable> transferVariables;
 
     /**
      * 公共场景参数
