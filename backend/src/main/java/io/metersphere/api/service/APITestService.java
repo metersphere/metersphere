@@ -615,6 +615,7 @@ public class APITestService {
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(runRequest.getProjectId());
         config.setOperating(true);
+        config.setOperatingSampleTestName(runRequest.getName());
 
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = runRequest.getEnvironmentMap();

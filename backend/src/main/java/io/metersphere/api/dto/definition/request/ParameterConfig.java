@@ -66,6 +66,10 @@ public class ParameterConfig extends MsParameter {
      */
     private boolean isOperating;
     /**
+     * 导入/导出操作时取样器的testname值
+     */
+    private String operatingSampleTestName;
+    /**
      * 项目ID，支持单接口执行
      */
     private String projectId;
