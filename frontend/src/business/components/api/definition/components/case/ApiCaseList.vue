@@ -12,6 +12,7 @@
           :project-id="projectId"
           :useEnvironment="environment"
           :is-case-edit="isCaseEdit"
+          :button-text="saveButtonText"
           ref="header"/>
       </template>
 
@@ -68,6 +69,7 @@ export default {
       type: Boolean,
       default: false
     },
+    saveButtonText:String,
     refreshSign: String,
     currentApi: {
       type: Object

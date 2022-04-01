@@ -33,21 +33,21 @@
         </el-form-item>
       </el-form>
 
-        <!-- TCP 请求参数 -->
-        <div v-if="api.method=='TCP'" v-loading="loading">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-tcp-format-parameters :request="api.request" @callback="runTest" :response="responseData"
-                                    ref="requestForm"/>
-          <!--返回结果-->
-          <!-- HTTP 请求返回数据 -->
-          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-          <ms-request-result-tail :response="responseData" ref="runResult"/>
-        </div>
-        <div v-else-if="api.method=='ESB'" v-loading="loading">
-          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <esb-definition v-xpack v-if="showXpackCompnent" :show-script="true" :request="api.request"
-                          @callback="runTest" ref="requestForm"/>
-        </div>
+      <!-- TCP 请求参数 -->
+      <div v-if="api.method=='TCP'" v-loading="loading">
+        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+        <ms-tcp-format-parameters :request="api.request" @callback="runTest" :response="responseData"
+                                  ref="requestForm"/>
+        <!--返回结果-->
+        <!-- HTTP 请求返回数据 -->
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <ms-request-result-tail :response="responseData" ref="runResult"/>
+      </div>
+      <div v-else-if="api.method=='ESB'" v-loading="loading">
+        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+        <esb-definition v-xpack v-if="showXpackCompnent" :show-script="true" :request="api.request"
+                        @callback="runTest" ref="requestForm"/>
+      </div>
 
 
       <div v-if="api.method=='ESB'">
@@ -62,6 +62,7 @@
     <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api"
                       :refreshSign="refreshSign"
                       :loaded="loaded" :createCase="createCase"
+                      :save-button-text="loadCaseConfirmButton"
                       ref="caseList"/>
 
     <!-- 执行组件 -->
@@ -103,6 +104,7 @@ export default {
   },
   data() {
     return {
+      loadCaseConfirmButton: this.$t("commons.confirm"),
       visible: false,
       api: {},
       loaded: false,
