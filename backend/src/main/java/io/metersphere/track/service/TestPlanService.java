@@ -23,6 +23,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -43,10 +44,7 @@ import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.track.request.testplan.AddTestPlanRequest;
-import io.metersphere.track.request.testplan.LoadCaseReportRequest;
-import io.metersphere.track.request.testplan.LoadCaseRequest;
-import io.metersphere.track.request.testplan.TestplanRunRequest;
+import io.metersphere.track.request.testplan.*;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
@@ -179,6 +177,11 @@ public class TestPlanService {
     private LoadTestMapper loadTestMapper;
     @Resource
     private ProjectService projectService;
+    @Resource
+    private ExtTestPlanExecutionQueueMapper extTestPlanExecutionQueueMapper;
+
+
+
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1008,11 +1011,11 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     TestPlanScheduleReportInfoDTO genTestPlanReport(String projectID, String planId, String userId, String triggerMode) {
-        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, planId, userId, triggerMode);
+        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID,null, planId, userId, triggerMode);
         return reportInfoDTO;
     }
 
-    public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
+    public String run(String testPlanID, String projectID, String userId, String triggerMode, TestPlanScheduleReportInfoDTO reportInfoDTO,String apiRunConfig) {
         RunModeConfigDTO runModeConfig = null;
         try {
             runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfigDTO.class);
@@ -1030,10 +1033,10 @@ public class TestPlanService {
                 runModeConfig.setEnvMap(new HashMap<>());
             }
         }
-
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
-        TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(projectID, testPlanID, userId, triggerMode);
-
+        if(reportInfoDTO==null){
+            reportInfoDTO = this.genTestPlanReport(projectID, testPlanID, userId, triggerMode);
+        }
         //测试计划准备执行，取消测试计划的实际结束时间
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
 
@@ -1913,12 +1916,13 @@ public class TestPlanService {
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
         RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
         runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
+        String testPlanId = testplanRunRequest.getTestPlanId();
         if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && !envMap.isEmpty()) {
             runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
-            this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), runModeConfig);
+            this.setPlanCaseEnv(testPlanId, runModeConfig);
         } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
             runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
-            this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), runModeConfig);
+            this.setPlanCaseEnv(testPlanId, runModeConfig);
         }
 
         runModeConfig.setMode(testplanRunRequest.getMode());
@@ -1930,8 +1934,18 @@ public class TestPlanService {
             runModeConfig.setReportType(testplanRunRequest.getReportType());
         }
         String apiRunConfig = JSONObject.toJSONString(runModeConfig);
-        return this.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(),
-                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
+        String request = JSON.toJSONString(testplanRunRequest);
+        TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
+        testPlanWithBLOBs.setRequest(request);
+        testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlanWithBLOBs);
+        if(testplanRunRequest.getPlanScheduleReportInfoDTO()!=null){
+            return this.run(testPlanId, testplanRunRequest.getProjectId(),
+                    testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(),testplanRunRequest.getPlanScheduleReportInfoDTO(), apiRunConfig);
+        }else{
+            return this.run(testPlanId, testplanRunRequest.getProjectId(),
+                    testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(),null, apiRunConfig);
+        }
+
     }
 
     public void setPlanCaseEnv(String planId, RunModeConfigDTO runModeConfig) {
@@ -2099,4 +2113,100 @@ public class TestPlanService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extTestPlanMapper.list(request);
     }
+
+    public List<MsExecResponseDTO> runBatch(TestplanRunRequest request) {
+        List<String> ids = request.getTestPlanIds();
+        if (CollectionUtils.isEmpty(ids)&&!request.getIsAll()) {
+            return new LinkedList<>();
+        }
+        LoggerUtil.debug("开始查询测试计划");
+        List<TestPlanWithBLOBs> planList = getTestPlanWithBLOBs(request, ids);
+
+        Map<String, TestPlanWithBLOBs> testPlanMap = planList.stream().collect(Collectors.toMap(TestPlan::getId, a -> a,(k1,k2)->k1));
+        Map<String, TestPlanReport> executeQueue = new LinkedHashMap<>();
+        List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
+        Map<String, TestPlanScheduleReportInfoDTO> planScheduleReportInfoDTOMap = new LinkedHashMap<>();
+        for (TestPlanWithBLOBs testPlan : planList) {
+            if(StringUtils.isBlank(testPlan.getRequest())){
+                MSException.throwException("请保存["+testPlan.getName()+"]的运行配置");
+            }
+            //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
+            TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(testPlan.getProjectId(), testPlan.getId(), request.getUserId(), request.getTriggerMode());
+
+            //测试计划准备执行，取消测试计划的实际结束时间
+            extTestPlanMapper.updateActualEndTimeIsNullById(testPlan.getId());
+
+            String planReportId = reportInfoDTO.getTestPlanReport().getId();
+            testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlan.getId() + "] ");
+
+            executeQueue.put(testPlan.getId(), reportInfoDTO.getTestPlanReport());
+            responseDTOS.add(new MsExecResponseDTO(testPlan.getId(), reportInfoDTO.getTestPlanReport().getId(), request.getTriggerMode()));
+            planScheduleReportInfoDTOMap.put(testPlan.getId(),reportInfoDTO);
+        }
+
+        LoggerUtil.debug("开始生成测试计划队列");
+
+        List<TestPlanExecutionQueue> planExecutionQueues = getTestPlanExecutionQueues(request, executeQueue);
+
+        if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
+            extTestPlanExecutionQueueMapper.sqlInsert(planExecutionQueues);
+        }
+        // 开始选择执行模式
+        runByMode(request, testPlanMap, planScheduleReportInfoDTOMap, planExecutionQueues);
+
+        return responseDTOS;
+    }
+
+    private List<TestPlanExecutionQueue> getTestPlanExecutionQueues(TestplanRunRequest request, Map<String, TestPlanReport> executeQueue) {
+        List<TestPlanExecutionQueue>planExecutionQueues = new ArrayList<>();
+        executeQueue.forEach((k, v)->{
+            TestPlanExecutionQueue executionQueue = new TestPlanExecutionQueue();
+            executionQueue.setId(UUID.randomUUID().toString());
+            executionQueue.setCreateTime(System.currentTimeMillis());
+            executionQueue.setReportId(v.getId());
+            executionQueue.setTestPlanId(k);
+            executionQueue.setRunMode(request.getMode());
+            planExecutionQueues.add(executionQueue);
+        });
+        return planExecutionQueues;
+    }
+
+    private void runByMode(TestplanRunRequest request, Map<String, TestPlanWithBLOBs> testPlanMap, Map<String, TestPlanScheduleReportInfoDTO> planScheduleReportInfoDTOMap, List<TestPlanExecutionQueue> planExecutionQueues) {
+        if (planExecutionQueues != null&& planExecutionQueues.size()>0) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Thread.currentThread().setName("TEST_PLAN_BATCH：" + System.currentTimeMillis());
+                    if(StringUtils.equalsIgnoreCase(request.getMode(),"serial")){
+                        TestPlanExecutionQueue planExecutionQueue = planExecutionQueues.get(0);
+                        TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
+                        JSONObject jsonObject = JSONObject.parseObject(testPlan.getRequest());
+                        TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject,TestplanRunRequest.class);
+                        runRequest.setPlanScheduleReportInfoDTO(planScheduleReportInfoDTOMap.get(planExecutionQueue.getTestPlanId()));
+                        runPlan(runRequest);
+                    }else {
+                        for (TestPlanExecutionQueue planExecutionQueue : planExecutionQueues) {
+                            TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
+                            JSONObject jsonObject = JSONObject.parseObject(testPlan.getRequest());
+                            TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject,TestplanRunRequest.class);
+                            runRequest.setPlanScheduleReportInfoDTO(planScheduleReportInfoDTOMap.get(planExecutionQueue.getTestPlanId()));
+                            runPlan(runRequest);
+                        }
+                    }
+                }
+            });
+            thread.start();
+        }
+    }
+
+    private List<TestPlanWithBLOBs> getTestPlanWithBLOBs(TestplanRunRequest request, List<String> ids) {
+        TestPlanExample example = new TestPlanExample();
+        if(CollectionUtils.isNotEmpty(ids)){
+            example.createCriteria().andIdIn(ids);
+        }
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId());
+        List<TestPlanWithBLOBs> planList = testPlanMapper.selectByExampleWithBLOBs(example);
+        return planList;
+    }
+
 }

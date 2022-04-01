@@ -317,6 +317,23 @@
                             :plan-id="currentPlanId"/>
     <test-plan-report-review ref="testCaseReportView"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
+    <el-dialog
+      :visible.sync="showExecute"
+      destroy-on-close
+      :title="$t('load_test.runtime_config')"
+      width="550px"
+      @close="closeExecute">
+      <div>
+        <el-radio-group v-model="batchExecuteType">
+          <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
+          <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
+        </el-radio-group>
+      </div><br/>
+      <span>注：运行模式仅对测试计划间有效</span>
+      <template v-slot:footer>
+        <ms-dialog-footer @cancel="closeExecute" @confirm="handleRunBatch"/>
+      </template>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -383,6 +400,7 @@ export default {
       result: {},
       cardResult: {},
       enableDeleteTip: false,
+      showExecute:false,
       queryPath: "/test/plan/list",
       deletePath: "/test/plan/delete",
       condition: {
@@ -423,6 +441,11 @@ export default {
           name: this.$t('test_track.plan.test_plan_batch_switch'),
           handleClick: this.handleBatchSwitch,
           permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
+        },
+        {
+          name: this.$t('api_test.automation.batch_execute'),
+          handleClick: this.handleBatchExecute,
+          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         }
       ],
       simpleOperators: [
@@ -444,7 +467,8 @@ export default {
           exec: this.openReport,
           permission: ['PROJECT_TRACK_PLAN:READ+EDIT']
         },
-      ]
+      ],
+      batchExecuteType:"serial"
     };
   },
   watch: {
@@ -592,6 +616,37 @@ export default {
         });
         this.$refs.scheduleBatchSwitch.open(param, size, this.condition.selectAll, this.condition);
       }
+    },
+    handleBatchExecute(){
+      this.showExecute = true;
+    },
+    handleRunBatch(){
+      this.showExecute = false;
+      let mode = this.batchExecuteType;
+      let param = {mode};
+      const ids = [];
+      if (this.condition.selectAll) {
+        param.isAll = true;
+      }
+      else {
+        this.$refs.testPlanLitTable.selectRows.forEach((item) => {
+          ids.push(item.id)
+        });
+      }
+      param.testPlanId = this.currentPlanId;
+      param.projectId = getCurrentProjectID();
+      param.userId = getCurrentUserId();
+      param.requestOriginator = "TEST_PLAN";
+      param.testPlanIds = ids;
+      this.$refs.taskCenter.open();
+      this.result = this.$post('/test/plan/run/batch/', param, () => {
+        this.$success(this.$t('commons.run_success'));
+      }, error => {
+        // this.$error(error.message);
+      });
+    },
+    closeExecute(){
+      this.showExecute = false;
     },
     statusChange(data) {
       if (!hasPermission('PROJECT_TRACK_PLAN:READ+EDIT')) {

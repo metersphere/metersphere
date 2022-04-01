@@ -4,15 +4,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
-import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
@@ -194,7 +194,7 @@ public class TestPlanController {
         api.setOnSampleError(false);
         api.setReportType("iddReport");
         String apiRunConfig = JSONObject.toJSONString(api);
-        return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
+        return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(),null, apiRunConfig);
     }
 
     @PostMapping("/copy/{id}")
@@ -221,6 +221,13 @@ public class TestPlanController {
     @PostMapping("/run")
     public String run(@RequestBody TestplanRunRequest testplanRunRequest) {
         return testPlanService.runPlan(testplanRunRequest);
+    }
+
+    @PostMapping(value = "/run/batch")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanService.class)
+    public List<MsExecResponseDTO> runBatch(@RequestBody TestplanRunRequest request) {
+        request.setTriggerMode(TriggerMode.BATCH.name());
+        return testPlanService.runBatch(request);
     }
 
     @GetMapping("/report/export/{planId}")
@@ -299,4 +306,5 @@ public class TestPlanController {
     public ScheduleDTO updateTestPlanBySchedule(@RequestBody ScheduleInfoRequest request) {
         return testPlanService.updateTestPlanBySchedule(request);
     }
+
 }
