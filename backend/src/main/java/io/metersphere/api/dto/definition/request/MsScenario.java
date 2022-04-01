@@ -136,6 +136,10 @@ public class MsScenario extends MsTestElement {
             this.setNewConfig(envConfig, newConfig);
         }
 
+        if (config != null && StringUtils.equals(this.getId(), config.getScenarioId())) {
+            config.setTransferVariables(this.variables);
+        }
+
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
