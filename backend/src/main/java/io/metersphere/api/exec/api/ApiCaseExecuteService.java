@@ -178,6 +178,7 @@ public class ApiCaseExecuteService {
             }
         }
     }
+
     /**
      * 接口定义case执行
      *
@@ -198,6 +199,8 @@ public class ApiCaseExecuteService {
 
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest) query));
+
+        List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
 
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
@@ -222,6 +225,7 @@ public class ApiCaseExecuteService {
 
             apiScenarioReportStructureService.save(serialReportId, new ArrayList<>());
             apiCaseResultService.batchSave(executeQueue);
+            responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(request.getIds()), report.getId(), request.getTriggerMode()));
         }
 
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -238,7 +242,6 @@ public class ApiCaseExecuteService {
             request.setTriggerMode(ApiRunMode.DEFINITION.name());
         }
 
-        List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
 
@@ -254,7 +257,9 @@ public class ApiCaseExecuteService {
                 report.setIntegratedReportId(serialReportId);
             }
             executeQueue.put(caseWithBLOBs.getId(), report);
-            responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
+            if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
+            }
         }
 
         apiCaseResultService.batchSave(executeQueue);

@@ -733,11 +733,6 @@ export default {
               this.getEnvDomain(data.hashTree, domainMap);
               this.margeDomain(this.scenarioDefinition, domainMap);
               this.cancelBatchProcessing();
-              if (this.$store.state.currentApiCase) {
-                this.$store.state.currentApiCase.resetDataSource = getUUID();
-              } else {
-                this.$store.state.currentApiCase = {resetDataSource: getUUID()};
-              }
             }
           }
         })
