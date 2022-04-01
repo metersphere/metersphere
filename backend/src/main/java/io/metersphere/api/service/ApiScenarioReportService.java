@@ -349,6 +349,7 @@ public class ApiScenarioReportService {
             execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
             long size = definitionExecResultMapper.countByExample(execResultExample);
             result.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+            result.setEndTime(System.currentTimeMillis());
             definitionExecResultMapper.updateByPrimaryKeySelective(result);
         } else {
             ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
@@ -385,9 +386,9 @@ public class ApiScenarioReportService {
             }
 
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-            if(requestResults.size() == 0){
+            if (requestResults.size() == 0) {
                 scenario.setPassRate("0%");
-            }else {
+            } else {
                 scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
             }
 
