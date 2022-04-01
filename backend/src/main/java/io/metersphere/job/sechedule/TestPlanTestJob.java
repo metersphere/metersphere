@@ -56,7 +56,7 @@ public class TestPlanTestJob extends MsScheduleJob {
             @Override
             public void run() {
                 LogUtil.info("Start test_plan_scehdule. test_plan_id:" + runResourceId);
-                testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(),config);
+                testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(),null,config);
             }
         });
         thread.start();

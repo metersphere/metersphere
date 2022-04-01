@@ -123,6 +123,8 @@ END//
 DELIMITER ;
 CALL schema_change();
 
+ALTER TABLE `test_plan` ADD COLUMN `request` LONGTEXT COMMENT 'request (JSON format)';
+
 --
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+DEBUG', 'PROJECT_UI_SCENARIO');
@@ -164,4 +166,17 @@ CREATE INDEX test_case_node_project_id_index
     ON test_case_node(project_id);
 CREATE INDEX test_case_node_id_index
     ON test_case(node_id);
+
+CREATE TABLE IF NOT EXISTS `test_plan_execution_queue`
+(
+    `id` varchar(50) NOT NULL COMMENT 'ID',
+    `report_id` varchar(100) COMMENT '测试计划报告',
+    `run_mode` varchar(100) COMMENT '执行模式/scenario/api/test_paln_api/test_pan_scenario',
+    create_time bigint(13)  NULL COMMENT '创建时间',
+    `test_plan_id` varchar(100) COMMENT 'testPlanId',
+    PRIMARY KEY (`id`),
+        KEY `report_id_idx` (`report_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+
 
