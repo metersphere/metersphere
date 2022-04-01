@@ -1,11 +1,13 @@
 package io.metersphere.api.dto.scenario;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaRunTest;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,12 +34,12 @@ public class Body {
     public final static String WWW_FROM = "WWW_FORM";
     public final static String RAW = "Raw";
     public final static String BINARY = "BINARY";
-    public final static String JSON = "JSON";
+    public final static String JSON_STR = "JSON";
     public final static String XML = "XML";
 
     public boolean isValid() {
         if (this.isKV()) {
-            if(kvs != null){
+            if (kvs != null) {
                 return kvs.stream().anyMatch(KeyValue::isValid);
             }
         } else {
@@ -74,7 +76,7 @@ public class Body {
                 sampler.setDoMultipart(true);
             }
         } else {
-            if(StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema()!= null ) {
+            if (StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema() != null) {
                 parseJonBodyMock();
                 KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
                 sampler.setPostBodyRaw(true);
@@ -88,25 +90,30 @@ public class Body {
 
     private void parseJonBodyMock() {
         if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
-            if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
+            if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
                     && "JSON-SCHEMA".equals(this.format)) {
-                this.raw = JSONSchemaRunTest.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
-            } else {    //  json 文本也支持 mock 参数
+                this.raw = JSONSchemaRunTest.getJson(JSON.toJSONString(this.getJsonSchema()));
+            } else {
                 try {
-                    JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
-                    jsonMockParse(jsonObject);
-                    this.raw = JSONObject.toJSONString(jsonObject, SerializerFeature.WriteMapNullValue);
-                } catch (Exception e) {}
+                    if (StringUtils.isNotEmpty(this.getRaw())) {
+                        String jsonString = JSON.toJSONString(this.getRaw(), SerializerFeature.DisableCircularReferenceDetect);
+                        JSONObject jsonObject = JSON.parseObject(jsonString);
+                        jsonMockParse(jsonObject);
+                        this.raw = JSONObject.toJSONString(jsonObject, SerializerFeature.WriteMapNullValue);
+                    }
+                } catch (Exception e) {
+                    LoggerUtil.error("json mock value is abnormal", e);
+                }
             }
         }
     }
 
     private void jsonMockParse(JSONObject jsonObject) {
-        for(String key : jsonObject.keySet()) {
+        for (String key : jsonObject.keySet()) {
             Object value = jsonObject.get(key);
-            if(value instanceof JSONObject) {
+            if (value instanceof JSONObject) {
                 jsonMockParse((JSONObject) value);
-            } else if(value instanceof String) {
+            } else if (value instanceof String) {
                 if (StringUtils.isNotBlank((String) value)) {
                     value = ScriptEngineUtils.buildFunctionCallString((String) value);
                 }
@@ -157,7 +164,7 @@ public class Body {
     }
 
     public boolean isJson() {
-        return StringUtils.equals(type, JSON);
+        return StringUtils.equals(type, JSON_STR);
     }
 
     public boolean isXml() {

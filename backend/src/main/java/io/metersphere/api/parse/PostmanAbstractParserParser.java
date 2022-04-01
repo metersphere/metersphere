@@ -155,7 +155,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
                 String bodyType = "";
                 switch (raw.getString("language")) {
                     case "json":
-                        bodyType = Body.JSON;
+                        bodyType = Body.JSON_STR;
                         break;
                     case "xml":
                         bodyType = Body.XML;

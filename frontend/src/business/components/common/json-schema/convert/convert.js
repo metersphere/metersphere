@@ -127,7 +127,7 @@ class Convert {
                 if (isArray(elementItem)) {
                   let innerItemArr = this._deepTraversal(elementItem, `${$id}/items`, key + 'items');
                   itemArr.push(innerItemArr);
-                }else {
+                } else {
                   //item不是Array，进行统一处理
                   let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
                   item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
@@ -206,6 +206,7 @@ class Convert {
     let objectTemplate = {
       $id: $id,
       title: `The ${key} Schema`,
+      hidden: true,
       mock: {
         "mock": value
       },

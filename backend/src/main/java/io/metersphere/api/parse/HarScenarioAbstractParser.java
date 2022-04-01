@@ -200,7 +200,7 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
                 String bodyType = "";
                 switch (raw.getString("language")) {
                     case "json":
-                        bodyType = Body.JSON;
+                        bodyType = Body.JSON_STR;
                         break;
                     case "xml":
                         bodyType = Body.XML;
