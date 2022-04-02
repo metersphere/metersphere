@@ -149,6 +149,7 @@ export const USER_GROUP_SCOPE = {
 export const PROJECT_GROUP_SCOPE = {
   'TRACK': 'permission.other.track',
   'API': 'permission.other.api',
+  'UI': 'permission.other.ui',
   'PERFORMANCE': 'permission.other.performance',
   'REPORT': 'permission.other.report'
 }

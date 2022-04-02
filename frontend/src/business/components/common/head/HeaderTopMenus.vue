@@ -20,7 +20,7 @@
       {{ $t('commons.api') }}
     </el-menu-item>
     <el-menu-item index="/ui" @click="active()" v-if="hasLicense() && check('ui')" onselectstart="return false"
-                  v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
+                  v-permission="['PROJECT_UI_SCENARIO:READ','PROJECT_UI_REPORT:READ']">
       {{ $t('commons.ui') }}
     </el-menu-item>
     <el-menu-item v-if="!hasLicense()" @click="clickPlanMenu">
