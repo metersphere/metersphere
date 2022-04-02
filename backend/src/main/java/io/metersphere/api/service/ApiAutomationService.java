@@ -1560,7 +1560,7 @@ public class ApiAutomationService {
      */
     public float countInterfaceCoverage(List<ApiScenarioWithBLOBs> allScenarioInfoList, List<ApiDefinition> allEffectiveApiList) {
         if (allEffectiveApiList == null || allEffectiveApiList.isEmpty()) {
-            return 100;
+            return 0;
         }
 
         Map<ApiMethodUrlDTO, List<String>> urlMap = new HashMap<>();
