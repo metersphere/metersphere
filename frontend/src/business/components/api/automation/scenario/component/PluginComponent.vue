@@ -137,10 +137,11 @@ import MsUpload from "../common/MsPluginUpload";
 import {PLUGIN_ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import {getUUID} from "@/common/js/utils";
 import MsJmxStep from "../../../definition/components/step/JmxStep";
-import {Assertions} from "@/business/components/api/definition/model/ApiTestModel";
 import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import MsPluginContentAssertions from "@/business/components/api/automation/scenario/component/PluginContentAssertions";
 
 formCreate.component("msUpload", MsUpload);
+formCreate.component("msPluginContentAssertions", MsPluginContentAssertions);
 
 export default {
   name: "PluginComponent",
@@ -149,6 +150,7 @@ export default {
     ApiResponseComponent,
     MsJmxStep,
     MsRun: () => import("../../../definition/components/Run"),
+    MsPluginContentAssertions
   },
   props: {
     draggable: {
@@ -281,10 +283,19 @@ export default {
     },
     changeDisplay(fileName) {
       if (fileName === 'number of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
-        this.pluginForm.hidden(true, "conditionTime");
+        this.pluginForm.hidden(false, "conditionTime");
+        this.pluginForm.hidden(false, "conditionValue");
+        this.pluginForm.hidden(true, "conditionContent");
       }
       if (fileName === 'specified elapsed time (ms)' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
         this.pluginForm.hidden(false, "conditionTime");
+        this.pluginForm.hidden(true, "conditionValue")
+        this.pluginForm.hidden(true, "conditionContent");
+      }
+      if (fileName === 'content of received messages' && this.pluginForm && this.pluginForm.hidden instanceof Function) {
+        this.pluginForm.hidden(false, "conditionContent");
+        this.pluginForm.hidden(true, "conditionValue");
+        this.pluginForm.hidden(true, "conditionTime");
       }
     },
     run() {
