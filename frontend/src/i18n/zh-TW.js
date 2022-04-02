@@ -3022,6 +3022,23 @@ export default {
       create_performance_batch: "批量創建性能測試",
       batch_copy: "批量復製",
     },
+    project_ui_scenario: {
+      name: "UI自動化",
+      read: "查詢場景",
+      create: "創建場景",
+      edit: "編輯場景",
+      delete: "刪除場景",
+      copy: "復製場景",
+      run: "執行場景",
+      debug: "調試場景",
+      schedule: "定時任務",
+      import: "導入場景",
+      export: "導出場景",
+      move_batch: "批量移動",
+      create_performance: "創建性能測試",
+      create_performance_batch: "批量創建性能測試",
+      batch_copy: "批量復製",
+    },
     project_api_report: {
       name: "測試報告",
       read: "查詢報告",
@@ -3078,6 +3095,7 @@ export default {
     other: {
       track: "測試跟蹤",
       api: "接口測試",
+      ui: "UI測試",
       performance: "性能測試",
       project: "項目設置",
       report: "報表統計"

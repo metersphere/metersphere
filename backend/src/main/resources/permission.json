@@ -761,6 +761,76 @@
       "resourceId": "PROJECT_API_REPORT"
     },
     {
+      "id": "PROJECT_UI_SCENARIO:READ",
+      "name": "permission.project_ui_scenario.read",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+CREATE",
+      "name": "permission.project_ui_scenario.create",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+EDIT",
+      "name": "permission.project_api_scenario.edit",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+DELETE",
+      "name": "permission.project_ui_scenario.delete",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+COPY",
+      "name": "permission.project_ui_scenario.copy",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+RUN",
+      "name": "permission.project_ui_scenario.run",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+DEBUG",
+      "name": "permission.project_ui_scenario.debug",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+SCHEDULE",
+      "name": "permission.project_ui_scenario.schedule",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+IMPORT_SCENARIO",
+      "name": "permission.project_ui_scenario.import",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+EXPORT_SCENARIO",
+      "name": "permission.project_ui_scenario.export",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+MOVE_BATCH",
+      "name": "permission.project_ui_scenario.move_batch",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+CREATE_PERFORMANCE",
+      "name": "permission.project_ui_scenario.create_performance",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+CREATE_PERFORMANCE_BATCH",
+      "name": "permission.project_ui_scenario.create_performance_batch",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO:READ+BATCH_COPY",
+      "name": "permission.project_ui_scenario.batch_copy",
+      "resourceId": "PROJECT_UI_SCENARIO"
+    },
+    {
       "id": "PROJECT_PERFORMANCE_TEST:READ",
       "name": "permission.project_performance_test.read",
       "resourceId": "PROJECT_PERFORMANCE_TEST"
@@ -1099,6 +1169,10 @@
     {
       "id": "PROJECT_API_REPORT",
       "name": "permission.project_api_report.name"
+    },
+    {
+      "id": "PROJECT_UI_SCENARIO",
+      "name": "permission.project_ui_scenario.name"
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",
