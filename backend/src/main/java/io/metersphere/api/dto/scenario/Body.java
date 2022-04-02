@@ -96,9 +96,10 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        String jsonString = JSON.toJSONString(this.getRaw(), SerializerFeature.DisableCircularReferenceDetect);
-                        JSONObject jsonObject = JSON.parseObject(jsonString);
-                        jsonMockParse(jsonObject);
+                        JSONObject jsonObject = JSON.parseObject(this.getRaw());
+                        if (!this.getRaw().contains("$ref")) {
+                            jsonMockParse(jsonObject);
+                        }
                         this.raw = JSONObject.toJSONString(jsonObject, SerializerFeature.WriteMapNullValue);
                     }
                 } catch (Exception e) {
