@@ -268,7 +268,7 @@ public class APITestController {
 
     @GetMapping("/countApiCoverage/{projectId}")
     public String countApiCoverage(@PathVariable String projectId) {
-        String returnStr = "100%";
+        String returnStr = "0%";
         /**
          * 接口覆盖率
          * 接口有案例/被场景引用 ： 所有的接口
@@ -289,7 +289,7 @@ public class APITestController {
 
     @GetMapping("/countInterfaceCoverage/{projectId}")
     public String countInterfaceCoverage(@PathVariable String projectId) {
-        String returnStr = "100%";
+        String returnStr = "0%";
         /**
          * 接口覆盖率
          * 复制的接口定义/复制或引用的单接口用例/ 添加的自定义请求 url 路径与现有的接口定义一致的请求
