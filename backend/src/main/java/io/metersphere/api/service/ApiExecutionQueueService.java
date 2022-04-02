@@ -241,6 +241,7 @@ public class ApiExecutionQueueService {
     }
 
     public void queueNext(ResultDTO dto) {
+        LoggerUtil.info("开始处理队列：" + dto.getReportId() + "QID：" + dto.getQueueId());
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString())) {
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
@@ -292,6 +293,7 @@ public class ApiExecutionQueueService {
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
             executionQueueDetailMapper.deleteByExample(example);
         }
+        LoggerUtil.info("处理队列结束：" + dto.getReportId() + "QID：" + dto.getQueueId());
     }
 
     public void timeOut() {
