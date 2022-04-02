@@ -419,6 +419,7 @@ export default {
     open_source_version: "開源版",
     function_planning: "功能正在規劃中...",
     enterprise_edition_tips: "此功能為企業版功能，<a href='https://metersphere.io/enterprise.html' target='_blank'>詳情請諮詢</a>",
+    ui_edition_tips: "UI自動化為企業版功能，可在官網申請試用",
     system_data: "系統數據",
     system_user: "系統用戶",
     system_workspace: "工作空間",
