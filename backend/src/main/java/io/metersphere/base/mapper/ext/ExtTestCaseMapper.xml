@@ -939,6 +939,15 @@
         ORDER BY update_time DESC limit 1;
     </select>
 
+    <select id="getLastExecStatusByIdList" resultType="io.metersphere.track.dto.TestCaseDTO">
+        SELECT `status`
+        FROM test_plan_test_case
+        WHERE case_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="countByWorkSpaceId" resultType="java.lang.Integer">
         select count(distinct ref_id)
         from test_case
