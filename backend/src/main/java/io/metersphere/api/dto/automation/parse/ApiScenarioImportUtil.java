@@ -1,10 +1,13 @@
 package io.metersphere.api.dto.automation.parse;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
+import io.metersphere.api.dto.definition.response.HttpResponse;
+import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioModuleService;
 import io.metersphere.api.service.ApiTestCaseService;
@@ -180,7 +183,15 @@ public class ApiScenarioImportUtil {
         test.setId(id);
         test.setNum(apiDefinitionService.getNextNum(projectId)+i);
         test.setName(object.getString("name"));
-        test.setPath(object.getString("path"));
+        if(StringUtils.isBlank(object.getString("path"))){
+            if(StringUtils.isNotBlank(object.getString("url"))){
+                ApiImportAbstractParser apiImportAbstractParser = CommonBeanFactory.getBean(ApiImportAbstractParser.class);
+                String path = apiImportAbstractParser.formatPath(object.getString("url"));
+                test.setPath(path);
+            }
+        }else{
+            test.setPath(object.getString("path"));
+        }
         test.setCreateUser(SessionUtils.getUserId());
         test.setProjectId(projectId);
         test.setCreateTime(System.currentTimeMillis());
@@ -193,20 +204,12 @@ public class ApiScenarioImportUtil {
         object.put("resourceId", test.getId());
         object.put("projectId", projectId);
         object.put("useEnvironment","");
+        object.put("url","");
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString());
         objectNew.remove("refType");
         objectNew.remove("referenced");
         test.setRequest(objectNew.toJSONString());
-        JSONObject obj = new JSONObject();
-        obj.put("type", object.get("protocol"));
-        obj.put("body", object.get("body"));
-        obj.put("headers", object.get("headers"));
-        Map<String,Boolean>map = new HashMap<>();
-        map.put("enable", true);
-        List<Map<String, Boolean>> list = new ArrayList<>();
-        list.add(map);
-        obj.put("statusCode", list);
-        test.setResponse(obj.toJSONString());
+        test.setResponse(JSON.toJSONString(new HttpResponse()));
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
