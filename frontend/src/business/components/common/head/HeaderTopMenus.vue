@@ -8,10 +8,7 @@
            @select="handleSelect"
            :key="menuKey"
            router>
-    <el-menu-item index="/workstation" v-if="hasLicense() && check('workstation')">
-      {{ $t('commons.my_workstation') }}
-    </el-menu-item>
-    <el-menu-item v-if="!hasLicense()" @click="clickPlanMenu">
+    <el-menu-item index="/workstation" v-xpack v-if="check('workstation')">
       {{ $t('commons.my_workstation') }}
     </el-menu-item>
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
@@ -22,8 +19,11 @@
                   v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
       {{ $t('commons.api') }}
     </el-menu-item>
-    <el-menu-item index="/ui" @click="active()" v-if="check('ui')" onselectstart="return false"
+    <el-menu-item index="/ui" @click="active()" v-if="hasLicense() && check('ui')" onselectstart="return false"
                   v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
+      {{ $t('commons.ui') }}
+    </el-menu-item>
+    <el-menu-item v-if="!hasLicense()" @click="clickPlanMenu">
       {{ $t('commons.ui') }}
     </el-menu-item>
     <el-menu-item index="/performance" v-if="check('performance')"
@@ -138,7 +138,7 @@ export default {
       this.$message({
         dangerouslyUseHTMLString: true,
         showClose: true,
-        message: this.$t('commons.enterprise_edition_tips'),
+        message: this.$t('commons.ui_edition_tips'),
       });
       return false;
     },
