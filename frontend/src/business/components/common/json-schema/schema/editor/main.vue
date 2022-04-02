@@ -207,7 +207,7 @@ export default {
   },
   created() {
     if (this.pickValue) {
-      this.hidden = this.pickValue.hidden;
+      this.hidden = this.root ? false : this.pickValue.hidden;
     }
   },
   methods: {
