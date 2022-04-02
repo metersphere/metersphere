@@ -7,11 +7,13 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -123,6 +125,14 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         if(requestObj.get("projectId")!=null){
             requestObj.put("projectId", apiDefinition.getProjectId());
         }
+        if(StringUtils.isBlank(requestObj.getString("path"))){
+            if(StringUtils.isNotBlank(requestObj.getString("url"))){
+                ApiImportAbstractParser apiImportAbstractParser = CommonBeanFactory.getBean(ApiImportAbstractParser.class);
+                String path = apiImportAbstractParser.formatPath(requestObj.getString("url"));
+                requestObj.put("path",path);
+            }
+        }
+        requestObj.put("url","");
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
         apiDefinition.setCreateUser(SessionUtils.getUserId());
         apiDefinition.setUserId(SessionUtils.getUserId());

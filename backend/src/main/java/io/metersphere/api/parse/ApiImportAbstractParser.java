@@ -135,7 +135,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         return apiDefinition;
     }
 
-    private String formatPath(String url) {
+    public String formatPath(String url) {
         try {
             URL urlObject = new URL(url);
             String path = StringUtils.isBlank(urlObject.getPath()) ? "/" : urlObject.getPath();
