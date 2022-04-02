@@ -13,6 +13,8 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.SwaggerParameterType;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.utils.LoggerUtil;
 import io.swagger.models.*;
 import io.swagger.models.auth.AuthorizationValue;
 import io.swagger.models.parameters.*;
@@ -32,11 +34,18 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
-        Swagger swagger;
+        Swagger swagger = null;
         String sourceStr = "";
         List<AuthorizationValue> auths = setAuths(request);
-        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {  //  使用 url 导入 swagger
-            swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            try {
+                //  使用 url 导入 swagger
+                swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
+            }catch (Exception e){
+                LoggerUtil.error(e);
+                MSException.throwException("swagger验证失败");
+            }
+
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
             swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
