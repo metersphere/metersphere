@@ -1,25 +1,26 @@
 <template>
   <div>
     <el-table
-      border
-      class="test-content adjust-table ms-table"
-      v-loading="tableIsLoading"
-      :data="data"
-      :default-sort="defaultSort"
-      :class="{'ms-select-all-fixed': showSelectAll}"
-      :height="screenHeight"
-      :row-key="rowKey"
-      :row-class-name="tableRowClassName"
-      :cell-class-name="addPaddingColClass"
-      :highlight-current-row="highlightCurrentRow"
-      @sort-change="sort"
-      @filter-change="filter"
-      @select-all="handleSelectAll"
-      @select="handleSelect"
-      @header-dragend="headerDragend"
-      @cell-mouse-enter="showPopover"
-      @row-click="handleRowClick"
-      ref="table">
+        border
+        class="test-content adjust-table ms-table"
+        v-loading="tableIsLoading"
+        :data="data"
+        :default-sort="defaultSort"
+        :class="{'ms-select-all-fixed': showSelectAll}"
+        :height="screenHeight"
+        :row-key="rowKey"
+        :row-class-name="tableRowClassName"
+        :cell-class-name="addPaddingColClass"
+        :highlight-current-row="highlightCurrentRow"
+        @sort-change="sort"
+        @filter-change="filter"
+        @select-all="handleSelectAll"
+        @select="handleSelect"
+        @header-dragend="headerDragend"
+        @cell-mouse-enter="showPopover"
+        @row-click="handleRowClick"
+        :key="tableActive"
+        ref="table">
 
       <el-table-column
         v-if="enableSelection"
@@ -165,7 +166,8 @@ export default {
       selectRows: new Set(),
       selectIds: [],
       // hasBatchTipShow: false,
-      defaultSort: {}
+      defaultSort: {},
+      tableActive: true
     };
   },
   props: {
@@ -479,8 +481,10 @@ export default {
       this.$refs.table.toggleRowSelection();
     },
     reloadTable() {
+      this.tableActive = false;
       this.$nextTick(() => {
         this.doLayout();
+        this.tableActive = true;
       });
     },
     addPaddingColClass({column}) {
