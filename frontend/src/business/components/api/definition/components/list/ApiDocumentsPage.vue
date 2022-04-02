@@ -1,7 +1,7 @@
 <template>
   <div>
     <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable"
-                         :project-id="projectId" :module-ids="moduleIds" :version-id="versionId"
+                         :project-id="projectId" :module-ids="moduleIds"
                          ref="documentAnchor"/>
   </div>
 </template>
@@ -41,6 +41,7 @@ export default {
   computed: {},
   methods: {
     initApiDocSimpleList() {
+      this.condition.versionId = this.versionId;
       Object.assign(this.$refs.documentAnchor.apiSearch, this.condition);
       this.$refs.documentAnchor.initApiDocSimpleList();
     }

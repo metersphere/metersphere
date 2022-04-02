@@ -170,7 +170,6 @@ export default {
     documentId: String,
     moduleIds: Array,
     sharePage: Boolean,
-    versionId: String,
     pageHeaderHeight: Number,
     trashEnable: {
       type: Boolean,
@@ -255,7 +254,6 @@ export default {
         simpleRequest.moduleIds = [];
       }
       simpleRequest.trashEnable = this.trashEnable;
-      simpleRequest.versionId = this.versionId;
 
       let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
 
