@@ -5,6 +5,7 @@ import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.RemakeReportService;
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -148,9 +149,9 @@ public class JMeterService {
         }
     }
 
-    private synchronized void send(JmeterRunRequestDTO request) {
+    private void send(JmeterRunRequestDTO request) {
         try {
-            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
             if (CollectionUtils.isEmpty(resources)) {
                 LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
@@ -159,8 +160,7 @@ public class JMeterService {
             }
 
             int index = (int) (Math.random() * resources.size());
-            JvmInfoDTO jvmInfoDTO = resources.get(index);
-            TestResourceDTO testResource = jvmInfoDTO.getTestResource();
+            TestResource testResource = resources.get(index);
             String configuration = testResource.getConfiguration();
             NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
             request.setCorePoolSize(node.getMaxConcurrency());
@@ -200,13 +200,12 @@ public class JMeterService {
 
     public boolean getRunningQueue(String poolId, String reportId) {
         try {
-            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(poolId);
+            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(poolId);
             if (CollectionUtils.isEmpty(resources)) {
                 return false;
             }
             boolean isRunning = false;
-            for (JvmInfoDTO jvmInfoDTO : resources) {
-                TestResourceDTO testResource = jvmInfoDTO.getTestResource();
+            for (TestResource testResource : resources) {
                 String configuration = testResource.getConfiguration();
                 NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
                 String nodeIp = node.getIp();
