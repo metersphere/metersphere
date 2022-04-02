@@ -349,9 +349,8 @@ export default {
     if (!this.body.scriptObject) {
       this.body.scriptObject = {};
     }
-
     if (!this.body.xmlHeader) {
-      this.body.xmlHeader = 'version="1.0" encoding="UTF-8"';
+      this.body.xmlHeader = '';
     }
   }
 }
