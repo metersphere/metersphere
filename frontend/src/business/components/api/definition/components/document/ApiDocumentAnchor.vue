@@ -332,6 +332,9 @@ export default {
           for (let dataIndex = 0; dataIndex < returnDatas.length; dataIndex++) {
             let index = indexArr[dataIndex];
             let data = returnDatas[dataIndex];
+            if (data.jsonSchemaBody) {
+              data.jsonSchemaBody = {raw:data.jsonSchemaBody};
+            }
             this.$set(this.apiInfoArray, index, data);
           }
           this.updateShowArray(itemIndex, afterNodeIndex, beforeNodeIndex);
