@@ -85,14 +85,12 @@ import MsTableOperators from "@/business/components/common/components/MsTableOpe
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import TestCaseReportTemplate from "@/business/components/project/template/TestCaseReportTemplate";
-import TestCaseTemplateEdit from "@/business/components/project/template/TestCaseTemplateEdit";
 import IssueTemplateEdit from "@/business/components/project/template/IssueTemplateEdit";
 
 export default {
   name: "IssuesTemplateList",
   components: {
     IssueTemplateEdit,
-    TestCaseTemplateEdit,
     TestCaseReportTemplate,
     MsTableHeader,
     MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable
