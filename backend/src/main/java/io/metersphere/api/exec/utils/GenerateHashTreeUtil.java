@@ -13,6 +13,7 @@ import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
@@ -21,7 +22,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plugin.core.MsTestElement;
@@ -97,7 +97,7 @@ public class GenerateHashTreeUtil {
         return pool;
     }
 
-    public static List<JvmInfoDTO> setPoolResource(String id) {
+    public static List<TestResource> setPoolResource(String id) {
         if (GenerateHashTreeUtil.isResourcePool(id).isPool() && !GenerateHashTreeUtil.isResourcePool(id).isK8s()) {
             ResourcePoolCalculation resourcePoolCalculation = CommonBeanFactory.getBean(ResourcePoolCalculation.class);
             return resourcePoolCalculation.getPools(id);
