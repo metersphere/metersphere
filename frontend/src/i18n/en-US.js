@@ -418,6 +418,7 @@ export default {
     open_source_version: "OPEN-SOURCE",
     function_planning: "The function is being planned...",
     enterprise_edition_tips: "This is an enterprise edition feature, <a href='https://metersphere.io/enterprise.html' target='_blank'>please consult for details</a>",
+    ui_edition_tips: "UI automation is an enterprise version function, you can apply for a trial on the official website",
     system_data: "System Data",
     system_user: "User",
     system_workspace: "Workspace",

@@ -40,10 +40,7 @@
           <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
             {{ $t('project.log') }}
           </el-menu-item>
-          <el-menu-item v-if="hasLicense()" :index="'/project/version'" v-permission="['PROJECT_VERSION:READ']">
-            {{ $t('project.version_manage') }}
-          </el-menu-item>
-          <el-menu-item v-else v-permission="['PROJECT_VERSION:READ']" @click="clickPlanMenu">
+          <el-menu-item v-xpack :index="'/project/version'" v-permission="['PROJECT_VERSION:READ']">
             {{ $t('project.version_manage') }}
           </el-menu-item>
           <el-menu-item :index="'/project/app'" popper-class="submenu"
