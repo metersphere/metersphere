@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.share.*;
 import io.metersphere.base.domain.*;
@@ -110,7 +111,7 @@ public class ShareInfoService {
         return true;
     }
 
-    public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel, Map<String,User> userIdMap) {
+    public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel, Map<String, User> userIdMap) {
         ApiDocumentInfoDTO apiInfoDTO = new ApiDocumentInfoDTO();
         JSONArray previewJsonArray = new JSONArray();
         if (apiModel != null) {
@@ -120,19 +121,19 @@ public class ShareInfoService {
             apiInfoDTO.setUri(apiModel.getPath());
             apiInfoDTO.setStatus(apiModel.getStatus());
 
-            if(StringUtils.isNotEmpty(apiModel.getTags())){
+            if (StringUtils.isNotEmpty(apiModel.getTags())) {
                 JSONArray tagsArr = JSONArray.parseArray(apiModel.getTags());
                 List<String> tagList = new ArrayList<>();
-                for(int i = 0;i < tagsArr.size();i ++){
+                for (int i = 0; i < tagsArr.size(); i++) {
                     tagList.add(tagsArr.getString(i));
                 }
-                if(!tagList.isEmpty()){
-                    apiInfoDTO.setTags(StringUtils.join(tagList,","));
+                if (!tagList.isEmpty()) {
+                    apiInfoDTO.setTags(StringUtils.join(tagList, ","));
                 }
             }
 
-            apiInfoDTO.setResponsibler(userIdMap.get(apiModel.getUserId()) == null? apiModel.getUserId() : userIdMap.get(apiModel.getUserId()).getName());
-            apiInfoDTO.setCreateUser(userIdMap.get(apiModel.getCreateUser()) == null? apiModel.getCreateUser() : userIdMap.get(apiModel.getCreateUser()).getName());
+            apiInfoDTO.setResponsibler(userIdMap.get(apiModel.getUserId()) == null ? apiModel.getUserId() : userIdMap.get(apiModel.getUserId()).getName());
+            apiInfoDTO.setCreateUser(userIdMap.get(apiModel.getCreateUser()) == null ? apiModel.getCreateUser() : userIdMap.get(apiModel.getCreateUser()).getName());
             apiInfoDTO.setDesc(apiModel.getDescription());
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
             apiInfoDTO.setModules(apiModuleService.getModuleNameById(apiModel.getModuleId()));
@@ -165,6 +166,7 @@ public class ShareInfoService {
                                 }
                             }
                         } catch (Exception e) {
+                            LogUtil.error(e.getMessage());
                         }
                     }
                     //rest参数设置
@@ -180,6 +182,7 @@ public class ShareInfoService {
                                 }
                             }
                         } catch (Exception e) {
+                            LogUtil.error(e.getMessage());
                         }
                     }
                     apiInfoDTO.setUrlParams(urlParamArr.toJSONString());
@@ -207,20 +210,12 @@ public class ShareInfoService {
                                             isJsonSchema = true;
                                         }
                                     }
-                                    if (isJsonSchema) {
-                                        apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
-                                        apiInfoDTO.setJsonSchemaBody(bodyObj);
-                                        if (bodyObj.containsKey("jsonSchema")) {
-                                            JSONObject jsonSchemaObj = bodyObj.getJSONObject("jsonSchema");
-                                            apiInfoDTO.setRequestPreviewData(JSON.parse(JSONSchemaGenerator.getJson(jsonSchemaObj.toJSONString())));
-                                        }
-                                    } else {
-                                        if (bodyObj.containsKey("raw")) {
-                                            String raw = bodyObj.getString("raw");
-                                            apiInfoDTO.setRequestBodyStrutureData(raw);
-                                            //转化jsonObje 或者 jsonArray
-                                            this.setPreviewData(previewJsonArray, raw);
-                                        }
+                                    if (bodyObj.containsKey("raw")) {
+                                        String raw = bodyObj.getString("raw");
+                                        apiInfoDTO.setJsonSchemaBody(raw);
+                                        apiInfoDTO.setRequestBodyStrutureData(raw);
+                                        //转化jsonObje 或者 jsonArray
+                                        this.setPreviewData(previewJsonArray, raw);
                                     }
                                 } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
                                     if (bodyObj.containsKey("raw")) {
@@ -281,9 +276,8 @@ public class ShareInfoService {
                                 }
                             }
                         } catch (Exception e) {
-
+                            LogUtil.error(e.getMessage());
                         }
-
                     }
                 }
             }
@@ -303,7 +297,7 @@ public class ShareInfoService {
                         }
                         apiInfoDTO.setResponseHead(responseHeadDataArr.toJSONString());
                     } catch (Exception e) {
-
+                        LogUtil.error(e.getMessage());
                     }
                 }
                 // 赋值响应体
@@ -330,10 +324,8 @@ public class ShareInfoService {
                                     }
                                 }
                                 if (isJsonSchema) {
-//                                    apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
                                     apiInfoDTO.setResponseBodyParamType("JSON-SCHEMA");
                                     apiInfoDTO.setJsonSchemaResponseBody(bodyObj);
-//                                    apiInfoDTO.setJsonSchemaBody(bodyObj);
                                 } else {
                                     if (bodyObj.containsKey("raw")) {
                                         String raw = bodyObj.getString("raw");
@@ -342,10 +334,6 @@ public class ShareInfoService {
                                         this.setPreviewData(previewJsonArray, raw);
                                     }
                                 }
-//                                if (bodyObj.containsKey("raw")) {
-//                                    String raw = bodyObj.getString("raw");
-//                                    apiInfoDTO.setResponseBodyStrutureData(raw);
-//                                }
                             } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                                 if (bodyObj.containsKey("kvs")) {
                                     JSONArray bodyParamArr = new JSONArray();
@@ -386,7 +374,7 @@ public class ShareInfoService {
                             }
                         }
                     } catch (Exception e) {
-
+                        LogUtil.error(e.getMessage());
                     }
 
                 }
@@ -403,7 +391,7 @@ public class ShareInfoService {
                         }
                         apiInfoDTO.setResponseCode(responseStatusDataArr.toJSONString());
                     } catch (Exception e) {
-
+                        LogUtil.error(e.getMessage());
                     }
                 }
             }
@@ -418,21 +406,24 @@ public class ShareInfoService {
     private JSONObject genJSONObject(String request) {
         JSONObject returnObj = null;
         try {
-            returnObj = JSONObject.parseObject(request);
+            returnObj = JSONObject.parseObject(request, Feature.DisableCircularReferenceDetect);
         } catch (Exception e) {
+            LogUtil.error(e.getMessage());
         }
         return returnObj;
     }
 
     private void setPreviewData(JSONArray previewArray, String data) {
         try {
-            JSONObject previewObj = JSONObject.parseObject(data);
+            JSONObject previewObj = JSONObject.parseObject(data, Feature.DisableCircularReferenceDetect);
             previewArray.add(previewObj);
         } catch (Exception e) {
+            LogUtil.error(e.getMessage());
         }
         try {
             previewArray = JSONArray.parseArray(data);
         } catch (Exception e) {
+            LogUtil.error(e.getMessage());
         }
     }
 
@@ -554,44 +545,44 @@ public class ShareInfoService {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void validateExpired(ShareInfo shareInfo) {
         // 有效期根据类型从ProjectApplication中获取
-        if(shareInfo == null ){
+        if (shareInfo == null) {
             MSException.throwException(Translator.get("connection_expired"));
         }
         String type = "";
-        String projectId="";
-        if(shareInfo.getShareType().equals("PERFORMANCE_REPORT")){
+        String projectId = "";
+        if (shareInfo.getShareType().equals("PERFORMANCE_REPORT")) {
             type = ProjectApplicationType.PERFORMANCE_SHARE_REPORT_TIME.toString();
             LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(shareInfo.getCustomData());
-            if(loadTestReportWithBLOBs!=null){
+            if (loadTestReportWithBLOBs != null) {
                 projectId = loadTestReportWithBLOBs.getProjectId();
             }
         }
-        if(shareInfo.getShareType().equals("PLAN_DB_REPORT")){
+        if (shareInfo.getShareType().equals("PLAN_DB_REPORT")) {
             type = ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString();
             TestPlanWithBLOBs testPlan = getTestPlan(shareInfo);
-            if (testPlan != null){
+            if (testPlan != null) {
                 projectId = testPlan.getProjectId();
-            };
-
+            }
         }
-        if(shareInfo.getShareType().equals("API_REPORT")){
+        if (shareInfo.getShareType().equals("API_REPORT")) {
             type = ProjectApplicationType.API_SHARE_REPORT_TIME.toString();
             APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(shareInfo.getCustomData());
-            if (reportResult != null){
+            if (reportResult != null) {
                 projectId = reportResult.getProjectId();
-            };
+            }
+            ;
 
         }
-        if(StringUtils.isBlank(type)|| Strings.isBlank(projectId)){
-            millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
-        }else{
-            ProjectApplication projectApplication = projectApplicationService.getProjectApplication(projectId,type);
-            if(projectApplication.getTypeValue()==null){
-                millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime() ,1000 * 60 * 60 * 24,shareInfo.getId());
-            }else {
-                String expr= projectApplication.getTypeValue();
-                long timeMills = getTimeMills(shareInfo.getUpdateTime(),expr);
-                millisCheck(System.currentTimeMillis(),timeMills,shareInfo.getId());
+        if (StringUtils.isBlank(type) || Strings.isBlank(projectId)) {
+            millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime(), 1000 * 60 * 60 * 24, shareInfo.getId());
+        } else {
+            ProjectApplication projectApplication = projectApplicationService.getProjectApplication(projectId, type);
+            if (projectApplication.getTypeValue() == null) {
+                millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime(), 1000 * 60 * 60 * 24, shareInfo.getId());
+            } else {
+                String expr = projectApplication.getTypeValue();
+                long timeMills = getTimeMills(shareInfo.getUpdateTime(), expr);
+                millisCheck(System.currentTimeMillis(), timeMills, shareInfo.getId());
             }
         }
     }
@@ -604,7 +595,7 @@ public class ShareInfoService {
             TestPlanReportContentWithBLOBs testPlanReportContent = testPlanReportContents.get(0);
             if (testPlanReportContent != null) {
                 TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
-                if(testPlanReport!=null){
+                if (testPlanReport != null) {
                     return testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
                 }
 
@@ -613,8 +604,8 @@ public class ShareInfoService {
         return null;
     }
 
-    private void millisCheck(long compareMillis, long millis,String shareInfoId) {
-        if (compareMillis>millis) {
+    private void millisCheck(long compareMillis, long millis, String shareInfoId) {
+        if (compareMillis > millis) {
             shareInfoMapper.deleteByPrimaryKey(shareInfoId);
             MSException.throwException(Translator.get("connection_expired"));
         }
