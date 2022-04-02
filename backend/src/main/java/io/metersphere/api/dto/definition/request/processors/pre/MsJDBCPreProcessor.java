@@ -93,7 +93,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
         // 数据兼容处理
         if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
-            if(environmentConfig.getDatabaseConfigs() != null){
+            if(environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getApiEnvironmentid())){
                 this.environmentId = environmentConfig.getApiEnvironmentid();
             }
             // 1.8 之后 当前正常数据
