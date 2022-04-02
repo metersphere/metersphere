@@ -122,3 +122,33 @@ CREATE PROCEDURE schema_change() BEGIN
 END//
 DELIMITER ;
 CALL schema_change();
+
+--
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+DEBUG', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+EXPORT_SCENARIO', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+CREATE', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+BATCH_COPY', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+CREATE_PERFORMANCE_BATCH', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+SCHEDULE', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+CREATE_PERFORMANCE', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+COPY', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+DELETE', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+RUN', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+IMPORT_SCENARIO', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+MOVE_BATCH', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+EDIT', 'PROJECT_UI_SCENARIO');

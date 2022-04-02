@@ -3019,6 +3019,23 @@ export default {
       create_performance_batch: "BATCH CREATE PERFORMANCE",
       batch_copy: "BATCH COPY",
     },
+    project_ui_scenario: {
+      name: "Scenario",
+      read: "READ",
+      create: "CREATE",
+      edit: "EDIT",
+      delete: "DELETE",
+      copy: "COPY",
+      run: "RUN",
+      debug: "DEBUG",
+      schedule: "SCHEDULE",
+      import: "IMPORT",
+      export: "EXPORT",
+      move_batch: "MOVE BATCH",
+      create_performance: "CREATE PERFORMANCE",
+      create_performance_batch: "BATCH CREATE PERFORMANCE",
+      batch_copy: "BATCH COPY",
+    },
     project_api_report: {
       name: "Report",
       read: "READ",
@@ -3074,6 +3091,7 @@ export default {
     other: {
       track: "Track",
       api: "API",
+      ui: "UI",
       performance: "Performance",
       project: "Project",
       report: "Report Statistics"
