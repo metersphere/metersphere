@@ -7,11 +7,9 @@ import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.domain.TestResourcePoolExample;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.NodeDTO;
-import io.metersphere.dto.TestResourceDTO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -33,22 +31,22 @@ public class ResourcePoolCalculation {
 
     private static final String BASE_URL = "http://%s:%d";
 
-    private JvmInfoDTO getNodeJvmInfo(String uri) {
+    private String getNodeJvmInfo(String uri) {
         try {
-            return restTemplate.getForObject(uri, JvmInfoDTO.class);
+            return restTemplate.getForObject(uri, String.class);
         } catch (Exception e) {
             return null;
         }
     }
 
-    public List<JvmInfoDTO> getPools(String resourcePoolId) {
+    public List<TestResource> getPools(String resourcePoolId) {
         // 获取可以执行的资源池
         TestResourcePoolExample example = new TestResourcePoolExample();
         example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andIdEqualTo(resourcePoolId);
         List<TestResourcePool> pools = testResourcePoolMapper.selectByExample(example);
 
         // 按照NODE节点的可用内存空间大小排序
-        List<JvmInfoDTO> availableNodes = new ArrayList<>();
+        List<TestResource> availableNodes = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(pools)) {
             List<String> poolIds = pools.stream().map(pool -> pool.getId()).collect(Collectors.toList());
             TestResourceExample resourceExample = new TestResourceExample();
@@ -59,15 +57,12 @@ public class ResourcePoolCalculation {
                 NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
                 String nodeIp = node.getIp();
                 Integer port = node.getPort();
-                String uri = String.format(BASE_URL + "/jmeter/getJvmInfo", nodeIp, port);
-                JvmInfoDTO nodeJvm = this.getNodeJvmInfo(uri);
-                if (nodeJvm == null) {
+                String uri = String.format(BASE_URL + "/jmeter/status", nodeIp, port);
+                String status = this.getNodeJvmInfo(uri);
+                if (!StringUtils.equals(status, "OK")) {
                     continue;
                 }
-                TestResourceDTO dto = new TestResourceDTO();
-                BeanUtils.copyBean(dto,testResource);
-                nodeJvm.setTestResource(dto);
-                availableNodes.add(nodeJvm);
+                availableNodes.add(testResource);
             }
         }
         return availableNodes;
