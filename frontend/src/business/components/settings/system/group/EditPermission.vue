@@ -129,7 +129,7 @@ export default {
       }
     },
     _getUniteMenu() {
-      let menu = ['TRACK', 'API', 'PERFORMANCE', 'REPORT'];
+      let menu = ['TRACK', 'API', 'UI', 'PERFORMANCE', 'REPORT'];
       for (let i = 0; i < this.tableData.length; i++) {
         if (i === 0) {
           this.spanArr.push(1);
