@@ -101,7 +101,7 @@ public class MsJDBCSampler extends MsTestElement {
         // 数据兼容处理
         if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
-            if(environmentConfig.getDatabaseConfigs() != null){
+            if(environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getApiEnvironmentid())){
                 this.environmentId = environmentConfig.getApiEnvironmentid();
             }
             // 1.8 之后 当前正常数据
@@ -129,7 +129,6 @@ public class MsJDBCSampler extends MsTestElement {
             this.dataSource = null;
             envConfig = this.initDataSource();
         } else {
-            this.dataSource = null;
             // 取当前环境下默认的一个数据源
             if (config.isEffective(this.getProjectId())) {
                 if (config.getConfig().get(this.getProjectId()) != null) {
