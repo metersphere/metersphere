@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaRunTest;
@@ -96,7 +97,7 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        JSONObject jsonObject = JSON.parseObject(this.getRaw());
+                        JSONObject jsonObject = JSON.parseObject(this.getRaw(), Feature.OrderedField);
                         if (!this.getRaw().contains("$ref")) {
                             jsonMockParse(jsonObject);
                         }
