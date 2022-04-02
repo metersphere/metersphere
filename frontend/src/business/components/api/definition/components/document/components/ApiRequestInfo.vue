@@ -27,12 +27,8 @@
                            min-width="120px"
                            show-overflow-tooltip/>
         </el-table>
-        <div v-else-if="apiInfo.requestBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
+        <div v-else-if="apiInfo.requestBodyParamType === 'JSON-SCHEMA' || apiInfo.requestBodyParamType === 'JSON'" style="margin-left: 10px">
           <ms-json-code-edit :show-preview="false" :json-schema-disable="true" :body="apiInfo.jsonSchemaBody"
-                             ref="jsonCodeEdit"/>
-        </div>
-        <div v-else-if="formatRowDataToJsonSchema(apiInfo,'request') " style="margin-left: 10px">
-          <ms-json-code-edit :show-preview="false" :json-schema-disable="true" :body="apiInfo.requestJsonSchema"
                              ref="jsonCodeEdit"/>
         </div>
         <div v-else class="showDataDiv">
