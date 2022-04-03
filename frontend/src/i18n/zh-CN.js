@@ -3047,6 +3047,12 @@ export default {
       delete: "删除报告",
       export: "导出报告",
     },
+    project_ui_report: {
+      name: "测试报告",
+      read: "查询报告",
+      delete: "删除报告",
+      export: "导出报告",
+    },
     project_performance_test: {
       name: "测试",
       read: "查询测试",
