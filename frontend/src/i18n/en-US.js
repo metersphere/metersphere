@@ -3043,6 +3043,12 @@ export default {
       delete: "DELETE",
       export: "EXPORT",
     },
+    project_ui_report: {
+      name: "Report",
+      read: "READ",
+      delete: "DELETE",
+      export: "EXPORT",
+    },
     project_performance_test: {
       name: "Test",
       read: "READ",

@@ -3046,6 +3046,12 @@ export default {
       delete: "刪除報告",
       export: "導出報告",
     },
+    project_ui_report: {
+      name: "測試報告",
+      read: "查詢報告",
+      delete: "刪除報告",
+      export: "導出報告",
+    },
     project_performance_test: {
       name: "測試",
       read: "查詢測試",
