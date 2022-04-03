@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import commandDefinition from "@/business/components/xpack/ui/definition/command-definition";
+import atomicCommandDefinition from "@/business/components/xpack/ui/definition/atomic-command-definition";
 
 export default {
   name: "UiCommandResult",
@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     label() {
-      return this.command.label && commandDefinition[this.command.label] ? commandDefinition[this.command.label].cnName : '';
+      return this.command.label && atomicCommandDefinition[this.command.label] ? atomicCommandDefinition[this.command.label].cnName : '';
     },
     isUnexecute() {
       return this.result && this.result.status === 'unexecute';
