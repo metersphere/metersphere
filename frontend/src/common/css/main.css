@@ -28,6 +28,10 @@
   padding: 6px 0;
 }
 
+.el-table .el-table__cell {
+  padding: 6px 0;
+}
+
 .el-tabs__header {
   margin: 0 0 5px;
 }
