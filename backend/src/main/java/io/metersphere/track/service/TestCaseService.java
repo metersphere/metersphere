@@ -648,48 +648,48 @@ public class TestCaseService {
     }
 
     private List<TestCaseDTO> parseStatus(List<TestCaseDTO> returnList) {
-        TestCaseExcelData excelData = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
-        List<String> testCaseIdList = new ArrayList<>();
-        returnList.forEach(item -> {
-            testCaseIdList.add(item.getId());
-        });
+        if (CollectionUtils.isNotEmpty(returnList)) {
+            TestCaseExcelData excelData = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
+            List<String> testCaseIdList = new ArrayList<>();
+            returnList.forEach(item -> {
+                testCaseIdList.add(item.getId());
+            });
 
-        List<TestCaseDTO> testCaseDTOList = extTestCaseMapper.getLastExecStatusByIdList(testCaseIdList);
-        Map<String, String> testCaseStatusMap = new HashMap<>();
-        testCaseDTOList.forEach(item -> {
-            testCaseStatusMap.put(item.getId(), item.getStatus());
-        });
+            List<TestCaseDTO> testCaseDTOList = extTestCaseMapper.getLastExecStatusByIdList(testCaseIdList);
+            Map<String, String> testCaseStatusMap = new HashMap<>();
+            testCaseDTOList.forEach(item -> {
+                testCaseStatusMap.put(item.getId(), item.getStatus());
+            });
 
-        for (TestCaseDTO data : returnList) {
-            String lastStatus = testCaseStatusMap.get(data.getId());
-            if (StringUtils.isNotEmpty(lastStatus)) {
-                data.setLastExecuteResult(lastStatus);
-            } else {
-                data.setLastExecuteResult(null);
-            }
-            String dataStatus = excelData.parseStatus(data.getStatus());
-
-            if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Trash")) {
-                try {
-                    JSONArray arr = JSONArray.parseArray(data.getCustomFields());
-                    JSONArray newArr = new JSONArray();
-                    for (int i = 0; i < arr.size(); i++) {
-                        JSONObject obj = arr.getJSONObject(i);
-                        if (obj.containsKey("name") && obj.containsKey("value")) {
-                            String name = obj.getString("name");
-                            if (StringUtils.equalsAny(name, "用例状态", "用例狀態", "Case status")) {
-                                obj.put("value", dataStatus);
-                            }
-                        }
-                        newArr.add(obj);
-                    }
-                    data.setCustomFields(newArr.toJSONString());
-                } catch (Exception e) {
-
+            for (TestCaseDTO data : returnList) {
+                String lastStatus = testCaseStatusMap.get(data.getId());
+                if (StringUtils.isNotEmpty(lastStatus)) {
+                    data.setLastExecuteResult(lastStatus);
+                } else {
+                    data.setLastExecuteResult(null);
                 }
+                String dataStatus = excelData.parseStatus(data.getStatus());
+                if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Trash")) {
+                    try {
+                        JSONArray arr = JSONArray.parseArray(data.getCustomFields());
+                        JSONArray newArr = new JSONArray();
+                        for (int i = 0; i < arr.size(); i++) {
+                            JSONObject obj = arr.getJSONObject(i);
+                            if (obj.containsKey("name") && obj.containsKey("value")) {
+                                String name = obj.getString("name");
+                                if (StringUtils.equalsAny(name, "用例状态", "用例狀態", "Case status")) {
+                                    obj.put("value", dataStatus);
+                                }
+                            }
+                            newArr.add(obj);
+                        }
+                        data.setCustomFields(newArr.toJSONString());
+                    } catch (Exception e) {
+                        LogUtil.error("Parse case exec status error:" + e.getMessage());
+                    }
+                }
+                data.setStatus(dataStatus);
             }
-
-            data.setStatus(dataStatus);
         }
         return returnList;
     }
