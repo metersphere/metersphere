@@ -73,4 +73,8 @@ export default {
   border-bottom: 1px solid #E6E6E6;
   background-color: #FFF;
 }
+
+.el-menu-item {
+  padding: 0 10px;
+}
 </style>

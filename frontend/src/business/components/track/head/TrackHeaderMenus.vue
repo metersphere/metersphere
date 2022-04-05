@@ -163,4 +163,7 @@ export default {
 /*  margin-left: 20px;*/
 /*}*/
 
+.el-menu-item {
+  padding: 0 10px;
+}
 </style>
