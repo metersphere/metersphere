@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm" >
+    <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm" size="small">
       <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
         <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
       </el-form-item>
