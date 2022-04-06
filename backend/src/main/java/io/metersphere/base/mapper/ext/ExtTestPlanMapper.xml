@@ -338,8 +338,10 @@
         order by test_plan.update_time desc
     </select>
     <select id="testPlanTestCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
-        select t.plan_id as id, COUNT(*) as countNum from test_plan_test_case t
+        select t.plan_id as id, COUNT(*) as value from test_plan_test_case t
+        inner join test_case on t.case_id = test_case.id
         <where>
+            (test_case.status != 'Trash' or test_case.status is null )
             <if test="planIds != null and planIds.size() > 0">
                 and t.plan_id IN
                 <foreach collection="planIds" item="id" separator="," open="(" close=")">
@@ -350,10 +352,11 @@
         GROUP BY t.plan_id
     </select>
     <select id="testPlanApiCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
-        select t.test_plan_id as id, COUNT(*) as countNum from test_plan_api_case t
-                                  inner join api_test_case c on t.api_case_id = c.id
-                                  inner join api_definition a on c.api_definition_id = a.id
+        select t.test_plan_id as id, COUNT(*) as value from test_plan_api_case t
+        inner join api_test_case c on t.api_case_id = c.id
+        inner join api_definition a on c.api_definition_id = a.id
         <where>
+            (c.status != 'Trash' or c.status is null)
             <if test="planIds != null and planIds.size() > 0">
                 and t.test_plan_id IN
                 <foreach collection="planIds" item="id" separator="," open="(" close=")">
@@ -364,8 +367,10 @@
         GROUP BY t.test_plan_id
     </select>
     <select id="testPlanApiScenarioCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
-        select t.test_plan_id as id , COUNT(*) as countNum from test_plan_api_scenario t
+        select t.test_plan_id as id , COUNT(*) as value from test_plan_api_scenario t
+        inner join api_scenario c on t.api_scenario_id = c.id
         <where>
+            (c.status != 'Trash' or c.status is null)
             <if test="planIds != null and planIds.size() > 0">
                 and t.test_plan_id IN
                 <foreach collection="planIds" item="id" separator="," open="(" close=")">
@@ -376,7 +381,7 @@
         GROUP BY t.test_plan_id
     </select>
     <select id="testPlanLoadCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
-        select t.test_plan_id as id,COUNT(*) as countNum from test_plan_load_case t
+        select t.test_plan_id as id,COUNT(*) as value from test_plan_load_case t
         <where>
             <if test="planIds != null and planIds.size() > 0">
                 and t.test_plan_id IN
