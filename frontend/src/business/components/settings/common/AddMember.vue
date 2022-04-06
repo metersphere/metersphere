@@ -80,6 +80,12 @@ export default {
       default() {
         return '';
       }
+    },
+    userResourceUrl: {
+      type: String,
+      default() {
+        return '/user/list/';
+      }
     }
   },
   methods: {
@@ -96,7 +102,7 @@ export default {
     },
     open() {
       this.dialogVisible = true;
-      this.result = this.$get('/user/list/', response => {
+      this.result = this.$get(this.userResourceUrl, response => {
         this.userList = response.data;
         this.copyUserList = response.data;
       })

@@ -1,5 +1,9 @@
 <template>
-  <add-member :group-type="GROUP_PROJECT" :group-scope-id="workspaceId" ref="addMember" @submit="submit"/>
+  <add-member :group-type="GROUP_PROJECT"
+              :group-scope-id="workspaceId"
+              ref="addMember"
+              @submit="submit"
+              :user-resource-url="userResourceUrl"/>
 </template>
 
 <script>
@@ -23,6 +27,7 @@ export default {
         ]
       },
       userList: [],
+      userResourceUrl: 'user/ws/current/member/list'
     };
   },
   computed: {
