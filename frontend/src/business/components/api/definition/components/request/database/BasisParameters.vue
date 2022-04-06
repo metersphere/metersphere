@@ -114,8 +114,6 @@ import MsApiExtract from "../../extract/ApiExtract";
 import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
 import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
 import MsApiScenarioVariables from "../../ApiScenarioVariables";
-import {createComponent} from "../../jmeter/components";
-import {Assertions, Extract} from "../../../model/ApiTestModel";
 import {parseEnvironment} from "../../../model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 import {getCurrentProjectID} from "@/common/js/utils";
@@ -251,38 +249,30 @@ export default {
         this.environments.forEach(environment => {
           parseEnvironment(environment);
         });
-        let hasEnvironment = false;
-        for (let i in this.environments) {
-          if (this.environments[i].id === this.request.environmentId) {
-            if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map) {
-              if (this.$store.state.scenarioEnvMap.has(this.projectId) &&
-                this.$store.state.scenarioEnvMap.get(this.projectId) === this.request.environmentId) {
-                hasEnvironment = true;
-              }
-            } else {
-              hasEnvironment = true;
-            }
-            break;
-          }
+        let envId = "";
+        if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+          && this.$store.state.scenarioEnvMap.has(this.projectId)) {
+          envId = this.$store.state.scenarioEnvMap.get(this.projectId);
         }
-        if (!hasEnvironment) {
-          if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-            && this.$store.state.scenarioEnvMap.has(this.projectId)) {
-            this.request.environmentId = this.$store.state.scenarioEnvMap.get(this.projectId);
-          }
-        }
-        if (!this.request.environmentId) {
-          this.request.dataSourceId = undefined;
-        }
-        this.initDataSource();
+        this.initDataSource(envId);
       });
     },
     openEnvironmentConfig() {
       this.$refs.environmentConfig.open(getCurrentProjectID());
     },
-    initDataSource() {
+    initDataSource(envId) {
       let flag = false;
       let environment = {};
+      if (envId) {
+        for (let i in this.environments) {
+          if (this.environments[i].id === envId && this.environments[i].config && this.environments[i].config.databaseConfigs
+            && this.environments[i].config.databaseConfigs.length > 0) {
+            this.request.environmentId = envId;
+            this.request.dataSourceId = this.environments[i].config.databaseConfigs[0].id;
+          }
+        }
+      }
+
       for (let i in this.environments) {
         if (this.environments[i].id === this.request.environmentId) {
           environment = this.environments[i];
