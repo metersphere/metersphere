@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaRunTest;
@@ -96,9 +97,10 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        String jsonString = JSON.toJSONString(this.getRaw(), SerializerFeature.DisableCircularReferenceDetect);
-                        JSONObject jsonObject = JSON.parseObject(jsonString);
-                        jsonMockParse(jsonObject);
+                        JSONObject jsonObject = JSON.parseObject(this.getRaw(), Feature.OrderedField);
+                        if (!this.getRaw().contains("$ref")) {
+                            jsonMockParse(jsonObject);
+                        }
                         this.raw = JSONObject.toJSONString(jsonObject, SerializerFeature.WriteMapNullValue);
                     }
                 } catch (Exception e) {

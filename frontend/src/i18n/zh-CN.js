@@ -605,6 +605,7 @@ export default {
       env_list: "环境列表",
       confirm: "确 定",
       please_select_env_for_current_scenario: "请为当前场景选择一个运行环境！",
+      please_select_env_for_current_plan: "请为当前测试计划选择一个运行环境！",
       lack_env: "环境组缺少环境！",
       lack_necessary_environment: "此环境组缺少必要的项目环境！",
       available_group: '可用环境组',
@@ -2524,7 +2525,7 @@ export default {
     edit_timer_task: "编辑定时任务",
     task_config: "任务配置",
     please_input_cron_expression: "请输入 Cron 表达式",
-    generate_expression: "生成表达式",
+    generate_expression: "自动生成",
     cron_expression_format_error: "Cron 表达式格式错误",
     cron_expression_interval_short_error: "间隔时间小于 3 分钟, 请避免执行耗时过长的测试",
     cron: {
@@ -3041,6 +3042,12 @@ export default {
       batch_copy: "批量复制",
     },
     project_api_report: {
+      name: "测试报告",
+      read: "查询报告",
+      delete: "删除报告",
+      export: "导出报告",
+    },
+    project_ui_report: {
       name: "测试报告",
       read: "查询报告",
       delete: "删除报告",

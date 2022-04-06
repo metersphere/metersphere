@@ -605,6 +605,7 @@ export default {
       env_list: "環境列表",
       confirm: "確 定",
       please_select_env_for_current_scenario: "請為當前場景選擇一個運行環境！",
+      please_select_env_for_current_plan: "請為當前测试计划選擇一個運行環境！",
       lack_env: "環境組缺少環境！",
       lack_necessary_environment: "此環境組缺少必要的項目環境！",
       available_group: '可用環境組',
@@ -2523,7 +2524,7 @@ export default {
     edit_timer_task: "編輯定時任務",
     task_config: "任務配置",
     please_input_cron_expression: "請輸入 Cron 表達式",
-    generate_expression: "生成表達式",
+    generate_expression: "自动生成",
     cron_expression_format_error: "Cron 表達式格式錯誤",
     cron_expression_interval_short_error: "間隔時間小於 3 分鐘, 請避免執行耗時過長的測試",
     cron: {
@@ -3040,6 +3041,12 @@ export default {
       batch_copy: "批量復製",
     },
     project_api_report: {
+      name: "測試報告",
+      read: "查詢報告",
+      delete: "刪除報告",
+      export: "導出報告",
+    },
+    project_ui_report: {
       name: "測試報告",
       read: "查詢報告",
       delete: "刪除報告",

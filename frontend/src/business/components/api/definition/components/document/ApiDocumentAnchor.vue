@@ -170,7 +170,6 @@ export default {
     documentId: String,
     moduleIds: Array,
     sharePage: Boolean,
-    versionId: String,
     pageHeaderHeight: Number,
     trashEnable: {
       type: Boolean,
@@ -255,7 +254,6 @@ export default {
         simpleRequest.moduleIds = [];
       }
       simpleRequest.trashEnable = this.trashEnable;
-      simpleRequest.versionId = this.versionId;
 
       let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
 
@@ -334,6 +332,9 @@ export default {
           for (let dataIndex = 0; dataIndex < returnDatas.length; dataIndex++) {
             let index = indexArr[dataIndex];
             let data = returnDatas[dataIndex];
+            if (data.jsonSchemaBody) {
+              data.jsonSchemaBody = {raw:data.jsonSchemaBody};
+            }
             this.$set(this.apiInfoArray, index, data);
           }
           this.updateShowArray(itemIndex, afterNodeIndex, beforeNodeIndex);

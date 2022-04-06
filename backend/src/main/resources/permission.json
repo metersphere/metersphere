@@ -845,6 +845,24 @@
       "license": true
     },
     {
+      "id": "PROJECT_UI_REPORT:READ",
+      "name": "permission.project_ui_report.read",
+      "resourceId": "PROJECT_UI_REPORT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_UI_REPORT:READ+DELETE",
+      "name": "permission.project_ui_report.delete",
+      "resourceId": "PROJECT_UI_REPORT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_UI_REPORT:READ+EXPORT",
+      "name": "permission.project_ui_report.export",
+      "resourceId": "PROJECT_UI_REPORT",
+      "license": true
+    },
+    {
       "id": "PROJECT_PERFORMANCE_TEST:READ",
       "name": "permission.project_performance_test.read",
       "resourceId": "PROJECT_PERFORMANCE_TEST"
@@ -1188,6 +1206,10 @@
       "id": "PROJECT_UI_SCENARIO",
       "name": "permission.project_ui_scenario.name",
       "license": true
+    },
+    {
+      "id": "PROJECT_UI_REPORT",
+      "name": "permission.project_ui_report.name"
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",

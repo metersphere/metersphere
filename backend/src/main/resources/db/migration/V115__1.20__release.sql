@@ -152,3 +152,16 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+MOVE_BATCH', 'PROJECT_UI_SCENARIO');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+EDIT', 'PROJECT_UI_SCENARIO');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ+DELETE', 'PROJECT_UI_REPORT');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ+EXPORT', 'PROJECT_UI_REPORT');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ', 'PROJECT_UI_REPORT');
+
+--
+CREATE INDEX test_case_node_project_id_index
+    ON test_case_node(project_id);
+CREATE INDEX test_case_node_id_index
+    ON test_case(node_id);
+

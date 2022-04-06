@@ -111,4 +111,9 @@ export default {
 .deactivation >>> .el-submenu__title {
   border-bottom: white !important;
 }
+
+.el-menu-item {
+  padding: 0 10px;
+}
+
 </style>

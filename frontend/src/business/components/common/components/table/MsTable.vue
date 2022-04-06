@@ -307,7 +307,9 @@ export default {
     initData(){
       //初始化数据是否显示提示块
       if(this.data && this.data.length > 0){
-        this.data[0].showBatchTip = true;
+        this.$nextTick(() => {
+          this.data[0].showBatchTip = true;
+        });
       }
     },
     // 批量操作提示, 第一次勾选提示, 之后不提示

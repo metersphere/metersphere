@@ -54,7 +54,7 @@
         prop="versionId"
         :filters="versionFilters"
         :label="$t('commons.version')"
-        min-width="120px">
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.versionName }}</span>
         </template>
@@ -64,13 +64,14 @@
         prop="priority"
         :filters="priorityFilters"
         sortable
-        :label="$t('test_track.case.priority')">
+        :label="$t('test_track.case.priority')"
+        width="120px">
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.priority"/>
         </template>
       </ms-table-column>
 
-      <ms-table-column prop="tags" :label="$t('commons.tag')">
+      <ms-table-column prop="tags" :label="$t('commons.tag')" width="90px">
         <template v-slot:default="scope">
           <ms-tag v-for="(itemName, index)  in scope.row.tags" :key="index" type="success" effect="plain"
                   :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
