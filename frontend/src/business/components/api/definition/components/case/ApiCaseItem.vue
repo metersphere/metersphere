@@ -262,6 +262,7 @@ export default {
     maintainerOptions: Array,
   },
   created() {
+    this.$store.state.scenarioEnvMap = undefined;
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.isXpack = true;
     }

@@ -43,6 +43,7 @@ import MsTag from "../../../../common/components/MsTag";
 import MsEnvironmentSelect from "./MsEnvironmentSelect";
 import {API_METHOD_COLOUR} from "../../model/JsonData";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "ApiCaseHeader",
@@ -99,6 +100,8 @@ export default {
     setEnvironment(data) {
       if (data) {
         this.$emit('setEnvironment', data.id);
+        this.$store.state.scenarioEnvMap = new Map();
+        this.$store.state.scenarioEnvMap.set(getCurrentProjectID(), data.id);
       }
     },
     open() {
