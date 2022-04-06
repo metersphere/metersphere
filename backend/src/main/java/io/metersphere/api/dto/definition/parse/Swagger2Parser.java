@@ -293,8 +293,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             ArrayModel arrayModel = (ArrayModel) schema;
             item.setType("array");
             item.setItems(new ArrayList<>());
-            JsonSchemaItem arrayItem = parseJsonSchema((Model) arrayModel.getItems(), refSet);
-            if (arrayItem != null) item.getItems().add(arrayItem);
+            JsonSchemaItem proItem = parseProperty(arrayModel.getItems(), refSet);
+            if (proItem != null) item.getItems().add(proItem);
         } else if (schema instanceof ModelImpl) {
             item.setType("object");
             ModelImpl model = (ModelImpl) schema;
