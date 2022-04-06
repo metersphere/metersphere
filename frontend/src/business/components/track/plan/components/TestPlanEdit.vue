@@ -19,7 +19,8 @@
               :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')" :size="itemSize"></el-input>
+              <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')"
+                        :size="itemSize" maxlength="128" show-word-limit/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -62,6 +63,7 @@
               :label-width="formLabelWidth"
               prop="plannedStartTime">
               <el-date-picker :placeholder="$t('test_track.plan.planned_start_time')" v-model="form.plannedStartTime"
+                              :size="itemSize"
                               type="datetime" value-format="timestamp" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
@@ -72,6 +74,7 @@
               :label-width="formLabelWidth"
               prop="plannedEndTime">
               <el-date-picker :placeholder="$t('test_track.plan.planned_end_time')" v-model="form.plannedEndTime"
+                              :size="itemSize"
                               type="datetime" value-format="timestamp" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
@@ -163,7 +166,7 @@ export default {
     return {
       isStepTableAlive: true,
       dialogFormVisible: false,
-      itemSize: "medium",
+      itemSize: "small",
       result: {},
       form: {
         name: '',
@@ -180,7 +183,7 @@ export default {
       rules: {
         name: [
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
-          {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
+          {max: 128, message: this.$t('test_track.length_less_than') + '128', trigger: 'blur'}
         ],
         principals: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
