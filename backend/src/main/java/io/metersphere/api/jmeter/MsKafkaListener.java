@@ -1,10 +1,8 @@
 package io.metersphere.api.jmeter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
-import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -12,6 +10,7 @@ import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +25,10 @@ public class MsKafkaListener {
     public static final String CONSUME_ID = "ms-api-exec-consume";
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
+    @Resource
+    private TestResultService testResultService;
+    @Resource
+    private ObjectMapper mapper;
 
     private static final Map<String, String> RUN_MODE_MAP = new HashMap<String, String>() {{
         this.put(ApiRunMode.SCHEDULE_API_PLAN.name(), "schedule-task");
@@ -72,7 +75,7 @@ public class MsKafkaListener {
                     }
                 }
             });
-            if (!assortMap.isEmpty()) {
+            if (MapUtils.isNotEmpty(assortMap)) {
                 testResultService.batchSaveResults(assortMap);
                 LoggerUtil.info("KAFKA消费执行内容存储结束");
             }
@@ -99,26 +102,12 @@ public class MsKafkaListener {
         }
     }
 
-    @Resource
-    private TestResultService testResultService;
-
-    @Resource
-    private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
-
     private ResultDTO formatResult(String result) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (StringUtils.isNotEmpty(result)) {
-                ResultDTO element = mapper.readValue(result, new TypeReference<ResultDTO>() {
+                return mapper.readValue(result, new TypeReference<ResultDTO>() {
                 });
-                if (StringUtils.isNotEmpty(element.getRunningDebugSampler())) {
-                    String evnStr = element.getRunningDebugSampler();
-                    apiEnvironmentRunningParamService.parseEvn(evnStr);
-                }
-                LoggerUtil.info("formatResult 完成：" + element.getReportId());
-                return element;
             }
         } catch (Exception e) {
             LoggerUtil.error("formatResult 格式化数据失败：", e);
