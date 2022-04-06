@@ -27,6 +27,7 @@ const mutations = {
   setGroupedCmd: (state, value) => state.groupedCmd = value,
   setUiElementLibraryModuleIds: (state, value) => state.uiElementLibraryModuleIds = value,
   setRefreshUiScenario: (state, value) => state.refreshUiScenario = value,
+  setSelectUiGroup: (state, value) => state.selectUiGroup = value,
 }
 
 export default mutations;
