@@ -41,6 +41,7 @@ const state = {
   selectCommand: {},
   //按照type分组的指令
   groupedCmd: {},
+  selectUiGroup: '',
   librarySelectElement: {},
   uiElementLibraryModuleIds: null,
   refreshUiScenario: false,
