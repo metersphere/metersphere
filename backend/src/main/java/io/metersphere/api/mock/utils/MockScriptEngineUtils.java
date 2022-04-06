@@ -44,26 +44,20 @@ public class MockScriptEngineUtils {
     }
 
     public void loadJar(String jarPath) throws Exception {
-        File jarFile = new File(jarPath);
-        // 从URLClassLoader类中获取类所在文件夹的方法，jar也可以认为是一个文件夹
-        Method method = null;
         try {
-            method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        } catch (NoSuchMethodException | SecurityException e1) {
-            e1.printStackTrace();
-        }
-        // 获取方法的访问权限以便写回
-        boolean accessible = method.isAccessible();
-        try {
-            method.setAccessible(true);
-            // 获取系统类加载器
-            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            URL url = jarFile.toURI().toURL();
-            method.invoke(classLoader, url);
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            try {
+                Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, new File(jarPath).toURI().toURL());
+            } catch (NoSuchMethodException e) {
+                Method method = classLoader.getClass()
+                        .getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, jarPath);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            method.setAccessible(accessible);
+            LogUtil.error(e);
         }
     }
 
