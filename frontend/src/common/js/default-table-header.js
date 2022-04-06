@@ -261,6 +261,22 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'creatorUser', key: '6', label: 'test_track.issue.issue_resource'},
     {id: 'createTime', key: '7', label: 'commons.create_time'},
     {id: 'updateTime', key: '8', label: 'commons.update_time'},
+  ],
+
+  // 测试报告列表
+  PERFORMANCE_REPORT_TABLE: [
+    {id: 'testName', key: 'a', label: 'report.test_name'},
+    {id: 'name', key: 'b', label: 'commons.name'},
+    {id: 'versionId', key: 'c', label: 'project.version.name'},
+    {id: 'userName', key: 'd', label: 'report.user_name'},
+    {id: 'maxUsers', key: 'e', label: 'report.max_users'},
+    {id: 'avgResponseTime', key: 'f', label: 'report.response_time'},
+    {id: 'tps', key: 'g', label: 'report.test_start_time'},
+    {id: 'testStartTime', key: 'h', label: 'report.test_start_time'},
+    {id: 'testEndTime', key: 'i', label: 'report.test_end_time'},
+    {id: 'testDuration', key: 'j', label: 'report.test_execute_time'},
+    {id: 'triggerMode', key: 'k', label: 'test_track.report.list.trigger_mode'},
+    {id: 'status', key: 'l', label: 'commons.status'},
   ]
 
 }
