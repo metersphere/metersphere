@@ -2,147 +2,114 @@
   <el-card>
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
+        <ms-container v-loading="result.loading" style="overflow: auto">
+          <ms-aside-container :height="pageHight">
+            <test-case-base-info
+              :form="form"
+              :is-form-alive="isFormAlive"
+              :isloading="result.loading"
+              :read-only="readOnly"
+              :public-enable="publicEnable"
+              :show-input-tag="showInputTag"
+              :tree-nodes="treeNodes"
+              :project-list="projectList"
+              :custom-field-form="customFieldForm"
+              :custom-field-rules="customFieldRules"
+              :test-case-template="testCaseTemplate"
+              ref="testCaseBaseInfo"
+            />
+          </ms-aside-container>
+          <ms-main-container :style="{height: pageHight + 'px'}">
+            <el-form :model="form" :rules="rules" ref="caseFrom" class="case-form">
 
-        <!--操作按钮-->
-        <div class="ms-opt-btn">
-          <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-            <i class="el-icon-star-off"
-               style="color: #783987; font-size: 25px;  margin-right: 15px;cursor: pointer;position: relative;top: 5px "
-               @click="saveFollow"/>
-          </el-tooltip>
-          <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-            <i class="el-icon-star-on"
-               style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative;top: 5px "
-               @click="saveFollow"/>
-          </el-tooltip>
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
-            {{ $t('operating_log.change_history') }}
-          </el-link>
-          <!--  版本历史 -->
-          <ms-version-history v-xpack
-                              ref="versionHistory"
-                              :version-data="versionData"
-                              :current-id="currentTestCaseInfo.id"
-                              :is-read="currentTestCaseInfo.trashEnable"
-                              @confirmOtherInfo="confirmOtherInfo"
-                              :current-project-id="currentProjectId"
-                              @compare="compare" @checkout="checkout" @create="create" @del="del"/>
-          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small" style="float: right;margin-right: 20px" :disabled="readOnly">
-            {{ $t('commons.save') }}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
-                  $t('test_track.case.save_create_continue')
-                }}
-              </el-dropdown-item>
-              <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.isPublic && this.isXpack">{{
-                  $t('test_track.case.save_add_public')
-                }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </div>
-        <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading" class="case-form">
-          <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
-          <el-row>
-            <el-col :span="8">
-              <el-form-item
-                :placeholder="$t('test_track.case.input_name')"
-                :label="$t('test_track.case.name')"
-                :label-width="formLabelWidth"
-                prop="name">
-                <el-input :disabled="readOnly" v-model="form.name" size="small" class="ms-case-input"></el-input>
-              </el-form-item>
-            </el-col>
+              <!--操作按钮-->
+              <div class="ms-opt-btn">
+                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+                  <i class="el-icon-star-off"
+                     style="color: #783987; font-size: 25px;  margin-right: 15px;cursor: pointer;position: relative;top: 5px "
+                     @click="saveFollow"/>
+                </el-tooltip>
+                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+                  <i class="el-icon-star-on"
+                     style="color: #783987; font-size: 28px; margin-right: 15px;cursor: pointer;position: relative;top: 5px "
+                     @click="saveFollow"/>
+                </el-tooltip>
+                <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">
+                  {{ $t('operating_log.change_history') }}
+                </el-link>
+                <!--  版本历史 -->
+                <ms-version-history v-xpack
+                                    ref="versionHistory"
+                                    :version-data="versionData"
+                                    :current-id="currentTestCaseInfo.id"
+                                    :is-read="currentTestCaseInfo.trashEnable"
+                                    @confirmOtherInfo="confirmOtherInfo"
+                                    :current-project-id="currentProjectId"
+                                    @compare="compare" @checkout="checkout" @create="create" @del="del"/>
+                <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+                             @command="handleCommand" size="small" style="float: right;margin-right: 20px"
+                             :disabled="readOnly">
+                  {{ $t('commons.save') }}
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="ADD_AND_CREATE" v-if="this.path =='/test/case/add'">{{
+                        $t('test_track.case.save_create_continue')
+                      }}
+                    </el-dropdown-item>
+                    <el-dropdown-item command="ADD_AND_PUBLIC" v-if="this.isPublic && this.isXpack">{{
+                        $t('test_track.case.save_add_public')
+                      }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </div>
+              <ms-form-divider :title="$t('test_track.case.step_info')"/>
 
-            <el-col :span="8">
-              <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module"
-                            v-if="!publicEnable">
-                <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
-                                @getValue="setModule" clearable checkStrictly size="small"/>
-              </el-form-item>
-            </el-col>
+              <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth"
+                                   :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
-            <el-col :span="8">
-              <el-form-item :label="$t('test_track.case.project')" :label-width="formLabelWidth" prop="projectId"
-                            v-if="publicEnable">
-                <el-select v-model="form.projectId" filterable clearable>
-                  <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
+              <step-change-item :label-width="formLabelWidth" :form="form"/>
+              <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
+                                   :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+              <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
+                                   :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
 
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tags">
-                <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag"
-                              class="ms-case-input"></ms-input-tag>
-              </el-form-item>
-            </el-col>
-          </el-row>
+              <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel"
+                                   :form="form" :read-only="readOnly"/>
 
-          <!-- 自定义字段 -->
-          <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
-                   class="case-form">
-            <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth"
-                                    :issue-template="testCaseTemplate"/>
-          </el-form>
+              <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
-          <el-row v-if="isCustomNum">
-            <el-col :span="7">
-              <el-form-item label="ID" :label-width="formLabelWidth" prop="customNum">
-                <el-input :disabled="readOnly" v-model.trim="form.customNum" size="small"
-                          class="ms-case-input"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
+              <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
+                                         :is-copy="currentTestCaseInfo.isCopy"
+                                         :label-width="formLabelWidth" :case-id="form.id"
+                                         :version-enable="versionEnable"
+                                         ref="otherInfo"/>
 
+              <el-row style="margin-top: 10px" v-if="type!=='add'">
+                <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
+                  <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
+                </el-col>
+              </el-row>
+              <el-row v-if="type!=='add'">
+                <el-col :span="20" :offset="1">
 
-          <ms-form-divider :title="$t('test_track.case.step_info')"/>
-
-          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth"
-                               :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
-
-          <step-change-item :label-width="formLabelWidth" :form="form"/>
-          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
-                               :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
-                               :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
-
-          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel"
-                               :form="form" :read-only="readOnly"/>
-
-          <ms-form-divider :title="$t('test_track.case.other_info')"/>
-
-          <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
-                                     :is-copy="currentTestCaseInfo.isCopy"
-                                     :label-width="formLabelWidth" :case-id="form.id" :version-enable="versionEnable"
-                                     ref="otherInfo"/>
-
-          <el-row style="margin-top: 10px" v-if="type!=='add'">
-            <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
-              <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
-            </el-col>
-          </el-row>
-          <el-row v-if="type!=='add'">
-            <el-col :span="20" :offset="1">
-
-              <review-comment-item v-for="(comment,index) in comments"
-                                   :key="index"
-                                   :comment="comment"
-                                   @refresh="getComments" api-url="/test/case"/>
-              <div v-if="comments.length === 0" style="text-align: center">
-                <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
+                  <review-comment-item v-for="(comment,index) in comments"
+                                       :key="index"
+                                       :comment="comment"
+                                       @refresh="getComments" api-url="/test/case"/>
+                  <div v-if="comments.length === 0" style="text-align: center">
+                    <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                       <span style="font-size: 15px; color: #8a8b8d;">
                         {{ $t('test_track.comment.no_comment') }}
                       </span>
-                </i>
-              </div>
-            </el-col>
-          </el-row>
-          <test-case-comment :case-id="form.id"
-                             @getComments="getComments" ref="testCaseComment"/>
-
-        </el-form>
+                    </i>
+                  </div>
+                </el-col>
+              </el-row>
+              <test-case-comment :case-id="form.id"
+                                 @getComments="getComments" ref="testCaseComment"/>
+            </el-form>
+          </ms-main-container>
+        </ms-container>
       </div>
       <ms-change-history ref="changeHistory"/>
       <el-dialog
@@ -151,12 +118,13 @@
         :destroy-on-close="true"
         width="100%"
       >
-        <test-case-version-diff  v-if="dialogVisible" :old-data="oldData" :new-data="newData"
+        <test-case-version-diff v-if="dialogVisible" :old-data="oldData" :new-data="newData"
                                 :tree-nodes="treeNodes"></test-case-version-diff>
 
       </el-dialog>
 
-      <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo" ref="selectPropDialog"></version-create-other-info-select>
+      <version-create-other-info-select @confirmOtherInfo="confirmOtherInfo"
+                                        ref="selectPropDialog"></version-create-other-info-select>
     </div>
   </el-card>
 
@@ -200,6 +168,10 @@ import {getTestTemplate} from "@/network/custom-field-template";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import TestCaseVersionDiff from "@/business/components/track/case/version/TestCaseVersionDiff";
 import VersionCreateOtherInfoSelect from "@/business/components/track/case/components/VersionCreateOtherInfoSelect";
+import TestCaseBaseInfo from "@/business/components/track/case/components/TestCaseBaseInfo";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -223,6 +195,10 @@ export default {
     'MsVersionHistory': versionHistory.default,
     TestCaseVersionDiff,
     VersionCreateOtherInfoSelect,
+    TestCaseBaseInfo,
+    MsContainer,
+    MsAsideContainer,
+    MsMainContainer,
   },
   data() {
     return {
@@ -231,6 +207,7 @@ export default {
       isPublic: false,
       isXpack: false,
       testCaseTemplate: {},
+      pageHight: document.documentElement.clientHeight - 150 + '',
       projectList: [],
       options: REVIEW_STATUS,
       statuOptions: API_STATUS,
@@ -238,8 +215,8 @@ export default {
       result: {},
       dialogFormVisible: false,
       showFollow: false,
-      isValidate:false,
-      currentValidateName:"",
+      isValidate: false,
+      currentValidateName: "",
       form: {
         name: '',
         module: 'default-module',
@@ -316,7 +293,7 @@ export default {
       oldData: null,
       newData: null,
       selectedOtherInfo: null,
-      currentProjectId: "" ,
+      currentProjectId: "",
       casePublic: false,
     };
   },
@@ -463,11 +440,20 @@ export default {
     if (hasLicense()) {
       this.getVersionHistory();
     }
+
+    //浏览器拉伸时窗口编辑窗口自适应
+    this.$nextTick(() => {
+      // 解决错位问题
+      window.addEventListener('resize', this.resizeContainer);
+    });
   },
   methods: {
     alert: alert,
     currentUser: () => {
       return getCurrentUser();
+    },
+    resizeContainer() {
+      this.pageHight = document.documentElement.clientHeight - 150 + '';
     },
     openHis() {
       this.$refs.changeHistory.open(this.form.id, ["测试用例", "測試用例", "Test case", "TRACK_TEST_CASE"]);
@@ -709,7 +695,7 @@ export default {
     saveCase(callback) {
       if (this.validateForm()) {
         this._saveCase(callback);
-      }else{
+      } else {
         this.$refs.versionHistory.loading = false;
         this.$refs.selectPropDialog.close();
       }
@@ -769,7 +755,7 @@ export default {
       //当 testId 为其他信息的时候必须删除该字段避免后端反序列化报错
       if ("other" != this.form.selected) {
         param.testId = JSON.stringify(this.form.selected);
-      }else{
+      } else {
         delete param.selected;
       }
       param.tags = this.form.tags;
@@ -945,7 +931,7 @@ export default {
       this.$get('/test/case/versions/' + this.currentTestCaseInfo.id, response => {
         if (response.data.length > 0) {
           for (let i = 0; i < response.data.length; i++) {
-              this.currentProjectId = response.data[i].projectId;
+            this.currentProjectId = response.data[i].projectId;
           }
         } else {
           this.currentProjectId = getCurrentProjectID();
@@ -1002,25 +988,24 @@ export default {
           return false;
         }
       });
-      this.$refs['customFieldForm'].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-          for (let i = 0; i < this.$refs['customFieldForm'].fields.length; i++) {
-            let customField = this.$refs['customFieldForm'].fields[i];
-            if(customField.validateState==='error'){
-              if(this.currentValidateName){
-                this.currentValidateName = this.currentValidateName+","+customField.label
-              }else{
-                this.currentValidateName = customField.label
-              }
+      let customValidate = this.$refs.testCaseBaseInfo.validateForm();
+      if (!customValidate) {
+        let customFieldFormFields = this.$refs.testCaseBaseInfo.getCustomFields();
+        for (let i = 0; i < customFieldFormFields.length; i++) {
+          let customField = customFieldFormFields[i];
+          if (customField.validateState === 'error') {
+            if (this.currentValidateName) {
+              this.currentValidateName = this.currentValidateName + "," + customField.label
+            } else {
+              this.currentValidateName = customField.label
             }
           }
-          this.isValidate = true;
-          this.$warning(this.currentValidateName +this.$t('commons.cannot_be_null'));
-          this.currentValidateName = '';
-          return false;
         }
-      });
+        this.isValidate = true;
+        this.$warning(this.currentValidateName + this.$t('commons.cannot_be_null'));
+        this.currentValidateName = '';
+        return false;
+      }
       return isValidate;
     },
     async create(row) {
