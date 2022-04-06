@@ -365,6 +365,7 @@ export default {
           uuid: newUuid,
           caseStatus: "Underway"
         };
+        request.projectId = getCurrentProjectID();
         obj.request = request;
         this.apiCaseList.unshift(obj);
       }
