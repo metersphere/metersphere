@@ -207,7 +207,13 @@ export default {
   },
   created() {
     if (this.pickValue) {
-      this.hidden = this.root ? false : this.pickValue.hidden;
+      if (this.pickValue.hidden === undefined) {
+        this.hidden = this.root ? false : true;
+      } else {
+        this.hidden = this.root ? false : this.pickValue.hidden;
+      }
+    } else {
+      this.hidden = true;
     }
   },
   methods: {
