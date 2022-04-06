@@ -589,4 +589,8 @@ export default {
 .el-divider__text {
   line-height: normal;
 }
+
+/deep/ .el-drawer__body {
+  overflow: unset;
+}
 </style>
