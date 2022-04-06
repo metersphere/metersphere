@@ -158,12 +158,20 @@ public class UserController {
         return userService.getMemberList(request);
     }
 
+    @GetMapping("/ws/current/member/list")
+    public List<User> getCurrentWorkspaceMember() {
+        QueryMemberRequest request = new QueryMemberRequest();
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return userService.getMemberList(request);
+    }
+
     /**
      * 添加工作空间成员
      */
     @PostMapping("/ws/member/add")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.CREATE, title = "添加工作空间成员")
     public void addMember(@RequestBody AddMemberRequest request) {
+
         String wsId = request.getWorkspaceId();
 //        workspaceService.checkWorkspaceOwner(wsId);
         userService.addMember(request);
