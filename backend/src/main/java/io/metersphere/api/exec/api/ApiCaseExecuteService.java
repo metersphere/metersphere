@@ -9,6 +9,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
+import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.service.ApiCaseResultService;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ApiCaseExecuteService {
@@ -60,7 +62,7 @@ public class ApiCaseExecuteService {
     @Resource
     private ApiCaseResultService apiCaseResultService;
     @Resource
-    ApiScenarioReportStructureService apiScenarioReportStructureService;
+    private ApiScenarioReportStructureService apiScenarioReportStructureService;
 
     /**
      * 测试计划case执行
@@ -92,9 +94,22 @@ public class ApiCaseExecuteService {
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
+
+        // 查出用例
+        List<String> apiCaseIds = planApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
+        ApiTestCaseExample caseExample = new ApiTestCaseExample();
+        caseExample.createCriteria().andIdIn(apiCaseIds);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(caseExample);
+        Map<String, ApiTestCase> caseMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getId, a -> a, (k1, k2) -> k1));
+        // 资源池
+        String resourcePoolId = null;
+        if (request.getConfig() != null && GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
+            resourcePoolId = request.getConfig().getResourcePoolId();
+        }
+
         Map<String, String> planProjects = new HashMap<>();
-        planApiCases.forEach(testPlanApiCase -> {
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status);
+        for (TestPlanApiCase testPlanApiCase : planApiCases) {
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, caseMap, resourcePoolId);
             if (planProjects.containsKey(testPlanApiCase.getTestPlanId())) {
                 report.setProjectId(planProjects.get(testPlanApiCase.getTestPlanId()));
             } else {
@@ -106,7 +121,7 @@ public class ApiCaseExecuteService {
             }
             executeQueue.put(testPlanApiCase.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
-        });
+        }
 
         apiCaseResultService.batchSave(executeQueue);
 

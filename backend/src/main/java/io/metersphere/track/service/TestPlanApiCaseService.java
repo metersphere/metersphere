@@ -289,10 +289,10 @@ public class TestPlanApiCaseService {
                 String envGroupId = config.getEnvironmentGroupId();
                 Map<String, String> envMap = config.getEnvMap();
                 if ((StringUtils.equals(envType, EnvironmentType.JSON.toString()) && envMap != null && !envMap.isEmpty())) {
-                    setApiCaseEnv(request.getPlanIds(), envMap);
+                    setApiCaseEnv(null, request.getPlanIds(), envMap);
                 } else if ((StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId))) {
                     Map<String, String> map = environmentGroupProjectService.getEnvMap(envGroupId);
-                    setApiCaseEnv(request.getPlanIds(), map);
+                    setApiCaseEnv(null, request.getPlanIds(), map);
                 }
             }
             return testPlanApiCaseExecuteService.run(request);
@@ -300,14 +300,16 @@ public class TestPlanApiCaseService {
         return null;
     }
 
-    public void setApiCaseEnv(List<String> planIds, Map<String, String> map) {
+    public void setApiCaseEnv(List<TestPlanApiCase> testPlanApiCases, List<String> planIds, Map<String, String> map) {
         if (CollectionUtils.isEmpty(planIds) || (map != null && map.isEmpty())) {
             return;
         }
 
-        TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
-        caseExample.createCriteria().andIdIn(planIds);
-        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
+        if (CollectionUtils.isEmpty(testPlanApiCases)) {
+            TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
+            caseExample.createCriteria().andIdIn(planIds);
+            testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
+        }
         List<String> apiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(apiCaseIds)) {
             return;
@@ -326,7 +328,7 @@ public class TestPlanApiCaseService {
             String caseId = testPlanApiCase.getApiCaseId();
             String projectId = projectCaseIdMap.get(caseId);
             String envId = map.get(projectId);
-            if (StringUtils.isNotBlank(envId)) {
+            if (StringUtils.isNotBlank(envId) && !StringUtils.equals(testPlanApiCase.getEnvironmentId(), envId)) {
                 testPlanApiCase.setEnvironmentId(envId);
                 mapper.updateByPrimaryKey(testPlanApiCase);
             }

@@ -1,5 +1,7 @@
 package io.metersphere.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -26,6 +28,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public RestTemplate restTemplateWithTimeOut() {
         return getTimeOutTemplate(4000, 4000, 10 * 1000);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
     }
 
     private RestTemplate getTimeOutTemplate(int requestTimeout, int connectTimeout, int readTimeout) {
