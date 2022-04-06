@@ -3,7 +3,6 @@ package io.metersphere.api.exec.scenario;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
@@ -36,9 +35,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ApiScenarioSerialService {
@@ -58,6 +55,8 @@ public class ApiScenarioSerialService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiScenarioEnvService apiScenarioEnvService;
+    @Resource
+    private ObjectMapper mapper;
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
         LoggerUtil.debug("Scenario run-执行脚本装载-进入串行准备");
@@ -126,8 +125,13 @@ public class ApiScenarioSerialService {
             if (queue != null) {
                 runRequest.setPlatformUrl(queue.getId());
             }
+            List<TestResource> resources = new ArrayList<>();
+            if (runRequest.getPool().isPool()) {
+                resources = GenerateHashTreeUtil.setPoolResource(runRequest.getPoolId());
+            }
+
             // 开始执行
-            jMeterService.run(runRequest);
+            jMeterService.run(runRequest, resources);
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(runRequest);
@@ -188,8 +192,6 @@ public class ApiScenarioSerialService {
     }
 
     private MsTestElement parse(ApiTestCaseWithBLOBs caseWithBLOBs, String planId, String envId) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             String api = caseWithBLOBs.getRequest();
             JSONObject element = JSON.parseObject(api);

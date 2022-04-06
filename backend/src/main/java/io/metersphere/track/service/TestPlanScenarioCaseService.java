@@ -191,7 +191,7 @@ public class TestPlanScenarioCaseService {
             if ((StringUtils.equals(envType, EnvironmentType.JSON.toString()) && envMap != null && !envMap.isEmpty())
                     || (StringUtils.equals(envType, EnvironmentType.GROUP.toString()) && StringUtils.isNotBlank(envGroupId))) {
                 // 更新场景用例环境信息，运行时从数据库读取最新环境
-                this.setScenarioEnv(planCaseIdList, testPlanScenarioRequest.getConfig());
+                this.setScenarioEnv(new ArrayList<>(), planCaseIdList, testPlanScenarioRequest.getConfig());
             }
         }
         planCaseIdList.forEach(item -> {
@@ -221,12 +221,19 @@ public class TestPlanScenarioCaseService {
         return apiAutomationService.run(request);
     }
 
-    public void setScenarioEnv(List<String> planScenarioIds, RunModeConfigDTO runModeConfig) {
+    public void setScenarioEnv(List<TestPlanApiScenario> testPlanApiScenarios, List<String> planScenarioIds, RunModeConfigDTO runModeConfig) {
         if (CollectionUtils.isEmpty(planScenarioIds)) return;
+
+        if (CollectionUtils.isEmpty(testPlanApiScenarios)) {
+            TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
+            testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
+            testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
+        }
+        if (CollectionUtils.isEmpty(planScenarioIds)) {
+            return;
+        }
+
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
-        testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
-        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
         TestPlanApiScenarioMapper mapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
 
         String environmentType = runModeConfig.getEnvironmentType();
@@ -234,9 +241,6 @@ public class TestPlanScenarioCaseService {
 
         if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
             Map<String, String> envMap = runModeConfig.getEnvMap();
-            if (CollectionUtils.isEmpty(planScenarioIds)) {
-                return;
-            }
             for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
                 String env = testPlanApiScenario.getEnvironment();
                 if (StringUtils.isBlank(env)) {
@@ -254,15 +258,17 @@ public class TestPlanScenarioCaseService {
                         map.put(s, envMap.get(s));
                     }
                 }
-                testPlanApiScenario.setEnvironmentType(EnvironmentType.JSON.toString());
-                testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
-                mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+                String envJsonStr = JSON.toJSONString(map);
+                if (!StringUtils.equals(envJsonStr, testPlanApiScenario.getEnvironment())) {
+                    testPlanApiScenario.setEnvironmentType(EnvironmentType.JSON.toString());
+                    testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
+                    mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+                }
             }
             sqlSession.flushStatements();
             if (sqlSession != null && sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
-            return;
         }
 
         if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
@@ -472,7 +478,7 @@ public class TestPlanScenarioCaseService {
     private int getUnderwayStepsCounts(List<String> underwayIds) {
         if (CollectionUtils.isNotEmpty(underwayIds)) {
             List<Integer> underwayStepsCounts = extTestPlanScenarioCaseMapper.getUnderwaySteps(underwayIds);
-            return underwayStepsCounts.stream().filter(Objects::nonNull).reduce(0,Integer::sum);
+            return underwayStepsCounts.stream().filter(Objects::nonNull).reduce(0, Integer::sum);
         }
         return 0;
     }

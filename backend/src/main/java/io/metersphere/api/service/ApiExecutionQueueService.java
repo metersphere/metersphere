@@ -296,7 +296,7 @@ public class ApiExecutionQueueService {
         LoggerUtil.info("处理队列结束：" + dto.getReportId() + "QID：" + dto.getQueueId());
     }
 
-    public void timeOut() {
+    public void defendQueue() {
         final int SECOND_MILLIS = 1000;
         final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
         // 计算一小时前的超时报告

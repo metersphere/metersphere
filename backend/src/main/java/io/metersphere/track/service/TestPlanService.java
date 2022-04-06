@@ -429,7 +429,7 @@ public class TestPlanService {
             request.setProjectId(request.getProjectId());
         }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
-        if(testPlans.size()==0){
+        if (testPlans.size() == 0) {
             return new ArrayList<>();
         }
         Set<String> ids = testPlans.stream().map(TestPlan::getId).collect(Collectors.toSet());
@@ -443,7 +443,7 @@ public class TestPlanService {
         Map<String, ParamsDTO> stringParamsDTOMap = testPlanReportMapper.reportCount(ids);
 
         testPlans.forEach(item -> {
-            item.setExecutionTimes(stringParamsDTOMap.get(item.getId()) == null ? 0 : Integer.parseInt(stringParamsDTOMap.get(item.getId()).getValue() == null ?  "0" : stringParamsDTOMap.get(item.getId()).getValue()));
+            item.setExecutionTimes(stringParamsDTOMap.get(item.getId()) == null ? 0 : Integer.parseInt(stringParamsDTOMap.get(item.getId()).getValue() == null ? "0" : stringParamsDTOMap.get(item.getId()).getValue()));
             if (StringUtils.isNotBlank(item.getScheduleId())) {
                 if (item.isScheduleOpen()) {
                     item.setScheduleStatus(ScheduleStatus.OPEN.name());
@@ -456,10 +456,10 @@ public class TestPlanService {
             } else {
                 item.setScheduleStatus(ScheduleStatus.NOTSET.name());
             }
-            item.setTestPlanTestCaseCount(planTestCaseCountMap.get(item.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(item.getId()).getValue() == null ?  "0" : planTestCaseCountMap.get(item.getId()).getValue()));
-            item.setTestPlanApiCaseCount(planApiCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(item.getId()).getValue() == null ?  "0" : planApiCaseMap.get(item.getId()).getValue()));
-            item.setTestPlanApiScenarioCount(planApiScenarioMap.get(item.getId()) == null? 0 : Integer.parseInt(planApiScenarioMap.get(item.getId()).getValue() == null ?  "0" : planApiScenarioMap.get(item.getId()).getValue()));
-            item.setTestPlanLoadCaseCount(planLoadCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(item.getId()).getValue() == null ?  "0" : planLoadCaseMap.get(item.getId()).getValue()));
+            item.setTestPlanTestCaseCount(planTestCaseCountMap.get(item.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(item.getId()).getValue() == null ? "0" : planTestCaseCountMap.get(item.getId()).getValue()));
+            item.setTestPlanApiCaseCount(planApiCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(item.getId()).getValue() == null ? "0" : planApiCaseMap.get(item.getId()).getValue()));
+            item.setTestPlanApiScenarioCount(planApiScenarioMap.get(item.getId()) == null ? 0 : Integer.parseInt(planApiScenarioMap.get(item.getId()).getValue() == null ? "0" : planApiScenarioMap.get(item.getId()).getValue()));
+            item.setTestPlanLoadCaseCount(planLoadCaseMap.get(item.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(item.getId()).getValue() == null ? "0" : planLoadCaseMap.get(item.getId()).getValue()));
         });
         calcTestPlanRate(testPlans);
         return testPlans;
@@ -1617,7 +1617,7 @@ public class TestPlanService {
                     failureScenarios.add(scenario);
                 } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.errorReportResult.name())) {
                     errorReportScenarios.add(scenario);
-                } else if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "stop","unexecute")) {
+                } else if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "stop", "unexecute")) {
                     unExecuteScenarios.add(scenario);
                 }
             }
@@ -1643,7 +1643,7 @@ public class TestPlanService {
                     apiFailureCases.add(apiDTO);
                 } else if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), ExecuteResult.errorReportResult.name())) {
                     apiErrorReportCases.add(apiDTO);
-                } else if (StringUtils.equalsAnyIgnoreCase(apiDTO.getExecResult(), "stop","unexecute")) {
+                } else if (StringUtils.equalsAnyIgnoreCase(apiDTO.getExecResult(), "stop", "unexecute")) {
                     apiUnExecuteCases.add(apiDTO);
                 }
             }
@@ -1932,13 +1932,14 @@ public class TestPlanService {
             envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
         }
 
-        testPlanApiCaseService.setApiCaseEnv(planApiCaseIds, envMap);
+        testPlanApiCaseService.setApiCaseEnv(testPlanApiCases, planApiCaseIds, envMap);
 
         TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
         scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
+
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(scenarioExample);
         List<String> planScenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
-        testPlanScenarioCaseService.setScenarioEnv(planScenarioIds, runModeConfig);
+        testPlanScenarioCaseService.setScenarioEnv(testPlanApiScenarios, planScenarioIds, runModeConfig);
     }
 
     public void editReportConfig(TestPlanDTO testPlanDTO) {

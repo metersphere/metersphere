@@ -14,6 +14,6 @@ public class FixedTask {
         if (queueService == null) {
             queueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
         }
-        queueService.timeOut();
+        queueService.defendQueue();
     }
 }

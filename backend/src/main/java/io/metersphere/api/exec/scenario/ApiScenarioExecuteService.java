@@ -369,7 +369,7 @@ public class ApiScenarioExecuteService {
         // 调用执行方法
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
         runRequest.setDebug(true);
-        jMeterService.run(runRequest);
+        jMeterService.run(runRequest, new ArrayList<>());
         return request.getId();
     }
 
