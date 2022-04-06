@@ -12,7 +12,9 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.*;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.NodeDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.performance.engine.Engine;
@@ -112,7 +114,7 @@ public class JMeterService {
         runner.run(request.getReportId());
     }
 
-    private void runNode(JmeterRunRequestDTO request) {
+    private void runNode(JmeterRunRequestDTO request, List<TestResource> resources) {
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         // 占位符
@@ -145,13 +147,15 @@ public class JMeterService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            this.send(request);
+            this.send(request, resources);
         }
     }
 
-    private void send(JmeterRunRequestDTO request) {
+    private void send(JmeterRunRequestDTO request, List<TestResource> resources) {
         try {
-            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            if (StringUtils.isNotEmpty(request.getPoolId()) && CollectionUtils.isEmpty(resources)) {
+                resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            }
             if (CollectionUtils.isEmpty(resources)) {
                 LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
@@ -186,9 +190,9 @@ public class JMeterService {
     }
 
 
-    public void run(JmeterRunRequestDTO request) {
+    public void run(JmeterRunRequestDTO request, List<TestResource> resources) {
         if (request.getPool().isPool()) {
-            this.runNode(request);
+            this.runNode(request, resources);
         } else {
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
         }
