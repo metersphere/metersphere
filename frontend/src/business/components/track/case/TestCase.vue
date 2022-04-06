@@ -1,7 +1,7 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
 
-    <ms-aside-container>
+    <ms-aside-container v-show="isAsideHidden">
       <test-case-node-tree
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
@@ -250,7 +250,8 @@ export default {
       tmpPath: null,
       currentVersion: null,
       currentTrashVersion: null,
-      versionEnable: false
+      versionEnable: false,
+      isAsideHidden: true,
     };
   },
   mounted() {
@@ -283,6 +284,7 @@ export default {
       this.init(to);
     },
     activeName(newVal, oldVal) {
+      this.isAsideHidden = this.activeName === 'default';
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
