@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import atomicCommandDefinition from "@/business/components/xpack/ui/definition/atomic-command-definition";
+import atomicCommandDefinition from "@/business/components/xpack/ui/definition/command/atomic-command-definition";
 
 export default {
   name: "UiCommandResult",
