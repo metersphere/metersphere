@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.ScenarioEnv;
@@ -55,6 +54,8 @@ public class ApiScenarioEnvService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private ObjectMapper mapper;
 
     public ScenarioEnv getApiScenarioEnv(String definition) {
         ScenarioEnv env = new ScenarioEnv();
@@ -138,8 +139,6 @@ public class ApiScenarioEnvService {
 
     private void getHashTree(List<MsTestElement> tree, ScenarioEnv env) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             for (int i = 0; i < tree.size(); i++) {
                 MsTestElement tr = tree.get(i);
                 if (!tr.isEnable()) {

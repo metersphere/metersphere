@@ -1946,13 +1946,14 @@ public class TestPlanService {
             envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
         }
 
-        testPlanApiCaseService.setApiCaseEnv(planApiCaseIds, envMap);
+        testPlanApiCaseService.setApiCaseEnv(testPlanApiCases, planApiCaseIds, envMap);
 
         TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
         scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
+
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(scenarioExample);
         List<String> planScenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
-        testPlanScenarioCaseService.setScenarioEnv(planScenarioIds, runModeConfig);
+        testPlanScenarioCaseService.setScenarioEnv(testPlanApiScenarios, planScenarioIds, runModeConfig);
     }
 
     public void editReportConfig(TestPlanDTO testPlanDTO) {

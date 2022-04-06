@@ -2,17 +2,16 @@ package io.metersphere.api.exec.utils;
 
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.constants.TriggerMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.RunModeConfigDTO;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -41,23 +40,24 @@ public class ApiDefinitionExecResultUtil {
         return apiResult;
     }
 
-    public static ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status) {
+    public static ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status,
+                                                    Map<String, ApiTestCase> caseMap, String poolId) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setReportType(ReportTypeConstants.API_INDEPENDENT.name());
-        ApiTestCaseWithBLOBs caseWithBLOBs = CommonBeanFactory.getBean(ApiTestCaseMapper.class).selectByPrimaryKey(key.getApiCaseId());
-        if (caseWithBLOBs != null) {
-            apiResult.setName(caseWithBLOBs.getName());
-            apiResult.setProjectId(caseWithBLOBs.getProjectId());
-            apiResult.setVersionId(caseWithBLOBs.getVersionId());
+        ApiTestCase testCase = caseMap.get(key.getApiCaseId());
+        if (testCase != null) {
+            apiResult.setName(testCase.getName());
+            apiResult.setProjectId(testCase.getProjectId());
+            apiResult.setVersionId(testCase.getVersionId());
         }
         apiResult.setTriggerMode(request.getTriggerMode());
         apiResult.setActuator("LOCAL");
-        if (request.getConfig() != null && GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
-            apiResult.setActuator(request.getConfig().getResourcePoolId());
+        if (StringUtils.isNotEmpty(poolId)) {
+            apiResult.setActuator(poolId);
         }
         if (StringUtils.isEmpty(request.getUserId())) {
             if (SessionUtils.getUser() != null) {
