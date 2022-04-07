@@ -416,4 +416,23 @@ public class FileUtils {
         }
         return multipartFiles;
     }
+
+    public static Boolean writeToFile(String filePath, byte[] content) {
+        OutputStream oStream = null;
+        try {
+            oStream = new FileOutputStream(filePath);
+            oStream.write(content);
+            return Boolean.TRUE;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return Boolean.FALSE;
+        } finally {
+            try {
+                oStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

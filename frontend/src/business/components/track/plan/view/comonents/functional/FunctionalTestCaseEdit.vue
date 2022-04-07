@@ -311,6 +311,8 @@ export default {
       param.remark = this.testCase.remark;
       param.projectId = this.testCase.projectId;
       param.nodeId = this.testCase.nodeId;
+      param.demandId = this.testCase.demandId;
+      param.name = this.testCase.name;
       let option = this.getOption(param);
       for (let i = 0; i < this.testCase.steptResults.length; i++) {
         let result = {};
