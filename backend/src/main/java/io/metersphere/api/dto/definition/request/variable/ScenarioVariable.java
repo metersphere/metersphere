@@ -53,7 +53,7 @@ public class ScenarioVariable {
     }
 
     public boolean isConstantValid() {
-        if ((StringUtils.isEmpty(this.type) || StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name())) && StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value)) {
+        if ((StringUtils.isEmpty(this.type) || StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name())) && StringUtils.isNotEmpty(name)) {
             return true;
         }
         return false;
