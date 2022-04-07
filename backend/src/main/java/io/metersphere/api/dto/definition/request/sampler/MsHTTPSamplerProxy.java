@@ -390,11 +390,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-
-                // 补充如果是完整URL 则用自身URL
-                if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
-                    url = this.getUrl();
-                }
                 if (isUrl()) {
                     if (this.isCustomizeReq() && StringUtils.isNotEmpty(this.getUrl())) {
                         url = this.getUrl();
@@ -587,9 +582,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             if (this.isRefEnvironment) {
                 return false;
             }
-            return true;
-        }
-        if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
             return true;
         }
         return false;
