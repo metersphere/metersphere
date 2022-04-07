@@ -147,6 +147,10 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             return;
         }
         cases.forEach(item -> {
+            String request = item.getRequest();
+            JSONObject requestObj = JSONObject.parseObject(request);
+            requestObj.put("useEnvironment", "");
+            item.setRequest(JSONObject.toJSONString(requestObj));
             item.setApiDefinitionId(apiDefinition.getId());
             item.setProjectId(importRequest.getProjectId());
         });
