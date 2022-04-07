@@ -219,7 +219,7 @@ public class TestPlanReportService {
         }
     }
 
-    public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String projectID, String planReportId, String planId, String userId, String triggerMode) {
+    public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String planReportId, String planId, String userId, String triggerMode) {
         Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
         Map<String, String> planTestCaseIdMap = new LinkedHashMap<>();
         Map<String, String> performanceIdMap = new LinkedHashMap<>();
@@ -252,19 +252,22 @@ public class TestPlanReportService {
             performanceInfoMap.put(id, TestPlanApiExecuteStatus.PREPARE.name());
         }
 
+        TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
+        TestPlanReport testPlanReport;
         if(StringUtils.isBlank(planReportId)){
             planReportId = UUID.randomUUID().toString();
+            testPlanReport = null;
+        }else{
+            testPlanReport= this.getTestPlanReport(planReportId);
+            returnDTO.setTestPlanReport(testPlanReport);
         }
 
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(planReportId, planId, userId, triggerMode,
                 planTestCaseIdMap.size() > 0, planScenarioIdMap.size() > 0, performanceIdMap.size() > 0,
                 apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
-        TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
-        TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
+
         if(testPlanReport==null){
             returnDTO = this.genTestPlanReport(saveRequest);
-        }else{
-            returnDTO.setTestPlanReport(testPlanReport);
         }
         returnDTO.setPlanScenarioIdMap(planScenarioIdMap);
         returnDTO.setApiTestCaseDataMap(planTestCaseIdMap);
@@ -552,9 +555,9 @@ public class TestPlanReportService {
                 List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
                 TestPlanExecutionQueue testPlanExecutionQueue = planExecutionQueueList.get(0);
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanExecutionQueue.getTestPlanId());
-                JSONObject jsonObject = JSONObject.parseObject(testPlan.getRequest());
+                JSONObject jsonObject = JSONObject.parseObject(testPlan.getRunModeConfig());
                 TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject,TestplanRunRequest.class);
-                TestPlanScheduleReportInfoDTO testPlanScheduleReportInfoDTO = this.genTestPlanReportBySchedule(null, testPlanExecutionQueue.getReportId(), testPlanExecutionQueue.getTestPlanId(), runRequest.getUserId(), runRequest.getTriggerMode());
+                TestPlanScheduleReportInfoDTO testPlanScheduleReportInfoDTO = this.genTestPlanReportBySchedule( testPlanExecutionQueue.getReportId(), testPlanExecutionQueue.getTestPlanId(), runRequest.getUserId(), runRequest.getTriggerMode());
                 runRequest.setPlanScheduleReportInfoDTO(testPlanScheduleReportInfoDTO);
                 testPlanService.runPlan(runRequest);
             }
