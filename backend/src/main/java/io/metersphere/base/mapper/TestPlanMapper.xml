@@ -27,7 +27,7 @@
     <result column="tags" jdbcType="LONGVARCHAR" property="tags" />
     <result column="report_summary" jdbcType="LONGVARCHAR" property="reportSummary" />
     <result column="report_config" jdbcType="LONGVARCHAR" property="reportConfig" />
-    <result column="request" jdbcType="LONGVARCHAR" property="request" />
+    <result column="run_mode_config" jdbcType="LONGVARCHAR" property="runModeConfig" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -94,7 +94,7 @@
     repeat_case
   </sql>
   <sql id="Blob_Column_List">
-    tags, report_summary, report_config, request
+    tags, report_summary, report_config, run_mode_config
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanExample" resultMap="ResultMapWithBLOBs">
     select
@@ -152,7 +152,7 @@
       planned_end_time, actual_start_time, actual_end_time,
       creator, project_id, execution_times, 
       automatic_status_update, repeat_case, tags, 
-      report_summary, report_config, request
+      report_summary, report_config, run_mode_config
       )
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
@@ -161,7 +161,7 @@
       #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT},
       #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{executionTimes,jdbcType=INTEGER}, 
       #{automaticStatusUpdate,jdbcType=BIT}, #{repeatCase,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}, 
-      #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}
+      #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR}, #{runModeConfig,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
@@ -236,8 +236,8 @@
       <if test="reportConfig != null">
         report_config,
       </if>
-      <if test="request != null">
-        request,
+      <if test="runModeConfig != null">
+        run_mode_config,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -310,8 +310,8 @@
       <if test="reportConfig != null">
         #{reportConfig,jdbcType=LONGVARCHAR},
       </if>
-      <if test="request != null">
-        #{request,jdbcType=LONGVARCHAR},
+      <if test="runModeConfig != null">
+        #{runModeConfig,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -393,8 +393,8 @@
       <if test="record.reportConfig != null">
         report_config = #{record.reportConfig,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.request != null">
-        request = #{record.request,jdbcType=LONGVARCHAR},
+      <if test="record.runModeConfig != null">
+        run_mode_config = #{record.runModeConfig,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -426,7 +426,7 @@
       tags = #{record.tags,jdbcType=LONGVARCHAR},
       report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR},
       report_config = #{record.reportConfig,jdbcType=LONGVARCHAR},
-      request = #{record.request,jdbcType=LONGVARCHAR}
+      run_mode_config = #{record.runModeConfig,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -526,8 +526,8 @@
       <if test="reportConfig != null">
         report_config = #{reportConfig,jdbcType=LONGVARCHAR},
       </if>
-      <if test="request != null">
-        request = #{request,jdbcType=LONGVARCHAR},
+      <if test="runModeConfig != null">
+        run_mode_config = #{runModeConfig,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -556,7 +556,7 @@
       tags = #{tags,jdbcType=LONGVARCHAR},
       report_summary = #{reportSummary,jdbcType=LONGVARCHAR},
       report_config = #{reportConfig,jdbcType=LONGVARCHAR},
-      request = #{request,jdbcType=LONGVARCHAR}
+      run_mode_config = #{runModeConfig,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlan">
