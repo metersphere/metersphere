@@ -12,10 +12,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.ExecuteResult;
-import io.metersphere.commons.constants.TestPlanReportStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
@@ -58,6 +55,10 @@ public class ApiExecutionQueueService {
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
+    @Resource
+    private TestPlanExecutionQueueMapper testPlanExecutionQueueMapper;
+    @Resource
+    private TestPlanReportMapper testPlanReportMapper;
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -394,6 +395,24 @@ public class ApiExecutionQueueService {
         }
         // 清除异常队列/一般是服务突然停止产生
         extApiExecutionQueueMapper.delete();
+        //清除未及时清理的批量执行测试计划的队列
+        deleteBatchPlanQueue(timeout);
+    }
+
+    private void deleteBatchPlanQueue(long timeout) {
+        TestPlanReportExample testPlanReportExample = new TestPlanReportExample();
+        testPlanReportExample.createCriteria().andTriggerModeEqualTo(TriggerMode.BATCH.name());
+        testPlanReportExample.createCriteria().andCreateTimeLessThan(timeout);
+        List<String>status = new ArrayList<>();
+        status.add("COMPLETED");
+        status.add("Completed");
+        testPlanReportExample.createCriteria().andStatusIn(status);
+        List<TestPlanReport> testPlanReports1 = testPlanReportMapper.selectByExample(testPlanReportExample);
+        List<String> finishedReportIds = testPlanReports1.stream().map(TestPlanReport::getId).collect(Collectors.toList());
+        TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
+        testPlanExecutionQueueExample.createCriteria().andCreateTimeLessThan(timeout);
+        testPlanExecutionQueueExample.createCriteria().andReportIdIn(finishedReportIds);
+        testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
     }
 
     public void stop(String reportId) {

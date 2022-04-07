@@ -627,6 +627,7 @@ export default {
       const ids = [];
       if (this.condition.selectAll) {
         param.isAll = true;
+        param.queryTestPlanRequest = this.condition
       }
       else {
         this.$refs.testPlanLitTable.selectRows.forEach((item) => {

@@ -2,6 +2,7 @@ package io.metersphere.track.request.testplan;
 
 
 import io.metersphere.track.dto.TestPlanScheduleReportInfoDTO;
+import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,5 +27,6 @@ public class TestplanRunRequest {
     private List<String> testPlanIds;
     private Boolean isAll;
     private TestPlanScheduleReportInfoDTO planScheduleReportInfoDTO;
+    private QueryTestPlanRequest queryTestPlanRequest;
 }
 
