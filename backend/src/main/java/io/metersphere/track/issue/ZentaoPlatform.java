@@ -150,7 +150,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String description = bugObj.getSteps();
         String steps = description;
         try {
-            steps = zentao2MsDescription(description);
+            steps = htmlDesc2MsDesc(zentao2MsDescription(description));
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
@@ -429,7 +429,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 String src = getMatcherResultForImg("src\\s*=\\s*\"?(.*?)(\"|>|\\s+)", imgPath);
                 String alt = getMatcherResultForImg("alt\\s*=\\s*\"?(.*?)(\"|>|\\s+)", imgPath);
                 String hyperLinkPath = packageDescriptionByPathAndName(src, alt);
-                imgPath = imgPath.replace("{", "\\{").replace("}", "\\}");
+                imgPath = transferSpecialCharacter(imgPath);
                 ztDescription = ztDescription.replaceAll(imgPath, hyperLinkPath);
             }
         }
@@ -446,8 +446,15 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 if (StringUtils.isEmpty(name)) {
                     name = srcContent;
                 }
+
                 if (Arrays.stream(imgArray).anyMatch(imgType -> StringUtils.equals(imgType, srcContent.substring(srcContent.indexOf('.') + 1)))) {
-                    path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+                    if (zentaoClient.getBaseUrl().contains("biz")) {
+                        // 禅道企业版
+                        path = zentaoClient.getBaseUrl() + "/index.php?m=file&f=read&fileID=" + srcContent;
+                    } else {
+                        // 禅道开源版
+                        path = zentaoClient.getBaseUrl() + "/file-read-" + srcContent;
+                    }
                 } else {
                     return result;
                 }

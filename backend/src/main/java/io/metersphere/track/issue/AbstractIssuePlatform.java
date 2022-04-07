@@ -334,6 +334,32 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return result;
     }
 
+    /**
+     * 转译字符串中的特殊字符
+     * @param str
+     * @return
+     */
+    protected String transferSpecialCharacter(String str) {
+        String regEx="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher(str);
+        if(matcher.find()){
+            CharSequence cs = str;
+            int j =0;
+            for(int i=0; i< cs.length(); i++){
+                String temp = String.valueOf(cs.charAt(i));
+                Matcher m2 = pattern.matcher(temp);
+                if(m2.find()){
+                    StringBuilder sb = new StringBuilder(str);
+                    str = sb.insert(j, "\\").toString();
+                    j++;
+                }
+                j++; //转义完成后str的长度增1
+            }
+        }
+        return str;
+    }
+
     public List<File> getImageFiles(String input) {
         List<File> files = new ArrayList<>();
         String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
