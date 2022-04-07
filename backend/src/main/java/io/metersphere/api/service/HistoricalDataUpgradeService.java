@@ -371,7 +371,7 @@ public class HistoricalDataUpgradeService {
             List<ApiMethodUrlDTO> useUrl = apiAutomationService.parseUrl(scenario);
             scenario.setUseUrl(JSONArray.toJSONString(useUrl));
             mapper.updateByPrimaryKeySelective(scenario);
-            apiScenarioReferenceIdService.saveByApiScenario(scenario);
+            apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
         } else {
             scenario = new ApiScenarioWithBLOBs();
             scenario.setId(id);
@@ -392,7 +392,7 @@ public class HistoricalDataUpgradeService {
             List<ApiMethodUrlDTO> useUrl = apiAutomationService.parseUrl(scenario);
             scenario.setUseUrl(JSONArray.toJSONString(useUrl));
             mapper.insert(scenario);
-            apiScenarioReferenceIdService.saveByApiScenario(scenario);
+            apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
         }
     }
 

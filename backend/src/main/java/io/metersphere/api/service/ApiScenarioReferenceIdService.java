@@ -6,11 +6,14 @@ import io.metersphere.base.domain.ApiScenarioReferenceId;
 import io.metersphere.base.domain.ApiScenarioReferenceIdExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReferenceIdMapper;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,8 @@ import java.util.*;
 public class ApiScenarioReferenceIdService {
     @Resource
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public List<ApiScenarioReferenceId> findByReferenceIds(List<String> deleteIds) {
         if (CollectionUtils.isEmpty(deleteIds)) {
@@ -43,112 +48,80 @@ public class ApiScenarioReferenceIdService {
         apiScenarioReferenceIdMapper.deleteByExample(example);
     }
 
-    public void saveByApiScenario(ApiScenarioWithBLOBs scenario) {
-        if(scenario.getId() == null){
+    public void saveApiAndScenarioRelation(ApiScenarioWithBLOBs scenario) {
+        if (scenario.getId() == null) {
             return;
         }
         this.deleteByScenarioId(scenario.getId());
-
-        long createTime = System.currentTimeMillis();
-        String createUser = SessionUtils.getUserId();
-
-        Map<String, ApiScenarioReferenceId> refreceIdDic = new HashMap<>();
-        try {
-            if (scenario.getScenarioDefinition() != null) {
-                JSONObject jsonObject = JSONObject.parseObject(scenario.getScenarioDefinition());
-                if (jsonObject.containsKey("hashTree")) {
-                    JSONArray testElementList = jsonObject.getJSONArray("hashTree");
-                    for (int index = 0; index < testElementList.size(); index++) {
-                        JSONObject item = testElementList.getJSONObject(index);
-                        String refId = "";
-                        String refrenced = "";
-                        String dataType = "";
-                        if(item.containsKey("id")){
-                            refId = item.getString("id");
-                        }
-                        if(item.containsKey("referenced")){
-                            refrenced = item.getString("referenced");
-                        }
-                        if(item.containsKey("refType")){
-                            dataType = item.getString("refType");
-                        }
-
-                        if (StringUtils.isNotEmpty(refId) && StringUtils.isNotEmpty(refrenced)) {
-                            ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
-                            saveItem.setId(UUID.randomUUID().toString());
-                            saveItem.setApiScenarioId(scenario.getId());
-                            saveItem.setCreateTime(createTime);
-                            saveItem.setCreateUserId(createUser);
-                            saveItem.setReferenceId(refId);
-                            saveItem.setReferenceType(refrenced);
-                            saveItem.setDataType(dataType);
-                            refreceIdDic.put(refId,saveItem);
-                        }
-
-                        if(item.containsKey("hashTree")){
-                            refreceIdDic.putAll(this.deepParseTestElement(createTime,createUser,scenario.getId(),item.getJSONArray("hashTree")));
-                        }
-                    }
+        Map<String, ApiScenarioReferenceId> referenceIdMap = new HashMap<>();
+        if (StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
+            JSONObject jsonObject = JSONObject.parseObject(scenario.getScenarioDefinition());
+            if (!jsonObject.containsKey(MsHashTreeService.HASH_TREE)) {
+                return;
+            }
+            JSONArray hashTree = jsonObject.getJSONArray(MsHashTreeService.HASH_TREE);
+            for (int index = 0; index < hashTree.size(); index++) {
+                JSONObject item = hashTree.getJSONObject(index);
+                if (item == null) {
+                    continue;
+                }
+                if (item.containsKey(MsHashTreeService.ID) && item.containsKey(MsHashTreeService.REFERENCED)) {
+                    ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
+                    saveItem.setId(UUID.randomUUID().toString());
+                    saveItem.setApiScenarioId(scenario.getId());
+                    saveItem.setReferenceId(item.getString(MsHashTreeService.ID));
+                    saveItem.setReferenceType(item.getString(MsHashTreeService.REFERENCED));
+                    saveItem.setDataType(item.getString(MsHashTreeService.REF_TYPE));
+                    referenceIdMap.put(item.getString(MsHashTreeService.ID), saveItem);
+                }
+                if (item.containsKey(MsHashTreeService.HASH_TREE)) {
+                    referenceIdMap.putAll(this.deepElementRelation(scenario.getId(), item.getJSONArray(MsHashTreeService.HASH_TREE)));
                 }
             }
-        } catch (Exception e) {
-            LogUtil.error(e);
         }
-        if(MapUtils.isNotEmpty(refreceIdDic)){
-            for (ApiScenarioReferenceId model:refreceIdDic.values()) {
-                apiScenarioReferenceIdMapper.insert(model);
+        if (MapUtils.isNotEmpty(referenceIdMap)) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiScenarioReferenceIdMapper referenceIdMapper = sqlSession.getMapper(ApiScenarioReferenceIdMapper.class);
+            for (ApiScenarioReferenceId apiScenarioReferenceId : referenceIdMap.values()) {
+                apiScenarioReferenceId.setCreateTime(System.currentTimeMillis());
+                apiScenarioReferenceId.setCreateUserId(SessionUtils.getUserId());
+                referenceIdMapper.insert(apiScenarioReferenceId);
             }
-        }else {
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        } else {
             ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
             saveItem.setId(UUID.randomUUID().toString());
             saveItem.setApiScenarioId(scenario.getId());
-            saveItem.setCreateTime(createTime);
-            saveItem.setCreateUserId(createUser);
-            try{
-                apiScenarioReferenceIdMapper.insert(saveItem);
-            }catch (Exception e){
-                LogUtil.error(e);
-            }
+            saveItem.setCreateTime(System.currentTimeMillis());
+            saveItem.setCreateUserId(SessionUtils.getUserId());
+            apiScenarioReferenceIdMapper.insert(saveItem);
         }
+
     }
 
-    public Map<String,ApiScenarioReferenceId> deepParseTestElement(long createTime,String createUser,String scenarioId,JSONArray testElementList){
-        Map<String,ApiScenarioReferenceId> returnMap = new HashMap<>();
-
-        if(CollectionUtils.isNotEmpty(testElementList)){
-            for (int index = 0; index < testElementList.size(); index++) {
-                JSONObject item = testElementList.getJSONObject(index);
-                String refId = "";
-                String refrenced = "";
-                String dataType = "";
-                if(item.containsKey("id")){
-                    refId = item.getString("id");
-                }
-                if(item.containsKey("referenced")){
-                    refrenced = item.getString("referenced");
-                }
-                if(item.containsKey("refType")){
-                    dataType = item.getString("refType");
-                }
-
-                if (StringUtils.isNotEmpty(refId) && StringUtils.isNotEmpty(refrenced)) {
+    public Map<String, ApiScenarioReferenceId> deepElementRelation(String scenarioId, JSONArray hashTree) {
+        Map<String, ApiScenarioReferenceId> deepRelations = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (int index = 0; index < hashTree.size(); index++) {
+                JSONObject item = hashTree.getJSONObject(index);
+                if (item.containsKey(MsHashTreeService.ID) && item.containsKey(MsHashTreeService.REFERENCED)) {
                     ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
                     saveItem.setId(UUID.randomUUID().toString());
                     saveItem.setApiScenarioId(scenarioId);
-                    saveItem.setCreateTime(createTime);
-                    saveItem.setCreateUserId(createUser);
-                    saveItem.setReferenceId(refId);
-                    saveItem.setReferenceType(refrenced);
-                    saveItem.setDataType(dataType);
-                    returnMap.put(refId,saveItem);
+                    saveItem.setReferenceId(item.getString(MsHashTreeService.ID));
+                    saveItem.setReferenceType(item.getString(MsHashTreeService.REFERENCED));
+                    saveItem.setDataType(item.getString(MsHashTreeService.REF_TYPE));
+                    deepRelations.put(item.getString(MsHashTreeService.ID), saveItem);
                 }
-                if(item.containsKey("hashTree")){
-                    returnMap.putAll(this.deepParseTestElement(createTime,createUser,scenarioId,item.getJSONArray("hashTree")));
+                if (item.containsKey(MsHashTreeService.HASH_TREE)) {
+                    deepRelations.putAll(this.deepElementRelation(scenarioId, item.getJSONArray(MsHashTreeService.HASH_TREE)));
                 }
             }
         }
-
-        return returnMap;
+        return deepRelations;
     }
 
     public List<ApiScenarioReferenceId> findByReferenceIdsAndRefType(List<String> deleteIds, String referenceType) {
