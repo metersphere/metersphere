@@ -7,6 +7,8 @@ import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.response.HttpResponse;
+import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioModuleService;
@@ -20,6 +22,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.service.CheckPermissionService;
 import org.apache.commons.collections.CollectionUtils;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -209,7 +212,14 @@ public class ApiScenarioImportUtil {
         objectNew.remove("refType");
         objectNew.remove("referenced");
         test.setRequest(objectNew.toJSONString());
-        test.setResponse(JSON.toJSONString(new HttpResponse()));
+        HttpResponse httpResponse = new HttpResponse();
+        KeyValue keyValue =  new KeyValue();
+        List<KeyValue> list = new ArrayList<>();
+        list.add(keyValue);
+        httpResponse.setHeaders(list);
+        httpResponse.setStatusCode(list);
+        httpResponse.setBody(new Body());
+        test.setResponse(JSON.toJSONString(httpResponse));
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
