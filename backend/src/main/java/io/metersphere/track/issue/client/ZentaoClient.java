@@ -181,7 +181,9 @@ public abstract class ZentaoClient extends BaseClient {
         String baseUrl = getBaseUrl();
         String[] split = baseUrl.split("/");
         String suffix = split[split.length - 1];
-        if (!StringUtils.equalsAny(suffix, "zentao", "zentaopms", "zentaopro", "zentaobiz")) {
+        if (StringUtils.equals("biz", suffix)) {
+            suffix = baseUrl;
+        } else if (!StringUtils.equalsAny(suffix, "zentao", "zentaopms", "zentaopro", "zentaobiz")) {
             suffix = "";
         } else {
             suffix = "/" + suffix;

@@ -215,20 +215,18 @@ public class TestCaseService {
         return request;
     }
 
-    private void addDemandHyperLink(EditTestCaseRequest request, String type) {
-        if (StringUtils.isNotEmpty(request.getDemandId())) {
-            IssuesRequest updateRequest = new IssuesRequest();
-            updateRequest.setId(request.getId());
-            updateRequest.setResourceId(request.getDemandId());
-            updateRequest.setProjectId(request.getProjectId());
-            updateRequest.setTestCaseId(request.getId());
-            Project project = projectService.getProjectById(request.getProjectId());
-            updateRequest.setWorkspaceId(project.getWorkspaceId());
-            List<AbstractIssuePlatform> platformList = getAddPlatforms(updateRequest);
-            platformList.forEach(platform -> {
-                platform.updateDemandHyperLink(request, project, type);
-            });
-        }
+    public void addDemandHyperLink(EditTestCaseRequest request, String type) {
+        IssuesRequest updateRequest = new IssuesRequest();
+        updateRequest.setId(request.getId());
+        updateRequest.setResourceId(request.getDemandId());
+        updateRequest.setProjectId(request.getProjectId());
+        updateRequest.setTestCaseId(request.getId());
+        Project project = projectService.getProjectById(request.getProjectId());
+        updateRequest.setWorkspaceId(project.getWorkspaceId());
+        List<AbstractIssuePlatform> platformList = getAddPlatforms(updateRequest);
+        platformList.forEach(platform -> {
+            platform.updateDemandHyperLink(request, project, type);
+        });
     }
 
     private List<AbstractIssuePlatform> getAddPlatforms(IssuesRequest request) {
@@ -353,7 +351,7 @@ public class TestCaseService {
      *
      * @param testCase
      */
-    private void updateThirdPartyIssuesLink(EditTestCaseRequest testCase) {
+    public void updateThirdPartyIssuesLink(EditTestCaseRequest testCase) {
         try {
             if (Class.forName("io.metersphere.xpack.issue.service.XpackIssueService") != null) {
                 Class clazz = Class.forName("io.metersphere.xpack.issue.service.XpackIssueService");
@@ -597,6 +595,15 @@ public class TestCaseService {
         testCase.setId(testCaseId);
         testCase.setDeleteUserId(SessionUtils.getUserId());
         testCase.setDeleteTime(System.currentTimeMillis());
+
+        // 同步删除用例与需求的关联关系
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
+        if (testCaseWithBLOBs != null) {
+            EditTestCaseRequest request = new EditTestCaseRequest();
+            BeanUtils.copyBean(request, testCaseWithBLOBs);
+            addDemandHyperLink(request, "delete");
+        }
+
         return extTestCaseMapper.deleteToGc(testCase);
     }
 

@@ -41,6 +41,10 @@ public class AzureDevopsWorkItemsBatchResponse {
             private String changedBy;
             @JSONField(name = "System.CreatedBy")
             private String createdBy;
+            @JSONField(name = "Microsoft.VSTS.TCM.ReproSteps")
+            private String reproSteps;
+            @JSONField(name = "System.CreatedDate")
+            private String createdDate;
         }
     }
 }
