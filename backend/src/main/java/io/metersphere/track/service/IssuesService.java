@@ -406,10 +406,10 @@ public class IssuesService {
             } else {
                 caseIdSet.add(i.getResourceId());
             }
-            if(map.get(i.getId())!=null){
-                map.get(i.getId()).addAll(caseIdSet);
+            if(map.get(i.getIssuesId())!=null){
+                map.get(i.getIssuesId()).addAll(caseIdSet);
             }else{
-                map.put(i.getId(),caseIdSet);
+                map.put(i.getIssuesId(),caseIdSet);
             }
         });
         return map;
