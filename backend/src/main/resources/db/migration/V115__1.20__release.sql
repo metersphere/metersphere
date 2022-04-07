@@ -123,7 +123,7 @@ END//
 DELIMITER ;
 CALL schema_change();
 
-ALTER TABLE `test_plan` ADD COLUMN `request` LONGTEXT COMMENT 'request (JSON format)';
+ALTER TABLE `test_plan` ADD COLUMN `run_mode_config` LONGTEXT COMMENT 'request (JSON format)';
 
 --
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
