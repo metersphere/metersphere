@@ -7,7 +7,7 @@
 
     <ms-table
       v-loading="result.loading"
-      operator-width="170px"
+      operator-width="100px"
       row-key="id"
       :data="tableData"
       :condition="condition"
@@ -57,7 +57,7 @@
         :fields-width="fieldsWidth"
         sortable
         :label="$t('test_track.report.list.create_time')"
-        min-width="150px">
+        :show-overflow-tooltip="true">
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
