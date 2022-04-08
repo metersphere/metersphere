@@ -1,6 +1,9 @@
 <template>
   <div v-loading="isloading">
-    <el-form :model="form" :rules="rules" ref="caseFrom" class="case-form">
+    <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rules"
+             class="case-form"
+             style="margin-left: 5px;margin-right: 5px"
+             ref="caseFrom">
       <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
       <el-row>
         <el-form-item
@@ -37,9 +40,10 @@
 
       <!-- 自定义字段 -->
       <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
+               label-position="right" label-width="100px" size="small"
                class="case-form">
         <custom-filed-form-row :form="customFieldForm"
-                                :issue-template="testCaseTemplate"/>
+                               :issue-template="testCaseTemplate"/>
       </el-form>
 
       <el-row v-if="isCustomNum">
@@ -60,7 +64,7 @@ import CustomFiledFormRow from "@/business/components/common/components/form/Cus
 
 export default {
   name: "TestCaseBaseInfo",
-  components:{
+  components: {
     MsFormDivider,
     MsSelectTree,
     MsInputTag,
@@ -112,7 +116,7 @@ export default {
       this.form.module = id;
       this.form.nodePath = data.path;
     },
-    validateForm(){
+    validateForm() {
       let isValidate = true;
       this.$refs['customFieldForm'].validate((valid) => {
         if (!valid) {
@@ -121,7 +125,7 @@ export default {
       });
       return isValidate;
     },
-    getCustomFields(){
+    getCustomFields() {
       return this.$refs['customFieldForm'].fields;
     }
   }
