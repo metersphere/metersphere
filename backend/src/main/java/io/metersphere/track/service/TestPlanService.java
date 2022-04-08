@@ -1282,6 +1282,9 @@ public class TestPlanService {
                     planScenario.setTestPlanId(targetPlanId);
                     planScenario.setApiScenarioId(apiScenario.getApiScenarioId());
                     planScenario.setEnvironment(apiScenario.getEnvironment());
+                    if(apiScenario.getEnvironmentType()!=null){
+                        planScenario.setEnvironmentType(apiScenario.getEnvironmentType());
+                    }
                     planScenario.setCreateTime(System.currentTimeMillis());
                     planScenario.setUpdateTime(System.currentTimeMillis());
                     planScenario.setCreateUser(SessionUtils.getUserId());
