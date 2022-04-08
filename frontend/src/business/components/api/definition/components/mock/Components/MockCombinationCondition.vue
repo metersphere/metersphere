@@ -16,10 +16,14 @@
         </div>
       </el-aside>
       <el-main style="padding: 0px">
-        <mock-api-variable ref="mockApiVariableComp" :append-dialog-to-body="true"
+        <mock-api-variable ref="mockApiVariableComp"
+                           :append-dialog-to-body="true"
                            :suggestions="suggestions"
                            :with-mor-setting="true"
-                           :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="parameters"/>
+                           :is-read-only="isReadOnly"
+                           :isShowEnable="isShowEnable"
+                           :disable-variable-tip="disableVariableTip"
+                           :parameters="parameters"/>
       </el-main>
     </el-container>
   </div>
@@ -55,6 +59,7 @@ export default {
       type: Boolean,
       default: true
     },
+    disableVariableTip: Boolean
   },
   created() {
   },
