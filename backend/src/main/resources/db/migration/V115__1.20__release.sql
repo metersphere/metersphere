@@ -180,10 +180,10 @@ CREATE TABLE IF NOT EXISTS `test_plan_execution_queue`
 
 -- 场景步骤结果增加简要信息
 ALTER TABLE api_scenario_report_result ADD (
-	`req_name` VARCHAR(255) NULL,
-	`req_success` tinyint(1) NULL DEFAULT 0,
-	`req_error` int(11) NULL DEFAULT 0,
-	`req_start_time` bigint(13) NULL DEFAULT NULL,
-	`rsp_code` VARCHAR(255) NULL,
-	`rsp_time` bigint(13) NULL DEFAULT NULL
+    `req_name` VARCHAR(255),
+    `req_success` tinyint(1),
+    `req_error` int(11),
+    `req_start_time` bigint(13),
+    `rsp_code` VARCHAR(255),
+    `rsp_time` bigint(13)
 );
