@@ -395,24 +395,6 @@ public class ApiExecutionQueueService {
         }
         // 清除异常队列/一般是服务突然停止产生
         extApiExecutionQueueMapper.delete();
-        //清除未及时清理的批量执行测试计划的队列
-        deleteBatchPlanQueue(timeout);
-    }
-
-    private void deleteBatchPlanQueue(long timeout) {
-        TestPlanReportExample testPlanReportExample = new TestPlanReportExample();
-        testPlanReportExample.createCriteria().andTriggerModeEqualTo(TriggerMode.BATCH.name());
-        testPlanReportExample.createCriteria().andCreateTimeLessThan(timeout);
-        List<String>status = new ArrayList<>();
-        status.add("COMPLETED");
-        status.add("Completed");
-        testPlanReportExample.createCriteria().andStatusIn(status);
-        List<TestPlanReport> testPlanReports1 = testPlanReportMapper.selectByExample(testPlanReportExample);
-        List<String> finishedReportIds = testPlanReports1.stream().map(TestPlanReport::getId).collect(Collectors.toList());
-        TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
-        testPlanExecutionQueueExample.createCriteria().andCreateTimeLessThan(timeout);
-        testPlanExecutionQueueExample.createCriteria().andReportIdIn(finishedReportIds);
-        testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
     }
 
     public void stop(String reportId) {
