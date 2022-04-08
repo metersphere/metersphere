@@ -58,7 +58,7 @@
             value-key="name"
             highlight-first-item
             @select="change">
-            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+            <i v-if="!disableVariableTip" slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
           </el-autocomplete>
         </el-col>
 
@@ -136,7 +136,8 @@ export default {
       default: true
     },
     suggestions: Array,
-    withMorSetting: Boolean
+    withMorSetting: Boolean,
+    disableVariableTip: Boolean
   },
   data() {
     return {
@@ -267,6 +268,10 @@ export default {
       };
     },
     funcSearch(queryString, cb) {
+      if (this.disableVariableTip) {
+        cb([]);
+        return;
+      }
       let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
       let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
       // 调用 callback 返回建议列表的数据
