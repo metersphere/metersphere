@@ -693,6 +693,386 @@ public class ApiScenarioReportResultExample {
             addCriterion("error_code not between", value1, value2, "errorCode");
             return (Criteria) this;
         }
+
+        public Criteria andReqNameIsNull() {
+            addCriterion("req_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameIsNotNull() {
+            addCriterion("req_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameEqualTo(String value) {
+            addCriterion("req_name =", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameNotEqualTo(String value) {
+            addCriterion("req_name <>", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameGreaterThan(String value) {
+            addCriterion("req_name >", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameGreaterThanOrEqualTo(String value) {
+            addCriterion("req_name >=", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameLessThan(String value) {
+            addCriterion("req_name <", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameLessThanOrEqualTo(String value) {
+            addCriterion("req_name <=", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameLike(String value) {
+            addCriterion("req_name like", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameNotLike(String value) {
+            addCriterion("req_name not like", value, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameIn(List<String> values) {
+            addCriterion("req_name in", values, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameNotIn(List<String> values) {
+            addCriterion("req_name not in", values, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameBetween(String value1, String value2) {
+            addCriterion("req_name between", value1, value2, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqNameNotBetween(String value1, String value2) {
+            addCriterion("req_name not between", value1, value2, "reqName");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessIsNull() {
+            addCriterion("req_success is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessIsNotNull() {
+            addCriterion("req_success is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessEqualTo(Boolean value) {
+            addCriterion("req_success =", value, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessNotEqualTo(Boolean value) {
+            addCriterion("req_success <>", value, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessGreaterThan(Boolean value) {
+            addCriterion("req_success >", value, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("req_success >=", value, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessLessThan(Boolean value) {
+            addCriterion("req_success <", value, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessLessThanOrEqualTo(Boolean value) {
+            addCriterion("req_success <=", value, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessIn(List<Boolean> values) {
+            addCriterion("req_success in", values, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessNotIn(List<Boolean> values) {
+            addCriterion("req_success not in", values, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessBetween(Boolean value1, Boolean value2) {
+            addCriterion("req_success between", value1, value2, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqSuccessNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("req_success not between", value1, value2, "reqSuccess");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorIsNull() {
+            addCriterion("req_error is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorIsNotNull() {
+            addCriterion("req_error is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorEqualTo(Integer value) {
+            addCriterion("req_error =", value, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorNotEqualTo(Integer value) {
+            addCriterion("req_error <>", value, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorGreaterThan(Integer value) {
+            addCriterion("req_error >", value, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorGreaterThanOrEqualTo(Integer value) {
+            addCriterion("req_error >=", value, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorLessThan(Integer value) {
+            addCriterion("req_error <", value, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorLessThanOrEqualTo(Integer value) {
+            addCriterion("req_error <=", value, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorIn(List<Integer> values) {
+            addCriterion("req_error in", values, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorNotIn(List<Integer> values) {
+            addCriterion("req_error not in", values, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorBetween(Integer value1, Integer value2) {
+            addCriterion("req_error between", value1, value2, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqErrorNotBetween(Integer value1, Integer value2) {
+            addCriterion("req_error not between", value1, value2, "reqError");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeIsNull() {
+            addCriterion("req_start_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeIsNotNull() {
+            addCriterion("req_start_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeEqualTo(Long value) {
+            addCriterion("req_start_time =", value, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeNotEqualTo(Long value) {
+            addCriterion("req_start_time <>", value, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeGreaterThan(Long value) {
+            addCriterion("req_start_time >", value, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("req_start_time >=", value, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeLessThan(Long value) {
+            addCriterion("req_start_time <", value, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeLessThanOrEqualTo(Long value) {
+            addCriterion("req_start_time <=", value, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeIn(List<Long> values) {
+            addCriterion("req_start_time in", values, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeNotIn(List<Long> values) {
+            addCriterion("req_start_time not in", values, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeBetween(Long value1, Long value2) {
+            addCriterion("req_start_time between", value1, value2, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andReqStartTimeNotBetween(Long value1, Long value2) {
+            addCriterion("req_start_time not between", value1, value2, "reqStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeIsNull() {
+            addCriterion("rsp_code is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeIsNotNull() {
+            addCriterion("rsp_code is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeEqualTo(String value) {
+            addCriterion("rsp_code =", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeNotEqualTo(String value) {
+            addCriterion("rsp_code <>", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeGreaterThan(String value) {
+            addCriterion("rsp_code >", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeGreaterThanOrEqualTo(String value) {
+            addCriterion("rsp_code >=", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeLessThan(String value) {
+            addCriterion("rsp_code <", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeLessThanOrEqualTo(String value) {
+            addCriterion("rsp_code <=", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeLike(String value) {
+            addCriterion("rsp_code like", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeNotLike(String value) {
+            addCriterion("rsp_code not like", value, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeIn(List<String> values) {
+            addCriterion("rsp_code in", values, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeNotIn(List<String> values) {
+            addCriterion("rsp_code not in", values, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeBetween(String value1, String value2) {
+            addCriterion("rsp_code between", value1, value2, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspCodeNotBetween(String value1, String value2) {
+            addCriterion("rsp_code not between", value1, value2, "rspCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeIsNull() {
+            addCriterion("rsp_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeIsNotNull() {
+            addCriterion("rsp_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeEqualTo(Long value) {
+            addCriterion("rsp_time =", value, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeNotEqualTo(Long value) {
+            addCriterion("rsp_time <>", value, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeGreaterThan(Long value) {
+            addCriterion("rsp_time >", value, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("rsp_time >=", value, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeLessThan(Long value) {
+            addCriterion("rsp_time <", value, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeLessThanOrEqualTo(Long value) {
+            addCriterion("rsp_time <=", value, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeIn(List<Long> values) {
+            addCriterion("rsp_time in", values, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeNotIn(List<Long> values) {
+            addCriterion("rsp_time not in", values, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeBetween(Long value1, Long value2) {
+            addCriterion("rsp_time between", value1, value2, "rspTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRspTimeNotBetween(Long value1, Long value2) {
+            addCriterion("rsp_time not between", value1, value2, "rspTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

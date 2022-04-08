@@ -21,6 +21,7 @@
     </div>
     <div v-else>
       <ms-request-result
+        :step-id="node.stepId"
         :request="node.value"
         :indexNumber="node.index"
         :error-code="node.errorCode"

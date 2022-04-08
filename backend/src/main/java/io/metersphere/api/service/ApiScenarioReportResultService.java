@@ -7,6 +7,7 @@ import io.metersphere.base.domain.ApiScenarioReportResult;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.ErrorReportLibraryUtil;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
@@ -120,7 +121,58 @@ public class ApiScenarioReportResultService {
         }
         report.setStatus(status);
         report.setRequestTime(result.getEndTime() - result.getStartTime());
+
+        //记录基础信息
+        report.setReqName(StringUtils.isEmpty(result.getName()) ? "" : result.getName());
+        report.setReqSuccess(result.isSuccess());
+        report.setReqError(result.getError());
+        report.setReqStartTime(result.getStartTime());
+        if (result.getResponseResult() != null) {
+            report.setRspCode(result.getResponseResult().getResponseCode());
+            report.setRspTime(result.getResponseResult().getResponseTime());
+        } else {
+            report.setRspCode("");
+            report.setRspTime(Long.valueOf(0));
+        }
+
         report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
         return report;
+    }
+
+    public boolean isResultFormat(ApiScenarioReportResult result) {
+        if (result != null) {
+            if (result.getReqName() == null && result.getReqStartTime() == null && result.getRspCode() == null && result.getRspTime() == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public ApiScenarioReportResult formatScenarioResult(ApiScenarioReportResult result) {
+        if (!this.isResultFormat(result)) {
+            ApiScenarioReportResult baseResult = apiScenarioReportResultMapper.selectByPrimaryKey(result.getId());
+            if (baseResult != null) {
+                try {
+                    RequestResult requestResult = JSON.parseObject(new String(baseResult.getContent(), StandardCharsets.UTF_8), RequestResult.class);
+                    //记录基础信息
+                    baseResult.setReqName(StringUtils.isEmpty(requestResult.getName()) ? "" : requestResult.getName());
+                    baseResult.setReqSuccess(requestResult.isSuccess());
+                    baseResult.setReqError(requestResult.getError());
+                    baseResult.setReqStartTime(requestResult.getStartTime());
+                    if (requestResult.getResponseResult() != null) {
+                        baseResult.setRspCode(requestResult.getResponseResult().getResponseCode());
+                        baseResult.setRspTime(requestResult.getResponseResult().getResponseTime());
+                    } else {
+                        baseResult.setRspCode("");
+                        baseResult.setRspTime(Long.valueOf(0));
+                    }
+                    apiScenarioReportResultMapper.updateByPrimaryKeySelective(baseResult);
+                    return baseResult;
+                } catch (Exception e) {
+                    LogUtil.error("format scenario result error:" + e.getMessage());
+                }
+            }
+        }
+        return result;
     }
 }

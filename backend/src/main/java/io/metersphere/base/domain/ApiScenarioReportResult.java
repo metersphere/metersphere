@@ -23,6 +23,18 @@ public class ApiScenarioReportResult implements Serializable {
 
     private String errorCode;
 
+    private String reqName;
+
+    private Boolean reqSuccess;
+
+    private Integer reqError;
+
+    private Long reqStartTime;
+
+    private String rspCode;
+
+    private Long rspTime;
+
     private byte[] content;
 
     private static final long serialVersionUID = 1L;

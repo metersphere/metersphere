@@ -7,6 +7,9 @@ public enum ExecuteResult {
     //接口执行状态(兼容旧数据)
     success,error,
 
+    //未执行状态
+    unexecute,
+
     //场景执行状态(兼容旧数据)
     Success,Error,
 

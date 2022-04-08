@@ -178,5 +178,12 @@ CREATE TABLE IF NOT EXISTS `test_plan_execution_queue`
         KEY `report_id_idx` (`report_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-
-
+-- 场景步骤结果增加简要信息
+ALTER TABLE api_scenario_report_result ADD (
+	`req_name` VARCHAR(255) NULL,
+	`req_success` tinyint(1) NULL DEFAULT 0,
+	`req_error` int(11) NULL DEFAULT 0,
+	`req_start_time` bigint(13) NULL DEFAULT NULL,
+	`rsp_code` VARCHAR(255) NULL,
+	`rsp_time` bigint(13) NULL DEFAULT NULL
+);
