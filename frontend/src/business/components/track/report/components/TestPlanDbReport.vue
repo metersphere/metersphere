@@ -1,39 +1,50 @@
 <template>
-    <el-drawer
-      :visible.sync="showDialog"
-      :with-header="false"
-      :modal-append-to-body="false"
-      size="100%"
-      ref="drawer"
-      v-loading="result.loading">
-      <template v-slot:default="scope">
+  <el-drawer
+    :visible.sync="showDialog"
+    :with-header="false"
+    :modal-append-to-body="false"
+    size="100%"
+    ref="drawer"
+    v-loading="result.loading">
+    <template v-slot:default="scope">
 
-        <el-scrollbar>
-          <el-row type="flex" class="head-bar">
-            <el-col :span="12">
-              <div class="name-edit">
-                <el-button plain size="mini" icon="el-icon-back" @click="handleClose">{{$t('test_track.return')}}
-                </el-button>&nbsp;
-                <span class="title">{{report.name}}</span>
-              </div>
-            </el-col>
-            <el-col :span="12" class="head-right">
-              <!--            <el-button v-permission="['PROJECT_TRACK_REPORT:READ+EXPORT']" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">-->
-              <!--              {{$t('test_track.plan_view.export_report')}}-->
-              <!--            </el-button>-->
-            </el-col>
-          </el-row>
-          <div class="container">
-            <test-plan-report-content v-if="showReport" :is-db="true" :report-id="report.id" :plan-id="report.testPlanId"/>
-          </div>
-        </el-scrollbar>
-      </template>
-    </el-drawer>
+      <el-scrollbar>
+        <el-row type="flex" class="head-bar">
+          <el-col :span="12">
+            <div>
+              <el-button plain size="mini" icon="el-icon-back" @click="handleClose"
+                         style="float: left; margin-top: 8px; margin-right: 5px">
+                {{ $t('test_track.return') }}
+              </el-button>
+              <el-tooltip
+                effect="dark"
+                :content="report.name"
+                placement="bottom">
+                <div class="title">
+                  <span>{{report.name}}</span>
+                </div>
+              </el-tooltip>
+            </div>
+          </el-col>
+          <el-col :span="12" class="head-right">
+            <!--            <el-button v-permission="['PROJECT_TRACK_REPORT:READ+EXPORT']" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">-->
+            <!--              {{$t('test_track.plan_view.export_report')}}-->
+            <!--            </el-button>-->
+          </el-col>
+        </el-row>
+        <div class="container">
+          <test-plan-report-content v-if="showReport" :is-db="true" :report-id="report.id"
+                                    :plan-id="report.testPlanId"/>
+        </div>
+      </el-scrollbar>
+    </template>
+  </el-drawer>
 </template>
 
 <script>
 
 import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
+
 export default {
   name: "TestPlanDbReport",
   components: {
@@ -47,7 +58,7 @@ export default {
       isTestManagerOrTestUser: false,
       showReport: false,
       originUlr: ''
-    }
+    };
   },
   mounted() {
     this.isTestManagerOrTestUser = true;
@@ -87,7 +98,7 @@ export default {
       this.showDialog = false;
     },
   }
-}
+};
 </script>
 
 <style scoped>
@@ -110,4 +121,13 @@ export default {
   text-align: right;
 }
 
+.title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: nowrap;
+}
 </style>
