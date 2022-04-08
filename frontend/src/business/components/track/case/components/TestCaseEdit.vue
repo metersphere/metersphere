@@ -3,7 +3,7 @@
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
         <ms-container v-loading="result.loading" style="overflow: auto">
-          <ms-aside-container :height="pageHight">
+          <ms-aside-container :height="pageHight" width="360px">
             <test-case-base-info
               :form="form"
               :is-form-alive="isFormAlive"
