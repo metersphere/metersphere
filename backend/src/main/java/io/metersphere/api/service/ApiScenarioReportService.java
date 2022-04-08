@@ -912,4 +912,8 @@ public class ApiScenarioReportService {
             }
         }
     }
+
+    public RequestResult selectReportContent(String stepId) {
+        return apiScenarioReportStructureService.selectReportContent(stepId);
+    }
 }

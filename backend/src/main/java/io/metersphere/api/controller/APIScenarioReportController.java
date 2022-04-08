@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.RequestResult;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,11 @@ public class APIScenarioReportController {
     public String update(@RequestBody APIScenarioReportResult node) {
         node.setExecuteType(ExecuteType.Saved.name());
         return apiReportService.update(node);
+    }
+
+    @GetMapping("/selectReportContent/{stepId}")
+    public RequestResult selectReportContent(@PathVariable String stepId) {
+        return apiReportService.selectReportContent(stepId);
     }
 
     @PostMapping("/delete")
