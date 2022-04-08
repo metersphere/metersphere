@@ -319,8 +319,8 @@ export const TRIGGER_MODE = {
   },
   options: [
     {label: "commons.trigger_mode.manual", value: "MANUAL"},
-    {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
-    {label: "commons.trigger_mode.api", value: "API"}
+    // {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
+    // {label: "commons.trigger_mode.api", value: "API"}
   ],
   props: {
     multiple: true
