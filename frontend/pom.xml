@@ -16,7 +16,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
+    <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
   </properties>
 
   <build>
@@ -43,14 +43,14 @@
           <execution>
             <id>npm install</id>
             <goals>
-              <goal>npm</goal>
+              <goal>npx</goal>
             </goals>
             <configuration>
               <!-- optional: The default argument is actually
               "install", so unless you need to run some other yarn command,
               you can remove this whole <configuration> section.
               -->
-              <arguments>install</arguments>
+              <arguments>pnpm install --shamefully-hoist</arguments>
             </configuration>
           </execution>
           <!-- Build and minify static files -->
