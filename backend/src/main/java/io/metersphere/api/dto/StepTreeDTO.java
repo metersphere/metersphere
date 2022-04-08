@@ -15,6 +15,7 @@ public class StepTreeDTO {
     private String label;
     private RequestResult value;
     private String allIndex;
+    private String stepId;
 
     //误报库编码
     private String errorCode;
@@ -30,11 +31,12 @@ public class StepTreeDTO {
 
     }
 
-    public StepTreeDTO(String name, String resourceId, String type, int index) {
+    public StepTreeDTO(String name, String resourceId, String type, String stepId, int index) {
         this.label = StringUtils.isNotEmpty(name) ? name : type;
         this.resourceId = resourceId;
         this.type = type;
         this.index = index;
+        this.stepId = stepId;
         this.children = new LinkedList<>();
     }
 }

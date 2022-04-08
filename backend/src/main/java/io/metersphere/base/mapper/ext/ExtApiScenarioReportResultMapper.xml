@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper">
+    <select id="selectBaseInfoResultByReportId" resultType="io.metersphere.base.domain.ApiScenarioReportResult">
+        SELECT id,
+               resource_id,
+               report_id,
+               create_time,
+               status,
+               request_time,
+               total_assertions,
+               pass_assertions,
+               error_code,
+               req_name,
+               req_success,
+               req_error,
+               req_start_time,
+               rsp_code,
+               rsp_time
+        FROM api_scenario_report_result
+        WHERE report_id = #{0}
+    </select>
+</mapper>
