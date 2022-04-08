@@ -70,9 +70,10 @@
       <el-collapse-transition>
         <div v-show="showActive && !request.unexecute" style="width: 99%">
           <ms-request-result-tail
+            v-loading="requestInfo.loading"
             :scenario-name="scenarioName"
             :request-type="requestType"
-            :request="request"
+            :request="requestInfo"
             :console="console"
             v-if="showActive"/>
         </div>
@@ -100,6 +101,7 @@ export default {
   props: {
     request: Object,
     scenarioName: String,
+    stepId: String,
     indexNumber: Number,
     console: String,
     errorCode: {
@@ -123,6 +125,12 @@ export default {
         default() {
           return "#B8741A";
         }
+      },
+      requestInfo: {
+        loading: true,
+        hasData: false,
+        responseResult: {},
+        subRequestResults: [],
       },
       baseErrorCode: "",
       backgroundColor: {
@@ -155,11 +163,30 @@ export default {
     }
   },
   methods: {
+    loadRequestInfoExpand() {
+      this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
+        let requestResult = response.data;
+        if (requestResult) {
+          this.requestInfo = requestResult;
+        }
+        this.$nextTick(() => {
+          this.requestInfo.loading = false;
+          this.requestInfo.hasData = true;
+        });
+      });
+    },
     active() {
       if (this.request.unexecute) {
         this.showActive = false;
       } else {
         this.showActive = !this.showActive;
+      }
+      if (this.showActive) {
+        if (this.requestInfo.hasData) {
+          this.requestInfo.loading = false;
+        } else {
+          this.loadRequestInfoExpand();
+        }
       }
     },
     getName(name) {
