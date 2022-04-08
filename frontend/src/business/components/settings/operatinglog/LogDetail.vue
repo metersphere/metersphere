@@ -136,8 +136,13 @@
         this.infoVisible = false;
       },
       getDiff(v1, v2) {
-        let delta = jsondiffpatch.diff(v1, v2);
-        return formattersHtml.format(delta, v1);
+        if(typeof v1 === 'string' && typeof v2 === 'string' && v1.indexOf("{") !==-1 && v2.indexOf("{") !==-1 ){
+          let delta = jsondiffpatch.diff(JSON.parse(v1), JSON.parse(v2));
+          return formattersHtml.format(delta,delta);
+        }else{
+          let delta = jsondiffpatch.diff(v1, v2);
+          return formattersHtml.format(delta,v1);
+        }
       },
       getDetails(id) {
         this.result = this.$get("/operating/log/get/" + id, response => {
