@@ -1,6 +1,8 @@
 package io.metersphere.api.dto;
 
-import io.metersphere.base.domain.ApiScenarioReportResult;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResponseResult;
 import lombok.Getter;
@@ -17,14 +19,21 @@ public class RequestResultExpandDTO extends RequestResult {
     public RequestResultExpandDTO() {
     }
 
-    public RequestResultExpandDTO(ApiScenarioReportResult requestResult) {
-        this.setName(requestResult.getReqName());
-        this.setSuccess(requestResult.getReqSuccess());
-        this.setError(requestResult.getReqError());
-        this.setStartTime(requestResult.getReqStartTime());
-        ResponseResult responseResult = this.getResponseResult();
-        responseResult.setResponseCode(requestResult.getRspCode());
-        responseResult.setResponseTime(requestResult.getRspTime());
-        this.setResponseResult(responseResult);
+    public RequestResultExpandDTO(ApiScenarioReportResultWithBLOBs requestResult) {
+        if(requestResult.getBaseInfo() != null){
+            try {
+                ApiScenarioReportBaseInfoDTO dto = JSONObject.parseObject(requestResult.getBaseInfo(),ApiScenarioReportBaseInfoDTO.class);
+                this.setName(dto.getReqName());
+                this.setSuccess(dto.isReqSuccess());
+                this.setError(dto.getReqError());
+                this.setStartTime(dto.getReqStartTime());
+                ResponseResult responseResult = this.getResponseResult();
+                responseResult.setResponseCode(dto.getRspCode());
+                responseResult.setResponseTime(dto.getRspTime());
+                this.setResponseResult(responseResult);
+            }catch (Exception e){
+                LogUtil.error("Parse report base-info error :"+ e.getMessage());
+            }
+        }
     }
 }

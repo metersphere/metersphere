@@ -9,7 +9,9 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ApiScenarioReportResultWithBLOBs extends ApiScenarioReportResult implements Serializable {
-    private String errorCode;
+    private byte[] content;
+
+    private String baseInfo;
 
     private static final long serialVersionUID = 1L;
 }

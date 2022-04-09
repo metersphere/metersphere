@@ -2,8 +2,9 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
 import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
-import io.metersphere.base.domain.ApiScenarioReportResult;
+import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.ErrorReportLibraryUtil;
@@ -88,8 +89,8 @@ public class ApiScenarioReportResultService {
         }
     }
 
-    private ApiScenarioReportResult newUiScenarioReportResult(String reportId, String resourceId, JSONObject value) {
-        ApiScenarioReportResult report = new ApiScenarioReportResult();
+    private ApiScenarioReportResultWithBLOBs newUiScenarioReportResult(String reportId, String resourceId, JSONObject value) {
+        ApiScenarioReportResultWithBLOBs report = new ApiScenarioReportResultWithBLOBs();
         report.setId(UUID.randomUUID().toString());
         report.setResourceId(resourceId);
         report.setReportId(reportId);
@@ -102,8 +103,8 @@ public class ApiScenarioReportResultService {
         return report;
     }
 
-    private ApiScenarioReportResult newApiScenarioReportResult(String reportId, RequestResult baseResult) {
-        ApiScenarioReportResult report = new ApiScenarioReportResult();
+    private ApiScenarioReportResultWithBLOBs newApiScenarioReportResult(String reportId, RequestResult baseResult) {
+        ApiScenarioReportResultWithBLOBs report = new ApiScenarioReportResultWithBLOBs();
         //解析误报内容
         ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
         RequestResult result = errorCodeDTO.getResult();
@@ -123,49 +124,45 @@ public class ApiScenarioReportResultService {
         report.setRequestTime(result.getEndTime() - result.getStartTime());
 
         //记录基础信息
-        report.setReqName(StringUtils.isEmpty(result.getName()) ? "" : result.getName());
-        report.setReqSuccess(result.isSuccess());
-        report.setReqError(result.getError());
-        report.setReqStartTime(result.getStartTime());
+        ApiScenarioReportBaseInfoDTO baseInfoDTO = new ApiScenarioReportBaseInfoDTO();
+        baseInfoDTO.setReqName(result.getName());
+        baseInfoDTO.setReqSuccess(result.isSuccess());
+        baseInfoDTO.setReqError(result.getError());
+        baseInfoDTO.setReqStartTime(result.getStartTime());
         if (result.getResponseResult() != null) {
-            report.setRspCode(result.getResponseResult().getResponseCode());
-            report.setRspTime(result.getResponseResult().getResponseTime());
-        } else {
-            report.setRspCode("");
-            report.setRspTime(Long.valueOf(0));
+            baseInfoDTO.setRspCode(result.getResponseResult().getResponseCode());
+            baseInfoDTO.setRspTime(result.getResponseResult().getResponseTime());
         }
-
+        report.setBaseInfo(JSONObject.toJSONString(baseInfoDTO));
         report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
         return report;
     }
 
-    public boolean isResultFormat(ApiScenarioReportResult result) {
-        if (result != null) {
-            if (result.getReqName() == null && result.getReqStartTime() == null && result.getRspCode() == null && result.getRspTime() == null) {
-                return false;
-            }
+    public boolean isResultFormat(ApiScenarioReportResultWithBLOBs result) {
+        if (result != null && result.getBaseInfo() != null) {
+            return true;
+        }else {
+            return false;
         }
-        return true;
     }
 
-    public ApiScenarioReportResult formatScenarioResult(ApiScenarioReportResult result) {
+    public ApiScenarioReportResultWithBLOBs formatScenarioResult(ApiScenarioReportResultWithBLOBs result) {
         if (!this.isResultFormat(result)) {
-            ApiScenarioReportResult baseResult = apiScenarioReportResultMapper.selectByPrimaryKey(result.getId());
+            ApiScenarioReportResultWithBLOBs baseResult = apiScenarioReportResultMapper.selectByPrimaryKey(result.getId());
             if (baseResult != null) {
                 try {
                     RequestResult requestResult = JSON.parseObject(new String(baseResult.getContent(), StandardCharsets.UTF_8), RequestResult.class);
                     //记录基础信息
-                    baseResult.setReqName(StringUtils.isEmpty(requestResult.getName()) ? "" : requestResult.getName());
-                    baseResult.setReqSuccess(requestResult.isSuccess());
-                    baseResult.setReqError(requestResult.getError());
-                    baseResult.setReqStartTime(requestResult.getStartTime());
+                    ApiScenarioReportBaseInfoDTO baseInfo = new ApiScenarioReportBaseInfoDTO();
+                    baseInfo.setReqName(StringUtils.isEmpty(requestResult.getName()) ? "" : requestResult.getName());
+                    baseInfo.setReqSuccess(requestResult.isSuccess());
+                    baseInfo.setReqError(requestResult.getError());
+                    baseInfo.setReqStartTime(requestResult.getStartTime());
                     if (requestResult.getResponseResult() != null) {
-                        baseResult.setRspCode(requestResult.getResponseResult().getResponseCode());
-                        baseResult.setRspTime(requestResult.getResponseResult().getResponseTime());
-                    } else {
-                        baseResult.setRspCode("");
-                        baseResult.setRspTime(Long.valueOf(0));
+                        baseInfo.setRspCode(requestResult.getResponseResult().getResponseCode());
+                        baseInfo.setRspTime(requestResult.getResponseResult().getResponseTime());
                     }
+                    baseResult.setBaseInfo(JSONObject.toJSONString(baseInfo));
                     apiScenarioReportResultMapper.updateByPrimaryKeySelective(baseResult);
                     return baseResult;
                 } catch (Exception e) {
