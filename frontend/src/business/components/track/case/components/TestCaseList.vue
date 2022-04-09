@@ -1,8 +1,9 @@
 <template>
 
   <span>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="initTableData" class="search-input" size="small"
-                 v-model="condition.name" ref="inputVal"/>
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="initTableData" class="search-input"
+              size="small"
+              v-model="condition.name" ref="inputVal"/>
     <el-link type="primary" @click="open" style="float: right;margin-top: 5px;padding-right: 10px">
         {{ $t('commons.adv_search.title') }}
     </el-link>
@@ -131,8 +132,9 @@
           :label="$t('commons.tag')"
           min-width="80">
           <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=80"
-                     :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=80"
+                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             <span/>
           </template>
         </ms-table-column>
@@ -554,17 +556,19 @@ export default {
     }
     this.getVersionOptions();
   },
-  activated() {
-    this.getTemplateField();
-    let ids = this.$route.params.ids;
-    if (ids) {
-      this.condition.ids = ids;
-    }
-    this.initTableData();
-    this.condition.ids = null;
-    this.getVersionOptions();
-  },
   watch: {
+    '$route'(to) {
+      if (to.path.indexOf("/track/case/all") >= 0) {
+        this.getTemplateField();
+        let ids = this.$route.params.ids;
+        if (ids) {
+          this.condition.ids = ids;
+        }
+        this.initTableData();
+        this.condition.ids = null;
+        this.getVersionOptions();
+      }
+    },
     selectNodeIds() {
       this.page.currentPage = 1;
       if (!this.trashEnable) {
@@ -615,7 +619,6 @@ export default {
   },
   methods: {
     getTemplateField() {
-      this.page.result.loading = true;
       let p1 = getProjectMember((data) => {
         this.members = data;
         this.members.forEach(item => {
@@ -623,18 +626,19 @@ export default {
         });
       });
       let p2 = getTestTemplate();
-      Promise.all([p1, p2]).then((data) => {
+      this.page.result = Promise.all([p1, p2]).then((data) => {
         let template = data[1];
-        this.page.result.loading = true;
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
         this.setTestCaseDefaultValue(template);
-        this.page.result.loading = false;
-        if (this.$refs.table) {
-          this.$refs.table.reloadTable();
-        }
         this.typeArr = [];
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
+
+        this.$nextTick(() => {
+          if (this.$refs.table) {
+            this.$refs.table.reloadTable();
+          }
+        });
       });
     },
     setTestCaseDefaultValue(template) {
@@ -783,7 +787,7 @@ export default {
           parseTag(this.page.data);
         });
         this.$emit("getTrashList");
-        this.$emit("getPublicList")
+        this.$emit("getPublicList");
       }
     },
     search() {
@@ -1078,9 +1082,9 @@ export default {
             this.refresh();
           });
         } else {
-          this.$warning(this.$t('test_track.case.public_warning'))
+          this.$warning(this.$t('test_track.case.public_warning'));
         }
-      })
+      });
 
     },
     handleDeleteBatchToPublic() {
@@ -1115,8 +1119,7 @@ export default {
             this.$refs.apiDeleteConfirm.close();
             this.$emit("refreshTable");
           });
-        }
-        else {
+        } else {
           this.$get('/test/case/delete/' + testCase.versionId + '/' + testCase.refId, () => {
             this.$success(this.$t('commons.delete_success'));
             this.$refs.apiDeleteConfirm.close();
