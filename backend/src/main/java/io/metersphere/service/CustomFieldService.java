@@ -135,7 +135,7 @@ public class CustomFieldService {
                 result.add(customFieldDao);
             });
         }
-        return result;
+        return result.stream().distinct().collect(Collectors.toList());
     }
 
     public List<CustomField> getFieldByIds(List<String> ids) {
