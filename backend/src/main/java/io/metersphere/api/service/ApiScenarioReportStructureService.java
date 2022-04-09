@@ -274,15 +274,15 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    public void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResult>> maps) {
+    public void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResultWithBLOBs>> maps) {
         for (int index = 0; index < dtoList.size(); index++) {
             StepTreeDTO dto = dtoList.get(index);
             dto.setIndex((index + 1));
-            List<ApiScenarioReportResult> reportResults = maps.get(dto.getResourceId());
+            List<ApiScenarioReportResultWithBLOBs> reportResults = maps.get(dto.getResourceId());
             if (CollectionUtils.isNotEmpty(reportResults)) {
                 if (reportResults.size() > 1) {
                     for (int i = 0; i < reportResults.size(); i++) {
-                        ApiScenarioReportResult reportResult = reportResults.get(i);
+                        ApiScenarioReportResultWithBLOBs reportResult = reportResults.get(i);
                         reportResult = apiScenarioReportResultService.formatScenarioResult(reportResult);
                         if (i == 0) {
                             RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO(reportResult);
@@ -298,7 +298,7 @@ public class ApiScenarioReportStructureService {
                         }
                     }
                 } else {
-                    ApiScenarioReportResult reportResult = reportResults.get(0);
+                    ApiScenarioReportResultWithBLOBs reportResult = reportResults.get(0);
                     reportResult = apiScenarioReportResultService.formatScenarioResult(reportResult);
                     RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO(reportResult);
                     dto.setStepId(reportResults.get(0).getId());
@@ -516,7 +516,7 @@ public class ApiScenarioReportStructureService {
     }
 
     private ApiScenarioReportDTO getReport(String reportId) {
-        List<ApiScenarioReportResult> reportResults = null;
+        List<ApiScenarioReportResultWithBLOBs> reportResults = null;
         ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
         if (report.getReportType() != null && report.getReportType().startsWith("UI")) {
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
@@ -542,7 +542,7 @@ public class ApiScenarioReportStructureService {
             ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
             List<StepTreeDTO> stepList = JSONArray.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
             // 匹配结果
-            Map<String, List<ApiScenarioReportResult>> maps = reportResults.stream().collect(Collectors.groupingBy(ApiScenarioReportResult::getResourceId));
+            Map<String, List<ApiScenarioReportResultWithBLOBs>> maps = reportResults.stream().collect(Collectors.groupingBy(ApiScenarioReportResult::getResourceId));
             this.reportFormatting(stepList, maps);
 
             reportDTO = this.countReportNum(stepList, reportDTO);
@@ -573,7 +573,7 @@ public class ApiScenarioReportStructureService {
         return reportDTO;
     }
 
-    private List<ApiScenarioReportResult> selectBaseInfoResultByReportId(String reportId) {
+    private List<ApiScenarioReportResultWithBLOBs> selectBaseInfoResultByReportId(String reportId) {
         return extApiScenarioReportResultMapper.selectBaseInfoResultByReportId(reportId);
     }
 
@@ -582,11 +582,11 @@ public class ApiScenarioReportStructureService {
      *
      * @param reportResults
      */
-    private void removeUiResultIfNotStep(List<ApiScenarioReportResult> reportResults) {
+    private void removeUiResultIfNotStep(List<ApiScenarioReportResultWithBLOBs> reportResults) {
         if(CollectionUtils.isNotEmpty(reportResults)){
-            Iterator<ApiScenarioReportResult> iterator = reportResults.iterator();
+            Iterator<ApiScenarioReportResultWithBLOBs> iterator = reportResults.iterator();
             while (iterator.hasNext()) {
-                ApiScenarioReportResult item = iterator.next();
+                ApiScenarioReportResultWithBLOBs item = iterator.next();
                 String result = new String(item.getContent(), StandardCharsets.UTF_8);
                 if (StringUtils.isNotBlank(result)) {
                     Boolean isNoStep = JSONObject.parseObject(result).getBoolean("isNotStep");
@@ -650,7 +650,7 @@ public class ApiScenarioReportStructureService {
     }
 
     public RequestResult selectReportContent(String stepId) {
-        ApiScenarioReportResult apiScenarioReportResult = reportResultMapper.selectByPrimaryKey(stepId);
+        ApiScenarioReportResultWithBLOBs apiScenarioReportResult = reportResultMapper.selectByPrimaryKey(stepId);
         if (apiScenarioReportResult != null) {
             RequestResult requestResult = JSON.parseObject(new String(apiScenarioReportResult.getContent(), StandardCharsets.UTF_8), RequestResult.class);
             return requestResult;

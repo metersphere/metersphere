@@ -2,6 +2,7 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.ApiScenarioReportResult;
 import io.metersphere.base.domain.ApiScenarioReportResultExample;
+import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,25 +13,25 @@ public interface ApiScenarioReportResultMapper {
 
     int deleteByPrimaryKey(String id);
 
-    int insert(ApiScenarioReportResult record);
+    int insert(ApiScenarioReportResultWithBLOBs record);
 
-    int insertSelective(ApiScenarioReportResult record);
+    int insertSelective(ApiScenarioReportResultWithBLOBs record);
 
-    List<ApiScenarioReportResult> selectByExampleWithBLOBs(ApiScenarioReportResultExample example);
+    List<ApiScenarioReportResultWithBLOBs> selectByExampleWithBLOBs(ApiScenarioReportResultExample example);
 
     List<ApiScenarioReportResult> selectByExample(ApiScenarioReportResultExample example);
 
-    ApiScenarioReportResult selectByPrimaryKey(String id);
+    ApiScenarioReportResultWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") ApiScenarioReportResult record, @Param("example") ApiScenarioReportResultExample example);
+    int updateByExampleSelective(@Param("record") ApiScenarioReportResultWithBLOBs record, @Param("example") ApiScenarioReportResultExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ApiScenarioReportResult record, @Param("example") ApiScenarioReportResultExample example);
+    int updateByExampleWithBLOBs(@Param("record") ApiScenarioReportResultWithBLOBs record, @Param("example") ApiScenarioReportResultExample example);
 
     int updateByExample(@Param("record") ApiScenarioReportResult record, @Param("example") ApiScenarioReportResultExample example);
 
-    int updateByPrimaryKeySelective(ApiScenarioReportResult record);
+    int updateByPrimaryKeySelective(ApiScenarioReportResultWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(ApiScenarioReportResult record);
+    int updateByPrimaryKeyWithBLOBs(ApiScenarioReportResultWithBLOBs record);
 
     int updateByPrimaryKey(ApiScenarioReportResult record);
 }
