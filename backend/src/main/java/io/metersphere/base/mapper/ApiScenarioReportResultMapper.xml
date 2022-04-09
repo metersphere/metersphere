@@ -11,15 +11,10 @@
     <result column="total_assertions" jdbcType="BIGINT" property="totalAssertions" />
     <result column="pass_assertions" jdbcType="BIGINT" property="passAssertions" />
     <result column="error_code" jdbcType="VARCHAR" property="errorCode" />
-    <result column="req_name" jdbcType="VARCHAR" property="reqName" />
-    <result column="req_success" jdbcType="BIT" property="reqSuccess" />
-    <result column="req_error" jdbcType="INTEGER" property="reqError" />
-    <result column="req_start_time" jdbcType="BIGINT" property="reqStartTime" />
-    <result column="rsp_code" jdbcType="VARCHAR" property="rspCode" />
-    <result column="rsp_time" jdbcType="BIGINT" property="rspTime" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReportResult">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
+    <result column="base_info" jdbcType="LONGVARCHAR" property="baseInfo" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,11 +76,10 @@
   </sql>
   <sql id="Base_Column_List">
     id, resource_id, report_id, create_time, `status`, request_time, total_assertions, 
-    pass_assertions, error_code, req_name, req_success, req_error, req_start_time, rsp_code, 
-    rsp_time
+    pass_assertions, error_code
   </sql>
   <sql id="Blob_Column_List">
-    content
+    content, base_info
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportResultExample" resultMap="ResultMapWithBLOBs">
     select
@@ -135,21 +129,17 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs">
     insert into api_scenario_report_result (id, resource_id, report_id, 
       create_time, `status`, request_time, 
       total_assertions, pass_assertions, error_code, 
-      req_name, req_success, req_error, 
-      req_start_time, rsp_code, rsp_time, 
-      content)
+      content, base_info)
     values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{requestTime,jdbcType=BIGINT}, 
       #{totalAssertions,jdbcType=BIGINT}, #{passAssertions,jdbcType=BIGINT}, #{errorCode,jdbcType=VARCHAR}, 
-      #{reqName,jdbcType=VARCHAR}, #{reqSuccess,jdbcType=BIT}, #{reqError,jdbcType=INTEGER}, 
-      #{reqStartTime,jdbcType=BIGINT}, #{rspCode,jdbcType=VARCHAR}, #{rspTime,jdbcType=BIGINT}, 
-      #{content,jdbcType=LONGVARBINARY})
+      #{content,jdbcType=LONGVARBINARY}, #{baseInfo,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs">
     insert into api_scenario_report_result
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -179,26 +169,11 @@
       <if test="errorCode != null">
         error_code,
       </if>
-      <if test="reqName != null">
-        req_name,
-      </if>
-      <if test="reqSuccess != null">
-        req_success,
-      </if>
-      <if test="reqError != null">
-        req_error,
-      </if>
-      <if test="reqStartTime != null">
-        req_start_time,
-      </if>
-      <if test="rspCode != null">
-        rsp_code,
-      </if>
-      <if test="rspTime != null">
-        rsp_time,
-      </if>
       <if test="content != null">
         content,
+      </if>
+      <if test="baseInfo != null">
+        base_info,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -229,26 +204,11 @@
       <if test="errorCode != null">
         #{errorCode,jdbcType=VARCHAR},
       </if>
-      <if test="reqName != null">
-        #{reqName,jdbcType=VARCHAR},
-      </if>
-      <if test="reqSuccess != null">
-        #{reqSuccess,jdbcType=BIT},
-      </if>
-      <if test="reqError != null">
-        #{reqError,jdbcType=INTEGER},
-      </if>
-      <if test="reqStartTime != null">
-        #{reqStartTime,jdbcType=BIGINT},
-      </if>
-      <if test="rspCode != null">
-        #{rspCode,jdbcType=VARCHAR},
-      </if>
-      <if test="rspTime != null">
-        #{rspTime,jdbcType=BIGINT},
-      </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="baseInfo != null">
+        #{baseInfo,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -288,26 +248,11 @@
       <if test="record.errorCode != null">
         error_code = #{record.errorCode,jdbcType=VARCHAR},
       </if>
-      <if test="record.reqName != null">
-        req_name = #{record.reqName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.reqSuccess != null">
-        req_success = #{record.reqSuccess,jdbcType=BIT},
-      </if>
-      <if test="record.reqError != null">
-        req_error = #{record.reqError,jdbcType=INTEGER},
-      </if>
-      <if test="record.reqStartTime != null">
-        req_start_time = #{record.reqStartTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.rspCode != null">
-        rsp_code = #{record.rspCode,jdbcType=VARCHAR},
-      </if>
-      <if test="record.rspTime != null">
-        rsp_time = #{record.rspTime,jdbcType=BIGINT},
-      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.baseInfo != null">
+        base_info = #{record.baseInfo,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -325,13 +270,8 @@
       total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
       pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
       error_code = #{record.errorCode,jdbcType=VARCHAR},
-      req_name = #{record.reqName,jdbcType=VARCHAR},
-      req_success = #{record.reqSuccess,jdbcType=BIT},
-      req_error = #{record.reqError,jdbcType=INTEGER},
-      req_start_time = #{record.reqStartTime,jdbcType=BIGINT},
-      rsp_code = #{record.rspCode,jdbcType=VARCHAR},
-      rsp_time = #{record.rspTime,jdbcType=BIGINT},
-      content = #{record.content,jdbcType=LONGVARBINARY}
+      content = #{record.content,jdbcType=LONGVARBINARY},
+      base_info = #{record.baseInfo,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -346,18 +286,12 @@
       request_time = #{record.requestTime,jdbcType=BIGINT},
       total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
       pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
-      error_code = #{record.errorCode,jdbcType=VARCHAR},
-      req_name = #{record.reqName,jdbcType=VARCHAR},
-      req_success = #{record.reqSuccess,jdbcType=BIT},
-      req_error = #{record.reqError,jdbcType=INTEGER},
-      req_start_time = #{record.reqStartTime,jdbcType=BIGINT},
-      rsp_code = #{record.rspCode,jdbcType=VARCHAR},
-      rsp_time = #{record.rspTime,jdbcType=BIGINT}
+      error_code = #{record.errorCode,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs">
     update api_scenario_report_result
     <set>
       <if test="resourceId != null">
@@ -384,31 +318,16 @@
       <if test="errorCode != null">
         error_code = #{errorCode,jdbcType=VARCHAR},
       </if>
-      <if test="reqName != null">
-        req_name = #{reqName,jdbcType=VARCHAR},
-      </if>
-      <if test="reqSuccess != null">
-        req_success = #{reqSuccess,jdbcType=BIT},
-      </if>
-      <if test="reqError != null">
-        req_error = #{reqError,jdbcType=INTEGER},
-      </if>
-      <if test="reqStartTime != null">
-        req_start_time = #{reqStartTime,jdbcType=BIGINT},
-      </if>
-      <if test="rspCode != null">
-        rsp_code = #{rspCode,jdbcType=VARCHAR},
-      </if>
-      <if test="rspTime != null">
-        rsp_time = #{rspTime,jdbcType=BIGINT},
-      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="baseInfo != null">
+        base_info = #{baseInfo,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs">
     update api_scenario_report_result
     set resource_id = #{resourceId,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
@@ -418,13 +337,8 @@
       total_assertions = #{totalAssertions,jdbcType=BIGINT},
       pass_assertions = #{passAssertions,jdbcType=BIGINT},
       error_code = #{errorCode,jdbcType=VARCHAR},
-      req_name = #{reqName,jdbcType=VARCHAR},
-      req_success = #{reqSuccess,jdbcType=BIT},
-      req_error = #{reqError,jdbcType=INTEGER},
-      req_start_time = #{reqStartTime,jdbcType=BIGINT},
-      rsp_code = #{rspCode,jdbcType=VARCHAR},
-      rsp_time = #{rspTime,jdbcType=BIGINT},
-      content = #{content,jdbcType=LONGVARBINARY}
+      content = #{content,jdbcType=LONGVARBINARY},
+      base_info = #{baseInfo,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenarioReportResult">
@@ -436,13 +350,7 @@
       request_time = #{requestTime,jdbcType=BIGINT},
       total_assertions = #{totalAssertions,jdbcType=BIGINT},
       pass_assertions = #{passAssertions,jdbcType=BIGINT},
-      error_code = #{errorCode,jdbcType=VARCHAR},
-      req_name = #{reqName,jdbcType=VARCHAR},
-      req_success = #{reqSuccess,jdbcType=BIT},
-      req_error = #{reqError,jdbcType=INTEGER},
-      req_start_time = #{reqStartTime,jdbcType=BIGINT},
-      rsp_code = #{rspCode,jdbcType=VARCHAR},
-      rsp_time = #{rspTime,jdbcType=BIGINT}
+      error_code = #{errorCode,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
