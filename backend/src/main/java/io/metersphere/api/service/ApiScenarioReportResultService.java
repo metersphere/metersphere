@@ -82,6 +82,9 @@ public class ApiScenarioReportResultService {
                 if (StringUtils.isNoneBlank(header)) {
                     JSONObject jsonObject = JSONObject.parseObject(header);
                     for (String resourceId : jsonObject.keySet()) {
+                        if (resourceId.length() > 36) {
+                            resourceId = resourceId.substring(0, 36);
+                        }
                         apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.getJSONObject(resourceId)));
                     }
                 }
