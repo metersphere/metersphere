@@ -67,7 +67,7 @@ export default {
   },
   computed: {
     label() {
-      return this.command.label && atomicCommandDefinition[this.command.label] ? atomicCommandDefinition[this.command.label].cnName : '';
+      return this.command.label;
     },
     isUnexecute() {
       return this.result && this.result.status === 'unexecute';

@@ -48,7 +48,7 @@ public class ApiScenarioReportStructureService {
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
 
-    private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler", "MsUiCommand");
+    private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");
     private static final List<String> controls = Arrays.asList("Assertions", "IfController", "ConstantTimer");
 
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
