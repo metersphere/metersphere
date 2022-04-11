@@ -61,7 +61,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
     }
 
     private ScenarioImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
-        ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class);
+        ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class,Feature.DisableSpecialKeyDetect);
         List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
 
         Set<String> moduleIdSet = scenarioImport.getData().stream()

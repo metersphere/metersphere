@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.base.domain.ApiScenarioReferenceId;
 import io.metersphere.base.domain.ApiScenarioReferenceIdExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -55,7 +56,7 @@ public class ApiScenarioReferenceIdService {
         this.deleteByScenarioId(scenario.getId());
         Map<String, ApiScenarioReferenceId> referenceIdMap = new HashMap<>();
         if (StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
-            JSONObject jsonObject = JSONObject.parseObject(scenario.getScenarioDefinition());
+            JSONObject jsonObject = JSONObject.parseObject(scenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
             if (!jsonObject.containsKey(MsHashTreeService.HASH_TREE)) {
                 return;
             }
