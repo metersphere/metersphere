@@ -9,6 +9,7 @@
         <el-dropdown-item command="enable" v-if="data.command && data.enable">{{ this.$t('ui.disable') }}</el-dropdown-item>
         <el-dropdown-item command="enable" v-if="data.command && !data.enable">{{ this.$t('ui.enable') }}</el-dropdown-item>
         <el-dropdown-item command="remove">{{ this.$t('api_test.automation.delete_step') }}</el-dropdown-item>
+        <el-dropdown-item command="rename">{{ this.$t('test_track.module.rename') }}</el-dropdown-item>
         <el-dropdown-item command="scenarioVar" v-if="data.type==='scenario'">
           {{ this.$t("api_test.automation.view_scene_variables") }}
         </el-dropdown-item>
@@ -94,6 +95,9 @@ export default {
           break;
         case "enable":
           this.$emit("enable");
+          break;
+        case "rename":
+          this.$emit("rename");
           break;
       }
     },
