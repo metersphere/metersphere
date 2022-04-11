@@ -3,6 +3,7 @@ package io.metersphere.api.dto.automation.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
@@ -13,7 +14,10 @@ import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioModuleService;
 import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionExample;
+import io.metersphere.base.domain.ApiScenarioModule;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -22,7 +26,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.service.CheckPermissionService;
 import org.apache.commons.collections.CollectionUtils;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -208,7 +211,7 @@ public class ApiScenarioImportUtil {
         object.put("projectId", projectId);
         object.put("useEnvironment","");
         object.put("url","");
-        JSONObject objectNew = JSONObject.parseObject(object.toJSONString());
+        JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
         test.setRequest(objectNew.toJSONString());
@@ -249,7 +252,7 @@ public class ApiScenarioImportUtil {
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
         object.put("useEnvironment","");
-        JSONObject objectNew = JSONObject.parseObject(object.toJSONString());
+        JSONObject objectNew = JSONObject.parseObject(object.toJSONString(),Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
         apiTestCase.setRequest(objectNew.toJSONString());

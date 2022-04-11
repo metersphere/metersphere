@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.parse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.parse.postman.PostmanCollection;
@@ -9,15 +10,15 @@ import io.metersphere.api.dto.parse.postman.PostmanKeyValue;
 import io.metersphere.api.parse.PostmanAbstractParserParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
-import io.metersphere.commons.constants.ProjectApplicationType;
-import io.metersphere.dto.ProjectConfig;
-import io.metersphere.service.ProjectApplicationService;
-import org.apache.commons.lang3.StringUtils;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.dto.ProjectConfig;
+import io.metersphere.service.ProjectApplicationService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
@@ -32,7 +33,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         this.projectId = request.getProjectId();
-        PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class);
+        PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class, Feature.DisableSpecialKeyDetect);
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();

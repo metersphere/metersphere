@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.ApiCaseEditRequest;
@@ -714,7 +715,7 @@ public class ApiTestCaseService {
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
             bloBs.forEach(apiTestCase -> {
-                JSONObject req = JSON.parseObject(apiTestCase.getRequest());
+                JSONObject req = JSON.parseObject(apiTestCase.getRequest(), Feature.DisableSpecialKeyDetect);
                 req.put("useEnvironment", request.getEnvId());
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
@@ -736,9 +737,9 @@ public class ApiTestCaseService {
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
             bloBs.forEach(apiTestCase -> {
-                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
+                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class,Feature.DisableSpecialKeyDetect);
                 try {
-                    JSONObject element = JSON.parseObject(apiTestCase.getRequest());
+                    JSONObject element = JSON.parseObject(apiTestCase.getRequest(),Feature.DisableSpecialKeyDetect);
                     ElementUtil.dataFormatting(element);
 
                     if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {

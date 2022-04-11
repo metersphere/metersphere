@@ -187,47 +187,6 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    private void scenarioCalculate(List<StepTreeDTO> dtoList, AtomicLong isError, AtomicLong isErrorReport, AtomicLong isUnExecute, boolean errorIsFirst) {
-        /**
-         * 判断场景步骤的执行状态
-         * 失败状态的优先级最高，其次是误报
-         */
-        for (StepTreeDTO step : dtoList) {
-            if (step.getValue() != null) {
-                if (step.getValue() instanceof RequestResultExpandDTO
-                        && StringUtils.equalsIgnoreCase(((RequestResultExpandDTO) step.getValue()).getStatus(), ExecuteResult.unexecute.name())) {
-                    isUnExecute.set(isUnExecute.longValue() + 1);
-                } else if (StringUtils.isNotEmpty(step.getErrorCode())) {
-                    isErrorReport.set(isErrorReport.longValue() + 1);
-                } else if (step.getValue().getError() > 0 || !step.getValue().isSuccess()) {
-                    isError.set(isError.longValue() + 1);
-                }
-            } else if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                AtomicLong isChildrenError = new AtomicLong();
-                AtomicLong isChildrenErrorReport = new AtomicLong();
-                AtomicLong isChildrenUnExecute = new AtomicLong();
-                stepChildrenErrorCalculate(step.getChildren(), isChildrenError, isChildrenErrorReport, isChildrenUnExecute);
-                if (isChildrenUnExecute.longValue() > 0) {
-                    isUnExecute.set(isUnExecute.longValue() + 1);
-                } else if (errorIsFirst) {
-                    if (isChildrenError.longValue() > 0) {
-                        isError.set(isError.longValue() + 1);
-                    } else if (isChildrenErrorReport.longValue() > 0) {
-                        isErrorReport.set(isErrorReport.longValue() + 1);
-                    }
-                } else {
-                    if (isChildrenErrorReport.longValue() > 0) {
-                        isErrorReport.set(isErrorReport.longValue() + 1);
-                    } else if (isChildrenError.longValue() > 0) {
-                        isError.set(isError.longValue() + 1);
-                    }
-                }
-            } else if (StringUtils.isNotBlank(step.getType()) && step.getType().equals("MsUiCommand")) {
-                isError.set(isError.longValue() + 1);
-            }
-        }
-    }
-
     private void calculateScenarios(List<StepTreeDTO> dtoList,
                                     AtomicLong totalScenario, AtomicLong scenarioError, AtomicLong errorReport, AtomicLong unExecute) {
         for (StepTreeDTO step : dtoList) {
