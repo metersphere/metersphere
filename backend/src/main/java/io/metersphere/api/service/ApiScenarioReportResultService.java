@@ -93,6 +93,19 @@ public class ApiScenarioReportResultService {
     }
 
     private ApiScenarioReportResultWithBLOBs newUiScenarioReportResult(String reportId, String resourceId, JSONObject value) {
+        ApiScenarioReportResultWithBLOBs report = newScenarioReportResult(reportId, resourceId);
+        String status = value.getBooleanValue("success") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        report.setStatus(status);
+        RequestResult result = JSONObject.parseObject(value.toJSONString(), RequestResult.class);
+        ApiScenarioReportBaseInfoDTO baseInfo = getBaseInfo(result);
+        baseInfo.setRspTime(result.getEndTime() - result.getStartTime());
+        baseInfo.setUiImg(result.getUrl());
+        report.setBaseInfo(JSONObject.toJSONString(baseInfo));
+        report.setContent(value.toJSONString().getBytes(StandardCharsets.UTF_8));
+        return report;
+    }
+
+    private ApiScenarioReportResultWithBLOBs newScenarioReportResult(String reportId, String resourceId) {
         ApiScenarioReportResultWithBLOBs report = new ApiScenarioReportResultWithBLOBs();
         report.setId(UUID.randomUUID().toString());
         report.setResourceId(resourceId);
@@ -100,33 +113,11 @@ public class ApiScenarioReportResultService {
         report.setTotalAssertions(0L);
         report.setPassAssertions(0L);
         report.setCreateTime(System.currentTimeMillis());
-        String status = value.getBooleanValue("success") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
-        report.setStatus(status);
-        report.setContent(value.toJSONString().getBytes(StandardCharsets.UTF_8));
         return report;
     }
 
-    private ApiScenarioReportResultWithBLOBs newApiScenarioReportResult(String reportId, RequestResult baseResult) {
-        ApiScenarioReportResultWithBLOBs report = new ApiScenarioReportResultWithBLOBs();
-        //解析误报内容
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
-        RequestResult result = errorCodeDTO.getResult();
-        report.setId(UUID.randomUUID().toString());
-        String resourceId = result.getResourceId();
-        report.setResourceId(resourceId);
-        report.setReportId(reportId);
-        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
-        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
-        report.setCreateTime(System.currentTimeMillis());
-        String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
-        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
-            status = ExecuteResult.errorReportResult.name();
-            report.setErrorCode(errorCodeDTO.getErrorCodeStr());
-        }
-        report.setStatus(status);
-        report.setRequestTime(result.getEndTime() - result.getStartTime());
-
-        //记录基础信息
+    //记录基础信息
+    private ApiScenarioReportBaseInfoDTO getBaseInfo(RequestResult result) {
         ApiScenarioReportBaseInfoDTO baseInfoDTO = new ApiScenarioReportBaseInfoDTO();
         baseInfoDTO.setReqName(result.getName());
         baseInfoDTO.setReqSuccess(result.isSuccess());
@@ -136,7 +127,27 @@ public class ApiScenarioReportResultService {
             baseInfoDTO.setRspCode(result.getResponseResult().getResponseCode());
             baseInfoDTO.setRspTime(result.getResponseResult().getResponseTime());
         }
-        report.setBaseInfo(JSONObject.toJSONString(baseInfoDTO));
+        return baseInfoDTO;
+    }
+
+    private ApiScenarioReportResultWithBLOBs newApiScenarioReportResult(String reportId, RequestResult baseResult) {
+        //解析误报内容
+        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
+        RequestResult result = errorCodeDTO.getResult();
+        String resourceId = result.getResourceId();
+
+        ApiScenarioReportResultWithBLOBs report = newScenarioReportResult(reportId, resourceId);
+        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
+        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
+        String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
+            status = ExecuteResult.errorReportResult.name();
+            report.setErrorCode(errorCodeDTO.getErrorCodeStr());
+        }
+        report.setStatus(status);
+        report.setRequestTime(result.getEndTime() - result.getStartTime());
+
+        report.setBaseInfo(JSONObject.toJSONString(getBaseInfo(result)));
         report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
         return report;
     }
@@ -156,16 +167,7 @@ public class ApiScenarioReportResultService {
                 try {
                     RequestResult requestResult = JSON.parseObject(new String(baseResult.getContent(), StandardCharsets.UTF_8), RequestResult.class);
                     //记录基础信息
-                    ApiScenarioReportBaseInfoDTO baseInfo = new ApiScenarioReportBaseInfoDTO();
-                    baseInfo.setReqName(StringUtils.isEmpty(requestResult.getName()) ? "" : requestResult.getName());
-                    baseInfo.setReqSuccess(requestResult.isSuccess());
-                    baseInfo.setReqError(requestResult.getError());
-                    baseInfo.setReqStartTime(requestResult.getStartTime());
-                    if (requestResult.getResponseResult() != null) {
-                        baseInfo.setRspCode(requestResult.getResponseResult().getResponseCode());
-                        baseInfo.setRspTime(requestResult.getResponseResult().getResponseTime());
-                    }
-                    baseResult.setBaseInfo(JSONObject.toJSONString(baseInfo));
+                    baseResult.setBaseInfo(JSONObject.toJSONString(getBaseInfo(requestResult)));
                     apiScenarioReportResultMapper.updateByPrimaryKeySelective(baseResult);
                     return baseResult;
                 } catch (Exception e) {

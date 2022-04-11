@@ -20,6 +20,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.commons.constants.CommandType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -176,6 +177,7 @@ public class ApiScenarioReportStructureService {
                     children.setAllIndex("" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
                 }
+                children.setCmdType(element.getString("commandType"));
                 dto.getChildren().add(children);
                 if (element.containsKey("hashTree") && !requests.contains(children.getType())) {
                     JSONArray elementJSONArray = element.getJSONArray("hashTree");
@@ -307,7 +309,7 @@ public class ApiScenarioReportStructureService {
                     dto.setErrorCode(reportResults.get(0).getErrorCode());
                 }
             }
-            if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null) {
+            if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null || isUiUnExecuteCommand(dto)) {
                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO();
                 requestResultExpandDTO.setStatus("unexecute");
                 requestResultExpandDTO.setName(dto.getLabel());
@@ -413,6 +415,14 @@ public class ApiScenarioReportStructureService {
         } catch (Exception e) {
             LogUtil.error(e);
         }
+    }
+
+    private boolean isUiUnExecuteCommand(StepTreeDTO dto) {
+        if (dto.getType().equals("MsUiCommand") && dto.getValue() == null
+                && (StringUtils.isBlank(dto.getCmdType()) || !dto.getCmdType().equalsIgnoreCase(CommandType.COMMAND_TYPE_COMBINATION))) {
+            return true;
+        }
+        return false;
     }
 
     private List<ApiDefinitionExecResultVo> formatApiReport(String reportId, List<StepTreeDTO> stepList) {
