@@ -186,37 +186,37 @@ public class JmeterDocumentParser implements EngineSourceParser {
 
     private void processArgumentFiles(Element element) {
         List<Element> childNodes = element.elements();
+        if (childNodes.size() == 0) {
+            return;
+        }
         for (Element item : childNodes) {
-            if (isHTTPFileArgs(item)) {
-                List<Element> elementProps = item.elements();
-                for (Element eleProp : elementProps) {
-                    List<Element> strProps = eleProp.elements();
-                    for (Element strPop : strProps) {
-                        if (StringUtils.equals(strPop.attributeValue("name"), "File.path")) {
-                            // 截取文件名
-                            handleFilename(strPop);
-                            break;
-                        }
-                    }
-                }
-
-
+            processArgumentFiles(item);
+            if (StringUtils.equals(item.attributeValue("name"), "File.path")) {
+                // 截取文件名
+                handleFilename(item);
+            }
+            if (StringUtils.equals(item.attributeValue("elementType"), "HTTPFileArg")) {
+                // 截取文件名
+                String filename = item.attributeValue("name");
+                filename = extractFilename(filename);
+                item.addAttribute("name", filename);
             }
         }
     }
 
-    private void handleFilename(Node item) {
+    private String extractFilename(String filename) {
         String separator = "/";
-        String filename = item.getText();
         if (!StringUtils.contains(filename, "/")) {
             separator = "\\";
         }
         filename = filename.substring(filename.lastIndexOf(separator) + 1);
-        item.setText(filename);
+        return filename;
     }
 
-    private boolean isHTTPFileArgs(Element ele) {
-        return "HTTPFileArgs".equals(ele.attributeValue("elementType"));
+    private void handleFilename(Node item) {
+        String filename = item.getText();
+        filename = extractFilename(filename);
+        item.setText(filename);
     }
 
     private void processCsvDataSet(Element element) {
