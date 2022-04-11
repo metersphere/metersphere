@@ -173,6 +173,11 @@
                 FROM project
                 WHERE workspace_id = #{workspaceId}) AS a)
     </update>
+    <update id="updateUseDefaultCaseTemplateProject">
+        update project set case_template_id = #{templateId}
+        where (case_template_id = #{originId} or case_template_id is null or case_template_id = '')
+        and id = #{projectId}
+    </update>
 
     <select id="selectProjectByResourceId" resultType="io.metersphere.base.domain.Project">
         SELECT *
