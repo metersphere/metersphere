@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.StepTreeDTO;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.service.vo.ApiDefinitionExecResultVo;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -348,7 +349,7 @@ public class ApiScenarioReportStructureService {
         }
         // 循环步骤请求从新排序
         try {
-            if (dtoList.stream().filter(e -> e.getValue() != null).collect(Collectors.toList()).size() == dtoList.size()) {
+            if (dtoList.stream().filter(e -> e.getValue() != null && ElementUtil.requests.contains(e.getType())).collect(Collectors.toList()).size() == dtoList.size()) {
                 List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
                         && StringUtils.equalsIgnoreCase(e.getTotalStatus(), "unexecute")).collect(Collectors.toList());
                 List<StepTreeDTO> list = dtoList.stream().filter(e -> e.getValue().getStartTime() != 0).collect(Collectors.toList());
