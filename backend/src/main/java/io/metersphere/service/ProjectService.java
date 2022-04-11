@@ -334,13 +334,7 @@ public class ProjectService {
      * @param projectId
      */
     public void updateCaseTemplate(String originId, String templateId, String projectId) {
-        Project project = new Project();
-        project.setCaseTemplateId(templateId);
-        ProjectExample example = new ProjectExample();
-        example.createCriteria()
-                .andCaseTemplateIdEqualTo(originId)
-                .andIdEqualTo(projectId);
-        projectMapper.updateByExampleSelective(project, example);
+        extProjectMapper.updateUseDefaultCaseTemplateProject(originId, templateId, projectId);
     }
 
     private void deleteLoadTestResourcesByProjectId(String projectId) {
