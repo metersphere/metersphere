@@ -399,7 +399,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
         customFields.forEach(item -> {
             if (StringUtils.isNotBlank(item.getCustomData())) {
-                paramMap.add(item.getCustomData(), item.getValue());
+                if (item.getValue() instanceof String) {
+                    paramMap.add(item.getCustomData(), ((String) item.getValue()).trim());
+                } else {
+                    paramMap.add(item.getCustomData(), item.getValue());
+                }
             }
         });
     }
