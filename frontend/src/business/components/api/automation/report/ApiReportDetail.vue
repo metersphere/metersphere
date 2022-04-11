@@ -334,8 +334,12 @@ export default {
       this.init();
       if (this.isTemplate) {
         // 测试计划报告导出
-        this.report = this.templateReport;
-        this.buildReport();
+        if(this.templateReport){
+          this.handleGetScenarioReport(this.templateReport);
+        }else {
+          this.report = this.templateReport;
+          this.buildReport();
+        }
       } else if (this.isShare) {
         getShareScenarioReport(this.shareId, this.reportId, (data) => {
           this.checkReport(data);
