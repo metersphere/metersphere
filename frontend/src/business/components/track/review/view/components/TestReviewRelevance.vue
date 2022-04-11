@@ -8,7 +8,11 @@
 
       <template slot="title" :slot-scope="$t('test_track.review_view.relevance_case')" v-if="!$slots.headerBtn">
         <ms-dialog-header :title="$t('test_track.review_view.relevance_case')" @cancel="dialogFormVisible = false"
-                          @confirm="saveReviewRelevance"/>
+                          @confirm="saveReviewRelevance">
+          <template #other>
+            <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
+          </template>
+        </ms-dialog-header>
       </template>
 
       <el-container class="main-content">
@@ -42,6 +46,7 @@
                       :page-size.sync="pageSize"
                       @handlePageChange="getReviews"
                       @refresh="getReviews"
+                      @selectCountChange="setSelectCounts"
                       :condition="condition"
                       ref="table">
 
@@ -133,6 +138,7 @@ import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId, hasLicense
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -141,6 +147,7 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "TestReviewRelevance",
   components: {
+    TableSelectCountBar,
     SelectMenu,
     NodeTree,
     MsDialogFooter,
@@ -199,6 +206,7 @@ export default {
         {text: this.$t('test_track.review.pass'), value: 'Pass'},
         {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
       ],
+      selectCounts: null,
     };
   },
   props: {
@@ -280,7 +288,9 @@ export default {
       }
 
     },
-
+    setSelectCounts(data) {
+      this.selectCounts = data;
+    },
     nodeChange(node, nodeIds, nodeNames) {
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
