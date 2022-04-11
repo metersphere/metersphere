@@ -152,4 +152,8 @@ export default {
   height: 40px;
 }
 
+.el-menu-item {
+  padding: 0 10px;
+}
+
 </style>
