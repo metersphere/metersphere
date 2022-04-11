@@ -34,6 +34,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.performance.base.GranularityData;
 import io.metersphere.performance.dto.LoadModuleDTO;
+import io.metersphere.performance.dto.LoadTestBatchRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
@@ -1078,4 +1079,17 @@ public class PerformanceTestService {
     }
 
 
+    public List<LoadTestDTO> listBatch(LoadTestBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extLoadTestMapper.selectIds(query));
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(request.getIds())) {
+            return new ArrayList<>();
+        }
+
+        QueryTestPlanRequest request2 = new QueryTestPlanRequest();
+        Map<String, List<String>> param = new HashMap<>();
+        param.put("id", request.getIds());
+        request2.setFilters(param);
+        return this.list(request2);
+    }
 }

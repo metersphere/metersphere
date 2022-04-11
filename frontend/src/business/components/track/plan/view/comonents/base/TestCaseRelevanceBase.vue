@@ -7,7 +7,7 @@
       </div>
     </template>
     <template slot="title" slot-scope="{title}" v-if="!$slots.headerBtn">
-      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save">
+      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save" btn-size="mini">
         <template #other>
           <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
 
