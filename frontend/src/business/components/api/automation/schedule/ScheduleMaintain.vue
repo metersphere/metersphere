@@ -29,7 +29,7 @@
                       <el-switch v-model="schedule.enable" style="margin-left: 20px"></el-switch>
                     </el-tooltip>
                   </el-col>
-                  <el-col :span="4">
+                  <el-col :span="2">
                     <el-button :disabled="isReadOnly" type="primary" @click="saveCron" size="mini">{{
                         $t('commons.save')
                       }}
