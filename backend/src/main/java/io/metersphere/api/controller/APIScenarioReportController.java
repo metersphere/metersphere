@@ -31,7 +31,7 @@ public class APIScenarioReportController {
 
     @GetMapping("/get/{reportId}")
     public APIScenarioReportResult get(@PathVariable String reportId) {
-        return apiReportService.get(reportId);
+        return apiReportService.get(reportId,false);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
