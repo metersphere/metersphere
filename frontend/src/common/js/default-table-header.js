@@ -271,7 +271,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'userName', key: 'd', label: 'report.user_name'},
     {id: 'maxUsers', key: 'e', label: 'report.max_users'},
     {id: 'avgResponseTime', key: 'f', label: 'report.response_time'},
-    {id: 'tps', key: 'g', label: 'report.test_start_time'},
+    {id: 'tps', key: 'g', label: 'TPS'},
     {id: 'testStartTime', key: 'h', label: 'report.test_start_time'},
     {id: 'testEndTime', key: 'i', label: 'report.test_end_time'},
     {id: 'testDuration', key: 'j', label: 'report.test_execute_time'},
