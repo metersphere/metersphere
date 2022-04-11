@@ -604,6 +604,7 @@ p {
 
 .test-case-name {
   padding: 0;
+  text-decoration: underline solid #783887;
 }
 
 /deep/ .el-drawer__body {
