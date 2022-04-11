@@ -2,6 +2,7 @@ package io.metersphere.api.exec.scenario;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -177,7 +178,7 @@ public class ApiScenarioEnvService {
                             if (apiScenario != null) {
                                 env.getProjectIds().add(apiScenario.getProjectId());
                                 String scenarioDefinition = apiScenario.getScenarioDefinition();
-                                JSONObject element1 = JSON.parseObject(scenarioDefinition);
+                                JSONObject element1 = JSON.parseObject(scenarioDefinition, Feature.DisableSpecialKeyDetect);
                                 ElementUtil.dataFormatting(element1);
                                 LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                                 });

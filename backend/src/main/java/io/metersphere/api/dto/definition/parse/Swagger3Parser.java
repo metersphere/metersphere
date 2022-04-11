@@ -3,10 +3,13 @@ package io.metersphere.api.dto.definition.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.SwaggerApiExportResult;
-import io.metersphere.api.dto.definition.parse.swagger.*;
+import io.metersphere.api.dto.definition.parse.swagger.SwaggerApiInfo;
+import io.metersphere.api.dto.definition.parse.swagger.SwaggerInfo;
+import io.metersphere.api.dto.definition.parse.swagger.SwaggerParams;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
@@ -33,6 +36,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
+
 import java.io.InputStream;
 import java.util.*;
 
@@ -594,17 +598,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
             swaggerApiInfo.setTags(Arrays.asList(moduleName));
             //  设置请求体
-            JSONObject requestObject = JSON.parseObject(apiDefinition.getRequest());    //  将api的request属性转换成JSON对象以便获得参数
+            JSONObject requestObject = JSON.parseObject(apiDefinition.getRequest(), Feature.DisableSpecialKeyDetect);    //  将api的request属性转换成JSON对象以便获得参数
             JSONObject requestBody = buildRequestBody(requestObject);
             swaggerApiInfo.setRequestBody(requestBody);
             //  设置响应体
-            JSONObject responseObject = JSON.parseObject(apiDefinition.getResponse());
+            JSONObject responseObject = JSON.parseObject(apiDefinition.getResponse(),Feature.DisableSpecialKeyDetect);
             swaggerApiInfo.setResponses(buildResponseBody(responseObject));
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
             swaggerApiInfo.setDescription(apiDefinition.getDescription());
-            JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo));
+            JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo),Feature.DisableSpecialKeyDetect);
             if (paths.getJSONObject(apiDefinition.getPath()) == null) {
                 paths.put(apiDefinition.getPath(), new JSONObject());
             }   //  一个路径下有多个发方法，如post，get，因此是一个 JSONObject 类型

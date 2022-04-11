@@ -18,7 +18,7 @@ public class MsParser extends ApiImportAbstractParser {
     @Override
     public ApiImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
-        ApiImport apiImport = JSON.parseObject(parsePluginFormat(testStr), ApiImport.class);
+        ApiImport apiImport = JSON.parseObject(parsePluginFormat(testStr), ApiImport.class,Feature.DisableSpecialKeyDetect);
         apiImport.getScenarios().forEach(scenario -> setScenarioByRequest(scenario, request));
         return apiImport;
     }
@@ -26,7 +26,7 @@ public class MsParser extends ApiImportAbstractParser {
     @Override
     public ApiDefinitionImport parseApi(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
-        ApiDefinitionImport apiImport = JSON.parseObject(testStr, ApiDefinitionImport.class);
+        ApiDefinitionImport apiImport = JSON.parseObject(testStr, ApiDefinitionImport.class,Feature.DisableSpecialKeyDetect);
         return apiImport;
     }
 
