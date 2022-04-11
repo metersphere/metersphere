@@ -22,6 +22,7 @@
       :project-id="projectId"
       :not-in-ids="notInIds"
       :versionEnable="versionEnable"
+      @selectCountChange="setSelectCounts"
       ref="apiCaseList"/>
 
   </test-case-relevance-base>
@@ -103,6 +104,9 @@ export default {
         this.$refs.baseRelevance.close();
       });
     },
+    setSelectCounts(data) {
+      this.$refs.baseRelevance.selectCounts = data;
+    }
   }
 }
 </script>
