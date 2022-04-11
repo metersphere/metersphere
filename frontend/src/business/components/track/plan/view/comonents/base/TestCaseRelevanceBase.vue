@@ -7,8 +7,10 @@
       </div>
     </template>
     <template slot="title" slot-scope="{title}" v-if="!$slots.headerBtn">
-      <ms-dialog-header :title="title" @cancel="close" @confirm="save">
+      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save">
         <template #other>
+          <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
+
           <div v-if="flag" style="margin-top: 5px;">
             <el-checkbox v-model="checked" class="el-checkbox__label">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
           </div>
@@ -44,10 +46,12 @@ import MsDialogHeader from '../../../../../common/components/MsDialogHeader'
 import SelectMenu from "../../../../common/SelectMenu";
 import RelevanceDialog from "./RelevanceDialog";
 import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 
 export default {
   name: "TestCaseRelevanceBase",
   components: {
+    TableSelectCountBar,
     RelevanceDialog,
     SelectMenu,
     MsDialogHeader,
@@ -62,7 +66,8 @@ export default {
       projects: [],
       workspaceId: '',
       workspaceList: [],
-      currentWorkSpaceId: ''
+      currentWorkSpaceId: '',
+      selectCounts: null,
     };
   },
   props: {
