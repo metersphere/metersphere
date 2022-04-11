@@ -24,6 +24,7 @@
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
+      @selectCountChange="setSelectCounts"
       ref="apiList">
       <template v-slot:version>
         <version-select v-xpack :project-id="projectId" :default-version="currentVersion"
@@ -40,6 +41,7 @@
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange"
+      @selectCountChange="setSelectCounts"
       ref="apiCaseList">
       <template v-slot:version>
         <version-select v-xpack :project-id="projectId" :default-version="currentVersion"
@@ -48,6 +50,9 @@
     </scenario-relevance-case-list>
 
     <template v-slot:headerBtn>
+      <!--  显示数量    -->
+      <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
+
       <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
         {{ $t('commons.copy') }}
       </el-button>
@@ -69,6 +74,7 @@ import ScenarioRelevanceApiList from "./RelevanceApiList";
 import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
 import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
 import {hasLicense} from "@/common/js/utils";
+import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -76,6 +82,7 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "ApiRelevance",
   components: {
+    TableSelectCountBar,
     'VersionSelect': VersionSelect.default,
     TestCaseRelevanceBase,
     RelevanceDialog,
@@ -102,6 +109,7 @@ export default {
       projectId: "",
       versionFilters: [],
       currentVersion: null,
+      selectCounts: null,
     };
   },
   watch: {
@@ -172,6 +180,7 @@ export default {
     },
     isApiListEnableChange(data) {
       this.isApiListEnable = data;
+      this.selectCounts = 0;
     },
     currentVersionChange(currentVersion) {
       this.currentVersion = currentVersion || null;
@@ -212,6 +221,9 @@ export default {
           }
         });
       }
+    },
+    setSelectCounts(data) {
+      this.selectCounts = data;
     },
   }
 };
