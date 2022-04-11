@@ -165,7 +165,7 @@ export function recursiveSorting(_this, arr, scenarioProjectId) {
       if (_this.hideTreeNode) {
         _this.hideTreeNode(arr[i], arr[i].hashTree);
       }
-      recursiveSorting(arr[i].hashTree, arr[i].projectId);
+      recursiveSorting(_this, arr[i].hashTree, arr[i].projectId);
     }
     // 添加debug结果
     if (_this.debugResult && _this.debugResult.get(arr[i].id + arr[i].name)) {
