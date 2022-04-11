@@ -92,6 +92,24 @@ CREATE TABLE IF NOT EXISTS `report_statistics`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
-create index load_test_report_detail_report_id_index
-    on load_test_report_detail (report_id);
+
+DROP PROCEDURE IF EXISTS schema_change_api;
+DELIMITER //
+CREATE PROCEDURE schema_change_api()
+BEGIN
+    DECLARE CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS(SELECT *
+                  FROM information_schema.statistics
+                  WHERE table_schema = CurrentDatabase
+                    AND table_name = 'load_test_report_detail'
+                    AND index_name = 'load_test_report_detail_report_id_index') THEN
+        ALTER TABLE `load_test_report_detail`
+            ADD INDEX load_test_report_detail_report_id_index (`report_id`);
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_api();
+DROP PROCEDURE IF EXISTS schema_change_api;
+
 
