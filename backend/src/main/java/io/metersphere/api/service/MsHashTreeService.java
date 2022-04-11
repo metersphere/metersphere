@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
@@ -77,7 +78,7 @@ public class MsHashTreeService {
                     if (refType.equals(CASE)) {
                         ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(object.getString(ID));
                         if (bloBs != null) {
-                            object = JSON.parseObject(bloBs.getRequest());
+                            object = JSON.parseObject(bloBs.getRequest(), Feature.DisableSpecialKeyDetect);
                             object.put(ID, bloBs.getId());
                             object.put(NAME, bloBs.getName());
                             hashTree.set(i, object);
@@ -85,14 +86,14 @@ public class MsHashTreeService {
                     } else {
                         ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString(ID));
                         if (bloBs != null) {
-                            object = JSON.parseObject(bloBs.getScenarioDefinition());
+                            object = JSON.parseObject(bloBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
                             hashTree.set(i, object);
                         }
                     }
                 } else if (SCENARIO.equals(object.getString(TYPE))) {
                     ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString(ID));
                     if (bloBs != null) {
-                        object = JSON.parseObject(bloBs.getScenarioDefinition());
+                        object = JSON.parseObject(bloBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
                         hashTree.set(i, object);
                     }
                 }
@@ -182,7 +183,7 @@ public class MsHashTreeService {
             ApiTestCaseInfo apiTestCase = apiTestCaseService.get(element.getString(ID));
             if (apiTestCase != null) {
                 if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), REF)) {
-                    JSONObject refElement = JSON.parseObject(apiTestCase.getRequest());
+                    JSONObject refElement = JSON.parseObject(apiTestCase.getRequest(),Feature.DisableSpecialKeyDetect);
                     ElementUtil.dataFormatting(refElement);
                     JSONArray array = refElement.getJSONArray(HASH_TREE);
                     ElementUtil.copyBean(element, refElement);
@@ -255,7 +256,7 @@ public class MsHashTreeService {
                     ? element.getBoolean(VARIABLE_ENABLE) : true;
 
             if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), REF)) {
-                element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
                 element.put(REFERENCED, REF);
                 element.put(NAME, scenarioWithBLOBs.getName());
             }

@@ -2,6 +2,7 @@ package io.metersphere.api.exec.scenario;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
@@ -194,7 +195,7 @@ public class ApiScenarioSerialService {
     private MsTestElement parse(ApiTestCaseWithBLOBs caseWithBLOBs, String planId, String envId) {
         try {
             String api = caseWithBLOBs.getRequest();
-            JSONObject element = JSON.parseObject(api);
+            JSONObject element = JSON.parseObject(api, Feature.DisableSpecialKeyDetect);
             ElementUtil.dataFormatting(element);
 
             LinkedList<MsTestElement> list = new LinkedList<>();
@@ -205,7 +206,7 @@ public class ApiScenarioSerialService {
                 list.addAll(elements);
             }
             if (element.getString("type").equals("HTTPSamplerProxy")) {
-                MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class);
+                MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class,Feature.DisableSpecialKeyDetect);
                 httpSamplerProxy.setHashTree(list);
                 httpSamplerProxy.setName(planId);
                 if (StringUtils.isNotEmpty(envId)) {
@@ -214,7 +215,7 @@ public class ApiScenarioSerialService {
                 return httpSamplerProxy;
             }
             if (element.getString("type").equals("TCPSampler")) {
-                MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class);
+                MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class,Feature.DisableSpecialKeyDetect);
                 if (StringUtils.isNotEmpty(envId)) {
                     msTCPSampler.setUseEnvironment(envId);
                 }
@@ -223,7 +224,7 @@ public class ApiScenarioSerialService {
                 return msTCPSampler;
             }
             if (element.getString("type").equals("DubboSampler")) {
-                MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class);
+                MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class,Feature.DisableSpecialKeyDetect);
                 if (StringUtils.isNotEmpty(envId)) {
                     dubboSampler.setUseEnvironment(envId);
                 }
