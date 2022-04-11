@@ -225,6 +225,53 @@
         </where>
     </select>
 
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and load_test.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='method'">
+                            and load_test.method in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_id'">
+                            and load_test.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_name'">
+                            and load_test.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='case_status'">
+                            and load_test.case_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and load_test.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    
     <sql id="queryWhereCondition">
         <where>
             <if test="request.combine != null">
@@ -234,6 +281,37 @@
                     <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
+            <if test="request.name != null">
+                and (load_test.name like CONCAT('%', #{request.name},'%')
+                or load_test.num like CONCAT('%', #{request.name},'%')
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (load_test.status is null or load_test.status != #{request.notEqStatus})
+            </if>
+
+            <if test="request.id != null">
+                AND load_test.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND load_test.user_id = #{request.userId}
+            </if>
+            <if test="request.createTime >0">
+                AND load_test.create_time >= #{request.createTime}
+            </if>
+            <if test="request.notInIds != null and request.notInIds.size() > 0">
+                and load_test.id not in
+                <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.projectId != null">
+                AND load_test.project_id = #{request.projectId}
+            </if>
+            <include refid="filter"/>
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="load_test"/>
+            </include>
         </where>
     </sql>
 
@@ -348,5 +426,12 @@
                      JOIN file_metadata ON file_id = file_metadata.id
         WHERE test_id = #{testId}
         ORDER BY sort
+    </select>
+
+    <select id="selectIds" resultType="java.lang.String">
+        select load_test.id
+        from load_test
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 </mapper>
