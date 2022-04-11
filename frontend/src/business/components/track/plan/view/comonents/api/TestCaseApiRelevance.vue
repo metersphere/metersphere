@@ -28,6 +28,7 @@
       :versionFilters="versionFilters"
       :version-enable="versionEnable"
       @isApiListEnableChange="isApiListEnableChange"
+      @selectCountChange="setSelectCounts"
       ref="apiList">
       <template v-slot:version>
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion($event,'api')" margin-left="10"/>
@@ -45,6 +46,7 @@
       :version-enable="versionEnable"
       :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
+      @selectCountChange="setSelectCounts"
       ref="apiCaseList">
       <template v-slot:version>
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion($event, 'case')"
@@ -229,7 +231,10 @@
           this.$refs.apiCaseList.condition.versionId = currentVersion || null;
           this.$refs.apiCaseList.initTable();
         }
-      }
+      },
+      setSelectCounts(data) {
+        this.$refs.baseRelevance.selectCounts = data;
+      },
     }
   }
 </script>

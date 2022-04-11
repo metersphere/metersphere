@@ -7,11 +7,11 @@
       </div>
     </template>
     <template slot="title" slot-scope="{title}" v-if="!$slots.headerBtn">
-      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save">
+      <ms-dialog-header :title="title" :enable-cancel="false" @confirm="save" btn-size="mini">
         <template #other>
           <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
 
-          <div v-if="flag" style="margin-top: 5px;">
+          <div v-if="flag" style="margin: 5px; float: left;">
             <el-checkbox v-model="checked" class="el-checkbox__label">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
           </div>
         </template>

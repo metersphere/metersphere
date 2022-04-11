@@ -2,6 +2,7 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
+import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.performance.request.QueryTestPlanRequest;
@@ -39,4 +40,6 @@ public interface ExtLoadTestMapper {
     List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
 
     List<FileMetadata> getFileMetadataByIds(@Param("testId") String testId);
+
+    List<String> selectIds(@Param("request") BaseQueryRequest request);
 }

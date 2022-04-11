@@ -22,6 +22,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.performance.dto.LoadModuleDTO;
+import io.metersphere.performance.dto.LoadTestBatchRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -69,6 +70,11 @@ public class PerformanceTestController {
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
+    @PostMapping("/list/batch")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    public List<LoadTestDTO> listBatch(@RequestBody LoadTestBatchRequest request) {
+        return performanceTestService.listBatch(request);
+    }
 
     @GetMapping("/state/get/{testId}")
     @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
