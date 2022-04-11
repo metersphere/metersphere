@@ -20,6 +20,7 @@
                 :total="total" enableSelection
                 :screenHeight="screenHeight"
                 @refresh="initTable"
+                @selectCountChange="selectCountChange"
                 operator-width="170px"
                 ref="table"
       >
@@ -86,8 +87,6 @@
                            :total="total"/>
     </api-list-container>
 
-    <table-select-count-bar :count="selectRows.size"/>
-
   </div>
 
 </template>
@@ -107,7 +106,6 @@ import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonDa
 import ApiListContainer from "../../../definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
-import TableSelectCountBar from "./TableSelectCountBar";
 import {_filter, _sort, buildBatchParam} from "@/common/js/tableUtils";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {TEST_PLAN_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
@@ -116,7 +114,6 @@ import {hasLicense} from "@/common/js/utils";
 export default {
   name: "RelevanceCaseList",
   components: {
-    TableSelectCountBar,
     MsEnvironmentSelect,
     PriorityTableItem,
     ApiListContainer,
@@ -225,6 +222,9 @@ export default {
   methods: {
     isApiListEnableChange(data) {
       this.$emit('isApiListEnableChange', data);
+    },
+    selectCountChange(data) {
+      this.$emit('selectCountChange', data);
     },
     initTable(projectId) {
       this.condition.status = "";
