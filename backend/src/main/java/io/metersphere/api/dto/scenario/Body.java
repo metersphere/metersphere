@@ -97,7 +97,7 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        JSONObject jsonObject = JSON.parseObject(this.getRaw(), Feature.OrderedField);
+                        JSONObject jsonObject = JSON.parseObject(this.getRaw(), Feature.OrderedField,Feature.DisableSpecialKeyDetect);
                         if (!this.getRaw().contains("$ref")) {
                             jsonMockParse(jsonObject);
                         }
