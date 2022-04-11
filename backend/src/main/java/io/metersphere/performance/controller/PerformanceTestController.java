@@ -2,6 +2,7 @@ package io.metersphere.performance.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.definition.ApiBatchRequest;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
@@ -22,12 +23,14 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.performance.dto.LoadModuleDTO;
+import io.metersphere.performance.dto.LoadTestBatchRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -69,6 +72,11 @@ public class PerformanceTestController {
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
+    @PostMapping("/list/batch")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    public List<LoadTestDTO> listBatch(@RequestBody LoadTestBatchRequest request) {
+        return performanceTestService.listBatch(request);
+    }
 
     @GetMapping("/state/get/{testId}")
     @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
