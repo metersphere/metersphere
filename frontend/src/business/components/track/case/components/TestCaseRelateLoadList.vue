@@ -14,6 +14,7 @@
                 :total="total"
                 :showSelectAll="false"
                 :screenHeight="screenHeight"
+                @selectCountChange="selectCountChange"
                 @refresh="initTable"
                 ref="table">
 
@@ -67,8 +68,6 @@
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
-    <table-select-count-bar :count="selectRows.size"/>
-
   </div>
 
 </template>
@@ -78,7 +77,6 @@
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {TEST_CASE_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
@@ -90,7 +88,6 @@ export default {
   name: "TestCaseRelateLoadList",
   components: {
     MsPerformanceTestStatus,
-    TableSelectCountBar,
     MsTablePagination,
     MsTable,
     MsTableColumn,
@@ -138,6 +135,9 @@ export default {
     }
   },
   methods: {
+    selectCountChange(data) {
+      this.$emit("selectCountChange", data);
+    },
     initTable(projectId) {
       this.condition.status = "";
       if (projectId != null && typeof projectId === 'string') {
