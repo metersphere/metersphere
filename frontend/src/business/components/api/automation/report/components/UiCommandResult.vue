@@ -13,8 +13,8 @@
           </el-col>
 
           <el-col :span="3">
-            <span v-if="!isUnexecute" :style="!result.success ? 'color: #FE6F71' : ''">
-              {{ result.endTime - result.startTime }} ms
+            <span v-if="!isUnexecute" :style="result && !result.success ? 'color: #FE6F71' : ''">
+              {{ result.time }} ms
             </span>
           </el-col>
 
@@ -26,8 +26,8 @@
               v-if="!isUnexecute">
               <el-image
                 style="width: 100px; height: 100px"
-                :src="'/resource/ui/get?fileName=' + result.url"
-                :preview-src-list="['/resource/ui/get?fileName=' + result.url]">
+                :src="'/resource/ui/get?fileName=' + result.uiImg"
+                :preview-src-list="['/resource/ui/get?fileName=' + result.uiImg]">
               </el-image>
               <el-button slot="reference" type="text">{{ $t('截图') }}</el-button>
             </el-popover>
@@ -38,7 +38,7 @@
               <el-tag size="mini" v-if="isUnexecute">
                 {{ $t('api_test.home_page.detail_card.unexecute') }}
               </el-tag>
-              <el-tag size="mini" type="success" v-else-if="result.success">
+              <el-tag size="mini" type="success" v-else-if="result && result.success">
                 {{ $t('api_report.success') }}
               </el-tag>
               <el-tooltip v-else :content="result.body" placement="top">
@@ -70,7 +70,7 @@ export default {
       return this.command.label;
     },
     isUnexecute() {
-      return this.result && this.result.status === 'unexecute';
+      return !this.result || this.result.status === 'unexecute';
     }
   },
   data() {
