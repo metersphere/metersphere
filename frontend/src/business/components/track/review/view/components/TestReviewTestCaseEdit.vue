@@ -581,6 +581,11 @@ export default {
   color: #060505;
 }
 
+.test-case-name {
+  padding: 0;
+  text-decoration: underline solid #783887;
+}
+
 .step-info {
   padding-left: 40px;
   padding-right: 15px;
