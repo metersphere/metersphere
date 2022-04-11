@@ -9,4 +9,5 @@ public class CommandType {
     public static final String COMMAND_TYPE_ATOM = "atom";
     public static final String COMMAND_TYPE_COMBINATION = "combination";
     public static final String COMMAND_TYPE_PROXY = "proxy";
+    public static final String COMMAND_TYPE_COMBINATION_PROXY = "combination_proxy";
 }
