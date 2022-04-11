@@ -22,7 +22,7 @@
         :key="tableActive"
         ref="table">
 
-      <el-table-column
+      <el-table-column 
         v-if="enableSelection"
         width="50"
         type="selection"/>
