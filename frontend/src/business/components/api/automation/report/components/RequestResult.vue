@@ -164,16 +164,25 @@ export default {
   },
   methods: {
     loadRequestInfoExpand() {
-      this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
-        let requestResult = response.data;
-        if (requestResult) {
-          this.requestInfo = requestResult;
-        }
-        this.$nextTick(() => {
-          this.requestInfo.loading = false;
+      if(!this.requestInfo.hasData){
+        if(this.request.responseResult && this.request.responseResult.body){
+          this.requestInfo = this.request;
           this.requestInfo.hasData = true;
+        }
+      }
+      if(!this.requestInfo.hasData){
+        this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
+          let requestResult = response.data;
+          if (requestResult) {
+            this.requestInfo = requestResult;
+          }
+          this.$nextTick(() => {
+            this.requestInfo.loading = false;
+            this.requestInfo.hasData = true;
+          });
         });
-      });
+      }
+
     },
     active() {
       if (this.request.unexecute) {
@@ -182,11 +191,7 @@ export default {
         this.showActive = !this.showActive;
       }
       if (this.showActive) {
-        if (this.requestInfo.hasData) {
-          this.requestInfo.loading = false;
-        } else {
-          this.loadRequestInfoExpand();
-        }
+        this.loadRequestInfoExpand();
       }
     },
     getName(name) {

@@ -1462,7 +1462,7 @@ public class TestPlanService {
     public void buildScenarioResponse(List<TestPlanFailureScenarioDTO> cases) {
         if (!CollectionUtils.isEmpty(cases)) {
             cases.forEach((item) -> {
-                item.setResponse(apiScenarioReportService.get(item.getReportId()));
+                item.setResponse(apiScenarioReportService.get(item.getReportId(),true));
             });
         }
     }
