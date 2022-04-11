@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class StepTreeDTO {
     private String type;
+    // ui 指令的类型
+    private String cmdType;
     private int index;
     private String resourceId;
     private String label;
