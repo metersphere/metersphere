@@ -13,14 +13,19 @@
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console"
-                                       v-on:requestResult="requestResult" ref="resultsTree"/>
+                  <ms-scenario-results :treeData="fullTreeNodes"
+                                       :console="content.console"
+                                       :report="report"
+                                       v-on:requestResult="requestResult"
+                                       ref="resultsTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                  <ms-scenario-results v-on:requestResult="requestResult"
+                                       :console="content.console"
+                                       :report="report"
                                        :treeData="fullTreeNodes" ref="failsTree"
                                        :errorReport="content.error"/>
                 </el-tab-pane>
@@ -28,14 +33,18 @@
                   <template slot="label">
                     <span class="fail" style="color: #F6972A">{{ $t('error_report_library.option.name') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                  <ms-scenario-results v-on:requestResult="requestResult"
+                                       :report="report"
+                                       :console="content.console"
                                        :treeData="fullTreeNodes" ref="errorReportTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
                     <span class="fail" style="color: #9C9B9A">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
+                  <ms-scenario-results v-on:requestResult="requestResult"
+                                       :report="report"
+                                       :console="content.console"
                                        :treeData="fullTreeNodes" ref="unExecuteTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="console">

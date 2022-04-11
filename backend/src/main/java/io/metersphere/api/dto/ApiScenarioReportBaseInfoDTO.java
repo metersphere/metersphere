@@ -16,4 +16,5 @@ public class ApiScenarioReportBaseInfoDTO {
     private long reqStartTime;
     private String rspCode;
     private long rspTime;
+    private String uiImg;
 }

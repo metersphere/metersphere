@@ -33,6 +33,7 @@ export default {
     treeData: Array,
     console: String,
     errorReport: Number,
+    report: Object,
     defaultExpand: {
       default: false,
       type: Boolean,
