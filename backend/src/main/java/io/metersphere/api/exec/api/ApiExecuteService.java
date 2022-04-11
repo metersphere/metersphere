@@ -2,6 +2,7 @@ package io.metersphere.api.exec.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.RunCaseRequest;
@@ -192,7 +193,7 @@ public class ApiExecuteService {
     }
 
     public HashTree generateHashTree(RunCaseRequest request, ApiTestCaseWithBLOBs testCaseWithBLOBs) throws Exception {
-        JSONObject elementObj = JSON.parseObject(testCaseWithBLOBs.getRequest());
+        JSONObject elementObj = JSON.parseObject(testCaseWithBLOBs.getRequest(), Feature.DisableSpecialKeyDetect);
         ElementUtil.dataFormatting(elementObj);
 
         MsTestElement element = mapper.readValue(elementObj.toJSONString(), new TypeReference<MsTestElement>() {

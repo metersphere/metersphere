@@ -2,6 +2,7 @@ package io.metersphere.api.exec.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -38,7 +39,7 @@ public class GenerateHashTreeUtil {
 
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         if (StringUtils.isNotEmpty(scenarioDefinition)) {
-            MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class);
+            MsScenario scenario = JSONObject.parseObject(scenarioDefinition, MsScenario.class, Feature.DisableSpecialKeyDetect);
             if (scenario != null) {
                 parse(scenarioDefinition, scenario);
             }
@@ -51,7 +52,7 @@ public class GenerateHashTreeUtil {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
-            JSONObject element = JSON.parseObject(scenarioDefinition);
+            JSONObject element = JSON.parseObject(scenarioDefinition, Feature.DisableSpecialKeyDetect);
             ElementUtil.dataFormatting(element);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
@@ -74,7 +75,7 @@ public class GenerateHashTreeUtil {
     public static LinkedList<MsTestElement> getScenarioHashTree(String definition) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        JSONObject element = JSON.parseObject(definition);
+        JSONObject element = JSON.parseObject(definition, Feature.DisableSpecialKeyDetect);
         try {
             if (element != null) {
                 ElementUtil.dataFormatting(element);

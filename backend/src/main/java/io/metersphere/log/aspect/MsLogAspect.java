@@ -1,10 +1,10 @@
 package io.metersphere.log.aspect;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.service.OperatingLogService;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -188,7 +188,7 @@ public class MsLogAspect {
                     String content = expression.getValue(context, String.class);
                     try {
                         if (StringUtils.isNotEmpty(content)) {
-                            OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class);
+                            OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class, Feature.DisableSpecialKeyDetect);
                             if (StringUtils.isNotEmpty(details.getProjectId())) {
                                 msOperLog.setProjectId(details.getProjectId());
                             }
@@ -199,7 +199,7 @@ public class MsLogAspect {
                             msOperLog.setCreateUser(details.getCreateUser());
                         }
                         if (StringUtils.isNotEmpty(content) && StringUtils.isNotEmpty(msLog.beforeValue())) {
-                            OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class);
+                            OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class,Feature.DisableSpecialKeyDetect);
                             List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(msLog.beforeValue(), OperatingLogDetails.class), details, msLog.module());
                             details.setColumns(columns);
                             msOperLog.setOperContent(JSON.toJSONString(details));

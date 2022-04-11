@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.StepTreeDTO;
@@ -84,7 +85,7 @@ public class ApiScenarioReportStructureService {
     }
 
     public static StepTreeDTO dataFormatting(ApiScenarioWithBLOBs apiScenario, String reportType) {
-        JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
+        JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
             element = getRefElement(element);
@@ -112,7 +113,7 @@ public class ApiScenarioReportStructureService {
             if (StringUtils.equals(element.getString("type"), "scenario")) {
                 ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
                 if (scenarioWithBLOBs != null) {
-                    return JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                    return JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
                 }
             }
         }
@@ -246,18 +247,18 @@ public class ApiScenarioReportStructureService {
                 if (reportResults.size() > 1) {
                     for (int i = 0; i < reportResults.size(); i++) {
                         if (i == 0) {
-                            dto.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
+                            dto.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class,Feature.DisableSpecialKeyDetect));
                             dto.setErrorCode(reportResults.get(0).getErrorCode());
                         } else {
                             StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), (i + 1));
-                            step.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
+                            step.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class,Feature.DisableSpecialKeyDetect));
                             step.setErrorCode(reportResults.get(i).getErrorCode());
                             dtoList.add(step);
                         }
                     }
                 } else {
                     String content = new String(reportResults.get(0).getContent(), StandardCharsets.UTF_8);
-                    dto.setValue(JSON.parseObject(content, RequestResult.class));
+                    dto.setValue(JSON.parseObject(content, RequestResult.class,Feature.DisableSpecialKeyDetect));
                     dto.setErrorCode(reportResults.get(0).getErrorCode());
                 }
             }
@@ -385,10 +386,10 @@ public class ApiScenarioReportStructureService {
             BeanUtils.copyBean(vo, item);
             if (StringUtils.isNotEmpty(item.getContent())) {
                 try {
-                    RequestResultExpandDTO resultExpandDTO = JSON.parseObject(item.getContent(), RequestResultExpandDTO.class);
+                    RequestResultExpandDTO resultExpandDTO = JSON.parseObject(item.getContent(), RequestResultExpandDTO.class,Feature.DisableSpecialKeyDetect);
                     vo.setRequestResult(resultExpandDTO);
                 } catch (Exception e) {
-                    vo.setRequestResult(JSON.parseObject(item.getContent(), RequestResult.class));
+                    vo.setRequestResult(JSON.parseObject(item.getContent(), RequestResult.class,Feature.DisableSpecialKeyDetect));
                 }
                 if (vo.getRequestResult() != null) {
                     vo.setPassAssertions(vo.getRequestResult().getPassAssertions());

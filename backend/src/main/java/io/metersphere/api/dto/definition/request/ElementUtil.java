@@ -3,6 +3,7 @@ package io.metersphere.api.dto.definition.request;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -302,7 +303,7 @@ public class ElementUtil {
         }
         if (element.get("clazzName") == null && element.getString("type").equals("TCPSampler")) {
             if (element.getString("tcpPreProcessor") != null) {
-                JSONObject tcpPreProcessor = JSON.parseObject(element.getString("tcpPreProcessor"));
+                JSONObject tcpPreProcessor = JSON.parseObject(element.getString("tcpPreProcessor"), Feature.DisableSpecialKeyDetect);
                 if (tcpPreProcessor != null && tcpPreProcessor.get("clazzName") == null) {
                     tcpPreProcessor.fluentPut("clazzName", clazzMap.get(tcpPreProcessor.getString("type")));
                     element.fluentPut("tcpPreProcessor", tcpPreProcessor);
@@ -310,7 +311,7 @@ public class ElementUtil {
             }
         } else if (element.getString("type").equals("HTTPSamplerProxy")) {
             if (element.getString("authManager") != null) {
-                JSONObject authManager = JSON.parseObject(element.getString("authManager"));
+                JSONObject authManager = JSON.parseObject(element.getString("authManager"),Feature.DisableSpecialKeyDetect);
                 if (authManager != null && authManager.get("clazzName") == null) {
                     authManager.fluentPut("clazzName", clazzMap.get(authManager.getString("type")));
                     element.fluentPut("authManager", authManager);
@@ -388,7 +389,7 @@ public class ElementUtil {
                         if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
                             environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                         } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                            environmentMap = JSON.parseObject(environmentJson, Map.class);
+                            environmentMap = JSON.parseObject(environmentJson, Map.class,Feature.DisableSpecialKeyDetect);
                         }
                         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
                         if (environmentMap != null && !environmentMap.isEmpty()) {
