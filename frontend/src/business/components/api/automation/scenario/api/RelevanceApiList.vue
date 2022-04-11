@@ -20,7 +20,7 @@
         :current-protocol="currentProtocol"
         :screen-height="screenHeight"
         @setSelectRow="setSelectRow"
-        @selectCountChange="setSelectCounts"
+        @selectCountChange="selectCountChange"
         @refreshTable="initTable"
         ref="apitable">
 
@@ -33,7 +33,6 @@
 
     </api-list-container>
 
-    <table-select-count-bar :count="selectCounts"/>
   </div>
 
 </template>
@@ -42,7 +41,6 @@
 
 import ApiListContainer from "../../../definition/components/list/ApiListContainer";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
-import TableSelectCountBar from "./TableSelectCountBar";
 import {buildBatchParam} from "@/common/js/tableUtils";
 import {
   TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS,
@@ -53,7 +51,6 @@ export default {
   name: "RelevanceApiList",
   components: {
     ApiTableList,
-    TableSelectCountBar,
     MsEnvironmentSelect,
     ApiListContainer,
   },
@@ -68,7 +65,6 @@ export default {
       environmentId: "",
       total: 0,
       selectRows: new Set(),
-      selectCounts: 0
     };
   },
   props: {
@@ -129,8 +125,8 @@ export default {
     setSelectRow(setSelectRow) {
       this.selectRows = setSelectRow;
     },
-    setSelectCounts(data) {
-      this.selectCounts = data;
+    selectCountChange(data) {
+      this.$emit('selectCountChange', data);
     },
     isApiListEnableChange(data) {
       this.$emit('isApiListEnableChange', data);
