@@ -14,6 +14,7 @@
               :total="total"
               :showSelectAll="false"
               :screenHeight="screenHeight"
+              @selectCountChange="selectCountChange"
               @refresh="initTable"
               ref="table">
 
@@ -59,8 +60,6 @@
     <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
-    <table-select-count-bar :count="selectRows.size"/>
-
   </div>
 
 </template>
@@ -72,7 +71,6 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/JsonData";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsTag from "@/business/components/common/components/MsTag";
@@ -83,7 +81,6 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "TestCaseRelateApiList",
   components: {
-    TableSelectCountBar,
     MsTablePagination,
     PriorityTableItem,
     MsTable,
@@ -152,6 +149,9 @@ export default {
     }
   },
   methods: {
+    selectCountChange(data) {
+      this.$emit("selectCountChange", data);
+    },
     initTable(projectId) {
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;

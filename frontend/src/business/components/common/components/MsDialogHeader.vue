@@ -8,7 +8,7 @@
         <slot name="other"></slot>
       </div>
       <div class="ms_btn">
-        <el-button @click="cancel" :size="btnSize">{{ $t('commons.cancel') }}</el-button>
+        <el-button v-if="enableCancel" @click="cancel" :size="btnSize">{{ $t('commons.cancel') }}</el-button>
         <el-button type="primary" @click="confirm" @keydown.enter.native.prevent :size="btnSize">
           {{ $t('commons.confirm') }}
         </el-button>
@@ -29,7 +29,8 @@ export default {
       default() {
         return 'small';
       }
-    }
+    },
+    enableCancel: Boolean
   },
   methods: {
     cancel() {
