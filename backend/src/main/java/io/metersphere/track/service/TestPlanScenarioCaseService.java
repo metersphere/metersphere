@@ -496,7 +496,7 @@ public class TestPlanScenarioCaseService {
     private void calculateScenarioResultDTO(PlanReportCaseDTO item,
                                             TestPlanScenarioStepCountDTO stepCount) {
         if (StringUtils.isNotBlank(item.getReportId())) {
-            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId());
+            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId(),false);
             if (apiScenarioReportResult != null) {
                 String content = apiScenarioReportResult.getContent();
                 if (StringUtils.isNotBlank(content)) {
