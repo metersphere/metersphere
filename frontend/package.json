@@ -50,6 +50,7 @@
     "vue": "2.6.14",
     "vue-calendar-heatmap": "^0.8.4",
     "vue-clipboard2": "^0.3.1",
+    "vue-demi": "^0.12.5",
     "vue-echarts": "^6.0.0",
     "vue-float-action-button": "^0.6.6",
     "vue-i18n": "^8.15.3",
