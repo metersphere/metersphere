@@ -13,82 +13,83 @@
                  ref="nodeTree"/>
     </template>
 
-    <el-card>
-      <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="getTestCases"
-                @keyup.enter.native="getTestCases" class="search-input" size="small" v-model="condition.name"/>
-      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                               v-if="condition.components !== undefined && condition.components.length > 0"
-                               @search="getTestCases"/>
-      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"
-                      class="search-input"/>
 
-      <ms-table
-        v-loading="result.loading"
-        :data="testCases"
-        :condition="condition"
-        :page-size="pageSize"
-        :total="total"
-        :remember-order="true"
-        row-key="id"
-        :row-order-group-id="projectId"
-        @refresh="search"
-        :disable-header-config="true"
-        @selectCountChange="setSelectCounts"
-        ref="table">
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="getTestCases"
+              @keyup.enter.native="getTestCases" class="search-input" size="small" v-model="condition.name"/>
+    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                             v-if="condition.components !== undefined && condition.components.length > 0"
+                             @search="getTestCases"/>
+    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" style="float: left;"
+                    class="search-input"/>
 
-        <el-table-column
-          prop="num"
-          label="ID"
-          width="100px"
-          sortable>
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          :label="$t('commons.name')"
-          show-overflow-tooltip>
-        </el-table-column>
+    <ms-table
+      v-loading="result.loading"
+      :data="testCases"
+      :condition="condition"
+      :page-size="pageSize"
+      :total="total"
+      :remember-order="true"
+      row-key="id"
+      :row-order-group-id="projectId"
+      @refresh="search"
+      :disable-header-config="true"
+      @selectCountChange="setSelectCounts"
+      ref="table">
 
-        <el-table-column
-          v-if="versionEnable"
-          prop="versionId"
-          :column-key="'versionId'"
-          :filters="versionFilters"
-          :label="$t('commons.version')"
-          min-width="120px">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
-          </template>
-        </el-table-column>
+      <el-table-column
+        prop="num"
+        label="ID"
+        width="100px"
+        sortable>
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        :label="$t('commons.name')"
+        show-overflow-tooltip>
+      </el-table-column>
 
-        <el-table-column
-          prop="status"
-          column-key="status"
-          :filters="statusFilters"
-          :label="$t('commons.status')">
-          <template v-slot:default="{row}">
-            <ms-performance-test-status :row="row"/>
-          </template>
-        </el-table-column>
-        <el-table-column
-          sortable
-          prop="createTime"
-          :label="$t('commons.create_time')">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          sortable
-          prop="updateTime"
-          :label="$t('commons.update_time')">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-      </ms-table>
-      <ms-table-pagination :change="getTestCases" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
-    </el-card>
+      <el-table-column
+        v-if="versionEnable"
+        prop="versionId"
+        :column-key="'versionId'"
+        :filters="versionFilters"
+        :label="$t('commons.version')">
+        <template v-slot:default="scope">
+          <span>{{ scope.row.versionName }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        prop="status"
+        column-key="status"
+        :filters="statusFilters"
+        :label="$t('commons.status')">
+        <template v-slot:default="{row}">
+          <ms-performance-test-status :row="row"/>
+        </template>
+      </el-table-column>
+      <el-table-column
+        sortable
+        prop="createTime"
+        :label="$t('commons.create_time')"
+        show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        sortable
+        prop="updateTime"
+        :label="$t('commons.update_time')"
+        show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+        </template>
+      </el-table-column>
+    </ms-table>
+    <ms-table-pagination :change="getTestCases" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
+
   </test-case-relevance-base>
 </template>
 
@@ -193,7 +194,7 @@ export default {
     saveCaseRelevance() {
       let selectRows = this.$refs.table.selectRows;
       let param = buildBatchParam(this, undefined, this.projectId);
-      param.ids =  Array.from(selectRows).map(row => row.id);
+      param.ids = Array.from(selectRows).map(row => row.id);
       if (this.planId) {
         this.result = this.$post("/performance/list/batch", param, (response) => {
           let tests = response.data;

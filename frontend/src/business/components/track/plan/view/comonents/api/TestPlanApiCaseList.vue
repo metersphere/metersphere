@@ -186,7 +186,6 @@ import MsBottomContainer from "../../../../../api/definition/components/BottomCo
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
 import {getCurrentProjectID, hasLicense, strMapToObj} from "@/common/js/utils";
-import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getUUID} from "../../../../../../../common/js/utils";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
@@ -223,7 +222,6 @@ export default {
     TestPlanCaseListHeader,
     ApiCaseList,
     PriorityTableItem,
-    ApiListContainer,
     MsTablePagination,
     MsTag,
     MsApiCaseList,
