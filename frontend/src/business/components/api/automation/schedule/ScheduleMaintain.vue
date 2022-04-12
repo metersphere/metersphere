@@ -49,7 +49,7 @@
               <env-popover :project-ids="projectIds"
                            :placement="'bottom-start'"
                            :project-list="projectList"
-                           :env-map="runConfig.envMap"
+                           :project-env-map="projectEnvListMap"
                            :environment-type.sync="runConfig.environmentType"
                            :group-id="runConfig.environmentGroupId"
                            :has-option-group="true"
@@ -58,59 +58,24 @@
                            @showPopover="showPopover"
                            ref="envPopover" class="env-popover"/>
             </div>
-            <div style="padding-top: 10px;">
-              <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
-              <el-radio-group v-model="runConfig.mode" @change="changeMode">
-                <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
-                <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
-              </el-radio-group>
-            </div>
             <div class="ms-mode-div">
-              <el-row>
-                <el-col :span="3">
                   <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-                </el-col>
-                <el-col :span="18">
-                  <div>
-                    <el-radio-group v-model="runConfig.reportType">
-                      <el-radio label="iddReport">{{ $t("run_mode.idd_report") }}</el-radio>
-                      <el-radio label="setReport">{{ $t("run_mode.set_report") }}</el-radio>
-                    </el-radio-group>
-                  </div>
-                  <div style="padding-top: 10px">
-                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
-                      {{ $t('run_mode.run_with_resource_pool') }}
-                    </el-checkbox>
-                    <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
-                               size="mini">
-                      <el-option
-                        v-for="item in resourcePools"
-                        :key="item.id"
-                        :label="item.name"
-                        :disabled="!item.api"
-                        :value="item.id">
-                      </el-option>
-                    </el-select>
-                  </div>
-                  <!--- 失败停止 -->
-                  <div style="margin-top: 10px" v-if="runConfig.mode === 'serial'">
-                    <el-checkbox v-model="runConfig.onSampleError">
-                      {{ $t("api_test.fail_to_stop") }}
-                    </el-checkbox>
-                  </div>
-                </el-col>
-              </el-row>
+              <el-checkbox v-model="runConfig.runWithinResourcePool">
+                {{ $t('run_mode.run_with_resource_pool') }}
+              </el-checkbox>
+              <el-select style="margin-left: 10px" :disabled="!runConfig.runWithinResourcePool"
+                         v-model="runConfig.resourcePoolId"
+                         size="mini">
+                <el-option
+                  v-for="item in resourcePools"
+                  :key="item.id"
+                  :label="item.name"
+                  :disabled="!item.api"
+                  :value="item.id">
+                </el-option>
+              </el-select>
             </div>
 
-
-            <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
-              <span class="ms-mode-span-label">{{ $t("run_mode.report_name") }}：</span>
-              <el-input
-                v-model="runConfig.reportName"
-                :placeholder="$t('commons.input_content')"
-                size="small"
-                style="width: 300px"/>
-            </div>
 
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
@@ -231,6 +196,7 @@ export default {
       },
       projectList: [],
       projectIds: new Set(),
+      projectEnvListMap: {},
     }
   },
   methods: {
@@ -360,9 +326,7 @@ export default {
           this.schedule = response.data;
           if (response.data.config) {
             this.runConfig = JSON.parse(response.data.config);
-            if (this.runConfig.envMap) {
-              this.runConfig.envMap = objToStrMap(this.runConfig.envMap);
-            }
+            this.runConfig.envMap = new Map;
           }
         } else {
           this.schedule = {

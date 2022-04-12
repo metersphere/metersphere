@@ -36,7 +36,7 @@ export default {
     close_schedule: '关闭定时任务',
     open_schedule: '开启定时任务',
     schedule_switch: '定时任务开关',
-    schedule_cron_title: '定时任务时间表达式',
+    schedule_cron_title: 'Cron表达式',
     review_complete: '评审完成',
     examples: '示例',
     help_documentation: '帮助文档',
