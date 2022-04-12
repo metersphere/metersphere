@@ -3059,6 +3059,14 @@ export default {
       delete: "DELETE",
       export: "EXPORT",
     },
+    project_ui_element: {
+      name: "Element",
+      read: "READ",
+      create: "CREATE",
+      edit: "EDIT",
+      delete: "DELETE",
+      copy: "COPY",
+    },
     project_performance_test: {
       name: "Test",
       read: "READ",
