@@ -112,7 +112,6 @@ import MsBottomContainer from "../../../definition/components/BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
 import {API_METHOD_COLOUR} from "../../../definition/model/JsonData";
-import ApiListContainer from "../../../definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
@@ -127,7 +126,6 @@ export default {
     TableSelectCountBar,
     MsEnvironmentSelect,
     PriorityTableItem,
-    ApiListContainer,
     MsTableOperatorButton,
     MsTableOperator,
     MsTablePagination,

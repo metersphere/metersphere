@@ -34,15 +34,11 @@ import SelectMenu from "../../common/SelectMenu";
 import TestReviewRelevance from "./components/TestReviewRelevance";
 import MsTestPlanHeaderBar from "@/business/components/track/plan/view/comonents/head/TestPlanHeaderBar";
 import TestReviewFunction from "@/business/components/track/review/view/components/TestReviewFunction";
-import TestReviewApi from "@/business/components/track/review/view/components/TestReviewApi";
-import TestReviewLoad from "@/business/components/track/review/view/components/TestReviewLoad";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
   name: "TestCaseReviewView",
   components: {
-    TestReviewLoad,
-    TestReviewApi,
     TestReviewFunction,
     MsTestPlanHeaderBar,
     MsMainContainer,
