@@ -29,7 +29,7 @@
       :condition="page.condition"
       :total="page.total"
       :page-size.sync="page.pageSize"
-      :screen-height="null"
+      :screen-height="screenHeight"
       @handlePageChange="getTestCases"
       @selectCountChange="setSelectCounts"
       @refresh="getTestCases"
@@ -155,6 +155,7 @@ export default {
       projectName: '',
       projects: [],
       customNum: false,
+      screenHeight: '400',
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
