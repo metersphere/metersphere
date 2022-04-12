@@ -1,96 +1,93 @@
 <template>
-  <div>
-    <el-card v-loading="result.loading">
-      <env-popover :env-map="projectEnvMap"
-                   :project-ids="projectIds"
-                   @setProjectEnvMap="setProjectEnvMap"
-                   :environment-type.sync="environmentType"
-                   :group-id="envGroupId"
-                   :is-scenario="false"
-                   @setEnvGroup="setEnvGroup"
-                   :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                   :project-list="projectList"
-                   ref="envPopover" class="env-popover"/>
+  <div v-loading="result.loading">
+    <env-popover :env-map="projectEnvMap"
+                 :project-ids="projectIds"
+                 @setProjectEnvMap="setProjectEnvMap"
+                 :environment-type.sync="environmentType"
+                 :group-id="envGroupId"
+                 :is-scenario="false"
+                 @setEnvGroup="setEnvGroup"
+                 :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+                 :project-list="projectList"
+                 ref="envPopover" class="env-popover"/>
 
 
-      <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
-                @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
-      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                               v-if="condition.components !== undefined && condition.components.length > 0"
-                               @search="search"/>
-      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"
-                      class="search-input"/>
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
+              @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
+    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                             v-if="condition.components !== undefined && condition.components.length > 0"
+                             @search="search"/>
+    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"
+                    class="search-input"/>
 
-      <ms-table ref="scenarioTable"
-                v-loading="result.loading"
-                :data="tableData"
-                :condition="condition"
-                :page-size="pageSize"
-                :total="total"
-                :remember-order="true"
-                row-key="id"
-                :row-order-group-id="projectId"
-                @refresh="search"
-                :disable-header-config="true"
-                :show-select-all="false"
-                @selectCountChange="selectCountChange">
+    <ms-table ref="scenarioTable"
+              v-loading="result.loading"
+              :data="tableData"
+              :condition="condition"
+              :page-size="pageSize"
+              :total="total"
+              :remember-order="true"
+              row-key="id"
+              :row-order-group-id="projectId"
+              @refresh="search"
+              :disable-header-config="true"
+              :show-select-all="false"
+              @selectCountChange="selectCountChange">
 
-        <el-table-column v-if="!customNum" prop="num" label="ID"
-                         show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column v-if="customNum" prop="customNum" label="ID"
-                         show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
-                         show-overflow-tooltip/>
-        <el-table-column
-          v-if="versionEnable"
-          column-key="version_id"
-          :filters="versionFilters"
-          :label="$t('commons.version')"
-          min-width="120px">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.versionName }}</span>
-          </template>
-        </el-table-column>
+      <el-table-column v-if="!customNum" prop="num" label="ID"
+                       show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column v-if="customNum" prop="customNum" label="ID"
+                       show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
+                       show-overflow-tooltip/>
+      <el-table-column
+        v-if="versionEnable"
+        column-key="version_id"
+        :filters="versionFilters"
+        :label="$t('commons.version')"
+        min-width="120px">
+        <template v-slot:default="scope">
+          <span>{{ scope.row.versionName }}</span>
+        </template>
+      </el-table-column>
 
-        <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
-                         show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.level" ref="level"/>
-          </template>
+      <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
+                       show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <priority-table-item :value="scope.row.level" ref="level"/>
+        </template>
 
-        </el-table-column>
-        <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
-          <template v-slot:default="scope">
-            <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName"
-                    style="margin-left: 0px; margin-right: 2px"/>
-          </template>
-        </el-table-column>
-        <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
-        <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-        <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
-          <template v-slot:default="{row}">
-            <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
-              {{ $t('api_test.automation.success') }}
-            </el-link>
-            <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
-              {{ $t('api_test.automation.fail') }}
-            </el-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
-                         show-overflow-tooltip/>
-      </ms-table>
-      <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
-    </el-card>
-
+      </el-table-column>
+      <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
+        <template v-slot:default="scope">
+          <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName"
+                  style="margin-left: 0px; margin-right: 2px"/>
+        </template>
+      </el-table-column>
+      <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
+      <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180">
+        <template v-slot:default="scope">
+          <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
+      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
+        <template v-slot:default="{row}">
+          <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
+            {{ $t('api_test.automation.success') }}
+          </el-link>
+          <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
+            {{ $t('api_test.automation.fail') }}
+          </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
+                       show-overflow-tooltip/>
+    </ms-table>
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
   </div>
 </template>
 

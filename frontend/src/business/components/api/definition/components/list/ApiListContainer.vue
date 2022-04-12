@@ -1,5 +1,5 @@
 <template>
-  <el-card class="card-content" v-if="isShow">
+  <div v-if="isShow">
 
     <el-button-group v-if="isShowChangeButton">
 
@@ -19,11 +19,8 @@
 
     <slot name="version"></slot>
 
-    <template v-slot:header>
-      <slot name="header"></slot>
-    </template>
     <slot></slot>
-  </el-card>
+  </div>
 </template>
 
 <script>
