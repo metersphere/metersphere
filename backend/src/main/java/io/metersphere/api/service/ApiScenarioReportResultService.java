@@ -99,7 +99,8 @@ public class ApiScenarioReportResultService {
         RequestResult result = JSONObject.parseObject(value.toJSONString(), RequestResult.class);
         ApiScenarioReportBaseInfoDTO baseInfo = getBaseInfo(result);
         baseInfo.setRspTime(result.getEndTime() - result.getStartTime());
-        baseInfo.setUiImg(result.getUrl());
+        baseInfo.setIsNotStep(value.getBooleanValue("isNotStep"));
+        baseInfo.setUiImg(value.getString("uiImg"));
         report.setBaseInfo(JSONObject.toJSONString(baseInfo));
         report.setContent(value.toJSONString().getBytes(StandardCharsets.UTF_8));
         return report;
