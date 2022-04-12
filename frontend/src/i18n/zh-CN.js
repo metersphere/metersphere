@@ -3063,6 +3063,14 @@ export default {
       delete: "删除报告",
       export: "导出报告",
     },
+    project_ui_element: {
+      name: "元素库",
+      read: "查询元素",
+      create: "创建元素",
+      edit: "编辑元素",
+      delete: "删除元素",
+      copy: "复制元素",
+    },
     project_performance_test: {
       name: "测试",
       read: "查询测试",

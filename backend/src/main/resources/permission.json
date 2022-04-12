@@ -773,6 +773,30 @@
       "resourceId": "PROJECT_API_REPORT"
     },
     {
+      "id": "PROJECT_UI_ELEMENT:READ",
+      "name": "permission.project_ui_element.read",
+      "resourceId": "PROJECT_UI_ELEMENT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_UI_ELEMENT:READ+CREATE",
+      "name": "permission.project_ui_element.create",
+      "resourceId": "PROJECT_UI_ELEMENT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_UI_ELEMENT:READ+EDIT",
+      "name": "permission.project_ui_element.edit",
+      "resourceId": "PROJECT_UI_ELEMENT",
+      "license": true
+    },
+    {
+      "id": "PROJECT_UI_ELEMENT:READ+DELETE",
+      "name": "permission.project_ui_element.delete",
+      "resourceId": "PROJECT_UI_ELEMENT",
+      "license": true
+    },
+    {
       "id": "PROJECT_UI_SCENARIO:READ",
       "name": "permission.project_ui_scenario.read",
       "resourceId": "PROJECT_UI_SCENARIO",
@@ -1220,13 +1244,19 @@
       "name": "permission.project_api_report.name"
     },
     {
+      "id": "PROJECT_UI_ELEMENT",
+      "name": "permission.project_ui_element.name",
+      "license": true
+    },
+    {
       "id": "PROJECT_UI_SCENARIO",
       "name": "permission.project_ui_scenario.name",
       "license": true
     },
     {
       "id": "PROJECT_UI_REPORT",
-      "name": "permission.project_ui_report.name"
+      "name": "permission.project_ui_report.name",
+      "license": true
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",
