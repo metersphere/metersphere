@@ -797,6 +797,12 @@
       "license": true
     },
     {
+      "id": "PROJECT_UI_ELEMENT:READ+COPY",
+      "name": "permission.project_ui_element.copy",
+      "resourceId": "PROJECT_UI_ELEMENT",
+      "license": true
+    },
+    {
       "id": "PROJECT_UI_SCENARIO:READ",
       "name": "permission.project_ui_scenario.read",
       "resourceId": "PROJECT_UI_SCENARIO",
@@ -859,18 +865,6 @@
     {
       "id": "PROJECT_UI_SCENARIO:READ+MOVE_BATCH",
       "name": "permission.project_ui_scenario.move_batch",
-      "resourceId": "PROJECT_UI_SCENARIO",
-      "license": true
-    },
-    {
-      "id": "PROJECT_UI_SCENARIO:READ+CREATE_PERFORMANCE",
-      "name": "permission.project_ui_scenario.create_performance",
-      "resourceId": "PROJECT_UI_SCENARIO",
-      "license": true
-    },
-    {
-      "id": "PROJECT_UI_SCENARIO:READ+CREATE_PERFORMANCE_BATCH",
-      "name": "permission.project_ui_scenario.create_performance_batch",
       "resourceId": "PROJECT_UI_SCENARIO",
       "license": true
     },
