@@ -3186,7 +3186,6 @@ export default {
     submit: "提交表单",
     cmdSetItem: "设置选项",
     cmdWaitElement: "等待元素",
-    cmdExtraction: "断言",
     cmdInput: "输入操作",
     cmdMouseClick: "鼠标点击",
     cmdMouseMove: "鼠标移动",
@@ -3198,5 +3197,8 @@ export default {
     cmdElse: "Else",
     cmdElseIf: "ElseIf",
     close: "关闭网页",
+    cmdExtraction: "数据提取",
+    cmdExtractWindow: "提取窗口信息",
+    cmdExtractElement: "提取元素信息",
   }
 };
