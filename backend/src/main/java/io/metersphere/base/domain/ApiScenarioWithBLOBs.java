@@ -13,8 +13,6 @@ public class ApiScenarioWithBLOBs extends ApiScenario implements Serializable {
 
     private String description;
 
-    private String useUrl;
-
     private String environmentJson;
 
     private static final long serialVersionUID = 1L;
