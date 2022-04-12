@@ -3,6 +3,7 @@
     <el-dropdown placement="bottom" trigger="click" size="medium">
       <div @click.stop class="show-more-btn">
         <el-tooltip v-if="isShow"
+                    popper-class="batch-popper"
                     :value="!hasShowed"
                     effect="dark"
                     :content="$t('test_track.case.batch_operate')"
