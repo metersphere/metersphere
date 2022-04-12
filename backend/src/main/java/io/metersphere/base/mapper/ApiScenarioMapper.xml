@@ -37,7 +37,6 @@
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
-    <result column="use_url" jdbcType="LONGVARCHAR" property="useUrl" />
     <result column="environment_json" jdbcType="LONGVARCHAR" property="environmentJson" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -106,7 +105,7 @@
     latest
   </sql>
   <sql id="Blob_Column_List">
-    scenario_definition, description, use_url, environment_json
+    scenario_definition, description, environment_json
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioExample" resultMap="ResultMapWithBLOBs">
     select
@@ -157,7 +156,7 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-    INSERT INTO api_scenario (id, project_id, tags,
+    insert into api_scenario (id, project_id, tags, 
       user_id, api_scenario_module_id, module_path, 
       `name`, `level`, `status`, 
       principal, step_total, schedule, 
@@ -168,8 +167,8 @@
       execute_times, `order`, environment_type, 
       environment_group_id, version_id, ref_id, 
       latest, scenario_definition, description, 
-      use_url, environment_json)
-    VALUES (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
+      environment_json)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{schedule,jdbcType=VARCHAR}, 
@@ -180,7 +179,7 @@
       #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{environmentType,jdbcType=VARCHAR}, 
       #{environmentGroupId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
       #{latest,jdbcType=BIT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{useUrl,jdbcType=LONGVARCHAR}, #{environmentJson,jdbcType=LONGVARCHAR})
+      #{environmentJson,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     insert into api_scenario
@@ -283,9 +282,6 @@
       </if>
       <if test="description != null">
         description,
-      </if>
-      <if test="useUrl != null">
-        use_url,
       </if>
       <if test="environmentJson != null">
         environment_json,
@@ -390,9 +386,6 @@
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="useUrl != null">
-        #{useUrl,jdbcType=LONGVARCHAR},
       </if>
       <if test="environmentJson != null">
         #{environmentJson,jdbcType=LONGVARCHAR},
@@ -507,9 +500,6 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.useUrl != null">
-        use_url = #{record.useUrl,jdbcType=LONGVARCHAR},
-      </if>
       <if test="record.environmentJson != null">
         environment_json = #{record.environmentJson,jdbcType=LONGVARCHAR},
       </if>
@@ -553,7 +543,6 @@
       latest = #{record.latest,jdbcType=BIT},
       scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
-      use_url = #{record.useUrl,jdbcType=LONGVARCHAR},
       environment_json = #{record.environmentJson,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -695,9 +684,6 @@
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
-      <if test="useUrl != null">
-        use_url = #{useUrl,jdbcType=LONGVARCHAR},
-      </if>
       <if test="environmentJson != null">
         environment_json = #{environmentJson,jdbcType=LONGVARCHAR},
       </if>
@@ -738,7 +724,6 @@
       latest = #{latest,jdbcType=BIT},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
-      use_url = #{useUrl,jdbcType=LONGVARCHAR},
       environment_json = #{environmentJson,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>

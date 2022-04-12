@@ -212,3 +212,6 @@ VALUES (UUID(), 'ws_admin', 'WORKSPACE_QUOTA:READ', 'WORKSPACE_QUOTA') ;
 
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'ws_admin', 'WORKSPACE_QUOTA:READ+EDIT', 'WORKSPACE_QUOTA');
+
+-- 删除场景冗余字段
+ALTER TABLE api_scenario DROP COLUMN use_url;
