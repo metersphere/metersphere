@@ -206,6 +206,13 @@ alter table quota
 alter table quota
     add vum_used decimal(10,2) null comment '消耗的vum数';
 
+CREATE INDEX quota_project_id_index
+    ON quota(project_id);
+
+CREATE INDEX quota_workspace_id_index
+    ON quota(workspace_id);
+
+
 
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'ws_admin', 'WORKSPACE_QUOTA:READ', 'WORKSPACE_QUOTA') ;
