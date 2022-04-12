@@ -7,6 +7,7 @@ import io.metersphere.base.domain.ApiScenarioReferenceId;
 import io.metersphere.base.domain.ApiScenarioReferenceIdExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReferenceIdMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReferenceIdMapper;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -30,6 +31,8 @@ import java.util.*;
 public class ApiScenarioReferenceIdService {
     @Resource
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
+    @Resource
+    private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
@@ -132,6 +135,14 @@ public class ApiScenarioReferenceIdService {
             ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
             example.createCriteria().andReferenceIdIn(deleteIds).andReferenceTypeEqualTo(referenceType);
             return apiScenarioReferenceIdMapper.selectByExample(example);
+        }
+    }
+
+    public List<String> findByScenarioIds(List<String> scenarioIdList) {
+        if(CollectionUtils.isEmpty(scenarioIdList)){
+            return new ArrayList<>();
+        }else {
+            return extApiScenarioReferenceIdMapper.selectRefIdsFromScenarioIds(scenarioIdList);
         }
     }
 }

@@ -51,7 +51,7 @@ public class MsExtract extends MsTestElement {
         }
         if (CollectionUtils.isNotEmpty(this.getXpath())) {
             this.getXpath().stream().filter(MsExtractCommon::isValid).forEach(extractXPath ->
-                    samplerHashTree.add(xPath2Extractor(extractXPath, extract))
+                    samplerHashTree.add(xPathExtractor(extractXPath, extract))
             );
         }
         if (CollectionUtils.isNotEmpty(this.getJson())) {
@@ -76,7 +76,7 @@ public class MsExtract extends MsTestElement {
         RegexExtractor extractor = new RegexExtractor();
         extractor.setEnabled(this.isEnable());
         extractor.setName(StringUtils.isNotEmpty(extractRegex.getVariable()) ? extractRegex.getVariable() : this.getName());
-        if(StringUtils.isEmpty(extractor.getName())){
+        if (StringUtils.isEmpty(extractor.getName())) {
             extractor.setName("RegexExtractor");
         }
         /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " RegexExtractor");*/
@@ -94,13 +94,13 @@ public class MsExtract extends MsTestElement {
         return extractor;
     }
 
-    private XPathExtractor xPath2Extractor(MsExtractXPath extractXPath, StringJoiner extract) {
+    private XPathExtractor xPathExtractor(MsExtractXPath extractXPath, StringJoiner extract) {
         XPathExtractor extractor = new XPathExtractor();
         extractor.setEnabled(this.isEnable());
         extractor.setTolerant(true);
         extractor.setName(StringUtils.isNotEmpty(extractXPath.getVariable()) ? extractXPath.getVariable() : this.getName());
-        if(StringUtils.isEmpty(extractor.getName())){
-            extractor.setName("XPath2Extractor");
+        if (StringUtils.isEmpty(extractor.getName())) {
+            extractor.setName("XPathExtractor");
         }
         extractor.setProperty(TestElement.TEST_CLASS, XPathExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPathExtractorGui"));
@@ -117,7 +117,7 @@ public class MsExtract extends MsTestElement {
         JSONPostProcessor extractor = new JSONPostProcessor();
         extractor.setEnabled(this.isEnable());
         extractor.setName(StringUtils.isNotEmpty(extractJSONPath.getVariable()) ? extractJSONPath.getVariable() : this.getName());
-        if(StringUtils.isEmpty(extractor.getName())){
+        if (StringUtils.isEmpty(extractor.getName())) {
             extractor.setName("JSONPostProcessor");
         }
         /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " JSONExtractor");*/

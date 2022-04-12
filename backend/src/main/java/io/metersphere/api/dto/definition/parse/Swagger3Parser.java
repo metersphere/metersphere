@@ -495,7 +495,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return null;
         }
 
-        if (schema.getExample() != null) {
+         if (schema.getExample() != null) {
             item.getMock().put("mock", schema.getExample());
         } else {
             item.getMock().put("mock", "");
@@ -511,6 +511,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Map<String, JsonSchemaItem> JsonSchemaProperties = new LinkedHashMap<>();
         properties.forEach((key, value) -> {
             JsonSchemaItem item = new JsonSchemaItem();
+            item.setType(schema.getType());
             item.setDescription(schema.getDescription());
             JsonSchemaItem proItem = parseSchema(value, refSet);
             if (proItem != null) JsonSchemaProperties.put(key, proItem);
@@ -739,11 +740,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             } else if (StringUtils.equals(type, "object")) {
                 parsedParam.put("type", "object");
                 JSONObject properties = requestBody.getJSONObject("properties");
-
+                JSONObject jsonObject = buildFormDataSchema(properties);
                 if (StringUtils.isNotBlank(requestBody.getString("description"))) {
                     parsedParam.put("description", requestBody.getString("description"));
                 }
-                parsedParam.put("properties", properties);
+                parsedParam.put("properties", jsonObject.getJSONObject("properties"));
             } else if (StringUtils.equals(type, "integer")) {
                 parsedParam.put("type", "integer");
                 parsedParam.put("format", "int64");
@@ -828,7 +829,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JSONObject obj = ((JSONObject) kvs.get(key));
             property.put("type", StringUtils.isNotEmpty(obj.getString("type")) ? obj.getString("type") : "string");
             String value = obj.getString("value");
-            property.put("example", value);
+            if(StringUtils.isBlank(value)){
+                JSONObject mock = obj.getJSONObject("mock");
+                Object mockValue = mock.get("mock");
+                property.put("example", mockValue);
+            }else{
+                property.put("example", value);
+            }
             property.put("description", obj.getString("description"));
             property.put("required", obj.getString("required"));
             properties.put(key, property);

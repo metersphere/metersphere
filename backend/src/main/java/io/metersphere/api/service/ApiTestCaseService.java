@@ -35,7 +35,9 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -145,7 +147,7 @@ public class ApiTestCaseService {
             if (environment != null) {
                 apiCase.setEnvironment(environment.getName());
             }
-            if(apiCase.getExecResult() == null && StringUtils.isNotEmpty(apiCase.getStatus()) && !StringUtils.equalsIgnoreCase(apiCase.getStatus(),"trash")){
+            if (apiCase.getExecResult() == null && StringUtils.isNotEmpty(apiCase.getStatus()) && !StringUtils.equalsIgnoreCase(apiCase.getStatus(), "trash")) {
                 apiCase.setExecResult(apiCase.getStatus());
             }
         }
@@ -231,7 +233,7 @@ public class ApiTestCaseService {
                     caseResult.setUpdateUser(updateUser.getName());
                 }
                 //检查用例的执行状态是否是null（如果报告被删除）。 如果执行结果是null，取记录最后执行状态的status字段
-                if(caseResult.getExecResult() == null && StringUtils.isNotEmpty(caseResult.getStatus()) && !StringUtils.equalsIgnoreCase(caseResult.getStatus(),"trash")){
+                if (caseResult.getExecResult() == null && StringUtils.isNotEmpty(caseResult.getStatus()) && !StringUtils.equalsIgnoreCase(caseResult.getStatus(), "trash")) {
                     caseResult.setExecResult(caseResult.getStatus());
                 }
             });
@@ -737,9 +739,9 @@ public class ApiTestCaseService {
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
             bloBs.forEach(apiTestCase -> {
-                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class,Feature.DisableSpecialKeyDetect);
+                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
                 try {
-                    JSONObject element = JSON.parseObject(apiTestCase.getRequest(),Feature.DisableSpecialKeyDetect);
+                    JSONObject element = JSON.parseObject(apiTestCase.getRequest(), Feature.DisableSpecialKeyDetect);
                     ElementUtil.dataFormatting(element);
 
                     if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
@@ -818,6 +820,11 @@ public class ApiTestCaseService {
                 esbApiParamService.handleApiEsbParams(model);
             }
         }
+        // 排序
+        FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
+        fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
+        BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+        Collections.sort(list, beanComparator);
 
         return list;
     }
