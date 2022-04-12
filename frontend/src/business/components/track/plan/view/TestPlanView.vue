@@ -42,7 +42,6 @@
 <script>
 
 import NodeTree from "../../common/NodeTree";
-import TestPlanTestCaseList from "./comonents/functional/FunctionalTestCaseList";
 import SelectMenu from "../../common/SelectMenu";
 import MsContainer from "../../../common/components/MsContainer";
 import MsAsideContainer from "../../../common/components/MsAsideContainer";
@@ -64,7 +63,7 @@ export default {
     TestPlanFunctional,
     MsTestPlanHeaderBar,
     MsMainContainer,
-    MsAsideContainer, MsContainer, NodeTree, TestPlanTestCaseList, SelectMenu, TestPlanLoad
+    MsAsideContainer, MsContainer, NodeTree, SelectMenu, TestPlanLoad
   },
   data() {
     return {
