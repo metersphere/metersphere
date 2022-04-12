@@ -168,7 +168,12 @@
       </template>
     </el-dialog>
 
-    <add-member :group-type="'PROJECT'" :group-scope-id="workspaceId" ref="addMember" @submit="submitForm"/>
+    <add-member
+      :group-type="'PROJECT'"
+      :group-scope-id="workspaceId"
+      ref="addMember"
+      :user-resource-url="'user/ws/current/member/list'"
+      @submit="submitForm"/>'
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
