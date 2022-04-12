@@ -257,7 +257,7 @@ import {
   buildBatchParam,
   deepClone,
   getCustomFieldBatchEditOption,
-  getCustomFieldValue,
+  getCustomFieldValue, getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
   getPageInfo,
@@ -285,6 +285,7 @@ import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
+import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -479,7 +480,7 @@ export default {
       testCaseTemplate: {},
       members: [],
       page: getPageInfo(),
-      fields: [],
+      fields: getCustomTableHeader('TRACK_TEST_CASE'),
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
       memberMap: new Map(),
       rowCase: {},
@@ -619,6 +620,7 @@ export default {
   },
   methods: {
     getTemplateField() {
+      this.page.result.loading = true;
       let p1 = getProjectMember((data) => {
         this.members = data;
         this.members.forEach(item => {
@@ -626,7 +628,7 @@ export default {
         });
       });
       let p2 = getTestTemplate();
-      this.page.result = Promise.all([p1, p2]).then((data) => {
+      Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
@@ -636,8 +638,9 @@ export default {
 
         this.$nextTick(() => {
           if (this.$refs.table) {
-            this.$refs.table.reloadTable();
+            this.$refs.table.resetHeader();
           }
+          this.page.result.loading = false;
         });
       });
     },

@@ -292,7 +292,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam,
-  getCustomFieldValue, getCustomTableWidth, getLastTableSortField,
+  getCustomFieldValue, getCustomTableHeader, getCustomTableWidth, getLastTableSortField,
   getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
@@ -303,6 +303,7 @@ import {getTestTemplate} from "@/network/custom-field-template";
 import {editTestPlanTestCaseOrder} from "@/network/test-plan";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import {getTestPlanTestCase} from "@/network/testCase";
+import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -323,7 +324,7 @@ export default {
     return {
       // updata: false,
       type: TEST_PLAN_FUNCTION_TEST_CASE,
-      fields: [],
+      fields: getCustomTableHeader('TEST_PLAN_FUNCTION_TEST_CASE'),
       fieldsWidth: getCustomTableWidth('TEST_PLAN_FUNCTION_TEST_CASE'),
       screenHeight: 'calc(100vh - 275px)',
       tableLabel: [],
@@ -490,11 +491,12 @@ export default {
       let p2 = getTestTemplate();
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
-        this.result.loading = true;
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
+        if (this.$refs.table) {
+          this.$refs.table.resetHeader();
+        }
         this.result.loading = false;
-        if (this.$refs.table) this.$refs.table.reloadTable();
       });
     },
     getCustomFieldValue(row, field) {
