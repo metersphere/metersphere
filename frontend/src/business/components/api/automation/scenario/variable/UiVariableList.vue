@@ -476,7 +476,7 @@ export default {
     },
     deleteVariable() {
       let ids = [this.editData.id];
-      if (ids.length == 0) {
+      if (ids.length === 0) {
         this.$warning("请选择一条数据删除");
         return;
       }
