@@ -108,7 +108,7 @@ router.afterEach(() => {
 export function getLicense(callback) {
   return baseGet("/license/valid", data => {
     validateAndSetLicense(data);
-    if (callback) callback();
+    if (callback) callback(data);
   });
 }
 

@@ -464,6 +464,7 @@ export default {
     status: '授权状态',
     valid: '有效',
     invalid: '无效',
+    count_warning: '系统用户数已超过license限制数量，请尽快联系工作人员。',
     expired: '已过期',
   },
   workstation: {

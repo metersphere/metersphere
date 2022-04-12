@@ -462,6 +462,7 @@ export default {
     status: 'Valid State',
     valid: 'Valid',
     invalid: 'invalid',
+    count_warning: 'The number of system users has exceeded the license limit. Please contact the staff as soon as possible.',
     expired: 'expired',
   },
   workstation: {
