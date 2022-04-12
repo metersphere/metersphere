@@ -176,27 +176,27 @@
                 </el-col>
                 <el-col :span="12">
                   <ms-edit-constant
-                    v-if="editData.type == 'CONSTANT'"
+                    v-if="editData.type === 'CONSTANT'"
                     ref="parameters"
                     :editData.sync="editData"
                   />
                   <ms-edit-counter
-                    v-if="editData.type == 'COUNTER'"
+                    v-if="editData.type === 'COUNTER'"
                     ref="counter"
                     :editData.sync="editData"
                   />
                   <ms-edit-random
-                    v-if="editData.type == 'RANDOM'"
+                    v-if="editData.type === 'RANDOM'"
                     ref="random"
                     :editData.sync="editData"
                   />
                   <ms-edit-list-value
-                    v-if="editData.type == 'LIST'"
+                    v-if="editData.type === 'LIST'"
                     ref="listValue"
                     :editData="editData"
                   />
                   <ms-edit-csv
-                    v-if="editData.type == 'CSV'"
+                    v-if="editData.type === 'CSV'"
                     ref="csv"
                     :editData.sync="editData"
                   />
@@ -436,7 +436,7 @@ export default {
       let saveVariables = [];
       this.variables.forEach((item) => {
         item.hidden = undefined;
-        if (item.name && item.name != "") {
+        if (item.name && item.name !== "") {
           saveVariables.push(item);
         }
       });
@@ -453,7 +453,7 @@ export default {
     confirmVariable() {
       if (
         this.editData &&
-        (this.editData.name == undefined || this.editData.name == "")
+        (this.editData.name === undefined || this.editData.name === "")
       ) {
         this.$warning("变量名不能为空");
         return;
@@ -535,41 +535,41 @@ export default {
       this.variables.forEach((item) => {
         if (
           this.searchType &&
-          this.searchType != "" &&
+          this.searchType !== "" &&
           this.selectVariable &&
-          this.selectVariable != ""
+          this.selectVariable !== ""
         ) {
           if (
             (item.type &&
-              item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ==
+              item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ===
                 -1 &&
               this.searchType != "ALL") ||
             (item.name &&
               item.name
                 .toLowerCase()
-                .indexOf(this.selectVariable.toLowerCase()) == -1)
+                .indexOf(this.selectVariable.toLowerCase()) === -1)
           ) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
           }
-        } else if (this.selectVariable && this.selectVariable != "") {
+        } else if (this.selectVariable && this.selectVariable !== "") {
           if (
             item.name &&
             item.name
               .toLowerCase()
-              .indexOf(this.selectVariable.toLowerCase()) == -1
+              .indexOf(this.selectVariable.toLowerCase()) === -1
           ) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
           }
-        } else if (this.searchType && this.searchType != "") {
+        } else if (this.searchType && this.searchType !== "") {
           if (
             item.type &&
-            item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ==
+            item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ===
               -1 &&
-            this.searchType != "ALL"
+            this.searchType !== "ALL"
           ) {
             item.hidden = true;
           } else {
@@ -580,7 +580,7 @@ export default {
         }
         if (
           this.searchType === "ALL" &&
-          !(this.selectVariable && this.selectVariable != "")
+          !(this.selectVariable && this.selectVariable !== "")
         ) {
           item.hidden = undefined;
         }
