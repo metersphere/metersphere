@@ -28,6 +28,7 @@ const mutations = {
   setUiElementLibraryModuleIds: (state, value) => state.uiElementLibraryModuleIds = value,
   setRefreshUiScenario: (state, value) => state.refreshUiScenario = value,
   setSelectUiGroup: (state, value) => state.selectUiGroup = value,
+  setShowLicenseCountWarning: (state, value) => state.showLicenseCountWarning = value,
 }
 
 export default mutations;

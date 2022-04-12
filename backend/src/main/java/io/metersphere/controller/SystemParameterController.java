@@ -124,6 +124,11 @@ public class SystemParameterController {
         return systemStatisticData;
     }
 
+    @GetMapping("/user/size")
+    public long getSystemUserCount() {
+        return userService.getUserSize();
+    }
+
     @GetMapping("/get/info/{key}")
     public SystemParameter getInfo(@PathVariable String key) {
         return systemParameterService.getInfo(key);
