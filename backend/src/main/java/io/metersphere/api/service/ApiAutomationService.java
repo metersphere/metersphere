@@ -247,8 +247,6 @@ public class ApiAutomationService {
 
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setNum(nextNum);
-        List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
-        scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         scenario.setOrder(ServiceUtils.getNextOrder(scenario.getProjectId(), extApiScenarioMapper::getLastOrder));
         scenario.setRefId(request.getId());
         scenario.setLatest(true);
@@ -359,8 +357,6 @@ public class ApiAutomationService {
         }
 
         deleteUpdateBodyFile(scenario, beforeScenario);
-        List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
-        scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         scenario.setCreateUser(null); // 更新时不更新创建人
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdEqualTo(scenario.getId()).andVersionIdEqualTo(request.getVersionId());
@@ -922,8 +918,8 @@ public class ApiAutomationService {
         return extApiScenarioMapper.countByProjectID(projectId);
     }
 
-    public List<ApiScenarioWithBLOBs> selectIdAndUseUrlByProjectId(String projectId) {
-        return extApiScenarioMapper.selectIdAndUseUrlByProjectId(projectId);
+    public List<String> selectIdsByProjectId(String projectId) {
+        return extApiScenarioMapper.selectIdsByProjectId(projectId);
     }
 
     public long countScenarioByProjectIDAndCreatInThisWeek(String projectId) {
@@ -1082,10 +1078,6 @@ public class ApiAutomationService {
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(apiScenarioWithBLOBs, request);
         apiScenarioWithBLOBs.setUpdateTime(System.currentTimeMillis());
-        if (apiScenarioWithBLOBs.getScenarioDefinition() != null) {
-            List<ApiMethodUrlDTO> useUrl = this.parseUrl(apiScenarioWithBLOBs);
-            apiScenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
-        }
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
@@ -1127,8 +1119,6 @@ public class ApiAutomationService {
                                ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper) {
         if (CollectionUtils.isEmpty(sameRequest)) {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
-            List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
-            scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
             scenarioWithBLOBs.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             // 导入时设置版本
             scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
@@ -1165,8 +1155,6 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setOrder(existScenario.getOrder());
                 scenarioWithBLOBs.setNum(existScenario.getNum());
-                List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
-                scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
             checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
@@ -1229,8 +1217,6 @@ public class ApiAutomationService {
             _importCreate(sameRequest, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest, apiTestCaseMapper, apiDefinitionMapper);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
-                List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
-                scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
                 scenarioWithBLOBs.setId(UUID.randomUUID().toString());
                 scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
@@ -1555,84 +1541,25 @@ public class ApiAutomationService {
      * <p>
      * 匹配场景中用到的路径
      *
-     * @param allScenarioInfoList 场景集合（id / scenario大字段 必须有数据）
+     * @param scenarioIdList 场景集合（id / scenario大字段 必须有数据）
      * @param allEffectiveApiList 接口集合（id / path 必须有数据）
      * @return
      */
-    public float countInterfaceCoverage(List<ApiScenarioWithBLOBs> allScenarioInfoList, List<ApiDefinition> allEffectiveApiList) {
-        if (allEffectiveApiList == null || allEffectiveApiList.isEmpty()) {
+    public float countInterfaceCoverage(List<String> scenarioIdList, List<ApiDefinition> allEffectiveApiList) {
+        if (CollectionUtils.isEmpty(scenarioIdList) || CollectionUtils.isEmpty(allEffectiveApiList)) {
             return 0;
         }
+        List<String> refIdList = apiScenarioReferenceIdService.findByScenarioIds(scenarioIdList);
 
-        Map<ApiMethodUrlDTO, List<String>> urlMap = new HashMap<>();
+        int containsCount = 0;
         for (ApiDefinition model : allEffectiveApiList) {
-            String url = model.getPath();
-            String method = model.getMethod();
-            String id = model.getId();
-
-            ApiMethodUrlDTO dto = new ApiMethodUrlDTO(url, method);
-
-            if (urlMap.containsKey(dto)) {
-                urlMap.get(dto).add(id);
-            } else {
-                List<String> list = new ArrayList<>();
-                list.add(id);
-                urlMap.put(dto, list);
+            if(refIdList.contains(model.getId())){
+                containsCount ++;
             }
         }
 
-        if (urlMap.isEmpty()) {
-            return 100;
-        }
-
-        List<ApiMethodUrlDTO> urlList = new ArrayList<>();
-        for (ApiScenarioWithBLOBs model : allScenarioInfoList) {
-            List<ApiMethodUrlDTO> useUrl = this.getScenarioUseUrl(model);
-            if (CollectionUtils.isNotEmpty(useUrl)) {
-                for (ApiMethodUrlDTO dto : useUrl) {
-                    if (!urlList.contains(dto)) {
-                        urlList.add(dto);
-                    }
-                }
-            }
-        }
-
-        List<String> containsApiIdList = new ArrayList<>();
-        for (ApiMethodUrlDTO urlDTO : urlList) {
-            List<String> apiIdList = urlMap.get(urlDTO);
-            if (apiIdList != null) {
-                for (String api : apiIdList) {
-                    if (!containsApiIdList.contains(api)) {
-                        containsApiIdList.add(api);
-                    }
-                }
-            }
-        }
-
-        int allApiIdCount = 0;
-        for (List<String> allApiIdList : urlMap.values()) {
-            if (CollectionUtils.isNotEmpty(allApiIdList)) {
-                allApiIdCount += allApiIdList.size();
-            }
-        }
-
-        float coverageRageNumber = (float) containsApiIdList.size() * 100 / allApiIdCount;
+        float coverageRageNumber = (float) containsCount * 100 / allEffectiveApiList.size();
         return coverageRageNumber;
-    }
-
-    private List<ApiMethodUrlDTO> getScenarioUseUrl(ApiScenarioWithBLOBs model) {
-        List<ApiMethodUrlDTO> useUrlList = new ArrayList<>();
-        try {
-            useUrlList = JSONArray.parseArray(model.getUseUrl(), ApiMethodUrlDTO.class);
-        } catch (Exception e) {
-        }
-        return useUrlList;
-    }
-
-    public List<ApiMethodUrlDTO> parseUrl(ApiScenarioWithBLOBs scenario) {
-        List<ApiMethodUrlDTO> urlList = new ArrayList<>();
-        // 去除未生效且影响性能的方法
-        return urlList;
     }
 
     public ScenarioEnv getApiScenarioProjectId(String id) {
@@ -1732,23 +1659,6 @@ public class ApiAutomationService {
             return JSON.toJSONString(details);
         }
         return null;
-    }
-
-    public void checkApiScenarioUseUrl() {
-        List<String> noUrlScenarioIdList = extApiScenarioMapper.selectIdsByUseUrlIsNull();
-        for (String id : noUrlScenarioIdList) {
-            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
-            if (scenario.getUseUrl() == null) {
-                List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
-                if (useUrl != null) {
-                    ApiScenarioWithBLOBs updateModel = new ApiScenarioWithBLOBs();
-                    updateModel.setId(scenario.getId());
-                    updateModel.setUseUrl(JSONArray.toJSONString(useUrl));
-                    apiScenarioMapper.updateByPrimaryKeySelective(updateModel);
-                    apiScenarioReferenceIdService.saveApiAndScenarioRelation(updateModel);
-                }
-            }
-        }
     }
 
     public void checkApiScenarioReferenceId() {
