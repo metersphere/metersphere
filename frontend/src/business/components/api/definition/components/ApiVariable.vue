@@ -192,9 +192,21 @@ export default {
     },
     change: function () {
       let isNeedCreate = true;
+      let removeIndexArr = [];
+      this.parameters.forEach((item, index) => {
+        if ((!item.name || item.name === '' ) && (!item.value || item.value === '') && (!item.files || item.files.length === 0)) {
+          // 多余的空行
+          removeIndexArr.push(index);
+        }
+      });
+      if(removeIndexArr.length > 0){
+        for(let i = removeIndexArr.length-1; i>=0; i--){
+          this.remove(removeIndexArr[i]);
+        }
+      }
       let removeIndex = -1;
       this.parameters.forEach((item, index) => {
-        if (!item.name && !item.value) {
+        if ((!item.name || item.name === '' ) && (!item.value || item.value === '') && (!item.files || item.files.length === 0)) {
           // 多余的空行
           if (index !== this.parameters.length - 1) {
             removeIndex = index;
@@ -203,6 +215,7 @@ export default {
           isNeedCreate = false;
         }
       });
+
       if (isNeedCreate) {
         this.parameters.push(new KeyValue({
           type: 'text',
