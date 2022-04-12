@@ -45,6 +45,7 @@ const state = {
   librarySelectElement: {},
   uiElementLibraryModuleIds: null,
   refreshUiScenario: false,
+  showLicenseCountWarning: false
 }
 
 const store = new Vuex.Store({
