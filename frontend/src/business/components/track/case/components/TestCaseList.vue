@@ -285,6 +285,7 @@ import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
+import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -479,7 +480,7 @@ export default {
       testCaseTemplate: {},
       members: [],
       page: getPageInfo(),
-      fields: [],
+      fields: Test_Plan_Function_Test_Case,
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
       memberMap: new Map(),
       rowCase: {},

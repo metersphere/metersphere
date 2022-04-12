@@ -303,6 +303,7 @@ import {getTestTemplate} from "@/network/custom-field-template";
 import {editTestPlanTestCaseOrder} from "@/network/test-plan";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import {getTestPlanTestCase} from "@/network/testCase";
+import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -323,7 +324,7 @@ export default {
     return {
       // updata: false,
       type: TEST_PLAN_FUNCTION_TEST_CASE,
-      fields: [],
+      fields: Test_Plan_Function_Test_Case,
       fieldsWidth: getCustomTableWidth('TEST_PLAN_FUNCTION_TEST_CASE'),
       screenHeight: 'calc(100vh - 275px)',
       tableLabel: [],
