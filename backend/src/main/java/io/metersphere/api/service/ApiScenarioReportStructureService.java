@@ -436,7 +436,7 @@ public class ApiScenarioReportStructureService {
                 vo.setRequestResult(requestResultExpandDTO);
             }
             StepTreeDTO treeDTO = new StepTreeDTO(item.getName(), item.getResourceId(), "API", item.getId(), (i + 1));
-//            treeDTO.setValue(vo.getRequestResult());
+            treeDTO.setValue(vo.getRequestResult());
             if (vo.getRequestResult() != null && vo.getRequestResult() instanceof RequestResultExpandDTO) {
                 RequestResultExpandDTO expandDTO = (RequestResultExpandDTO) vo.getRequestResult();
                 if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
