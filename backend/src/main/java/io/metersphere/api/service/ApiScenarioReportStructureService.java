@@ -245,24 +245,23 @@ public class ApiScenarioReportStructureService {
                 if (reportResults.size() > 1) {
                     for (int i = 0; i < reportResults.size(); i++) {
                         ApiScenarioReportResultWithBLOBs reportResult = reportResults.get(i);
-                        if(reportResult.getContent() != null){
-                            //来自报告导出的数据
-                            if (i == 0) {
+                        //来自报告导出的数据
+                        if (i == 0) {
+                            if (reportResult.getContent() != null) {
                                 dto.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
                                 dto.setErrorCode(reportResults.get(0).getErrorCode());
                             } else {
-                                StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
-                                step.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
-                                step.setErrorCode(reportResults.get(i).getErrorCode());
-                                dtoList.add(step);
-                            }
-                        }else {
-                            reportResult = apiScenarioReportResultService.formatScenarioResult(reportResult);
-                            if (i == 0) {
                                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO(reportResult);
                                 dto.setStepId(reportResults.get(i).getId());
                                 dto.setValue(requestResultExpandDTO);
                                 dto.setErrorCode(reportResults.get(0).getErrorCode());
+                            }
+                        } else {
+                            if (reportResult.getContent() != null) {
+                                StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
+                                step.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
+                                step.setErrorCode(reportResults.get(i).getErrorCode());
+                                dtoList.add(step);
                             } else {
                                 StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
                                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO(reportResult);
@@ -274,12 +273,11 @@ public class ApiScenarioReportStructureService {
                     }
                 } else {
                     ApiScenarioReportResultWithBLOBs reportResult = reportResults.get(0);
-                    if(reportResult.getContent() != null){
+                    if (reportResult.getContent() != null) {
                         String content = new String(reportResults.get(0).getContent(), StandardCharsets.UTF_8);
                         dto.setValue(JSON.parseObject(content, RequestResult.class));
                         dto.setErrorCode(reportResults.get(0).getErrorCode());
-                    }else {
-                        reportResult = apiScenarioReportResultService.formatScenarioResult(reportResult);
+                    } else {
                         RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO(reportResult);
                         dto.setStepId(reportResults.get(0).getId());
                         dto.setValue(requestResultExpandDTO);
@@ -436,7 +434,7 @@ public class ApiScenarioReportStructureService {
                 vo.setRequestResult(requestResultExpandDTO);
             }
             StepTreeDTO treeDTO = new StepTreeDTO(item.getName(), item.getResourceId(), "API", item.getId(), (i + 1));
-//            treeDTO.setValue(vo.getRequestResult());
+            treeDTO.setValue(vo.getRequestResult());
             if (vo.getRequestResult() != null && vo.getRequestResult() instanceof RequestResultExpandDTO) {
                 RequestResultExpandDTO expandDTO = (RequestResultExpandDTO) vo.getRequestResult();
                 if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
@@ -495,23 +493,36 @@ public class ApiScenarioReportStructureService {
         return reportDTO;
     }
 
-    public ApiScenarioReportDTO assembleReport(String reportId,boolean selectReportContent) {
+    public ApiScenarioReportDTO assembleReport(String reportId, boolean selectReportContent) {
         ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
         if (report != null && report.getReportType().equals(ReportTypeConstants.API_INTEGRATED.name())) {
             return this.apiIntegratedReport(reportId);
         } else {
-            return this.getReport(reportId,selectReportContent);
+            return this.getReport(reportId, selectReportContent);
         }
     }
 
-    private ApiScenarioReportDTO getReport(String reportId,boolean selectContent) {
+    private ApiScenarioReportDTO getReport(String reportId, boolean selectContent) {
         List<ApiScenarioReportResultWithBLOBs> reportResults = null;
-        if(selectContent){
+        if (selectContent) {
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(reportId);
             reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
         } else {
             reportResults = this.selectBaseInfoResultByReportId(reportId);
+            //判断base_info是否为空，为空则是旧数据
+            boolean isBaseInfoNull = false;
+            for (ApiScenarioReportResultWithBLOBs result : reportResults) {
+                if (result.getBaseInfo() == null) {
+                    isBaseInfoNull = true;
+                    break;
+                }
+            }
+            if (isBaseInfoNull) {
+                ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
+                example.createCriteria().andReportIdEqualTo(reportId);
+                reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
+            }
         }
 
         removeUiResultIfNotStep(reportResults, reportId);
@@ -574,7 +585,7 @@ public class ApiScenarioReportStructureService {
     private void removeUiResultIfNotStep(List<ApiScenarioReportResultWithBLOBs> reportResults, String reportId) {
         ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
         if (report.getReportType() != null && report.getReportType().startsWith("UI")) {
-            if(CollectionUtils.isNotEmpty(reportResults)){
+            if (CollectionUtils.isNotEmpty(reportResults)) {
                 Iterator<ApiScenarioReportResultWithBLOBs> iterator = reportResults.iterator();
                 while (iterator.hasNext()) {
                     ApiScenarioReportResultWithBLOBs item = iterator.next();
