@@ -506,19 +506,15 @@ public class ApiScenarioReportStructureService {
 
     private ApiScenarioReportDTO getReport(String reportId,boolean selectContent) {
         List<ApiScenarioReportResultWithBLOBs> reportResults = null;
-        ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
-        if (report.getReportType() != null && report.getReportType().startsWith("UI")) {
+        if(selectContent){
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(reportId);
             reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
-            removeUiResultIfNotStep(reportResults);
-        }else if(selectContent){
-            ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
-            example.createCriteria().andReportIdEqualTo(reportId);
-            reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
-        }else {
+        } else {
             reportResults = this.selectBaseInfoResultByReportId(reportId);
         }
+
+        removeUiResultIfNotStep(reportResults, reportId);
 
         ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
         structureExample.createCriteria().andReportIdEqualTo(reportId);
@@ -575,16 +571,19 @@ public class ApiScenarioReportStructureService {
      *
      * @param reportResults
      */
-    private void removeUiResultIfNotStep(List<ApiScenarioReportResultWithBLOBs> reportResults) {
-        if(CollectionUtils.isNotEmpty(reportResults)){
-            Iterator<ApiScenarioReportResultWithBLOBs> iterator = reportResults.iterator();
-            while (iterator.hasNext()) {
-                ApiScenarioReportResultWithBLOBs item = iterator.next();
-                String result = new String(item.getContent(), StandardCharsets.UTF_8);
-                if (StringUtils.isNotBlank(result)) {
-                    Boolean isNoStep = JSONObject.parseObject(result).getBoolean("isNotStep");
-                    if (BooleanUtils.isTrue(isNoStep)) {
-                        iterator.remove();
+    private void removeUiResultIfNotStep(List<ApiScenarioReportResultWithBLOBs> reportResults, String reportId) {
+        ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
+        if (report.getReportType() != null && report.getReportType().startsWith("UI")) {
+            if(CollectionUtils.isNotEmpty(reportResults)){
+                Iterator<ApiScenarioReportResultWithBLOBs> iterator = reportResults.iterator();
+                while (iterator.hasNext()) {
+                    ApiScenarioReportResultWithBLOBs item = iterator.next();
+                    String baseInfo = item.getBaseInfo();
+                    if (StringUtils.isNotBlank(baseInfo)) {
+                        Boolean isNoStep = JSONObject.parseObject(baseInfo).getBoolean("isNotStep");
+                        if (BooleanUtils.isTrue(isNoStep)) {
+                            iterator.remove();
+                        }
                     }
                 }
             }

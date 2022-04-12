@@ -17,4 +17,5 @@ public class ApiScenarioReportBaseInfoDTO {
     private String rspCode;
     private long rspTime;
     private String uiImg;
+    private Boolean isNotStep;
 }
