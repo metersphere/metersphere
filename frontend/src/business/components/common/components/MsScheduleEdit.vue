@@ -4,23 +4,37 @@
     <template>
       <div>
         <el-tabs v-model="activeName">
+          <el-tab-pane :label="$t('schedule.task_config')" name="first">
+            <div class="el-step__icon is-text" style="margin-right: 10px;">
+              <div class="el-step__icon-inner">1</div>
+            </div>
+            <span>{{ $t('schedule.edit_timer_task') }}</span>
+            <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;">
+              <el-form-item :label="$t('commons.schedule_cron_title')"
+                            prop="cronValue">
+                <el-row :gutter="20">
+                  <el-col :span="16">
+                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
+                              :placeholder="$t('schedule.please_input_cron_expression')" size="mini">
+                      <a :disabled="isReadOnly" type="primary" @click="showCronDialog" slot="suffix" class="head">
+                        {{ $t('schedule.generate_expression') }}
+                      </a>
+                    </el-input>
 
-          <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
-            <el-form :model="form" :rules="rules" ref="from">
-              <el-form-item
-                prop="cronValue">
-                <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
-                          :placeholder="$t('schedule.please_input_cron_expression')"/>
-                <!--          <el-button type="primary" @click="showCronDialog">{{$t('schedule.generate_expression')}}</el-button>-->
-                <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
-                    $t('commons.save')
-                  }}
-                </el-button>
-              </el-form-item>
-              <el-form-item>
-                <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">
-                  {{ $t('schedule.generate_expression') }}
-                </el-link>
+                    <span>{{ this.$t('commons.schedule_switch') }}</span>
+                    <el-tooltip effect="dark" placement="bottom"
+                                :content="schedule.enable ? $t('commons.close_schedule') : $t('commons.open_schedule')">
+                      <el-switch v-model="schedule.enable" style="margin-left: 20px"></el-switch>
+                    </el-tooltip>
+                  </el-col>
+                  <el-col :span="2">
+                    <el-button :disabled="isReadOnly" type="primary" @click="saveCron" size="mini">{{
+                        $t('commons.save')
+                      }}
+                    </el-button>
+                  </el-col>
+                </el-row>
+
               </el-form-item>
               <crontab-result :ex="form.cronValue" ref="crontabResult"/>
             </el-form>
@@ -217,6 +231,14 @@ export default {
 
 .el-form-item {
   margin-bottom: 10px;
+}
+
+.head {
+  border-bottom: 1px solid #7C3985;
+  color: #7C3985;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 </style>

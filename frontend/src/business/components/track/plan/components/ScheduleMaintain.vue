@@ -46,20 +46,7 @@
               <div class="el-step__icon-inner">2</div>
             </div>
             <span>{{ $t('load_test.runtime_config') }}</span>
-            <div style="margin-bottom: 10px; margin-top: 10px; ">
-              <span class="ms-mode-span">{{ $t("commons.environment") }}：</span>
-              <env-popover :project-ids="projectIds"
-                           :placement="'bottom-start'"
-                           :project-list="projectList"
-                           :env-map="runConfig.envMap"
-                           :environment-type.sync="runConfig.environmentType"
-                           :group-id="runConfig.environmentGroupId"
-                           @setEnvGroup="setEnvGroup"
-                           @setProjectEnvMap="setProjectEnvMap"
-                           @showPopover="showPopover"
-                           ref="envPopover" class="env-popover"/>
-            </div>
-            <div>
+            <div class="ms-mode-div">
               <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
               <el-radio-group v-model="runConfig.mode" @change="changeMode">
                 <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
@@ -145,7 +132,6 @@ import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
 import MsScheduleNotification from "./ScheduleNotification";
 import ScheduleSwitch from "@/business/components/api/automation/schedule/ScheduleSwitch";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 import {ENV_TYPE} from "@/common/js/constants";
 
 function defaultCustomValidate() {
@@ -164,7 +150,6 @@ export default {
     Crontab,
     MsScheduleNotification,
     "NoticeTemplate": noticeTemplate.default,
-    EnvPopover
   },
 
   props: {
@@ -234,8 +219,6 @@ export default {
         onSampleError: false,
         runWithinResourcePool: false,
         resourcePoolId: null,
-        envMap: new Map,
-        environmentGroupId: "",
         environmentType: ENV_TYPE.JSON
       },
       projectList: [],
@@ -319,7 +302,6 @@ export default {
       listenGoBack(this.close);
       this.activeName = 'first';
       this.getResourcePools();
-      this.getWsProjects();
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {
@@ -330,9 +312,6 @@ export default {
           this.schedule = response.data;
           if (response.data.config) {
             this.runConfig = JSON.parse(response.data.config);
-            if (this.runConfig.envMap) {
-              this.runConfig.envMap = objToStrMap(this.runConfig.envMap);
-            }
           }
         } else {
           this.schedule = {
@@ -457,41 +436,6 @@ export default {
       this.runConfig.runWithinResourcePool = false;
       this.runConfig.resourcePoolId = null;
     },
-    setProjectEnvMap(projectEnvMap) {
-      this.runConfig.envMap = strMapToObj(projectEnvMap);
-    },
-    setEnvGroup(id) {
-      this.runConfig.environmentGroupId = id;
-    },
-    getWsProjects() {
-      this.$get("/project/getOwnerProjects", res => {
-        this.projectList = res.data;
-      })
-    },
-    showPopover() {
-      this.projectIds.clear();
-      let param = undefined;
-      let url = "";
-      if (this.type === 'apiCase') {
-        url = '/test/plan/api/case/env';
-        param = this.planCaseIds;
-      } else if (this.type === 'apiScenario') {
-        url = '/test/plan/api/scenario/env';
-        param = this.planCaseIds;
-      } else if (this.type === 'plan') {
-        url = '/test/plan/case/env';
-        param = {id: this.planId};
-      }
-      this.$post(url, param, res => {
-        let data = res.data;
-        if (data) {
-          for (let d in data) {
-            this.projectIds.add(d);
-          }
-        }
-        this.$refs.envPopover.openEnvSelect();
-      });
-    }
   },
   computed: {
     isTesterPermission() {
