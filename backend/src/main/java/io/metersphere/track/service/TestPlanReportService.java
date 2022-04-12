@@ -920,7 +920,9 @@ public class TestPlanReportService {
                 sqlSession.flushStatements();
             }
         } finally {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         }
 
     }
