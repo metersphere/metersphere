@@ -3062,6 +3062,14 @@ export default {
       delete: "刪除報告",
       export: "導出報告",
     },
+    project_ui_element: {
+      name: "元素庫",
+      read: "查詢元素",
+      create: "創建元素",
+      edit: "編輯元素",
+      delete: "刪除元素",
+      copy: "複製元素",
+    },
     project_performance_test: {
       name: "測試",
       read: "查詢測試",
