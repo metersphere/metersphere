@@ -1,14 +1,24 @@
 <template>
-
-  <el-container class="ms-container">
-    <slot></slot>
-  </el-container>
+  <div>
+    <el-alert
+      v-if="isShowWarning"
+      :title="$t('license.count_warning')"
+      type="warning"
+      center
+      :closable="false"
+      show-icon>
+    </el-alert>
+    <el-container class="ms-container">
+      <slot></slot>
+    </el-container>
+  </div>
 
 </template>
 
 <script>
     export default {
-      name: "MsContainer"
+      name: "MsContainer",
+      props: ['isShowWarning']
     }
 </script>
 
