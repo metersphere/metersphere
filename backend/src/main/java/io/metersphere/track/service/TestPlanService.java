@@ -496,42 +496,11 @@ public class TestPlanService {
             testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
             this.editTestPlan(testPlanWithBLOBs);
         } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
-            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
-            editTestPlan(testPlanWithBLOBs);
-        } else if (prepareNum != 0) {    //  进行中
-            testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
-            editTestPlan(testPlanWithBLOBs);
-        }
-    }
-
-    public void checkStatus(TestPlanWithBLOBs testPlanWithBLOBs) { //  检查执行结果，自动更新计划状态
-        List<String> statusList = new ArrayList<>();
-        statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanWithBLOBs.getId()));
-        statusList.addAll(testPlanApiCaseService.getExecResultByPlanId(testPlanWithBLOBs.getId()));
-        statusList.addAll(testPlanScenarioCaseService.getExecResultByPlanId(testPlanWithBLOBs.getId()));
-        statusList.addAll(testPlanLoadCaseService.getStatus(testPlanWithBLOBs.getId()));
-        if (statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
-            testPlanWithBLOBs.setStatus(TestPlanStatus.Prepare.name());
-            editTestPlan(testPlanWithBLOBs);
-            return;
-        }
-        int passNum = 0, prepareNum = 0, failNum = 0;
-        for (String res : statusList) {
-            if (StringUtils.equals(res, TestPlanTestCaseStatus.Pass.name())
-                    || StringUtils.equals(res, "success")
-                    || StringUtils.equals(res, ScenarioStatus.Success.name())) {
-                passNum++;
-            } else if (res == null || StringUtils.equals(TestPlanStatus.Prepare.name(), res)) {
-                prepareNum++;
-            } else {
-                failNum++;
+            if(testPlanWithBLOBs.getPlannedEndTime() != null && testPlanWithBLOBs.getPlannedEndTime() > System.currentTimeMillis()){
+                testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
+            }else{
+                testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
             }
-        }
-        if (passNum == statusList.size()) {   //  全部通过
-            testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
-            this.editTestPlan(testPlanWithBLOBs);
-        } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
-            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
             editTestPlan(testPlanWithBLOBs);
         } else if (prepareNum != 0) {    //  进行中
             testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
@@ -2134,8 +2103,10 @@ public class TestPlanService {
         Map<String, TestPlanReport> executeQueue = new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         Map<String, TestPlanScheduleReportInfoDTO> planScheduleReportInfoDTOMap = new LinkedHashMap<>();
+        boolean startThread = true;
         for (TestPlanWithBLOBs testPlan : planList) {
             if(StringUtils.isBlank(testPlan.getRunModeConfig())){
+                startThread = false;
                 MSException.throwException("请保存["+testPlan.getName()+"]的运行配置");
             }
             //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
@@ -2157,7 +2128,7 @@ public class TestPlanService {
             extTestPlanExecutionQueueMapper.sqlInsert(planExecutionQueues);
         }
         // 开始选择执行模式
-        runByMode(request, testPlanMap, planScheduleReportInfoDTOMap, planExecutionQueues);
+        runByMode(startThread,request, testPlanMap, planScheduleReportInfoDTOMap, planExecutionQueues);
 
         return responseDTOS;
     }
@@ -2176,7 +2147,7 @@ public class TestPlanService {
         return planExecutionQueues;
     }
 
-    private void runByMode(TestplanRunRequest request, Map<String, TestPlanWithBLOBs> testPlanMap, Map<String, TestPlanScheduleReportInfoDTO> planScheduleReportInfoDTOMap, List<TestPlanExecutionQueue> planExecutionQueues) {
+    private void runByMode(boolean startThread, TestplanRunRequest request, Map<String, TestPlanWithBLOBs> testPlanMap, Map<String, TestPlanScheduleReportInfoDTO> planScheduleReportInfoDTOMap, List<TestPlanExecutionQueue> planExecutionQueues) {
         if (planExecutionQueues != null&& planExecutionQueues.size()>0) {
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -2200,7 +2171,9 @@ public class TestPlanService {
                     }
                 }
             });
-            thread.start();
+            if (startThread) {
+                thread.start();
+            }
         }
     }
 
