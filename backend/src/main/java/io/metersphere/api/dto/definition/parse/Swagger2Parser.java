@@ -485,6 +485,8 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             item.setType("string");
         } else if (value instanceof IntegerProperty) {
             item.setType("integer");
+        }else if (value instanceof BaseIntegerProperty) {
+            item.setType("integer");
         } else if (value instanceof BooleanProperty) {
             item.setType("boolean");
         } else if (value instanceof LongProperty || value instanceof FloatProperty

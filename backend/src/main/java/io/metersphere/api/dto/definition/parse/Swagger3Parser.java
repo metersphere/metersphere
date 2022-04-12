@@ -831,13 +831,21 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             String value = obj.getString("value");
             if(StringUtils.isBlank(value)){
                 JSONObject mock = obj.getJSONObject("mock");
-                Object mockValue = mock.get("mock");
-                property.put("example", mockValue);
+                if(mock!=null){
+                    Object mockValue = mock.get("mock");
+                    property.put("example", mockValue);
+                }else{
+                    property.put("example", value);
+                }
             }else{
                 property.put("example", value);
             }
             property.put("description", obj.getString("description"));
             property.put("required", obj.getString("required"));
+            if(obj.getJSONObject("properties")!=null){
+                JSONObject properties1 = buildFormDataSchema(obj.getJSONObject("properties"));
+                property.put("properties",properties1.getJSONObject("properties"));
+            }
             properties.put(key, property);
         }
         schema.put("properties", properties);
