@@ -16,3 +16,6 @@ update project set case_template_id = (
       and `system` = 1
       and project_id = 'global' limit 1
 ) where case_template_id is null or case_template_id = '';
+
+CREATE INDEX test_plan_test_case_plan_id_index
+    ON test_plan_test_case(plan_id);
