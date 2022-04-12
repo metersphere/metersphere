@@ -543,7 +543,7 @@ export default {
             (item.type &&
               item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) ===
                 -1 &&
-              this.searchType != "ALL") ||
+              this.searchType !== "ALL") ||
             (item.name &&
               item.name
                 .toLowerCase()
