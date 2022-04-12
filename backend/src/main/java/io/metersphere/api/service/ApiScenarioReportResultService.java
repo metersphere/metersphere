@@ -152,30 +152,4 @@ public class ApiScenarioReportResultService {
         report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
         return report;
     }
-
-    public boolean isResultFormat(ApiScenarioReportResultWithBLOBs result) {
-        if (result != null && result.getBaseInfo() != null) {
-            return true;
-        }else {
-            return false;
-        }
-    }
-
-    public ApiScenarioReportResultWithBLOBs formatScenarioResult(ApiScenarioReportResultWithBLOBs result) {
-        if (!this.isResultFormat(result)) {
-            ApiScenarioReportResultWithBLOBs baseResult = apiScenarioReportResultMapper.selectByPrimaryKey(result.getId());
-            if (baseResult != null) {
-                try {
-                    RequestResult requestResult = JSON.parseObject(new String(baseResult.getContent(), StandardCharsets.UTF_8), RequestResult.class);
-                    //记录基础信息
-                    baseResult.setBaseInfo(JSONObject.toJSONString(getBaseInfo(requestResult)));
-                    apiScenarioReportResultMapper.updateByPrimaryKeySelective(baseResult);
-                    return baseResult;
-                } catch (Exception e) {
-                    LogUtil.error("format scenario result error:" + e.getMessage());
-                }
-            }
-        }
-        return result;
-    }
 }
