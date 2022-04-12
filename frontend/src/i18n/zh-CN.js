@@ -3168,5 +3168,7 @@ export default {
     cmdValidateDropdown: "下拉框",
     cmdValidateElement: "元素断言",
     cmdValidateTitle: "网页标题",
+    cmdExtraction: "数据提取",
+    cmdExtractWindow: "提取窗口信息",
   }
 };
