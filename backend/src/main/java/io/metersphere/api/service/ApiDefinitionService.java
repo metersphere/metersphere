@@ -51,7 +51,9 @@ import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -208,20 +210,20 @@ public class ApiDefinitionService {
         Map<String, Map<String, List<ApiDefinition>>> projectIdMap = new HashMap<>();
         for (ApiDefinition api : updateApiList) {
             String projectId = api.getProjectId();
-            String protocal = api.getProtocol();
+            String protocol = api.getProtocol();
             if (projectIdMap.containsKey(projectId)) {
-                if (projectIdMap.get(projectId).containsKey(protocal)) {
-                    projectIdMap.get(projectId).get(protocal).add(api);
+                if (projectIdMap.get(projectId).containsKey(protocol)) {
+                    projectIdMap.get(projectId).get(protocol).add(api);
                 } else {
                     List<ApiDefinition> list = new ArrayList<>();
                     list.add(api);
-                    projectIdMap.get(projectId).put(protocal, list);
+                    projectIdMap.get(projectId).put(protocol, list);
                 }
             } else {
                 List<ApiDefinition> list = new ArrayList<>();
                 list.add(api);
                 Map<String, List<ApiDefinition>> map = new HashMap<>();
-                map.put(protocal, list);
+                map.put(protocol, list);
                 projectIdMap.put(projectId, map);
             }
         }
@@ -231,8 +233,8 @@ public class ApiDefinitionService {
             Map<String, List<ApiDefinition>> map = entry.getValue();
 
             for (Map.Entry<String, List<ApiDefinition>> itemEntry : map.entrySet()) {
-                String protocal = itemEntry.getKey();
-                ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocal);
+                String protocol = itemEntry.getKey();
+                ApiModule node = apiModuleService.getDefaultNodeUnCreateNew(projectId, protocol);
                 if (node != null) {
                     List<ApiDefinition> testCaseList = itemEntry.getValue();
                     for (ApiDefinition apiDefinition : testCaseList) {
@@ -255,6 +257,12 @@ public class ApiDefinitionService {
             return new ArrayList<>();
         }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
+        // 排序
+        FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
+        fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
+        BeanComparator beanComparator = new BeanComparator("id", fixedOrderComparator);
+        Collections.sort(resList, beanComparator);
+
         calculateResult(resList, request.getProjectId());
         return resList;
     }
@@ -263,12 +271,12 @@ public class ApiDefinitionService {
      * 初始化部分参数
      *
      * @param request
-     * @param setDefultOrders
+     * @param defaultSorting
      * @param checkThisWeekData
      * @return
      */
-    private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
-        if (setDefultOrders) {
+    private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean defaultSorting, boolean checkThisWeekData) {
+        if (defaultSorting) {
             request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         }
         if (checkThisWeekData) {
