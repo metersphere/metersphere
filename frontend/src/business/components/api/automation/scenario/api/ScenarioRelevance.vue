@@ -15,23 +15,19 @@
         ref="nodeTree"/>
     </template>
 
-    <ms-api-scenario-list
-      v-if="versionEnable"
+    <relevance-scenario-list
+      :version-enable="versionEnable"
       :select-node-ids="selectNodeIds"
-      :select-project-id="projectId"
+      :project-id="projectId"
       :referenced="true"
       :trash-enable="false"
-      :is-reference-table="true"
-      @selection="setData"
-      :is-relate="true"
-      :custom-num="customNum"
+      @selectCountChange="setSelectCounts"
       ref="apiScenarioList">
-      <template v-slot:version>
-        <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
-      </template>
-    </ms-api-scenario-list>
+    </relevance-scenario-list>
 
     <template v-slot:headerBtn>
+      <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
+
       <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
         {{ $t('commons.copy') }}
       </el-button>
@@ -47,29 +43,28 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsAsideContainer from "../../../../common/components/MsAsideContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
 import MsApiScenarioModule from "../ApiScenarioModule";
-import MsApiScenarioList from "../ApiScenarioList";
 import {getUUID, hasLicense} from "@/common/js/utils";
 import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
+import RelevanceScenarioList from "./RelevanceScenarioList";
 import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
+import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 
-const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
 export default {
   name: "ScenarioRelevance",
-  props:{
-    isAcrossSpace:{
-      type:Boolean,
+  props: {
+    isAcrossSpace: {
+      type: Boolean,
       default() {
         return false;
       }
     }
   },
   components: {
-    'VersionSelect': VersionSelect.default,
+    TableSelectCountBar,
     TestCaseRelevanceBase,
+    RelevanceScenarioList,
     RelevanceDialog,
-    MsApiScenarioList,
     MsApiScenarioModule,
     MsMainContainer, MsAsideContainer, MsContainer
   },
@@ -88,6 +83,7 @@ export default {
       versionOptions: [],
       currentVersion: '',
       versionEnable: true,
+      selectCounts: null,
     };
   },
   watch: {
@@ -151,7 +147,7 @@ export default {
           }
           this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
             if (response.data) {
-              this.createScenarioDefinition(scenarios, response.data, referenced)
+              this.createScenarioDefinition(scenarios, response.data, referenced);
               this.$emit('save', scenarios);
               this.$refs.baseRelevance.close();
               this.buttonIsWorking = false;
@@ -170,7 +166,7 @@ export default {
         }
         this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
           if (response.data) {
-            this.createScenarioDefinition(scenarios, response.data, referenced)
+            this.createScenarioDefinition(scenarios, response.data, referenced);
             this.$emit('save', scenarios);
             this.$refs.baseRelevance.close();
             this.buttonIsWorking = false;
@@ -193,6 +189,7 @@ export default {
     },
     open() {
       this.buttonIsWorking = false;
+      this.selectCounts = 0;
       this.$refs.baseRelevance.open();
       if (this.$refs.apiScenarioList) {
         this.$refs.apiScenarioList.search(this.projectId);
@@ -247,6 +244,10 @@ export default {
         });
       }
     },
+    setSelectCounts(data) {
+      this.selectCounts = data;
+      this.setData(this.$refs.apiScenarioList.selectRows);
+    }
   }
 };
 </script>

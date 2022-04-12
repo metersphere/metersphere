@@ -1,23 +1,12 @@
 <template>
-  <div v-loading="result.loading">
-    <env-popover :env-map="projectEnvMap"
-                 :project-ids="projectIds"
-                 @setProjectEnvMap="setProjectEnvMap"
-                 :environment-type.sync="environmentType"
-                 :group-id="envGroupId"
-                 :is-scenario="false"
-                 @setEnvGroup="setEnvGroup"
-                 :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                 :project-list="projectList"
-                 ref="envPopover" class="env-popover"/>
-
-
+  <div>
     <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
               @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="search"/>
-    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" style="float: left;"
+    <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"
+                    style="float: left"
                     class="search-input"/>
 
     <ms-table ref="scenarioTable"
@@ -31,7 +20,6 @@
               :row-order-group-id="projectId"
               @refresh="search"
               :disable-header-config="true"
-              :show-select-all="false"
               @selectCountChange="selectCountChange">
 
       <el-table-column v-if="!customNum" prop="num" label="ID"
@@ -95,20 +83,18 @@
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import MsTag from "../../../../../common/components/MsTag";
-import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
-import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
-import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
-import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import MsApiReportDetail from "@/business/components/api/automation/report/ApiReportDetail";
+import MsTableMoreBtn from "@/business/components/api/automation/scenario/TableMoreBtn";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {
+  API_SCENARIO_CONFIGS,
   TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
 } from "@/business/components/common/components/search/search-components";
 import {ENV_TYPE} from "@/common/js/constants";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTag from "@/business/components/common/components/MsTag";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -118,15 +104,12 @@ export default {
   components: {
     MsTable,
     PriorityTableItem,
-    EnvPopover,
-    TestPlanScenarioListHeader,
     MsTablePagination,
     MsTableMoreBtn,
     ShowMoreBtn,
     MsTableHeader,
     MsTag,
     MsApiReportDetail,
-    MsTestPlanList,
     MsTableAdvSearchBar,
     'VersionSelect': VersionSelect.default,
   },
@@ -145,7 +128,7 @@ export default {
       result: {},
       showConfigButtonWithOutPermission: false,
       condition: {
-        components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
+        components: API_SCENARIO_CONFIGS
       },
       currentScenario: {},
       schedule: {},
@@ -186,42 +169,32 @@ export default {
   },
   methods: {
     search() {
-      this.projectEnvMap.clear();
-      this.projectIds.clear();
-      if (!this.projectId) {
-        return;
-      }
-      this.getProject(this.projectId);
       this.selectRows = new Set();
-      this.loading = true;
-      if (this.condition.filters) {
-        this.condition.filters.status = ["Prepare", "Underway", "Completed"];
-      } else {
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+        this.condition.moduleIds = [];
       }
 
-      this.condition.moduleIds = this.selectNodeIds;
-
-      if (this.projectId != null) {
+      if (this.projectId != null && typeof projectId === 'string') {
+        this.condition.projectId = this.projectId;
+      } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
       }
 
-      if (this.planId != null) {
-        this.condition.planId = this.planId;
-      }
-
-      let url = "/test/plan/scenario/case/relevance/list/" + this.currentPage + "/" + this.pageSize;
-      this.result = this.$post(url, this.condition, response => {
-        let data = response.data;
-        this.total = data.itemCount;
-        this.tableData = data.listObject;
-        this.tableData.forEach(item => {
-          if (item.tags && item.tags.length > 0) {
-            item.tags = JSON.parse(item.tags);
-          }
+      let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
+      if (this.condition.projectId) {
+        this.result = this.$post(url, this.condition, response => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
         });
-        this.clear();
-      });
+      }
     },
     clear() {
       this.selectRows.clear();
@@ -247,16 +220,8 @@ export default {
         });
       }
     },
-    initProjectIds() {
-      this.projectIds.clear();
-      this.map.clear();
-      this.selectRows.forEach(row => {
-        this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
-          let data = res.data;
-          data.projectIds.forEach(d => this.projectIds.add(d));
-          this.map.set(row.id, data.projectIds);
-        });
-      });
+    getConditions() {
+      return this.condition;
     },
     checkEnv() {
       return this.$refs.envPopover.checkEnv();
@@ -280,7 +245,6 @@ export default {
     },
     selectCountChange(data) {
       this.selectRows = this.$refs.scenarioTable.selectRows;
-      this.initProjectIds();
       this.$emit("selectCountChange", data);
     }
   }
