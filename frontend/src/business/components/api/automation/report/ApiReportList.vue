@@ -379,6 +379,7 @@ export default {
             sendParam.selectAllDate = this.isSelectAllDate;
             sendParam.unSelectIds = this.unSelection;
             sendParam = Object.assign(sendParam, this.condition);
+            sendParam.isUi = this.isUI;
             this.$post('/api/scenario/report/batch/delete', sendParam, () => {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));

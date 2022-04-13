@@ -169,7 +169,8 @@ public class ApiScenarioReportStructureService {
                 StepTreeDTO children = new StepTreeDTO(element.getString("name"), resourceId, element.getString("type"), resourceId, element.getIntValue("index"));
                 if (StringUtils.isNotBlank(children.getType()) && children.getType().equals("MsUiCommand")) {
                     children.setResourceId(resourceId);
-                    children.setLabel(element.getString("command"));
+                    children.setLabel(element.getString("name"));
+                    children.setCmdType(element.getString("commandType"));
                 } else if (StringUtils.isNotEmpty(dto.getAllIndex())) {
                     children.setAllIndex(dto.getAllIndex() + "_" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
@@ -177,7 +178,6 @@ public class ApiScenarioReportStructureService {
                     children.setAllIndex("" + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
                 }
-                children.setCmdType(element.getString("commandType"));
                 dto.getChildren().add(children);
                 if (element.containsKey("hashTree") && !requests.contains(children.getType())) {
                     JSONArray elementJSONArray = element.getJSONArray("hashTree");
