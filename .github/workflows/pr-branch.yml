@@ -11,6 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-ecosystem/action-add-labels@v1
-        if: ${{ startsWith(github.event.comment.body, '/add-labels') }}
+        if: env.BASE_BRANCH != 'main'
         with:
           labels: env.BASE_BRANCH
