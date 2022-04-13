@@ -348,7 +348,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         msTCPSampler.setName(tcpSampler.getName());
         msTCPSampler.setType("TCPSampler");
         msTCPSampler.setServer(tcpSampler.getServer());
-        msTCPSampler.setPort(tcpSampler.getPort() + "");
+        msTCPSampler.setPort(tcpSampler.getPropertyAsString(TCPSampler.PORT));
         msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + "");
         msTCPSampler.setReUseConnection(tcpSampler.getProperty(TCPSampler.RE_USE_CONNECTION).getBooleanValue());
         msTCPSampler.setNodelay(tcpSampler.getProperty(TCPSampler.NODELAY).getBooleanValue());
