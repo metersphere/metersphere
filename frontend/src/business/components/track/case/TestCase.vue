@@ -131,7 +131,7 @@
               :select-node="selectNode"
               :select-condition="condition"
               :public-enable="currentActiveName === 'default' ? false : true"
-              :type="type"
+              :case-type="type"
               @addTab="addTab"
               ref="testCaseEdit">
             </test-case-edit>
