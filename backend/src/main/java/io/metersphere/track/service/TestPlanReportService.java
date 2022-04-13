@@ -14,6 +14,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.TestPlanExecuteReportDTO;
 import io.metersphere.dto.UserDTO;
@@ -545,15 +546,15 @@ public class TestPlanReportService {
             testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
             List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
             String runMode=null;
-            if(planExecutionQueues!=null&&planExecutionQueues.size()>0){
+            if(CollectionUtils.isNotEmpty(planExecutionQueues)){
                 runMode = planExecutionQueues.get(0).getRunMode();
                 testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
             }
-            if(runMode!=null&&StringUtils.equalsIgnoreCase(runMode,"serial")){
+            if(runMode!=null&&StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name())){
                 TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
                 queueExample.createCriteria().andReportIdIsNotNull();
-                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
-                if(planExecutionQueueList==null||planExecutionQueueList.size()==0){
+                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(queueExample);
+                if(CollectionUtils.isEmpty(planExecutionQueueList)){
                     return testPlanReport;
                 }
                 TestPlanExecutionQueue testPlanExecutionQueue = planExecutionQueueList.get(0);
