@@ -32,7 +32,6 @@
             :api="api"
             :currentApi="currentApi"
             :loaded="loaded"
-            :runResult="runResult"
             :maintainerOptions="maintainerOptions"
             :api-case="apiCaseList[0]" ref="apiCaseItem"/>
         </el-main>
@@ -40,8 +39,14 @@
     </ms-drawer>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap" :edit-case-request="true"
-            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
+    <ms-run
+      :debug="false"
+      :reportId="reportId"
+      :run-data="runData"
+      :env-map="envMap"
+      :edit-case-request="true"
+      @runRefresh="runRefresh"
+      @errorRefresh="errorRefresh" ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
 </template>
@@ -68,6 +73,7 @@ export default {
       type: Boolean,
       default: false
     },
+    saveButtonText: String,
     refreshSign: String,
     currentApi: {
       type: Object
@@ -82,7 +88,6 @@ export default {
       batchLoadingIds: [],
       singleLoading: false,
       singleRunId: "",
-      runResult: {},
       runData: [],
       reportId: "",
       testCaseId: "",
@@ -248,7 +253,7 @@ export default {
       if (data) {
         let status = data.error > 0 ? "error" : "success";
         this.apiCaseList[0].execResult = status
-        this.runResult = data;
+        this.apiCaseList[0].responseData = data;
         this.$refs.apiCaseItem.runLoading = false;
         this.$store.state.currentApiCase = {refresh: true, id: data.id, status: status};
       }
