@@ -41,7 +41,8 @@
       <template v-slot:label>
         <tab-pane-count :title="$t('commons.relationship.name')" :count="relationshipCount"/>
       </template>
-      <dependencies-list @setCount="setRelationshipCount" :read-only="readOnly" :resource-id="caseId" :version-enable="versionEnable" resource-type="TEST_CASE" ref="relationship"/>
+      <dependencies-list @setCount="setRelationshipCount" :read-only="readOnly" :resource-id="caseId"
+                         :version-enable="versionEnable" resource-type="TEST_CASE" ref="relationship"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
@@ -72,6 +73,36 @@
         </el-col>
       </el-row>
     </el-tab-pane>
+    <el-tab-pane v-if="type!=='add'" :label="$t('test_track.review.comment')" name="comment">
+      <el-tooltip class="item-tabs" effect="dark" :content="$t('test_track.review.comment')" placement="top-start" slot="label">
+              <span>
+                {{ $t('test_track.review.comment') }}
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments.length>0">
+                  <div class="el-step__icon-inner">{{ comments.length }}</div>
+                </div>
+              </span>
+      </el-tooltip>
+      <el-row style="margin-top: 10px" v-if="type!=='add'">
+        <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
+          <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
+        </el-col>
+      </el-row>
+      <el-row v-if="type!=='add'">
+        <el-col :span="20" :offset="1">
+          <review-comment-item v-for="(comment,index) in comments"
+                               :key="index"
+                               :comment="comment"
+                               @refresh="getComments" api-url="/test/case"/>
+          <div v-if="comments.length === 0" style="text-align: center">
+            <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
+                            <span style="font-size: 15px; color: #8a8b8d;">
+                              {{ $t('test_track.comment.no_comment') }}
+                            </span>
+            </i>
+          </div>
+        </el-col>
+      </el-row>
+    </el-tab-pane>
   </el-tabs>
 </template>
 
@@ -86,6 +117,8 @@ import TestCaseTestRelate from "@/business/components/track/case/components/Test
 import DependenciesList from "@/business/components/common/components/graph/DependenciesList";
 import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
 import {getRelationshipCountCase} from "@/network/testCase";
+import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
+import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
 
 export default {
   name: "TestCaseEditOtherInfo",
@@ -93,8 +126,11 @@ export default {
     TabPaneCount,
     DependenciesList,
     TestCaseTestRelate,
-    FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit'],
+    TestCaseComment,
+    ReviewCommentItem,
+    FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText
+  },
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit', 'type', 'comments'],
   data() {
     return {
       result: {},
@@ -152,6 +188,20 @@ export default {
   methods: {
     updateRemark(text) {
       this.form.remark = text;
+    },
+    openComment() {
+      this.$emit('openComment');
+    },
+    getComments(testCase) {
+      let id = '';
+      if (testCase) {
+        id = testCase.id;
+      } else {
+        id = this.form.id;
+      }
+      this.result = this.$get('/test/case/comment/list/' + id, res => {
+        this.comments = res.data;
+      })
     },
     setRelationshipCount(count) {
       this.relationshipCount = count;
@@ -280,13 +330,21 @@ export default {
           if (response.data.data && response.data.data.length > 0) {
             this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
           }
-          this.demandOptions.unshift({value: 'other', label: 'Other: ' + this.$t('test_track.case.other'), platform: 'Other'});
+          this.demandOptions.unshift({
+            value: 'other',
+            label: 'Other: ' + this.$t('test_track.case.other'),
+            platform: 'Other'
+          });
           if (this.form.demandId === 'other') {
             this.demandValue = ['other'];
           }
           this.result = {loading: false};
         }).catch(() => {
-          this.demandOptions.unshift({value: 'other', label: 'Other: ' + this.$t('test_track.case.other'), platform: 'Other'});
+          this.demandOptions.unshift({
+            value: 'other',
+            label: 'Other: ' + this.$t('test_track.case.other'),
+            platform: 'Other'
+          });
           if (this.form.demandId === 'other') {
             this.demandValue = ['other'];
           }
@@ -334,5 +392,13 @@ export default {
 
 .el-cascader >>> .el-input {
   cursor: pointer;
+}
+.ms-header{
+  background: #783887;
+  color: white;
+  height: 18px;
+  width: 18px;
+  font-size: xx-small;
+  border-radius: 50%;
 }
 </style>
