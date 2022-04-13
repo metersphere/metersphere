@@ -8,7 +8,7 @@
           <el-input v-model="request.server" maxlength="300" show-word-limit size="small"/>
         </el-form-item>
         <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
-          <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535" size="small"/>
+          <el-input v-model="request.port"  size="small"/>
         </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" @click="stop" v-if="isStop">
