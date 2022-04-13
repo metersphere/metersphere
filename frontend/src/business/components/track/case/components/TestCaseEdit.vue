@@ -1,9 +1,9 @@
 <template>
-  <el-card>
+  <el-card :bodyStyle="{padding:'0px'}">
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
         <ms-container v-loading="result.loading" style="overflow: auto">
-          <ms-aside-container :height="pageHight" width="360px">
+          <ms-aside-container :height="pageHight">
             <test-case-base-info
               :form="form"
               :is-form-alive="isFormAlive"
@@ -48,6 +48,7 @@
                                     @compare="compare" @checkout="checkout" @create="create" @del="del"/>
                 <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                              @command="handleCommand" size="small" style="float: right;margin-right: 20px"
+                             v-if="(this.path ==='/test/case/add') || (this.isPublic && this.isXpack)"
                              :disabled="readOnly">
                   {{ $t('commons.save') }}
                   <el-dropdown-menu slot="dropdown">
@@ -61,6 +62,10 @@
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
+                <el-button v-else  type="primary" class="ms-api-buttion" @click="handleCommand"
+                           @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+                  {{ $t('commons.save') }}
+                </el-button>
               </div>
               <ms-form-divider :title="$t('test_track.case.step_info')"/>
 
@@ -81,30 +86,10 @@
               <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                          :is-copy="currentTestCaseInfo.isCopy"
                                          :label-width="formLabelWidth" :case-id="form.id"
+                                         :type="type" :comments="comments"
+                                         @openComment="openComment"
                                          :version-enable="versionEnable"
                                          ref="otherInfo"/>
-
-              <el-row style="margin-top: 10px" v-if="type!=='add'">
-                <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
-                  <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
-                </el-col>
-              </el-row>
-              <el-row v-if="type!=='add'">
-                <el-col :span="20" :offset="1">
-
-                  <review-comment-item v-for="(comment,index) in comments"
-                                       :key="index"
-                                       :comment="comment"
-                                       @refresh="getComments" api-url="/test/case"/>
-                  <div v-if="comments.length === 0" style="text-align: center">
-                    <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
-                      <span style="font-size: 15px; color: #8a8b8d;">
-                        {{ $t('test_track.comment.no_comment') }}
-                      </span>
-                    </i>
-                  </div>
-                </el-col>
-              </el-row>
               <test-case-comment :case-id="form.id"
                                  @getComments="getComments" ref="testCaseComment"/>
             </el-form>
@@ -217,6 +202,7 @@ export default {
       showFollow: false,
       isValidate: false,
       currentValidateName: "",
+      type:"",
       form: {
         name: '',
         module: 'default-module',
@@ -308,7 +294,7 @@ export default {
     selectCondition: {
       type: Object
     },
-    type: String,
+    caseType: String,
     publicEnable: {
       type: Boolean,
       default: false,
@@ -390,6 +376,7 @@ export default {
 
   },
   created() {
+    this.type = this.caseType;
     if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
       this.$get("/project/listAll", (response) => {
         this.projectList = response.data;  //获取当前工作空间所拥有的项目,
@@ -717,6 +704,7 @@ export default {
           } else {
             param.id = response.data.id;
             this.$emit("caseCreate", param);
+            this.type = 'edit';
             this.close();
           }
           this.form.id = response.data.id;
@@ -1105,7 +1093,7 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 9;
+  z-index: 9999!important;
 }
 
 .ms-case-input {
