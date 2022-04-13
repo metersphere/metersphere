@@ -639,8 +639,8 @@ export default {
       param.userId = getCurrentUserId();
       param.requestOriginator = "TEST_PLAN";
       param.testPlanIds = ids;
-      this.$refs.taskCenter.open();
       this.result = this.$post('/test/plan/run/batch/', param, () => {
+        this.$refs.taskCenter.open();
         this.$success(this.$t('commons.run_success'));
       }, error => {
         // this.$error(error.message);
