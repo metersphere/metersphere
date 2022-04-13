@@ -345,6 +345,10 @@ export default {
         this.$success(this.$t('commons.modify_success'));
         this.initTableData();
         this.$refs.cascaderDialog.close();
+      },() => {
+        if (this.$refs.cascaderDialog) {
+          this.$refs.cascaderDialog.loading = false;
+        }
       });
     },
     buildBatchParam(param) {
