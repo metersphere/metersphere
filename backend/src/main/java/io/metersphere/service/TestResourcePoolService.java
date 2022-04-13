@@ -219,7 +219,7 @@ public class TestResourcePoolService {
             }
             try {
                 validateTestResourcePool(pool);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LogUtil.error(e.getMessage(), e);
                 pool.setStatus(INVALID.name());
                 pool.setUpdateTime(System.currentTimeMillis());
