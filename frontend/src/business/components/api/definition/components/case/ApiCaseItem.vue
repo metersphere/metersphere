@@ -110,25 +110,52 @@
       <div v-if="apiCase.active||type==='detail'" v-loading="loading">
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-api-request-form :isShowEnable="true" :showScript="true" :headers="apiCase.request.headers "
-                             :response="apiCase.responseData" :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <tcp-format-parameters :showScript="true" :show-pre-script="true" :request="apiCase.request"
-                               :response="apiCase.responseData"
-                               v-if="api.method==='TCP'"/>
-        <esb-definition v-xpack :request="apiCase.request" :show-pre-script="true" :showScript="true"
-                        :response="apiCase.responseData"
-                        v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
-        <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" :response="apiCase.responseData"
-                                 v-if="api.protocol==='SQL'"/>
-        <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" :response="apiCase.responseData"
-                                   v-if="api.protocol==='DUBBO'"/>
+        <ms-api-request-form
+          :isShowEnable="true"
+          :showScript="true"
+          :headers="apiCase.request.headers "
+          :response="apiCase.responseData"
+          :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <tcp-format-parameters
+          :showScript="true"
+          :show-pre-script="true"
+          :request="apiCase.request"
+          :response="apiCase.responseData"
+          v-if="api.method==='TCP'"/>
+        <esb-definition
+          v-xpack
+          :request="apiCase.request"
+          :show-pre-script="true"
+          :showScript="true"
+          :response="apiCase.responseData"
+          v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
+        <ms-sql-basis-parameters
+          :showScript="true"
+          :request="apiCase.request"
+          :response="apiCase.responseData"
+          v-if="api.protocol==='SQL'"/>
+        <ms-dubbo-basis-parameters
+          :showScript="true"
+          :request="apiCase.request"
+          :response="apiCase.responseData"
+          v-if="api.protocol==='DUBBO'"/>
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }}</p>
         <div v-if="isXpack&&api.method==='ESB'">
-          <esb-definition-response v-xpack v-if="isXpack" :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+          <esb-definition-response
+            v-xpack v-if="isXpack"
+            :currentProtocol="apiCase.request.protocol"
+            :request="apiCase.request"
+            :is-api-component="false"
+            :show-options-button="false"
+            :show-header="true"
+            :api-item="apiCase"/>
         </div>
         <div v-else>
-          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
+          <api-response-component
+            :currentProtocol="apiCase.request.protocol"
+            :api-item="apiCase"
+            :result="apiCase.responseData"/>
         </div>
       </div>
     </el-collapse-transition>
@@ -226,7 +253,6 @@ export default {
     }
   },
   props: {
-    runResult: {},
     loaded: {
       type: Boolean,
       default: false,
