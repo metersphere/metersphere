@@ -11,3 +11,7 @@ jobs:
         uses: jumpserver/action-generic-handler@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+      - uses: actions/checkout@v2
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: ${{ github.base_ref }}
