@@ -23,6 +23,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -954,7 +955,7 @@ public class TestPlanService {
         }
         if (runModeConfig == null) {
             runModeConfig = new RunModeConfigDTO();
-            runModeConfig.setMode("serial");
+            runModeConfig.setMode(RunModeConstants.SERIAL.name());
             runModeConfig.setReportType("iddReport");
             runModeConfig.setEnvMap(new HashMap<>());
             runModeConfig.setOnSampleError(false);
@@ -2074,7 +2075,8 @@ public class TestPlanService {
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         Map<String, TestPlanScheduleReportInfoDTO> planScheduleReportInfoDTOMap = new LinkedHashMap<>();
         boolean startThread = true;
-        for (TestPlanWithBLOBs testPlan : planList) {
+        for (String id : ids) {
+            TestPlanWithBLOBs testPlan = testPlanMap.get(id);
             if(StringUtils.isBlank(testPlan.getRunModeConfig())){
                 startThread = false;
                 MSException.throwException("请保存["+testPlan.getName()+"]的运行配置");
@@ -2123,12 +2125,12 @@ public class TestPlanService {
                 @Override
                 public void run() {
                     Thread.currentThread().setName("TEST_PLAN_BATCH：" + System.currentTimeMillis());
-                    if(StringUtils.equalsIgnoreCase(request.getMode(),"serial")){
+                    if(StringUtils.equalsIgnoreCase(request.getMode(),RunModeConstants.SERIAL.name())){
                         TestPlanExecutionQueue planExecutionQueue = planExecutionQueues.get(0);
                         TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
                         JSONObject jsonObject = JSONObject.parseObject(testPlan.getRunModeConfig());
                         TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject,TestplanRunRequest.class);
-                        runRequest.setPlanScheduleReportInfoDTO(planScheduleReportInfoDTOMap.get(planExecutionQueue.getTestPlanId()));
+                         runRequest.setPlanScheduleReportInfoDTO(planScheduleReportInfoDTOMap.get(planExecutionQueue.getTestPlanId()));
                         runPlan(runRequest);
                     }else {
                         for (TestPlanExecutionQueue planExecutionQueue : planExecutionQueues) {

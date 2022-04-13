@@ -552,7 +552,7 @@ public class TestPlanReportService {
             if(runMode!=null&&StringUtils.equalsIgnoreCase(runMode,"serial")){
                 TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
                 queueExample.createCriteria().andReportIdIsNotNull();
-                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
+                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(queueExample);
                 if(planExecutionQueueList==null||planExecutionQueueList.size()==0){
                     return testPlanReport;
                 }
