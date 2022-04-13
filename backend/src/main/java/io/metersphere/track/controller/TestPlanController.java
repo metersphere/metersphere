@@ -216,6 +216,12 @@ public class TestPlanController {
         return testPlanService.getPlanCaseEnv(plan.getId());
     }
 
+
+    @PostMapping("/edit/runModeConfig")
+    public void updateRunModeConfig(@RequestBody TestplanRunRequest testplanRunRequest) {
+       testPlanService.updateRunModeConfig(testplanRunRequest);
+    }
+
     @PostMapping("/run")
     public String run(@RequestBody TestplanRunRequest testplanRunRequest) {
         return testPlanService.runPlan(testplanRunRequest);
