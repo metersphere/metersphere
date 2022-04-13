@@ -158,6 +158,10 @@ export default {
         this.$warning(this.$t('commons.input_name'));
         return;
       }
+      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        return;
+      }
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
     },

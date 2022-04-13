@@ -605,6 +605,7 @@ export default {
       confirm: "Confirm",
       please_select_env_for_current_scenario: "please select env for current scenario",
       please_select_env_for_current_plan: "please select env for current plan",
+      please_select_run_within_resource_pool: "Please select a resource pool",
       lack_env: "Environment group is missing environment！",
       lack_necessary_environment: "This environment group lacks the necessary project environment！",
       available_group: 'available',
