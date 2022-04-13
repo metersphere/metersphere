@@ -384,6 +384,10 @@ export default {
           this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
           return;
         }
+        if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+          this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+          return;
+        }
       }
       param.config = JSON.stringify(this.runConfig);
       let url = '/api/automation/schedule/create';

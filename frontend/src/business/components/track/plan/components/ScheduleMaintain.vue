@@ -363,6 +363,10 @@ export default {
       if (!param.workspaceId) {
         param.workspaceId = getCurrentWorkspaceId();
       }
+      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        return;
+      }
       param.config = JSON.stringify(this.runConfig);
       let url = '/api/automation/schedule/create';
       if (this.scheduleTaskType === "TEST_PLAN_TEST") {
