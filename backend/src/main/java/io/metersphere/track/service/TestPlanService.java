@@ -73,7 +73,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1847,9 +1847,18 @@ public class TestPlanService {
         String envType = testplanRunRequest.getEnvironmentType();
         Map<String, String> envMap = testplanRunRequest.getEnvMap();
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
+        String testPlanId = testplanRunRequest.getTestPlanId();
+        RunModeConfigDTO runModeConfig = getRunModeConfigDTO(testplanRunRequest, envType, envMap, environmentGroupId, testPlanId);
+        String apiRunConfig = JSONObject.toJSONString(runModeConfig);
+        updatePlan(testplanRunRequest, testPlanId);
+        return this.run(testPlanId, testplanRunRequest.getProjectId(),
+                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(),testplanRunRequest.getPlanScheduleReportInfoDTO() != null ? testplanRunRequest.getPlanScheduleReportInfoDTO() : null, apiRunConfig);
+
+    }
+
+    private RunModeConfigDTO getRunModeConfigDTO(TestplanRunRequest testplanRunRequest, String envType, Map<String, String> envMap, String environmentGroupId, String testPlanId) {
         RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
         runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
-        String testPlanId = testplanRunRequest.getTestPlanId();
         if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && !envMap.isEmpty()) {
             runModeConfig.setEnvMap(testplanRunRequest.getEnvMap());
             this.setPlanCaseEnv(testPlanId, runModeConfig);
@@ -1857,7 +1866,6 @@ public class TestPlanService {
             runModeConfig.setEnvironmentGroupId(testplanRunRequest.getEnvironmentGroupId());
             this.setPlanCaseEnv(testPlanId, runModeConfig);
         }
-
         runModeConfig.setMode(testplanRunRequest.getMode());
         runModeConfig.setResourcePoolId(testplanRunRequest.getResourcePoolId());
         runModeConfig.setOnSampleError(Boolean.parseBoolean(testplanRunRequest.getOnSampleError()));
@@ -1866,16 +1874,16 @@ public class TestPlanService {
         } else {
             runModeConfig.setReportType(testplanRunRequest.getReportType());
         }
-        String apiRunConfig = JSONObject.toJSONString(runModeConfig);
+        return runModeConfig;
+    }
+
+    private void updatePlan(TestplanRunRequest testplanRunRequest, String testPlanId) {
         String request = JSON.toJSONString(testplanRunRequest);
         TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
         if(testPlanWithBLOBs.getRunModeConfig()==null||!(StringUtils.equals(request,testPlanWithBLOBs.getRunModeConfig()))){
             testPlanWithBLOBs.setRunModeConfig(request);
             testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlanWithBLOBs);
         }
-        return this.run(testPlanId, testplanRunRequest.getProjectId(),
-                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(),testplanRunRequest.getPlanScheduleReportInfoDTO() != null ? testplanRunRequest.getPlanScheduleReportInfoDTO() : null, apiRunConfig);
-
     }
 
     public void setPlanCaseEnv(String planId, RunModeConfigDTO runModeConfig) {
@@ -2139,4 +2147,8 @@ public class TestPlanService {
         }
     }
 
+    public void updateRunModeConfig(TestplanRunRequest testplanRunRequest) {
+        String testPlanId = testplanRunRequest.getTestPlanId();
+        updatePlan(testplanRunRequest, testPlanId);
+    }
 }
