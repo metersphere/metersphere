@@ -201,6 +201,10 @@ export default {
       });
     },
     handleCommand(command){
+      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        return;
+      }
       if (command === 'run') {
         this.runConfig.isRun = true
         this.handleRunBatch();

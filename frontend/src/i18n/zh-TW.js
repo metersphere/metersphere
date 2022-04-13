@@ -607,6 +607,7 @@ export default {
       confirm: "確 定",
       please_select_env_for_current_scenario: "請為當前場景選擇一個運行環境！",
       please_select_env_for_current_plan: "請為當前测试计划選擇一個運行環境！",
+      please_select_run_within_resource_pool: "請選擇一個資源池",
       lack_env: "環境組缺少環境！",
       lack_necessary_environment: "此環境組缺少必要的項目環境！",
       available_group: '可用環境組',
