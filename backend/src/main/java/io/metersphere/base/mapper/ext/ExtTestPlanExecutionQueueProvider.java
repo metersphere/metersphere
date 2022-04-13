@@ -7,7 +7,7 @@ import java.util.List;
 public class ExtTestPlanExecutionQueueProvider {
     public String insertListSql(List<TestPlanExecutionQueue> list) {
         StringBuffer sqlList = new StringBuffer();
-        sqlList.append("insert into test_plan_execution_queue (id,report_id, run_mode, create_time) values ");
+        sqlList.append("insert into test_plan_execution_queue (id,report_id, run_mode, create_time, test_plan_id) values ");
         for (int i = 0; i < list.size(); i++) {
             TestPlanExecutionQueue result = list.get(i);
             sqlList.append(" (")
@@ -19,6 +19,8 @@ public class ExtTestPlanExecutionQueueProvider {
                     .append(result.getRunMode())
                     .append("','")
                     .append(result.getCreateTime())
+                    .append("','")
+                    .append(result.getTestPlanId())
                     .append("'")
                     .append(")");
             if (i < list.size() - 1) {
