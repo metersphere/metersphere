@@ -562,6 +562,7 @@ export default {
       }
     },
     handleCaseCreateOrEdit(data, type) {
+      this.type='edit';
       if (this.$refs.minder) {
         this.$refs.minder.addCase(data, type);
       }
