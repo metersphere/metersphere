@@ -57,6 +57,7 @@ export default {
           vueObj.isSaving = false;
           this.$success(this.$t('commons.save_success'));
           vueObj.$refs.baseRelevance.close();
+          vueObj.setSelectCounts(0);
           this.$emit('refresh');
         }, (error) => {
           vueObj.isSaving = false;
