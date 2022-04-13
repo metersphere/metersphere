@@ -29,3 +29,15 @@ CREATE INDEX custom_field_template_template_id_index
 CREATE INDEX test_case_review_test_case_review_id_index
     ON test_case_review_test_case(review_id);
 
+DROP PROCEDURE IF EXISTS schema_change;
+DELIMITER //
+CREATE PROCEDURE schema_change() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'api_scenario_report_result' AND index_name = 'report_id_index') THEN
+        ALTER TABLE `api_scenario_report_result` ADD INDEX report_id_index ( `report_id` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change();
+
