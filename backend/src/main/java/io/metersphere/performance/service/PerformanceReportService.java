@@ -172,6 +172,9 @@ public class PerformanceReportService {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         String projectId = report.getProjectId();
         Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null || StringUtils.isBlank(project.getWorkspaceId())) {
+            MSException.throwException("project is null or workspace_id of project is null. project id: " + projectId);
+        }
         RLock lock = redissonClient.getLock(project.getWorkspaceId());
         if (quotaService != null) {
             try {
