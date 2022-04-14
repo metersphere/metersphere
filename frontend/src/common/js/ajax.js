@@ -45,7 +45,7 @@ export function login() {
 function then(success, response, result) {
   if (!response.data) {
     success(response);
-  } else if (response.data.success) {
+  } else if (response.data.success !== false) {
     success(response.data);
   } else {
     window.console.warn(response.data);
@@ -153,26 +153,30 @@ export function fileUpload(url, file, files, param, success, failure) {
 export function download(config, fileName, success) {
   let result = {loading: true};
   this.$request(config).then(response => {
-    const content = response.data;
-    const blob = new Blob([content], {type: "application/octet-stream"});
-    if ("download" in document.createElement("a")) {
-      // 非IE下载
-      //  chrome/firefox
-      let aTag = document.createElement('a');
-      aTag.download = fileName;
-      aTag.href = URL.createObjectURL(blob);
-      aTag.click();
-      URL.revokeObjectURL(aTag.href);
-      then(success, response, result);
-    } else {
-      // IE10+下载
-      navigator.msSaveBlob(blob, this.filename);
-    }
+    doDownload(response.data, fileName);
+    then(success, response, result);
   }).catch(error => {
     exception(error, result, "");
   });
   return result;
 }
+
+export function doDownload(content, fileName) {
+  const blob = new Blob([content], {type: "application/octet-stream"});
+  if ("download" in document.createElement("a")) {
+    // 非IE下载
+    //  chrome/firefox
+    let aTag = document.createElement('a');
+    aTag.download = fileName;
+    aTag.href = URL.createObjectURL(blob);
+    aTag.click();
+    URL.revokeObjectURL(aTag.href);
+  } else {
+    // IE10+下载
+    navigator.msSaveBlob(blob, fileName);
+  }
+}
+
 
 export function all(array, callback) {
   if (array.length < 1) return;
