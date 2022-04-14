@@ -2,6 +2,7 @@ package io.metersphere.performance.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestReportMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
@@ -28,6 +29,8 @@ public class LoadTestVumEvent implements LoadTestFinishEvent {
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private ProjectMapper projectMapper;
 
     private void handleVum(LoadTestReport report) {
         if (report == null) {
@@ -51,7 +54,8 @@ public class LoadTestVumEvent implements LoadTestFinishEvent {
 
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         String projectId = report.getProjectId();
-        RLock lock = redissonClient.getLock(projectId);
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        RLock lock = redissonClient.getLock(project.getWorkspaceId());
         if (quotaService != null) {
             try {
                 lock.lock();
