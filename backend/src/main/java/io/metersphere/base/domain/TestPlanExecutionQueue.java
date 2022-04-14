@@ -15,5 +15,9 @@ public class TestPlanExecutionQueue implements Serializable {
 
     private String testPlanId;
 
+    private String resourceId;
+
+    private Integer num;
+
     private static final long serialVersionUID = 1L;
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanExecutionQueueMapper">
+    <select id="getNextNum" resultType="io.metersphere.base.domain.TestPlanExecutionQueue">
+        SELECT * FROM test_plan_execution_queue WHERE test_plan_execution_queue.resource_id = #{resourceId} ORDER BY num DESC LIMIT 1;
+    </select>
+</mapper>

@@ -10,7 +10,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
@@ -229,9 +228,9 @@ public class TestPlanController {
 
     @PostMapping(value = "/run/batch")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanService.class)
-    public List<MsExecResponseDTO> runBatch(@RequestBody TestplanRunRequest request) {
+    public void runBatch(@RequestBody TestplanRunRequest request) {
         request.setTriggerMode(TriggerMode.BATCH.name());
-        return testPlanService.runBatch(request);
+        testPlanService.runBatch(request);
     }
 
     @GetMapping("/report/export/{planId}")
