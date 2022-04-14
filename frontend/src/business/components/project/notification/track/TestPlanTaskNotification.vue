@@ -176,8 +176,8 @@ export default {
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
         {value: 'COMPLETE', label: this.$t('commons.run_completed')},
-        // {value: 'SUCCESS_ONE_BY_ONE', label: '逐条成功（接口）'},
-        // {value: 'FAIL_ONE_BY_ONE', label: '逐条失败（接口）'},
+        {value: 'EXECUTE_SUCCESSFUL', label: this.$t('commons.run_success')},
+        {value: 'EXECUTE_FAILED', label: this.$t('commons.run_fail')},
       ],
       variables: [
         {
