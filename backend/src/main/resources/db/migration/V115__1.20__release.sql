@@ -181,14 +181,16 @@ CREATE TABLE IF NOT EXISTS `test_plan_execution_queue`
     `run_mode` varchar(100) COMMENT '执行模式/scenario/api/test_paln_api/test_pan_scenario',
     create_time bigint(13)  NULL COMMENT '创建时间',
     `test_plan_id` varchar(100) COMMENT 'testPlanId',
+    `resource_id` varchar(100) COMMENT 'resourceId/批次id',
+    `num` int   null comment 'order',
     PRIMARY KEY (`id`),
-        KEY `report_id_idx` (`report_id`)
+        KEY `report_id_idx` (`report_id`),
+        KEY `resource_id_index` (`resource_id`),
+        KEY `num_index` (`num`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 -- 场景步骤结果增加简要信息
 ALTER TABLE api_scenario_report_result ADD `base_info` LONGTEXT NULL;
-
-
 
 
 -- quota
