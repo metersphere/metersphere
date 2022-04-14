@@ -540,6 +540,9 @@ public class PerformanceTestService {
             quotaService.checkLoadTestQuota(checkRequest, false);
             String projectId = testReport.getProjectId();
             Project project = projectMapper.selectByPrimaryKey(projectId);
+            if (project == null || StringUtils.isBlank(project.getWorkspaceId())) {
+                MSException.throwException("project is null or workspace_id of project is null. project id: " + projectId);
+            }
             RLock lock = redissonClient.getLock(project.getWorkspaceId());
             try {
                 lock.lock();
