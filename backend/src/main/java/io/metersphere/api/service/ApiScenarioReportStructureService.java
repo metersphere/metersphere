@@ -3,10 +3,12 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.StepTreeDTO;
 import io.metersphere.api.dto.definition.request.ElementUtil;
+import io.metersphere.api.exec.utils.ResultParseUtil;
 import io.metersphere.api.service.vo.ApiDefinitionExecResultVo;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -535,13 +537,18 @@ public class ApiScenarioReportStructureService {
         ApiScenarioReportDTO reportDTO = new ApiScenarioReportDTO();
         // 组装报告
         if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs) && CollectionUtils.isNotEmpty(reportResults)) {
+            ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
+             List<StepTreeDTO> stepList = JSONArray.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
+            //判断是否含有全局前后置脚本，如果有的话需要将脚本内容添加到stepDTO中
+            reportResults = this.filterProcessResult(reportResults);
+
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equals(e.getStatus(), "Error")).collect(Collectors.toList()).size());
             reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.isNotEmpty(e.getErrorCode())).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiScenarioReportResult::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiScenarioReportResult::getTotalAssertions).sum());
-            ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
-            List<StepTreeDTO> stepList = JSONArray.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
+
+
             // 匹配结果
             Map<String, List<ApiScenarioReportResultWithBLOBs>> maps = reportResults.stream().collect(Collectors.groupingBy(ApiScenarioReportResult::getResourceId));
             this.reportFormatting(stepList, maps);
@@ -572,6 +579,21 @@ public class ApiScenarioReportStructureService {
             reportDTO.setUnExecute(allUnExecute.longValue());
         }
         return reportDTO;
+    }
+
+    private List<ApiScenarioReportResultWithBLOBs> filterProcessResult(List<ApiScenarioReportResultWithBLOBs> reportResults) {
+        List<ApiScenarioReportResultWithBLOBs> withOutProcessList = new ArrayList<>();
+        for (ApiScenarioReportResultWithBLOBs item : reportResults) {
+            if (item.getBaseInfo() != null) {
+                ApiScenarioReportBaseInfoDTO dto = JSONObject.parseObject(item.getBaseInfo(), ApiScenarioReportBaseInfoDTO.class);
+                if (!StringUtils.startsWithAny(dto.getReqName(), ResultParseUtil.PRE_PROCESS_SCRIPT,ResultParseUtil.POST_PROCESS_SCRIPT)) {
+                    withOutProcessList.add(item);
+                }
+            } else {
+                withOutProcessList.add(item);
+            }
+        }
+        return withOutProcessList;
     }
 
     private List<ApiScenarioReportResultWithBLOBs> selectBaseInfoResultByReportId(String reportId) {
