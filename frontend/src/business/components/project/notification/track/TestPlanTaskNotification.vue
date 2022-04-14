@@ -355,7 +355,6 @@ export default {
       let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
       let i = row.userIds.indexOf('FOLLOW_PEOPLE');
       let i2 = row.userIds.indexOf('CREATOR');
-      let i3 = row.userIds.indexOf('EXECUTOR');
       switch (row.event) {
         case  "CREATE":
           testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')});
@@ -370,26 +369,38 @@ export default {
         case "DELETE":
         case "COMMENT":
         case "COMPLETE":
-          testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          testPlanReceivers.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
-          testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')});
-
-          if (row.isSet) {
-            if (i2 < 0) {
-              row.userIds.unshift('CREATOR');
-            }
-            if (i < 0) {
-              row.userIds.unshift('FOLLOW_PEOPLE');
-            }
-            if (i3 < 0) {
-              row.userIds.unshift('EXECUTOR');
-            }
-          }
+          this.initExecuteReceivers(testPlanReceivers,row);
+          break;
+        case "EXECUTE_SUCCESSFUL":
+          this.initExecuteReceivers(testPlanReceivers,row);
+          break;
+        case "EXECUTE_FAILED":
+          this.initExecuteReceivers(testPlanReceivers,row);
           break;
         default:
           break;
       }
       row.testPlanReceiverOptions = testPlanReceivers;
+    },
+    initExecuteReceivers(testPlanReceivers,row){
+      let i = row.userIds.indexOf('FOLLOW_PEOPLE');
+      let i2 = row.userIds.indexOf('CREATOR');
+      let i3 = row.userIds.indexOf('EXECUTOR');
+      testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+      testPlanReceivers.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+      testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')});
+
+      if (row.isSet) {
+        if (i2 < 0) {
+          row.userIds.unshift('CREATOR');
+        }
+        if (i < 0) {
+          row.userIds.unshift('FOLLOW_PEOPLE');
+        }
+        if (i3 < 0) {
+          row.userIds.unshift('EXECUTOR');
+        }
+      }
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
