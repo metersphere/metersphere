@@ -44,6 +44,7 @@ const state = {
   selectUiGroup: '',
   librarySelectElement: {},
   uiElementLibraryModuleIds: null,
+  uiElementLibraryElements: null,
   refreshUiScenario: false,
   showLicenseCountWarning: false
 }

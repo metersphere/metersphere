@@ -26,6 +26,7 @@ const mutations = {
   setScenarioDefinition: (state, value) => state.scenarioDefinition = value,
   setGroupedCmd: (state, value) => state.groupedCmd = value,
   setUiElementLibraryModuleIds: (state, value) => state.uiElementLibraryModuleIds = value,
+  setUiElementLibraryElements: (state, value) => state.uiElementLibraryElements = value,
   setRefreshUiScenario: (state, value) => state.refreshUiScenario = value,
   setSelectUiGroup: (state, value) => state.selectUiGroup = value,
   setShowLicenseCountWarning: (state, value) => state.showLicenseCountWarning = value,
