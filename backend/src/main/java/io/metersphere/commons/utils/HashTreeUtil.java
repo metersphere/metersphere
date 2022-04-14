@@ -1,8 +1,14 @@
 package io.metersphere.commons.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
@@ -10,6 +16,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.ExtErrorReportLibraryService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Argument;
@@ -19,10 +26,7 @@ import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jorphan.collections.HashTree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author song.tianyang
@@ -255,5 +259,17 @@ public class HashTreeUtil {
                 assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
             }
         }
+    }
+
+    public static LinkedList<MsTestElement> getHashTreeByScenario(String scenarioDefinition) {
+        ObjectMapper mapper = CommonBeanFactory.getBean(ObjectMapper.class);
+        JSONObject element = JSON.parseObject(scenarioDefinition, Feature.DisableSpecialKeyDetect);
+        ElementUtil.dataFormatting(element);
+        try {
+            return mapper.readValue(element.getString("hashTree"), new TypeReference<>() {});
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return new LinkedList<>();
     }
 }

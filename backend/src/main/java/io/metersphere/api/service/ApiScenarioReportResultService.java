@@ -8,7 +8,6 @@ import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.ErrorReportLibraryUtil;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
@@ -75,38 +74,7 @@ public class ApiScenarioReportResultService {
         }
     }
 
-    public void uiSave(String reportId, List<RequestResult> queue) {
-        if (CollectionUtils.isNotEmpty(queue)) {
-            queue.forEach(item -> {
-                String header = item.getResponseResult().getHeaders();
-                if (StringUtils.isNoneBlank(header)) {
-                    JSONObject jsonObject = JSONObject.parseObject(header);
-                    for (String resourceId : jsonObject.keySet()) {
-                        if (resourceId.length() > 36) {
-                            resourceId = resourceId.substring(0, 36);
-                        }
-                        apiScenarioReportResultMapper.insert(this.newUiScenarioReportResult(reportId, resourceId, jsonObject.getJSONObject(resourceId)));
-                    }
-                }
-            });
-        }
-    }
-
-    private ApiScenarioReportResultWithBLOBs newUiScenarioReportResult(String reportId, String resourceId, JSONObject value) {
-        ApiScenarioReportResultWithBLOBs report = newScenarioReportResult(reportId, resourceId);
-        String status = value.getBooleanValue("success") ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
-        report.setStatus(status);
-        RequestResult result = JSONObject.parseObject(value.toJSONString(), RequestResult.class);
-        ApiScenarioReportBaseInfoDTO baseInfo = getBaseInfo(result);
-        baseInfo.setRspTime(result.getEndTime() - result.getStartTime());
-        baseInfo.setIsNotStep(value.getBooleanValue("isNotStep"));
-        baseInfo.setUiImg(value.getString("uiImg"));
-        report.setBaseInfo(JSONObject.toJSONString(baseInfo));
-        report.setContent(value.toJSONString().getBytes(StandardCharsets.UTF_8));
-        return report;
-    }
-
-    private ApiScenarioReportResultWithBLOBs newScenarioReportResult(String reportId, String resourceId) {
+    public ApiScenarioReportResultWithBLOBs newScenarioReportResult(String reportId, String resourceId) {
         ApiScenarioReportResultWithBLOBs report = new ApiScenarioReportResultWithBLOBs();
         report.setId(UUID.randomUUID().toString());
         report.setResourceId(resourceId);
