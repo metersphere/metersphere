@@ -32,7 +32,7 @@ export default {
   watch: {
     // 初始化
     reportId() {
-      this.run()
+      this.debugSocket()
     },
     isStop() {
       if (!this.isStop && this.websocket && this.websocket.close instanceof Function) {
@@ -41,21 +41,8 @@ export default {
     }
   },
   methods: {
-    initWebSocket() {
-      let protocol = "ws://";
-      if (window.location.protocol === 'https:') {
-        protocol = "wss://";
-      }
-      const uri = protocol + window.location.host + "/api/definition/run/report/" + this.requestResult.reportId + "/debug";
-      this.websocket = new WebSocket(uri);
-      this.websocket.onmessage = this.onMessage;
-    },
-    onMessage(e) {
-      if (e.data) {
-        let data = JSON.parse(e.data);
-        this.websocket.close();
-        this.$emit('runRefresh', data);
-      }
+    onOpen() {
+      this.run();
     },
     onDebugMessage(e) {
       if (e.data && e.data.startsWith("result_")) {
@@ -77,6 +64,7 @@ export default {
       const uri = protocol + window.location.host + "/ws/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onDebugMessage;
+      this.websocket.onopen = this.onOpen;
     },
     sort(stepArray) {
       if (stepArray) {
@@ -115,7 +103,6 @@ export default {
       reqObj.reportId = this.reportId;
       this.$post(url, reqObj, res => {
         this.requestResult = res.data;
-        this.debugSocket();
       }, () => {
         this.$emit('errorRefresh', {});
       })
