@@ -26,7 +26,7 @@ public class TestplanRunRequest {
     private String environmentGroupId;
     private List<String> testPlanIds;
     private Boolean isAll;
-    private TestPlanScheduleReportInfoDTO planScheduleReportInfoDTO;
+    private String  reportId;
     private QueryTestPlanRequest queryTestPlanRequest;
 }
 

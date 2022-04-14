@@ -229,9 +229,9 @@ public class TestPlanController {
 
     @PostMapping(value = "/run/batch")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanService.class)
-    public List<MsExecResponseDTO> runBatch(@RequestBody TestplanRunRequest request) {
+    public void runBatch(@RequestBody TestplanRunRequest request) {
         request.setTriggerMode(TriggerMode.BATCH.name());
-        return testPlanService.runBatch(request);
+        testPlanService.runBatch(request);
     }
 
     @GetMapping("/report/export/{planId}")
