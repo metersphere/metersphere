@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UiAutomationProxyService {
+public class UiReporServicetProxy {
 
     public Object saveUiResult(String reportId, List<RequestResult> queue) {
        return invoke((clazz) -> {
@@ -26,7 +26,7 @@ public class UiAutomationProxyService {
     }
 
     private Object invoke(Function<Class, Method> getDeclaredMethod, Object... args) {
-        Object uiAutomationService = CommonBeanFactory.getBean("uiAutomationService");
+        Object uiAutomationService = CommonBeanFactory.getBean("uiReportService");
         try {
             Class<?> clazz = uiAutomationService.getClass();
             Method postProcessUiReport = getDeclaredMethod.apply(clazz);
