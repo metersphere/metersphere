@@ -15,8 +15,10 @@
     </div>
     <div v-else-if="node.type === 'MsUiCommand'">
       <ui-command-result
+        :step-id="node.stepId"
         :index-number="node.index"
         :command="node"
+        :isActive="isActive"
         :result="node.value"/>
     </div>
     <div v-else>
@@ -37,11 +39,15 @@
 <script>
 import MsRequestResult from "./RequestResult";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
-import UiCommandResult from "@/business/components/api/automation/report/components/UiCommandResult";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const UiCommandResult = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiCommandResult.vue") : {};
 
 export default {
   name: "MsScenarioResult",
-  components: {UiCommandResult, MsRequestResult},
+  components: {
+    'UiCommandResult': UiCommandResult.default,
+    MsRequestResult
+  },
   props: {
     scenario: Object,
     node: Object,

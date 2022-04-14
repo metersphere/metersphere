@@ -5,7 +5,7 @@
         <span>{{ !scope.row.name || scope.row.name === 'null' ? "" : scope.row.name }}</span>
       </template>
     </el-table-column>
-    <el-table-column prop="content" :label="$t('api_report.assertions_content')" width="300" show-overflow-tooltip/>
+    <el-table-column prop="content" v-if="showContent" :label="$t('api_report.assertions_content')" width="300" show-overflow-tooltip/>
     <el-table-column prop="message" :label="$t('api_report.assertions_error_message')"/>
     <el-table-column prop="pass" :label="$t('api_report.assertions_is_success')" width="180">
       <template v-slot:default="{row}">
@@ -46,7 +46,11 @@ export default {
   name: "MsAssertionResults",
   components: {MsCodeEdit},
   props: {
-    assertions: Array
+    assertions: Array,
+    showContent: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {

@@ -22,7 +22,6 @@ export default class MsUiCommand extends HashTreeElement {
 
     this.commandConfig = null;
     this.hashTree = [];
-    this.coreCommands = [];
     this.preCommands = [];
     this.postCommands = [];
     this.vo = null;
