@@ -23,6 +23,7 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,10 +56,9 @@ public class ApiExecutionQueueService {
     private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
+    @Lazy
     @Resource
-    private TestPlanExecutionQueueMapper testPlanExecutionQueueMapper;
-    @Resource
-    private TestPlanReportMapper testPlanReportMapper;
+    private TestPlanReportService testPlanReportService;
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -85,6 +85,22 @@ public class ApiExecutionQueueService {
             String envStr = JSON.toJSONString(config.getEnvMap());
             runMap.forEach((k, v) -> {
                 ApiExecutionQueueDetail queue = detail(v.getId(), k, config.getMode(), sort[0], executionQueue.getId(), envStr);
+                if (sort[0] == 0) {
+                    resQueue.setQueue(queue);
+                }
+                sort[0]++;
+                queueDetails.add(queue);
+                detailMap.put(k, queue.getId());
+            });
+        } else if (StringUtils.equalsIgnoreCase(type, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name())) {
+            final int[] sort = {0};
+            Map<String, String> runMap = (Map<String, String>) runObj;
+            if (config.getEnvMap() == null) {
+                config.setEnvMap(new LinkedHashMap<>());
+            }
+            String envStr = JSON.toJSONString(config.getEnvMap());
+            runMap.forEach((k, v) -> {
+                ApiExecutionQueueDetail queue = detail(v, k, "loadTest", sort[0], executionQueue.getId(), envStr);
                 if (sort[0] == 0) {
                     resQueue.setQueue(queue);
                 }
@@ -304,7 +320,7 @@ public class ApiExecutionQueueService {
         // 计算一小时前的超时报告
         final long timeout = System.currentTimeMillis() - (60 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-        example.createCriteria().andCreateTimeLessThan(timeout);
+        example.createCriteria().andCreateTimeLessThan(timeout).andTypeNotEqualTo("loadTest");
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
 
         for (ApiExecutionQueueDetail item : queueDetails) {
@@ -415,5 +431,25 @@ public class ApiExecutionQueueService {
                 }
             }
         });
+    }
+
+    public void checkExecutionQueneByLoadTest(LoadTestReport loadTestReport) {
+
+        ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
+        detailExample.createCriteria().andReportIdEqualTo(loadTestReport.getId());
+        List<ApiExecutionQueueDetail> detailList = executionQueueDetailMapper.selectByExample(detailExample);
+        if (CollectionUtils.isNotEmpty(detailList)) {
+            List<String> executionQueueIdList = new ArrayList<>();
+            detailList.forEach(item -> {
+                executionQueueIdList.add(item.getQueueId());
+            });
+            executionQueueDetailMapper.deleteByExample(detailExample);
+        }
+
+        List<String> testPlanReportIdList = testPlanReportService.getTestPlanReportIdsByLoadTestReportId(loadTestReport.getId());
+        for (String testPlanReportId : testPlanReportIdList) {
+            this.testPlanReportTestEnded(testPlanReportId);
+        }
+
     }
 }
