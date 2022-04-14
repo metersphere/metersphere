@@ -416,85 +416,87 @@ export default {
       }
     },
     deleteResourceIds(array) {
-      array.forEach(item => {
-        if (item.resourceId) {
-          delete item.resourceId;
-        }
-        if (item.method) {
-          delete item.method;
-        }
-        if (item.timeout >= 0) {
-          delete item.timeout;
-        }
-        if (item.ctimeout >= 0) {
-          delete item.ctimeout;
-        }
-        if (item.rest && item.rest.length === 0) {
-          delete item.rest;
-        }
-        if (item.arguments && item.arguments.length === 0) {
-          delete item.arguments;
-        }
-        if (item.id) {
-          delete item.id;
-        }
-        if (!item.checkBox) {
-          delete item.checkBox;
-        }
-        if (!item.isBatchProcess) {
-          delete item.isBatchProcess;
-        }
-        if (!item.isLeaf || item.isLeaf) {
-          delete item.isLeaf;
-        }
-        if (item.maxThreads) {
-          delete item.maxThreads;
-        }
-        if (item.parentIndex) {
-          delete item.parentIndex
-        }
-        if (item.connectTimeout) {
-          delete item.connectTimeout;
-        }
-        if (item.index) {
-          delete item.index;
-        }
-        if (item.postSize >= 0) {
-          delete item.postSize;
-        }
-        if (item.preSize >= 0) {
-          delete item.preSize;
-        }
-        if (item.requestResult) {
-          delete item.requestResult;
-        }
-        if (item.responseTimeout) {
-          delete item.responseTimeout;
-        }
-        if (item.root) {
-          delete item.root;
-        }
-        if (item.ruleSize >= 0) {
-          delete item.ruleSize;
-        }
-        if (item.delay) {
-          item.delay = Number(item.delay);
-        }
-        if (item.body && item.body.kvs) {
-          item.body.kvs.forEach(v => {
-            if (v.files) {
-              delete v.files;
-            }
-          })
-        }
-        if (item.body && ((item.body.binary && item.body.binary.length === 0) || (item.body.kvs && item.body.kvs.length === 0))) {
-          delete item.body;
-        }
-        delete item.projectId;
-        if (item.hashTree && item.hashTree.length > 0) {
-          this.deleteResourceIds(item.hashTree);
-        }
-      })
+      if (array instanceof Array && array.length > 0) {
+        array.forEach(item => {
+          if (item.resourceId) {
+            delete item.resourceId;
+          }
+          if (item.method) {
+            delete item.method;
+          }
+          if (item.timeout >= 0) {
+            delete item.timeout;
+          }
+          if (item.ctimeout >= 0) {
+            delete item.ctimeout;
+          }
+          if (item.rest && item.rest.length === 0) {
+            delete item.rest;
+          }
+          if (item.arguments && item.arguments.length === 0) {
+            delete item.arguments;
+          }
+          if (item.id) {
+            delete item.id;
+          }
+          if (!item.checkBox) {
+            delete item.checkBox;
+          }
+          if (!item.isBatchProcess) {
+            delete item.isBatchProcess;
+          }
+          if (!item.isLeaf || item.isLeaf) {
+            delete item.isLeaf;
+          }
+          if (item.maxThreads) {
+            delete item.maxThreads;
+          }
+          if (item.parentIndex) {
+            delete item.parentIndex
+          }
+          if (item.connectTimeout) {
+            delete item.connectTimeout;
+          }
+          if (item.index) {
+            delete item.index;
+          }
+          if (item.postSize >= 0) {
+            delete item.postSize;
+          }
+          if (item.preSize >= 0) {
+            delete item.preSize;
+          }
+          if (item.requestResult) {
+            delete item.requestResult;
+          }
+          if (item.responseTimeout) {
+            delete item.responseTimeout;
+          }
+          if (item.root) {
+            delete item.root;
+          }
+          if (item.ruleSize >= 0) {
+            delete item.ruleSize;
+          }
+          if (item.delay) {
+            item.delay = Number(item.delay);
+          }
+          if (item.body && item.body.kvs) {
+            item.body.kvs.forEach(v => {
+              if (v.files) {
+                delete v.files;
+              }
+            })
+          }
+          if (item.body && ((item.body.binary && item.body.binary.length === 0) || (item.body.kvs && item.body.kvs.length === 0))) {
+            delete item.body;
+          }
+          delete item.projectId;
+          if (item.hashTree && item.hashTree.length > 0) {
+            this.deleteResourceIds(item.hashTree);
+          }
+        })
+      }
     },
     closeConfirm(targetName) {
       let message = "";
