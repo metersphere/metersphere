@@ -448,8 +448,6 @@ public class TestPlanReportService {
             //初始化测试计划包含组件信息
             int[] componentIndexArr = new int[]{1, 3, 4};
             testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
-            //计算测试计划状态
-            testPlanReport.setStatus(status);
             //如果测试案例没有未结束的功能用例，则更新最后结束日期。
             TestPlanTestCaseMapper testPlanTestCaseMapper = CommonBeanFactory.getBean(TestPlanTestCaseMapper.class);
             TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
@@ -469,6 +467,7 @@ public class TestPlanReportService {
             if(CollectionUtils.isNotEmpty(contents)){
                 content = contents.get(0);
             }
+            boolean hasErrorCase = false;
             if(content!= null){
                 //更新接口用例、场景用例的最终执行状态
                 if(StringUtils.isNotEmpty(content.getPlanApiCaseReportStruct())){
@@ -492,6 +491,9 @@ public class TestPlanReportService {
                                     execStatus = defaultStatus;
                                 }
                                 dto.setExecResult(execStatus);
+                            }
+                            if(!StringUtils.equalsAnyIgnoreCase( dto.getExecResult(),"success")){
+                                hasErrorCase = true;
                             }
                         }
                         content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiTestCases));
@@ -524,6 +526,9 @@ public class TestPlanReportService {
                                 }
                                 dto.setLastResult(execStatus);
                                 dto.setStatus(execStatus);
+                                if(!StringUtils.equalsAnyIgnoreCase(execStatus,"success")){
+                                    hasErrorCase = true;
+                                }
                             }
                         }
                         content.setPlanScenarioReportStruct(JSONObject.toJSONString(scenarioCases));
@@ -536,7 +541,16 @@ public class TestPlanReportService {
                 content.setEndTime(endTime);
                 testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
             }
-
+            //计算测试计划状态
+            if(StringUtils.equalsIgnoreCase(status,TestPlanReportStatus.COMPLETED.name())){
+                if(hasErrorCase){
+                    testPlanReport.setStatus(TestPlanReportStatus.FAILED.name());
+                }else {
+                    testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
+                }
+            }else {
+                testPlanReport.setStatus(status);
+            }
             //更新测试计划并发送通知
             testPlanReport.setIsApiCaseExecuting(false);
             testPlanReport.setIsScenarioExecuting(false);
@@ -759,7 +773,6 @@ public class TestPlanReportService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/track/testPlan/reportList";
         String subject = "";
-        String event = NoticeConstants.Event.COMPLETE;
         String successContext = "${operator}执行的 ${name} 测试计划运行成功, 报告: ${planShareUrl}";
         String failedContext = "${operator}执行的 ${name} 测试计划运行失败, 报告: ${planShareUrl}";
         String context = "${operator}完成了测试计划: ${name}, 报告: ${planShareUrl}";
@@ -790,27 +803,44 @@ public class TestPlanReportService {
         String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId(), creator);
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
 
-        NoticeModel noticeModel = NoticeModel.builder()
-                .operator(creator)
-                .context(context)
-                .successContext(successContext)
-                .successMailTemplate(successfulMailTemplate)
-                .failedContext(failedContext)
-                .failedMailTemplate(errfoMailTemplate)
-                .mailTemplate("track/TestPlanComplete")
-                .testId(testPlan.getId())
-                .status(testPlanReport.getStatus())
-                .event(event)
-                .subject(subject)
-                .paramMap(paramMap)
-                .build();
-
-        if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.MANUAL.name())) {
-            noticeSendService.send(projectService.getProjectById(projectId), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+        /**
+         * 测试计划的消息通知配置包括 完成、成功、失败
+         * 所以发送通知时必定会有"完成"状态的通知
+         */
+        Map<String,String> execStatusEventMap = new HashMap<>();
+        execStatusEventMap.put(TestPlanReportStatus.COMPLETED.name(),NoticeConstants.Event.COMPLETE);
+        if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),TestPlanReportStatus.SUCCESS.name())){
+            execStatusEventMap.put(testPlanReport.getStatus(),NoticeConstants.Event.EXECUTE_SUCCESSFUL);
+        }else if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),TestPlanReportStatus.FAILED.name())){
+            execStatusEventMap.put(testPlanReport.getStatus(),NoticeConstants.Event.EXECUTE_FAILED);
+        }else if(!StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),TestPlanReportStatus.COMPLETED.name())){
+            execStatusEventMap.put(testPlanReport.getStatus(),NoticeConstants.Event.COMPLETE);
         }
+        for (Map.Entry<String,String> entry : execStatusEventMap.entrySet()) {
+            String status = entry.getKey();
+            String event = entry.getValue();
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .operator(creator)
+                    .context(context)
+                    .successContext(successContext)
+                    .successMailTemplate(successfulMailTemplate)
+                    .failedContext(failedContext)
+                    .failedMailTemplate(errfoMailTemplate)
+                    .mailTemplate("track/TestPlanComplete")
+                    .testId(testPlan.getId())
+                    .status(status)
+                    .event(event)
+                    .subject(subject)
+                    .paramMap(paramMap)
+                    .build();
 
-        if (StringUtils.equalsAny(testPlanReport.getTriggerMode(), ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())) {
-            noticeSendService.send(testPlanReport.getTriggerMode(), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+            if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.MANUAL.name())) {
+                noticeSendService.send(projectService.getProjectById(projectId), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+            }
+
+            if (StringUtils.equalsAny(testPlanReport.getTriggerMode(), ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())) {
+                noticeSendService.send(testPlanReport.getTriggerMode(), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+            }
         }
     }
 
@@ -818,13 +848,9 @@ public class TestPlanReportService {
         return testPlanReportMapper.selectByPrimaryKey(planId);
     }
 
-    public void updatePerformanceTestStatus(TestPlanLoadCaseEventDTO eventDTO) {
-        List<String> testPlanReportId = extTestPlanMapper.findIdByPerformanceReportId(eventDTO.getReportId());
-        if (StringUtils.equals(eventDTO.getTriggerMode(), ReportTriggerMode.API.name())) {
-            this.updateReport(testPlanReportId, ApiRunMode.JENKINS_PERFORMANCE_TEST.name(), eventDTO.getTriggerMode());
-        } else {
-            this.updateReport(testPlanReportId, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(), eventDTO.getTriggerMode());
-        }
+    public List<String> getTestPlanReportIdsByLoadTestReportId(String loadTestReportId) {
+        List<String> testPlanReportId = extTestPlanMapper.findIdByPerformanceReportId(loadTestReportId);
+        return testPlanReportId;
     }
 
     public void delete(List<String> testPlanReportIdList) {
