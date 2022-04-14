@@ -80,6 +80,8 @@ public class PerformanceReportService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -169,7 +171,8 @@ public class PerformanceReportService {
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(report.getTestId());
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         String projectId = report.getProjectId();
-        RLock lock = redissonClient.getLock(projectId);
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        RLock lock = redissonClient.getLock(project.getWorkspaceId());
         if (quotaService != null) {
             try {
                 lock.lock();

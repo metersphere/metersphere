@@ -539,7 +539,8 @@ public class PerformanceTestService {
         if (quotaService != null) {
             quotaService.checkLoadTestQuota(checkRequest, false);
             String projectId = testReport.getProjectId();
-            RLock lock = redissonClient.getLock(projectId);
+            Project project = projectMapper.selectByPrimaryKey(projectId);
+            RLock lock = redissonClient.getLock(project.getWorkspaceId());
             try {
                 lock.lock();
                 BigDecimal toUsed = quotaService.checkVumUsed(checkRequest, projectId);
