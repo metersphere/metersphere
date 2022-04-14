@@ -80,7 +80,7 @@ public class ApiScenarioReportService {
     @Resource
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
     @Resource
-    private UiReporServicetProxy uiReporServicetProxy;
+    private UiReportServiceProxy uiReportServiceProxy;
 
     public void saveResult(List<RequestResult> requestResults, ResultDTO dto) {
         // 报告详情内容
@@ -94,7 +94,7 @@ public class ApiScenarioReportService {
 
     public void saveUiResult(List<RequestResult> requestResults, ResultDTO dto) {
         // 报告详情内容
-        uiReporServicetProxy.saveUiResult(dto.getReportId(), requestResults);
+        uiReportServiceProxy.saveUiResult(dto.getReportId(), requestResults);
     }
 
     public ApiScenarioReport testEnded(ResultDTO dto) {
