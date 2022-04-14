@@ -187,7 +187,6 @@ export function copyScenarioRow(row, node) {
     resetResourceId(obj.hashTree);
   }
   obj.resourceId = getUUID();
-  obj.id = getUUID();
   if (obj.name) {
     obj.name = obj.name + '_copy';
   }
@@ -197,6 +196,7 @@ export function copyScenarioRow(row, node) {
   } else {
     hashTree.push(obj);
   }
+  return obj;
 }
 
 export function resetResourceId(hashTree) {
