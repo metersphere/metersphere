@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UiReporServicetProxy {
+public class UiReportServiceProxy {
 
     public Object saveUiResult(String reportId, List<RequestResult> queue) {
        return invoke((clazz) -> {
