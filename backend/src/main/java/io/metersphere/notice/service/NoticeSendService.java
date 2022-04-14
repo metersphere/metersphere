@@ -126,7 +126,19 @@ public class NoticeSendService {
     public void send(Project project, String taskType, NoticeModel noticeModel) {
         try {
             List<MessageDetail> messageDetails;
+//            switch (taskType) {
+//                case NoticeConstants.Mode.API:
+//                    String projectId = (String) noticeModel.getParamMap().get("projectId");
+//                    messageDetails = noticeService.searchMessageByTypeBySend(NoticeConstants.TaskType.JENKINS_TASK, projectId);
+//                    break;
+//                case NoticeConstants.Mode.SCHEDULE:
+//                    messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());
+//                    break;
+//                default:
+//                    break;
+//            }
             messageDetails = noticeService.searchMessageByTypeAndProjectId(taskType, project.getId());
+
             // 异步发送通知
             messageDetails.stream()
                     .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))

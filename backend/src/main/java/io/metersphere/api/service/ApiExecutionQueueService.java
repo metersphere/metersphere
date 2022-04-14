@@ -434,22 +434,12 @@ public class ApiExecutionQueueService {
     }
 
     public void checkExecutionQueneByLoadTest(LoadTestReport loadTestReport) {
-
         ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
         detailExample.createCriteria().andReportIdEqualTo(loadTestReport.getId());
-        List<ApiExecutionQueueDetail> detailList = executionQueueDetailMapper.selectByExample(detailExample);
-        if (CollectionUtils.isNotEmpty(detailList)) {
-            List<String> executionQueueIdList = new ArrayList<>();
-            detailList.forEach(item -> {
-                executionQueueIdList.add(item.getQueueId());
-            });
-            executionQueueDetailMapper.deleteByExample(detailExample);
-        }
-
+        executionQueueDetailMapper.deleteByExample(detailExample);
         List<String> testPlanReportIdList = testPlanReportService.getTestPlanReportIdsByLoadTestReportId(loadTestReport.getId());
         for (String testPlanReportId : testPlanReportIdList) {
             this.testPlanReportTestEnded(testPlanReportId);
         }
-
     }
 }

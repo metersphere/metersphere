@@ -173,6 +173,8 @@ export default {
       }],
       scheduleEventOptions: [
         {value: 'COMPLETE', label: this.$t('commons.run_completed')},
+        {value: 'EXECUTE_SUCCESSFUL', label: this.$t('commons.run_success')},
+        {value: 'EXECUTE_FAILED', label: this.$t('commons.run_fail')},
       ],
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
