@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -653,12 +654,16 @@ public class ApiScenarioReportStructureService {
     }
 
     public RequestResult selectReportContent(String stepId) {
+        return selectReportContent(stepId, RequestResult.class);
+    }
+
+    public <T> T selectReportContent(String stepId, Class clazz) {
         ApiScenarioReportResultWithBLOBs apiScenarioReportResult = reportResultMapper.selectByPrimaryKey(stepId);
         if (apiScenarioReportResult != null) {
-            RequestResult requestResult = JSON.parseObject(new String(apiScenarioReportResult.getContent(), StandardCharsets.UTF_8), RequestResult.class);
+            T requestResult = JSON.parseObject(new String(apiScenarioReportResult.getContent(), StandardCharsets.UTF_8), (Type) clazz);
             return requestResult;
         } else {
-            return new RequestResultExpandDTO();
+            return (T) clazz.getInterfaces();
         }
     }
 }
