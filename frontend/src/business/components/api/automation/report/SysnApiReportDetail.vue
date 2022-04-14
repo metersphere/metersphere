@@ -88,9 +88,9 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
-import {RequestFactory} from "../../definition/model/ApiTestModel";
+import {KeyValue, RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
-import {STEP} from "../scenario/Setting";
+import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "../scenario/Setting";
 
 export default {
   name: "SysnApiReportDetail",
@@ -379,12 +379,21 @@ export default {
     onMessage(e) {
       if (e.data) {
         this.runningEvaluation(e.data);
+        this.sort(this.fullTreeNodes);
       }
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.getReport();
         this.messageWebSocket.close();
         this.$EventBus.$emit('hide', this.scenarioId);
         this.$emit('refresh', this.debugResult);
+      }
+    },
+    sort(stepArray) {
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (stepArray[i].children && stepArray[i].children.length > 0) {
+          this.sort(stepArray[i].children);
+        }
       }
     },
   },
