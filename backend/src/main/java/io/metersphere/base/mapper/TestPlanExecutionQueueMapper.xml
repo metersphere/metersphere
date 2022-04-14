@@ -7,6 +7,8 @@
     <result column="run_mode" jdbcType="VARCHAR" property="runMode" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, report_id, run_mode, create_time, test_plan_id
+    id, report_id, run_mode, create_time, test_plan_id, resource_id, num
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestPlanExecutionQueueExample" resultMap="BaseResultMap">
     select
@@ -101,9 +103,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanExecutionQueue">
     insert into test_plan_execution_queue (id, report_id, run_mode, 
-      create_time, test_plan_id)
+      create_time, test_plan_id, resource_id, 
+      num)
     values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{runMode,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{testPlanId,jdbcType=VARCHAR})
+      #{createTime,jdbcType=BIGINT}, #{testPlanId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
+      #{num,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanExecutionQueue">
     insert into test_plan_execution_queue
@@ -123,6 +127,12 @@
       <if test="testPlanId != null">
         test_plan_id,
       </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -139,6 +149,12 @@
       </if>
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -166,6 +182,12 @@
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -177,7 +199,9 @@
       report_id = #{record.reportId,jdbcType=VARCHAR},
       run_mode = #{record.runMode,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR}
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -197,6 +221,12 @@
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -205,7 +235,9 @@
     set report_id = #{reportId,jdbcType=VARCHAR},
       run_mode = #{runMode,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      test_plan_id = #{testPlanId,jdbcType=VARCHAR}
+      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
