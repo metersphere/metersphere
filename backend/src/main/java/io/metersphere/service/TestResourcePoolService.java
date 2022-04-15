@@ -28,10 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.commons.constants.ResourceStatusEnum.*;
@@ -287,5 +284,17 @@ public class TestResourcePoolService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<TestResourcePoolDTO> listWsValidQuotaResourcePools(String workspaceId) {
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        List<TestResourcePoolDTO> list = listValidResourcePools();
+        if (quotaService != null) {
+            Set<String> pools = quotaService.getQuotaWsResourcePools(workspaceId);
+            if (!pools.isEmpty()) {
+                return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
+            }
+        }
+        return list;
     }
 }
