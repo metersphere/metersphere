@@ -37,6 +37,13 @@ public interface QuotaService {
     Set<String> getQuotaResourcePools();
 
     /**
+     * 工作空间下被限制使用的资源池
+     * @param workspaceId 工作空间ID
+     * @return 资源池名称Set
+     */
+    Set<String> getQuotaWsResourcePools(String workspaceId);
+
+    /**
      * 检查工作空间项目数量配额
      * @param workspaceId 工作空间ID
      */
