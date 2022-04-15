@@ -128,8 +128,10 @@ export default {
       if (this.isShare) {
         config.url = '/share' + config.url;
       }
-      this.result = this.$download(config, this.report.name + '.html');
-    }
+      this.result = this.$download(config, this.report.name + '.html',()=>{
+        this.$success(this.$t("organization.integration.successful_operation"));
+      });
+    },
   }
 }
 </script>
