@@ -231,3 +231,6 @@ VALUES (UUID(), 'ws_admin', 'WORKSPACE_QUOTA:READ+EDIT', 'WORKSPACE_QUOTA');
 
 -- 删除场景冗余字段
 ALTER TABLE api_scenario DROP COLUMN use_url;
+
+-- 优化删除报告效率
+CREATE INDEX api_definition_exec_result_integrated_report_id_IDX USING BTREE ON api_definition_exec_result (integrated_report_id);

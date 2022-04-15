@@ -30,6 +30,7 @@ import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -549,13 +550,15 @@ public class ApiScenarioReportService {
         structureExample.createCriteria().andReportIdEqualTo(request.getId());
         apiScenarioReportStructureMapper.deleteByExample(structureExample);
 
-        ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
-        definitionExecResultExample.createCriteria().andIdEqualTo(request.getId());
-        definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+        if (BooleanUtils.isNotTrue(request.getIsUi())) {
+            ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+            definitionExecResultExample.createCriteria().andIdEqualTo(request.getId());
+            definitionExecResultMapper.deleteByExample(definitionExecResultExample);
 
-        ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
-        execResultExample.createCriteria().andIntegratedReportIdEqualTo(request.getId());
-        definitionExecResultMapper.deleteByExample(execResultExample);
+            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+            execResultExample.createCriteria().andIntegratedReportIdEqualTo(request.getId());
+            definitionExecResultMapper.deleteByExample(execResultExample);
+        }
 
         // 补充逻辑，如果是集成报告则把零时报告全部删除
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getId());
@@ -563,6 +566,7 @@ public class ApiScenarioReportService {
             List<String> list = getReportIds(report.getScenarioId());
             if (CollectionUtils.isNotEmpty(list)) {
                 APIReportBatchRequest reportRequest = new APIReportBatchRequest();
+                reportRequest.setIsUi(request.getIsUi());
                 reportRequest.setIds(list);
                 this.deleteAPIReportBatch(reportRequest);
             }
@@ -669,13 +673,15 @@ public class ApiScenarioReportService {
             structureExample.createCriteria().andReportIdIn(handleIdList);
             apiScenarioReportStructureMapper.deleteByExample(structureExample);
 
-            ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
-            definitionExecResultExample.createCriteria().andIdIn(handleIdList);
-            definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+            if (BooleanUtils.isNotTrue(reportRequest.getIsUi())) {
+                ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+                definitionExecResultExample.createCriteria().andIdIn(handleIdList);
+                definitionExecResultMapper.deleteByExample(definitionExecResultExample);
 
-            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
-            execResultExample.createCriteria().andIntegratedReportIdIn(handleIdList);
-            definitionExecResultMapper.deleteByExample(execResultExample);
+                ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+                execResultExample.createCriteria().andIntegratedReportIdIn(handleIdList);
+                definitionExecResultMapper.deleteByExample(execResultExample);
+            }
 
             //转存剩余的数据
             ids = otherIdList;
@@ -698,13 +704,15 @@ public class ApiScenarioReportService {
             structureExample.createCriteria().andReportIdIn(ids);
             apiScenarioReportStructureMapper.deleteByExample(structureExample);
 
-            ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
-            definitionExecResultExample.createCriteria().andIdIn(ids);
-            definitionExecResultMapper.deleteByExample(definitionExecResultExample);
+            if (BooleanUtils.isNotTrue(reportRequest.getIsUi())) {
+                ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
+                definitionExecResultExample.createCriteria().andIdIn(ids);
+                definitionExecResultMapper.deleteByExample(definitionExecResultExample);
 
-            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
-            execResultExample.createCriteria().andIntegratedReportIdIn(ids);
-            definitionExecResultMapper.deleteByExample(execResultExample);
+                ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
+                execResultExample.createCriteria().andIntegratedReportIdIn(ids);
+                definitionExecResultMapper.deleteByExample(execResultExample);
+            }
         }
     }
 

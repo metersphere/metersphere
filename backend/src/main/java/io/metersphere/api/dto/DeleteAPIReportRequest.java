@@ -31,4 +31,6 @@ public class DeleteAPIReportRequest {
     private List<String> moduleIds;
 
     private List<String> unSelectIds;
+
+    private Boolean isUi;
 }
