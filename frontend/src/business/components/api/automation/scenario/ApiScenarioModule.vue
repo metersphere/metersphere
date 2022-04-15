@@ -255,7 +255,7 @@
         this.$emit('saveAsEdit', data);
       },
       refresh() {
-        this.$emit("refreshTable");
+        this.$emit("refreshAll");
       },
       addScenario() {
         if (!this.projectId) {
