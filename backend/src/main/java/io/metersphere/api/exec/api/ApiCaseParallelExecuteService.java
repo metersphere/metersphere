@@ -4,19 +4,18 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.TestResource;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.jorphan.collections.HashTree;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,19 +24,20 @@ public class ApiCaseParallelExecuteService {
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     public void parallel(Map<String, ApiDefinitionExecResult> executeQueue, RunModeConfigDTO config, DBTestQueue executionQueue, String runMode) {
-        List<TestResource> resources = new ArrayList<>();
         BooleanPool pool = GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId());
+        // 初始化分配策略
         if (pool.isPool()) {
-            resources = GenerateHashTreeUtil.setPoolResource(config.getResourcePoolId());
+            SmoothWeighted.setServerConfig(config.getResourcePoolId(), redisTemplate);
         }
-
         for (String testId : executeQueue.keySet()) {
             ApiDefinitionExecResult result = executeQueue.get(testId);
             String reportId = result.getId();
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, null);
-            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId()));
+            runRequest.setPool(pool);
             runRequest.setTestPlanReportId(executionQueue.getReportId());
             runRequest.setPoolId(config.getResourcePoolId());
             runRequest.setReportType(executionQueue.getReportType());
@@ -50,7 +50,7 @@ public class ApiCaseParallelExecuteService {
                 HashTree hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
                 runRequest.setHashTree(hashTree);
             }
-            jMeterService.run(runRequest, resources);
+            jMeterService.run(runRequest);
         }
     }
 }
