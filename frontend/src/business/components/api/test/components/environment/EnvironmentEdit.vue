@@ -8,7 +8,7 @@
                       clearable/>
           </el-form-item>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="4" v-if="!hideButton">
           <div style="float: right;width: fit-content;">
             <div style="float: left; margin-right: 8px;">
               <slot name="other"></slot>
@@ -157,6 +157,7 @@ export default {
       type: Boolean,
       default: false
     },
+    hideButton: Boolean,
     ifCreate: {
       type: Boolean,
       default: false
