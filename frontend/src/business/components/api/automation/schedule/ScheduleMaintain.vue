@@ -408,7 +408,7 @@ export default {
       } else {
         param.scheduleFrom = "scenario";
         if (param.id) {
-          url = '/api/automation/schedule/update';
+          url = '/schedule/update';
         }
       }
 
