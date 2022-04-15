@@ -324,7 +324,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.result = this.$post("/api/scenario/report/delete", {id: report.id}, () => {
+            this.result = this.$post("/api/scenario/report/delete", {id: report.id, isUi: this.isUI}, () => {
               this.$success(this.$t('commons.delete_success'));
               this.search();
             });
