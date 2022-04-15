@@ -2,6 +2,7 @@ package io.metersphere.log.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import java.util.LinkedHashMap;
@@ -11,8 +12,8 @@ public class ApiTestEnvironmentDiffUtil {
 
     public static String diff(String newValue, String oldValue) {
         try {
-            JSONObject bloBsNew = JSON.parseObject(newValue);
-            JSONObject bloBsOld = JSON.parseObject(oldValue);
+            JSONObject bloBsNew = JSON.parseObject(newValue, Feature.DisableSpecialKeyDetect);
+            JSONObject bloBsOld = JSON.parseObject(oldValue, Feature.DisableSpecialKeyDetect);
 
             Map<String, String> diffMap = new LinkedHashMap<>();
             diffMap.put("type", "preAndPostScript");

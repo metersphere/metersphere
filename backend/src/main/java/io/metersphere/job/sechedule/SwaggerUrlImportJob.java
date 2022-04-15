@@ -2,6 +2,7 @@ package io.metersphere.job.sechedule;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -55,7 +56,7 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
     public void setAuthInfo(String config, ApiTestImportRequest request){
         // 获取鉴权设置
         if(StringUtils.isNotBlank(config)){
-            JSONObject configObj = JSON.parseObject(config);
+            JSONObject configObj = JSON.parseObject(config, Feature.DisableSpecialKeyDetect);
             List<KeyValue> headers = JSONObject.parseArray(configObj.getString("headers"), KeyValue.class);
             if(CollectionUtils.isNotEmpty(headers)){
                 request.setHeaders(headers);

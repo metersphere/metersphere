@@ -203,7 +203,7 @@ public class TestResult {
         }
 
         if (StringUtils.isNotEmpty(item.getScenario())) {
-            List<String> id_names = JSON.parseObject(item.getScenario(), List.class);
+            List<String> id_names = JSON.parseObject(item.getScenario(), List.class, Feature.DisableSpecialKeyDetect);
             this.setStatus(id_names, item.getError() > 0);
             return item.getScenario();
         } else {
