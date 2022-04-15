@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
@@ -451,7 +452,7 @@ public class ApiScenarioReportService {
         String environmentType = apiScenario.getEnvironmentType();
         if (StringUtils.equals(environmentType, EnvironmentType.JSON.name()) && StringUtils.isNotEmpty(apiScenario.getEnvironmentJson())) {
             String environmentJson = apiScenario.getEnvironmentJson();
-            JSONObject jsonObject = JSON.parseObject(environmentJson);
+            JSONObject jsonObject = JSON.parseObject(environmentJson, Feature.DisableSpecialKeyDetect);
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
             List<String> collect = jsonObject.values().stream().map(Object::toString).collect(Collectors.toList());
             collect.add("-1");// 防止没有配置环境导致不能发送的问题
