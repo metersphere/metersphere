@@ -2585,6 +2585,7 @@ export default {
     project: "項目數",
     vum_total: "總vum數量",
     vum_used: "消耗vum數量",
+    vum_tip: "vum(並發數 * 持續時間)：一個並髮用戶執行一分鐘消耗1vum",
     clean: "清空"
   },
   schema: {
