@@ -5,6 +5,8 @@
     :title="$t('test_track.case.relate_issue')"
     @confirm="save"
     ref="relevanceDialog">
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="getIssues" class="search-input" size="small"
+                 v-model="page.condition.name"/>
     <ms-table
       v-loading="page.result.loading"
       :data="page.data"
@@ -27,7 +29,8 @@
 
       <ms-table-column
         :label="$t('test_track.issue.title')"
-        prop="title">
+        prop="title"
+        min-width="200px">
       </ms-table-column>
 
       <ms-table-column
@@ -61,7 +64,12 @@
 
   </ms-edit-dialog>
 </template>
-
+<style scoped>
+.search-input {
+  float: right;
+  width: 300px;
+}
+</style>
 <script>
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 import MsTable from "@/business/components/common/components/table/MsTable";
