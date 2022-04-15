@@ -1,4 +1,4 @@
-on: [push, pull_request, release]
+on: [ push, pull_request, release ]
 
 name: MeterSphere pull request handler
 
