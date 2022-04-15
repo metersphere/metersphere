@@ -10,7 +10,9 @@
       :label="label"
       :sortable="sortable"
       :filter-method="filterMethod"
-      :show-overflow-tooltip="showOverflowTooltip">
+      :filtered-value = "filteredValue	"
+      :show-overflow-tooltip="showOverflowTooltip"
+  >
     <template v-slot:default="scope">
       <slot :row="scope.row" :$index="scope.$index" v-if="!editable">
         <span @click="$emit('click', scope.row)">{{ scope.row[prop] }}</span>
@@ -42,6 +44,7 @@ export default {
     width: [String, Number],
     minWidth: [String, Number],
     filterMethod: Function,
+    filteredValue:Array,
     fixed: String,
     // 排序列， 后端mapper处理filters
     filters: Array,
