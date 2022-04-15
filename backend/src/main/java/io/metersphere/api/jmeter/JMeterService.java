@@ -151,7 +151,7 @@ public class JMeterService {
         }
     }
 
-    private synchronized void send(JmeterRunRequestDTO request, List<TestResource> resources) {
+    private void send(JmeterRunRequestDTO request, List<TestResource> resources) {
         try {
             if (StringUtils.isNotEmpty(request.getPoolId()) && CollectionUtils.isEmpty(resources)) {
                 resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
