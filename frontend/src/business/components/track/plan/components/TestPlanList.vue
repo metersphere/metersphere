@@ -53,6 +53,7 @@
         <ms-table-column
           prop="status"
           :filters="statusFilters"
+          :filtered-value="['Prepare', 'Underway', 'Finished', 'Completed']"
           column-key="status"
           :field="item"
           :fields-width="fieldsWidth"
