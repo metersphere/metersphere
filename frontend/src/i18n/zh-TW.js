@@ -3051,6 +3051,7 @@ export default {
       create_performance: "創建性能測試",
       create_performance_batch: "批量創建性能測試",
       batch_copy: "批量復製",
+      open_url_content: "根據 URL, 打開指定的操作頁面"
     },
     project_api_report: {
       name: "測試報告",

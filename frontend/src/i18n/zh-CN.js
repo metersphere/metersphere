@@ -3052,6 +3052,7 @@ export default {
       create_performance: "创建性能测试",
       create_performance_batch: "批量创建性能测试",
       batch_copy: "批量复制",
+      open_url_content: "根据 URL, 打开指定的操作页面"
     },
     project_api_report: {
       name: "测试报告",
