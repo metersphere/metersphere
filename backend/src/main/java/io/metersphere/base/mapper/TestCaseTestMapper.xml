@@ -390,6 +390,7 @@
   </sql>
   <select id="relevanceScenarioList" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
     SELECT
+    DISTINCT
     atc.id,
     atc.project_id,
     atc. NAME,
