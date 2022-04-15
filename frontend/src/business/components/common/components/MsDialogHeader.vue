@@ -1,9 +1,9 @@
 <template>
 
   <div class="msDialogHeader">
-    <span style="float: left;font-size: 18px;color: #303133;">{{title}}</span>
+    <span style="float: left;font-size: 18px;color: #303133;">{{ title }}</span>
 
-    <div style="float: right;width: fit-content;">
+    <div v-if="!hideButton" style="float: right;width: fit-content;">
       <div style="float: left; margin-right: 8px;">
         <slot name="other"></slot>
       </div>
@@ -30,6 +30,7 @@ export default {
         return 'small';
       }
     },
+    hideButton: Boolean,
     enableCancel: Boolean
   },
   methods: {
@@ -44,11 +45,12 @@ export default {
 </script>
 
 <style scoped>
-  .ms_btn {
-    float: right;
-    margin-right: 50px;
-  }
-  .msDialogHeader {
-    margin-bottom: 5px;
-  }
+.ms_btn {
+  float: right;
+  margin-right: 50px;
+}
+
+.msDialogHeader {
+  margin-bottom: 5px;
+}
 </style>
