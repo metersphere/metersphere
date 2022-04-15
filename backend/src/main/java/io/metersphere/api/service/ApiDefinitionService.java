@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
@@ -1973,7 +1974,7 @@ public class ApiDefinitionService {
         ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
         List<DocumentElement> elements = new LinkedList<>();
         if (bloBs != null && StringUtils.isNotEmpty(bloBs.getResponse())) {
-            JSONObject object = JSON.parseObject(bloBs.getResponse());
+            JSONObject object = JSON.parseObject(bloBs.getResponse(), Feature.DisableSpecialKeyDetect);
             JSONObject body = (JSONObject) object.get("body");
             if (body != null) {
                 String raw = body.getString("raw");

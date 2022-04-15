@@ -1373,7 +1373,7 @@ public class ApiAutomationService {
             if (scenario == null || StringUtils.isEmpty(scenario.getScenarioDefinition())) {
                 return;
             }
-            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
             JSONArray hashTree = element.getJSONArray("hashTree");
             ApiScenarioImportUtil.formatHashTree(hashTree);
             setHashTree(hashTree);
@@ -1397,7 +1397,7 @@ public class ApiAutomationService {
                                 if (CollectionUtils.isEmpty(object.getJSONArray("hashTree"))) {
                                     ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(object.getString("id"));
                                     if (model != null) {
-                                        JSONObject element = JSON.parseObject(model.getRequest());
+                                        JSONObject element = JSON.parseObject(model.getRequest(),Feature.DisableSpecialKeyDetect);
                                         object.put("hashTree", element.getJSONArray("hashTree"));
                                     }
                                 }
