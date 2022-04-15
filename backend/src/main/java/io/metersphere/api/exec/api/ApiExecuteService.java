@@ -119,7 +119,7 @@ public class ApiExecuteService {
                 }
                 // 调用执行方法
                 JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), jmeterHashTree);
-                jMeterService.run(runRequest, new ArrayList<>());
+                jMeterService.run(runRequest);
             } catch (Exception ex) {
                 ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
                 if (result != null) {
@@ -188,7 +188,7 @@ public class ApiExecuteService {
             this.put("SYN_RES", request.isSyncResult());
         }});
         // 开始执行
-        jMeterService.run(runRequest, new ArrayList<>());
+        jMeterService.run(runRequest);
         return new MsExecResponseDTO(runRequest.getTestId(), runRequest.getReportId(), runMode);
     }
 

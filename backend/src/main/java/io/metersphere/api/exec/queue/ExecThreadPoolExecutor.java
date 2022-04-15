@@ -105,11 +105,11 @@ public class ExecThreadPoolExecutor {
     public void setCorePoolSize(int maximumPoolSize) {
         try {
             if (maximumPoolSize != threadPool.getMaximumPoolSize()) {
+                threadPool.setMaximumPoolSize(maximumPoolSize);
                 int corePoolSize = maximumPoolSize > 500 ? 500 : maximumPoolSize;
                 if (corePoolSize > CORE_POOL_SIZE) {
                     threadPool.setCorePoolSize(corePoolSize);
                 }
-                threadPool.setMaximumPoolSize(maximumPoolSize);
                 threadPool.allowCoreThreadTimeOut(true);
                 LoggerUtil.info("AllCoreThreads: " + threadPool.prestartAllCoreThreads());
             }
