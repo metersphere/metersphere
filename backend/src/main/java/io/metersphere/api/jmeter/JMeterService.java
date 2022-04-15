@@ -3,6 +3,8 @@ package io.metersphere.api.jmeter;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
+import io.metersphere.api.jmeter.utils.ServerConfig;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.TestResource;
@@ -14,6 +16,7 @@ import io.metersphere.config.KafkaConfig;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
@@ -29,6 +32,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -45,6 +49,8 @@ public class JMeterService {
     private JmeterProperties jmeterProperties;
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @PostConstruct
     private void init() {
@@ -114,7 +120,7 @@ public class JMeterService {
         runner.run(request.getReportId());
     }
 
-    private void runNode(JmeterRunRequestDTO request, List<TestResource> resources) {
+    private void runNode(JmeterRunRequestDTO request) {
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         // 占位符
@@ -147,38 +153,34 @@ public class JMeterService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            this.send(request, resources);
+            this.send(request);
         }
     }
 
-    private void send(JmeterRunRequestDTO request, List<TestResource> resources) {
+    private void send(JmeterRunRequestDTO request) {
         try {
-            if (StringUtils.isNotEmpty(request.getPoolId()) && CollectionUtils.isEmpty(resources)) {
-                resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
+            if (redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()) != null) {
+                long index = Long.parseLong(redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()).toString());
+                redisTemplate.opsForValue().set(SmoothWeighted.EXEC_INDEX + request.getPoolId(), index + 1);
             }
-            if (CollectionUtils.isEmpty(resources)) {
+            ServerConfig config = SmoothWeighted.calculate(request.getPoolId(), redisTemplate);
+            if (config == null) {
+                config = SmoothWeighted.getResource(request.getPoolId());
+            }
+            if (config == null) {
                 LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(request);
                 return;
             }
-
-            int index = (int) (Math.random() * resources.size());
-            TestResource testResource = resources.get(index);
-            String configuration = testResource.getConfiguration();
-            NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
-            request.setCorePoolSize(node.getMaxConcurrency());
-            request.setEnable(node.isEnable());
-            String nodeIp = node.getIp();
-            Integer port = node.getPort();
-            String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
-
-            LoggerUtil.info("开始发送请求【 " + request.getReportId() + " 】,资源【 " + request.getTestId() + " 】" + uri + " 节点执行");
-            ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
+            request.setCorePoolSize(config.getCorePoolSize());
+            request.setEnable(config.isEnable());
+            LoggerUtil.info("开始发送请求【 " + request.getReportId() + " 】,资源【 " + request.getTestId() + " 】" + config.getUrl() + " 节点执行");
+            ResponseEntity<String> result = restTemplate.postForEntity(config.getUrl(), request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(request);
-                LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + uri + " 节点执行失败");
+                LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败");
                 LoggerUtil.info(result.getBody());
             }
         } catch (Exception e) {
@@ -190,9 +192,18 @@ public class JMeterService {
     }
 
 
+    public void run(JmeterRunRequestDTO request) {
+        if (request.getPool().isPool()) {
+            this.runNode(request);
+        } else {
+            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
+        }
+    }
+
+    @Deprecated
     public void run(JmeterRunRequestDTO request, List<TestResource> resources) {
         if (request.getPool().isPool()) {
-            this.runNode(request, resources);
+            this.runNode(request);
         } else {
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
         }
@@ -204,13 +215,13 @@ public class JMeterService {
 
     public boolean getRunningQueue(String poolId, String reportId) {
         try {
-            List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(poolId);
+            List<JvmInfoDTO> resources = GenerateHashTreeUtil.setPoolResource(poolId);
             if (CollectionUtils.isEmpty(resources)) {
                 return false;
             }
             boolean isRunning = false;
-            for (TestResource testResource : resources) {
-                String configuration = testResource.getConfiguration();
+            for (JvmInfoDTO testResource : resources) {
+                String configuration = testResource.getTestResource().getConfiguration();
                 NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
                 String nodeIp = node.getIp();
                 Integer port = node.getPort();

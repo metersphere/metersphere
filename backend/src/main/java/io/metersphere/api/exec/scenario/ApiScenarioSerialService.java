@@ -15,6 +15,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.RemakeReportService;
@@ -33,10 +34,13 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 @Service
 public class ApiScenarioSerialService {
@@ -58,6 +62,8 @@ public class ApiScenarioSerialService {
     private ApiScenarioEnvService apiScenarioEnvService;
     @Resource
     private ObjectMapper mapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
         LoggerUtil.debug("Scenario run-执行脚本装载-进入串行准备");
@@ -126,13 +132,11 @@ public class ApiScenarioSerialService {
             if (queue != null) {
                 runRequest.setPlatformUrl(queue.getId());
             }
-            List<TestResource> resources = new ArrayList<>();
             if (runRequest.getPool().isPool()) {
-                resources = GenerateHashTreeUtil.setPoolResource(runRequest.getPoolId());
+                SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
-
             // 开始执行
-            jMeterService.run(runRequest, resources);
+            jMeterService.run(runRequest);
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(runRequest);
@@ -206,7 +210,7 @@ public class ApiScenarioSerialService {
                 list.addAll(elements);
             }
             if (element.getString("type").equals("HTTPSamplerProxy")) {
-                MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class,Feature.DisableSpecialKeyDetect);
+                MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
                 httpSamplerProxy.setHashTree(list);
                 httpSamplerProxy.setName(planId);
                 if (StringUtils.isNotEmpty(envId)) {
@@ -215,7 +219,7 @@ public class ApiScenarioSerialService {
                 return httpSamplerProxy;
             }
             if (element.getString("type").equals("TCPSampler")) {
-                MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class,Feature.DisableSpecialKeyDetect);
+                MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
                 if (StringUtils.isNotEmpty(envId)) {
                     msTCPSampler.setUseEnvironment(envId);
                 }
@@ -224,7 +228,7 @@ public class ApiScenarioSerialService {
                 return msTCPSampler;
             }
             if (element.getString("type").equals("DubboSampler")) {
-                MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class,Feature.DisableSpecialKeyDetect);
+                MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class, Feature.DisableSpecialKeyDetect);
                 if (StringUtils.isNotEmpty(envId)) {
                     dubboSampler.setUseEnvironment(envId);
                 }
