@@ -10,7 +10,6 @@ import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
@@ -459,7 +458,6 @@ public class ApiAutomationService {
         scenario.setUpdateTime(System.currentTimeMillis());
         scenario.setDescription(request.getDescription());
         scenario.setCreateUser(SessionUtils.getUserId());
-
         scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         Boolean isValidEnum = EnumUtils.isValidEnum(EnvironmentType.class, request.getEnvironmentType());
         if (BooleanUtils.isTrue(isValidEnum)) {
