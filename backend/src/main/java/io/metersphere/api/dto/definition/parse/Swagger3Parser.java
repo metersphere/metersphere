@@ -649,7 +649,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 //                        schema.put("example", param.getString("value"));
 //                        swaggerParam.setSchema(schema);
 //                    }
-                    paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam)));
+                    paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam),Feature.DisableSpecialKeyDetect));
                 }
             }
         }

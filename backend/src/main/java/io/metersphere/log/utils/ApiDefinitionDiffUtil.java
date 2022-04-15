@@ -2,6 +2,7 @@ package io.metersphere.log.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
@@ -26,8 +27,8 @@ public class ApiDefinitionDiffUtil {
 
     public static String diffResponse(String newValue, String oldValue) {
         Map<String, String> diffMap = new LinkedHashMap<>();
-        JSONObject bloBsNew = JSON.parseObject(newValue);
-        JSONObject bloBsOld = JSON.parseObject(oldValue);
+        JSONObject bloBsNew = JSON.parseObject(newValue, Feature.DisableSpecialKeyDetect);
+        JSONObject bloBsOld = JSON.parseObject(oldValue, Feature.DisableSpecialKeyDetect);
         if (bloBsNew == null || StringUtils.isEmpty(bloBsNew.getString("type"))) {
             return null;
         }
@@ -43,8 +44,8 @@ public class ApiDefinitionDiffUtil {
 
     public static String diff(String newValue, String oldValue) {
         try {
-            JSONObject bloBsNew = JSON.parseObject(newValue);
-            JSONObject bloBsOld = JSON.parseObject(oldValue);
+            JSONObject bloBsNew = JSON.parseObject(newValue, Feature.DisableSpecialKeyDetect);
+            JSONObject bloBsOld = JSON.parseObject(oldValue, Feature.DisableSpecialKeyDetect);
             if (bloBsNew == null || StringUtils.isEmpty(bloBsNew.getString("type"))) {
                 return null;
             }
