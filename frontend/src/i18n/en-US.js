@@ -3048,6 +3048,7 @@ export default {
       create_performance: "CREATE PERFORMANCE",
       create_performance_batch: "BATCH CREATE PERFORMANCE",
       batch_copy: "BATCH COPY",
+      open_url_content: "According to the URL, open the specified operation page"
     },
     project_api_report: {
       name: "Report",
