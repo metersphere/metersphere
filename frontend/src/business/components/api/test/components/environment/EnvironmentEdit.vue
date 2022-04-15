@@ -1,11 +1,26 @@
 <template>
   <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
     <el-form :model="environment" :rules="rules" ref="environment" label-width="80px">
-      <el-form-item prop="name" :label="$t('api_test.environment.name')">
-        <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
-                  clearable/>
-      </el-form-item>
-
+      <el-row>
+        <el-col :span="20">
+          <el-form-item prop="name" :label="$t('api_test.environment.name')">
+            <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
+                      clearable/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+          <div style="float: right;width: fit-content;">
+            <div style="float: left; margin-right: 8px;">
+              <slot name="other"></slot>
+            </div>
+            <div class="ms_btn">
+              <el-button type="primary" @click="confirm" @keydown.enter.native.prevent>
+                {{ $t('commons.confirm') }}
+              </el-button>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
 
       <el-tabs v-model="activeName">
 
@@ -82,18 +97,19 @@
                 :label="$t('error_report_library.use_error_report')"
                 prop="status">
                 <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px" :disabled="isReadOnly"/>
-                {{$t('error_report_library.use_desc')}}
+                {{ $t('error_report_library.use_desc') }}
               </el-form-item>
             </el-col>
           </el-row>
-          <global-assertions :is-read-only="isReadOnly" :assertions="environment.config.assertions" :is-show-json-path-suggest="false"/>
+          <global-assertions :is-read-only="isReadOnly" :assertions="environment.config.assertions"
+                             :is-show-json-path-suggest="false"/>
         </el-tab-pane>
       </el-tabs>
-<!--      <div class="environment-footer">-->
-<!--        <ms-dialog-footer-->
-<!--          @cancel="cancel"-->
-<!--          @confirm="save()"/>-->
-<!--      </div>-->
+      <!--      <div class="environment-footer">-->
+      <!--        <ms-dialog-footer-->
+      <!--          @cancel="cancel"-->
+      <!--          @confirm="save()"/>-->
+      <!--      </div>-->
     </el-form>
     <ms-change-history ref="changeHistory"/>
   </el-main>
@@ -112,7 +128,7 @@ import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
 import MsEnvironmentSSLConfig from "./EnvironmentSSLConfig";
 import MsApiAuthConfig from "@/business/components/api/definition/components/auth/ApiAuthConfig";
 import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
-import {getUUID,hasLicense} from "@/common/js/utils";
+import {getUUID, hasLicense} from "@/common/js/utils";
 import Jsr233ProcessorContent from "@/business/components/api/automation/scenario/common/Jsr233ProcessorContent";
 import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 import EnvironmentGlobalScript from "@/business/components/api/test/components/environment/EnvironmentGlobalScript";
@@ -192,12 +208,12 @@ export default {
     }
     if (!this.environment.config.assertions) {
       this.environment.config.assertions = {
-        duration:{duration:0},
-        regex:[],
-        jsonPath:[],
-        xpath2:[],
-        jsr223:[],
-        document:{type:"json",data:{json:[],xml:[]}},
+        duration: {duration: 0},
+        regex: [],
+        jsonPath: [],
+        xpath2: [],
+        jsr223: [],
+        document: {type: "json", data: {json: [], xml: []}},
       };
     }
   },
@@ -241,12 +257,12 @@ export default {
       }
       if (!this.environment.config.assertions) {
         this.environment.config.assertions = {
-          duration:{duration:0},
-          regex:[],
-          jsonPath:[],
-          xpath2:[],
-          jsr223:[],
-          document:{type:"json",data:{json:[],xml:[]}},
+          duration: {duration: 0},
+          regex: [],
+          jsonPath: [],
+          xpath2: [],
+          jsr223: [],
+          document: {type: "json", data: {json: [], xml: []}},
         };
       }
 
@@ -258,8 +274,8 @@ export default {
     }
   },
   computed: {
-    hasLicense(){
-      let license= hasLicense();
+    hasLicense() {
+      let license = hasLicense();
       return license;
     },
   },
@@ -379,6 +395,9 @@ export default {
     },
     cancel() {
       this.$emit('close');
+    },
+    confirm() {
+      this.$emit("confirm");
     },
     clearValidate() {
       this.$refs["environment"].clearValidate();

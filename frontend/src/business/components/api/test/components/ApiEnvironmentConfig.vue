@@ -2,17 +2,13 @@
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.environment.environment_config')"
              :visible.sync="visible" class="environment-dialog" width="80%" top="50px"
              @close="close" append-to-body destroy-on-close ref="environmentConfig">
-    <template #title>
-      <ms-dialog-header :title="$t('api_test.environment.environment_config')"
-                        @cancel="visible = false"
-                        @confirm="save"/>
-    </template>
     <el-container v-loading="result.loading">
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :env-add-permission="ENV_CREATE"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
       <environment-edit :if-create="ifCreate" :project-id="projectId" :environment="currentEnvironment" ref="environmentEdit" :is-read-only="isReadOnly"
+                        @confirm="save"
                         @close="close"/>
     </el-container>
   </el-dialog>
