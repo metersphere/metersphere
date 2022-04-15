@@ -11,10 +11,10 @@
 
           <div v-if="isExport">
              <span class="ms-req ms-req-error" v-if="content.error && content.error>0">
-                <span class="ms-req-span"> {{ content.success + content.error }}  {{isUi ? '步骤' :  $t('api_report.request')}}</span>
+                <span class="ms-req-span"> {{ content.success + content.error }}  {{isUi ? '指令' :  $t('api_report.request')}}</span>
            </span>
             <span class="ms-req ms-req-success" v-else>
-                <span class="ms-req-span">  {{ content.success ? content.success + content.error : 0 }}  {{isUi ? '步骤' :  $t('api_report.request')}}</span>
+                <span class="ms-req-span">  {{ content.success ? content.success + content.error : 0 }}  {{isUi ? '指令' :  $t('api_report.request')}}</span>
            </span>
           </div>
           <ms-chart id="chart" ref="chart" :options="options" :height="220" style="margin-right: 10px"
@@ -144,7 +144,7 @@
           <div class="metric-icon-box" v-if="!isUi">
             <i class="el-icon-document-copy total"></i>
             <div class="value">{{ this.content.total }}</div>
-            <div class="name">{{ isUi ? '步骤' : $t('api_report.request') }}</div>
+            <div class="name">{{ isUi ? '指令' : $t('api_report.request') }}</div>
           </div>
         </el-row>
       </div>
@@ -217,7 +217,7 @@ export default {
         },
         title: [{
           text: (this.content.success + this.content.error  + this.content.errorCode + this.content.unExecute),
-          subtext: this.isUi ? '步骤' : this.$t('api_report.request'),
+          subtext: this.isUi ? '指令' : this.$t('api_report.request'),
           top: 'center',
           left: 'center',
           textStyle: {
