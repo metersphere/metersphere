@@ -16,6 +16,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssueTemplateDao;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -337,8 +338,15 @@ public class IssuesService {
     }
 
     public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
-        ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
-        return platform.getBuilds();
+        try {
+            ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
+            return platform.getBuilds();
+        } catch (Exception e) {
+            LogUtil.error("get zentao builds fail.");
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("zentao_get_project_builds_fail"));
+        }
+        return null;
     }
 
     public List<IssuesDao> list(IssuesRequest request) {
