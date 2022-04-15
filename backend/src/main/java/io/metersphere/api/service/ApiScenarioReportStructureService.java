@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
 import io.metersphere.api.dto.ApiScenarioReportDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
@@ -122,7 +123,7 @@ public class ApiScenarioReportStructureService {
     }
 
     public static StepTreeDTO dataFormatting(String id, String name, String scenarioDefinition, String reportType) {
-        JSONObject element = JSON.parseObject(scenarioDefinition);
+        JSONObject element = JSON.parseObject(scenarioDefinition, Feature.DisableSpecialKeyDetect);
         StepTreeDTO dto = null;
         if (element != null && element.getBoolean("enable")) {
             element = getRefElement(element);
@@ -150,7 +151,7 @@ public class ApiScenarioReportStructureService {
             if (StringUtils.equals(element.getString("type"), "scenario")) {
                 ApiScenarioWithBLOBs scenarioWithBLOBs = CommonBeanFactory.getBean(ApiScenarioMapper.class).selectByPrimaryKey(element.getString("id"));
                 if (scenarioWithBLOBs != null) {
-                    return JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+                    return JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
                 }
             }
         }
