@@ -310,6 +310,12 @@ public class ScheduleService {
             clazz = TestPlanTestJob.class;
             request.setJob(TestPlanTestJob.class.getName());
             needResetJob = true;
+        } else if (ScheduleGroup.API_SCENARIO_TEST.name().equals(request.getGroup())) {
+            jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
+            triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
+            clazz = ApiScenarioTestJob.class;
+            request.setJob(ApiScenarioTestJob.class.getName());
+            needResetJob = true;
         } else {
             //默认为情景
             jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
