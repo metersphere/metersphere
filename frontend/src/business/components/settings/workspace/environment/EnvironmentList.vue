@@ -68,14 +68,19 @@
                           @cancel="dialogVisible = false"
                           @confirm="save"/>
       </template>
-      <el-form label-width="80px" :rules="rules" style="display: flow-root">
-        <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
-          <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
-            <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
+      <el-row>
+        <el-col :span="20">
+          <el-form label-width="80px" :rules="rules" style="display: flow-root">
+            <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
+              <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
+                <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
       <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
+                        :hide-button="true"
                         :project-id="currentProjectId" @refreshAfterSave="refresh">
       </environment-edit>
     </el-dialog>
