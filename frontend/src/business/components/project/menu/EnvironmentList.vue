@@ -59,7 +59,7 @@
         <!-- 创建、编辑、复制环境时的对话框 -->
         <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px">
           <template #title>
-            <ms-dialog-header :title="dialogTitle"
+            <ms-dialog-header :title="dialogTitle" :hide-button="true"
                               @cancel="dialogVisible = false"
                               @confirm="save"/>
           </template>

@@ -52,11 +52,17 @@
             <span class="ms-report-time-desc" v-if="startTime !== '0'">
               {{ $t('report.test_start_time') }}：{{ startTime | timestampFormatDate }}
             </span>
+            <span class="ms-report-time-desc" v-else-if="planReportTemplate && planReportTemplate.startTime">
+              {{ $t('report.test_start_time') }}：{{ planReportTemplate.startTime | timestampFormatDate }}
+            </span>
             <span class="ms-report-time-desc" v-else>
               {{ $t('report.test_start_time') }}：-
             </span>
             <span class="ms-report-time-desc" v-if="report.status === 'Completed' && endTime !== '0'">
               {{ $t('report.test_end_time') }}：{{ endTime | timestampFormatDate }}
+            </span>
+            <span class="ms-report-time-desc" v-else-if="planReportTemplate && planReportTemplate.endTime">
+              {{ $t('report.test_end_time') }}：{{ planReportTemplate.endTime | timestampFormatDate }}
             </span>
             <span class="ms-report-time-desc" v-else>
               {{ $t('report.test_end_time') }}：-
