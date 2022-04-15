@@ -236,6 +236,11 @@ public class ApiAutomationService {
     public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
         checkQuota();
         request.setId(UUID.randomUUID().toString());
+        if (request.getScenarioDefinition() == null) {
+            MsScenario msScenario = new MsScenario();
+            msScenario.setHashTree(new LinkedList<>());
+            request.setScenarioDefinition(msScenario);
+        }
         checkNameExist(request);
         int nextNum = getNextNum(request.getProjectId());
         if (StringUtils.isBlank(request.getCustomNum())) {
