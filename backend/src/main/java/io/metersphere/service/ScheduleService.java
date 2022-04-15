@@ -316,6 +316,7 @@ public class ScheduleService {
             triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
             clazz = ApiScenarioTestJob.class;
             request.setJob(ApiScenarioTestJob.class.getName());
+            needResetJob = true;
         }
         this.editSchedule(request);
 
