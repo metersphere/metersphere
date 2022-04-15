@@ -2582,6 +2582,7 @@ export default {
     project: "Project",
     vum_total: "Total vum",
     vum_used: "Used vum",
+    vum_tip: "vum (thread * duration): a concurrent user consumes 1 vum for one minute",
     clean: "Clean"
   },
   schema: {
