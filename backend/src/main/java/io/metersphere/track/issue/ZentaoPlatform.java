@@ -346,14 +346,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     public List<ZentaoBuild> getBuilds() {
-        String relateProjectId = getProjectId(projectId);
-        Boolean exist = checkProjectExist(relateProjectId);
-        if (!exist) {
-            MSException.throwException(Translator.get("zentao_project_id_not_exist"));
-        }
-        Map<String, Object> builds = zentaoClient.getBuildsByCreateMetaData(relateProjectId);
+        Map<String, Object> builds = zentaoClient.getBuildsByCreateMetaData(getProjectId(projectId));
         if (builds == null || builds.isEmpty()) {
-            builds = zentaoClient.getBuilds(relateProjectId);
+            builds = zentaoClient.getBuilds(getProjectId(projectId));
         }
         List<ZentaoBuild> res = new ArrayList<>();
         builds.forEach((k, v) -> {
