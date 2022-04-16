@@ -51,7 +51,7 @@ export default {
   },
   computed: {
     isUi() {
-      return this.report.reportType && this.report.reportType.startsWith("UI");
+      return this.report && this.report.reportType && this.report.reportType.startsWith("UI");
     },
   },
   methods: {
@@ -70,8 +70,10 @@ export default {
             return true;
           }
         }else {
-          if (!data.errorCode || data.errorCode === "") {
-            return data.value.error > 0 || (this.isUi && !data.value.success && data.value.body);
+          if (this.isUi) {
+            return data.value.success === false;
+          } else if (!data.errorCode || data.errorCode === "") {
+            return data.value.error > 0;
           }
         }
       }
