@@ -81,8 +81,8 @@
             <div class="value">{{ content.scenarioErrorReport ? content.scenarioErrorReport : 0 }}</div>
             <div class="name">{{ $t('error_report_library.option.name') }}</div>
           </div>
-          <span class="ms-point-unexecute"/>
-          <div class="metric-box">
+          <span v-show="showUnExecuteReport" class="ms-point-unexecute"/>
+          <div v-show="showUnExecuteReport" class="metric-box">
             <div class="value">{{ content.scenarioUnExecute ? content.scenarioUnExecute : 0 }}</div>
             <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
           </div>
@@ -111,8 +111,8 @@
               <div class="value">{{ content.scenarioStepErrorReport ? content.scenarioStepErrorReport : 0 }}</div>
               <div class="name">{{ $t('error_report_library.option.name') }}</div>
             </div>
-            <span class="ms-point-unexecute" />
-            <div class="metric-box">
+            <span v-show="showUnExecuteReport" class="ms-point-unexecute" />
+            <div v-show="showUnExecuteReport" class="metric-box">
               <div class="value">{{
                   content.scenarioStepUnExecuteReport ? content.scenarioStepUnExecuteReport : 0
                 }}
@@ -275,6 +275,10 @@ export default {
     isUi() {
       return this.report.reportType && this.report.reportType.startsWith("UI");
     },
+    showUnExecuteReport() {
+      return this.content.scenarioStepUnExecuteReport && this.content.scenarioStepUnExecuteReport > 0
+        && this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0;
+    }
   },
 }
 </script>
