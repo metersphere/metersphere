@@ -3202,5 +3202,6 @@ export default {
     cmdExtraction: "数据提取",
     cmdExtractWindow: "提取窗口信息",
     cmdExtractElement: "提取元素信息",
+    valiate_fail: "校验失败，请检查必填项"
   }
 };
