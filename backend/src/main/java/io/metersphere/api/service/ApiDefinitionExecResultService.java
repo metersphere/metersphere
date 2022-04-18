@@ -153,12 +153,7 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-            User user = null;
-            if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
-                user = SessionUtils.getUser();
-            } else {
-                user = userMapper.selectByPrimaryKey(result.getUserId());
-            }
+            User user = userMapper.selectByPrimaryKey(result.getUserId());
             Map paramMap = new HashMap<>(beanMap);
             paramMap.put("operator", user != null ? user.getName() : result.getUserId());
             paramMap.put("status", result.getStatus());
@@ -416,9 +411,12 @@ public class ApiDefinitionExecResultService {
 
     private ApiDefinitionExecResult editResult(RequestResult item, String reportId, String console, String type, String testId, ApiDefinitionExecResultMapper batchMapper) {
         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+            ApiDefinitionExecResult saveResult = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+            if(saveResult == null){
+                saveResult = new ApiDefinitionExecResult();
+                saveResult.setId(reportId);
+            }
             item.getResponseResult().setConsole(console);
-            saveResult.setId(reportId);
             //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
             String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
@@ -429,7 +427,6 @@ public class ApiDefinitionExecResultService {
                 saveResult.setContent(JSON.toJSONString(item));
             }
             saveResult.setType(type);
-
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
             saveResult.setStartTime(item.getStartTime());
