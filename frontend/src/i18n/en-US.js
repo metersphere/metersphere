@@ -3059,7 +3059,7 @@ export default {
       name: "Report",
       read: "READ",
       delete: "DELETE",
-      export: "EXPORT",
+      share: "SHARE",
     },
     project_ui_element: {
       name: "Element",
