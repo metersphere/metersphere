@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
@@ -30,6 +31,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +70,9 @@ public class ApiDefinitionExecResultService {
     private ProjectMapper projectMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    RedisTemplate<String, Object> redisTemplate;
+
 
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
@@ -82,6 +87,8 @@ public class ApiDefinitionExecResultService {
                     // 发送通知
                     sendNotice(result);
                 }
+                //删除用例运行时存放在redis中的用户数据
+                redisTemplate.delete(dto.getReportId());
             }
         }
     }
@@ -113,6 +120,8 @@ public class ApiDefinitionExecResultService {
                             // 发送通知
                             sendNotice(result);
                         }
+                        //删除用例运行时存放在redis中的用户数据
+                        redisTemplate.delete(dto.getReportId());
                     }
                 }
                 if (isSchedule) {
@@ -154,11 +163,19 @@ public class ApiDefinitionExecResultService {
                 status = "失败";
             }
             User user = null;
-            if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
-                user = SessionUtils.getUser();
-            } else {
-                user = userMapper.selectByPrimaryKey(result.getUserId());
+            Object userObject = redisTemplate.opsForValue().get(result.getId());
+            if(userObject != null && userObject instanceof UserDTO){
+                user = (UserDTO) userObject;
             }
+
+            if(user == null){
+                if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
+                    user = SessionUtils.getUser();
+                } else {
+                    user = userMapper.selectByPrimaryKey(result.getUserId());
+                }
+            }
+
             Map paramMap = new HashMap<>(beanMap);
             paramMap.put("operator", user != null ? user.getName() : result.getUserId());
             paramMap.put("status", result.getStatus());
@@ -294,6 +311,8 @@ public class ApiDefinitionExecResultService {
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
 
                     ApiDefinitionExecResult reportResult = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
+                    redisTemplate.delete(reportResult.getId());
+
                     String status = item.isSuccess() ? "success" : "error";
                     if (reportResult != null) {
                         status = reportResult.getStatus();
@@ -429,7 +448,6 @@ public class ApiDefinitionExecResultService {
                 saveResult.setContent(JSON.toJSONString(item));
             }
             saveResult.setType(type);
-
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
             saveResult.setStartTime(item.getStartTime());
