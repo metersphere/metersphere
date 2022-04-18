@@ -7,8 +7,11 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +34,8 @@ public class ApiScenarioParallelService {
         if (pool.isPool()) {
             SmoothWeighted.setServerConfig(request.getConfig().getResourcePoolId(), redisTemplate);
         }
+        // 获取可以执行的资源池
+        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         for (String reportId : executeQueue.keySet()) {
             RunModeDataDTO dataDTO = executeQueue.get(reportId);
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(dataDTO.getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode(), null);
@@ -41,7 +46,7 @@ public class ApiScenarioParallelService {
             runRequest.setPoolId(request.getConfig().getResourcePoolId());
 
             runRequest.setTestPlanReportId(request.getTestPlanReportId());
-            runRequest.setPlatformUrl(executionQueue.getDetailMap().get(reportId));
+            runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(reportId)));
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             if (LoggerUtil.getLogger().isDebugEnabled()) {
                 LoggerUtil.debug("Scenario run-开始并发执行：" + JSON.toJSONString(request));

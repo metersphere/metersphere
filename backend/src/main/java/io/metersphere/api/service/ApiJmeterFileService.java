@@ -86,7 +86,7 @@ public class ApiJmeterFileService {
             envMap = JSON.parseObject(detail.getEvnMap(), Map.class);
         }
         if (MapUtils.isEmpty(envMap)) {
-            LoggerUtil.info("测试资源：【" + remoteTestId + "】未找到可执行的环境 >>>>>>> ");
+            LoggerUtil.info("测试资源：【" + remoteTestId + "】, 报告【" + reportId + "】未重新选择环境");
         }
         HashTree hashTree = null;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
