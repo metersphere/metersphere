@@ -21,10 +21,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.JvmInfoDTO;
-import io.metersphere.dto.ResultDTO;
-import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.vo.BooleanPool;
@@ -160,5 +157,21 @@ public class GenerateHashTreeUtil {
 
     public static boolean isSetReport(RunModeConfigDTO config) {
         return config != null && StringUtils.equals(config.getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(config.getReportName());
+    }
+
+    public static String getPlatformUrl(BaseSystemConfigDTO baseInfo, JmeterRunRequestDTO request, String queueDetailId) {
+        // 占位符
+        String platformUrl = "http://localhost:8081";
+        if (baseInfo != null) {
+            platformUrl = baseInfo.getUrl();
+        }
+
+        platformUrl += "/api/jmeter/download?testId="
+                + request.getTestId()
+                + "&reportId=" + request.getReportId()
+                + "&runMode=" + request.getRunMode()
+                + "&reportType=" + request.getReportType()
+                + "&queueId=" + queueDetailId;
+        return platformUrl;
     }
 }

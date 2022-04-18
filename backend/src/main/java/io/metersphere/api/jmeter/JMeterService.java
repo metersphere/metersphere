@@ -14,7 +14,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.JvmInfoDTO;
 import io.metersphere.dto.NodeDTO;
@@ -22,7 +21,6 @@ import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
-import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -121,24 +119,6 @@ public class JMeterService {
     }
 
     private void runNode(JmeterRunRequestDTO request) {
-        // 获取可以执行的资源池
-        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-        // 占位符
-        String platformUrl = "http://localhost:8081";
-        if (baseInfo != null) {
-            platformUrl = baseInfo.getUrl();
-        }
-        // 临时存放
-        String queueDetailId = request.getPlatformUrl();
-
-        platformUrl += "/api/jmeter/download?testId="
-                + request.getTestId()
-                + "&reportId=" + request.getReportId()
-                + "&runMode=" + request.getRunMode()
-                + "&reportType=" + request.getReportType()
-                + "&queueId=" + queueDetailId;
-
-        request.setPlatformUrl(platformUrl);
         request.setKafkaConfig(KafkaConfig.getKafka());
         // 如果是K8S调用
         if (request.getPool().isK8s()) {
