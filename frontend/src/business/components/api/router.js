@@ -14,11 +14,6 @@ export default {
       component: () => import('@/business/components/api/homepage/ApiTestHomePage'),
     },
     {
-      path: "report/list/:testId",
-      name: "ApiReports",
-      component: () => import('@/business/components/api/report/ApiReportList'),
-    },
-    {
       path: "report/view/:reportId",
       name: "ApiReportViews",
       component: () => import('@/business/components/api/report/ApiReportView'),
