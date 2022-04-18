@@ -3062,7 +3062,7 @@ export default {
       name: "測試報告",
       read: "查詢報告",
       delete: "刪除報告",
-      export: "導出報告",
+      share: "分享報告",
     },
     project_ui_element: {
       name: "元素庫",
