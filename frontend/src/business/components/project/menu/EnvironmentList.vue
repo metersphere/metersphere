@@ -64,6 +64,7 @@
                               @confirm="save"/>
           </template>
           <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
+                            @confirm="save"
                             :project-id="currentProjectId" @refreshAfterSave="refresh">
           </environment-edit>
         </el-dialog>
