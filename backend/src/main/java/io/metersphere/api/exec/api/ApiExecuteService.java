@@ -36,6 +36,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +63,8 @@ public class ApiExecuteService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ObjectMapper mapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
         ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -81,7 +84,7 @@ public class ApiExecuteService {
             request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
         }
         //提前生成报告
-        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId());
+        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId(),redisTemplate);
         report.setName(caseWithBLOBs.getName());
         report.setTriggerMode(ApiRunMode.JENKINS.name());
         report.setType(ApiRunMode.JENKINS.name());
