@@ -6,9 +6,12 @@ import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -33,6 +36,8 @@ public class ApiCaseParallelExecuteService {
         if (pool.isPool()) {
             SmoothWeighted.setServerConfig(config.getResourcePoolId(), redisTemplate);
         }
+        // 获取可以执行的资源池
+        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         for (String testId : executeQueue.keySet()) {
             ApiDefinitionExecResult result = executeQueue.get(testId);
             String reportId = result.getId();
@@ -44,7 +49,7 @@ public class ApiCaseParallelExecuteService {
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             runRequest.setQueueId(executionQueue.getId());
             if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
-                runRequest.setPlatformUrl(executionQueue.getDetailMap().get(result.getId()));
+                runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
             }
             if (!pool.isPool()) {
                 HashTree hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);

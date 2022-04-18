@@ -23,7 +23,7 @@ public class SmoothWeighted {
     public static final String EXEC_INDEX = "EXEC_INDEX_";
 
     public static void setServerConfig(String poolId, RedisTemplate client) {
-        if (StringUtils.isNotEmpty(poolId)) {
+        if (StringUtils.isEmpty(poolId)) {
             return;
         }
         List<JvmInfoDTO> resources = new ArrayList<>();
@@ -103,7 +103,7 @@ public class SmoothWeighted {
         }
 
         // 选中前的当前权重
-        LoggerUtil.info("第" + (execIndex) + "次选中前的当前权重:" + serverList.toString());
+        LoggerUtil.info("第" + (execIndex) + "次选中前的当前权重:" + JSON.toJSONString(serverList));
 
         if (client.opsForValue().get(CONFIG + poolId) != null) {
             client.opsForValue().set(CONFIG + poolId, serverList);
