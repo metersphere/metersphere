@@ -244,8 +244,6 @@ public class TestPlanService {
                 }
             }
         }
-        List<String> follows = request.getFollows();
-        editTestFollows(request.getId(), follows);
         return this.editTestPlan(request);
     }
 
