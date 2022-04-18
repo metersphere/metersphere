@@ -53,7 +53,7 @@ public class PerformanceReportController {
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE)
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reportId)", msClass = PerformanceReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_REPORT_TASK, event = NoticeConstants.Event.DELETE,
-            target = "#targetClass.getReport(#reportId)", targetClass = PerformanceReportService.class, mailTemplate = "performance/ReportDelete", subject = "性能测试报告通知")
+            target = "#targetClass.getReport(#reportId)", targetClass = PerformanceReportService.class, subject = "性能测试报告通知")
     public void deleteReport(@PathVariable String reportId) {
         performanceReportService.deleteReport(reportId);
     }
@@ -139,7 +139,7 @@ public class PerformanceReportController {
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE)
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST_REPORT, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = PerformanceReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_REPORT_TASK, event = NoticeConstants.Event.DELETE,
-            target = "#targetClass.getReportList(#reportRequest.ids)", targetClass = PerformanceReportService.class, mailTemplate = "performance/ReportDelete", subject = "性能测试报告通知")
+            target = "#targetClass.getReportList(#reportRequest.ids)", targetClass = PerformanceReportService.class, subject = "性能测试报告通知")
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         performanceReportService.deleteReportBatch(reportRequest);
     }

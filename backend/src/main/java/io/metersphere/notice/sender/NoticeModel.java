@@ -39,13 +39,6 @@ public class NoticeModel implements Serializable {
     private String failedContext;
 
     /**
-     * html 消息模版
-     */
-    private String mailTemplate;
-    private String failedMailTemplate;
-    private String successMailTemplate;
-
-    /**
      * 保存特殊的用户
      */
     private List<String> relatedUsers;

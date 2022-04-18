@@ -147,18 +147,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: "<!DOCTYPE html>\n" +
-        "<html lang=\"en\">\n" +
-        "<head>\n" +
-        "    <meta charset=\"UTF-8\">\n" +
-        "    <title>MeterSphere</title>\n" +
-        "</head>\n" +
-        "<body>\n" +
-        "<div>\n" +
-        "    <p>${operator}删除了测试报告: ${name}</p>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>",
       robotTitle: "${operator}删除了测试报告: ${name}",
       defectTask: [{
         taskType: "defectTask",
@@ -340,17 +328,15 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'DELETE':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             break;
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     },
     handleReceivers(row) {

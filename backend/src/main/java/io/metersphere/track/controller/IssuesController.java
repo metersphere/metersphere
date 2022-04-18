@@ -61,7 +61,7 @@ public class IssuesController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
-            event = NoticeConstants.Event.CREATE, mailTemplate = "track/IssuesCreate", subject = "缺陷通知")
+            event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
     public IssuesWithBLOBs addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
         return issuesService.addIssues(issuesRequest);
     }
@@ -70,7 +70,7 @@ public class IssuesController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
-            event = NoticeConstants.Event.UPDATE, mailTemplate = "track/IssuesUpdate", subject = "缺陷通知")
+            event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
     public void updateIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
         issuesService.updateIssues(issuesRequest);
     }
@@ -115,7 +115,7 @@ public class IssuesController {
 
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.get(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, mailTemplate = "track/IssuesDelete", subject = "缺陷通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.get(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, subject = "缺陷通知")
     public void delete(@PathVariable String id) {
         issuesService.delete(id);
     }

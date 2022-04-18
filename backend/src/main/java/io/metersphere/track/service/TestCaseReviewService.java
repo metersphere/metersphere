@@ -419,7 +419,6 @@ public class TestCaseReviewService {
                         .operator(SessionUtils.getUserId())
                         .context(context)
                         .subject("测试评审通知")
-                        .mailTemplate("track/ReviewEnd")
                         .paramMap(paramMap)
                         .event(NoticeConstants.Event.COMPLETE)
                         .status(TestCaseReviewStatus.Completed.name())
