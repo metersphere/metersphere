@@ -40,25 +40,6 @@ export default {
   data() {
     return {
       currentPath: '',
-      testRecent: {
-        title: this.$t('load_test.recent'),
-        url: "/api/recent/5",
-        index: function (item) {
-          return '/api/test/edit/' + item.id;
-        },
-        router: function (item) {
-          return {path: '/api/test/edit', query: {id: item.id}};
-        }
-      },
-      reportRecent: {
-        title: this.$t('report.recent'),
-        showTime: true,
-        url: "/api/report/recent/5",
-        index: function (item) {
-          return '/api/report/view/' + item.id;
-        }
-      },
-      isProjectActivation: true,
       isRouterAlive: true,
       apiTestProjectPath: '',
       currentProject: ''
