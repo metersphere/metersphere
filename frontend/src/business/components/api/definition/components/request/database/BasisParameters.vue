@@ -1,11 +1,11 @@
 <template>
-  <div v-loading="isReloadData">
+  <div v-loading="isReloadData || result.loading">
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
           <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
             <el-row>
-              <el-col :span="8">
+              <el-col :span="7">
                 <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
                   <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
@@ -34,10 +34,17 @@
                 </el-form-item>
 
               </el-col>
-              <el-col :span="8">
+              <el-col :span="7">
                 <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
                   <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
                 </el-form-item>
+              </el-col>
+              <el-col :span="2">
+                <el-checkbox
+                  v-if="request.referenced==='Created' && isScenario"
+                  v-model="request.isRefEnvironment" :disabled="request.disabled" class="ref_environment" @change="getEnvironments">
+                  {{ $t('api_test.request.refer_to_environment') }}
+                </el-checkbox>
               </el-col>
             </el-row>
 
@@ -141,6 +148,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    isScenario: {
+      type: Boolean,
+      default: false,
+    },
     isReadOnly: {
       type: Boolean,
       default: false
@@ -156,6 +167,7 @@ export default {
       isReloadData: false,
       activeName: "variables",
       rules: {},
+      result: {}
     }
   },
   watch: {
@@ -241,55 +253,86 @@ export default {
     runTest() {
 
     },
-    getEnvironments() {
-      this.environments = [];
+    itselfEnvironment() {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      this.$get('/api/environment/list/' + id, response => {
+      this.result = this.$get('/api/environment/list/' + id, response => {
         this.environments = response.data;
         this.environments.forEach(environment => {
           parseEnvironment(environment);
+        })
+        this.initDataSource();
+      });
+    },
+    getEnvironments() {
+      let envId = "";
+      if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+        && this.$store.state.scenarioEnvMap.has(this.projectId)) {
+        envId = this.$store.state.scenarioEnvMap.get(this.projectId);
+      }
+      if (this.request.referenced === 'Created' && this.isScenario && !this.request.isRefEnvironment) {
+        this.itselfEnvironment();
+        return;
+      } else if (!this.isScenario && !this.request.customizeReq) {
+        this.itselfEnvironment();
+        return;
+      }
+      this.environments = [];
+      let id = this.request.projectId ? this.request.projectId : this.projectId;
+
+      let targetDataSourceName = "";
+      let currentEnvironment = {};
+      this.result = this.$get('/api/environment/list/' + id, response => {
+        this.environments = response.data;
+        this.environments.forEach(environment => {
+          parseEnvironment(environment);
+          // 找到原始环境和数据源名称
+          if (environment.id === this.request.environmentId && environment.id !== envId) {
+            if (environment.config && environment.config.databaseConfigs) {
+              environment.config.databaseConfigs.forEach(item => {
+                if (item.id === this.request.dataSourceId) {
+                  targetDataSourceName = item.name;
+                }
+              });
+            }
+          }
+          if (envId && environment.id === envId) {
+            currentEnvironment = environment;
+            this.environments = [currentEnvironment];
+          }
         });
-        let envId = "";
-        if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-          && this.$store.state.scenarioEnvMap.has(this.projectId)) {
-          envId = this.$store.state.scenarioEnvMap.get(this.projectId);
-        }
-        this.initDataSource(envId);
+        this.initDataSource(envId, currentEnvironment, targetDataSourceName);
       });
     },
     openEnvironmentConfig() {
       this.$refs.environmentConfig.open(getCurrentProjectID());
     },
-    initDataSource(envId) {
-      let flag = false;
-      let environment = {};
+    initDataSource(envId, currentEnvironment, targetDataSourceName) {
+      this.databaseConfigsOptions = [];
       if (envId) {
+        this.request.environmentId = envId;
+      } else {
         for (let i in this.environments) {
-          if (this.environments[i].id === envId && this.environments[i].config && this.environments[i].config.databaseConfigs
-            && this.environments[i].config.databaseConfigs.length > 0) {
-            this.request.environmentId = envId;
-            this.request.dataSourceId = this.environments[i].config.databaseConfigs[0].id;
+          if (this.environments[i].id === this.request.environmentId) {
+            currentEnvironment = this.environments[i];
+            break;
           }
         }
       }
-
-      for (let i in this.environments) {
-        if (this.environments[i].id === this.request.environmentId) {
-          environment = this.environments[i];
-          break;
-        }
-      }
-
-      this.databaseConfigsOptions = [];
-      if (environment.config && environment.config.databaseConfigs) {
-        environment.config.databaseConfigs.forEach(item => {
+      let flag = false;
+      if (currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
+        currentEnvironment.config.databaseConfigs.forEach(item => {
           if (item.id === this.request.dataSourceId) {
+            flag = true;
+          }
+          // 按照名称匹配
+          else if (targetDataSourceName && item.name === targetDataSourceName) {
+            this.request.dataSourceId = item.id;
             flag = true;
           }
           this.databaseConfigsOptions.push(item);
         });
-        if (!flag && environment.config.databaseConfigs.length > 0) {
-          this.request.dataSourceId = environment.config.databaseConfigs[0].id;
+        if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
+          this.request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
           flag = true;
         }
       }
@@ -299,7 +342,6 @@ export default {
     },
     setDataSource() {
       this.initDataSource();
-
       for (let item of this.databaseConfigsOptions) {
         if (this.request.dataSourceId === item.id) {
           this.request.dataSource = item;
@@ -356,5 +398,10 @@ export default {
 
 /deep/ .el-form-item {
   margin-bottom: 15px;
+}
+
+.ref_environment {
+  margin-top: 13px;
+  float: right;
 }
 </style>

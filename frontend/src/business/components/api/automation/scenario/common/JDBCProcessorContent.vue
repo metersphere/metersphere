@@ -170,52 +170,65 @@ export default {
     getEnvironments() {
       this.environments = [];
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      this.$get('/api/environment/list/' + id, response => {
+      let envId = "";
+      if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+        && this.$store.state.scenarioEnvMap.has(this.projectId)) {
+        envId = this.$store.state.scenarioEnvMap.get(this.projectId);
+      }
+      let targetDataSourceName = "";
+      let currentEnvironment = {};
+      this.result = this.$get('/api/environment/list/' + id, response => {
         this.environments = response.data;
         this.environments.forEach(environment => {
           parseEnvironment(environment);
+          // 找到原始环境和数据源名称
+          if (environment.id === this.request.environmentId && environment.id !== envId) {
+            if (environment.config && environment.config.databaseConfigs) {
+              environment.config.databaseConfigs.forEach(item => {
+                if (item.id === this.request.dataSourceId) {
+                  targetDataSourceName = item.name;
+                }
+              });
+            }
+          }
+          if (envId && environment.id === envId) {
+            currentEnvironment = environment;
+            this.environments = [currentEnvironment];
+          }
         });
-        let envId = "";
-        if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-          && this.$store.state.scenarioEnvMap.has(this.projectId)) {
-          envId = this.$store.state.scenarioEnvMap.get(this.projectId);
-        }
-        this.initDataSource(envId);
+        this.initDataSource(envId, currentEnvironment, targetDataSourceName);
       });
     },
     openEnvironmentConfig() {
       this.$refs.environmentConfig.open(getCurrentProjectID());
     },
-    initDataSource(envId) {
-      let flag = false;
-      let environment = {};
+    initDataSource(envId, currentEnvironment, targetDataSourceName) {
+      this.databaseConfigsOptions = [];
       if (envId) {
+        this.request.environmentId = envId;
+      } else {
         for (let i in this.environments) {
-          if (this.environments[i].id === envId && this.environments[i].config && this.environments[i].config.databaseConfigs
-            && this.environments[i].config.databaseConfigs.length > 0) {
-            this.request.environmentId = envId;
-            this.request.dataSourceId = this.environments[i].config.databaseConfigs[0].id;
+          if (this.environments[i].id === this.request.environmentId) {
+            currentEnvironment = this.environments[i];
+            break;
           }
         }
       }
-
-      for (let i in this.environments) {
-        if (this.environments[i].id === this.request.environmentId) {
-          environment = this.environments[i];
-          break;
-        }
-      }
-
-      this.databaseConfigsOptions = [];
-      if (environment.config && environment.config.databaseConfigs) {
-        environment.config.databaseConfigs.forEach(item => {
+      let flag = false;
+      if (currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
+        currentEnvironment.config.databaseConfigs.forEach(item => {
           if (item.id === this.request.dataSourceId) {
+            flag = true;
+          }
+          // 按照名称匹配
+          else if (targetDataSourceName && item.name === targetDataSourceName) {
+            this.request.dataSourceId = item.id;
             flag = true;
           }
           this.databaseConfigsOptions.push(item);
         });
-        if (!flag && environment.config.databaseConfigs.length > 0) {
-          this.request.dataSourceId = environment.config.databaseConfigs[0].id;
+        if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
+          this.request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
           flag = true;
         }
       }
