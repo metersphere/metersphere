@@ -147,18 +147,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: "<!DOCTYPE html>\n" +
-        "<html lang=\"en\">\n" +
-        "<head>\n" +
-        "    <meta charset=\"UTF-8\">\n" +
-        "    <title>MeterSphere</title>\n" +
-        "</head>\n" +
-        "<body>\n" +
-        "<div>\n" +
-        "    <p>${operator}创建了接口定义: ${name}</p>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>",
       robotTitle: "${operator}创建了接口定义: ${name}",
       defectTask: [{
         taskType: "defectTask",
@@ -451,53 +439,40 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'CREATE':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             this.variables = this.apiVariables;
             break;
           case 'UPDATE':
-            htmlTemplate = this.title.replace('创建', '更新');
             robotTemplate = this.robotTitle.replace('创建', '更新');
             this.variables = this.apiVariables;
             break;
           case 'DELETE':
-            htmlTemplate = this.title.replace('创建', '删除');
             robotTemplate = this.robotTitle.replace('创建', '删除');
             this.variables = this.apiVariables;
             break;
           case 'CASE_CREATE':
-            htmlTemplate = this.title.replace('接口定义', '接口用例');
             robotTemplate = this.robotTitle.replace('接口定义', '接口用例');
             this.variables = this.caseVariables;
             break;
           case 'CASE_UPDATE':
-            htmlTemplate = this.title.replace('创建', '更新')
-              .replace('接口定义', '接口用例');
             robotTemplate = this.robotTitle.replace('创建', '更新')
               .replace('接口定义', '接口用例');
             this.variables = this.caseVariables;
             break;
           case 'CASE_DELETE':
-            htmlTemplate = this.title.replace('创建', '删除')
-              .replace('接口定义', '接口用例');
             robotTemplate = this.robotTitle.replace('创建', '删除')
               .replace('接口定义', '接口用例');
             this.variables = this.caseVariables;
             break;
           case 'EXECUTE_SUCCESSFUL':
-            htmlTemplate = this.title.replace('创建', '执行')
-              .replace('接口定义', '接口用例成功');
             robotTemplate = this.robotTitle.replace('创建', '执行')
               .replace('接口定义', '接口用例成功');
             this.variables = this.caseVariables;
             break;
           case 'EXECUTE_FAILED':
-            htmlTemplate = this.title.replace('创建', '执行')
-              .replace('接口定义', '接口用例失败');
             robotTemplate = this.robotTitle.replace('创建', '执行')
               .replace('接口定义', '接口用例失败');
             this.variables = this.caseVariables;
@@ -505,7 +480,7 @@ export default {
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     },
     handleReceivers(row) {

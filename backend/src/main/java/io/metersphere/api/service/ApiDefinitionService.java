@@ -1208,7 +1208,6 @@ public class ApiDefinitionService {
                         .context(context)
                         .testId(scheduleId)
                         .subject(Translator.get("swagger_url_scheduled_import_notification"))
-                        .failedMailTemplate("SwaggerImportFaild")
                         .paramMap(paramMap)
                         .event(NoticeConstants.Event.IMPORT)
                         .build();
@@ -1234,7 +1233,6 @@ public class ApiDefinitionService {
                         .context(context)
                         .testId(scheduleId)
                         .subject(Translator.get("swagger_url_scheduled_import_notification"))
-                        .successMailTemplate("SwaggerImport")
                         .paramMap(paramMap)
                         .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
                         .build();

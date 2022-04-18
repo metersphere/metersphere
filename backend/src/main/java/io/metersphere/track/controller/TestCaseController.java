@@ -196,7 +196,7 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, targetClass = TestCaseMapper.class,
-            event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseCreate", subject = "测试用例通知")
+            event = NoticeConstants.Event.CREATE, subject = "测试用例通知")
     public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         if (StringUtils.isBlank(request.getId())) {
             //新增 后端生成 id
@@ -216,7 +216,7 @@ public class TestCaseController {
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.id)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
+            event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
     public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.edit(request, files);
     }
@@ -237,7 +237,7 @@ public class TestCaseController {
     @PostMapping("/deleteToGc/{testCaseId}")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
-            mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
+            subject = "测试用例通知")
     public int deleteToGC(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.deleteTestCaseToGc(testCaseId);
@@ -246,7 +246,7 @@ public class TestCaseController {
     @GetMapping("/deletePublic/{versionId}/{refId}")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
-            mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
+            subject = "测试用例通知")
     public void deletePublic(@PathVariable String versionId, @PathVariable String refId) {
         testCaseService.deleteTestCasePublic(versionId, refId);
     }
@@ -289,7 +289,7 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
+            event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
     public void editTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.editTestCaseBath(request);
     }
@@ -305,7 +305,7 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
+            event = NoticeConstants.Event.CREATE, subject = "测试用例通知")
     public void copyTestCaseBathPublic(@RequestBody TestCaseBatchRequest request) {
         testCaseService.copyTestCaseBathPublic(request);
     }
@@ -322,7 +322,7 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
+            event = NoticeConstants.Event.DELETE, subject = "测试用例通知")
     public void deleteToGcBatch(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteToGcBatch(request.getIds());
     }
@@ -331,7 +331,7 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.DELETE, mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
+            event = NoticeConstants.Event.DELETE, subject = "测试用例通知")
     public void deleteToGcBatchPublic(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteToGcBatchPublic(request);
     }

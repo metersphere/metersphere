@@ -147,19 +147,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: "<!DOCTYPE html>\n" +
-        "<html lang=\"en\">\n" +
-        "<head>\n" +
-        "    <meta charset=\"UTF-8\">\n" +
-        "    <title>MeterSphere</title>\n" +
-        "</head>\n" +
-        "<body>\n" +
-        "<div>\n" +
-        "    <p style=\"text-align: left\">${operator} 创建了测试计划: ${name}<br>\n" +
-        "        </p>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>",
       robotTitle: "${operator} 创建了测试计划:${name} ",
       testCasePlanTask: [{
         taskType: "testPlanTask",
@@ -404,33 +391,27 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'CREATE':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             break;
           case 'UPDATE':
-            htmlTemplate = this.title.replace('创建', '更新');
             robotTemplate = this.robotTitle.replace('创建', '更新');
             break;
           case 'DELETE':
-            htmlTemplate = this.title.replace('创建', '删除');
             robotTemplate = this.robotTitle.replace('创建', '删除');
             break;
           case 'COMMENT':
-            htmlTemplate = this.title.replace('创建', '评论');
             robotTemplate = this.robotTitle.replace('创建', '评论');
             break;
           case "COMPLETE":
-            htmlTemplate = this.title.replace('创建', '完成测试计划');
             robotTemplate = this.robotTitle.replace('创建', '完成测试计划');
             break;
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     }
   },

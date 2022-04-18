@@ -384,7 +384,7 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/updateEnableByPrimyKey/disable")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, subject = "接口测试通知")
     public Schedule disableSchedule(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(false);

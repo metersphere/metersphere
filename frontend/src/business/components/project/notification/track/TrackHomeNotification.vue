@@ -147,18 +147,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: "<!DOCTYPE html>\n" +
-        "<html lang=\"en\">\n" +
-        "<head>\n" +
-        "    <meta charset=\"UTF-8\">\n" +
-        "    <title>MeterSphere</title>\n" +
-        "</head>\n" +
-        "<body>\n" +
-        "<div>\n" +
-        "    <p>${operator}关闭了定时任务: ${name}</p>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>",
       robotTitle: "${operator}关闭了定时任务: ${name}",
       defectTask: [{
         taskType: "defectTask",
@@ -329,17 +317,15 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'CLOSE_SCHEDULE':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             break;
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     },
     handleReceivers(row) {
