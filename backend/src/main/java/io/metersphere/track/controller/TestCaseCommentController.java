@@ -29,7 +29,7 @@ public class TestCaseCommentController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.caseId)", targetClass = TestCaseService.class,
-            event = NoticeConstants.Event.COMMENT, mailTemplate = "track/TestCaseComment", subject = "测试用例通知")
+            event = NoticeConstants.Event.COMMENT, subject = "测试用例通知")
     public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());
         return testCaseCommentService.saveComment(request);

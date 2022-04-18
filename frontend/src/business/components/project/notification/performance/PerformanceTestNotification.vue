@@ -147,18 +147,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: "<!DOCTYPE html>\n" +
-        "<html lang=\"en\">\n" +
-        "<head>\n" +
-        "    <meta charset=\"UTF-8\">\n" +
-        "    <title>MeterSphere</title>\n" +
-        "</head>\n" +
-        "<body>\n" +
-        "<div>\n" +
-        "    <p>${operator}创建了性能测试: ${name}</p>\n" +
-        "</div>\n" +
-        "</body>\n" +
-        "</html>",
       robotTitle: "${operator}创建了性能测试: ${name}",
       defectTask: [{
         taskType: "defectTask",
@@ -327,31 +315,25 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'CREATE':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             break;
           case 'UPDATE':
-            htmlTemplate = this.title.replace('创建', '更新');
             robotTemplate = this.robotTitle.replace('创建', '更新');
             break;
           case 'DELETE':
-            htmlTemplate = this.title.replace('创建', '删除');
             robotTemplate = this.robotTitle.replace('创建', '删除');
             break;
           case 'EXECUTE_COMPLETED':
-            htmlTemplate = this.title.replace('创建', '执行')
-              .replace('性能测试', '性能测试完成');
             robotTemplate = this.robotTitle.replace('创建', '执行')
               .replace('性能测试', '性能测试完成');
             break;
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     },
     handleReceivers(row) {

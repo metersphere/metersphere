@@ -144,21 +144,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: '<!DOCTYPE html>\n' +
-        '<html lang="en">\n' +
-        '<head>\n' +
-        '    <meta charset="UTF-8">\n' +
-        '    <title>MeterSphere</title>\n' +
-        '</head>\n' +
-        '<body>\n' +
-        '<div>\n' +
-        '    <div style="margin-left: 100px">\n' +
-        '        ${operator}执行测试成功: ${name}, 报告: ${reportUrl}' +
-        '    </div>\n' +
-        '\n' +
-        '</div>\n' +
-        '</body>\n' +
-        '</html>',
       robotTitle: "${operator}执行测试成功: ${name}, 报告: ${reportUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
@@ -265,21 +250,18 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'EXECUTE_SUCCESSFUL':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             break;
           case 'EXECUTE_FAILED':
-            htmlTemplate = this.title.replace('成功', '失败');
             robotTemplate = this.robotTitle.replace('成功', '失败');
             break;
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     }
   },
