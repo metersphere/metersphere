@@ -153,7 +153,7 @@ VALUES (UUID(), 'project_admin', 'PROJECT_UI_SCENARIO:READ+EDIT', 'PROJECT_UI_SC
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ+DELETE', 'PROJECT_UI_REPORT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ+EXPORT', 'PROJECT_UI_REPORT');
+VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ+SHARE', 'PROJECT_UI_REPORT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_UI_REPORT:READ', 'PROJECT_UI_REPORT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)

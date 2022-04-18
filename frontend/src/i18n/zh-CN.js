@@ -3063,7 +3063,7 @@ export default {
       name: "测试报告",
       read: "查询报告",
       delete: "删除报告",
-      export: "导出报告",
+      share: "分享报告",
     },
     project_ui_element: {
       name: "元素库",
