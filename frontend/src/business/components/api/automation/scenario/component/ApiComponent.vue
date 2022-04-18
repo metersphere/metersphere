@@ -104,6 +104,7 @@
               v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
               :request="request"
               :response="response"
+              :isScenario="true"
               :is-read-only="isCompReadOnly"
               :showScript="true"/>
 
@@ -627,12 +628,12 @@ export default {
         });
       }
     },
-    checkPermission(resource, workspaceId, isTurnSpace){
+    checkPermission(resource, workspaceId, isTurnSpace) {
       this.$get('/project/getOwnerProjectIds', res => {
         const project = res.data.find(p => p === resource.projectId);
-        if(!project){
+        if (!project) {
           this.$warning(this.$t('commons.no_permission'));
-        }else{
+        } else {
           this.gotoTurn(resource, workspaceId, isTurnSpace)
         }
 
