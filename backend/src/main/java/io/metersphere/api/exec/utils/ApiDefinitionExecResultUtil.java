@@ -9,14 +9,16 @@ import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.UserDTO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public class ApiDefinitionExecResultUtil {
-    public static ApiDefinitionExecResult initBase(String resourceId, String status, String reportId, RunModeConfigDTO config) {
+    public static ApiDefinitionExecResult initBase(String resourceId, String status, String reportId, RunModeConfigDTO config,RedisTemplate<String, Object> redisTemplate) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         if (StringUtils.isEmpty(reportId)) {
             apiResult.setId(UUID.randomUUID().toString());
@@ -32,6 +34,10 @@ public class ApiDefinitionExecResultUtil {
             apiResult.setActuator(config.getResourcePoolId());
         }
         apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        //存储用户信息,执行完成后删除
+        if(redisTemplate != null){
+            redisTemplate.opsForValue().set(apiResult.getId(),SessionUtils.getUser());
+        }
         apiResult.setResourceId(resourceId);
         apiResult.setReportType(ReportTypeConstants.API_INDEPENDENT.name());
         apiResult.setStartTime(System.currentTimeMillis());
@@ -41,7 +47,7 @@ public class ApiDefinitionExecResultUtil {
     }
 
     public static ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status,
-                                                    Map<String, ApiTestCase> caseMap, String poolId) {
+                                                    Map<String, ApiTestCase> caseMap, String poolId,RedisTemplate<String, Object> redisTemplate) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
@@ -62,9 +68,17 @@ public class ApiDefinitionExecResultUtil {
         if (StringUtils.isEmpty(request.getUserId())) {
             if (SessionUtils.getUser() != null) {
                 apiResult.setUserId(SessionUtils.getUser().getId());
+                if(redisTemplate != null){
+                    redisTemplate.opsForValue().set(apiResult.getId(),SessionUtils.getUser());
+                }
             }
         } else {
             apiResult.setUserId(request.getUserId());
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(request.getUserId());
+            if(redisTemplate != null){
+                redisTemplate.opsForValue().set(apiResult.getId(),userDTO);
+            }
         }
 
         apiResult.setResourceId(key.getApiCaseId());
@@ -75,7 +89,7 @@ public class ApiDefinitionExecResultUtil {
         return apiResult;
     }
 
-    public static ApiDefinitionExecResult add(String resourceId, String status, String reportId) {
+    public static ApiDefinitionExecResult add(String resourceId, String status, String reportId,RedisTemplate<String, Object> redisTemplate) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         if (StringUtils.isEmpty(reportId)) {
             apiResult.setId(UUID.randomUUID().toString());
@@ -89,6 +103,9 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
         apiResult.setActuator("LOCAL");
         apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        if(redisTemplate != null){
+            redisTemplate.opsForValue().set(apiResult.getId(),SessionUtils.getUser());
+        }
         apiResult.setResourceId(resourceId);
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());

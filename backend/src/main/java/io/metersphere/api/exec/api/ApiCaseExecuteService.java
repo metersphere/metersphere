@@ -37,6 +37,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -63,6 +64,8 @@ public class ApiCaseExecuteService {
     private ApiCaseResultService apiCaseResultService;
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
+    @Resource
+    RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 测试计划case执行
@@ -109,7 +112,7 @@ public class ApiCaseExecuteService {
 
         Map<String, String> planProjects = new HashMap<>();
         for (TestPlanApiCase testPlanApiCase : planApiCases) {
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, caseMap, resourcePoolId);
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, caseMap, resourcePoolId, redisTemplate);
             if (planProjects.containsKey(testPlanApiCase.getTestPlanId())) {
                 report.setProjectId(planProjects.get(testPlanApiCase.getTestPlanId()));
             } else {
@@ -230,7 +233,7 @@ public class ApiCaseExecuteService {
         if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
                 && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             serialReportId = UUID.randomUUID().toString();
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(null, APITestStatus.Running.name(), serialReportId, request.getConfig());
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(null, APITestStatus.Running.name(), serialReportId, request.getConfig(),redisTemplate);
             report.setName(request.getConfig().getReportName());
             report.setProjectId(request.getProjectId());
             report.setReportType(ReportTypeConstants.API_INTEGRATED.name());
@@ -262,7 +265,7 @@ public class ApiCaseExecuteService {
 
         for (int i = 0; i < caseList.size(); i++) {
             ApiTestCaseWithBLOBs caseWithBLOBs = caseList.get(i);
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
+            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig(), redisTemplate);
             report.setStatus(status);
             report.setName(caseWithBLOBs.getName());
             report.setProjectId(caseWithBLOBs.getProjectId());
