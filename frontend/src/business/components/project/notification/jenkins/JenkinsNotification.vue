@@ -149,18 +149,6 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      title: '<!DOCTYPE html>\n' +
-        '<html lang="en">\n' +
-        '<head>\n' +
-        '    <meta charset="UTF-8">\n' +
-        '    <title>MeterSphere</title>\n' +
-        '</head>\n' +
-        '<body>\n' +
-        '<div>\n' +
-        '${operator}执行 Jenkins 成功: ${name}' +
-        '</div>\n' +
-        '</body>\n' +
-        '</html>',
       robotTitle: "${operator}执行 Jenkins 成功: ${name}",
       jenkinsTask: [{
         taskType: "jenkinsTask",
@@ -260,21 +248,18 @@ export default {
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
-        let htmlTemplate = "";
         let robotTemplate = "";
         switch (row.event) {
           case 'EXECUTE_SUCCESSFUL':
-            htmlTemplate = this.title;
             robotTemplate = this.robotTitle;
             break;
           case 'EXECUTE_FAILED':
-            htmlTemplate = this.title.replace('成功', '失败');
             robotTemplate = this.robotTitle.replace('成功', '失败');
             break;
           default:
             break;
         }
-        this.$refs.noticeTemplate.open(row, htmlTemplate, robotTemplate);
+        this.$refs.noticeTemplate.open(row, robotTemplate);
       }
     }
   }

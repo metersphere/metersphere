@@ -30,7 +30,7 @@ public class IssueCommentController {
     @PostMapping("/save")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.get(#request.issuesId)", targetClass = IssuesService.class,
-            event = NoticeConstants.Event.COMMENT, mailTemplate = "track/IssuesCommentUpdate", subject = "缺陷")
+            event = NoticeConstants.Event.COMMENT, subject = "缺陷")
     public IssueComment saveComment(@RequestBody IssuesRelevanceRequest request) {
         request.setId(UUID.randomUUID().toString());
         return issueCommentService.saveComment(request);
