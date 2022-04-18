@@ -179,6 +179,7 @@ public class ScheduleService {
         schedule.setUserId(SessionUtils.getUser().getId());
         schedule.setProjectId(request.getProjectId());
         schedule.setWorkspaceId(request.getWorkspaceId());
+        schedule.setConfig(request.getConfig());
         return schedule;
     }
 
