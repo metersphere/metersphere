@@ -845,12 +845,6 @@
       "license": true
     },
     {
-      "id": "PROJECT_UI_SCENARIO:READ+SCHEDULE",
-      "name": "permission.project_ui_scenario.schedule",
-      "resourceId": "PROJECT_UI_SCENARIO",
-      "license": true
-    },
-    {
       "id": "PROJECT_UI_SCENARIO:READ+IMPORT_SCENARIO",
       "name": "permission.project_ui_scenario.import",
       "resourceId": "PROJECT_UI_SCENARIO",
@@ -887,8 +881,8 @@
       "license": true
     },
     {
-      "id": "PROJECT_UI_REPORT:READ+EXPORT",
-      "name": "permission.project_ui_report.export",
+      "id": "PROJECT_UI_REPORT:READ+SHARE",
+      "name": "permission.project_ui_report.share",
       "resourceId": "PROJECT_UI_REPORT",
       "license": true
     },
