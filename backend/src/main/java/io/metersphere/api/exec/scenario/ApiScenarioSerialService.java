@@ -28,9 +28,11 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -67,6 +69,8 @@ public class ApiScenarioSerialService {
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
         LoggerUtil.debug("Scenario run-执行脚本装载-进入串行准备");
+        // 获取可以执行的资源池
+        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         if (!StringUtils.equals(executionQueue.getReportType(), RunModeConstants.SET_REPORT.toString())
                 || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
             if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
@@ -130,7 +134,7 @@ public class ApiScenarioSerialService {
             }
             runRequest.setHashTree(hashTree);
             if (queue != null) {
-                runRequest.setPlatformUrl(queue.getId());
+                runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, queue.getId()));
             }
             if (runRequest.getPool().isPool()) {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
