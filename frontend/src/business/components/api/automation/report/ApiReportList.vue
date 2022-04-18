@@ -124,7 +124,10 @@
               <div>
                 <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                           @exec="handleView(scope.row)" type="primary"/>
-                <ms-table-operator-button :tip="$t('api_report.delete')"
+                <ms-table-operator-button v-if="isUI" :tip="$t('api_report.delete')"
+                                          v-permission="['PROJECT_UI_REPORT:READ+DELETE']"
+                                          icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+                <ms-table-operator-button v-else :tip="$t('api_report.delete')"
                                           v-permission="['PROJECT_API_REPORT:READ+DELETE']"
                                           icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
               </div>
