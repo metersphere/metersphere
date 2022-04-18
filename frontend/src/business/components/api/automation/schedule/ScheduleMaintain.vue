@@ -49,7 +49,7 @@
               <env-popover :project-ids="projectIds"
                            :placement="'bottom-start'"
                            :project-list="projectList"
-                           :project-env-map="projectEnvListMap"
+                           :env-map="projectEnvListMap"
                            :environment-type.sync="runConfig.environmentType"
                            :group-id="runConfig.environmentGroupId"
                            :has-option-group="true"
@@ -190,13 +190,13 @@ export default {
         onSampleError: false,
         runWithinResourcePool: false,
         resourcePoolId: null,
-        envMap: new Map,
+        envMap: {},
         environmentGroupId: "",
         environmentType: ENV_TYPE.JSON
       },
       projectList: [],
       projectIds: new Set(),
-      projectEnvListMap: {},
+      projectEnvListMap: new Map,
     }
   },
   methods: {
@@ -325,8 +325,16 @@ export default {
         if (response.data != null) {
           this.schedule = response.data;
           if (response.data.config) {
-            this.runConfig = JSON.parse(response.data.config);
-            this.runConfig.envMap = new Map;
+            let data = JSON.parse(response.data.config);
+            this.runConfig.environmentGroupId = data.environmentGroupId;
+            this.runConfig.environmentType = data.environmentType;
+            if (data.envMap) {
+              this.projectEnvListMap = objToStrMap(data.envMap);
+            } else {
+              this.projectEnvListMap = new Map;
+            }
+            this.runConfig.runWithinResourcePool = data.runWithinResourcePool;
+            this.runConfig.resourcePoolId = data.resourcePoolId;
           }
         } else {
           this.schedule = {
