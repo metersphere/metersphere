@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
@@ -30,6 +31,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +70,9 @@ public class ApiDefinitionExecResultService {
     private ProjectMapper projectMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    RedisTemplate<String, Object> redisTemplate;
+
 
     public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
@@ -429,7 +434,6 @@ public class ApiDefinitionExecResultService {
                 saveResult.setContent(JSON.toJSONString(item));
             }
             saveResult.setType(type);
-
             saveResult.setStatus(status);
             saveResult.setResourceId(item.getName());
             saveResult.setStartTime(item.getStartTime());
@@ -444,6 +448,13 @@ public class ApiDefinitionExecResultService {
             } else {
                 batchMapper.updateByPrimaryKeySelective(saveResult);
             }
+
+            Object userObject = redisTemplate.opsForValue().get(saveResult.getId());
+            if(userObject != null && userObject instanceof UserDTO){
+                saveResult.setUserId(((UserDTO) userObject).getId());
+            }
+            redisTemplate.delete(saveResult.getId());
+
             return saveResult;
         }
         return null;
