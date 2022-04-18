@@ -61,6 +61,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -134,6 +135,8 @@ public class ApiDefinitionService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -1109,7 +1112,7 @@ public class ApiDefinitionService {
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                     request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
-            ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId());
+            ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), redisTemplate);
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
             apiDefinitionExecResultMapper.insert(result);
