@@ -325,16 +325,12 @@ export default {
         if (response.data != null) {
           this.schedule = response.data;
           if (response.data.config) {
-            let data = JSON.parse(response.data.config);
-            this.runConfig.environmentGroupId = data.environmentGroupId;
-            this.runConfig.environmentType = data.environmentType;
-            if (data.envMap) {
-              this.projectEnvListMap = objToStrMap(data.envMap);
+            this.runConfig = JSON.parse(response.data.config);
+            if (this.runConfig.envMap) {
+              this.projectEnvListMap = objToStrMap(this.runConfig.envMap);
             } else {
               this.projectEnvListMap = new Map;
             }
-            this.runConfig.runWithinResourcePool = data.runWithinResourcePool;
-            this.runConfig.resourcePoolId = data.resourcePoolId;
           }
         } else {
           this.schedule = {

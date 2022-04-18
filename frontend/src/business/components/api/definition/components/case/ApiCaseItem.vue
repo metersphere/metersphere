@@ -17,7 +17,8 @@
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)"/>
             </span>
 
-            <el-link type="primary" style="margin-left: 10px" @click="openHis(apiCase)" v-if="apiCase.id">{{ $t('operating_log.change_history') }}</el-link>
+            <el-link type="primary" style="margin-left: 10px" @click="openHis(apiCase)"
+                     v-if="apiCase.id">{{ $t('operating_log.change_history') }}</el-link>
           </span>
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
             <span style="margin-left: 10px">
@@ -27,13 +28,15 @@
           </div>
         </el-col>
         <el-col :span="2">
-          <el-select size="mini" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)" :disabled="loaded">
+          <el-select size="mini" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)"
+                     :disabled="loaded">
             <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
           </el-select>
         </el-col>
         <el-col :span="api.protocol==='HTTP'?4:0">
           <span v-if="api.protocol==='HTTP'">
-            <el-tag size="mini" :style="{'background-color': getColor(true, apiCase.request.method), border: getColor(true, apiCase.request.method)}"
+            <el-tag size="mini"
+                    :style="{'background-color': getColor(true, apiCase.request.method), border: getColor(true, apiCase.request.method)}"
                     class="api-el-tag">
                 {{ apiCase.request.method }}
             </el-tag>
@@ -45,34 +48,42 @@
         <el-col :span="5">
           <el-row>
             <el-col :span="8">
-              <el-select size="small" v-model="apiCase.caseStatus" style="margin-right: 5px" @change="saveTestCase(apiCase,true)" :disabled="loaded">
+              <el-select size="small" v-model="apiCase.caseStatus" style="margin-right: 5px"
+                         @change="saveTestCase(apiCase,true)" :disabled="loaded">
                 <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
               </el-select>
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
                 <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
-                  <i class="el-icon-star-off" style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow"/>
+                  <i class="el-icon-star-off"
+                     style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer "
+                     @click="saveFollow"/>
                 </el-tooltip>
                 <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
-                  <i class="el-icon-star-on" style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer " @click="saveFollow" v-if="showFollow"/>
+                  <i class="el-icon-star-on"
+                     style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer "
+                     @click="saveFollow" v-if="showFollow"/>
                 </el-tooltip>
               </div>
             </el-col>
           </el-row>
           <el-row style="margin-top: 5px">
             <div class="tag-item" @click.stop>
-              <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)" :disabled="loaded"/>
+              <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)"
+                            :disabled="loaded"/>
             </div>
           </el-row>
         </el-col>
 
         <el-col :span="3">
           <span @click.stop v-if="!loaded">
-            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
+            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                           v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                            class="run-button" size="mini" :disabled="!apiCase.id || loaded" circle v-if="!loading"/>
             <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-              <el-button :disabled="!apiCase.id" @click.once="stop(apiCase)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
+              <el-button :disabled="!apiCase.id" @click.once="stop(apiCase)" size="mini"
+                         style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
                 <div style="transform: scale(0.72)">
                   <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
                 </div>
@@ -85,10 +96,12 @@
         </el-col>
 
         <el-col :span="4">
-          <el-link @click.stop type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
+          <el-link @click.stop type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'"
+                   @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
-          <el-link @click.stop v-else-if="apiCase.execResult && apiCase.execResult==='success'" @click="showExecResult(apiCase)">
+          <el-link @click.stop v-else-if="apiCase.execResult && apiCase.execResult==='success'"
+                   @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
           <div v-else> {{ getResult(apiCase.execResult) }}</div>
@@ -339,7 +352,6 @@ export default {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
-      data.message = true;
       data.request.useEnvironment = this.environment;
       this.$emit('singleRun', data);
     },
@@ -351,7 +363,14 @@ export default {
         let uuid = getUUID();
         let request = JSON.parse(JSON.stringify(data.request));
         request.id = uuid;
-        let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: request, uuid: uuid};
+        let obj = {
+          name: "copy_" + data.name,
+          priority: data.priority,
+          active: true,
+          tags: data.tags,
+          request: request,
+          uuid: uuid
+        };
         this.$emit('copyCase', obj);
       }
     },
@@ -421,7 +440,10 @@ export default {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
@@ -479,17 +501,15 @@ export default {
         row.createTime = data.createTime;
         row.updateTime = data.updateTime;
         this.compare = [];
-        if (!row.message) {
-          this.$success(this.$t('commons.save_success'));
-          this.reload();
-          this.isSave = false;
-          // 刷新编辑后用例列表
-          if (this.api.source === "editCase") {
-            this.$emit('reLoadCase');
-          }
-          if (!hideAlert) {
-            this.$emit('refresh');
-          }
+        this.$success(this.$t('commons.save_success'));
+        this.reload();
+        this.isSave = false;
+        // 刷新编辑后用例列表
+        if (this.api.source === "editCase") {
+          this.$emit('reLoadCase');
+        }
+        if (!hideAlert) {
+          this.$emit('refresh');
         }
       }, (error) => {
         this.isSave = false;
