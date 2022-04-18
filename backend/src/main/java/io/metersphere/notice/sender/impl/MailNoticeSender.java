@@ -139,7 +139,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
 
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
-        String context = super.getHtmlContext(messageDetail, noticeModel);
+        String context = super.getContext(messageDetail, noticeModel);
         try {
             sendMail(context, noticeModel);
             LogUtil.debug("发送邮件结束");

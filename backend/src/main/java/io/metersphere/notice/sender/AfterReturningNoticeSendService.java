@@ -42,7 +42,6 @@ public class AfterReturningNoticeSendService {
                     .operator(sessionUser.getId())
                     .context(context)
                     .subject(sendNotice.subject())
-                    .mailTemplate(sendNotice.mailTemplate())
                     .paramMap(paramMap)
                     .event(sendNotice.event())
                     .status((String) paramMap.get("status"))

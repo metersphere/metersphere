@@ -37,14 +37,4 @@ public @interface SendNotice {
     String successContext() default "";
 
     String failedContext() default "";
-
-    /**
-     * html 消息模版
-     */
-    String mailTemplate() default "";
-
-    String failedMailTemplate() default "";
-
-    String successMailTemplate() default "";
-
 }

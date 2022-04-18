@@ -61,7 +61,7 @@ public class TestPlanReportController {
     @PostMapping("/delete")
     @MsAuditLog(module = OperLogModule.TRACK_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanReportIdList)", msClass = TestPlanReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_REPORT_TASK, target = "#targetClass.getReports(#testPlanReportIdList)", targetClass = TestPlanReportService.class,
-            event = NoticeConstants.Event.DELETE, mailTemplate = "track/ReportDelete", subject = "报告通知")
+            event = NoticeConstants.Event.DELETE, subject = "报告通知")
     public void delete(@RequestBody List<String> testPlanReportIdList) {
         testPlanReportService.delete(testPlanReportIdList);
     }
