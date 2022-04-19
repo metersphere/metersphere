@@ -39,7 +39,7 @@
       <el-row>
         <el-col>
           <el-form-item :label="$t('system_parameter_setting.SMTP_from')" prop="from">
-            <el-input v-model="formInline.from" :placeholder="$t('system_parameter_setting.SMTP_from')"
+            <el-input v-model="formInline.from" :placeholder="$t('system_parameter_setting.from_tip')"
                       type="text" v-on:input="change()">
             </el-input>
           </el-form-item>
