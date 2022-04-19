@@ -2470,6 +2470,7 @@ export default {
     account: '賬戶不能為空',
     test_recipients: '測試收件人',
     tip: '提示：僅用來作為測試郵件收件人',
+    from_tip: '注：必須是郵件服務器驗證通過的郵箱，否則默認為SMTP賬戶發送'
   },
   i18n: {
     home: '首頁',
