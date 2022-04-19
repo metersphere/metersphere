@@ -517,6 +517,7 @@ public class ApiAutomationService {
             this.preDelete(s.getId());
             testPlanScenarioCaseService.deleteByScenarioId(s.getId());
             apiScenarioMapper.deleteByPrimaryKey(s.getId());
+            scheduleService.deleteByResourceId(s.getId(), ScheduleGroup.API_SCENARIO_TEST.name());
         });
     }
 
@@ -599,16 +600,16 @@ public class ApiAutomationService {
             if (scenario == null) {
                 return;
             }
-            ApiScenarioExampleWithOperation example = new ApiScenarioExampleWithOperation();
-            example.createCriteria().andRefIdEqualTo(scenario.getRefId());
-            example.setOperator(SessionUtils.getUserId());
-            example.setOperationTime(System.currentTimeMillis());
-            extApiScenarioMapper.removeToGcByExample(example);
             ApiScenarioRequest request = new ApiScenarioRequest();
             request.setRefId(scenario.getRefId());
             List<String> scenarioIds = extApiScenarioMapper.selectIdsByQuery(request);
             //将这些场景的定时任务删除掉
             scenarioIds.forEach(scenarioId -> scheduleService.deleteByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name()));
+            ApiScenarioExampleWithOperation example = new ApiScenarioExampleWithOperation();
+            example.createCriteria().andRefIdEqualTo(scenario.getRefId());
+            example.setOperator(SessionUtils.getUserId());
+            example.setOperationTime(System.currentTimeMillis());
+            extApiScenarioMapper.removeToGcByExample(example);
         }
     }
 
@@ -1897,6 +1898,7 @@ public class ApiAutomationService {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         apiScenarioMapper.deleteByExample(example);
+        scheduleService.deleteByResourceId(refId, ScheduleGroup.API_SCENARIO_TEST.name());
         checkAndSetLatestVersion(refId);
     }
 
