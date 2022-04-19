@@ -99,7 +99,7 @@
                            sortable
                            :field="item"
                            :fields-width="fieldsWidth"
-                           :filters="apiscenariofilters.STATUS_FILTERS"
+                           :filters="!trashEnable ? apiscenariofilters.STATUS_FILTERS : apiscenariofilters.TRASH_FILTERS"
                            min-width="120px">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.status"/>
