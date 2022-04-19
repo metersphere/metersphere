@@ -183,17 +183,6 @@ public class TestPlanController {
         return PageUtils.setPageInfo(page, testPlanProjectService.getProjectByPlanId(request));
     }
 
-    @PostMapping("/testplan/jenkins")
-    public String runJenkins(@RequestBody TestplanRunRequest testplanRunRequest) {
-        ApiRunConfigDTO api = new ApiRunConfigDTO();
-        api.setMode(testplanRunRequest.getMode());
-        api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
-        api.setOnSampleError(false);
-        api.setReportType("iddReport");
-        String apiRunConfig = JSONObject.toJSONString(api);
-        return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(),null, apiRunConfig);
-    }
-
     @PostMapping("/copy/{id}")
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestPlanStart", subject = "测试计划通知")
     public TestPlan copy(@PathVariable String id) {
