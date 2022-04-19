@@ -2467,6 +2467,7 @@ export default {
     account: 'Account cannot be empty',
     test_recipients: 'Test recipients',
     tip: 'Tip: use as test mail recipient only',
+    from_tip: 'Note: It must be the mailbox verified by the mail server, otherwise it is sent by SMTP account by default'
   },
   i18n: {
     home: 'Home',

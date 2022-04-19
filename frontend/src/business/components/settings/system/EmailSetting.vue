@@ -38,7 +38,10 @@
       </el-row>
       <el-row>
         <el-col>
-          <el-form-item :label="$t('system_parameter_setting.SMTP_from')" prop="from">
+          <el-form-item prop="from">
+            <template v-slot:label>
+              {{ $t('system_parameter_setting.SMTP_from') }} <i style="font-size: 10px;">{{$t('system_parameter_setting.from_tip')}}</i>
+            </template>
             <el-input v-model="formInline.from" :placeholder="$t('system_parameter_setting.SMTP_from')"
                       type="text" v-on:input="change()">
             </el-input>
