@@ -281,6 +281,7 @@ public class ElementUtil {
 
     public final static List<String> requests = new ArrayList<String>() {{
         this.add("HTTPSamplerProxy");
+        this.add("MsUiCommand");
         this.add("DubboSampler");
         this.add("JDBCSampler");
         this.add("TCPSampler");
