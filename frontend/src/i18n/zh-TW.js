@@ -2470,6 +2470,7 @@ export default {
     account: '賬戶不能為空',
     test_recipients: '測試收件人',
     tip: '提示：僅用來作為測試郵件收件人',
+    from_tip: '發送郵件賬號，默認使用 SMTP 賬號作為發送賬號'
   },
   i18n: {
     home: '首頁',

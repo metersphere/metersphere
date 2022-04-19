@@ -2471,6 +2471,7 @@ export default {
     account: '账户不能为空',
     test_recipients: '测试收件人',
     tip: '提示：仅用来作为测试邮件收件人',
+    from_tip: '发送邮件账号，默认使用 SMTP 账号作为发送账号'
   },
   i18n: {
     home: '首页',

@@ -2467,6 +2467,7 @@ export default {
     account: 'Account cannot be empty',
     test_recipients: 'Test recipients',
     tip: 'Tip: use as test mail recipient only',
+    from_tip: 'The account for sending emails, the SMTP account is used as the sending account by default'
   },
   i18n: {
     home: 'Home',
