@@ -232,3 +232,27 @@ ALTER TABLE api_scenario DROP COLUMN use_url;
 
 -- 优化删除报告效率
 CREATE INDEX api_definition_exec_result_integrated_report_id_IDX USING BTREE ON api_definition_exec_result (integrated_report_id);
+
+DROP PROCEDURE IF EXISTS schema_change_api;
+DELIMITER //
+CREATE PROCEDURE schema_change_api() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'api_definition_exec_result' AND index_name = 'create_time_index') THEN
+        ALTER TABLE `api_definition_exec_result` ADD INDEX  create_time_index ( `create_time` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_api();
+
+DROP PROCEDURE IF EXISTS schema_change_api_one;
+DELIMITER //
+CREATE PROCEDURE schema_change_api_one() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF  EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'api_definition_exec_result' AND index_name = 'projectIdIndex') THEN
+        ALTER TABLE `api_definition_exec_result` DROP INDEX projectIdIndex;
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_api_one();
