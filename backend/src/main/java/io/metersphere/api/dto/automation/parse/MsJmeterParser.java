@@ -333,6 +333,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             if (url != null) {
                 samplerProxy.setUrl(this.getUrl(source));
                 samplerProxy.setPath(null);
+                samplerProxy.setCustomizeReq(true);
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
