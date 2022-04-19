@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "export NODE_OPTIONS=--max_old_space_size=4096 && vue-cli-service build",
+    "build": "SET NODE_OPTIONS=--max_old_space_size=4096 && vue-cli-service build",
     "build-win": "SET NODE_OPTIONS=--max_old_space_size=4096 && vue-cli-service build",
     "lint": "vue-cli-service lint"
   },

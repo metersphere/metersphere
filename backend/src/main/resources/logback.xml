@@ -2,6 +2,9 @@
 <configuration debug="true">
     <property resource="base.properties"/>
     <property file="/opt/metersphere/conf/metersphere.properties"/>
+    <!--    <property file="D:/zdjx/metersphere/backend/src/main/resources/metersphere.properties"/>-->
+    <!--    <property file="D:\\zdjx\\metersphere\\backend\\src\\main\\resources\\metersphere.properties"/>-->
+    <!--    <property resource="metersphere.properties"/>-->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d %5p %40.40c:%4L - %m%n</pattern>
