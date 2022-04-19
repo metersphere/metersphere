@@ -22,21 +22,20 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.MailInfo;
+import io.metersphere.notice.domain.Receiver;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.sender.impl.MailNoticeSender;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
 
@@ -53,6 +52,8 @@ public class SystemParameterService {
     private SystemHeaderMapper systemHeaderMapper;
     @Resource
     private ApiTestEnvironmentService apiTestEnvironmentService;
+    @Resource
+    private MailNoticeSender mailNoticeSender;
 
     public String searchEmail() {
         return extSystemParameterMapper.email();
@@ -102,62 +103,27 @@ public class SystemParameterService {
     }
 
     public void testConnection(HashMap<String, String> hashMap) {
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setDefaultEncoding("UTF-8");
-        javaMailSender.setHost(hashMap.get(ParamConstants.MAIL.SERVER.getValue()));
-        javaMailSender.setPort(Integer.parseInt(hashMap.get(ParamConstants.MAIL.PORT.getValue())));
-        javaMailSender.setUsername(hashMap.get(ParamConstants.MAIL.ACCOUNT.getValue()));
-        javaMailSender.setPassword(hashMap.get(ParamConstants.MAIL.PASSWORD.getValue()));
-        Properties props = new Properties();
-        String recipients = hashMap.get(ParamConstants.MAIL.RECIPIENTS.getValue());
-        if (BooleanUtils.toBoolean(hashMap.get(ParamConstants.MAIL.SSL.getValue()))) {
-            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        }
-        if (BooleanUtils.toBoolean(hashMap.get(ParamConstants.MAIL.TLS.getValue()))) {
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.ssl.trust", hashMap.get(ParamConstants.MAIL.SERVER.getValue()));
-
-        }
-        props.put("mail.smtp.timeout", "30000");
-        props.put("mail.smtp.connectiontimeout", "5000");
-        javaMailSender.setJavaMailProperties(props);
+        JavaMailSenderImpl javaMailSender = mailNoticeSender.getMailSender(hashMap);
         try {
             javaMailSender.testConnection();
         } catch (MessagingException e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("connection_failed"));
         }
+
+        String recipients = hashMap.get(ParamConstants.MAIL.RECIPIENTS.getValue());
         if (!StringUtils.isBlank(recipients)) {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = null;
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .subject("MeterSphere测试邮件")
+                    .receivers(Arrays.asList(new Receiver(recipients, recipients)))
+                    .build();
             try {
-                helper = new MimeMessageHelper(mimeMessage, true);
-                String username = javaMailSender.getUsername();
-                String email;
-                if (username.contains("@")) {
-                    email = username;
-                } else {
-                    String mailHost = javaMailSender.getHost();
-                    String domainName = mailHost.substring(mailHost.indexOf(".") + 1);
-                    email = username + "@" + domainName;
-                }
-
-                InternetAddress from = new InternetAddress();
-                from.setAddress(email);
-                from.setPersonal(hashMap.getOrDefault(ParamConstants.MAIL.FROM.getValue(), username));
-                helper.setFrom(from);
-
-                helper.setSubject("MeterSphere测试邮件 ");
-                helper.setText("这是一封测试邮件，邮件发送成功", true);
-                helper.setTo(recipients);
-                javaMailSender.send(mimeMessage);
+                mailNoticeSender.sendExternalMail("这是一封测试邮件，邮件发送成功", noticeModel);
             } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
+                LogUtil.error(e);
                 MSException.throwException(Translator.get("connection_failed"));
             }
         }
-
-
     }
 
     public String getVersion() {
