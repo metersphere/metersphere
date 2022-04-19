@@ -114,6 +114,10 @@ public class MsJmeterElement extends MsTestElement {
                 for (ScenarioVariable item : list) {
                     if (CollectionUtils.isNotEmpty(item.getFiles())) {
                         List<String> names = item.getFiles().stream().map(BodyFile::getName).collect(Collectors.toList());
+                        if (CollectionUtils.isNotEmpty(names) && !names.contains(name) && name.contains("_")) {
+                            String pathArr[] = name.split("_");
+                            name = pathArr[pathArr.length - 1];
+                        }
                         if (CollectionUtils.isNotEmpty(names) && names.contains(name)) {
                             if (!config.isOperating() && !new File(FileUtils.BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName()).exists()) {
                                 MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ CSV文件不存在 ]");
