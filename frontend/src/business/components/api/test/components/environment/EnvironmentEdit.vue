@@ -91,16 +91,39 @@
                       placement="top-start" slot="label">
             <span>{{ $t('env_options.all_assertions') }}</span>
           </el-tooltip>
-          <el-row type="flex" :gutter="20" v-if="hasLicense">
-            <el-col :span="12">
-              <el-form-item
-                :label="$t('error_report_library.use_error_report')"
-                prop="status">
-                <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px" :disabled="isReadOnly"/>
-                {{ $t('error_report_library.use_desc') }}
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <div v-if="hasLicense" style="margin-bottom: 15px">
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-form-item style="margin-bottom: 0px;"
+                  :label="$t('error_report_library.use_error_report')"
+                  prop="status">
+                  <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px" :disabled="isReadOnly"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row v-show="environment.config.useErrorCode" :gutter="20">
+              <el-col style="margin-left: 30px">
+                {{ $t('error_report_library.conflict_with_success') }}
+                <el-switch
+                  class="errorReportConfigSwitch"
+                  v-model="environment.config.higherThanSuccess"
+                  :active-text="$t('error_report_library.option.name')"
+                  :inactive-text="$t('api_test.automation.request_success')">
+                </el-switch>
+              </el-col>
+            </el-row>
+            <el-row v-show="environment.config.useErrorCode" :gutter="20">
+              <el-col style="margin-left: 30px">
+                {{ $t('error_report_library.conflict_with_error') }}
+                <el-switch
+                  class="errorReportConfigSwitch"
+                  v-model="environment.config.higherThanError"
+                  :active-text="$t('error_report_library.option.name')"
+                  :inactive-text="$t('api_test.automation.request_error')">
+                </el-switch>
+              </el-col>
+            </el-row>
+          </div>
           <global-assertions :is-read-only="isReadOnly" :assertions="environment.config.assertions"
                              :is-show-json-path-suggest="false"/>
         </el-tab-pane>
@@ -424,4 +447,10 @@ span:not(:first-child) {
   margin-top: 15px;
 }
 
+.errorReportConfigSwitch /deep/ .el-switch__label{
+  color: #D8DAE2;
+}
+.errorReportConfigSwitch /deep/ .is-active{
+  color: var(--count_number);
+}
 </style>

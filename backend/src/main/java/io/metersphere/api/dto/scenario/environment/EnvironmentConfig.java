@@ -33,6 +33,8 @@ public class EnvironmentConfig {
     private JSONObject authManager;
     private List<MsAssertions> assertions;
     private boolean useErrorCode;
+    private boolean higherThanSuccess;
+    private boolean higherThanError;
 
     public EnvironmentConfig() {
         this.commonConfig = new CommonConfig();

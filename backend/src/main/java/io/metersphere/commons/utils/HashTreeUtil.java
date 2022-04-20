@@ -239,9 +239,9 @@ public class HashTreeUtil {
         return target;
     }
 
-    public static List<MsAssertions> getErrorReportByProjectId(String projectId) {
+    public static List<MsAssertions> getErrorReportByProjectId(String projectId,boolean higherThanSuccess,boolean higherThanError) {
         ExtErrorReportLibraryService service = CommonBeanFactory.getBean(ExtErrorReportLibraryService.class);
-        return service.getAssertionByProjectIdAndStatusIsOpen(projectId);
+        return service.getAssertionByProjectIdAndStatusIsOpen(projectId,higherThanSuccess,higherThanError);
     }
 
     public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId) {
@@ -249,7 +249,7 @@ public class HashTreeUtil {
             return;
         }
         if (!config.isOperating() && envConfig.isUseErrorCode()) {
-            List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId);
+            List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId,envConfig.isHigherThanSuccess(),envConfig.isHigherThanError());
             for (MsAssertions assertion : errorReportAssertion) {
                 assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
             }
