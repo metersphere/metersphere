@@ -331,7 +331,6 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionWithBLOBs update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        checkQuota();
         if (request.getRequest() != null) {
             deleteFileByTestId(request.getRequest().getId());
         }

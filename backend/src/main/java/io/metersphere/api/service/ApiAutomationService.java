@@ -342,7 +342,6 @@ public class ApiAutomationService {
     }
 
     public ApiScenario update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
-        checkQuota();
         checkNameExist(request);
         checkScenarioNum(request);
 
