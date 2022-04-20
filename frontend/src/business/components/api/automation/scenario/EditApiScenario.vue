@@ -1550,7 +1550,7 @@ export default {
       if (!this.currentScenario.headers) {
         this.currentScenario.headers = [];
       }
-      if (this.currentScenario.id) {
+      if (this.currentScenario && this.currentScenario.id) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
           if (response.data) {
             this.path = "/api/automation/update";
@@ -1818,19 +1818,15 @@ export default {
       return [];
     },
     checkALevelChecked() {
+      let resourceIds = [];
       if (this.$refs.stepTree) {
-        let resourceIds = [];
         this.$refs.stepTree.root.childNodes.forEach(item => {
           if (item.checked) {
             resourceIds.push(item.data.resourceId);
           }
         })
-        if (resourceIds.length > 20) {
-          this.$warning(this.$t('api_test.automation.open_check_message'));
-          return false;
-        }
       }
-      return true;
+      return resourceIds;
     },
     recursionExpansion(resourceIds, array) {
       if (array) {
@@ -1850,11 +1846,15 @@ export default {
     },
     openExpansion() {
       this.expandedStatus = true;
-      if (this.checkALevelChecked()) {
-        let resourceIds = this.getAllResourceIds();
-        this.changeNodeStatus(resourceIds, this.scenarioDefinition);
-        this.recursionExpansion(resourceIds, this.$refs.stepTree.root.childNodes);
+      let resourceIds = [];
+      let openResourceIds = this.checkALevelChecked();
+      if (openResourceIds.length > 20) {
+        resourceIds = openResourceIds.slice(0, 20);
+      } else {
+        resourceIds = this.getAllResourceIds();
       }
+      this.changeNodeStatus(resourceIds, this.scenarioDefinition);
+      this.recursionExpansion(resourceIds, this.$refs.stepTree.root.childNodes);
     },
     closeExpansion() {
       this.expandedStatus = false;

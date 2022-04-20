@@ -20,7 +20,7 @@
             :project-id="projectId"
             :is-read-only="isReadOnly"
             :useEnvironment='useEnvironment'
-            @setEnvironment="setEnvironment" ref="environmentSelect"/>
+            @setEnvironment="setEnvironment" ref="environmentSelect" v-if="api.protocol==='HTTP'"/>
         </el-col>
         <el-col :span="2">
           <!-- 保存操作 -->

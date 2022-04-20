@@ -233,7 +233,7 @@ public class ApiScenarioEnvService {
             environmentType = EnvironmentType.JSON.toString();
         }
         String definition = apiScenarioWithBLOBs.getScenarioDefinition();
-        MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
+        MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class, Feature.DisableSpecialKeyDetect);
         GenerateHashTreeUtil.parse(definition, scenario);
         if (StringUtils.equals(environmentType, EnvironmentType.JSON.toString())) {
             scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
@@ -251,7 +251,7 @@ public class ApiScenarioEnvService {
         boolean isEnv = true;
         if (apiScenarioWithBLOBs != null) {
             String definition = apiScenarioWithBLOBs.getScenarioDefinition();
-            MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
+            MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class, Feature.DisableSpecialKeyDetect);
             Map<String, String> envMap = scenario.getEnvironmentMap();
             if (testPlanApiScenarios != null) {
                 String envType = testPlanApiScenarios.getEnvironmentType();
