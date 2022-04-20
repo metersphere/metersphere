@@ -52,6 +52,7 @@
                           :environmentType="environmentType"
                           :environmentGroupId="environmentGroupId"
                           :envMap="envMap"
+                          :is-scenario="true"
                           @enable="enable"
                           @copy="copyRow"
                           @remove="remove"

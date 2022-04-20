@@ -62,6 +62,7 @@ public class MsHashTreeService {
     public static final String AUTH_MANAGER = "authManager";
     public static final String PROJECT_ID = "projectId";
     public static final String ACTIVE = "active";
+    public static final String ENV_MAP = "environmentMap";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -86,14 +87,14 @@ public class MsHashTreeService {
                     } else {
                         ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString(ID));
                         if (bloBs != null) {
-                            object = JSON.parseObject(bloBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
+                            object = JSON.parseObject(bloBs.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
                             hashTree.set(i, object);
                         }
                     }
                 } else if (SCENARIO.equals(object.getString(TYPE))) {
                     ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(object.getString(ID));
                     if (bloBs != null) {
-                        object = JSON.parseObject(bloBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
+                        object = JSON.parseObject(bloBs.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
                         hashTree.set(i, object);
                     }
                 }
@@ -183,7 +184,7 @@ public class MsHashTreeService {
             ApiTestCaseInfo apiTestCase = apiTestCaseService.get(element.getString(ID));
             if (apiTestCase != null) {
                 if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), REF)) {
-                    JSONObject refElement = JSON.parseObject(apiTestCase.getRequest(),Feature.DisableSpecialKeyDetect);
+                    JSONObject refElement = JSON.parseObject(apiTestCase.getRequest(), Feature.DisableSpecialKeyDetect);
                     ElementUtil.dataFormatting(refElement);
                     JSONArray array = refElement.getJSONArray(HASH_TREE);
                     ElementUtil.copyBean(element, refElement);
@@ -255,8 +256,11 @@ public class MsHashTreeService {
             boolean variableEnable = element.containsKey(VARIABLE_ENABLE)
                     ? element.getBoolean(VARIABLE_ENABLE) : true;
 
+            if (environmentEnable && StringUtils.isNotEmpty(scenarioWithBLOBs.getEnvironmentJson())) {
+                element.put(ENV_MAP, JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
+            }
             if (StringUtils.equalsIgnoreCase(element.getString(REFERENCED), REF)) {
-                element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition(),Feature.DisableSpecialKeyDetect);
+                element = JSON.parseObject(scenarioWithBLOBs.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
                 element.put(REFERENCED, REF);
                 element.put(NAME, scenarioWithBLOBs.getName());
             }

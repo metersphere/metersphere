@@ -61,7 +61,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
     }
 
     private ScenarioImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
-        ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class,Feature.DisableSpecialKeyDetect);
+        ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class, Feature.DisableSpecialKeyDetect);
         List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
 
         Set<String> moduleIdSet = scenarioImport.getData().stream()
@@ -80,7 +80,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
             data.forEach(item -> {
                 String scenarioDefinitionStr = item.getScenarioDefinition();
                 if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
-                    JSONObject scenarioDefinition = JSONObject.parseObject(scenarioDefinitionStr);
+                    JSONObject scenarioDefinition = JSONObject.parseObject(scenarioDefinitionStr, Feature.DisableSpecialKeyDetect);
                     if (scenarioDefinition != null) {
                         JSONObject environmentMap = scenarioDefinition.getJSONObject("environmentMap");
                         if (environmentMap != null) {
