@@ -52,6 +52,12 @@ public class ApiScenarioReferenceIdService {
         apiScenarioReferenceIdMapper.deleteByExample(example);
     }
 
+    public void deleteByScenarioIds(List<String> scenarioIds) {
+        ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
+        example.createCriteria().andApiScenarioIdIn(scenarioIds);
+        apiScenarioReferenceIdMapper.deleteByExample(example);
+    }
+
     public void saveApiAndScenarioRelation(ApiScenarioWithBLOBs scenario) {
         if (scenario.getId() == null) {
             return;

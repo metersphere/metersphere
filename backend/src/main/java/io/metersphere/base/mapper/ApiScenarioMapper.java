@@ -11,7 +11,7 @@ public interface ApiScenarioMapper {
 
     int deleteByExample(ApiScenarioExample example);
 
-    int deleteByPrimaryKey(String id);
+    int  deleteByPrimaryKey(String id);
 
     int insert(ApiScenarioWithBLOBs record);
 

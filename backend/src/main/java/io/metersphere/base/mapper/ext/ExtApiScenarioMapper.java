@@ -53,6 +53,8 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> listWithIds(@Param("ids") List<String> ids);
 
+    List<ApiScenarioWithBLOBs> listWithRefIds(@Param("ids") List<String> ids);
+
     List<Map<String, Object>> listModuleByCollection(@Param("request") ApiScenarioRequest request);
 
     String selectNameById(String id);
