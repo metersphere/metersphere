@@ -286,6 +286,7 @@ public class ApiScenarioReportStructureService {
                         dto.setStepId(reportResults.get(0).getId());
                         dto.setValue(requestResultExpandDTO);
                         dto.setErrorCode(reportResults.get(0).getErrorCode());
+                        dto.setTotalStatus(requestResultExpandDTO.getStatus());
                     }
                 }
             }
@@ -312,7 +313,7 @@ public class ApiScenarioReportStructureService {
                     }
                 }
             }
-            if (StringUtils.isNotEmpty(dto.getErrorCode())) {
+            if (StringUtils.isNotEmpty(dto.getErrorCode()) && StringUtils.isEmpty(dto.getTotalStatus())) {
                 dto.setTotalStatus("errorCode");
             }
 
@@ -545,7 +546,7 @@ public class ApiScenarioReportStructureService {
 
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equals(e.getStatus(), "Error")).collect(Collectors.toList()).size());
-            reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.isNotEmpty(e.getErrorCode())).collect(Collectors.toList()).size());
+            reportDTO.setErrorCode(reportResults.stream().filter(e -> StringUtils.equals(e.getStatus(), ExecuteResult.errorReportResult.name())).collect(Collectors.toList()).size());
             reportDTO.setPassAssertions(reportResults.stream().mapToLong(ApiScenarioReportResult::getPassAssertions).sum());
             reportDTO.setTotalAssertions(reportResults.stream().mapToLong(ApiScenarioReportResult::getTotalAssertions).sum());
 
