@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.base.domain.Quota;
 import io.metersphere.performance.request.TestPlanRequest;
 
 import java.math.BigDecimal;
@@ -79,5 +80,20 @@ public interface QuotaService {
      * @return 预计回退数量
      */
     BigDecimal getReduceVumUsed(LoadTestReportWithBLOBs report);
+
+    /**
+     * 如果有该项目配额，修改为使用工作空间下项目默认配额
+     * 无该配额，新建配额并默认使用工作空间下项目默认配额
+     * @return 操作后的配额
+     */
+    Quota projectUseDefaultQuota(String projectId);
+
+    /**
+     * 如果有该工作空间配额，修改为使用系统默认配额，
+     * 无该配额，新建配额并默认使用系统配额
+     * @param workspaceId 工作空间ID
+     * @return 操作后的配额
+     */
+    Quota workspaceUseDefaultQuota(String workspaceId);
 
 }
