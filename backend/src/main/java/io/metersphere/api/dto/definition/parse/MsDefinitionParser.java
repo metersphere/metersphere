@@ -121,7 +121,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
         apiDefinition.setProjectId(this.projectId);
         String request = apiDefinition.getRequest();
-        JSONObject requestObj = JSONObject.parseObject(request);
+        JSONObject requestObj = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
         if(requestObj.get("projectId")!=null){
             requestObj.put("projectId", apiDefinition.getProjectId());
         }
@@ -148,7 +148,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         }
         cases.forEach(item -> {
             String request = item.getRequest();
-            JSONObject requestObj = JSONObject.parseObject(request);
+            JSONObject requestObj = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
             requestObj.put("useEnvironment", "");
             item.setRequest(JSONObject.toJSONString(requestObj));
             item.setApiDefinitionId(apiDefinition.getId());
