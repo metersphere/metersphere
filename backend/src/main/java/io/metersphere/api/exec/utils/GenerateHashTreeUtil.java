@@ -126,7 +126,7 @@ public class GenerateHashTreeUtil {
             MsThreadGroup group = new MsThreadGroup();
             group.setLabel(item.getName());
             group.setName(runRequest.getReportId());
-            MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
+            MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class, Feature.DisableSpecialKeyDetect);
             group.setOnSampleError(scenario.getOnSampleError());
             if (planEnvMap != null && planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
