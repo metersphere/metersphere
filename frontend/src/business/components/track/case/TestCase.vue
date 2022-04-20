@@ -404,6 +404,13 @@ export default {
         this.tabs.push({label: label, name: name, testCaseInfo: tab.testCaseInfo});
       }
 
+      if (tab.name === 'public') {
+        this.publicEnable = false;
+        this.$nextTick(() => {
+          this.publicEnable = true;
+        })
+      }
+
       setCurTabId(this, tab, 'testCaseEdit');
     },
     addTabShow(tab) {
@@ -646,7 +653,10 @@ export default {
     },
     enablePublic(data) {
       this.initApiTableOpretion = "publicEnable";
-      this.publicEnable = data;
+      this.publicEnable = !data;
+      this.$nextTick(() => {
+        this.publicEnable = data;
+      })
     },
     toPublic(data) {
       if (data === 'public') {
