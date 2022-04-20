@@ -631,16 +631,7 @@ public class ApiScenarioReportService {
                 ids.removeAll(reportRequest.getUnSelectIds());
             }
         }
-        ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andIdIn(reportRequest.getIds());
-        List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(example);
-        // 取出可能是集成报告的ID 放入删除
-        reportList.forEach(item -> {
-            List<String> reportIds = getReportIds(item.getScenarioId());
-            if (CollectionUtils.isNotEmpty(reportIds)) {
-                reportRequest.getIds().addAll(reportIds);
-            }
-        });
+
         List<String> myList = reportRequest.getIds().stream().distinct().collect(Collectors.toList());
         reportRequest.setIds(myList);
         //为预防数量太多，调用删除方法时引起SQL过长的Bug，此处采取分批执行的方式。
