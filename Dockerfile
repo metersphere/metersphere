@@ -9,6 +9,10 @@ COPY ${DEPENDENCY}/BOOT-INF/lib /opt/lib
 COPY ${DEPENDENCY}/META-INF /opt/META-INF
 COPY ${DEPENDENCY}/BOOT-INF/classes /opt
 
+ADD frontend/src/assets/theme/index.css /opt/classes/static/css
+ADD frontend/dist/*[^.html] /opt/classes/static
+ADD frontend/dist/*.html /opt/classes/public
+
 ENV JAVA_CLASSPATH=/opt:/opt/lib/ms-jmeter-core.jar:/opt/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
 ENV AB_OFF=true
