@@ -147,8 +147,24 @@ export default {
         if (res.data) {
           let data = JSON.parse(res.data);
           this.data.hashTree = data.hashTree;
+          this.setOwnEnvironment(this.data.hashTree);
         }
       })
+    },
+    setOwnEnvironment(scenarioDefinition) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          scenarioDefinition[i].environmentEnable = this.data.environmentEnable;
+          scenarioDefinition[i].refEevMap = new Map();
+          if (this.data.environmentEnable && this.data.environmentMap) {
+            scenarioDefinition[i].refEevMap = this.data.environmentMap;
+          }
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setOwnEnvironment(scenarioDefinition[i].hashTree);
+        }
+      }
     },
     saveAsApi() {
       this.currentProtocol = this.data.protocol;

@@ -98,7 +98,7 @@
                     <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                   </div>
                   </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" @reload="reloadBody"
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :isScenario="isScenario" @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
 
@@ -123,7 +123,7 @@ import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
 import MsApiScenarioVariables from "../../ApiScenarioVariables";
 import {parseEnvironment} from "../../../model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, objToStrMap} from "@/common/js/utils";
 import {getUUID} from "@/common/js/utils";
 import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 import MsJmxStep from "../../step/JmxStep";
@@ -147,6 +147,10 @@ export default {
     showScript: {
       type: Boolean,
       default: true,
+    },
+    isCase: {
+      type: Boolean,
+      default: false,
     },
     isScenario: {
       type: Boolean,
@@ -177,12 +181,24 @@ export default {
       },
       deep: true
     },
+    '$store.state.useEnvironment': function () {
+      if (!this.isScenario) {
+        this.request.environmentId = this.$store.state.useEnvironment;
+        this.getEnvironments();
+      }
+    },
     '$store.state.scenarioEnvMap': {
       handler(v) {
         this.getEnvironments();
       },
       deep: true
-    }
+    },
+    'request.refEevMap': {
+      handler(v) {
+        this.getEnvironments();
+      },
+      deep: true
+    },
   },
   created() {
     this.getEnvironments();
@@ -265,9 +281,10 @@ export default {
     },
     getEnvironments() {
       let envId = "";
+      let id = this.request.projectId ? this.request.projectId : this.projectId;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-        && this.$store.state.scenarioEnvMap.has(this.projectId)) {
-        envId = this.$store.state.scenarioEnvMap.get(this.projectId);
+        && this.$store.state.scenarioEnvMap.has(id)) {
+        envId = this.$store.state.scenarioEnvMap.get(id);
       }
       if (this.request.referenced === 'Created' && this.isScenario && !this.request.isRefEnvironment) {
         this.itselfEnvironment();
@@ -277,8 +294,18 @@ export default {
         return;
       }
       this.environments = [];
-      let id = this.request.projectId ? this.request.projectId : this.projectId;
-
+      // 场景开启自身环境
+      if (this.request.environmentEnable && this.request.refEevMap) {
+        let obj = Object.prototype.toString.call(this.request.refEevMap).match(/\[object (\w+)\]/)[1].toLowerCase();
+        if (obj !== 'object' && obj !== "map") {
+          this.request.refEevMap = objToStrMap(JSON.parse(this.request.refEevMap));
+        } else if (obj === 'object' && obj !== "map") {
+          this.request.refEevMap = objToStrMap(this.request.refEevMap);
+        }
+        if (this.request.refEevMap instanceof Map && this.request.refEevMap.has(id)) {
+          envId = this.request.refEevMap.get(id);
+        }
+      }
       let targetDataSourceName = "";
       let currentEnvironment = {};
       this.result = this.$get('/api/environment/list/' + id, response => {
@@ -297,7 +324,9 @@ export default {
           }
           if (envId && environment.id === envId) {
             currentEnvironment = environment;
-            this.environments = [currentEnvironment];
+            if (!this.isCase) {
+              this.environments = [currentEnvironment];
+            }
           }
         });
         this.initDataSource(envId, currentEnvironment, targetDataSourceName);
@@ -319,7 +348,7 @@ export default {
         }
       }
       let flag = false;
-      if (currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
         currentEnvironment.config.databaseConfigs.forEach(item => {
           if (item.id === this.request.dataSourceId) {
             flag = true;

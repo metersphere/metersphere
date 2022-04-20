@@ -125,6 +125,7 @@ export default {
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
     }
+    this.setOwnEnvironment(this.scenario.hashTree);
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
   data() {
@@ -138,7 +139,6 @@ export default {
   computed: {
     isDeletedOrRef() {
       return this.scenario.referenced !== undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF';
-
     },
   },
   methods: {
@@ -237,6 +237,21 @@ export default {
         }
       }
     },
+    setOwnEnvironment(scenarioDefinition) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          scenarioDefinition[i].refEevMap = new Map();
+          scenarioDefinition[i].environmentEnable = this.scenario.environmentEnable;
+          if (this.scenario.environmentEnable && this.scenario.environmentMap) {
+            scenarioDefinition[i].refEevMap = this.scenario.environmentMap;
+          }
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setOwnEnvironment(scenarioDefinition[i].hashTree);
+        }
+      }
+    },
     calcProjectId(projectId, parentId) {
       if (!projectId) {
         return parentId ? parentId : getCurrentProjectID();
@@ -258,36 +273,36 @@ export default {
     clickResource(resource) {
       let workspaceId = getCurrentWorkspaceId();
       let isTurnSpace = true
-      if(resource.projectId!==getCurrentProjectID()){
+      if (resource.projectId !== getCurrentProjectID()) {
         isTurnSpace = false;
         this.$get("/project/get/" + resource.projectId, response => {
           if (response.data) {
-            workspaceId  = response.data.workspaceId;
+            workspaceId = response.data.workspaceId;
             isTurnSpace = true;
-            this.checkPermission(resource,workspaceId,isTurnSpace);
+            this.checkPermission(resource, workspaceId, isTurnSpace);
           }
         });
-      }else {
-        this.checkPermission(resource,workspaceId,isTurnSpace);
+      } else {
+        this.checkPermission(resource, workspaceId, isTurnSpace);
       }
 
     },
-    gotoTurn(resource,workspaceId,isTurnSpace){
+    gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
         params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
       });
-      if(isTurnSpace){
+      if (isTurnSpace) {
         window.open(automationData.href, '_blank');
       }
     },
-    checkPermission(resource,workspaceId,isTurnSpace){
+    checkPermission(resource, workspaceId, isTurnSpace) {
       this.$get('/project/getOwnerProjectIds', res => {
         const project = res.data.find(p => p === resource.projectId);
-        if(!project){
+        if (!project) {
           this.$warning(this.$t('commons.no_permission'));
-        }else{
-          this.gotoTurn(resource,workspaceId,isTurnSpace)
+        } else {
+          this.gotoTurn(resource, workspaceId, isTurnSpace)
         }
       })
     }
