@@ -93,9 +93,9 @@
 
         <!--  后续考虑移到jmeter core -->
         <dependency>
-            <groupId>kg.apc</groupId>
+            <groupId>io.metersphere</groupId>
             <artifactId>jmeter-plugins-webdriver</artifactId>
-            <version>3.3</version>
+            <version>3.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.jmeter</groupId>
