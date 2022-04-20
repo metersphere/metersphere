@@ -144,7 +144,6 @@
           v-if="isXpack&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters
           :showScript="true"
-          :is-scenario="true"
           :request="apiCase.request"
           :response="apiCase.responseData"
           v-if="api.protocol==='SQL'"/>
