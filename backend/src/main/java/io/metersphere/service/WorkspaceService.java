@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.RelatedSource;
@@ -202,11 +203,18 @@ public class WorkspaceService {
 
     public Workspace addWorkspaceByAdmin(Workspace workspace) {
         checkWorkspace(workspace);
-        workspace.setId(UUID.randomUUID().toString());
+        String wsId = UUID.randomUUID().toString();
+        workspace.setId(wsId);
         workspace.setCreateTime(System.currentTimeMillis());
         workspace.setUpdateTime(System.currentTimeMillis());
         workspace.setCreateUser(SessionUtils.getUserId());
         workspaceMapper.insertSelective(workspace);
+
+
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        if (quotaService != null) {
+            quotaService.workspaceUseDefaultQuota(wsId);
+        }
 
         // 创建工作空间为当前用户添加用户组
         UserGroup userGroup = new UserGroup();

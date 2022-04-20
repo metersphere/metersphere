@@ -142,7 +142,8 @@ public class ProjectService {
         if (StringUtils.isBlank(project.getPlatform())) {
             project.setPlatform(IssuesManagePlatform.Local.name());
         }
-        project.setId(UUID.randomUUID().toString());
+        String pjId = UUID.randomUUID().toString();
+        project.setId(pjId);
 
         String systemId = this.genSystemId();
         long createTime = System.currentTimeMillis();
@@ -166,6 +167,10 @@ public class ProjectService {
 
         // 设置默认的通知
         extProjectMapper.setDefaultMessageTask(project.getId());
+
+        if (quotaService != null) {
+            quotaService.projectUseDefaultQuota(pjId);
+        }
 
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
         if (projectVersionService != null) {
