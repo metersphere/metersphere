@@ -3140,6 +3140,8 @@ export default {
     tips: "注：在\"项目设置-设置环境-全局断言\"中启用误报将进行以下规则匹配",
     use_error_report: "启用误报",
     use_desc: "失败断言与误报规则冲突时统一处理为误报",
+    conflict_with_success: "请求同时包含误报和成功断言，请求结果处理为：",
+    conflict_with_error: "请求同时包含误报和失败断言，请求结果处理为：",
     option: {
       name: "误报",
       error_code: "误报名称",

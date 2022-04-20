@@ -28,6 +28,7 @@
         :indexNumber="node.index"
         :error-code="node.errorCode"
         :scenarioName="node.label"
+        :total-status="node.totalStatus"
         :console="console"
         :isActive="isActive"
         v-on:requestResult="requestResult"

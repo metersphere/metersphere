@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.document.MsAssertionDocument;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ErrorReportLibraryUtil;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -103,17 +104,23 @@ public class MsAssertions extends MsTestElement {
 
     private ResponseAssertion responseAssertion(MsAssertionRegex assertionRegex) {
         ResponseAssertion assertion = null;
-        if(StringUtils.startsWith(assertionRegex.getDescription(),"Check Error report:")){
-            this.setName("ErrorReportAssertion");
+        boolean isErrorReportAssertion = false;
+        if(StringUtils.startsWith(this.getName(),"ErrorReportAssertion:")){
             assertion = new ErrorReportAssertion();
+            isErrorReportAssertion = true;
         }else {
             assertion = new ResponseAssertion();
         }
         assertion.setEnabled(this.isEnable());
+
         if (StringUtils.isNotEmpty(assertionRegex.getDescription())) {
+            if(!isErrorReportAssertion){
+                //正常断言要在desc增加匹配信息，用于接受结果后和误报断言进行匹配
+                assertionRegex.setDescription(assertionRegex.getDescription() + ErrorReportLibraryUtil.ASSERTION_CONTENT_REGEX_DELIMITER + assertionRegex.getSubject()+":"+assertionRegex.getExpression());
+            }
             assertion.setName(this.getName() + delimiter + assertionRegex.getDescription());
         } else {
-            assertion.setName(this.getName() + delimiter + "AssertionRegex");
+            assertion.setName(this.getName() + delimiter + "AssertionRegex" + ErrorReportLibraryUtil.ASSERTION_CONTENT_REGEX_DELIMITER + assertionRegex.getSubject()+":"+assertionRegex.getExpression());
         }
         assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
