@@ -9,9 +9,17 @@ COPY ${DEPENDENCY}/BOOT-INF/lib /opt/lib
 COPY ${DEPENDENCY}/META-INF /opt/META-INF
 COPY ${DEPENDENCY}/BOOT-INF/classes /opt
 
-ADD frontend/src/assets/theme/index.css /opt/static/css/index.css
-ADD frontend/dist/*[^.html] /opt/static/
-ADD frontend/dist/*.html /opt/public/
+# html 文件
+COPY frontend/dist/*.html /opt/public/
+
+# 静态文件
+COPY frontend/dist/favicon.ico /opt/static/favicon.ico
+COPY frontend/dist/fonts /opt/static/fonts
+COPY frontend/dist/img /opt/static/img
+COPY frontend/dist/js /opt/static/js
+COPY frontend/dist/css /opt/static/css
+COPY frontend/dist/*.worker.js /opt/static/
+COPY frontend/src/assets/theme/index.css /opt/static/css/index.css
 
 ENV JAVA_CLASSPATH=/opt:/opt/lib/ms-jmeter-core.jar:/opt/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
