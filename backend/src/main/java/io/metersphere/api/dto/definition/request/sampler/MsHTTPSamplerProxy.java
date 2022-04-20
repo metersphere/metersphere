@@ -370,7 +370,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
                 httpConfig.setAssertions(environmentConfig.getAssertions());
                 if (environmentConfig.isUseErrorCode()) {
-                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId()));
+                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId(),environmentConfig.isHigherThanSuccess(),environmentConfig.isHigherThanError()));
                 }
                 return httpConfig;
             }

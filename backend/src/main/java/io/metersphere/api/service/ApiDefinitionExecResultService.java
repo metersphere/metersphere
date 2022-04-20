@@ -423,7 +423,9 @@ public class ApiDefinitionExecResultService {
             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
             String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
             if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
-                status = expandDTO.getStatus();
+                if(StringUtils.isNotEmpty(expandDTO.getStatus())){
+                    status = expandDTO.getStatus();
+                }
                 saveResult.setContent(JSON.toJSONString(expandDTO));
             } else {
                 saveResult.setContent(JSON.toJSONString(item));

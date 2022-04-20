@@ -5,6 +5,7 @@ import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.dto.RequestResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +22,16 @@ public class ResponseUtil {
         RequestResultExpandDTO expandDTO = new RequestResultExpandDTO();
         BeanUtils.copyBean(expandDTO, requestResult);
 
-        if(CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())){
+        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             Map<String, String> expandMap = new HashMap<>();
-            expandDTO.setStatus(ExecuteResult.errorReportResult.name());
             expandMap.put(ExecuteResult.errorReportResult.name(), errorCodeDTO.getErrorCodeStr());
+            if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.errorReportResult.name())) {
+                expandMap.put("status", ExecuteResult.errorReportResult.name());
+            }
             expandDTO.setAttachInfoMap(expandMap);
+        }
+        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.errorReportResult.name())) {
+            expandDTO.setStatus(errorCodeDTO.getRequestStatus());
         }
         return expandDTO;
     }
