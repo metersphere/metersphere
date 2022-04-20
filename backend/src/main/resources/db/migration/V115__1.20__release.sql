@@ -256,3 +256,54 @@ CREATE PROCEDURE schema_change_api_one() BEGIN
 END//
 DELIMITER ;
 CALL schema_change_api_one();
+
+
+DROP PROCEDURE IF EXISTS schema_change_plan;
+DELIMITER //
+CREATE PROCEDURE schema_change_plan() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'test_plan_api_scenario' AND index_name = 'api_scenario_id_index') THEN
+        ALTER TABLE `test_plan_api_scenario` ADD INDEX  api_scenario_id_index ( `api_scenario_id` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_plan();
+
+
+DROP PROCEDURE IF EXISTS schema_change_scenario_one;
+DELIMITER //
+CREATE PROCEDURE schema_change_scenario_one() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'api_scenario_report' AND index_name = 'scenario_id_index') THEN
+        ALTER TABLE `api_scenario_report` ADD INDEX  scenario_id_index ( `scenario_id` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_scenario_one();
+
+
+DROP PROCEDURE IF EXISTS schema_change_rela_one;
+DELIMITER //
+CREATE PROCEDURE schema_change_rela_one() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'relationship_edge' AND index_name = 'source_id_index') THEN
+        ALTER TABLE `relationship_edge` ADD INDEX  source_id_index ( `source_id` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_rela_one();
+
+DROP PROCEDURE IF EXISTS schema_change_rela_two;
+DELIMITER //
+CREATE PROCEDURE schema_change_rela_two() BEGIN
+    DECLARE  CurrentDatabase VARCHAR(100);
+    SELECT DATABASE() INTO CurrentDatabase;
+    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'relationship_edge' AND index_name = 'target_id_index') THEN
+        ALTER TABLE `relationship_edge` ADD INDEX  target_id_index ( `target_id` );
+    END IF;
+END//
+DELIMITER ;
+CALL schema_change_rela_two();
