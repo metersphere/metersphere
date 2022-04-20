@@ -25,7 +25,7 @@
         </el-button>
 
         <el-popover
-          v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
+          v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi"
           v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
           style="margin-right: 10px;float: right;"
           placement="bottom"
