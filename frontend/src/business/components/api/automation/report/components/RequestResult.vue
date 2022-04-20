@@ -15,36 +15,103 @@
             </el-tooltip>
           </el-col>
           <el-col :span="3">
-            <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
-                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                        :open-delay="800">
-              <div style="color: #F6972A">
-                {{ baseErrorCode }}
-              </div>
-            </el-tooltip>
+            <div v-if="totalStatus">
+              <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
+                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
+                          :open-delay="800">
+                <div v-if="totalStatus === 'Success'|| totalStatus === 'success'" style="color: #5daf34">
+                  {{ baseErrorCode }}
+                </div>
+                <div v-else-if="totalStatus === 'errorReportResult'" style="color: #F6972A">
+                  {{ baseErrorCode }}
+                </div>
+                <div v-else style="color: #FE6F71">
+                  {{ baseErrorCode }}
+                </div>
+              </el-tooltip>
+            </div>
+            <div v-else>
+              <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
+                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
+                          :open-delay="800">
+                <div v-if="request.success" style="color: #F6972A">
+                  {{ baseErrorCode }}
+                </div>
+                <div v-else style="color: #FE6F71">
+                  {{ baseErrorCode }}
+                </div>
+              </el-tooltip>
+            </div>
           </el-col>
           <el-col :span="6">
-            <el-tooltip effect="dark" :content="request.responseResult.responseCode"
-                        style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                        :open-delay="800">
-              <div style="color: #5daf34" v-if="request.success">
-                {{ request.responseResult.responseCode }}
-              </div>
-              <div style="color: #FE6F71" v-else>
-                {{ request.responseResult.responseCode }}
-              </div>
-            </el-tooltip>
+            <div v-if="totalStatus">
+              <el-tooltip effect="dark" :content="request.responseResult.responseCode"
+                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
+                          :open-delay="800">
+                <div v-if="totalStatus === 'Success'|| totalStatus === 'success'" style="color: #5daf34">
+                  {{ request.responseResult.responseCode }}
+                </div>
+                <div v-else-if="totalStatus === 'errorReportResult'" style="color: #F6972A">
+                  {{ request.responseResult.responseCode }}
+                </div>
+                <div style="color: #FE6F71" v-else>
+                  {{ request.responseResult.responseCode }}
+                </div>
+              </el-tooltip>
+            </div>
+            <div v-else>
+              <el-tooltip effect="dark" :content="request.responseResult.responseCode"
+                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
+                          :open-delay="800">
+                <div style="color: #F6972A" v-if="baseErrorCode && baseErrorCode!=='' && request.success">
+                  {{ request.responseResult.responseCode }}
+                </div>
+                <div style="color: #5daf34" v-else-if="request.success">
+                  {{ request.responseResult.responseCode }}
+                </div>
+                <div style="color: #FE6F71" v-else>
+                  {{ request.responseResult.responseCode }}
+                </div>
+              </el-tooltip>
+            </div>
           </el-col>
           <el-col :span="3">
-          <span v-if="request.success">
-            {{ request.responseResult.responseTime }} ms
-          </span>
-            <span style="color: #FE6F71" v-else>
-            {{ request.responseResult.responseTime }} ms
-          </span>
+            <div v-if="totalStatus">
+              <div v-if="totalStatus === 'Success'|| totalStatus === 'success'" style="color: #5daf34">
+                {{ request.responseResult.responseTime }}
+              </div>
+              <div v-else-if="totalStatus === 'errorReportResult'" style="color: #F6972A">
+                {{ request.responseResult.responseTime }}
+              </div>
+              <div style="color: #FE6F71" v-else>
+                {{ request.responseResult.responseTime }}
+              </div>
+            </div>
+            <div v-else>
+              <span v-if="request.success">
+                {{ request.responseResult.responseTime }} ms
+              </span>
+              <span style="color: #FE6F71" v-else>
+                {{ request.responseResult.responseTime }} ms
+              </span>
+            </div>
           </el-col>
           <el-col :span="2">
-            <div>
+            <div v-if="totalStatus">
+              <el-tag size="mini" v-if="totalStatus === 'unexecute'">{{
+                  $t('api_test.home_page.detail_card.unexecute')
+                }}
+              </el-tag>
+              <el-tag v-else-if="totalStatus === 'errorReportResult' " class="ms-test-error_code"
+                      size="mini">
+                {{ $t('error_report_library.option.name') }}
+              </el-tag>
+              <el-tag size="mini" type="success" v-else-if="totalStatus === 'Success' || totalStatus === 'success'">
+                {{ $t('api_report.success') }}
+              </el-tag>
+              <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
+            </div>
+            <div v-else>
               <el-tag v-if="request.testing" class="ms-test-running" size="mini">
                 <i class="el-icon-loading" style="font-size: 16px"/>
                 {{ $t('commons.testing') }}
@@ -57,7 +124,8 @@
                   $t('api_test.home_page.detail_card.unexecute')
                 }}
               </el-tag>
-              <el-tag v-else-if="baseErrorCode && baseErrorCode!== ''" class="ms-test-error_code" size="mini">
+              <el-tag v-else-if="baseErrorCode && baseErrorCode!== '' && request.success" class="ms-test-error_code"
+                      size="mini">
                 {{ $t('error_report_library.option.name') }}
               </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
@@ -104,6 +172,7 @@ export default {
     stepId: String,
     indexNumber: Number,
     console: String,
+    totalStatus: String,
     errorCode: {
       type: String,
       default: ""
@@ -164,13 +233,13 @@ export default {
   },
   methods: {
     loadRequestInfoExpand() {
-      if(!this.requestInfo.hasData){
-        if(this.request.responseResult && this.request.responseResult.body){
+      if (!this.requestInfo.hasData) {
+        if (this.request.responseResult && this.request.responseResult.body) {
           this.requestInfo = this.request;
           this.requestInfo.hasData = true;
         }
       }
-      if(!this.requestInfo.hasData){
+      if (!this.requestInfo.hasData) {
         this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
           let requestResult = response.data;
           if (requestResult) {

@@ -32,6 +32,7 @@ public class RequestResultExpandDTO extends RequestResult {
                 this.setTime(dto.getRspTime());
                 this.setEndTime(dto.getRspTime() - dto.getReqStartTime());
                 this.setUiImg(dto.getUiImg());
+                this.setStatus(requestResult.getStatus());
                 ResponseResult responseResult = this.getResponseResult();
                 responseResult.setResponseCode(dto.getRspCode());
                 responseResult.setResponseTime(dto.getRspTime());
