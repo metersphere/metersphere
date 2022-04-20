@@ -3139,6 +3139,8 @@ export default {
     tips:"注：在\"項目設置-設置環境-全局斷言\"中啟用誤報將進行以下規則匹配",
     use_error_report: "啟用誤報",
     use_desc: "失敗斷言與誤報規則衝突時統一處理為誤報",
+    conflict_with_success: "請求同時包含誤報和成功斷言，請求結果處理為：",
+    conflict_with_error: "請求同時包含誤報和失敗斷言，請求結果處理為：",
     option: {
       name: "誤報",
       error_code: "誤報名稱",

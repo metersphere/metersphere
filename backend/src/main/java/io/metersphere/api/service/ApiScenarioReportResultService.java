@@ -110,8 +110,10 @@ public class ApiScenarioReportResultService {
         report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
         String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
         if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
-            status = ExecuteResult.errorReportResult.name();
             report.setErrorCode(errorCodeDTO.getErrorCodeStr());
+        }
+        if(StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(),ExecuteResult.errorReportResult.name())){
+            status = errorCodeDTO.getRequestStatus();
         }
         report.setStatus(status);
         report.setRequestTime(result.getEndTime() - result.getStartTime());

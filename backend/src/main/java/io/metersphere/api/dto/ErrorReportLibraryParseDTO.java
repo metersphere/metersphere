@@ -12,8 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 public class ErrorReportLibraryParseDTO {
-    public List<String> errorCodeList;
-    public RequestResult result;
+    private List<String> errorCodeList;
+    private RequestResult result;
+    private String requestStatus;
 
     public ErrorReportLibraryParseDTO() {
         this.errorCodeList = new ArrayList<>();
