@@ -121,6 +121,7 @@
             :apiId="request.id"
             :response="response"
             :tab-type="'pre'"
+            :isScenario="isScenario"
             ref="preStep"
             v-if="activeName === 'preOperate'"
           />
@@ -137,6 +138,7 @@
             :apiId="request.id"
             :response="response"
             :tab-type="'post'"
+            :isScenario="isScenario"
             ref="postStep"
             v-if="activeName === 'postOperate'"
           />
@@ -151,6 +153,7 @@
           <ms-jmx-step
             :request="request"
             :apiId="request.id"
+            :isScenario="isScenario"
             :response="response"
             @reload="reloadBody"
             :tab-type="'assertionsRule'"
@@ -206,6 +209,10 @@ export default {
       default() {
         return false;
       }
+    },
+    isScenario: {
+      type: Boolean,
+      default: false,
     },
     showScript: {
       type: Boolean,

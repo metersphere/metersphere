@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="isReloadData">
+  <div v-loading="isReloadData || result.loading">
     <el-row>
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
@@ -73,13 +73,10 @@
 
 <script>
 import MsApiKeyValue from "@/business/components/api/definition/components/ApiKeyValue";
-import ApiAssertions from "@/business/components/api/definition/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/definition/components/extract/ApiExtract";
 import ApiRequestMethodSelect from "@/business/components/api/definition/components/collapse/ApiRequestMethodSelect";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsApiScenarioVariables from "@/business/components/api/definition/components/ApiScenarioVariables";
-import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
-import {Assertions, Extract} from "@/business/components/api/definition/model/ApiTestModel";
 import {parseEnvironment} from "@/business/components/api/definition/model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 import {getCurrentProjectID, objToStrMap} from "@/common/js/utils";
@@ -113,6 +110,7 @@ export default {
   },
   data() {
     return {
+      result: {},
       environments: [],
       currentEnvironment: {},
       databaseConfigsOptions: [],
@@ -122,9 +120,10 @@ export default {
     }
   },
   created() {
-    this.$nextTick(() => {
-      this.getEnvironments();
-    });
+    if (!this.isScenario) {
+      this.request.environmentId = this.$store.state.useEnvironment;
+    }
+    this.getEnvironments();
   },
   computed: {
     projectId() {
@@ -297,9 +296,11 @@ export default {
       }
 
       this.databaseConfigsOptions = [];
-      environment.config.databaseConfigs.forEach(item => {
-        this.databaseConfigsOptions.push(item);
-      })
+      if (environment.config && environment.config.databaseConfigs) {
+        environment.config.databaseConfigs.forEach(item => {
+          this.databaseConfigsOptions.push(item);
+        })
+      }
     },
     environmentConfigClose() {
       this.getEnvironments();

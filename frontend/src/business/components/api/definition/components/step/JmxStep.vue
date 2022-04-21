@@ -49,6 +49,7 @@
             @remove="remove"
             :title="$t('api_test.definition.request.pre_sql')"
             :is-read-only="false"
+            :isScenario="isScenario"
             :request="data"
             :jdbc-processor="data"
             color="#B8741A"
@@ -79,6 +80,7 @@
             :title="$t('api_test.definition.request.post_sql')"
             :is-read-only="false"
             :request="data"
+            :isScenario="isScenario"
             :jdbc-processor="data"
             color="#783887"
             background-color="#F2ECF3"/>
