@@ -256,6 +256,9 @@ export default {
         }
       },
       deep: true
+    },
+    'request.name'() {
+      this.data.name = this.request.name
     }
   },
   methods: {
