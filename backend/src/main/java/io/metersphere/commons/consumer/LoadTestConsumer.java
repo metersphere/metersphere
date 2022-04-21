@@ -7,15 +7,18 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.reflections.Reflections;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.concurrent.Executors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class LoadTestConsumer {
+public class LoadTestConsumer implements ApplicationRunner {
     public static final String CONSUME_ID = "load-test-data";
 
     private static Set<Class<? extends LoadTestFinishEvent>> subTypes;
@@ -33,12 +36,21 @@ public class LoadTestConsumer {
         });
     }
 
-    private Set<Class<? extends LoadTestFinishEvent>> getClasses() {
+    private synchronized Set<Class<? extends LoadTestFinishEvent>> getClasses() {
         if (subTypes != null) {
             return subTypes;
         }
         Reflections reflections = new Reflections(Application.class);
         subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
         return subTypes;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            LogUtil.info("查询 LoadTestFinishEvent 实现类:");
+            subTypes = getClasses();
+            LogUtil.info("查询 LoadTestFinishEvent 实现类: " + subTypes.size());
+        });
     }
 }

@@ -2,7 +2,6 @@ package io.metersphere.performance.engine;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.Application;
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
@@ -27,7 +26,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.reflections.Reflections;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,18 +42,14 @@ public class EngineFactory {
     private static FileService fileService;
     private static PerformanceTestService performanceTestService;
     private static TestResourcePoolService testResourcePoolService;
-    private static Class<? extends KubernetesTestEngine> kubernetesTestEngineClass;
 
     public static Class<? extends KubernetesTestEngine> getKubernetesTestEngineClass() {
-        if (kubernetesTestEngineClass != null) {
-            return kubernetesTestEngineClass;
-        }
-        Reflections reflections = new Reflections(Application.class);
-        Set<Class<? extends KubernetesTestEngine>> implClass = reflections.getSubTypesOf(KubernetesTestEngine.class);
-        for (Class<? extends KubernetesTestEngine> aClass : implClass) {
-            kubernetesTestEngineClass = aClass;
-            // 第一个
-            break;
+        Class kubernetesTestEngineClass;
+        try {
+            // 使用反射工具包这里在特定环境（66）会卡住
+            kubernetesTestEngineClass = Class.forName("io.metersphere.xpack.engine.KubernetesTestEngineImpl");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         return kubernetesTestEngineClass;
     }
@@ -81,7 +75,7 @@ public class EngineFactory {
         }
         if (type == ResourcePoolTypeEnum.K8S) {
             try {
-                return (Engine) ConstructorUtils.invokeConstructor(getKubernetesTestEngineClass(), loadTestReport);
+                return ConstructorUtils.invokeConstructor(getKubernetesTestEngineClass(), loadTestReport);
             } catch (Exception e) {
                 LogUtil.error(e);
                 return null;
@@ -92,7 +86,7 @@ public class EngineFactory {
 
     public static Engine createApiEngine(JmeterRunRequestDTO runRequest) {
         try {
-            return (Engine) ConstructorUtils.invokeConstructor(getKubernetesTestEngineClass(), runRequest);
+            return ConstructorUtils.invokeConstructor(getKubernetesTestEngineClass(), runRequest);
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException(e.getMessage());
