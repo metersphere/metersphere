@@ -307,3 +307,10 @@ CREATE PROCEDURE schema_change_rela_two() BEGIN
 END//
 DELIMITER ;
 CALL schema_change_rela_two();
+
+-- 场景步骤引用表增加URL字段，记录引用的api/case/自定义请求中的地址，用于计算覆盖率
+ALTER TABLE api_scenario_reference_id ADD url VARCHAR(500) NULL;
+ALTER TABLE api_scenario_reference_id ADD method VARCHAR(20);
+ALTER TABLE `api_scenario_reference_id` ADD INDEX index_url ( `url`);
+ALTER TABLE `api_scenario_reference_id` ADD INDEX index_method ( `method` );
+ALTER TABLE `api_scenario` ADD INDEX index_project_id ( `project_id`);
