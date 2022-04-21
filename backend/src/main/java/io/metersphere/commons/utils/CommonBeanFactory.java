@@ -5,6 +5,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.util.Map;
+
 public class CommonBeanFactory implements ApplicationContextAware {
     private static ApplicationContext context;
 
@@ -29,6 +31,10 @@ public class CommonBeanFactory implements ApplicationContextAware {
         } catch (BeansException e) {
             return null;
         }
+    }
+
+    public static <T> Map<String, T> getBeansOfType(Class<T> className) {
+        return context.getBeansOfType(className);
     }
 }
 
