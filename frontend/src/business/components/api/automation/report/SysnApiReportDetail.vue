@@ -23,6 +23,7 @@
                 <el-tab-pane :label="$t('api_report.total')" name="total">
                   <ms-scenario-results
                     :treeData="fullTreeNodes"
+                    :report="report"
                     :default-expand="true"
                     :console="content.console"
                     v-on:requestResult="requestResult"
@@ -36,6 +37,7 @@
                   </template>
                   <ms-scenario-results
                     :console="content.console"
+                    :report="report"
                     :treeData="fullTreeNodes"
                     v-on:requestResult="requestResult"
                     ref="failsTree"
@@ -52,8 +54,11 @@
                   <template slot="label">
                     <span class="fail" style="color: #9C9B9A">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console"
-                                       :treeData="fullTreeNodes" ref="unExecuteTree"/>
+                  <ms-scenario-results v-on:requestResult="requestResult"
+                                       :report="report"
+                                       :console="content.console"
+                                       :treeData="fullTreeNodes"
+                                       ref="unExecuteTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="console">
                   <template slot="label">
