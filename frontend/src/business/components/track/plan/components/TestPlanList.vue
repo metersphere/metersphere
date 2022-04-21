@@ -185,14 +185,6 @@
           </template>
         </ms-table-column>
         <ms-table-column
-          prop="executionTimes"
-          :field="item"
-          :fields-width="fieldsWidth"
-          sortable
-          :label="$t('commons.execution_times')"
-          min-width="160px">
-        </ms-table-column>
-        <ms-table-column
           prop="testPlanTestCaseCount"
           :field="item"
           :fields-width="fieldsWidth"

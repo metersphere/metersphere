@@ -18,6 +18,7 @@ import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.scenario.ApiScenarioExecuteService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
+import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -46,6 +47,7 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +58,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -515,7 +518,7 @@ public class ApiAutomationService {
         apiScenarioFollowMapper.deleteByExample(example);
     }
 
-    public void preDelete(String scenarioId,String scenarioDefinition) {
+    public void preDelete(String scenarioId, String scenarioDefinition) {
         //删除引用
         apiScenarioReferenceIdService.deleteByScenarioId(scenarioId);
 
@@ -1552,8 +1555,8 @@ public class ApiAutomationService {
             @Override
             public void run() {
                 Thread.currentThread().setName("PRE_DELETE：" + System.currentTimeMillis());
-                scenarioIdDefinitionMap.forEach((scenarioId,scenarioDefinition)->{
-                    preDelete(scenarioId,scenarioDefinition);
+                scenarioIdDefinitionMap.forEach((scenarioId, scenarioDefinition) -> {
+                    preDelete(scenarioId, scenarioDefinition);
                     scheduleService.deleteByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name());
                 });
             }
@@ -1569,23 +1572,22 @@ public class ApiAutomationService {
      * <p>
      * 匹配场景中用到的路径
      *
-     * @param scenarioIdList      场景集合（id / scenario大字段 必须有数据）
+     * @param scenarioUrlMap      场景使用到的url  key:method
      * @param allEffectiveApiList 接口集合（id / path 必须有数据）
      * @return
      */
-    public float countInterfaceCoverage(List<String> scenarioIdList, List<ApiDefinition> allEffectiveApiList) {
-        if (CollectionUtils.isEmpty(scenarioIdList) || CollectionUtils.isEmpty(allEffectiveApiList)) {
+    public float countInterfaceCoverage(Map<String, List<String>> scenarioUrlMap, List<ApiDefinition> allEffectiveApiList) {
+        if (MapUtils.isEmpty(scenarioUrlMap) || CollectionUtils.isEmpty(allEffectiveApiList)) {
             return 0;
         }
-        List<String> refIdList = apiScenarioReferenceIdService.findByScenarioIds(scenarioIdList);
-
         int containsCount = 0;
         for (ApiDefinition model : allEffectiveApiList) {
-            if (refIdList.contains(model.getId())) {
+            List<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod());
+            boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
+            if (matchedUrl) {
                 containsCount++;
             }
         }
-
         float coverageRageNumber = (float) containsCount * 100 / allEffectiveApiList.size();
         return coverageRageNumber;
     }
@@ -1689,11 +1691,22 @@ public class ApiAutomationService {
         return null;
     }
 
-    public void checkApiScenarioReferenceId() {
-        List<ApiScenarioWithBLOBs> scenarioNoRefs = extApiScenarioMapper.selectByNoReferenceId();
-        for (ApiScenarioWithBLOBs model : scenarioNoRefs) {
-            apiScenarioReferenceIdService.saveApiAndScenarioRelation(model);
+    @Async
+    public void resetApiScenarioReferenceId() {
+        LogUtil.info("Reset apiScenarioReferenceId is start.");
+        List<ApiScenarioWithBLOBs> scenarios = extApiScenarioMapper.selectByStatusIsNotTrash();
+        Map<String, List<ApiScenarioWithBLOBs>> scenariosGroupByProjectId =
+                scenarios.stream().collect(Collectors.groupingBy(ApiScenarioWithBLOBs::getProjectId));
+        for (Map.Entry<String, List<ApiScenarioWithBLOBs>> entry : scenariosGroupByProjectId.entrySet()) {
+            String projectId = entry.getKey();
+            List<ApiScenarioWithBLOBs> list = entry.getValue();
+            try {
+                apiScenarioReferenceIdService.saveApiAndScenarioRelation(list);
+            } catch (Exception e) {
+                LogUtil.error("Reset scenario reference id error. Project_id:" + projectId + "; error :" + e.getMessage());
+            }
         }
+        LogUtil.info("Reset apiScenarioReferenceId is end.");
     }
 
     public List<JmxInfoDTO> batchGenPerformanceTestJmx(ApiScenarioBatchRequest request) {
@@ -2012,5 +2025,22 @@ public class ApiAutomationService {
                 object.put("resourceId", bloBs.getId());
             }
         }
+    }
+
+    public Map<String, List<String>> selectScenarioUseUrlByProjectId(String projectId) {
+        List<ApiScenarioReferenceId> list = apiScenarioReferenceIdService.selectUrlByProjectId(projectId);
+        Map<String, List<String>> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(list)) {
+            list.forEach(item -> {
+                if (returnMap.containsKey(item.getMethod())) {
+                    returnMap.get(item.getMethod()).add(item.getUrl());
+                } else {
+                    List<String> urlList = new ArrayList<>();
+                    urlList.add(item.getUrl());
+                    returnMap.put(item.getMethod(), urlList);
+                }
+            });
+        }
+        return returnMap;
     }
 }

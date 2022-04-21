@@ -772,4 +772,48 @@ public class MockApiUtils {
             return false;
         }
     }
+
+    public static boolean isUrlInList(String url,List<String> urlList){
+        if(CollectionUtils.isEmpty(urlList)){
+            return false;
+        }
+        String urlSuffix = url;
+        if(urlSuffix.startsWith("/")){
+            urlSuffix = urlSuffix.substring(1);
+        }
+        String[] urlParams = urlSuffix.split("/");
+        for (String path : urlList) {
+            if (StringUtils.equalsAny(path, url, "/" + url)) {
+                return true;
+            } else {
+                if (StringUtils.isEmpty(path)) {
+                    continue;
+                }
+                if (path.startsWith("/")) {
+                    path = path.substring(1);
+                }
+                if (StringUtils.isNotEmpty(path)) {
+                    String[] pathArr = path.split("/");
+                    if (pathArr.length == urlParams.length) {
+                        boolean isFetch = true;
+                        for (int i = 0; i < urlParams.length; i++) {
+                            String pathItem = pathArr[i];
+                            String urlItem = urlParams[i];
+                            if (!(pathItem.startsWith("{") && pathItem.endsWith("}")) && !(urlItem.startsWith("{") && urlItem.endsWith("}"))) {
+                                if (!StringUtils.equals(pathArr[i], urlParams[i])) {
+                                    isFetch = false;
+                                    break;
+                                }
+                            }
+
+                        }
+                        if (isFetch) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

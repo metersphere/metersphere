@@ -713,4 +713,7 @@
         </foreach>
         )
     </select>
+    <select id="selectByStatusIsNotTrash" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        SELECT * FROM api_scenario WHERE `status` != 'Trash' AND project_id IN (SELECT id FROM project);
+    </select>
 </mapper>
