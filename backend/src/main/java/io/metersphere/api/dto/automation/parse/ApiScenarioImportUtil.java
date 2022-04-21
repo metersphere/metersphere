@@ -210,6 +210,7 @@ public class ApiScenarioImportUtil {
         object.put("resourceId", test.getId());
         object.put("projectId", projectId);
         object.put("useEnvironment","");
+        object.put("environmentId","");
         object.put("url","");
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
@@ -252,6 +253,7 @@ public class ApiScenarioImportUtil {
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
         object.put("useEnvironment","");
+        object.put("environmentId","");
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(),Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
