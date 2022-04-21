@@ -76,7 +76,7 @@
                     <div class="el-step__icon-inner">{{ request.preSize }}</div>
                   </div>
                 </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'pre'"
+                <ms-jmx-step :request="request" :isScenario="isScenario" :apiId="request.id" :response="response" :tab-type="'pre'"
                              ref="preStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
@@ -87,7 +87,7 @@
                     <div class="el-step__icon-inner">{{ request.postSize }}</div>
                   </div>
                   </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :tab-type="'post'"
+                <ms-jmx-step :request="request" :isScenario="isScenario" :apiId="request.id" :response="response" :tab-type="'post'"
                              ref="postStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
