@@ -31,7 +31,6 @@ import org.reflections8.Reflections;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -47,8 +46,10 @@ public class EngineFactory {
     private static TestResourcePoolService testResourcePoolService;
     private static Class<? extends KubernetesTestEngine> kubernetesTestEngineClass;
 
-    @PostConstruct
-    public void init() {
+    public static Class<? extends KubernetesTestEngine> getKubernetesTestEngineClass() {
+        if (kubernetesTestEngineClass != null) {
+            return kubernetesTestEngineClass;
+        }
         Reflections reflections = new Reflections(Application.class);
         Set<Class<? extends KubernetesTestEngine>> implClass = reflections.getSubTypesOf(KubernetesTestEngine.class);
         for (Class<? extends KubernetesTestEngine> aClass : implClass) {
@@ -56,6 +57,7 @@ public class EngineFactory {
             // 第一个
             break;
         }
+        return kubernetesTestEngineClass;
     }
 
     public static Engine createEngine(LoadTestReportWithBLOBs loadTestReport) {
@@ -79,7 +81,7 @@ public class EngineFactory {
         }
         if (type == ResourcePoolTypeEnum.K8S) {
             try {
-                return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, loadTestReport);
+                return (Engine) ConstructorUtils.invokeConstructor(getKubernetesTestEngineClass(), loadTestReport);
             } catch (Exception e) {
                 LogUtil.error(e);
                 return null;
@@ -90,7 +92,7 @@ public class EngineFactory {
 
     public static Engine createApiEngine(JmeterRunRequestDTO runRequest) {
         try {
-            return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, runRequest);
+            return (Engine) ConstructorUtils.invokeConstructor(getKubernetesTestEngineClass(), runRequest);
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException(e.getMessage());
