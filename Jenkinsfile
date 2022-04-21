@@ -18,7 +18,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/mvnd/bin:$PATH
                         java -version
-                        mvnd clean install --settings ./settings.xml
+                        mvnd clean package --settings ./settings.xml
                         mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)
                     '''
                 }
