@@ -19,5 +19,9 @@ public class ApiScenarioReferenceId implements Serializable {
 
     private String dataType;
 
+    private String url;
+
+    private String method;
+
     private static final long serialVersionUID = 1L;
 }

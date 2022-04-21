@@ -1702,14 +1702,12 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix) {
-
         if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP");
             List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
-
             List<String> apiIdList = new ArrayList<>();
             boolean urlSuffixEndEmpty = false;
             String urlSuffix = baseUrlSuffix;
