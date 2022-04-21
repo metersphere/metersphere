@@ -6,7 +6,7 @@ import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.reflections8.Reflections;
+import org.reflections.Reflections;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

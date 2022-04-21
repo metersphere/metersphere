@@ -27,7 +27,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.reflections8.Reflections;
+import org.reflections.Reflections;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
