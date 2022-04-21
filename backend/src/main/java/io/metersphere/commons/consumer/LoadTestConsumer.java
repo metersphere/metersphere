@@ -6,6 +6,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -25,7 +26,7 @@ public class LoadTestConsumer implements ApplicationRunner {
     @KafkaListener(id = CONSUME_ID, topics = "${kafka.test.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(ConsumerRecord<?, String> record) {
         LoadTestReport loadTestReport = JSON.parseObject(record.value(), LoadTestReport.class);
-        Set<Class<? extends LoadTestFinishEvent>> subTypes = getClasses();
+        Set<Class<? extends LoadTestFinishEvent>> subTypes = getSubTypes();
         subTypes.forEach(s -> {
             try {
                 CommonBeanFactory.getBean(s).execute(loadTestReport);
@@ -35,11 +36,11 @@ public class LoadTestConsumer implements ApplicationRunner {
         });
     }
 
-    private synchronized Set<Class<? extends LoadTestFinishEvent>> getClasses() {
+    private synchronized Set<Class<? extends LoadTestFinishEvent>> getSubTypes() {
         if (subTypes != null) {
             return subTypes;
         }
-        Reflections reflections = new Reflections("io.metersphere");
+        Reflections reflections = new Reflections("io.metersphere", Scanners.SubTypes);
         subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
         return subTypes;
     }
@@ -48,7 +49,7 @@ public class LoadTestConsumer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         Executors.newSingleThreadExecutor().execute(() -> {
             LogUtil.info("查询 LoadTestFinishEvent 实现类:");
-            subTypes = getClasses();
+            getSubTypes();
             LogUtil.info("查询 LoadTestFinishEvent 实现类: " + subTypes.size());
         });
     }
