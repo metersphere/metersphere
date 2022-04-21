@@ -348,11 +348,15 @@ export default {
       });
     },
     singleRun(data) {
-      if (this.api.protocol !== "SQL" && this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
+      if (data.apiMethod !== "SQL" && data.apiMethod !== "DUBBO" && data.apiMethod !== "dubbo://" && data.apiMethod !== "TCP" && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
-      data.request.useEnvironment = this.environment;
+      if (data.apiMethod !== "SQL" && data.apiMethod !== "DUBBO" && data.apiMethod !== "dubbo://" && data.apiMethod !== "TCP") {
+        data.request.useEnvironment = this.environment;
+      } else {
+        data.request.useEnvironment = data.request.environmentId;
+      }
       this.$emit('singleRun', data);
     },
     stop(data) {
