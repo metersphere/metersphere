@@ -18,11 +18,12 @@ import java.util.Set;
 public class LoadTestConsumer {
     public static final String CONSUME_ID = "load-test-data";
 
+    private static Set<Class<? extends LoadTestFinishEvent>> subTypes;
+
     @KafkaListener(id = CONSUME_ID, topics = "${kafka.test.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(ConsumerRecord<?, String> record) {
         LoadTestReport loadTestReport = JSON.parseObject(record.value(), LoadTestReport.class);
-        Reflections reflections = new Reflections(Application.class);
-        Set<Class<? extends LoadTestFinishEvent>> subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
+        Set<Class<? extends LoadTestFinishEvent>> subTypes = getClasses();
         subTypes.forEach(s -> {
             try {
                 CommonBeanFactory.getBean(s).execute(loadTestReport);
@@ -30,5 +31,14 @@ public class LoadTestConsumer {
                 LogUtil.error(e);
             }
         });
+    }
+
+    private Set<Class<? extends LoadTestFinishEvent>> getClasses() {
+        if (subTypes != null) {
+            return subTypes;
+        }
+        Reflections reflections = new Reflections(Application.class);
+        subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
+        return subTypes;
     }
 }
