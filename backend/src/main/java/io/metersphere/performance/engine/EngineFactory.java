@@ -31,6 +31,7 @@ import org.reflections8.Reflections;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -46,8 +47,9 @@ public class EngineFactory {
     private static TestResourcePoolService testResourcePoolService;
     private static Class<? extends KubernetesTestEngine> kubernetesTestEngineClass;
 
-    static {
-        Reflections reflections = new Reflections(Application.class.getPackage().getName());
+    @PostConstruct
+    public void init() {
+        Reflections reflections = new Reflections(Application.class);
         Set<Class<? extends KubernetesTestEngine>> implClass = reflections.getSubTypesOf(KubernetesTestEngine.class);
         for (Class<? extends KubernetesTestEngine> aClass : implClass) {
             kubernetesTestEngineClass = aClass;
