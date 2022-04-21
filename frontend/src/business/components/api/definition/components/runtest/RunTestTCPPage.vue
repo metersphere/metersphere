@@ -126,6 +126,11 @@ export default {
     }
   },
   props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  watch: {
+    '$store.state.useEnvironment': function () {
+      this.api.environmentId = this.$store.state.useEnvironment;
+    }
+  },
   methods: {
     setRequestParam(param, isEnvironmentMock) {
       this.init();

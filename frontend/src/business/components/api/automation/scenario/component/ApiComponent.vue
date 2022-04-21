@@ -84,6 +84,7 @@
               :isShowEnable="true"
               :response="response"
               :referenced="true"
+              :isScenario="true"
               :headers="request.headers "
               :is-read-only="isCompReadOnly"
               :request="request"/>
@@ -100,6 +101,7 @@
               :is-read-only="isCompReadOnly"
               :response="response"
               :show-pre-script="true"
+              :isScenario="true"
               :show-script="true" :request="request"/>
 
             <ms-sql-basis-parameters
@@ -113,6 +115,7 @@
             <ms-dubbo-basis-parameters
               v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
               :request="request"
+              :isScenario="true"
               :response="response"
               :is-read-only="isCompReadOnly"
               :showScript="true"/>
