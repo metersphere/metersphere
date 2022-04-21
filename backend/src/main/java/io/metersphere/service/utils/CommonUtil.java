@@ -4,7 +4,7 @@ import com.github.pagehelper.util.StringUtil;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.api.UiScriptApi;
-import org.reflections8.Reflections;
+import org.reflections.Reflections;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
