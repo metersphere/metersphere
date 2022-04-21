@@ -1,7 +1,6 @@
 package io.metersphere.commons.consumer;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.Application;
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -40,7 +39,7 @@ public class LoadTestConsumer implements ApplicationRunner {
         if (subTypes != null) {
             return subTypes;
         }
-        Reflections reflections = new Reflections(Application.class);
+        Reflections reflections = new Reflections("io.metersphere");
         subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
         return subTypes;
     }
