@@ -78,7 +78,7 @@ export default {
         return false;
       }
     },
-    // 配置是否可清空选择 
+    // 配置是否可清空选择
     clearable: {
       type: Boolean,
       default() {
@@ -288,8 +288,9 @@ export default {
       this.$refs.tree.setCurrentKey(null);//清除树选中key
       this.returnDatas = null;
       this.returnDataKeys = '';
+      this.selectNodeIds = [];
       this.popoverHide();
-      this.$emit('clean')
+      this.$emit('clean');
     },
     //单选:设置、初始化值 key
     setKey(thisKey) {
