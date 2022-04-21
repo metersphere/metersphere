@@ -5,7 +5,7 @@
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search" :show-create="false">
             <template v-slot:button>
-              <el-button-group v-if="!isUI">
+              <el-button-group>
 
                 <el-tooltip class="item" effect="dark" content="left" :disabled="true" placement="left">
                   <el-button plain :class="{active: leftActive}" @click="changeTab('left')">{{$t('commons.scenario')}}</el-button>
@@ -124,10 +124,7 @@
               <div>
                 <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                           @exec="handleView(scope.row)" type="primary"/>
-                <ms-table-operator-button v-if="isUI" :tip="$t('api_report.delete')"
-                                          v-permission="['PROJECT_UI_REPORT:READ+DELETE']"
-                                          icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
-                <ms-table-operator-button v-else :tip="$t('api_report.delete')"
+                <ms-table-operator-button :tip="$t('api_report.delete')"
                                           v-permission="['PROJECT_API_REPORT:READ+DELETE']"
                                           icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
               </div>
@@ -246,9 +243,6 @@ export default {
     rightActive() {
       return this.trashActiveDom === 'right';
     },
-    isUI() {
-      return this.reportType && this.reportType === 'UI';
-    }
   },
   methods: {
     search() {
@@ -266,10 +260,6 @@ export default {
       if(this.trashActiveDom==='left'){
         this.reportTypeFilters =this.reportScenarioFilters;
         url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
-        this.condition.isUi = false;
-        if (this.isUI) {
-          this.condition.isUi = true;
-        }
       }else{
         this.reportTypeFilters =this.reportCaseFilters;
         url = "/api/execute/result/list/" + this.currentPage + "/" + this.pageSize;
@@ -327,7 +317,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.result = this.$post("/api/scenario/report/delete", {id: report.id, isUi: this.isUI}, () => {
+            this.result = this.$post("/api/scenario/report/delete", {id: report.id}, () => {
               this.$success(this.$t('commons.delete_success'));
               this.search();
             });
@@ -382,7 +372,6 @@ export default {
             sendParam.selectAllDate = this.isSelectAllDate;
             sendParam.unSelectIds = this.unSelection;
             sendParam = Object.assign(sendParam, this.condition);
-            sendParam.isUi = this.isUI;
             this.$post('/api/scenario/report/batch/delete', sendParam, () => {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));
