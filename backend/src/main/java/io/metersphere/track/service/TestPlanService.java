@@ -1088,10 +1088,12 @@ public class TestPlanService {
             }
 
         }
+        if(MapUtils.isNotEmpty(loadCaseReportMap)){
+            //将性能测试加入到队列中
+            apiExecutionQueueService.add(loadCaseReportMap, null, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name(),
+                    planReportId, null, null, new RunModeConfigDTO());
+        }
 
-        //将性能测试加入到队列中
-        apiExecutionQueueService.add(loadCaseReportMap, null, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name(),
-                planReportId, null, null, new RunModeConfigDTO());
 
         return loadCaseReportMap;
     }
