@@ -9,6 +9,8 @@
     <result column="reference_id" jdbcType="VARCHAR" property="referenceId" />
     <result column="reference_type" jdbcType="VARCHAR" property="referenceType" />
     <result column="data_type" jdbcType="VARCHAR" property="dataType" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="method" jdbcType="VARCHAR" property="method" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, api_scenario_id, create_time, create_user_id, reference_id, reference_type, data_type
+    id, api_scenario_id, create_time, create_user_id, reference_id, reference_type, data_type, 
+    url, `method`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiScenarioReferenceIdExample" resultMap="BaseResultMap">
     select
@@ -104,10 +107,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReferenceId">
     insert into api_scenario_reference_id (id, api_scenario_id, create_time, 
       create_user_id, reference_id, reference_type, 
-      data_type)
+      data_type, url, `method`
+      )
     values (#{id,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUserId,jdbcType=VARCHAR}, #{referenceId,jdbcType=VARCHAR}, #{referenceType,jdbcType=VARCHAR}, 
-      #{dataType,jdbcType=VARCHAR})
+      #{dataType,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReferenceId">
     insert into api_scenario_reference_id
@@ -133,6 +138,12 @@
       <if test="dataType != null">
         data_type,
       </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="method != null">
+        `method`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +166,12 @@
       </if>
       <if test="dataType != null">
         #{dataType,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null">
+        #{method,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -188,6 +205,12 @@
       <if test="record.dataType != null">
         data_type = #{record.dataType,jdbcType=VARCHAR},
       </if>
+      <if test="record.url != null">
+        url = #{record.url,jdbcType=VARCHAR},
+      </if>
+      <if test="record.method != null">
+        `method` = #{record.method,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +224,9 @@
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       reference_id = #{record.referenceId,jdbcType=VARCHAR},
       reference_type = #{record.referenceType,jdbcType=VARCHAR},
-      data_type = #{record.dataType,jdbcType=VARCHAR}
+      data_type = #{record.dataType,jdbcType=VARCHAR},
+      url = #{record.url,jdbcType=VARCHAR},
+      `method` = #{record.method,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +252,12 @@
       <if test="dataType != null">
         data_type = #{dataType,jdbcType=VARCHAR},
       </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null">
+        `method` = #{method,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -237,7 +268,9 @@
       create_user_id = #{createUserId,jdbcType=VARCHAR},
       reference_id = #{referenceId,jdbcType=VARCHAR},
       reference_type = #{referenceType,jdbcType=VARCHAR},
-      data_type = #{dataType,jdbcType=VARCHAR}
+      data_type = #{dataType,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      `method` = #{method,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -28,10 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
@@ -294,10 +291,10 @@ public class APITestController {
          * 接口覆盖率
          * 复制的接口定义/复制或引用的单接口用例/ 添加的自定义请求 url 路径与现有的接口定义一致的请求
          */
-        List<String> allScenarioIdList = apiAutomationService.selectIdsByProjectId(projectId);
+        Map<String,List<String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId);
         List<ApiDefinition> allEffectiveApiIdList = apiDefinitionService.selectEffectiveIdByProjectId(projectId);
         try {
-            float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(allScenarioIdList, allEffectiveApiIdList);
+            float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(scenarioUrlList, allEffectiveApiIdList);
             DecimalFormat df = new DecimalFormat("0.0");
             returnStr = df.format(intetfaceCoverageRageNumber) + "%";
         }catch (Exception e){
