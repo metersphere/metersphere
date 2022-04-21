@@ -71,7 +71,7 @@ export default {
           }
         }else {
           if (this.isUi) {
-            return data.value.success === false;
+            return data.value.success === false && data.value.startTime > 0;
           } else if (!data.errorCode || data.errorCode === "") {
             return data.value.error > 0;
           }
