@@ -386,7 +386,7 @@ export default {
       this.$emit('showExecResult', row);
     },
     singleRun(row) {
-      if (this.currentApi.protocol !== "SQL" && this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
+      if (row.apiMethod !== "SQL" && row.apiMethod !== "DUBBO" && row.apiMethod !== "dubbo://" && row.apiMethod !== "TCP" && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
@@ -394,7 +394,11 @@ export default {
       this.singleLoading = true;
       this.singleRunId = row.id;
       row.request.name = row.id;
-      row.request.useEnvironment = this.environment;
+      if (row.apiMethod !== "SQL" && row.apiMethod !== "DUBBO" && row.apiMethod !== "dubbo://" && row.apiMethod !== "TCP") {
+        row.request.useEnvironment = this.environment;
+      } else {
+        row.request.useEnvironment = row.request.environmentId;
+      }
       row.request.projectId = this.projectId;
       row.request.id = row.id;
       this.runData.push(row.request);

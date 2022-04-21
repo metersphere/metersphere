@@ -63,10 +63,7 @@
                                            :description="$t('api_test.scenario.kv_description')"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
-                <div class="sql-content">
-                  <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query"
-                                theme="eclipse" ref="codeEdit"/>
-                </div>
+                <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query" :height="200" theme="eclipse" ref="codeEdit"/>
               </el-tab-pane>
               <!-- 脚本步骤/断言步骤 -->
               <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
