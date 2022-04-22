@@ -87,6 +87,9 @@ public class MsJSR223Processor extends MsTestElement {
         if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("rhinoScript")) {
             processor.setProperty("scriptLanguage", "rhino");
         }
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("javascript")) {
+            processor.setProperty("scriptLanguage", "rhino");
+        }
         processor.setProperty("script", this.getScript());
 
         final HashTree jsr223PreTree = tree.add(processor);
