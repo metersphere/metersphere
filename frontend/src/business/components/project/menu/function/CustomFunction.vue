@@ -104,8 +104,7 @@ export default {
         {text: 'beanshell', value: 'beanshell'},
         {text: 'python', value: 'python'},
         {text: 'groovy', value: 'groovy'},
-        {text: 'nashornScript', value: 'nashornScript'},
-        {text: 'rhinoScript', value: 'rhinoScript'},
+        {text: 'javascript', value: 'javascript'},
       ],
     }
   },
