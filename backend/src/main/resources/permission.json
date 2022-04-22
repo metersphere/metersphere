@@ -881,12 +881,6 @@
       "license": true
     },
     {
-      "id": "PROJECT_UI_REPORT:READ+SHARE",
-      "name": "permission.project_ui_report.share",
-      "resourceId": "PROJECT_UI_REPORT",
-      "license": true
-    },
-    {
       "id": "PROJECT_PERFORMANCE_TEST:READ",
       "name": "permission.project_performance_test.read",
       "resourceId": "PROJECT_PERFORMANCE_TEST"
