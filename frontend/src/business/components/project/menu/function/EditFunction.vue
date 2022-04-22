@@ -150,8 +150,7 @@ export default {
         'beanshell',
         "python",
         "groovy",
-        "nashornScript",
-        "rhinoScript"
+        "javascript"
       ],
       codeEditModeMap: {
         beanshell: 'java',
@@ -159,6 +158,7 @@ export default {
         groovy: 'java',
         nashornScript: 'javascript',
         rhinoScript: 'javascript',
+        javascript: 'javascript',
       },
       response: {},
       request: {},

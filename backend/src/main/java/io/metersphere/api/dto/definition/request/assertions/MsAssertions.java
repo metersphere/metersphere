@@ -213,6 +213,9 @@ public class MsAssertions extends MsTestElement {
         if (StringUtils.equals(scriptLanguage, "rhinoScript")) {
             scriptLanguage = "rhino";
         }
+        if (StringUtils.equals(scriptLanguage, "javascript")) {
+            scriptLanguage = "rhino";
+        }
         assertion.setProperty("scriptLanguage", scriptLanguage);
         assertion.setProperty("script", assertionJSR223.getScript());
         return assertion;

@@ -2,8 +2,7 @@ export const FUNC_TEMPLATE = {
   beanshell: "",
   groovy: "",
   python: "",
-  nashornScript: "",
-  rhinoScript: ""
+  javascript: ""
 }
 
 export function getCodeTemplate(language, requestObj) {
@@ -17,6 +16,8 @@ export function getCodeTemplate(language, requestObj) {
     case "nashornScript":
       return jsCode(requestObj);
     case "rhinoScript":
+      return jsCode(requestObj);
+    case "javascript":
       return jsCode(requestObj);
     default:
       return "";
