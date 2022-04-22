@@ -433,6 +433,76 @@ public class ShareInfoExample {
             addCriterion("share_type not between", value1, value2, "shareType");
             return (Criteria) this;
         }
+
+        public Criteria andLangIsNull() {
+            addCriterion("lang is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangIsNotNull() {
+            addCriterion("lang is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangEqualTo(String value) {
+            addCriterion("lang =", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangNotEqualTo(String value) {
+            addCriterion("lang <>", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangGreaterThan(String value) {
+            addCriterion("lang >", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangGreaterThanOrEqualTo(String value) {
+            addCriterion("lang >=", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangLessThan(String value) {
+            addCriterion("lang <", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangLessThanOrEqualTo(String value) {
+            addCriterion("lang <=", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangLike(String value) {
+            addCriterion("lang like", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangNotLike(String value) {
+            addCriterion("lang not like", value, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangIn(List<String> values) {
+            addCriterion("lang in", values, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangNotIn(List<String> values) {
+            addCriterion("lang not in", values, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangBetween(String value1, String value2) {
+            addCriterion("lang between", value1, value2, "lang");
+            return (Criteria) this;
+        }
+
+        public Criteria andLangNotBetween(String value1, String value2) {
+            addCriterion("lang not between", value1, value2, "lang");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

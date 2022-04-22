@@ -312,3 +312,5 @@ ALTER TABLE api_scenario_reference_id ADD method VARCHAR(20);
 ALTER TABLE `api_scenario_reference_id` ADD INDEX index_url ( `url`);
 ALTER TABLE `api_scenario_reference_id` ADD INDEX index_method ( `method` );
 ALTER TABLE `api_scenario` ADD INDEX index_project_id ( `project_id`);
+
+ALTER TABLE share_info ADD lang varchar(10) NULL;
