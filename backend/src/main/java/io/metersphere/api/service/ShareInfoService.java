@@ -463,15 +463,11 @@ public class ShareInfoService {
         }
     }
 
-    public ShareInfo createShareInfo(ShareInfo request) {
+    public ShareInfo createShareInfo(ShareInfo shareInfo) {
         long createTime = System.currentTimeMillis();
-        ShareInfo shareInfo = new ShareInfo();
         shareInfo.setId(UUID.randomUUID().toString());
-        shareInfo.setCustomData(request.getCustomData());
-        shareInfo.setCreateUserId(request.getCreateUserId());
         shareInfo.setCreateTime(createTime);
         shareInfo.setUpdateTime(createTime);
-        shareInfo.setShareType(request.getShareType());
         shareInfoMapper.insert(shareInfo);
         return shareInfo;
     }

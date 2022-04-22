@@ -20,6 +20,11 @@ public class TestPlanSimpleReportDTO extends TestPlanReportContent {
     private String summary;
     private String config;
 
+    /**
+     * 导出保存国际化
+     */
+    private String lang;
+
     private TestPlanFunctionResultReportDTO functionResult;
     private TestPlanApiResultReportDTO apiResult;
     private TestPlanLoadResultReportDTO loadResult;

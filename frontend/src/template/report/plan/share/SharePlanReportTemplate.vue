@@ -25,6 +25,9 @@ export default {
         this.$error('连接已失效，请重新获取!');
         return;
       }
+      if (data.lang) {
+        this.$setLang(data.lang);
+      }
       if (data.shareType === 'PLAN_REPORT') {
         this.planId = data.customData;
       } else if (data.shareType === 'PLAN_DB_REPORT') {

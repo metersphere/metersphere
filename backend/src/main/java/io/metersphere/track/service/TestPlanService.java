@@ -1678,17 +1678,20 @@ public class TestPlanService {
         return report;
     }
 
-    public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
-        render(buildPlanReport(planId, true), response);
+    public void exportPlanReport(String planId, String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+        TestPlanSimpleReportDTO report = buildPlanReport(planId, true);
+        report.setLang(lang);
+        render(report, response);
     }
 
-    public void exportPlanDbReport(String reportId, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException {
         TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
         buildApiResponse(report.getApiAllCases());
         buildApiResponse(report.getApiFailureCases());
         buildScenarioResponse(report.getScenarioAllCases());
         buildScenarioResponse(report.getScenarioFailureCases());
         buildLoadResponse(report.getLoadAllCases());
+        report.setLang(lang);
         render(report, response);
     }
 
