@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-main-container>
+    <el-main>
       <el-card v-loading="result.loading" v-if="show">
         <el-row v-if="isShare">
           <el-col :span="24">
@@ -120,7 +120,7 @@
           </el-button>
         </div>
       </el-dialog>
-    </ms-main-container>
+    </el-main>
   </ms-container>
 </template>
 
