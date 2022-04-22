@@ -102,7 +102,6 @@ public class ApiScenarioReferenceIdService {
 
     public List<ApiScenarioReferenceId> getApiAndScenarioRelation(ApiScenarioWithBLOBs scenario) {
         List<ApiScenarioReferenceId> returnList = new ArrayList<>();
-        Map<String, ApiScenarioReferenceId> referenceIdMap = new HashMap<>();
         if (StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
             JSONObject jsonObject = JSONObject.parseObject(scenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
             if (!jsonObject.containsKey(MsHashTreeService.HASH_TREE)) {
@@ -136,16 +135,14 @@ public class ApiScenarioReferenceIdService {
                     saveItem.setCreateUserId(SessionUtils.getUserId());
                     saveItem.setUrl(url);
                     saveItem.setMethod(method);
-                    referenceIdMap.put(item.getString(MsHashTreeService.ID), saveItem);
+                    returnList.add(saveItem);
                 }
                 if (item.containsKey(MsHashTreeService.HASH_TREE)) {
-                    referenceIdMap.putAll(this.deepElementRelation(scenario.getId(), item.getJSONArray(MsHashTreeService.HASH_TREE)));
+                    returnList.addAll(this.deepElementRelation(scenario.getId(), item.getJSONArray(MsHashTreeService.HASH_TREE)));
                 }
             }
         }
-        if (MapUtils.isNotEmpty(referenceIdMap)) {
-            returnList.addAll(referenceIdMap.values());
-        } else {
+        if (CollectionUtils.isEmpty(returnList)) {
             ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
             saveItem.setId(UUID.randomUUID().toString());
             saveItem.setApiScenarioId(scenario.getId());
@@ -156,8 +153,8 @@ public class ApiScenarioReferenceIdService {
         return returnList;
     }
 
-    public Map<String, ApiScenarioReferenceId> deepElementRelation(String scenarioId, JSONArray hashTree) {
-        Map<String, ApiScenarioReferenceId> deepRelations = new HashMap<>();
+    public List<ApiScenarioReferenceId> deepElementRelation(String scenarioId, JSONArray hashTree) {
+        List<ApiScenarioReferenceId> deepRelations = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (int index = 0; index < hashTree.size(); index++) {
                 JSONObject item = hashTree.getJSONObject(index);
@@ -182,10 +179,10 @@ public class ApiScenarioReferenceIdService {
                     saveItem.setCreateUserId(SessionUtils.getUserId());
                     saveItem.setMethod(method);
                     saveItem.setUrl(url);
-                    deepRelations.put(item.getString(MsHashTreeService.ID), saveItem);
+                    deepRelations.add(saveItem);
                 }
                 if (item.containsKey(MsHashTreeService.HASH_TREE)) {
-                    deepRelations.putAll(this.deepElementRelation(scenarioId, item.getJSONArray(MsHashTreeService.HASH_TREE)));
+                    deepRelations.addAll(this.deepElementRelation(scenarioId, item.getJSONArray(MsHashTreeService.HASH_TREE)));
                 }
             }
         }
