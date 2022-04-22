@@ -56,7 +56,7 @@
         </el-scrollbar>
       </el-card>
     </ms-aside-container>
-    <ms-main-container>
+    <el-main>
       <ms-api-report
           v-if="showResponse"
           :is-plan="true"
@@ -68,7 +68,7 @@
           :report-id="reportId"
           @reportNotExist="showResponse = false"/>
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
-    </ms-main-container>
+    </el-main>
   </el-container>
 </template>
 
@@ -207,8 +207,8 @@ export default {
   height: 588px;
 }
 
-/deep/ .ms-main-container {
-  height: 620px !important;
+/deep/ .api-report-content {
+  height: auto;
 }
 
 .ms-aside-container {
