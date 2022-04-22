@@ -222,9 +222,9 @@ public class TestPlanController {
         testPlanService.runBatch(request);
     }
 
-    @GetMapping("/report/export/{planId}")
-    public void exportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
-        testPlanService.exportPlanReport(planId, response);
+    @GetMapping("/report/export/{planId}/{lang}")
+    public void exportHtmlReport(@PathVariable String planId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+        testPlanService.exportPlanReport(planId, lang, response);
     }
 
     @GetMapping("/get/report/export/{planId}")
@@ -232,9 +232,9 @@ public class TestPlanController {
         return testPlanService.buildPlanReport(planId, true);
     }
 
-    @GetMapping("/report/db/export/{reportId}")
-    public void exportHtmlDbReport(@PathVariable String reportId, HttpServletResponse response) throws UnsupportedEncodingException {
-        testPlanService.exportPlanDbReport(reportId, response);
+    @GetMapping("/report/db/export/{reportId}/{lang}")
+    public void exportHtmlDbReport(@PathVariable String reportId, @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException {
+        testPlanService.exportPlanDbReport(reportId, lang, response);
     }
 
     @GetMapping("/report/{planId}")

@@ -15,6 +15,8 @@ public class ShareInfo implements Serializable {
 
     private String shareType;
 
+    private String lang;
+
     private String customData;
 
     private static final long serialVersionUID = 1L;
