@@ -12,4 +12,7 @@ public interface ExtOperatingLogMapper {
 
     List<OperatingLogDTO> findBySourceId(@Param("request") OperatingLogRequest request);
 
+    List<OperatingLogDTO> findBySourceIdEnv(@Param("request") OperatingLogRequest request);
+
+
 }
