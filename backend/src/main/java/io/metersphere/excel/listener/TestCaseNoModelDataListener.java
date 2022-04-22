@@ -502,7 +502,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             return "[]";
         } catch (Exception e) {
             if (tags != null) {
-                Stream<String> stringStream = Arrays.stream(tags.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
+                Stream<String> stringStream = Arrays.stream(tags.split("[,;，；\"\\r|\\n|\\r\\n\"]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
                 List<String> tagList = stringStream.map(tag -> tag = "\"" + tag + "\"")
                         .collect(Collectors.toList());
                 String modifiedTags = StringUtils.join(tagList, ",");
