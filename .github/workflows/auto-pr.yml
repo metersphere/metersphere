@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add labels
-        uses: jumpserver/action-generic-handler@master
+        uses: jumpserver/action-generic-handler@metersphere
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
       - uses: actions/checkout@v2
