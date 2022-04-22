@@ -83,10 +83,11 @@ public class ShareController {
         return testPlanService.getReport(planId, null);
     }
 
-    @GetMapping("/report/export/{shareId}/{planId}")
-    public void exportHtmlReport(@PathVariable String shareId, @PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+    @GetMapping("/report/export/{shareId}/{planId}/{lang}")
+    public void exportHtmlReport(@PathVariable String shareId, @PathVariable String planId,
+                                 @PathVariable(required = false) String lang, HttpServletResponse response) throws UnsupportedEncodingException {
         shareInfoService.validate(shareId, planId);
-        testPlanService.exportPlanReport(planId, response);
+        testPlanService.exportPlanReport(planId, lang, response);
     }
 
     @GetMapping("/test/plan/case/list/failure/{shareId}/{planId}")

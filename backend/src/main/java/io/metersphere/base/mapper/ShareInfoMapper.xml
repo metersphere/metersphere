@@ -7,6 +7,7 @@
     <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="share_type" jdbcType="VARCHAR" property="shareType" />
+    <result column="lang" jdbcType="VARCHAR" property="lang" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ShareInfo">
     <result column="custom_data" jdbcType="LONGVARCHAR" property="customData" />
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, create_time, create_user_id, update_time, share_type
+    id, create_time, create_user_id, update_time, share_type, lang
   </sql>
   <sql id="Blob_Column_List">
     custom_data
@@ -125,11 +126,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ShareInfo">
     insert into share_info (id, create_time, create_user_id, 
-      update_time, share_type, custom_data
-      )
+      update_time, share_type, lang, 
+      custom_data)
     values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUserId,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{shareType,jdbcType=VARCHAR}, #{customData,jdbcType=LONGVARCHAR}
-      )
+      #{updateTime,jdbcType=BIGINT}, #{shareType,jdbcType=VARCHAR}, #{lang,jdbcType=VARCHAR}, 
+      #{customData,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ShareInfo">
     insert into share_info
@@ -148,6 +149,9 @@
       </if>
       <if test="shareType != null">
         share_type,
+      </if>
+      <if test="lang != null">
+        lang,
       </if>
       <if test="customData != null">
         custom_data,
@@ -168,6 +172,9 @@
       </if>
       <if test="shareType != null">
         #{shareType,jdbcType=VARCHAR},
+      </if>
+      <if test="lang != null">
+        #{lang,jdbcType=VARCHAR},
       </if>
       <if test="customData != null">
         #{customData,jdbcType=LONGVARCHAR},
@@ -198,6 +205,9 @@
       <if test="record.shareType != null">
         share_type = #{record.shareType,jdbcType=VARCHAR},
       </if>
+      <if test="record.lang != null">
+        lang = #{record.lang,jdbcType=VARCHAR},
+      </if>
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=LONGVARCHAR},
       </if>
@@ -213,6 +223,7 @@
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       share_type = #{record.shareType,jdbcType=VARCHAR},
+      lang = #{record.lang,jdbcType=VARCHAR},
       custom_data = #{record.customData,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -224,7 +235,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      share_type = #{record.shareType,jdbcType=VARCHAR}
+      share_type = #{record.shareType,jdbcType=VARCHAR},
+      lang = #{record.lang,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -244,6 +256,9 @@
       <if test="shareType != null">
         share_type = #{shareType,jdbcType=VARCHAR},
       </if>
+      <if test="lang != null">
+        lang = #{lang,jdbcType=VARCHAR},
+      </if>
       <if test="customData != null">
         custom_data = #{customData,jdbcType=LONGVARCHAR},
       </if>
@@ -256,6 +271,7 @@
       create_user_id = #{createUserId,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
       share_type = #{shareType,jdbcType=VARCHAR},
+      lang = #{lang,jdbcType=VARCHAR},
       custom_data = #{customData,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -264,7 +280,8 @@
     set create_time = #{createTime,jdbcType=BIGINT},
       create_user_id = #{createUserId,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      share_type = #{shareType,jdbcType=VARCHAR}
+      share_type = #{shareType,jdbcType=VARCHAR},
+      lang = #{lang,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

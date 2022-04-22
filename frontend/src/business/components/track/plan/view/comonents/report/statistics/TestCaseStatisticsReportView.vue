@@ -51,7 +51,7 @@
   import html2canvas from "html2canvas";
   import MsTestCaseReportExport from "../../TestCaseReportExport";
   import TestReportTemplateList from "../../TestReportTemplateList";
-  import {Message} from "element-ui";
+  import {CURRENT_LANGUAGE} from "@/i18n/i18n";
 
   export default {
     name: "TestCaseStatisticsReportView",
@@ -221,6 +221,7 @@
           method: 'get',
           responseType: 'blob'
         };
+        config.url = config.url + '/' + localStorage.getItem(CURRENT_LANGUAGE);
         this.$download(config, name + '.html');
       },
       exportReportReset() {

@@ -122,7 +122,9 @@ export default {
     getReport() {
       if (this.isTemplate) {
         this.report = "#report";
-
+        if (this.report.lang) {
+          this.$setLang(this.report.lang);
+        }
         this.report.config = this.getDefaultConfig(this.report);
       }  else if (this.isDb) {
         if (this.isShare) {

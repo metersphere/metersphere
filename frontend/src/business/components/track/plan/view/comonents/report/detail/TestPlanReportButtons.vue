@@ -43,6 +43,7 @@ import TestPlanReportEdit
   from "@/business/components/track/plan/view/comonents/report/detail/component/TestPlanReportEdit";
 import {editPlanReport, saveTestPlanReport} from "@/network/test-plan";
 import {getCurrentProjectID} from "@/common/js/utils";
+import {CURRENT_LANGUAGE} from "@/i18n/i18n";
 export default {
   name: "TestPlanReportButtons",
   components: {
@@ -75,6 +76,7 @@ export default {
         pram.customData = this.report.id;
         pram.shareType = 'PLAN_DB_REPORT';
       }
+      pram.lang = localStorage.getItem(CURRENT_LANGUAGE);
       generateShareInfoWithExpired(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
@@ -128,6 +130,7 @@ export default {
       if (this.isShare) {
         config.url = '/share' + config.url;
       }
+      config.url = config.url + '/' + localStorage.getItem(CURRENT_LANGUAGE);
       this.result = this.$download(config, this.report.name + '.html',()=>{
         this.$success(this.$t("organization.integration.successful_operation"));
       });
