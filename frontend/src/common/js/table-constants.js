@@ -24,7 +24,7 @@ export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
   {value: 'name', text: 'name'},
   {value: 'className', text: 'class'},
   {value: 'tagName', text: 'tag'},
-  {value: 'linkText', text: 'link'},
+  {value: 'linkText', text: 'linkText'},
   {value: 'partialLinkText', text: 'plink'},
   {value: 'css', text: 'css'},
   {value: 'xpath', text: 'xpath'},
