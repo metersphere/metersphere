@@ -140,7 +140,7 @@ export default {
       ],
       isCodeEditAlive: true,
       languages: [
-        'beanshell', "python", "groovy", "nashornScript", "rhinoScript"
+        'beanshell', "python", "groovy", "javascript"
       ],
       codeEditModeMap: {
         beanshell: 'java',
@@ -148,6 +148,7 @@ export default {
         groovy: 'java',
         nashornScript: 'javascript',
         rhinoScript: 'javascript',
+        javascript: 'javascript',
       },
       codeSpan: 20,
       menuSpan: 4,
