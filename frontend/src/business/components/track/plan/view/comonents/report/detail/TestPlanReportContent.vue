@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-main-container>
+    <ms-main-container class="report-content">
       <el-card v-loading="result ? result.loading : false">
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
