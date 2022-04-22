@@ -353,8 +353,8 @@ export default {
     },
     //下拉框关闭执行
     popoverHide() {
-      this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
       this.$emit('setSelectNodeIds', this.selectNodeIds);
+      this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
     },
     // 多选，清空所有勾选
     clearSelectedNodes() {
