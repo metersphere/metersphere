@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.OperatingLogMapper;
 import io.metersphere.base.mapper.OperatingLogResourceMapper;
 import io.metersphere.base.mapper.ext.ExtOperatingLogMapper;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.OperatingLogRequest;
@@ -81,7 +82,12 @@ public class OperatingLogService {
     }
 
     public List<OperatingLogDTO> findBySourceId(OperatingLogRequest request) {
-        List<OperatingLogDTO> logWithBLOBs = extOperatingLogMapper.findBySourceId(request);
+        List<OperatingLogDTO> logWithBLOBs = new ArrayList<>();
+        if (request.getModules().toString().contains(Translator.get("project_environment_setting"))) {
+            logWithBLOBs = extOperatingLogMapper.findBySourceIdEnv(request);
+        } else {
+            logWithBLOBs = extOperatingLogMapper.findBySourceId(request);
+        }
         List<OperatingLogDTO> dtos = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(logWithBLOBs)) {
             for (OperatingLogDTO logWithBLOB : logWithBLOBs) {
