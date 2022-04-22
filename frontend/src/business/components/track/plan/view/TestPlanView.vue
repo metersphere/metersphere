@@ -27,7 +27,7 @@
                    :plan-id="planId" :version-enable="versionEnable"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
                     :plan-id="planId" :version-enable="versionEnable"/>
-    <test-plan-report-content v-if="activeIndex === 'report'" :plan-id="planId" :version-enable="versionEnable"/>
+    <test-plan-report-content class="plan-report" v-if="activeIndex === 'report'" :plan-id="planId" :version-enable="versionEnable"/>
 
     <is-change-confirm
       :title="'请保存脑图'"
@@ -197,5 +197,7 @@ export default {
   color: dimgray;
 }
 
-
+.plan-report >>> .report-content {
+  height: calc(100vh - 140px);
+}
 </style>

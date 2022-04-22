@@ -1,6 +1,6 @@
 <template>
   <ms-container v-loading="loading">
-    <ms-main-container>
+    <ms-main-container class="api-report-content">
       <el-card>
         <section class="report-container" v-if="this.report.testId">
           <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate"
