@@ -19,6 +19,7 @@
         <java.version>11</java.version>
         <flyway.version>7.15.0</flyway.version>
         <dubbo.version>2.7.15</dubbo.version>
+        <skipAntRunForJenkins>false</skipAntRunForJenkins>
     </properties>
 
     <dependencies>
@@ -473,6 +474,41 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.6</version>
+            </plugin>
+
+            <!--     本地开发需要，ci打包时不执行这个插件       -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>main-class-placement</id>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <skip>${skipAntRunForJenkins}</skip>
+                            <target>
+                                <copy todir="src/main/resources/static">
+                                    <fileset dir="../frontend/dist">
+                                        <exclude name="*.html"/>
+                                    </fileset>
+                                </copy>
+                                <copy todir="src/main/resources/public">
+                                    <fileset dir="../frontend/dist">
+                                        <include name="*.html"/>
+                                    </fileset>
+                                </copy>
+                                <copy todir="src/main/resources/static/css">
+                                    <fileset dir="../frontend/src/assets/theme">
+                                        <include name="index.css"/>
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
