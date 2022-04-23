@@ -18,7 +18,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/mvnd/bin:$PATH
                         java -version
-                        ./mvnw clean package --settings ./settings.xml
+                        ./mvnw clean package -DskipAntRunForJenkins --settings ./settings.xml
                         mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)
                     '''
                 }
