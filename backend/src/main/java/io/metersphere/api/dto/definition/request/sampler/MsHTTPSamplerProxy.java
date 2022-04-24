@@ -188,7 +188,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         setSamplerPath(config, httpConfig, sampler);
 
         // 请求体处理
-        if (this.body != null) {
+        if (this.body != null && StringUtils.equalsAnyIgnoreCase(method,"POST","PUT","PATCH")) {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
             if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
                 AtomicBoolean kvIsEmpty = new AtomicBoolean(true);
