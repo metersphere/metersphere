@@ -452,6 +452,11 @@ export function handleAfterSave(rootNode) {
   rootNode.data.deleteChild = null;
   rootNode.data.changed = false;
   rootNode.data.contextChanged = false;
+  if (isModuleNode(rootNode)) {
+    rootNode.data.type = 'node';
+  } else if (isCaseNodeData(rootNode.data)) {
+    rootNode.data.type = 'case';
+  }
   if (rootNode.children) {
     for (let i = 0; i < rootNode.children.length; i++) {
       handleAfterSave(rootNode.children[i]);
