@@ -336,7 +336,7 @@ name: "TestCaseMinder",
         this.throwError(this.$t('test_track.case.minder_all_module_tip'));
       }
 
-      if (parent.isExtraNode) {
+      if (parent.isExtraNode && !isModuleNodeData(parent)) {
         this.throwError(this.$t('test_track.case.minder_tem_node_tip', [parent.text]));
       }
 
