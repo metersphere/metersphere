@@ -6,7 +6,6 @@ import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
-import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -52,13 +51,6 @@ public class TestPlanReportController {
         return testPlanReportService.getReport(reportId);
     }
 
-    @GetMapping("/sendTask/{planId}")
-    public String sendTask(@PathVariable String planId) {
-        TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
-        testPlanReportService.update(report);
-        return "sucess";
-    }
-
     @GetMapping("/status/{planId}")
     public String getStatus(@PathVariable String planId) {
         TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
@@ -77,15 +69,6 @@ public class TestPlanReportController {
     @PostMapping("/deleteBatchByParams")
     public void deleteBatchByParams(@RequestBody QueryTestPlanReportRequest request) {
         testPlanReportService.delete(request);
-    }
-
-
-    @GetMapping("/apiExecuteFinish/{planId}/{userId}")
-    public void apiExecuteFinish(@PathVariable String planId, @PathVariable String userId) {
-        String reportId = UUID.randomUUID().toString();
-        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, ReportTriggerMode.API.name());
-        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getTestPlanReport().getId(), null, ReportTriggerMode.API.name());
     }
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
