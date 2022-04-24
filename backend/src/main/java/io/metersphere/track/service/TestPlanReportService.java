@@ -464,14 +464,14 @@ public class TestPlanReportService {
                 content = contents.get(0);
             }
             boolean hasErrorCase = false;
-            if(content!= null){
+            if (content != null) {
                 //更新接口用例、场景用例的最终执行状态
-                if(StringUtils.isNotEmpty(content.getPlanApiCaseReportStruct())){
+                if (StringUtils.isNotEmpty(content.getPlanApiCaseReportStruct())) {
                     try {
-                        List<TestPlanFailureApiDTO> apiTestCases = JSONArray.parseArray(content.getPlanApiCaseReportStruct(),TestPlanFailureApiDTO.class);
+                        List<TestPlanFailureApiDTO> apiTestCases = JSONArray.parseArray(content.getPlanApiCaseReportStruct(), TestPlanFailureApiDTO.class);
                         List<String> reportIdList = new ArrayList<>();
-                        apiTestCases.forEach( item -> {
-                            if(StringUtils.isNotEmpty(item.getReportId())){
+                        apiTestCases.forEach(item -> {
+                            if (StringUtils.isNotEmpty(item.getReportId())) {
                                 reportIdList.add(item.getReportId());
                             }
                         });
@@ -488,13 +488,13 @@ public class TestPlanReportService {
                                 }
                                 dto.setExecResult(execStatus);
                             }
-                            if(!StringUtils.equalsAnyIgnoreCase( dto.getExecResult(),"success")){
+                            if (!StringUtils.equalsAnyIgnoreCase(dto.getExecResult(), "success")) {
                                 hasErrorCase = true;
                             }
                         }
                         content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiTestCases));
                     } catch (Exception e) {
-                        LogUtil.error("update test plan api error! " , e.getMessage());
+                        LogUtil.error("update test plan api error! ", e.getMessage());
                     }
                 }
                 if (StringUtils.isNotEmpty(content.getPlanScenarioReportStruct())) {
@@ -522,14 +522,14 @@ public class TestPlanReportService {
                                 }
                                 dto.setLastResult(execStatus);
                                 dto.setStatus(execStatus);
-                                if(!StringUtils.equalsAnyIgnoreCase(execStatus,"success")){
+                                if (!StringUtils.equalsAnyIgnoreCase(execStatus, "success")) {
                                     hasErrorCase = true;
                                 }
                             }
                         }
                         content.setPlanScenarioReportStruct(JSONObject.toJSONString(scenarioCases));
                     } catch (Exception e) {
-                        LogUtil.error("update test plan api error! " , e.getMessage());
+                        LogUtil.error("update test plan api error! ", e.getMessage());
                     }
                 }
                 //更新content表对结束日期
@@ -538,13 +538,13 @@ public class TestPlanReportService {
                 testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
             }
             //计算测试计划状态
-            if(StringUtils.equalsIgnoreCase(status,TestPlanReportStatus.COMPLETED.name())){
-                if(hasErrorCase){
+            if (StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.COMPLETED.name())) {
+                if (hasErrorCase) {
                     testPlanReport.setStatus(TestPlanReportStatus.FAILED.name());
-                }else {
+                } else {
                     testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
                 }
-            }else {
+            } else {
                 testPlanReport.setStatus(status);
             }
             //更新测试计划并发送通知
@@ -738,7 +738,8 @@ public class TestPlanReportService {
     }
 
     public TestPlanReport update(TestPlanReport report) {
-        if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting())
+        testPlanReportMapper.updateByPrimaryKey(report);
+        if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting()) {
             try {
                 //更新TestPlan状态为完成
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
@@ -749,15 +750,20 @@ public class TestPlanReportService {
                 if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
                         ReportTriggerMode.MANUAL.name(),
                         ReportTriggerMode.API.name(),
-                        ReportTriggerMode.SCHEDULE.name())
+                        ReportTriggerMode.SCHEDULE.name()) && !StringUtils.equalsIgnoreCase(report.getStatus(), ExecuteResult.RUNNING.name())
                 ) {
-                    //发送通知
-                    sendMessage(report, testPlan.getProjectId());
+                    try {
+                        //发送通知
+                        sendMessage(report, testPlan.getProjectId());
+                    } catch (Exception e) {
+                        LogUtil.error("Send message error: " + e.getMessage());
+                    }
+
                 }
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error(e.getMessage());
             }
-        testPlanReportMapper.updateByPrimaryKey(report);
+        }
         return report;
     }
 
@@ -805,16 +811,16 @@ public class TestPlanReportService {
          * 测试计划的消息通知配置包括 完成、成功、失败
          * 所以发送通知时必定会有"完成"状态的通知
          */
-        Map<String,String> execStatusEventMap = new HashMap<>();
-        execStatusEventMap.put(TestPlanReportStatus.COMPLETED.name(),NoticeConstants.Event.COMPLETE);
-        if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),TestPlanReportStatus.SUCCESS.name())){
-            execStatusEventMap.put(testPlanReport.getStatus(),NoticeConstants.Event.EXECUTE_SUCCESSFUL);
-        }else if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),TestPlanReportStatus.FAILED.name())){
-            execStatusEventMap.put(testPlanReport.getStatus(),NoticeConstants.Event.EXECUTE_FAILED);
-        }else if(!StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),TestPlanReportStatus.COMPLETED.name())){
-            execStatusEventMap.put(testPlanReport.getStatus(),NoticeConstants.Event.COMPLETE);
+        Map<String, String> execStatusEventMap = new HashMap<>();
+        execStatusEventMap.put(TestPlanReportStatus.COMPLETED.name(), NoticeConstants.Event.COMPLETE);
+        if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.SUCCESS.name())) {
+            execStatusEventMap.put(testPlanReport.getStatus(), NoticeConstants.Event.EXECUTE_SUCCESSFUL);
+        } else if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.FAILED.name())) {
+            execStatusEventMap.put(testPlanReport.getStatus(), NoticeConstants.Event.EXECUTE_FAILED);
+        } else if (!StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.COMPLETED.name())) {
+            execStatusEventMap.put(testPlanReport.getStatus(), NoticeConstants.Event.COMPLETE);
         }
-        for (Map.Entry<String,String> entry : execStatusEventMap.entrySet()) {
+        for (Map.Entry<String, String> entry : execStatusEventMap.entrySet()) {
             String status = entry.getKey();
             String event = entry.getValue();
             NoticeModel noticeModel = NoticeModel.builder()
