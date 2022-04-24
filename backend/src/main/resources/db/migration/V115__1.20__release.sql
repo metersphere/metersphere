@@ -268,20 +268,6 @@ END//
 DELIMITER ;
 CALL schema_change_plan();
 
-
-DROP PROCEDURE IF EXISTS schema_change_scenario_one;
-DELIMITER //
-CREATE PROCEDURE schema_change_scenario_one() BEGIN
-    DECLARE  CurrentDatabase VARCHAR(100);
-    SELECT DATABASE() INTO CurrentDatabase;
-    IF NOT EXISTS (SELECT * FROM information_schema.statistics WHERE table_schema=CurrentDatabase AND table_name = 'api_scenario_report' AND index_name = 'scenario_id_index') THEN
-        ALTER TABLE `api_scenario_report` ADD INDEX  scenario_id_index ( `scenario_id` );
-    END IF;
-END//
-DELIMITER ;
-CALL schema_change_scenario_one();
-
-
 DROP PROCEDURE IF EXISTS schema_change_rela_one;
 DELIMITER //
 CREATE PROCEDURE schema_change_rela_one() BEGIN
