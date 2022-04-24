@@ -136,6 +136,7 @@
           :response="apiCase.responseData"
           v-if="api.method==='TCP'"/>
         <esb-definition
+          class="esb-div"
           v-xpack
           :request="apiCase.request"
           :show-pre-script="true"
@@ -711,5 +712,9 @@ export default {
 
 /deep/ .el-card__body {
   padding: 5px 10px;
+}
+
+.esb-div >>> .el-table {
+  overflow: auto;
 }
 </style>
