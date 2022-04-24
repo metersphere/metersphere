@@ -104,12 +104,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             TestCaseNodeExample example = new TestCaseNodeExample();
             TestCaseNodeExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(node.getName())
-                    .andProjectIdEqualTo(node.getProjectId());
-            if (StringUtils.isNotBlank(node.getParentId())) {
-                criteria.andParentIdEqualTo(node.getParentId());
-            } else {
-                criteria.andParentIdIsNull();
-            }
+                    .andProjectIdEqualTo(node.getProjectId())
+                    .andLevelEqualTo(node.getLevel());
+
             if (StringUtils.isNotBlank(node.getId())) {
                 criteria.andIdNotEqualTo(node.getId());
             }
@@ -658,12 +655,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         if (module == null && StringUtils.isNotEmpty(node.getName())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
             TestCaseNodeExample.Criteria criteria = example.createCriteria();
-            criteria.andNameEqualTo(node.getName()).andProjectIdEqualTo(node.getProjectId());
-            if (StringUtils.isNotEmpty(node.getParentId())) {
-                criteria.andParentIdEqualTo(node.getParentId());
-            } else {
-                criteria.andParentIdIsNull();
-            }
+            criteria.andNameEqualTo(node.getName()).
+                    andProjectIdEqualTo(node.getProjectId())
+                    .andLevelEqualTo(node.getLevel());
+
             if (StringUtils.isNotEmpty(node.getId())) {
                 criteria.andIdNotEqualTo(node.getId());
             }
