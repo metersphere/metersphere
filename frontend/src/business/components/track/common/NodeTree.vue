@@ -373,6 +373,7 @@ export default {
         param.type = 'edit';
         param.id = data.id;
         param.level = data.level;
+        param.parentId = data.parentId;
         this.getChildNodeId(data, param.nodeIds);
       } else {
         param.level = 1;
