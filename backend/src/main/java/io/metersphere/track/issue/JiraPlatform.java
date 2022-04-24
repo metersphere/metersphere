@@ -287,9 +287,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject fields = new JSONObject();
         JSONObject project = new JSONObject();
 
-        String desc = issuesRequest.getDescription();
+        String desc = "";
         // 附件描述信息处理
-        desc = dealWithImage(issuesRequest.getDescription());
+        if (StringUtils.isNotBlank(issuesRequest.getDescription())) {
+            desc = dealWithImage(issuesRequest.getDescription());
+        }
+        
 
         fields.put("project", project);
         project.put("key", jiraKey);
