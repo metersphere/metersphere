@@ -276,8 +276,8 @@ export default {
       return this.report.reportType && this.report.reportType.startsWith("UI");
     },
     showUnExecuteReport() {
-      return this.content.scenarioStepUnExecuteReport && this.content.scenarioStepUnExecuteReport > 0
-        && this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0;
+      return (this.content.scenarioStepUnExecuteReport && this.content.scenarioStepUnExecuteReport > 0)
+        || (this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0);
     }
   },
 }
