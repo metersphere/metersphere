@@ -213,6 +213,7 @@ export default {
   },
   watch: {
     isActive() {
+      this.loadRequestInfoExpand();
       this.showActive = this.isActive;
     },
     errorCode() {
