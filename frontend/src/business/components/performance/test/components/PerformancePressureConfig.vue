@@ -328,6 +328,7 @@ export default {
       rpsLimitEnable: false,
       options: {},
       resourcePool: null,
+      setPoolNull: false,
       resourcePools: [],
       resourceNodes: [],
       resourcePoolType: null,
@@ -371,7 +372,10 @@ export default {
     test: {
       handler(n) {
         if (n.testResourcePoolId) {
-          this.resourcePool = n.testResourcePoolId;
+          // 如果已经因为资源池无效将资源池ID置空，则不再进行赋值操作
+          if (!this.setPoolNull) {
+            this.resourcePool = n.testResourcePoolId;
+          }
         }
       },
       deep: true,
@@ -407,6 +411,8 @@ export default {
         // 如果当前的资源池无效 设置 null
         if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
           this.resourcePool = null;
+          // 标记因资源池无效而将资源池ID置为null
+          this.setPoolNull = true;
         }
 
         this.resourcePoolChange();
