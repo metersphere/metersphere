@@ -118,6 +118,7 @@
           id: 'id',
           label: 'name',
         },
+        tagCount: 0
 
       }
     },
@@ -159,7 +160,15 @@
       },
       'basicForm.description': {
         handler(v, v1) {
-          if (v && v1 && v !== v1) {
+          if (v && v1 !== undefined && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'basicForm.tags': {
+        handler(v, v1) {
+          this.tagCount++;
+          if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.tagCount > 1) {
             this.apiMapStatus();
           }
         }
@@ -189,6 +198,7 @@
             this.$emit('callback');
           }
         })
+        this.tagCount = 0;
       },
       createModules() {
         this.$emit("createRootModelInTree");

@@ -237,7 +237,6 @@ export default {
     },
     apiCaseClose() {
       if (this.apiCaseList && this.apiCaseList.length > 0) {
-        console.log(this.apiCaseList)
         let message = "";
         if (this.$store.state.apiCaseMap.has(this.apiCaseList[0].id) && this.$store.state.apiCaseMap.get(this.apiCaseList[0].id) > 1) {
           message += this.apiCaseList[0].name + "，";

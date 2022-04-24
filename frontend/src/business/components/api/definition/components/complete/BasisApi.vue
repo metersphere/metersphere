@@ -108,7 +108,15 @@
       },
       'basicForm.description': {
         handler(v, v1) {
-          if (v && v1 && v !== v1) {
+          if (v && v1 !== undefined && v !== v1) {
+            this.apiMapStatus();
+          }
+        }
+      },
+      'basicForm.tags': {
+        handler(v, v1) {
+          this.tagCount++;
+          if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.tagCount > 1) {
             this.apiMapStatus();
           }
         }
@@ -120,6 +128,7 @@
       this.$get('/api/definition/follow/' + this.basisData.id, response => {
         this.basicForm.follows = response.data;
       });
+
     },
     data() {
       return {
@@ -143,6 +152,7 @@
         },
         value: API_STATUS[0].id,
         options: API_STATUS,
+        tagCount: 0
       }
     },
     methods: {
@@ -160,7 +170,9 @@
       reload() {
         this.loading = true
         this.$nextTick(() => {
-          this.loading = false
+          this.loading = false;
+          this.$store.state.apiStatus.set("fromChange", false);
+          this.$store.state.apiMap.set(this.basicForm.id, this.$store.state.apiStatus);
         })
       },
       setModule(id,data) {
@@ -173,6 +185,7 @@
             this.$emit('callback');
           }
         })
+        this.tagCount = 0;
       },
       createModules() {
         this.$emit("createRootModelInTree");
