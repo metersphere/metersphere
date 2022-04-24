@@ -228,9 +228,9 @@ public class ApiScenarioReportStructureService {
             if (CollectionUtils.isNotEmpty(root.getChildren())) {
                 stepTotal.set((stepTotal.longValue() + root.getChildren().size()));
                 for (StepTreeDTO step : root.getChildren()) {
-                    if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "fail")) {
+                    if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "fail","error")) {
                         stepError.set(stepError.longValue() + 1);
-                    } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
+                    } else if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "errorCode","errorReportResult")) {
                         stepErrorCode.set(stepErrorCode.longValue() + 1);
                     } else if (!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")) {
                         stepUnExecute.set(stepUnExecute.longValue() + 1);
@@ -373,6 +373,8 @@ public class ApiScenarioReportStructureService {
             }
             if (StringUtils.isEmpty(dto.getTotalStatus())) {
                 dto.setTotalStatus(ExecuteResult.unexecute.name());
+            }else if(StringUtils.equalsAnyIgnoreCase(dto.getTotalStatus(),"error")){
+                dto.setTotalStatus("fail");
             }
         }
         // 循环步骤请求从新排序
@@ -678,7 +680,12 @@ public class ApiScenarioReportStructureService {
     }
 
     public RequestResult selectReportContent(String stepId) {
-        return selectReportContent(stepId, RequestResult.class);
+        RequestResult result = new RequestResult();
+        try {
+            result = selectReportContent(stepId, RequestResult.class);
+        }catch (Exception ignore){
+        }
+        return result;
     }
 
     public <T> T selectReportContent(String stepId, Class clazz) {
