@@ -99,7 +99,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    isScenario: String,
+    scenarioId: String,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -117,7 +117,7 @@ export default {
     }
   },
   created() {
-    if (!this.isScenario) {
+    if (!this.scenarioId) {
       this.request.environmentId = this.$store.state.useEnvironment;
     }
     this.getEnvironments();
@@ -135,7 +135,7 @@ export default {
       deep: true
     },
     '$store.state.useEnvironment': function () {
-      if (!this.isScenario) {
+      if (!this.scenarioId) {
         this.request.environmentId = this.$store.state.useEnvironment;
         this.getEnvironments();
       }
@@ -186,15 +186,15 @@ export default {
     getEnvironments() {
       let envId = "";
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      let scenarioEnvId = this.isScenario ? (this.isScenario + "_" + id) : id;
+      let scenarioEnvId = this.scenarioId ? (this.scenarioId + "_" + id) : id;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
         && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
-      if (this.request.referenced === 'Created' && this.isScenario && !this.request.isRefEnvironment) {
+      if (this.request.referenced === 'Created' && this.scenarioId && !this.request.isRefEnvironment) {
         this.itselfEnvironment();
         return;
-      } else if (!this.isScenario && !this.request.customizeReq) {
+      } else if (!this.scenarioId && !this.request.customizeReq) {
         this.itselfEnvironment();
         return;
       }

@@ -41,7 +41,7 @@
               </el-col>
               <el-col :span="2">
                 <el-checkbox
-                  v-if="request.referenced==='Created' && isScenario"
+                  v-if="request.referenced==='Created' && scenarioId !==''"
                   v-model="request.isRefEnvironment" :disabled="request.disabled" class="ref_environment" @change="getEnvironments">
                   {{ $t('api_test.request.refer_to_environment') }}
                 </el-checkbox>
@@ -73,7 +73,7 @@
                     <div class="el-step__icon-inner">{{ request.preSize }}</div>
                   </div>
                 </span>
-                <ms-jmx-step :request="request" :isScenario="isScenario" :apiId="request.id" :response="response" :tab-type="'pre'"
+                <ms-jmx-step :request="request" :scenarioId="scenarioId" :apiId="request.id" :response="response" :tab-type="'pre'"
                              ref="preStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
@@ -84,7 +84,7 @@
                     <div class="el-step__icon-inner">{{ request.postSize }}</div>
                   </div>
                   </span>
-                <ms-jmx-step :request="request" :isScenario="isScenario" :apiId="request.id" :response="response" :tab-type="'post'"
+                <ms-jmx-step :request="request" :scenarioId="scenarioId" :apiId="request.id" :response="response" :tab-type="'post'"
                              ref="postStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
@@ -95,7 +95,7 @@
                     <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                   </div>
                   </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :isScenario="isScenario" @reload="reloadBody"
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :scenarioId="scenarioId" @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
 
@@ -149,7 +149,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    isScenario: String,
+    scenarioId: String,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -176,7 +176,7 @@ export default {
       deep: true
     },
     '$store.state.useEnvironment': function () {
-      if (!this.isScenario) {
+      if (!this.scenarioId) {
         this.request.environmentId = this.$store.state.useEnvironment;
         this.getEnvironments();
       }
@@ -281,10 +281,12 @@ export default {
         && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
-      if (this.request.referenced === 'Created' && this.isScenario && !this.request.isRefEnvironment) {
+      if (this.request.referenced === 'Created' && this.scenarioId && !this.request.isRefEnvironment) {
+        alert(2222)
         this.itselfEnvironment();
         return;
-      } else if (!this.isScenario && !this.request.customizeReq) {
+      } else if (!this.scenarioId && !this.request.customizeReq) {
+        alert(333)
         this.itselfEnvironment();
         return;
       }
