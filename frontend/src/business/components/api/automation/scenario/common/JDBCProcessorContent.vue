@@ -117,9 +117,6 @@ export default {
     }
   },
   created() {
-    if (!this.scenarioId) {
-      this.request.environmentId = this.$store.state.useEnvironment;
-    }
     this.getEnvironments();
   },
   computed: {
@@ -128,16 +125,23 @@ export default {
     },
   },
   watch: {
+    // 场景环境监听
     '$store.state.scenarioEnvMap': {
       handler(v) {
         this.getEnvironments();
       },
       deep: true
     },
+    // 接口/用例 右上角公共环境监听
     '$store.state.useEnvironment': function () {
       if (!this.scenarioId) {
-        this.request.environmentId = this.$store.state.useEnvironment;
-        this.getEnvironments();
+        this.getEnvironments(this.$store.state.useEnvironment);
+      }
+    },
+    // 接口/用例 自身环境监听
+    'request.environmentId': function () {
+      if (!this.scenarioId) {
+        this.initDataSource(undefined, undefined, this.request.targetDataSourceName);
       }
     },
   },
@@ -173,29 +177,40 @@ export default {
     runTest() {
 
     },
-    itselfEnvironment() {
+    itselfEnvironment(environmentId) {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       this.result = this.$get('/api/environment/list/' + id, response => {
         this.environments = response.data;
+        let targetDataSourceName = undefined;
         this.environments.forEach(environment => {
           parseEnvironment(environment);
+          // 找到原始环境和数据源名称
+          if (environment.id === this.request.environmentId) {
+            if (environment.config && environment.config.databaseConfigs) {
+              environment.config.databaseConfigs.forEach(item => {
+                if (item.id === this.request.dataSourceId) {
+                  targetDataSourceName = item.name;
+                }
+              });
+            }
+          }
         })
-        this.initDataSource();
+        if (environmentId) {
+          this.request.environmentId = environmentId;
+        }
+        this.initDataSource(undefined, undefined, targetDataSourceName);
       });
     },
-    getEnvironments() {
+    getEnvironments(environmentId) {
       let envId = "";
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      let scenarioEnvId = this.scenarioId ? (this.scenarioId + "_" + id) : id;
+      let scenarioEnvId = this.scenarioId !== "" ? (this.scenarioId + "_" + id) : id;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
         && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
-      if (this.request.referenced === 'Created' && this.scenarioId && !this.request.isRefEnvironment) {
-        this.itselfEnvironment();
-        return;
-      } else if (!this.scenarioId && !this.request.customizeReq) {
-        this.itselfEnvironment();
+      if (!this.scenarioId && !this.request.customizeReq) {
+        this.itselfEnvironment(environmentId);
         return;
       }
       this.environments = [];
@@ -292,7 +307,6 @@ export default {
           break;
         }
       }
-
       this.databaseConfigsOptions = [];
       if (environment.config && environment.config.databaseConfigs) {
         environment.config.databaseConfigs.forEach(item => {
