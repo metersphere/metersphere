@@ -502,7 +502,7 @@
             and tptc.status = 'Failure'
         </if>
         and (tc.status != 'Trash' or tc.status is null)
-        where tptc.plan_id = #{planId} order by tptc.update_time desc
+        where tptc.plan_id = #{planId} order by tptc.`order` desc
     </select>
     <update id="updateTestCaseStates" parameterType="java.lang.String">
         update test_plan_test_case
