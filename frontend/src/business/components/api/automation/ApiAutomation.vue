@@ -405,6 +405,7 @@ export default {
           this.deleteResourceIds(v3.scenarioDefinition);
         }
         let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
+        console.log(delta)
         if (delta) {
           this.isSave = true;
         }
@@ -419,6 +420,9 @@ export default {
     deleteResourceIds(array) {
       if (array instanceof Array && array.length > 0) {
         array.forEach(item => {
+          if (item.currentScenarioId && item.currentScenarioId.length > 0) {
+            delete item.currentScenarioId;
+          }
           if (item.resourceId) {
             delete item.resourceId;
           }
