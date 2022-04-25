@@ -124,6 +124,25 @@ export const STATUS = {
   }
 }
 
+export const UI_REPORT_STATUS = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: 'commons.status',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: "Saved", value: "Saved"},
+    {label: "Running", value: "Running"},
+    {label: 'Stopped', value: 'stop'},
+    {label: "Error", value: "Error"},
+    {label: "Success", value: "Success"}
+  ],
+  props: { // 尾部控件的props，一般为element ui控件的props
+    multiple: true
+  }
+}
+
 export const API_STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -556,6 +575,8 @@ export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
 
 export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
+
+export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE];
 
 export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS];
 
