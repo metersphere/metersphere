@@ -84,7 +84,7 @@
               :isShowEnable="true"
               :response="response"
               :referenced="true"
-              :isScenario="true"
+              :isScenario="currentScenario.id"
               :headers="request.headers "
               :is-read-only="isCompReadOnly"
               :request="request"/>
@@ -101,21 +101,21 @@
               :is-read-only="isCompReadOnly"
               :response="response"
               :show-pre-script="true"
-              :isScenario="true"
+              :isScenario="currentScenario.id"
               :show-script="true" :request="request"/>
 
             <ms-sql-basis-parameters
               v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
               :request="request"
               :response="response"
-              :isScenario="true"
+              :isScenario="currentScenario.id"
               :is-read-only="isCompReadOnly"
               :showScript="true"/>
 
             <ms-dubbo-basis-parameters
               v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
               :request="request"
-              :isScenario="true"
+              :isScenario="currentScenario.id"
               :response="response"
               :is-read-only="isCompReadOnly"
               :showScript="true"/>
@@ -252,7 +252,11 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
-
+    this.request.currentScenarioId = this.currentScenario.id;
+    // 传递场景ID
+    if (this.request.hashTree) {
+      this.setOwnEnvironment(this.request.hashTree);
+    }
     if (this.request.num) {
       this.isShowNum = true;
       this.request.root = true;
@@ -357,6 +361,17 @@ export default {
     },
   },
   methods: {
+    setOwnEnvironment(scenarioDefinition) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          scenarioDefinition[i].currentScenarioId = this.currentScenario.id;
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setOwnEnvironment(scenarioDefinition[i].hashTree);
+        }
+      }
+    },
     forStatus() {
       this.reqSuccess = true;
       if (this.request.result && this.request.result.length > 0) {

@@ -210,10 +210,7 @@ export default {
         return false;
       }
     },
-    isScenario: {
-      type: Boolean,
-      default: false,
-    },
+    isScenario: String,
     showScript: {
       type: Boolean,
       default: true,
