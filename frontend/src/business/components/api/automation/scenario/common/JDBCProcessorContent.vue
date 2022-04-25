@@ -99,10 +99,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    isScenario: {
-      type: Boolean,
-      default: false,
-    },
+    isScenario: String,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -189,9 +186,10 @@ export default {
     getEnvironments() {
       let envId = "";
       let id = this.request.projectId ? this.request.projectId : this.projectId;
+      let scenarioEnvId = this.isScenario ? (this.isScenario + "_" + id) : id;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-        && this.$store.state.scenarioEnvMap.has(id)) {
-        envId = this.$store.state.scenarioEnvMap.get(id);
+        && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
+        envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
       if (this.request.referenced === 'Created' && this.isScenario && !this.request.isRefEnvironment) {
         this.itselfEnvironment();

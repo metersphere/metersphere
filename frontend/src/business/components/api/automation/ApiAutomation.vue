@@ -345,6 +345,8 @@ export default {
               this.tabs = [];
               this.activeName = "default";
               this.isSave = false;
+              // 清除vuex中缓存的环境
+              this.$store.state.scenarioEnvMap = new Map();
             } else {
               this.isSave = false;
             }
@@ -384,7 +386,6 @@ export default {
     },
     diff(t) {
       if (t.currentScenario.type !== "add") {
-
         let v1 = t.currentScenario.scenarioDefinitionOrg;
         let v2 = {
           apiScenarioModuleId: t.currentScenario.apiScenarioModuleId,
@@ -506,11 +507,6 @@ export default {
           if (tab && this.isSave) {
             message += tab.currentScenario.name + "，";
           }
-          if (tab) {
-            let index = this.tabs.filter(t => t === tab);
-            index.splice(0, 1);
-            tab = undefined;
-          }
         }
       })
       if (message !== "") {
@@ -535,16 +531,28 @@ export default {
       }
     },
     removeTab(targetName) {
+      let index = this.tabs.findIndex(item => item.name === targetName);
+      if (index !== -1) {
+        // 清除vuex中缓存的环境
+        let tab = this.tabs[index];
+        if (tab && tab.currentScenario && this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map) {
+          this.$store.state.scenarioEnvMap.forEach((v, k) => {
+            if (k.indexOf(tab.currentScenario.id) !== -1) {
+              this.$store.state.scenarioEnvMap.delete(k);
+            }
+          })
+        }
+        this.tabs.splice(index, 1);
+        if (tab) {
+          tab = undefined;
+        }
+      }
       this.tabs = this.tabs.filter(tab => tab.name !== targetName);
       if (this.tabs.length > 0) {
         this.activeName = this.tabs[this.tabs.length - 1].name;
         this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
         this.activeName = "default";
-      }
-      let index = this.tabs.findIndex(item => item.name === targetName);
-      if (index !== -1) {
-        this.tabs.splice(index, 1);
       }
     },
     setTabLabel(data) {

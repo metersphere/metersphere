@@ -139,10 +139,7 @@ export default {
     tabType: String,
     response: {},
     apiId: String,
-    isScenario: {
-      type: Boolean,
-      default: false,
-    },
+    isScenario: String,
     showScript: {
       type: Boolean,
       default: true,

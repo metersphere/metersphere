@@ -202,10 +202,7 @@ export default {
     MsJmxStep
   },
   props: {
-    isScenario: {
-      type: Boolean,
-      default: false,
-    },
+    isScenario: String,
     request: {},
     basisData: {},
     response: {},
