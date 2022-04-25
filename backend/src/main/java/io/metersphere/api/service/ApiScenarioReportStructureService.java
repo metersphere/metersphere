@@ -228,9 +228,9 @@ public class ApiScenarioReportStructureService {
             if (CollectionUtils.isNotEmpty(root.getChildren())) {
                 stepTotal.set((stepTotal.longValue() + root.getChildren().size()));
                 for (StepTreeDTO step : root.getChildren()) {
-                    if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "fail","error")) {
+                    if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "fail", "error")) {
                         stepError.set(stepError.longValue() + 1);
-                    } else if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "errorCode","errorReportResult")) {
+                    } else if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "errorCode", "errorReportResult")) {
                         stepErrorCode.set(stepErrorCode.longValue() + 1);
                     } else if (!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")) {
                         stepUnExecute.set(stepUnExecute.longValue() + 1);
@@ -373,7 +373,7 @@ public class ApiScenarioReportStructureService {
             }
             if (StringUtils.isEmpty(dto.getTotalStatus())) {
                 dto.setTotalStatus(ExecuteResult.unexecute.name());
-            }else if(StringUtils.equalsAnyIgnoreCase(dto.getTotalStatus(),"error")){
+            } else if (StringUtils.equalsAnyIgnoreCase(dto.getTotalStatus(), "error")) {
                 dto.setTotalStatus("fail");
             }
         }
@@ -381,7 +381,8 @@ public class ApiScenarioReportStructureService {
         try {
             if (dtoList.stream().filter(e -> e.getValue() != null && ElementUtil.requests.contains(e.getType())).collect(Collectors.toList()).size() == dtoList.size()) {
                 List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
-                        && StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.unexecute.name())).collect(Collectors.toList());
+                        && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0) || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.unexecute.name())))
+                        .collect(Collectors.toList());
                 List<StepTreeDTO> list = dtoList.stream().filter(e -> e.getValue().getStartTime() != 0).collect(Collectors.toList());
                 list = list.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
                 unList = unList.stream().sorted(Comparator.comparing(x -> x.getIndex())).collect(Collectors.toList());
@@ -542,7 +543,7 @@ public class ApiScenarioReportStructureService {
         // 组装报告
         if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs) && CollectionUtils.isNotEmpty(reportResults)) {
             ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
-             List<StepTreeDTO> stepList = JSONArray.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
+            List<StepTreeDTO> stepList = JSONArray.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
             //判断是否含有全局前后置脚本，如果有的话需要将脚本内容添加到stepDTO中
             reportResults = this.filterProcessResult(reportResults);
 
@@ -590,7 +591,7 @@ public class ApiScenarioReportStructureService {
         for (ApiScenarioReportResultWithBLOBs item : reportResults) {
             if (item.getBaseInfo() != null) {
                 ApiScenarioReportBaseInfoDTO dto = JSONObject.parseObject(item.getBaseInfo(), ApiScenarioReportBaseInfoDTO.class);
-                if (!StringUtils.startsWithAny(dto.getReqName(), ResultParseUtil.PRE_PROCESS_SCRIPT,ResultParseUtil.POST_PROCESS_SCRIPT)) {
+                if (!StringUtils.startsWithAny(dto.getReqName(), ResultParseUtil.PRE_PROCESS_SCRIPT, ResultParseUtil.POST_PROCESS_SCRIPT)) {
                     withOutProcessList.add(item);
                 }
             } else {
@@ -683,7 +684,7 @@ public class ApiScenarioReportStructureService {
         RequestResult result = new RequestResult();
         try {
             result = selectReportContent(stepId, RequestResult.class);
-        }catch (Exception ignore){
+        } catch (Exception ignore) {
         }
         return result;
     }
