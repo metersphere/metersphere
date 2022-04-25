@@ -14,7 +14,6 @@
       :jsr223-processor="scenario"
       :request="scenario"
       :currentScenario="currentScenario"
-      :currentEnvironmentId="currentEnvironmentId"
       :node="node"
       :draggable="draggable"
       :title="title"
@@ -97,7 +96,6 @@ export default {
       default: true,
     },
     currentScenario: {},
-    currentEnvironmentId: String,
     response: {},
     node: {},
     projectList: Array,

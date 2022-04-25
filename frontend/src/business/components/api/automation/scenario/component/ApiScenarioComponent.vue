@@ -93,7 +93,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    currentEnvironmentId: String,
     projectList: Array,
     environmentType: String,
     environmentGroupId: String,

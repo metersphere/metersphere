@@ -98,7 +98,6 @@
                   :scenario="data"
                   :response="response"
                   :currentScenario="currentScenario"
-                  :currentEnvironmentId="currentEnvironmentId"
                   :node="node"
                   :project-list="projectList"
                   :env-map="projectEnvMap"
@@ -146,7 +145,6 @@
             :scenario="selectedTreeNode"
             :response="response"
             :currentScenario="currentScenario"
-            :currentEnvironmentId="currentEnvironmentId"
             :node="selectedNode"
             :project-list="projectList"
             :env-map="projectEnvMap"
@@ -165,7 +163,6 @@
                 :scenario="item"
                 :response="response"
                 :currentScenario="currentScenario"
-                :currentEnvironmentId="currentEnvironmentId"
                 :project-list="projectList"
                 :env-map="projectEnvMap"
                 :draggable="false"
@@ -287,7 +284,6 @@ export default {
       },
       environments: [],
       projectEnvMap: Map,
-      currentEnvironmentId: "",
       maintainerOptions: [],
       value: API_STATUS[0].id,
       options: API_STATUS,
@@ -696,16 +692,6 @@ export default {
           this.environments.forEach(environment => {
             parseEnvironment(environment);
           });
-          let hasEnvironment = false;
-          for (let i in this.environments) {
-            if (this.environments[i].id === this.currentEnvironmentId) {
-              hasEnvironment = true;
-              break;
-            }
-          }
-          if (!hasEnvironment) {
-            this.currentEnvironmentId = '';
-          }
           //检查场景是否需要先进行保存
           this.checkDataIsCopy();
         });
