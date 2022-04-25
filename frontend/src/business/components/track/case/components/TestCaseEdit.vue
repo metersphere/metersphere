@@ -1095,7 +1095,7 @@ export default {
 .ms-opt-btn {
   position: fixed;
   right: 50px;
-  z-index: 9999!important;
+  z-index: 10;
 }
 
 .ms-case-input {
