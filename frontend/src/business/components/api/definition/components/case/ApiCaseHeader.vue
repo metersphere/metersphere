@@ -20,7 +20,7 @@
             :project-id="projectId"
             :is-read-only="isReadOnly"
             :useEnvironment='useEnvironment'
-            @setEnvironment="setEnvironment" ref="environmentSelect" v-if="api.protocol==='HTTP'"/>
+            @setEnvironment="setEnvironment" ref="environmentSelect" v-if="api.protocol==='HTTP' || api.protocol ==='TCP'"/>
         </el-col>
         <el-col :span="2">
           <!-- 保存操作 -->
@@ -100,10 +100,9 @@ export default {
     setEnvironment(data) {
       if (data) {
         this.$emit('setEnvironment', data.id);
-        this.$store.state.scenarioEnvMap = new Map();
-        this.$store.state.scenarioEnvMap.set(getCurrentProjectID(), data.id);
       }
     },
+
     open() {
       this.$refs.searchBar.open();
     },
