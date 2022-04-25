@@ -419,6 +419,9 @@ export default {
     deleteResourceIds(array) {
       if (array instanceof Array && array.length > 0) {
         array.forEach(item => {
+          if (item.currentScenarioId && item.currentScenarioId.length > 0) {
+            delete item.currentScenarioId;
+          }
           if (item.resourceId) {
             delete item.resourceId;
           }
