@@ -119,6 +119,7 @@ export default {
         this.addIds.add(i.id);
       });
       this.tableData.push(...selectData);
+      this.testCaseContainIds = new Set();
     },
   }
 }
