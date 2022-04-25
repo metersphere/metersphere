@@ -43,7 +43,7 @@
                   <div class="el-step__icon-inner">{{ request.preSize }}</div>
                 </div>
               </span>
-              <ms-jmx-step :request="request" :apiId="request.id" :is-scenario="true" :response="response" :tab-type="'pre'" ref="preStep"/>
+              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response" :tab-type="'pre'" ref="preStep"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate">
                 <span class="item-tabs" effect="dark" placement="top-start" slot="label">
@@ -52,7 +52,7 @@
                   <div class="el-step__icon-inner">{{ request.postSize }}</div>
                 </div>
               </span>
-              <ms-jmx-step :request="request" :apiId="request.id" :is-scenario="true" :response="response" :tab-type="'post'" ref="postStep"/>
+              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response" :tab-type="'post'" ref="postStep"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule">
                 <span class="item-tabs" effect="dark" placement="top-start" slot="label">
@@ -62,7 +62,7 @@
                 </div>
               </span>
               <div style="margin-right: 20px">
-                <ms-jmx-step :request="request" :apiId="request.id" :is-scenario="true" :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
+                <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </div>
             </el-tab-pane>
 
@@ -302,30 +302,20 @@ export default {
       }
     },
     run() {
-      if (this.isApiImport || this.request.isRefEnvironment) {
-        if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
-          if (!this.envMap || this.envMap.size === 0) {
-            this.$warning(this.$t('api_test.automation.env_message'));
-            return false;
-          } else if (this.envMap && this.envMap.size > 0) {
-            const env = this.envMap.get(this.request.projectId);
-            if (!env) {
-              this.$warning(this.$t('api_test.automation.env_message'));
-              return false;
-            }
-          }
-        }
-      }
       this.request.debug = true;
       this.loading = true;
       this.runData = [];
       this.runData.projectId = this.request.projectId;
-      this.request.useEnvironment = this.currentEnvironmentId;
       this.request.customizeReq = this.isCustomizeReq;
+      let currentEnvironmentId;
+      if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+        && this.$store.state.scenarioEnvMap.has((this.currentScenario.id + "_" + this.request.projectId))) {
+        currentEnvironmentId = this.$store.state.scenarioEnvMap.get((this.currentScenario.id + "_" + this.request.projectId));
+      }
       let debugData = {
         id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
         variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
-        enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
+        enableCookieShare: this.enableCookieShare, environmentId: currentEnvironmentId, hashTree: [this.request],
       };
       this.runData.push(debugData);
       this.request.requestResult = [];

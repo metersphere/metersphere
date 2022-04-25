@@ -210,7 +210,6 @@
                         :scenario="data"
                         :response="response"
                         :currentScenario="currentScenario"
-                        :currentEnvironmentId="currentEnvironmentId"
                         :node="node"
                         :project-list="projectList"
                         :env-map="projectEnvMap"
@@ -463,7 +462,6 @@ export default {
         ],
       },
       environments: [],
-      currentEnvironmentId: "",
       maintainerOptions: [],
       value: API_STATUS[0].id,
       options: API_STATUS,
@@ -1423,16 +1421,6 @@ export default {
           this.environments.forEach(environment => {
             parseEnvironment(environment);
           });
-          let hasEnvironment = false;
-          for (let i in this.environments) {
-            if (this.environments[i].id === this.currentEnvironmentId) {
-              hasEnvironment = true;
-              break;
-            }
-          }
-          if (!hasEnvironment) {
-            this.currentEnvironmentId = '';
-          }
           //检查场景是否需要先进行保存
           this.checkDataIsCopy();
         });
@@ -1576,7 +1564,6 @@ export default {
             if (response.data.scenarioDefinition != null) {
               let obj = JSON.parse(response.data.scenarioDefinition);
               if (obj) {
-                this.currentEnvironmentId = obj.environmentId;
                 if (response.data.environmentJson) {
                   this.projectEnvMap = objToStrMap(JSON.parse(response.data.environmentJson));
                 } else {

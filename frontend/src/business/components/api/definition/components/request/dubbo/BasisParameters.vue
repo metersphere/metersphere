@@ -46,7 +46,7 @@
               <div class="el-step__icon-inner">{{ request.preSize }}</div>
               </div>
                   </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :is-scenario="isScenario" :tab-type="'pre'"
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :scenario-id="scenarioId" :tab-type="'pre'"
                              ref="preStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
@@ -57,7 +57,7 @@
                   <div class="el-step__icon-inner">{{ request.postSize }}</div>
                  </div>
                 </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :isScenario="isScenario"
+                <ms-jmx-step :request="request" :apiId="request.id" :scenarioId="scenarioId"
                              :response="response" :tab-type="'post'"
                              ref="postStep"/>
               </el-tab-pane>
@@ -69,7 +69,7 @@
                   <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                 </div>
               </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :isScenario="isScenario"
+                <ms-jmx-step :request="request" :apiId="request.id" :scenarioId="scenarioId"
                              :response="response" @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
@@ -116,7 +116,7 @@ export default {
     MsJmxStep
   },
   props: {
-    isScenario: String,
+    scenarioId: String,
     request: {},
     basisData: {},
     moduleOptions: Array,

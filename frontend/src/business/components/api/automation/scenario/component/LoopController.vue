@@ -1,7 +1,8 @@
 <template>
   <div>
-    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :saved="false" :runMode="'DEFINITION'" :run-data="debugData" @runRefresh="runRefresh" ref="runTest"/>
-    <api-base-component :if-from-variable-advance="ifFromVariableAdvance" @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" :show-version="showVersion" color="#02A7F0" background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')" v-loading="loading">
+    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :saved="false" :runMode="'DEFINITION'" :run-data="debugData" @errorRefresh="errorRefresh" @runRefresh="runRefresh" ref="runTest"/>
+    <api-base-component :if-from-variable-advance="ifFromVariableAdvance" @copy="copyRow" @active="active(controller)" @remove="remove" :data="controller" :draggable="draggable" :is-max="isMax" :show-btn="showBtn" :show-version="showVersion" color="#02A7F0"
+                        background-color="#F4F4F5" :title="$t('api_test.automation.loop_controller')">
 
       <template v-slot:headerLeft>
         <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" style="margin-right: 10px" v-if="!isMax"/>
@@ -18,7 +19,7 @@
       <template v-slot:button>
         <el-button @click="runDebug" :disabled="!controller.enable" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
       </template>
-      <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
+      <div v-if="controller.loopType==='LOOP_COUNT'" draggable v-loading="loading">
         <el-row>
           <el-col :span="8">
             <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
@@ -40,7 +41,7 @@
         </el-row>
       </div>
 
-      <div v-else-if="controller.loopType==='FOREACH'" draggable>
+      <div v-else-if="controller.loopType==='FOREACH'" draggable v-loading="loading">
         <el-row>
           <el-col :span="8">
             <el-input :placeholder="$t('api_test.automation.loop_return_val')" v-model="controller.forEachController.returnVal" size="small"/>
@@ -58,7 +59,7 @@
           </el-col>
         </el-row>
       </div>
-      <div v-else draggable>
+      <div v-else draggable v-loading="loading">
         <el-input size="small" v-model="controller.whileController.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
         <el-select v-model="controller.whileController.operator" :placeholder="$t('commons.please_select')" size="small" @change="change" style="width: 10%;margin-left: 10px">
           <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
@@ -95,7 +96,6 @@ export default {
   components: {ApiBaseComponent, ApiResponseComponent, MsRun},
   props: {
     controller: {},
-    currentEnvironmentId: String,
     currentScenario: {},
     node: {},
     message: String,
@@ -254,11 +254,16 @@ export default {
         this.$warning("当前循环下没有请求，不能执行");
         return;
       }
-      if(!this.controller.enable){
+      if (!this.controller.enable) {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return;
       }
       this.loading = true;
+      let currentEnvironmentId;
+      if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
+        && this.$store.state.scenarioEnvMap.has((this.currentScenario.id + "_" + this.controller.projectId))) {
+        currentEnvironmentId = this.$store.state.scenarioEnvMap.get((this.currentScenario.id + "_" + this.controller.projectId));
+      }
       this.debugData = {
         id: this.currentScenario.id,
         name: this.currentScenario.name,
@@ -267,7 +272,7 @@ export default {
         headers: this.currentScenario.headers,
         referenced: "Created",
         enableCookieShare: this.enableCookieShare,
-        environmentId: this.currentEnvironmentId,
+        environmentId: currentEnvironmentId,
         hashTree: [this.controller],
       };
       if (this.node && this.node.data) {
@@ -306,6 +311,9 @@ export default {
     },
     runRefresh() {
       this.initMessageSocket();
+    },
+    errorRefresh() {
+      this.loading = false;
     },
     setResult(hashTree) {
       if (hashTree) {
