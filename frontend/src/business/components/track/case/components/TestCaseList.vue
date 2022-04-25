@@ -1094,8 +1094,8 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let ids = this.$refs.table.selectIds;
-            this.$post('/test/case/batch/movePublic/deleteToGc', ids, () => {
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
               this.$refs.table.clear();
               this.$emit("refresh");
               this.$success(this.$t('commons.delete_success'));
@@ -1132,8 +1132,8 @@ export default {
       // 删除全部版本
       else {
         if (this.publicEnable) {
-          let ids = [testCase.id];
-          this.$post('/test/case/batch/movePublic/deleteToGc', ids, () => {
+          let param = buildBatchParam(this, this.$refs.table.selectIds);
+          this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
             this.$success(this.$t('commons.delete_success'));
             // this.initTable();
             this.$refs.apiDeleteConfirm.close();

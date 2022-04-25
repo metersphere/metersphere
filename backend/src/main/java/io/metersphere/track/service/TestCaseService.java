@@ -2197,7 +2197,10 @@ public class TestCaseService {
         }
     }
 
-    public void deleteToGcBatchPublic(List<String> ids) {
+    public void deleteToGcBatchPublic(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectPublicIds(query));
+        List<String> ids = request.getIds();
         if (CollectionUtils.isNotEmpty(ids)) {
             for (String id : ids) {
                 TestCase testCase = testCaseMapper.selectByPrimaryKey(id);
