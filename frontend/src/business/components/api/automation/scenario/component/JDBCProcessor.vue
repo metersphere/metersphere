@@ -35,10 +35,7 @@ export default {
     ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit
   },
   props: {
-    isScenario: {
-      type: Boolean,
-      default: false,
-    },
+    isScenario: String,
     draggable: {
       type: Boolean,
       default: false,
