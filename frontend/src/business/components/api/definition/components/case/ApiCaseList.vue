@@ -58,6 +58,7 @@ import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsDrawer from "../../../../common/components/MsDrawer";
 import {CASE_ORDER} from "../../model/JsonData";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {parseEnvironment} from "@/business/components/api/definition/model/EnvironmentModel";
 
 export default {
   name: 'ApiCaseList',
@@ -223,6 +224,13 @@ export default {
       });
     },
     setEnvironment(environment) {
+      if (this.environment !== environment) {
+        if (this.apiCaseList && this.apiCaseList.length > 0) {
+          if (this.apiCaseList[0].request && this.apiCaseList[0].request.hashTree) {
+            this.setOwnEnvironment(this.apiCaseList[0].request.hashTree, environment);
+          }
+        }
+      }
       this.environment = environment;
     },
     sysAddition(apiCase) {
@@ -280,6 +288,39 @@ export default {
     },
     refreshModule() {
       this.$emit('refreshModule');
+    },
+    setEnvironments(obj) {
+      this.$get('/api/environment/list/' + this.projectId, response => {
+        let environments = response.data;
+        this.getTargetSource(environments, obj);
+      });
+    },
+    getTargetSource(environments, obj) {
+      environments.forEach(environment => {
+        parseEnvironment(environment);
+        // 找到原始环境和数据源名称
+        if (environment.id === obj.environmentId) {
+          if (environment.config && environment.config.databaseConfigs) {
+            environment.config.databaseConfigs.forEach(item => {
+              if (item.id === obj.dataSourceId) {
+                obj.targetDataSourceName = item.name;
+              }
+            });
+          }
+        }
+      });
+    },
+    setOwnEnvironment(scenarioDefinition, env) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          this.setEnvironments(scenarioDefinition[i]);
+          scenarioDefinition[i].environmentId = env;
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
+        }
+      }
     },
     runRefresh(data) {
       this.batchLoadingIds = [];
