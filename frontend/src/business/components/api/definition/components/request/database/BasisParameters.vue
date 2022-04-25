@@ -176,9 +176,8 @@ export default {
       deep: true
     },
     '$store.state.useEnvironment': function () {
-      if (!this.scenarioId) {
-        this.request.environmentId = this.$store.state.useEnvironment;
-        this.getEnvironments();
+      if (this.scenarioId !== "") {
+        this.getEnvironments(this.$store.state.useEnvironment);
       }
     },
     '$store.state.scenarioEnvMap': {
@@ -263,17 +262,32 @@ export default {
     runTest() {
 
     },
-    itselfEnvironment() {
+    itselfEnvironment(environmentId) {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       this.result = this.$get('/api/environment/list/' + id, response => {
         this.environments = response.data;
+        let targetDataSourceName = undefined;
+        let currentEnvironment = undefined;
         this.environments.forEach(environment => {
           parseEnvironment(environment);
+          // 找到原始环境和数据源名称
+          if (environment.id === environmentId) {
+            currentEnvironment = environment;
+          }
+          if (environment.id === this.request.environmentId) {
+            if (environment.config && environment.config.databaseConfigs) {
+              environment.config.databaseConfigs.forEach(item => {
+                if (item.id === this.request.dataSourceId) {
+                  targetDataSourceName = item.name;
+                }
+              });
+            }
+          }
         })
-        this.initDataSource();
+        this.initDataSource(environmentId, currentEnvironment, targetDataSourceName);
       });
     },
-    getEnvironments() {
+    getEnvironments(environmentId) {
       let envId = "";
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       let scenarioEnvId = this.request.currentScenarioId ? (this.request.currentScenarioId + "_" + id) : id;
@@ -281,13 +295,11 @@ export default {
         && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
-      if (this.request.referenced === 'Created' && this.scenarioId && !this.request.isRefEnvironment) {
-        alert(2222)
-        this.itselfEnvironment();
+      if (this.request.referenced === 'Created' && this.scenarioId !== "" && !this.request.isRefEnvironment) {
+        this.itselfEnvironment(environmentId);
         return;
       } else if (!this.scenarioId && !this.request.customizeReq) {
-        alert(333)
-        this.itselfEnvironment();
+        this.itselfEnvironment(environmentId);
         return;
       }
       this.environments = [];
@@ -384,9 +396,40 @@ export default {
           this.environments[i].config.databaseConfigs.forEach(item => {
             this.databaseConfigsOptions.push(item);
           })
+          if (this.request.hashTree && !this.scenarioId) {
+            this.setOwnEnvironment(this.request.hashTree, value)
+          }
           break;
         }
       }
+    },
+    setOwnEnvironment(scenarioDefinition, env) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          // 找到原始数据源名称
+          this.getTargetSource(scenarioDefinition[i])
+          scenarioDefinition[i].environmentId = env;
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
+        }
+      }
+    },
+    getTargetSource(obj) {
+      this.environments.forEach(environment => {
+        parseEnvironment(environment);
+        // 找到原始环境和数据源名称
+        if (environment.id === obj.environmentId) {
+          if (environment.config && environment.config.databaseConfigs) {
+            environment.config.databaseConfigs.forEach(item => {
+              if (item.id === obj.dataSourceId) {
+                obj.targetDataSourceName = item.name;
+              }
+            });
+          }
+        }
+      });
     },
     environmentConfigClose() {
       this.getEnvironments();
