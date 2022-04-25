@@ -23,8 +23,12 @@
       </span>
       <span>
         <slot name="searchBarBefore"></slot>
-        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip" v-if="haveSearch"/>
-        <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine" ref="searchBar"/>
+        <ms-search
+            :base-search-tip="tip"
+            :condition.sync="condition"
+            :show-base-search="haveSearch"
+            @search="search">
+        </ms-search>
       </span>
     </el-row>
   </div>
@@ -36,13 +40,14 @@
   import MsTableButton from './MsTableButton';
   import MsTableAdvSearchBar from "./search/MsTableAdvSearchBar";
   import {getCurrentProjectID} from "@/common/js/utils";
+  import MsSearch from "@/business/components/common/components/search/MsSearch";
 
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
   const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
   export default {
     name: "MsTableHeader",
-    components: {MsTableAdvSearchBar, MsTableSearchBar, MsTableButton,'VersionSelect': VersionSelect.default},
+    components: {MsTableAdvSearchBar, MsTableSearchBar, MsTableButton,'VersionSelect': VersionSelect.default, MsSearch},
     data() {
       return {
         version:this.currentVersion

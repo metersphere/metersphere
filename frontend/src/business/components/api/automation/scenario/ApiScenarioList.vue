@@ -3,9 +3,11 @@
     <el-card class="table-card-nopadding" v-loading="result.loading">
       <slot name="version"></slot>
 
-      <ms-table-search-bar :condition.sync="condition" @change="search" class="search-input"
-                           :tip="$t('commons.search_by_id_name_tag')"/>
-      <ms-table-adv-search-bar :condition.sync="condition" @search="search" class="adv-search-bar"/>
+      <ms-search
+        :condition.sync="condition"
+        :base-search-tip="$t('commons.search_by_id_name_tag')"
+        @search="search">
+      </ms-search>
 
       <ms-table
         :data="tableData"
@@ -330,6 +332,7 @@ import MsTableSearchBar from "@/business/components/common/components/MsTableSea
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import {Message} from "element-ui";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -343,6 +346,7 @@ export default {
     MsTable,
     MsTableColumn,
     HeaderLabelOperate,
+    MsSearch,
     "relationshipGraphDrawer": relationshipGraphDrawer.default,
     HeaderCustom: () => import("@/business/components/common/head/HeaderCustom"),
     BatchMove: () => import("../../../track/case/components/BatchMove"),

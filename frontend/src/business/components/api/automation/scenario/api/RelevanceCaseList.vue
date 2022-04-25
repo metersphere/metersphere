@@ -10,12 +10,10 @@
 
       <ms-environment-select :project-id="projectId" v-if="isTestPlan || isScript" :is-read-only="isReadOnly"
                              @setEnvironment="setEnvironment" ref="msEnvironmentSelect"/>
-
-      <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
-                @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                               v-if="condition.components !== undefined && condition.components.length > 0"
-                               @search="initTable"/>
+      <ms-search
+        :condition.sync="condition"
+        @search="initTable">
+      </ms-search>
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
                 :screenHeight="screenHeight"
@@ -110,6 +108,7 @@ import {_filter, _sort, buildBatchParam} from "@/common/js/tableUtils";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {TEST_PLAN_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {hasLicense} from "@/common/js/utils";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 export default {
   name: "RelevanceCaseList",
@@ -126,6 +125,7 @@ export default {
     MsBatchEdit,
     MsTable,
     MsTableColumn,
+    MsSearch,
     MsTableAdvSearchBar
   },
   data() {

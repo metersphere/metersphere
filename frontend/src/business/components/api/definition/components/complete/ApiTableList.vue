@@ -1,11 +1,10 @@
 <template>
   <span>
     <slot name="header"></slot>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable" class="search-input" size="small"
-              @keyup.enter.native="initTable" v-model="condition.name"/>
-    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                             v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="initTable"/>
+    <ms-search
+      :condition.sync="condition"
+      @search="initTable">
+    </ms-search>
 
     <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
               :total="total" enableSelection @selectCountChange="selectCountChange"
@@ -119,6 +118,7 @@ import {getProtocolFilter} from "@/business/components/api/definition/api-defini
 import {getProjectMember} from "@/network/user";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 import {hasLicense} from "@/common/js/utils";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 export default {
   name: "ApiTableList",
@@ -135,7 +135,8 @@ export default {
     MsBatchEdit,
     MsTable,
     MsTableColumn,
-    MsTableAdvSearchBar
+    MsTableAdvSearchBar,
+    MsSearch
   },
   data() {
     return {

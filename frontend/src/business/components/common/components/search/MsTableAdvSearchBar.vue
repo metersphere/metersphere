@@ -142,8 +142,11 @@ export default {
     init() {
       this.config = this.doInit(true);
       this.optional = this.doInit();
+      if (this.optional.components.length && this.optional.components.length === this.showItemSize) {
+        this.showAddFilterLink = false;
+      }
       this.optional.components = slice(this.optional.components, 0, this.showItemSize);
-      const all = concat(this.config.components[0].child, this.config.components[1].child)
+      const all = concat(this.config.components[0].child, this.config.components[1].child);
       let allComponent = this.condition.custom ? all : this.config.components;
       for (let component of allComponent) {
         let co = _findByKey(this.optional.components, component.key);

@@ -5,7 +5,11 @@
              :destroy-on-close="true"
              width="60%" :visible.sync="loadApiAutomationVisible"
              :modal="true">
-    <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="$t('commons.search_by_id_name_tag')" />
+    <ms-search
+      :base-search-tip="$t('commons.search_by_id_name_tag')"
+      :condition.sync="condition"
+      @search="search">
+    </ms-search>
     <el-table v-loading="projectLoadingResult.loading" class="basic-config"
               :data="apiScenarios"
               @select-all="handleSelectAll"
@@ -49,12 +53,12 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
-import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 export default {
   name: "ExistScenarios",
-  components: {MsTag, MsTablePagination, MsDialogFooter,MsTableSearchBar},
+  components: {MsTag, MsTablePagination, MsDialogFooter,MsTableSearchBar, MsSearch},
   props: {
     fileList: Array,
     tableData: Array,
@@ -71,7 +75,6 @@ export default {
       apiScenarios: [],
       selectIds: new Set,
       condition: {
-        components: API_SCENARIO_CONFIGS,
         projectId: getCurrentProjectID(),
         filters: {status: ["Prepare", "Underway", "Completed"]}
       },

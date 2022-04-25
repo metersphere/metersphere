@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
-              @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
-    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                             v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="search"/>
+    <ms-search
+      :base-search-tip="$t('api_test.definition.request.select_case')"
+      :condition.sync="condition"
+      @search="search">
+    </ms-search>
     <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"
                     style="float: left"
                     class="search-input"/>
@@ -95,6 +95,7 @@ import {ENV_TYPE} from "@/common/js/constants";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTag from "@/business/components/common/components/MsTag";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -111,6 +112,7 @@ export default {
     MsTag,
     MsApiReportDetail,
     MsTableAdvSearchBar,
+    MsSearch,
     'VersionSelect': VersionSelect.default,
   },
   props: {
