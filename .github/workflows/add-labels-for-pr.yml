@@ -1,16 +1,16 @@
-on: [push, pull_request, release]
+on: pull_request
 
-name: MeterSphere pull request handler
+name: MeterSphere 通用 PR 处理
 
 jobs:
   generic_handler:
-    name: Generic handler for MeterSphere Repos
+    name: 为 PR 添加标签
     runs-on: ubuntu-latest
     steps:
       - name: Add labels
         uses: jumpserver/action-generic-handler@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v2
       - uses: actions-ecosystem/action-add-labels@v1
         with:
