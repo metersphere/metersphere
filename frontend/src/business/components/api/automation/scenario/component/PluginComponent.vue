@@ -257,8 +257,11 @@ export default {
       },
       deep: true
     },
-    'request.name'() {
-      this.data.name = this.request.name;
+    request: {
+      handler(v) {
+        this.data = this.request;
+      },
+      deep: true
     }
   },
   methods: {
