@@ -1583,7 +1583,12 @@ export default {
                   // 兼容历史数据
                   this.projectEnvMap.set(this.projectId, obj.environmentId);
                 }
-                this.$store.state.scenarioEnvMap = this.projectEnvMap;
+                if (!this.$store.state.scenarioEnvMap || !(this.$store.state.scenarioEnvMap instanceof Map)) {
+                  this.$store.state.scenarioEnvMap = new Map();
+                }
+                this.projectEnvMap.forEach((v, k) => {
+                  this.$store.state.scenarioEnvMap.set(this.currentScenario.id + "_" + k, v);
+                })
                 this.envGroupId = response.data.environmentGroupId;
                 if (response.data.environmentType) {
                   this.environmentType = response.data.environmentType;
@@ -1777,7 +1782,15 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
-      this.$store.state.scenarioEnvMap = projectEnvMap;
+      if (!this.$store.state.scenarioEnvMap) {
+        this.$store.state.scenarioEnvMap = new Map();
+      }
+      let map = objToStrMap(JSON.parse(JSON.stringify(this.$store.state.scenarioEnvMap)));
+      this.projectEnvMap.forEach((v, k) => {
+        let key = this.currentScenario.id + "_" + k;
+        map.set(key, v);
+      });
+      this.$store.state.scenarioEnvMap = map;
       this.setDomain(true);
     },
     setEnvGroup(id) {
