@@ -49,7 +49,7 @@
             @remove="remove"
             :title="$t('api_test.definition.request.pre_sql')"
             :is-read-only="false"
-            :isScenario="isScenario"
+            :scenarioId="scenarioId"
             :request="data"
             :jdbc-processor="data"
             color="#B8741A"
@@ -80,7 +80,7 @@
             :title="$t('api_test.definition.request.post_sql')"
             :is-read-only="false"
             :request="data"
-            :isScenario="isScenario"
+            :scenarioId="scenarioId"
             :jdbc-processor="data"
             color="#783887"
             background-color="#F2ECF3"/>
@@ -139,7 +139,7 @@ export default {
     tabType: String,
     response: {},
     apiId: String,
-    isScenario: String,
+    scenarioId: String,
     showScript: {
       type: Boolean,
       default: true,
