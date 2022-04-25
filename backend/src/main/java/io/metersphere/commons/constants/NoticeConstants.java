@@ -17,6 +17,10 @@ public interface NoticeConstants {
         String TRACK_TEST_CASE_TASK = "TRACK_TEST_CASE_TASK";
         String TRACK_HOME_TASK = "TRACK_HOME_TASK";
         String TRACK_REPORT_TASK = "TRACK_REPORT_TASK";
+        String UI_AUTOMATION_TASK = "UI_AUTOMATION_TASK";
+        String UI_DEFINITION_TASK = "UI_DEFINITION_TASK";
+        String UI_HOME_TASK = "UI_HOME_TASK";
+        String UI_REPORT_TASK = "UI_REPORT_TASK";
     }
 
     interface Mode {
