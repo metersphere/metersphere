@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Add labels
         uses: jumpserver/action-generic-handler@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
       - uses: actions/checkout@v2
       - uses: actions-ecosystem/action-add-labels@v1
         with:
