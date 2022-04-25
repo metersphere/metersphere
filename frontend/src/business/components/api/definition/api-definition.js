@@ -85,7 +85,6 @@ export function hisDataProcessing(array, request) {
       let item = array[index];
       if (item.type === "Assertions" && isOne) {
         assertions = JSON.parse(JSON.stringify(item));
-        parse(assertions);
         isOne = false;
         assertionsIndex.push(item);
       } else if (item.type === "Assertions") {
