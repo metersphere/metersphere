@@ -74,10 +74,11 @@
       </el-row>
     </el-tab-pane>
     <el-tab-pane v-if="type!=='add'" :label="$t('test_track.review.comment')" name="comment">
-      <el-tooltip class="item-tabs" effect="dark" :content="$t('test_track.review.comment')" placement="top-start" slot="label">
+      <el-tooltip class="item-tabs" effect="dark" :content="$t('test_track.review.comment')" placement="top-start"
+                  slot="label">
               <span>
                 {{ $t('test_track.review.comment') }}
-                <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments.length>0">
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments && comments.length>0">
                   <div class="el-step__icon-inner">{{ comments.length }}</div>
                 </div>
               </span>
@@ -93,7 +94,7 @@
                                :key="index"
                                :comment="comment"
                                @refresh="getComments" api-url="/test/case"/>
-          <div v-if="comments.length === 0" style="text-align: center">
+          <div v-if="!comments || comments.length === 0" style="text-align: center">
             <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                             <span style="font-size: 15px; color: #8a8b8d;">
                               {{ $t('test_track.comment.no_comment') }}
@@ -393,7 +394,8 @@ export default {
 .el-cascader >>> .el-input {
   cursor: pointer;
 }
-.ms-header{
+
+.ms-header {
   background: #783887;
   color: white;
   height: 18px;
