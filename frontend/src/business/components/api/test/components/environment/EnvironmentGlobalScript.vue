@@ -97,6 +97,7 @@ export default {
         {value: "HTTP", label: "HTTP"},
         {value: "TCP", label: "TCP"},
         {value: "JDBC", label: "JDBC"},
+        {value: "DUBBO", label: "DUBBO"},
       ],
       scriptExecSort: [],
       scriptPreExecSort: [
