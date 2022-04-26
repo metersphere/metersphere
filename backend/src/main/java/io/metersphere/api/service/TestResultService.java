@@ -65,7 +65,6 @@ public class TestResultService {
         if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
             environmentList = (List<String>) dto.getArbitraryData().get("ENV");
         }
-        List<RequestResult> requestResults = dto.getRequestResults();
         //处理环境参数
         if (CollectionUtils.isNotEmpty(environmentList)) {
             apiEnvironmentRunningParamService.parseEnvironment(environmentList);
@@ -73,15 +72,15 @@ public class TestResultService {
         }
         //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
         if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            apiDefinitionExecResultService.saveApiResultByScheduleTask(requestResults, dto);
+            apiDefinitionExecResultService.saveApiResultByScheduleTask(dto);
         } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            apiDefinitionExecResultService.saveApiResult(requestResults, dto);
+            apiDefinitionExecResultService.saveApiResult(dto);
         } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            apiScenarioReportService.saveResult(requestResults, dto);
+            apiScenarioReportService.saveResult(dto);
         } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.UI_SCENARIO.name(), ApiRunMode.UI_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name(), ApiRunMode.UI_SCHEDULE_SCENARIO.name(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name())) {
-            apiScenarioReportService.saveUiResult(requestResults, dto);
+            apiScenarioReportService.saveUiResult(dto.getRequestResults(), dto);
         }
-        updateTestCaseStates(requestResults, dto.getRunMode());
+        updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
     }
 
     public void batchSaveResults(Map<String, List<ResultDTO>> resultDtoMap) {

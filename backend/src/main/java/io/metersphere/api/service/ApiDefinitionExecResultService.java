@@ -74,10 +74,10 @@ public class ApiDefinitionExecResultService {
     RedisTemplate<String, Object> redisTemplate;
 
 
-    public void saveApiResult(List<RequestResult> requestResults, ResultDTO dto) {
-        LoggerUtil.info("接收到API/CASE执行结果【 " + requestResults.size() + " 】");
+    public void saveApiResult(ResultDTO dto) {
+        LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】");
 
-        for (RequestResult item : requestResults) {
+        for (RequestResult item : dto.getRequestResults()) {
             if (item.getResponseResult() != null && item.getResponseResult().getResponseTime() <= 0) {
                 item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
             }
@@ -302,10 +302,10 @@ public class ApiDefinitionExecResultService {
      * 定时任务触发的保存逻辑
      * 定时任务时，userID要改为定时任务中的用户
      */
-    public void saveApiResultByScheduleTask(List<RequestResult> requestResults, ResultDTO dto) {
-        if (CollectionUtils.isNotEmpty(requestResults)) {
-            LoggerUtil.info("接收到定时任务执行结果【 " + requestResults.size() + " 】");
-            for (RequestResult item : requestResults) {
+    public void saveApiResultByScheduleTask(ResultDTO dto) {
+        if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+            LoggerUtil.info("接收到定时任务执行结果【 " + dto.getRequestResults().size() + " 】");
+            for (RequestResult item : dto.getRequestResults()) {
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
@@ -336,8 +336,8 @@ public class ApiDefinitionExecResultService {
         }
         updateTestCaseStates(dto.getTestId());
         Map<String, String> apiIdResultMap = new HashMap<>();
-        long errorSize = requestResults.stream().filter(requestResult -> requestResult.getError() > 0).count();
-        String status = errorSize > 0 || requestResults.isEmpty() ? TestPlanApiExecuteStatus.FAILD.name() : TestPlanApiExecuteStatus.SUCCESS.name();
+        long errorSize = dto.getRequestResults().stream().filter(requestResult -> requestResult.getError() > 0).count();
+        String status = errorSize > 0 || dto.getRequestResults().isEmpty() ? TestPlanApiExecuteStatus.FAILD.name() : TestPlanApiExecuteStatus.SUCCESS.name();
         if (StringUtils.isNotEmpty(dto.getReportId())) {
             apiIdResultMap.put(dto.getReportId(), status);
         }

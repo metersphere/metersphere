@@ -18,7 +18,7 @@ public class PerformanceQueueEvent implements LoadTestFinishEvent {
     public void sendNotice(LoadTestReport loadTestReport) {
         //删除性能测试在执行队列中的数据 （在测试计划执行中会将性能测试执行添加到执行队列，用于判断整个测试计划到执行进度）
         try {
-            apiExecutionQueueService.checkExecutionQueneByLoadTest(loadTestReport);
+            apiExecutionQueueService.checkExecutionQueueByLoadTest(loadTestReport);
         } catch (Exception e) {
             LogUtil.error("PerformanceQueueEvent error. id:" + loadTestReport.getId());
         }

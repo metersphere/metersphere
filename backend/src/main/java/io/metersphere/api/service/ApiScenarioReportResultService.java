@@ -35,14 +35,28 @@ public class ApiScenarioReportResultService {
 
     public void save(String reportId, List<RequestResult> queue) {
         if (CollectionUtils.isNotEmpty(queue)) {
-            queue.forEach(item -> {
-                // 事物控制器出来的结果特殊处理
-                if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(item.getSubRequestResults())) {
-                    LoggerUtil.debug("合并事物请求暂不入库");
-                } else {
-                    apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+            if (queue.size() == 1) {
+                queue.forEach(item -> {
+                    // 事物控制器出来的结果特殊处理
+                    if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(item.getSubRequestResults())) {
+                        LoggerUtil.debug("合并事物请求暂不入库");
+                    } else {
+                        apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                    }
+                });
+            } else {
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                ApiScenarioReportResultMapper batchMapper = sqlSession.getMapper(ApiScenarioReportResultMapper.class);
+                queue.forEach(item -> {
+                    if (StringUtils.isEmpty(item.getName()) || !item.getName().startsWith("Transaction=") || !CollectionUtils.isEmpty(item.getSubRequestResults())) {
+                        batchMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                    }
+                });
+                sqlSession.flushStatements();
+                if (sqlSession != null && sqlSessionFactory != null) {
+                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
                 }
-            });
+            }
         }
     }
 
@@ -112,7 +126,7 @@ public class ApiScenarioReportResultService {
         if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             report.setErrorCode(errorCodeDTO.getErrorCodeStr());
         }
-        if(StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(),ExecuteResult.errorReportResult.name())){
+        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.errorReportResult.name())) {
             status = errorCodeDTO.getRequestStatus();
         }
         report.setStatus(status);
