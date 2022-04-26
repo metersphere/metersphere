@@ -118,6 +118,11 @@ export default {
     },
     validateForm() {
       let isValidate = true;
+      this.$refs['caseFrom'].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+        }
+      });
       this.$refs['customFieldForm'].validate((valid) => {
         if (!valid) {
           isValidate = false;
@@ -126,7 +131,10 @@ export default {
       return isValidate;
     },
     getCustomFields() {
-      return this.$refs['customFieldForm'].fields;
+      let caseFromFields = this.$refs['caseFrom'].fields;
+      let customFields = this.$refs['customFieldForm'].fields;
+      Array.prototype.push.apply(caseFromFields, customFields);
+      return caseFromFields;
     }
   }
 }
