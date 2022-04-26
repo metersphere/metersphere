@@ -259,9 +259,12 @@ export default {
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
-        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1
+          && this.request.environmentId && !scenarioDefinition[i].environmentId) {
           scenarioDefinition[i].environmentId = this.request.environmentId;
-          scenarioDefinition[i].dataSourceId = this.request.dataSourceId;
+          if (this.request.dataSourceId && !scenarioDefinition[i].dataSourceId) {
+            scenarioDefinition[i].dataSourceId = this.request.dataSourceId;
+          }
         }
       }
     },
