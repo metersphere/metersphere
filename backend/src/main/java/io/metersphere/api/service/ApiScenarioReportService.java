@@ -84,9 +84,9 @@ public class ApiScenarioReportService {
     @Resource
     private UiReportServiceProxy uiReportServiceProxy;
 
-    public void saveResult(List<RequestResult> requestResults, ResultDTO dto) {
+    public void saveResult(ResultDTO dto) {
         // 报告详情内容
-        apiScenarioReportResultService.save(dto.getReportId(), requestResults);
+        apiScenarioReportResultService.save(dto.getReportId(), dto.getRequestResults());
     }
 
 
