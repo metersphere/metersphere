@@ -249,8 +249,21 @@ export default {
       } else {
         this.addAssertions();
       }
+      // 继承请求中的环境和数据源
+      if (this.request.hashTree && this.request.hashTree.length > 0) {
+        this.setOwnEnvironment(this.request.hashTree);
+      }
       this.sort();
       this.reload();
+    },
+    setOwnEnvironment(scenarioDefinition) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          scenarioDefinition[i].environmentId = this.request.environmentId;
+          scenarioDefinition[i].dataSourceId = this.request.dataSourceId;
+        }
+      }
     },
     filterNode(value, data) {
       if (data.type && value.indexOf(data.type) !== -1) {
