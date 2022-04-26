@@ -152,10 +152,27 @@ export default {
       }
     },
     getDefaultConfig(report) {
-      if (report && report.config) {
+      if (report && report.config && report.config!== "") {
         let configStr = report.config;
         if (configStr) {
-          return JSON.parse(configStr);
+          let configObj = JSON.parse(configStr);
+          if(configObj.api && configObj.api.children){
+            if(!configObj.api.children.errorReport){
+              let obj = {
+                  enable: true,
+                  name: this.$t('error_report_library.option.name'),
+              };
+              configObj.api.children.errorReport = obj;
+            }
+            if(!configObj.api.children.unExecute){
+              let obj = {
+                  enable: true,
+                  name: this.$t('api_test.home_page.detail_card.unexecute'),
+              };
+              configObj.api.children.unExecute = obj;
+            }
+          }
+          return configObj;
         }
       }
       return {
