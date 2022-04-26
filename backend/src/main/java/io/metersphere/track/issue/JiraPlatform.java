@@ -27,9 +27,6 @@ import io.metersphere.track.service.IssuesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
@@ -97,16 +94,18 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         // 附件处理
         Map<String, String> fileContentMap = new HashMap<>();
-        for (int i = 0; i < attachments.size(); i++) {
-            JSONObject attachment = attachments.getJSONObject(i);
-            String filename = attachment.getString("filename");
-            String content = attachment.getString("content");
-            if (StringUtils.equals(attachment.getString("mimeType"), "image/jpeg")) {
-                String contentUrl = "![" + filename + "](" + content + ")";
-                fileContentMap.put(filename, contentUrl);
-            } else {
-                String contentUrl = "附件[" + filename + "]下载地址:" + content;
-                fileContentMap.put(filename, contentUrl);
+        if (CollectionUtils.isNotEmpty(attachments)) {
+            for (int i = 0; i < attachments.size(); i++) {
+                JSONObject attachment = attachments.getJSONObject(i);
+                String filename = attachment.getString("filename");
+                String content = attachment.getString("content");
+                if (StringUtils.equals(attachment.getString("mimeType"), "image/jpeg")) {
+                    String contentUrl = "![" + filename + "](" + content + ")";
+                    fileContentMap.put(filename, contentUrl);
+                } else {
+                    String contentUrl = "附件[" + filename + "]下载地址:" + content;
+                    fileContentMap.put(filename, contentUrl);
+                }
             }
         }
 
@@ -137,7 +136,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject statusObj = (JSONObject) fields.get("status");
         if (statusObj != null) {
             JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
-            return statusCategory.getString("name");
+            return statusObj.getString("name") == null ? statusCategory.getString("name") : statusObj.getString("name");
         }
         return "";
     }
@@ -292,7 +291,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (StringUtils.isNotBlank(issuesRequest.getDescription())) {
             desc = dealWithImage(issuesRequest.getDescription());
         }
-        
+
 
         fields.put("project", project);
         project.put("key", jiraKey);

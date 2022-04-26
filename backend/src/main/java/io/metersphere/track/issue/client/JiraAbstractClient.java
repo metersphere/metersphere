@@ -229,7 +229,7 @@ public abstract class JiraAbstractClient extends BaseClient {
 
     public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey, String issueType) {
         ResponseEntity<String> responseEntity;
-        responseEntity = restTemplate.exchange(getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}&fields=status,assignee,summary,created,updated,attachment,description",
+        responseEntity = restTemplate.exchange(getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}",
                 HttpMethod.GET, getAuthHttpEntity(), String.class, startAt, maxResults, projectKey, issueType);
         return  (JiraIssueListResponse)getResultForObject(JiraIssueListResponse.class, responseEntity);
     }
