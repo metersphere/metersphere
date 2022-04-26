@@ -301,4 +301,4 @@ ALTER TABLE `api_scenario` ADD INDEX index_project_id ( `project_id`);
 
 ALTER TABLE share_info ADD lang varchar(10) NULL;
 
-UPDATE system_parameter SET param_value = 'http://grid-local:4444' WHERE param_key = 'base.selenium.docker.url';
+UPDATE system_parameter SET param_value = 'http://local-selenium-grid:4444' WHERE param_key = 'base.selenium.docker.url';
