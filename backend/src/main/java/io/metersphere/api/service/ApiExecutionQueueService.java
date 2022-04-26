@@ -326,6 +326,7 @@ public class ApiExecutionQueueService {
         for (ApiExecutionQueueDetail item : queueDetails) {
             ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(item.getQueueId());
             if (queue == null) {
+                executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                 continue;
             }
             // 在资源池中执行
@@ -345,6 +346,10 @@ public class ApiExecutionQueueService {
                     ApiRunMode.SCHEDULE_SCENARIO.name(),
                     ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
+                // 报告已经被删除则队列也删除
+                if (report == null) {
+                    executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
+                }
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
                         && report.getUpdateTime() < timeout) {
                     report.setStatus(ScenarioStatus.Timeout.name());
@@ -433,7 +438,11 @@ public class ApiExecutionQueueService {
         });
     }
 
-    public void checkExecutionQueneByLoadTest(LoadTestReport loadTestReport) {
+    /**
+     * 性能测试监听检查
+     * @param loadTestReport
+     */
+    public void checkExecutionQueueByLoadTest(LoadTestReport loadTestReport) {
         ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
         detailExample.createCriteria().andReportIdEqualTo(loadTestReport.getId());
         executionQueueDetailMapper.deleteByExample(detailExample);
