@@ -17,12 +17,12 @@ public interface QuotaService {
     /**
      * api配额检查
      */
-    void checkAPIDefinitionQuota();
+    void checkAPIDefinitionQuota(String projectId);
 
     /**
      * api配额检查
      */
-    void checkAPIAutomationQuota();
+    void checkAPIAutomationQuota(String projectId);
 
     /**
      * 性能测试配额检查

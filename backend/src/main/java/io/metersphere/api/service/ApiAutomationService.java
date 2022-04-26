@@ -236,7 +236,7 @@ public class ApiAutomationService {
     }
 
     public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
-        checkQuota();
+        checkQuota(request.getProjectId());
         request.setId(UUID.randomUUID().toString());
         if (request.getScenarioDefinition() == null) {
             MsScenario msScenario = new MsScenario();
@@ -272,10 +272,10 @@ public class ApiAutomationService {
         return scenario;
     }
 
-    private void checkQuota() {
+    private void checkQuota(String projectId) {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
-            quotaService.checkAPIAutomationQuota();
+            quotaService.checkAPIAutomationQuota(projectId);
         }
     }
 
