@@ -106,16 +106,17 @@ export default {
       return this.items.length - 1 === index;
     },
     _handleBatchVars(data) {
+      console.log("aaaaa")
       let params = data.split("\n");
       let keyValues = [];
       params.forEach(item => {
         let line = item.split(/：|:/);
+        let values = item.split(line[0] + ":");
         let required = false;
         keyValues.unshift(new KeyValue({
           name: line[0],
           required: required,
-          value: line[1],
-          description: line[2],
+          value: values[1],
           type: "text",
           valid: false,
           file: false,
