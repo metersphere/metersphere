@@ -83,7 +83,7 @@
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="run">{{$t('load_test.save_and_run')}}</el-dropdown-item>
-            <el-dropdown-item command="save">{{$t('commons.save')}}</el-dropdown-item>
+            <el-dropdown-item command="save" v-if="show_save">{{$t('commons.save')}}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -128,7 +128,17 @@ export default {
       value: 'confirmAndRun'
     };
   },
-  props: ['planCaseIds', 'type', 'planId'],
+  props: {
+    planCaseIds: {
+      type: Array,
+    },
+    type: String,
+    planId: String,
+    show_save: {
+      type: Boolean,
+      default: false
+    },
+  },
   methods: {
     open(testType) {
       this.runModeVisible = true;
