@@ -100,11 +100,12 @@ export default {
       api: {},
       envMap: new Map,
       maintainerOptions: [],
+      environments: []
     };
   },
   watch: {
     '$store.state.useEnvironment': function () {
-      this.environment = this.$store.state.useEnvironment;
+      this.setEnvironment(this.$store.state.useEnvironment);
     },
     refreshSign() {
       this.api = this.currentApi;
@@ -289,13 +290,43 @@ export default {
     refreshModule() {
       this.$emit('refreshModule');
     },
-    setEnvironments(obj) {
-      this.$get('/api/environment/list/' + this.projectId, response => {
-        let environments = response.data;
-        this.getTargetSource(environments, obj);
-      });
+    setNewSource(environment, obj) {
+      if (environment.config && environment.config.databaseConfigs) {
+        let dataSources = environment.config.databaseConfigs.filter(item => item.name === obj.targetDataSourceName);
+        if (dataSources && dataSources.length > 0) {
+          obj.dataSourceId = dataSources[0].id;
+        } else {
+          obj.dataSourceId = environment.config.databaseConfigs[0].id;
+        }
+      }
     },
-    getTargetSource(environments, obj) {
+    getEnvironments(obj, env) {
+      if (this.environments.length === 0) {
+        this.$get('/api/environment/list/' + this.projectId, response => {
+          this.environments = response.data;
+          // 获取原数据源名称
+          this.getTargetSourceName(this.environments, obj);
+          // 设置新环境
+          obj.environmentId = env;
+          // 设置新数据源
+          let envs = this.environments.filter(tab => tab.id === env);
+          if (envs && envs.length > 0) {
+            this.setNewSource(envs[0], obj);
+          }
+        });
+      } else {
+        // 获取原数据源名称
+        this.getTargetSourceName(this.environments, obj);
+        // 设置新环境
+        obj.environmentId = env;
+        // 设置新数据源
+        let envs = this.environments.filter(tab => tab.id === env);
+        if (envs && envs.length > 0) {
+          this.setNewSource(envs[0], obj);
+        }
+      }
+    },
+    getTargetSourceName(environments, obj) {
       environments.forEach(environment => {
         parseEnvironment(environment);
         // 找到原始环境和数据源名称
@@ -314,8 +345,7 @@ export default {
       for (let i in scenarioDefinition) {
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
         if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
-          this.setEnvironments(scenarioDefinition[i]);
-          scenarioDefinition[i].environmentId = env;
+          this.getEnvironments(scenarioDefinition[i], env);
         }
         if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
           this.setOwnEnvironment(scenarioDefinition[i].hashTree, env);
