@@ -96,6 +96,8 @@ public class TestPlanService {
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
     @Resource
+    UserService userService;
+    @Resource
     SqlSessionFactory sqlSessionFactory;
     @Lazy
     @Resource
@@ -1545,7 +1547,6 @@ public class TestPlanService {
                 } else if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
                     apiAllCases = testPlanApiCaseService.getByApiExecReportIds(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap());
                 }
-                report.setApiAllCases(apiAllCases);
 
                 //场景
                 if (CollectionUtils.isNotEmpty(testPlanExecuteReportDTO.getScenarioInfoDTOList())) {
@@ -1553,6 +1554,8 @@ public class TestPlanService {
                 } else if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
                     scenarioAllCases = testPlanScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap());
                 }
+                this.checkApiCaseCreatorName(apiAllCases,scenarioAllCases);
+                report.setApiAllCases(apiAllCases);
                 report.setScenarioAllCases(scenarioAllCases);
             }
 
@@ -1560,6 +1563,46 @@ public class TestPlanService {
             this.screenApiCaseByStatusAndReportConfig(report, apiAllCases, config);
             this.screenScenariosByStatusAndReportConfig(report, scenarioAllCases, config);
         }
+    }
+
+    private void checkApiCaseCreatorName(List<TestPlanFailureApiDTO> apiCases,List<TestPlanFailureScenarioDTO> scenarioCases) {
+        List<String> userIdList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(apiCases)) {
+            apiCases.forEach(item -> {
+                if (StringUtils.isEmpty(item.getCreatorName()) && StringUtils.isNotEmpty(item.getCreateUserId())) {
+                    userIdList.add(item.getCreateUserId());
+                }
+            });
+        }
+        if (CollectionUtils.isNotEmpty(scenarioCases)) {
+            scenarioCases.forEach(item -> {
+                if (StringUtils.isEmpty(item.getCreatorName()) && StringUtils.isNotEmpty(item.getCreateUser())) {
+                    userIdList.add(item.getCreateUser());
+                }
+            });
+        }
+        Map<String, User> usersMap = userService.queryNameByIds(userIdList);
+        if (CollectionUtils.isNotEmpty(apiCases)) {
+            for (TestPlanFailureApiDTO dto : apiCases) {
+                if (StringUtils.isEmpty(dto.getCreatorName())) {
+                    User user = usersMap.get(dto.getCreateUserId());
+                    if (user != null) {
+                        dto.setCreatorName(user.getName());
+                    }
+                }
+            }
+        }
+        if (CollectionUtils.isNotEmpty(scenarioCases)) {
+            for (TestPlanFailureScenarioDTO dto : scenarioCases) {
+                if (StringUtils.isEmpty(dto.getCreatorName())) {
+                    User user = usersMap.get(dto.getCreateUser());
+                    if (user != null) {
+                        dto.setCreatorName(user.getName());
+                    }
+                }
+            }
+        }
+
     }
 
     private void screenScenariosByStatusAndReportConfig(TestPlanSimpleReportDTO report, List<TestPlanFailureScenarioDTO> scenarios, JSONObject reportConfig) {
