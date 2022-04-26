@@ -569,10 +569,12 @@ export default {
       });
     },
     compare(row) {
+      this.httpForm.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === this.httpForm.versionId)[0].createTime;
       this.$get('/api/definition/get/' + row.id + "/" + this.httpForm.refId, response => {
         this.$get('/api/definition/get/' + response.data.id, res => {
           if (res.data) {
             this.newData = res.data;
+            this.newData.createTime = row.createTime;
             this.dealWithTag(res.data);
             this.setRequest(res.data);
             if (!this.setRequest(res.data)) {
