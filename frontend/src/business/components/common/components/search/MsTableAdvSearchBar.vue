@@ -77,6 +77,7 @@ export default {
         let components = [];
         this.systemFiled = config.components.filter(co => co.custom === undefined || false);
         this.customFiled = config.components.filter(co => co.custom === true);
+        // 选项分组
         this.$set(components, 0, {label: "系统字段", child: this.systemFiled});
         this.$set(components, 1, {label: "自定义字段", child: this.customFiled});
         this.$set(config, "components", components);
@@ -145,6 +146,7 @@ export default {
       if (this.optional.components.length && this.optional.components.length === this.showItemSize) {
         this.showAddFilterLink = false;
       }
+      // 默认显示几个搜索条件
       this.optional.components = slice(this.optional.components, 0, this.showItemSize);
       const all = concat(this.config.components[0].child, this.config.components[1].child);
       let allComponent = this.condition.custom ? all : this.config.components;
@@ -197,6 +199,7 @@ export default {
         this.$set(data, 'disable', false);
       }
     },
+    // 搜索组件的字段变换时触发
     changeSearchItemKey(newData, oldData) {
       let key = oldData ? oldData.key : this.nullFilterKey;
       const index = _findIndexByKey(this.optional.components, key);

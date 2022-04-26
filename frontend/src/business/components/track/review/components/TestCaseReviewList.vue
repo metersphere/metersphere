@@ -39,7 +39,7 @@
         <el-table-column
           v-if="item.id=='creatorName'"
           prop="creatorName"
-          :label="$t('test_track.review.review_creator')"
+          :label="$t('test_track.review.creator')"
           show-overflow-tooltip
           :key="index"
         >

@@ -16,6 +16,7 @@ export function getAdvSearchCustomField(componentArr, fields) {
       options: getComponentOptions(field),
       custom: true,
     }
+    // 作为搜索条件时，可以多选
     if (componentType === 'MsTableSearchSelect') {
       component['props'] = {
         multiple: true
