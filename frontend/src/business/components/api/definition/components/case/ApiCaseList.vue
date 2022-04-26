@@ -291,7 +291,7 @@ export default {
       this.$emit('refreshModule');
     },
     setNewSource(environment, obj) {
-      if (environment.config && environment.config.databaseConfigs) {
+      if (environment.config && environment.config.databaseConfigs && environment.config.databaseConfigs.length > 0) {
         let dataSources = environment.config.databaseConfigs.filter(item => item.name === obj.targetDataSourceName);
         if (dataSources && dataSources.length > 0) {
           obj.dataSourceId = dataSources[0].id;

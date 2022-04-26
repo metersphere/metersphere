@@ -1626,10 +1626,10 @@ export default {
           this.sort();
           this.$nextTick(() => {
             this.cancelBatchProcessing();
-            if (isRefresh) {
-              this.reloadTree = getUUID();
-            }
           });
+          if (isRefresh) {
+            this.reloadTree = getUUID();
+          }
           // 记录初始化数据
           let v1 = {
             apiScenarioModuleId: this.currentScenario.apiScenarioModuleId,

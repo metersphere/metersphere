@@ -95,7 +95,8 @@ public class ApiScenarioEnvService {
                 http.setUrl(StringUtils.equals(testElement.getRefType(), "CASE") ? null : http.getUrl());
 
                 // 非全路径校验
-                if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
+                if (!StringUtils.equalsIgnoreCase(http.getReferenced(), "Created") || (http.getIsRefEnvironment() != null &&
+                        http.getIsRefEnvironment())) {
                     env.getProjectIds().add(http.getProjectId());
                     env.setFullUrl(false);
                 }
@@ -132,7 +133,8 @@ public class ApiScenarioEnvService {
             if (StringUtils.equals(testElement.getType(), "HTTPSamplerProxy")) {
                 // 校验是否是全路径
                 MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) testElement;
-                if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || (httpSamplerProxy.getIsRefEnvironment() != null && httpSamplerProxy.getIsRefEnvironment())) {
+                if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), "Created") || (httpSamplerProxy.getIsRefEnvironment() != null &&
+                        httpSamplerProxy.getIsRefEnvironment())) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());
                     env.setFullUrl(false);
                 }
