@@ -299,6 +299,7 @@ export default {
       if (node && node.data) {
         this.setData(node.data);
       }
+      this.popoverHide();
     },
     //单选：设置、初始化对象
     setData(data) {
@@ -306,7 +307,8 @@ export default {
       this.options.push({label: data[this.obj.label], value: data[this.obj.id]});
       this.returnDatas = data;
       this.returnDataKeys = data[this.obj.id]
-
+      this.selectNodeIds = [];
+      this.getChildNodeId(data, this.selectNodeIds);
     },
     //多选:设置、初始化值 keys
     setKeys(thisKeys) {
