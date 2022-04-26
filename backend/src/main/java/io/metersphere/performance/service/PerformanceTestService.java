@@ -536,6 +536,7 @@ public class PerformanceTestService {
         RunTestPlanRequest checkRequest = new RunTestPlanRequest();
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         checkRequest.setLoadConfiguration(testReport.getLoadConfiguration());
+        checkRequest.setProjectId(testReport.getProjectId());
         if (quotaService != null) {
             quotaService.checkLoadTestQuota(checkRequest, false);
             String projectId = testReport.getProjectId();

@@ -316,7 +316,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionWithBLOBs create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        checkQuota();
+        checkQuota(request.getProjectId());
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
@@ -345,10 +345,10 @@ public class ApiDefinitionService {
         return getBLOBs(returnModel.getId());
     }
 
-    public void checkQuota() {
+    public void checkQuota(String projectId) {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
-            quotaService.checkAPIDefinitionQuota();
+            quotaService.checkAPIDefinitionQuota(projectId);
         }
     }
 
