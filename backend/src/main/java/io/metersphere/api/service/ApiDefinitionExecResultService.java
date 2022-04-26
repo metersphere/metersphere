@@ -451,7 +451,6 @@ public class ApiDefinitionExecResultService {
             }
             saveResult.setType(type);
             saveResult.setStatus(status);
-            saveResult.setResourceId(item.getName());
             saveResult.setStartTime(item.getStartTime());
             saveResult.setEndTime(item.getEndTime());
 

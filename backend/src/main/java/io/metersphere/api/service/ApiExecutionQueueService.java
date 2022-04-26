@@ -350,7 +350,8 @@ public class ApiExecutionQueueService {
                 if (report == null) {
                     executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                 }
-                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
+                // 这里只处理已经开始执行的队列如果 报告状态是 Waiting 表示还没开始暂不处理
+                if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
                         && report.getUpdateTime() < timeout) {
                     report.setStatus(ScenarioStatus.Timeout.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
