@@ -47,8 +47,7 @@
          </span>
         <!--  场景调试步骤增加误报判断  -->
         <span class="ms-step-debug-code" :class="'ms-req-error-report'" v-if="!loading &&!request.testing && request.debug
-            && request.requestResult[0] && request.requestResult[0].responseResult && request.requestResult[0].status==='errorReportResult'
-             && request.requestResult[0].success && reqSuccess ">
+            && request.requestResult[0] && request.requestResult[0].responseResult && request.requestResult[0].status==='errorReportResult'">
           {{ $t("error_report_library.option.name") }}
         </span>
         <span class="ms-step-debug-code"
