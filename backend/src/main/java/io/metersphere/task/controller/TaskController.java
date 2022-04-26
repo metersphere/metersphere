@@ -20,7 +20,7 @@ public class TaskController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TaskCenterDTO>> getTasks(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TaskCenterRequest request) {
-        request.setProjects(taskService.getOwnerProjectIds(null));
+        request.setProjects(taskService.getOwnerProjectIds(request.getUserId()));
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

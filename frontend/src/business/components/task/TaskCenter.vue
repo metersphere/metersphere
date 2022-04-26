@@ -405,6 +405,7 @@ export default {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
+      this.condition.userId = getCurrentUser().id;
       this.result = this.$post('/task/center/list/' + this.currentPage + '/' + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
         this.taskData = response.data.listObject;
