@@ -470,6 +470,9 @@ export default {
           this.$store.state.apiStatus.set("fromChange", false);
           this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
         } else {
+          if (this.$refs.versionHistory) {
+            this.$refs.versionHistory.loading = false;
+          }
           return false;
         }
       });
