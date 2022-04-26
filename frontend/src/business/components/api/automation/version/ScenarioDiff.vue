@@ -3,11 +3,11 @@
     <el-row>
       <el-col :span="12">
         <el-tag>当前{{ oldData.versionName }}</el-tag>
-        <span style="margin-left: 10px">{{ oldData.userName }}</span><span style="margin-left: 10px">{{ oldData.createTime | timestampFormatDate }}</span>
+        <span style="margin-left: 10px">{{ oldUserName }}</span><span style="margin-left: 10px">{{ oldCreateTime | timestampFormatDate }}</span>
       </el-col>
       <el-col :span="12">
         <el-tag>{{ newData.versionName }}</el-tag>
-        <span style="margin-left: 10px">{{ newData.userName }}</span><span style="margin-left: 10px">{{ newData.createTime | timestampFormatDate }}</span>
+        <span style="margin-left: 10px">{{ newData.userName }}</span><span style="margin-left: 10px">{{ newCreateTime | timestampFormatDate }}</span>
       </el-col>
     </el-row>
     <div class="compare-class" v-loading="isReloadData">
@@ -150,6 +150,7 @@
                        <ms-component-config
                          :type="data.type"
                          :scenario="data"
+                         :current-scenario="data"
                          :node="node"
                          :env-map="projectEnvMap"
                          :project-list="projectList"
@@ -304,6 +305,7 @@
                        <ms-component-config
                          :type="data.type"
                          :scenario="data"
+                         :current-scenario="data"
                          :node="node"
                          :env-map="newProjectEnvMap"
                          :project-list="projectList"
@@ -391,6 +393,9 @@ export default {
     currentScenarioId: String,
     dffScenarioId: String,
     scenarioRefId: String,
+    oldUserName: String,
+    newCreateTime: Number,
+    oldCreateTime: Number,
   },
   components: {
     ScenarioChildDiff,

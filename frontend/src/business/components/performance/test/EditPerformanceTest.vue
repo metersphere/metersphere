@@ -561,10 +561,12 @@ export default {
     },
     compare(row) {
       this.oldData = this.test;
+      this.oldData.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === this.test.versionId)[0].createTime;
       this.$get('/performance/get/' + row.id + "/" + this.test.refId, response => {
         this.$get('/performance/get/' + response.data.id, res => {
           if (res.data) {
             this.newData = res.data;
+            this.newData.createTime = row.createTime;
             this.$get('/performance/test/follow/' + response.data.id, resp => {
               if (resp.data && resp.data.follows) {
                 for (let i = 0; i < resp.data.follows.length; i++) {

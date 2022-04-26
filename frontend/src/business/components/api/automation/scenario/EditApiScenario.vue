@@ -359,6 +359,9 @@
           :old-enable-cookie-share="enableCookieShare"
           :old-on-sample-error="onSampleError"
           :project-list="projectList"
+          :new-create-time="newCreateTime"
+          :old-create-time="oldCreateTime"
+          :old-user-name="oldUserName"
           :type="type"/>
       </el-dialog>
 
@@ -556,6 +559,9 @@ export default {
         },
       ],
       reloadTree: "",
+      newCreateTime:0,
+      oldCreateTime:0,
+      oldUserName:''
     }
   },
   created() {
@@ -1977,6 +1983,9 @@ export default {
     compare(row) {
       this.scenarioRefId = this.currentScenario.refId;
       this.dffScenarioId = row.id;
+      this.newCreateTime = row.createTime
+      this.oldUserName = this.currentScenario.userName
+      this.oldCreateTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === this.currentScenario.versionId)[0].createTime;
       this.dialogVisible = true;
     },
     closeDiff() {
