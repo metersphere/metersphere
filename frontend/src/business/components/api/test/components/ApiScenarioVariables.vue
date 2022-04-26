@@ -106,6 +106,7 @@ export default {
       return this.items.length - 1 === index;
     },
     _handleBatchVars(data) {
+      console.log("aaaaa")
       let params = data.split("\n");
       let keyValues = [];
       params.forEach(item => {
