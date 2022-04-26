@@ -625,6 +625,7 @@ export default {
       if (!this.form.stepModel) {
         this.form.stepModel = "STEP";
       }
+      this.casePublic = tmp.casePublic;
       this.form.module = testCase.nodeId;
       //设置自定义熟悉默认值
       this.customFieldForm = parseCustomField(this.form, this.testCaseTemplate, this.customFieldRules, testCase ? buildTestCaseOldFields(this.form) : null);
