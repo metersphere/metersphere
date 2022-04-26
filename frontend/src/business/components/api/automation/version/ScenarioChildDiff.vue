@@ -4,6 +4,7 @@
       <ms-component-config
         :type="oldData.type"
         :scenario="oldData"
+        :current-scenario="oldData"
         :node="oldNode"
         :env-map="oldProjectEnvMap"
         :show-version="false"
@@ -13,6 +14,7 @@
       <ms-component-config
         :type="newData.type"
         :scenario="newData"
+        :current-scenario="newData"
         :node="newNode"
         :env-map="newProjectEnvMap"
         :show-version="false"

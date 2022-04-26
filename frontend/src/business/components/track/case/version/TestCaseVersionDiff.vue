@@ -331,10 +331,10 @@ export default {
       let vnode = this.$refs.new
       let oldColor = "";
       let newColor = "";
-      if(this.oldData.createTime>this.newData.createTime){
+      if(this.oldData.createTime > this.newData.createTime) {
         oldColor = "rgb(121, 225, 153,0.3)";
         newColor = "rgb(241,200,196,0.45)"
-      }else{
+      } else {
         oldColor = "rgb(241,200,196,0.45)"
         newColor = "rgb(121, 225, 153,0.3)";
       }
