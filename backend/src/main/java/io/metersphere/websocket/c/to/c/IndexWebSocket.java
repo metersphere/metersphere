@@ -21,8 +21,7 @@ public class IndexWebSocket {
     @OnOpen
     public void openSession(@PathParam("reportId") String reportId, Session session) {
         WebSocketUtils.ONLINE_USER_SESSIONS.put(reportId, session);
-        log.info("客户端: [" + reportId + "] : 连接成功！");
-        //WebSocketUtils.sendMessageAll("客户端: [" + reportId + "] : 连接成功！");
+        log.info("客户端: [" + reportId + "] : 连接成功！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
     }
 
     /**
@@ -43,9 +42,8 @@ public class IndexWebSocket {
     public void onClose(@PathParam("reportId") String reportId, Session session) throws IOException {
         //当前的Session 移除
         WebSocketUtils.ONLINE_USER_SESSIONS.remove(reportId);
-        log.info("[" + reportId + "] : 断开连接！");
+        log.info("[" + reportId + "] : 断开连接！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
         //并且通知其他人当前用户已经断开连接了
-        //WebSocketUtils.sendMessageAll("[" + reportId + "] : 断开连接！");
         session.close();
     }
 
