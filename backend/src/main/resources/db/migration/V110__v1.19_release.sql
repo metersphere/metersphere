@@ -408,7 +408,7 @@ DROP PROCEDURE IF EXISTS issue_template_ws;
 
 
 DROP TABLE IF EXISTS custom_field_template_bak;
-CREATE TEMPORARY TABLE custom_field_template_bak LIKE custom_field_template;
+CREATE TABLE custom_field_template_bak LIKE custom_field_template;
 INSERT INTO custom_field_template_bak
 SELECT *
 FROM custom_field_template;
