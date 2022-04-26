@@ -10,7 +10,10 @@
                 <i class="el-icon-edit project-edit" @click="edit" v-permission="['PROJECT_MANAGER:READ+EDIT']"></i>
                 <el-row class="project-item">
                   <span class="project-item-title">{{ $t('project.desc') }}：</span>
-                  <span class="project-item-desc">{{ project.description }}</span>
+                  <el-tooltip effect="light" placement="top" :enterable="false">
+                    <div slot="content">{{ project.description }}</div>
+                    <span class="project-item-desc project-desc">{{ project.description }}</span>
+                  </el-tooltip>
                 </el-row>
                 <el-row class="project-item">
                   <span class="project-item-title">{{ $t('project.manage_people') }}：</span>
@@ -283,5 +286,14 @@ export default {
 
 .desc {
   color: #989292;
+}
+
+.project-desc {
+  display: inline-block;
+  width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 14px;
 }
 </style>
