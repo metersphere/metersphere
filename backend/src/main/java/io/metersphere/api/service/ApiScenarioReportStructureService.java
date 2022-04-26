@@ -341,7 +341,7 @@ public class ApiScenarioReportStructureService {
                         failCount++;
                     } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "success")) {
                         successCount++;
-                    } else if (StringUtils.equalsIgnoreCase(child.getTotalStatus(), "errorCode")) {
+                    } else if (StringUtils.equalsAnyIgnoreCase(child.getTotalStatus(), "errorCode", "errorReportResult")) {
                         errorReportCount++;
                     }
                 }
