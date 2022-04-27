@@ -309,6 +309,9 @@ export default {
     },
     save(newVersion) {
       if (!this.validTest()) {
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
+        }
         return;
       }
       if (!this.test.versionId) {
@@ -326,6 +329,10 @@ export default {
             path: '/performance/test/edit/' + response.data.id,
           });
           this.getVersionHistory();
+        }
+      }, error => {
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
         }
       });
     },

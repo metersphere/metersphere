@@ -691,7 +691,6 @@ export default {
       // 创建新版本
       this.httpForm.versionId = row.id;
       this.httpForm.versionName = row.name;
-
       this.$set(this.httpForm, 'newVersionRemark', !!this.httpForm.remark);
       this.$set(this.httpForm, 'newVersionDeps', this.$refs.apiOtherInfo.relationshipCount > 0);
       this.$set(this.httpForm, 'newVersionCase', this.httpForm.caseTotal > 0);
@@ -704,6 +703,13 @@ export default {
           this.createNewVersionVisible = true;
         } else {
           this.saveApi();
+          if (this.$refs.versionHistory) {
+            this.$refs.versionHistory.loading = false;
+          }
+        }
+      },error => {
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
         }
       });
     },
