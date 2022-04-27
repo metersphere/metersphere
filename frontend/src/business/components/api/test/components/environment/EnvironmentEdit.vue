@@ -384,6 +384,27 @@ export default {
           return;
         }
       }
+      let message = '';
+      if (environment && environment.config && environment.config.httpConfig && environment.config.httpConfig.conditions) {
+        environment.config.httpConfig.conditions.forEach(env => {
+          if (env.type === "MODULE" && env.details.length === 0) {
+            message += this.$t('load_test.domain') + ":" + env.socket + ":" + this.$t('api_test.environment.module_warning');
+            return;
+          }
+          if (env.type === "PATH" && env.details) {
+            env.details.forEach(item => {
+              if (!item.name) {
+                message += this.$t('load_test.domain') + ":" + env.socket + ":" + this.$t('api_test.environment.path_warning');
+                return;
+              }
+            })
+          }
+        })
+      }
+      if (message) {
+        this.$warning(message);
+        return;
+      }
       let bodyFiles = this.geFiles(environment);
       let param = this.buildParam(environment);
       let url = '/api/environment/add';
