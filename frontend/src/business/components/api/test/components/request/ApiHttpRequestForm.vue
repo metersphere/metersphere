@@ -156,11 +156,21 @@ export default {
     getURL(urlStr) {
       try {
         let url = new URL(urlStr);
-        url.searchParams.forEach((value, key) => {
-          if (key && value) {
-            this.request.parameters.splice(0, 0, new KeyValue({name: key, value: value}));
-          }
-        });
+        if (url.search && url.search.length > 1) {
+          let params = url.search.substr(1).split("&");
+          params.forEach(param => {
+            if (param) {
+              let keyValues = param.split("=");
+              if (keyValues) {
+                this.request.arguments.splice(0, 0, new KeyValue({
+                  name: keyValues[0],
+                  required: false,
+                  value: keyValues[1]
+                }));
+              }
+            }
+          });
+        }
         return url;
       } catch (e) {
         this.$error(this.$t('api_test.request.url_invalid'), 2000);
