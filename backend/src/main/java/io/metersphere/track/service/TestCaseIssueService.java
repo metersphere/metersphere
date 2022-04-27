@@ -1,7 +1,6 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
@@ -106,15 +105,11 @@ public class TestCaseIssueService {
     }
 
     public void updateIssuesCount(String resourceId) {
-        List<IssuesDao> issues = issuesService.getIssues(resourceId, IssueRefType.PLAN_FUNCTIONAL.name());
-        int issuesCount = issues.size();
+        int issuesCount = issuesService.getIssues(resourceId, IssueRefType.PLAN_FUNCTIONAL.name()).size();
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
         example.createCriteria().andIdEqualTo(resourceId);
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         testPlanTestCase.setIssuesCount(issuesCount);
-        if (!CollectionUtils.isEmpty(issues)) {
-            testPlanTestCase.setIssues(JSONObject.toJSONString(issues));
-        }
         testPlanTestCaseMapper.updateByExampleSelective(testPlanTestCase, example);
     }
 

@@ -29,14 +29,14 @@
       :operators="operators"
       :screen-height="screenHeight"
       :batch-operators="buttons"
-      @handlePageChange="initTableData"
-      @handleRowClick="handleEdit"
       :fields.sync="fields"
       :remember-order="true"
-      @refresh="initTableData"
       :row-order-group-id="planId"
       :row-order-func="editTestPlanTestCaseOrder"
       :enable-order-drag="enableOrderDrag"
+      @refresh="initTableData"
+      @handlePageChange="initTableData"
+      @handleRowClick="handleEdit"
       row-key="id"
       ref="table">
 
@@ -132,24 +132,16 @@
               placement="right"
               width="400"
               trigger="hover">
-              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
-                <ms-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
-                <ms-table-column prop="description" :label="$t('test_track.issue.description')">
-                  <template v-slot:default="scope">
-                    <el-popover
-                      placement="left"
-                      width="400"
-                      trigger="hover"
-                    >
-                      <ckeditor :editor="editor" disabled :config="editorConfig"
-                                v-model="scope.row.description"/>
-                      <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                    </el-popover>
-                  </template>
-                </ms-table-column>
-                <ms-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
-              </el-table>
-              <el-button slot="reference" type="text">{{ scope.row.issuesSize }}</el-button>
+              <test-plan-case-issue-item
+                v-if="scope.row.issuesSize && scope.row.issuesSize > 0"
+                :data="scope.row"/>
+              <el-button
+                slot="reference"
+                type="text">
+                <span @mouseover="loadIssue(scope.row)">
+                  {{ scope.row.issuesSize }}
+                </span>
+              </el-button>
             </el-popover>
           </template>
         </ms-table-column>
@@ -288,7 +280,6 @@ import MsTableOperator from "../../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 import {TEST_PLAN_TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
 import BatchEdit from "../../../../case/components/BatchEdit";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam,
@@ -303,10 +294,12 @@ import {getTestTemplate} from "@/network/custom-field-template";
 import {editTestPlanTestCaseOrder} from "@/network/test-plan";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import {getTestPlanTestCase} from "@/network/testCase";
+import TestPlanCaseIssueItem from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseIssueItem";
 
 export default {
   name: "FunctionalTestCaseList",
   components: {
+    TestPlanCaseIssueItem,
     MsTableColumn,
     MsTable,
     FunctionalTestCaseEdit,
@@ -401,11 +394,6 @@ export default {
           {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
         ]
       },
-      editor: ClassicEditor,
-      editorConfig: {
-        // 'increaseIndent','decreaseIndent'
-        toolbar: [],
-      },
       selectDataRange: "all",
       testCaseTemplate: {},
       versionFilters: []
@@ -455,21 +443,30 @@ export default {
   },
   mounted() {
     this.$emit('setCondition', this.condition);
-    this.$EventBus.$on("openFailureTestCase", row => {
-      this.isReadOnly = true;
-      this.condition.status = 'Failure';
-      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row, this.tableData);
-    });
+    this.$EventBus.$on("openFailureTestCase", this.handleOpenFailureTestCase);
     this.refreshTableAndPlan();
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.getMaintainerOptions();
     this.getTemplateField();
     this.getVersionOptions();
   },
-  beforeDestroy() {
-    this.$EventBus.$off("openFailureTestCase");
+  destroyed() {
+    this.$EventBus.$off("openFailureTestCase", this.handleOpenFailureTestCase);
   },
   methods: {
+    loadIssue(row) {
+      if(row.issuesSize && !row.hasLoadIssue) {
+        this.$get("/issues/get/case/PLAN_FUNCTIONAL/" + row.id).then(response => {
+          this.$set(row, "issuesContent", response.data.data);
+          this.$set(row, "hasLoadIssue", true);
+        });
+      }
+    },
+    handleOpenFailureTestCase(row) {
+      this.isReadOnly = true;
+      this.condition.status = 'Failure';
+      this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row, this.tableData);
+    },
     nextPage() {
       this.currentPage++;
       this.initTableData(() => {
@@ -534,7 +531,8 @@ export default {
               }
               this.$set(this.tableData[i], "showTags", JSON.parse(this.tableData[i].tags));
               this.$set(this.tableData[i], "issuesSize", this.tableData[i].issuesCount);
-              this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
+              this.$set(this.tableData[i], "hasLoadIssue", false);
+              this.$set(this.tableData[i], "issuesContent", []);
             }
           }
 
