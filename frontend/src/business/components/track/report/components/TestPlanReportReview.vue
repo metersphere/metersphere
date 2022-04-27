@@ -11,9 +11,18 @@
           <el-row type="flex" class="head-bar">
             <el-col :span="12">
               <div class="name-edit">
-                <el-button plain size="mini" icon="el-icon-back" @click="handleClose">{{$t('test_track.return')}}
-                </el-button>&nbsp;
-                <span class="title">{{plan.name}}</span>
+                <el-button plain size="mini" icon="el-icon-back" @click="handleClose"
+                           style="float: left; margin-top: 8px; margin-right: 5px">
+                  {{$t('test_track.return')}}
+                </el-button>
+                <el-tooltip
+                  effect="dark"
+                  :content="plan.name"
+                  placement="bottom">
+                  <div class="title">
+                    <span>{{plan.name}}</span>
+                  </div>
+                </el-tooltip>
               </div>
             </el-col>
             <el-col :span="12" class="head-right">
@@ -107,6 +116,16 @@ export default {
 
 .head-right {
   text-align: right;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: nowrap;
 }
 
 </style>
