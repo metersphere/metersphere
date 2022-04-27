@@ -34,4 +34,7 @@ public class ApiScenarioRequest extends BaseQueryRequest {
      * 是否需要查询环境字段
      */
     private boolean selectEnvironment = false;
+
+    //测试计划关联场景过滤掉步骤为0的场景
+    private String stepTotal;
 }

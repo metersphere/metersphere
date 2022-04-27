@@ -209,6 +209,7 @@ export default {
       if (this.planId != null) {
         this.condition.planId = this.planId;
       }
+      this.condition.stepTotal = "testPlan";
 
       let url = "/test/plan/scenario/case/relevance/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
