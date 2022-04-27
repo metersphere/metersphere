@@ -272,11 +272,21 @@ export default {
     getURL(urlStr) {
       try {
         let url = new URL(urlStr);
-        url.searchParams.forEach((value, key) => {
-          if (key && value) {
-            this.request.arguments.splice(0, 0, new KeyValue({name: key, required: false, value: value}));
-          }
-        });
+        if (url.search && url.search.length > 1) {
+          let params = url.search.substr(1).split("&");
+          params.forEach(param => {
+            if (param) {
+              let keyValues = param.split("=");
+              if (keyValues) {
+                this.request.arguments.splice(0, 0, new KeyValue({
+                  name: keyValues[0],
+                  required: false,
+                  value: keyValues[1]
+                }));
+              }
+            }
+          });
+        }
         return url;
       } catch (e) {
         return urlStr;
