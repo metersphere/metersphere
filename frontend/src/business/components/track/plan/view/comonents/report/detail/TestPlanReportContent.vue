@@ -152,30 +152,14 @@ export default {
       }
     },
     getDefaultConfig(report) {
-      if (report && report.config && report.config!== "") {
+      let dbConfig = null;
+      if (report && report.config) {
         let configStr = report.config;
         if (configStr) {
-          let configObj = JSON.parse(configStr);
-          if(configObj.api && configObj.api.children){
-            if(!configObj.api.children.errorReport){
-              let obj = {
-                  enable: true,
-                  name: this.$t('error_report_library.option.name'),
-              };
-              configObj.api.children.errorReport = obj;
-            }
-            if(!configObj.api.children.unExecute){
-              let obj = {
-                  enable: true,
-                  name: this.$t('api_test.home_page.detail_card.unexecute'),
-              };
-              configObj.api.children.unExecute = obj;
-            }
-          }
-          return configObj;
+          dbConfig = JSON.parse(configStr);
         }
       }
-      return {
+      let config =  {
         overview: {
           enable: true,
           name: this.$t('test_track.report.overview')
@@ -251,6 +235,20 @@ export default {
           }
         }
       };
+      if (dbConfig) {
+        this.mergeConfig(config, dbConfig);
+      }
+      return config;
+    },
+    mergeConfig(config, dbConfig) {
+      for (let key of Object.keys(config)) {
+        if (dbConfig[key]) {
+          config[key].enable = dbConfig[key].enable;
+          if (config[key].children && dbConfig[key].children) {
+            this.mergeConfig(config[key].children, dbConfig[key].children);
+          }
+        }
+      }
     }
   }
 }
