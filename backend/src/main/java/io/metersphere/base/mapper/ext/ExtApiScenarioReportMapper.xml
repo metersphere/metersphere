@@ -139,7 +139,7 @@
 
     <select id="list" resultMap="BaseResultMap">
             SELECT s_r.name AS test_name,
-            s_r.end_time,
+            s_r.end_time as end_time,
             s_r.user_id,
             s_r.name,
             s_r.id,

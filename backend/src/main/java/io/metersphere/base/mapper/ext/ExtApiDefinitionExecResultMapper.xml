@@ -123,7 +123,7 @@
     </select>
     <select id="list" resultType="io.metersphere.base.domain.ApiDefinitionExecResultExpand">
         SELECT a_r.name AS test_name,
-        a_r.end_time,
+        a_r.end_time as end_time,
         a_r.user_id,
         a_r.name,
         a_r.id,
