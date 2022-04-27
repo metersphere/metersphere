@@ -34,9 +34,9 @@ export default {
   },
 
   watch: {
-    // 初始化
     reportId() {
-      this.run()
+      // 开启链接
+      this.socketSyncResult();
     },
     isStop() {
       if (!this.isStop && this.websocket && this.websocket.close instanceof Function) {
@@ -53,6 +53,8 @@ export default {
       const uri = protocol + window.location.host + "/ws/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessages;
+      // 开始执行
+      this.websocket.onopen = this.run();
     },
     onMessages(e) {
       if (e.data && e.data.startsWith("result_")) {
@@ -127,7 +129,6 @@ export default {
       if (!this.debug) {
         reqObj.syncResult = true;
       }
-      this.socketSyncResult();
       this.$fileUpload(url, null, bodyFiles, reqObj, response => {
         this.requestResult = response.data;
         this.$emit('autoCheckStatus');  //   执行结束后，自动更新计划状态
