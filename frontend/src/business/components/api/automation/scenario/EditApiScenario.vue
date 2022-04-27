@@ -1531,6 +1531,10 @@ export default {
                 this.$emit('refresh', this.currentScenario);
                 resolve();
               });
+            } else {
+              if (this.$refs.versionHistory) {
+                this.$refs.versionHistory.loading = false;
+              }
             }
           })
         }
