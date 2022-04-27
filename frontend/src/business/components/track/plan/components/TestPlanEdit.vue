@@ -252,7 +252,6 @@ export default {
       });
     },
     savePlan() {
-
       this.$refs['planFrom'].validate((valid) => {
         if (valid) {
           let param = {};
