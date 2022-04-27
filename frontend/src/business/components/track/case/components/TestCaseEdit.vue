@@ -1011,6 +1011,9 @@ export default {
           this.$refs.selectPropDialog.open();
         } else {
           this.saveCase();
+          if (this.$refs.versionHistory) {
+            this.$refs.versionHistory.loading = false;
+          }
         }
       } else {
         this.$refs.versionHistory.loading = false;
