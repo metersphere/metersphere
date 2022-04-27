@@ -144,8 +144,15 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         return getNodeTreeByProjectIdWithCount(projectId, null, defaultName);
     }
 
-    private void buildNodeCount(String projectId, List<ModuleNodeDTO> moduleNodes, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc) {
-        QueryNodeRequest request = new QueryNodeRequest();
+    protected void buildNodeCount(String projectId, List<ModuleNodeDTO> moduleNodes, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc) {
+        this.buildNodeCount(projectId, moduleNodes, getModuleCountFunc, null);
+    }
+
+    protected void buildNodeCount(String projectId, List<ModuleNodeDTO> moduleNodes, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc,
+                                QueryNodeRequest request) {
+        if (request == null) {
+            request = new QueryNodeRequest();
+        }
         request.setProjectId(projectId);
 
         //优化：将for循环内的SQL抽出来，只查一次

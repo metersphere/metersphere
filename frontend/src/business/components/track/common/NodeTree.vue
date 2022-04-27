@@ -30,7 +30,7 @@
           <i class="el-icon-folder"/>
         </span>
         <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
-        <span class="count-title" v-if="isDisplay!=='relevance'">
+        <span class="count-title" v-if="isDisplay !== 'relevance'">
           <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
