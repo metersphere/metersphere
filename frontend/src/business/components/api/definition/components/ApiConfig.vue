@@ -66,7 +66,7 @@ export default {
   },
   watch: {
     request: {
-      handler(newObj, oldObj) {
+      handler(newObj) {
         this.count++
         if (this.count > 2) {
           this.$store.state.apiStatus.set("requestChange", true);
@@ -276,10 +276,12 @@ export default {
         data.remark = response.data.remark;
         this.$emit('saveApi', data);
       });
+      this.responseCount = 0;
+      this.count = 0;
+      this.$store.state.apiStatus.set("requestChange", false);
+      this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
       this.$store.state.apiStatus.set("responseChange", false);
       this.$store.state.apiMap.set(this.currentApi.id, this.$store.state.apiStatus);
-      this.responseCount = 0;
-      this.count = 0
     },
     handleSave() {
       if (this.$refs.httpApi) {
