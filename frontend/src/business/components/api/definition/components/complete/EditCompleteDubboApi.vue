@@ -367,6 +367,9 @@ export default {
         this.createNewVersionVisible = true;
       } else {
         this.saveApi();
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
+        }
       }
     },
     del(row) {
