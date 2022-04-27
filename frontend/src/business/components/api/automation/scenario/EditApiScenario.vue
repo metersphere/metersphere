@@ -511,7 +511,6 @@ export default {
       isTop: false,
       stepSize: 0,
       message: "",
-      websocket: {},
       messageWebSocket: {},
       buttonData: [],
       stepFilter: new STEP,
@@ -559,9 +558,10 @@ export default {
         },
       ],
       reloadTree: "",
-      newCreateTime:0,
-      oldCreateTime:0,
-      oldUserName:''
+      newCreateTime: 0,
+      oldCreateTime: 0,
+      oldUserName: '',
+      debugReportId: ""
     }
   },
   created() {
@@ -816,9 +816,6 @@ export default {
           if (this.messageWebSocket) {
             this.messageWebSocket.close();
           }
-          if (this.websocket) {
-            this.websocket.close();
-          }
           this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
           this.clearDebug();
           this.$success(this.$t('report.test_stop_success'));
@@ -902,8 +899,11 @@ export default {
       }
     },
     initMessageSocket() {
-      this.messageWebSocket = getReportMessageSocket(this.reportId);
+      this.debugReportId = getUUID().substring(0, 8);
+      this.messageWebSocket = getReportMessageSocket(this.debugReportId);
       this.messageWebSocket.onmessage = this.onDebugMessage;
+      // 开始执行
+      this.messageWebSocket.onopen = this.run();
     },
     runningEditParent(node) {
       if (node.parent && node.parent.data && node.parent.data.id) {
@@ -1361,6 +1361,9 @@ export default {
         this.$store.state.forceRerenderIndex = getUUID();
       });
     },
+    run() {
+      this.reportId = this.debugReportId;
+    },
     runDebug(runScenario) {
       if (this.scenarioDefinition.length < 1) {
         return;
@@ -1412,9 +1415,10 @@ export default {
           } else {
             this.debugLoading = true;
           }
-          this.reportId = getUUID().substring(0, 8);
           this.debug = true;
           this.pluginDelStep = false;
+          // 建立消息链接
+          this.initMessageSocket();
         } else {
           this.clearMessage = getUUID().substring(0, 8);
         }
@@ -1733,8 +1737,6 @@ export default {
       if (!this.debug) {
         this.debugVisible = true;
         this.loading = false;
-      } else {
-        this.initMessageSocket();
       }
     },
     errorRefresh(error) {
