@@ -29,12 +29,13 @@ public class AfterReturningNoticeSendService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         for (Map resource : resources) {
             Map paramMap = new HashMap<>();
+            // 占位符
+            handleDefaultValues(paramMap);
+
             paramMap.put("url", baseSystemConfigDTO.getUrl());
             paramMap.put("operator", sessionUser.getName());
             paramMap.putAll(resource);
             paramMap.putIfAbsent("projectId", currentProjectId);
-            // 占位符
-            handleDefaultValues(paramMap);
 
             String context = getContext(sendNotice, paramMap);
 
@@ -56,7 +57,8 @@ public class AfterReturningNoticeSendService {
      * 有些默认的值，避免通知里出现 ${key}
      */
     private void handleDefaultValues(Map paramMap) {
-        paramMap.put("planShareUrl", ""); // 占位符
+        paramMap.put("planShareUrl", "");
+        paramMap.put("processor", "");
     }
 
     private String getContext(SendNotice sendNotice, Map<String, Object> paramMap) {
