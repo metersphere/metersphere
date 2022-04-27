@@ -80,7 +80,7 @@ public class MsJmeterElement extends MsTestElement {
                 // 取出导入的测试计划中变量
                 if (scriptWrapper instanceof TestPlan) {
                     TestPlan testPlan = (TestPlan) scriptWrapper;
-                    if (testPlan.getArguments() != null) {
+                    if (testPlan.getArguments() != null && StringUtils.isNotEmpty(testPlan.getArguments().getName())) {
                         elementTree.add(testPlan.getArguments());
                     }
                 }
