@@ -363,9 +363,6 @@
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
-            <if test="request.projectId != null">
-                AND project_id = #{request.projectId}
-            </if>
             <if test="request.moduleId != null">
                 AND api_scenario_module_id = #{request.moduleId}
             </if>
