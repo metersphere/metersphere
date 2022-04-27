@@ -3,6 +3,7 @@
 
     <ms-main-container>
       <test-plan-list
+        v-if="renderComponent"
         @openTestPlanEditDialog="openTestPlanEditDialog"
         @testPlanEdit="openTestPlanEditDialog"
         ref="testPlanList"/>
@@ -27,6 +28,7 @@
     components: {MsMainContainer, MsContainer, TestPlanList, TestPlanEdit},
     data() {
       return {
+        renderComponent:true
       }
     },
     computed: {
@@ -57,6 +59,14 @@
         this.$refs.testPlanEditDialog.openTestPlanEditDialog(data);
       },
       refreshTestPlanList() {
+        // Remove my-component from the DOM
+        this.renderComponent = false;
+
+        this.$nextTick(() => {
+          // Add the component back in
+          this.renderComponent = true;
+        });
+
         this.$refs.testPlanList.condition = {};
         this.$refs.testPlanList.initTableData();
       }
