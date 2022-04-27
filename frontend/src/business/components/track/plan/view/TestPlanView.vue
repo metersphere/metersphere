@@ -102,13 +102,12 @@ export default {
     }
   },
   created() {
-    this.$EventBus.$on('projectChange', () => {
-      if (this.$route.name === 'planView') {
-        this.$router.push('/track/plan/all');
-      }
-    });
+    this.$EventBus.$on('projectChange', this.handleProjectChange);
     this.projectId = getCurrentProjectID();
     this.checkVersionEnable();
+  },
+  destroyed () {
+    this.$EventBus.$off('projectChange', this.handleProjectChange);
   },
   mounted() {
     this.getTestPlans();
@@ -117,6 +116,11 @@ export default {
     this.genRedirectParam();
   },
   methods: {
+    handleProjectChange() {
+      if (this.$route.name === 'planView') {
+        this.$router.push('/track/plan/all');
+      }
+    },
     genRedirectParam() {
       this.redirectCharType = this.$route.params.charType;
       this.clickType = this.$route.params.clickType;
