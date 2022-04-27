@@ -6,7 +6,7 @@
     <el-row>
       <el-col>
         <el-link :underline="false" :href="websiteUrl" target="_blank">
-          <img class="logo" src="../../../../assets/favicon-彩色.png"/>
+          <img class="logo" src="../../../../assets/favicon-colorful.png"/>
         </el-link>
         <el-link class="url" :href="websiteUrl" target="_blank">
           <span>{{websiteUrl}}</span>
