@@ -75,7 +75,7 @@
       </el-row>
     </div>
     <template v-slot:footer>
-      <div class="dialog-footer">
+      <div class="dialog-footer" v-if="showSave">
         <el-button @click="close" >{{$t('commons.cancel')}}</el-button>
         <el-dropdown @command="handleCommand"  style="margin-left: 5px">
           <el-button type="primary" >
@@ -83,10 +83,11 @@
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="run">{{$t('load_test.save_and_run')}}</el-dropdown-item>
-            <el-dropdown-item command="save" v-if="showSave">{{$t('commons.save')}}</el-dropdown-item>
+            <el-dropdown-item command="save">{{$t('commons.save')}}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
+      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch"/>
     </template>
   </el-dialog>
 </template>
