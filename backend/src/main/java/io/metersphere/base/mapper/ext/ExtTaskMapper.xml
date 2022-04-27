@@ -93,7 +93,7 @@
                 <if test="request.executor != null and request.executor != ''">
                     and t.user_id = #{request.executor}
                 </if>
-                and t.status not in ("saved","completed","success","error","STOP")
+                and t.status  in ("running","starting","waiting")
             )
             UNION ALL
             (select t.id,'API' as executionModule, t.report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, ifnull(t.trigger_mode,'MANUAL') as triggerMode ,ifnull(t.status,'Saved') as executionStatus
@@ -113,7 +113,7 @@
                     and t.user_id = #{request.executor}
                 </if>
                 and (t.integrated_report_id is null or t.integrated_report_id = 'null')
-                and t.status not in ("saved","completed","success","error","STOP")
+                and t.status in ("running","starting","waiting")
             )
             UNION ALL
             (select t.id,'PERFORMANCE' as executionModule,'PERFORMANCE' as report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.`status` as executionStatus
@@ -131,7 +131,7 @@
                 <if test="request.executor != null and request.executor != ''">
                     and t.user_id = #{request.executor}
                 </if>
-            and t.status not in ("saved","completed","success","error")
+                and t.status in ("running","starting","waiting")
             )
         )tt;
     </select>
