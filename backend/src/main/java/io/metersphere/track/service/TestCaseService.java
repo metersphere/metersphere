@@ -47,6 +47,7 @@ import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.issue.AbstractIssuePlatform;
 import io.metersphere.track.issue.IssueFactory;
+import io.metersphere.track.issue.service.XpackIssueService;
 import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.xmind.XmindCaseParser;
@@ -70,7 +71,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -352,14 +352,9 @@ public class TestCaseService {
      * @param testCase
      */
     public void updateThirdPartyIssuesLink(EditTestCaseRequest testCase) {
-        try {
-            if (Class.forName("io.metersphere.xpack.issue.service.XpackIssueService") != null) {
-                Class clazz = Class.forName("io.metersphere.xpack.issue.service.XpackIssueService");
-                Method method = clazz.getMethod("updateThirdPartyIssuesLink", EditTestCaseRequest.class);
-                method.invoke(CommonBeanFactory.getBean("xpackIssueService"), testCase);
-            }
-        } catch (Exception exception) {
-            LogUtil.error("不存在XpackIssueService类");
+        XpackIssueService issueService = CommonBeanFactory.getBean(XpackIssueService.class);
+        if (issueService != null) {
+            issueService.updateThirdPartyIssuesLink(testCase);
         }
     }
 
