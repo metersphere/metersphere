@@ -246,7 +246,7 @@
         test_case.custom_num) as customNum, test_plan_test_case.executor, test_plan_test_case.status,
         test_plan_test_case.actual_result,
         test_plan_test_case.update_time, test_plan_test_case.create_time,test_case_node.name as model, project.name as
-        projectName,test_plan_test_case.issues as issues,test_plan_test_case.issues_count as issuesCount,
+        projectName, test_plan_test_case.issues_count as issuesCount,
         test_plan_test_case.plan_id as planId,test_case.version_id as versionId,
         project_version.name as versionName
         from test_plan_test_case
