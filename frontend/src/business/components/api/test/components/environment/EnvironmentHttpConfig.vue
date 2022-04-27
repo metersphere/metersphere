@@ -55,7 +55,7 @@
             <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
               {{ $t('commons.clear') }}
             </el-button>
-            <el-button type="primary" style="float: right" size="mini" @click="update">{{
+            <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
                 $t('commons.update')
               }}
             </el-button>
@@ -274,10 +274,6 @@ export default {
         data.forEach((item) => {
           this.condition.details.push(new KeyValue({name: item.name, value: item.id}));
         });
-      } else {
-        this.condition.ids = [];
-        this.$warning(this.$t('api_test.environment.module_warning'));
-        return;
       }
     },
     update() {
@@ -294,16 +290,8 @@ export default {
         time: this.condition.time
       };
       if (obj.type === "PATH") {
-        if (this.pathDetails.name === '') {
-          this.$warning(this.$t('api_test.environment.path_warning'));
-          return;
-        }
         this.httpConfig.conditions[index].details = [this.pathDetails];
       } else {
-        if (this.condition.type === "MODULE" && this.condition.details.length === 0) {
-          this.$warning(this.$t('api_test.environment.module_warning'));
-          return;
-        }
         obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
       }
       if (index !== -1) {
@@ -352,16 +340,8 @@ export default {
         domain: this.condition.domain, port: this.condition.port, time: new Date().getTime(), description: this.condition.description
       };
       if (this.condition.type === "PATH") {
-        if (this.pathDetails.name === '') {
-          this.$warning(this.$t('api_test.environment.path_warning'));
-          return;
-        }
         obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];
       } else {
-        if (this.condition.type === "MODULE" && this.condition.details.length === 0) {
-          this.$warning(this.$t('api_test.environment.module_warning'));
-          return;
-        }
         obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
       }
       this.httpConfig.conditions.unshift(obj);
