@@ -24,12 +24,11 @@ public class ErrorReportLibraryUtil {
     private static final String ERROR_REPORT_SUCCESS_MESSAGE_FLAG = " Final result is success";
     public static final String ASSERTION_CONTENT_REGEX_DELIMITER = "--REGEX-->";
 
-
     public static ErrorReportLibraryParseDTO parseAssertions(RequestResult result) {
         ErrorReportLibraryParseDTO returnDTO = new ErrorReportLibraryParseDTO();
         if (result != null && result.getResponseResult() != null && CollectionUtils.isNotEmpty(result.getResponseResult().getAssertions())) {
             AssertionParserResult assertionParserResult = parserAndFormatAssertion(result.getResponseResult().getAssertions());
-            List<ErrorReportAssertionResult> errorReportAssertionList = assertionParserResult.errorReportAssertionList;
+            List<ResponseAssertionResult> errorReportAssertionList = assertionParserResult.errorReportAssertionList;
             Map<String, List<ResponseAssertionResult>> successAssertionMessageMap = assertionParserResult.successAssertionMessageMap;
             Map<String, List<ResponseAssertionResult>> errorAssertionMessageMap = assertionParserResult.errorAssertionMessageMap;
             boolean higherThanSuccess = assertionParserResult.higherThanSuccess;
@@ -52,8 +51,8 @@ public class ErrorReportLibraryUtil {
                 Map<String, List<ResponseAssertionResult>> passedErrorReportAssertionMap = new HashMap<>();
 
                 //过滤出没有命中的误报断言，并整理出命中误报断言的数据
-                for (ErrorReportAssertionResult assertion : errorReportAssertionList) {
-                    if (StringUtils.endsWith(assertion.getErrorReportMessage(), ERROR_REPORT_SUCCESS_MESSAGE_FLAG)) {
+                for (ResponseAssertionResult assertion : errorReportAssertionList) {
+                    if (StringUtils.endsWith(assertion.getMessage(), ERROR_REPORT_SUCCESS_MESSAGE_FLAG)) {
                         String regexString = assertion.getContent();
                         if (passedErrorReportAssertionMap.containsKey(regexString))
                             passedErrorReportAssertionMap.get(regexString).add(assertion);
@@ -197,7 +196,7 @@ public class ErrorReportLibraryUtil {
     private static AssertionParserResult parserAndFormatAssertion(List<ResponseAssertionResult> assertions){
         AssertionParserResult result = new AssertionParserResult();
         for (ResponseAssertionResult assertion : assertions) {
-            if (assertion instanceof ErrorReportAssertionResult) {
+            if (assertion instanceof ErrorReportAssertionResult || StringUtils.startsWith(assertion.getName(),ERROR_REPORT_NAME_START)) {
                 String expression = assertion.getContent().trim();
                 if (StringUtils.contains(expression, ASSERTION_CONTENT_REGEX_DELIMITER)) {
                     String[] contentArr = expression.split(ASSERTION_CONTENT_REGEX_DELIMITER);
@@ -207,7 +206,7 @@ public class ErrorReportLibraryUtil {
                         result.higherThanError = BooleanUtils.toBoolean(contentArr[2]);
                     }
                 }
-                result.errorReportAssertionList.add((ErrorReportAssertionResult) assertion);
+                result.errorReportAssertionList.add(assertion);
             } else {
                 if (StringUtils.isNotEmpty(assertion.getContent())) {
                     String expression = assertion.getContent().trim();
@@ -243,7 +242,7 @@ public class ErrorReportLibraryUtil {
 class AssertionParserResult {
     boolean higherThanSuccess = false;
     boolean higherThanError = false;
-    List<ErrorReportAssertionResult> errorReportAssertionList = new ArrayList<>();
+    List<ResponseAssertionResult> errorReportAssertionList = new ArrayList<>();
     Map<String, List<ResponseAssertionResult>> successAssertionMessageMap = new HashMap<>();
     Map<String, List<ResponseAssertionResult>> errorAssertionMessageMap = new HashMap<>();
 }
