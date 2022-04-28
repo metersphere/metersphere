@@ -53,6 +53,7 @@ import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/T
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "TestPlanView",
@@ -102,8 +103,29 @@ export default {
     }
   },
   created() {
+    let workspaceId = this.$route.params.workspaceId;
+    if (workspaceId) {
+      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+    }else {
+      if(this.$route.query.workspaceId){
+        workspaceId = this.$route.query.workspaceId;
+        sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+      }
+    }
+    let projectId = this.$route.params.projectId;
+    if (projectId) {
+      sessionStorage.setItem(PROJECT_ID, projectId);
+      this.projectId  = projectId;
+    }else {
+      if (this.$route.query.projectId) {
+        projectId = this.$route.query.projectId;
+        sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+        this.projectId  = projectId;
+      } else {
+        this.projectId = getCurrentProjectID();
+      }
+    }
     this.$EventBus.$on('projectChange', this.handleProjectChange);
-    this.projectId = getCurrentProjectID();
     this.checkVersionEnable();
   },
   destroyed () {
@@ -122,7 +144,11 @@ export default {
       }
     },
     genRedirectParam() {
-      this.redirectCharType = this.$route.params.charType;
+      if (this.$route.params.charType) {
+        this.redirectCharType = this.$route.params.charType;
+      } else {
+        this.redirectCharType = this.$route.query.charType;
+      }
       this.clickType = this.$route.params.clickType;
       if (this.redirectCharType != "") {
         if (this.redirectCharType == 'scenario') {
