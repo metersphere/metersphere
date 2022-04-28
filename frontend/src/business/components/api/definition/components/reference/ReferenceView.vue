@@ -4,18 +4,18 @@
     <span>{{ $t('api_test.automation.scenario_ref') }}：</span>
     <div class="refs" v-loading="scenarioLoading">
       <div v-for="(item, index) in scenarioRefs" :key="index" class="el-button--text">
-        <router-link :to="{name: 'ApiAutomation', params: { dataSelectRange: 'edit:' + item.id }}">
+        <el-link @click="openScenario(item)">
           {{ item.name }}
-        </router-link>
+        </el-link>
       </div>
     </div>
 
     <span>{{ $t('api_test.automation.plan_ref') }}：</span>
     <div class="refs">
       <div v-for="(item, index) in planRefs" :key="index" class="el-button--text">
-        <router-link :to="'/track/plan/view/' + item.id">
+        <el-link @click="openTestPlan(item)">
           {{ item.name }}
-        </router-link>
+        </el-link>
       </div>
     </div>
 
@@ -31,7 +31,9 @@
 
 <script>
 
-  export default {
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
+
+export default {
     name: "MsReferenceView",
     components: {},
     data() {
@@ -58,6 +60,49 @@
       open(row) {
         this.getReferenceData(row);
         this.visible = true
+      },
+      openScenario(resource) {
+        let workspaceId = getCurrentWorkspaceId();
+        let isTurnSpace = true
+        if (resource.projectId !== getCurrentProjectID()) {
+          isTurnSpace = false;
+          this.$get("/project/get/" + resource.projectId, response => {
+            if (response.data) {
+              workspaceId = response.data.workspaceId;
+              isTurnSpace = true;
+              this.checkPermission(resource, workspaceId, isTurnSpace);
+            }
+          });
+        } else {
+          this.checkPermission(resource, workspaceId, isTurnSpace);
+        }
+
+      },
+      gotoTurn(resource, workspaceId, isTurnSpace) {
+        let automationData = this.$router.resolve({
+          name: 'ApiAutomation',
+          params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
+        });
+        if (isTurnSpace) {
+          window.open(automationData.href, '_blank');
+        }
+      },
+      checkPermission(resource, workspaceId, isTurnSpace) {
+        this.$get('/project/getOwnerProjectIds', res => {
+          const project = res.data.find(p => p === resource.projectId);
+          if (!project) {
+            this.$warning(this.$t('commons.no_permission'));
+          } else {
+            this.gotoTurn(resource, workspaceId, isTurnSpace)
+          }
+        })
+      },
+      openTestPlan(item){
+        let automationData = this.$router.resolve({
+          path: '/track/plan/view/' + item.id,
+          query: { workspaceId: item.workspaceId, projectId: item.projectId, charType: 'api'}
+        });
+        window.open(automationData.href, '_blank');
       }
     }
   }
