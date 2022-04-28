@@ -3,7 +3,7 @@ on: pull_request
 name: MeterSphere 通用 PR 处理
 
 permissions:
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   generic_handler:
