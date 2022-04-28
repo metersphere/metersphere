@@ -76,9 +76,6 @@ public class TestPlanMessageService {
         }
         paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
-        String successfulMailTemplate = "TestPlanSuccessfulNotification";
-        String errfoMailTemplate = "TestPlanFailedNotification";
-
         String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId(), creator);
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
 
@@ -102,10 +99,7 @@ public class TestPlanMessageService {
                     .operator(creator)
                     .context(context)
                     .successContext(successContext)
-                    .successMailTemplate(successfulMailTemplate)
                     .failedContext(failedContext)
-                    .failedMailTemplate(errfoMailTemplate)
-                    .mailTemplate("track/TestPlanComplete")
                     .testId(testPlan.getId())
                     .status(status)
                     .event(event)
