@@ -80,6 +80,7 @@ public class ApiDefinitionExecResultService {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
                 if (result != null) {
                     // 发送通知
+                    result.setResourceId(dto.getTestId());
                     sendNotice(result);
                 }
             }
@@ -111,6 +112,7 @@ public class ApiDefinitionExecResultService {
 
                         if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
                             // 发送通知
+                            result.setResourceId(dto.getTestId());
                             sendNotice(result);
                         }
                     }
