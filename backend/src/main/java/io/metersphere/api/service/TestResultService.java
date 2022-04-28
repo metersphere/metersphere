@@ -4,14 +4,15 @@ import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.base.mapper.UiScenarioMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
@@ -26,14 +27,12 @@ import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -58,7 +57,47 @@ public class TestResultService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
+    // 场景
+    private static final List<String> scenarioRunModes = new ArrayList<>() {{
+        this.add(ApiRunMode.SCENARIO.name());
+        this.add(ApiRunMode.SCENARIO_PLAN.name());
+        this.add(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+        this.add(ApiRunMode.SCHEDULE_SCENARIO.name());
+        this.add(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
+    }};
+
+    // 接口测试 用例/接口
+    private static final List<String> caseRunModes = new ArrayList<>() {{
+        this.add(ApiRunMode.DEFINITION.name());
+        this.add(ApiRunMode.JENKINS.name());
+        this.add(ApiRunMode.API_PLAN.name());
+    }};
+
+    // 测试计划 用例/接口
+    private static final List<String> planCaseRunModes = new ArrayList<>() {{
+        this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
+        this.add(ApiRunMode.JENKINS_API_PLAN.name());
+        this.add(ApiRunMode.MANUAL_PLAN.name());
+    }};
+
+    // ui 执行触发类型
+    private static final List<String> uiRunModes = new ArrayList<>() {{
+        this.add(ApiRunMode.UI_SCENARIO.name());
+        this.add(ApiRunMode.UI_SCENARIO_PLAN.name());
+        this.add(ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name());
+        this.add(ApiRunMode.UI_SCHEDULE_SCENARIO.name());
+        this.add(ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name());
+
+    }};
+
+    /**
+     * 执行结果存储
+     *
+     * @param dto 执行结果
+     */
     public void saveResults(ResultDTO dto) {
         // 处理环境
         List<String> environmentList = new LinkedList<>();
@@ -68,21 +107,29 @@ public class TestResultService {
         //处理环境参数
         if (CollectionUtils.isNotEmpty(environmentList)) {
             apiEnvironmentRunningParamService.parseEnvironment(environmentList);
-
         }
-        //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-        if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
+
+        // 测试计划用例触发结果处理
+        if (planCaseRunModes.contains(dto.getRunMode())) {
             apiDefinitionExecResultService.saveApiResultByScheduleTask(dto);
-        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
+        } else if (caseRunModes.contains(dto.getRunMode())) {
+            // 手动触发/批量触发 用例结果处理
             apiDefinitionExecResultService.saveApiResult(dto);
-        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+        } else if (scenarioRunModes.contains(dto.getRunMode())) {
+            // 场景报告结果处理
             apiScenarioReportService.saveResult(dto);
-        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.UI_SCENARIO.name(), ApiRunMode.UI_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name(), ApiRunMode.UI_SCHEDULE_SCENARIO.name(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name())) {
+        } else if (uiRunModes.contains(dto.getRunMode())) {
+            // ui 结果处理
             apiScenarioReportService.saveUiResult(dto.getRequestResults(), dto);
         }
         updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
     }
 
+    /**
+     * 批量存储执行结果
+     *
+     * @param resultDtoMap
+     */
     public void batchSaveResults(Map<String, List<ResultDTO>> resultDtoMap) {
         // 处理环境
         List<String> environmentList = new LinkedList<>();
@@ -98,7 +145,6 @@ public class TestResultService {
                 }
                 // 处理用例/场景和计划关系
                 updateTestCaseStates(dto.getRequestResults(), dto.getRunMode());
-
             }
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
             if (StringUtils.equals(key, "schedule-task")) {
@@ -113,8 +159,11 @@ public class TestResultService {
     }
 
     public void testEnded(ResultDTO dto) {
-        if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())
-                || dto.getRunMode().startsWith("UI")) {
+        // 删除串行资源锁
+        if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
+            redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
+        }
+        if (scenarioRunModes.contains(dto.getRunMode()) || dto.getRunMode().startsWith("UI")) {
             ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
             if (scenarioReport != null) {
                 String environment = "";
@@ -122,6 +171,7 @@ public class TestResultService {
                 String userName = "";
                 //负责人
                 String principal = "";
+
                 if (dto.getRunMode().startsWith("UI")) {
                     UiScenarioWithBLOBs uiScenario = uiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                     if (uiScenario != null) {
