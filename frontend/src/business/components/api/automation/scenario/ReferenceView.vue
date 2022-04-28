@@ -17,9 +17,9 @@
     <span>{{ $t('api_test.automation.plan_ref') }}：</span>
     <div class="refs">
       <div v-for="(item, index) in planRefs" :key="index" class="el-button--text">
-        <router-link :to="'/track/plan/view/' + item.id">
+        <el-link @click="openTestPlan(item)">
           {{ item.name }}
-        </router-link>
+        </el-link>
       </div>
     </div>
 
@@ -63,6 +63,13 @@ export default {
     openScenario(item) {
       this.$emit('openScenario', item);
       this.visible = false;
+    },
+    openTestPlan(item){
+      let automationData = this.$router.resolve({
+        path: '/track/plan/view/' + item.id,
+        query: { workspaceId: item.workspaceId, projectId: item.projectId, charType: 'scenario'}
+      });
+      window.open(automationData.href, '_blank');
     }
   }
 }
