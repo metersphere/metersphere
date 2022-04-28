@@ -160,7 +160,9 @@ export default {
       pageSize: 10,
       total: 0,
       items: [],
-      condition: {},
+      condition: {
+        times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()],
+      },
       tableData: [],
       userList: [],
       screenHeight: 'calc(100vh - 215px)',
