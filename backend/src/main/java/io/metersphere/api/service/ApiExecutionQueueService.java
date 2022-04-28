@@ -12,7 +12,10 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExecuteResult;
+import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
@@ -24,12 +27,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +43,8 @@ public class ApiExecutionQueueService {
     private ApiExecutionQueueMapper queueMapper;
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
@@ -280,6 +287,7 @@ public class ApiExecutionQueueService {
             }
             return;
         }
+        // 获取串行下一个执行节点
         DBTestQueue executionQueue = this.handleQueue(dto.getQueueId(), dto.getTestId());
         if (executionQueue != null) {
             // 串行失败停止
@@ -289,11 +297,16 @@ public class ApiExecutionQueueService {
                     return;
                 }
             }
-            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId());
+            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId() + "报告ID：" + dto.getReportId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
                     LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getQueue()));
-                    apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
+                    // 防止重复执行
+                    boolean isNext = redisTemplate.opsForValue().setIfAbsent(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), executionQueue.getQueue().getQueueId());
+                    if (isNext) {
+                        redisTemplate.expire(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), 60, TimeUnit.MINUTES);
+                        apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
+                    }
                 }
             } else {
                 if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
@@ -360,29 +373,32 @@ public class ApiExecutionQueueService {
                     ResultDTO dto = new ResultDTO();
                     dto.setQueueId(item.getQueueId());
                     dto.setTestId(item.getTestId());
-                    ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(item.getQueueId());
-                    if (executionQueue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
+                    if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
+                        // 删除串行资源锁
+                        redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
+
                         LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
-                        dto.setTestPlanReportId(executionQueue.getReportId());
-                        dto.setReportId(executionQueue.getReportId());
-                        dto.setRunMode(executionQueue.getRunMode());
+                        dto.setTestPlanReportId(queue.getReportId());
+                        dto.setReportId(queue.getReportId());
+                        dto.setRunMode(queue.getRunMode());
                         dto.setRunType(item.getType());
-                        dto.setReportType(executionQueue.getReportType());
+                        dto.setReportType(queue.getReportType());
                         queueNext(dto);
                     } else {
                         executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                     }
                 }
             } else {
+                // 用例/接口超时结果处理
                 ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
-                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())) {
+                if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
                     result.setStatus(ScenarioStatus.Timeout.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                     executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
                 }
             }
         }
-
+        // 集成报告超时处理
         ApiExecutionQueueExample queueDetailExample = new ApiExecutionQueueExample();
         queueDetailExample.createCriteria().andReportTypeEqualTo(RunModeConstants.SET_REPORT.toString()).andCreateTimeLessThan(timeout);
         List<ApiExecutionQueue> executionQueues = queueMapper.selectByExample(queueDetailExample);
@@ -441,6 +457,7 @@ public class ApiExecutionQueueService {
 
     /**
      * 性能测试监听检查
+     *
      * @param loadTestReport
      */
     public void checkExecutionQueueByLoadTest(LoadTestReport loadTestReport) {
