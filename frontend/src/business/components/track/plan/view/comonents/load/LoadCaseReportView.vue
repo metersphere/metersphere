@@ -2,6 +2,7 @@
   <ms-container>
     <el-main>
       <el-card v-loading="result.loading" v-if="show">
+
         <el-row v-if="isShare">
           <el-col :span="24">
             <div>
@@ -21,6 +22,7 @@
             </div>
           </el-col>
         </el-row>
+
         <el-row v-else>
           <el-col :span="16">
             <el-row v-if="!isPlanReport">
@@ -47,7 +49,8 @@
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
-              {{ $t('report.test_duration', [minutes, seconds]) }}
+              {{ $t('report.test_duration', [ templateMinutes ? templateMinutes : minutes,
+                                              templateSeconds ? templateSeconds : seconds]) }}
             </span>
             <span class="ms-report-time-desc" v-if="startTime !== '0'">
               {{ $t('report.test_start_time') }}：{{ startTime | timestampFormatDate }}
@@ -199,6 +202,22 @@ export default {
   watch: {
     reportId() {
       this.init();
+    }
+  },
+  computed: {
+    templateMinutes() {
+      if (this.planReportTemplate && this.planReportTemplate.duration) {
+        let duration = this.planReportTemplate.duration;
+        return Math.floor(duration / 60);
+      }
+      return null;
+    },
+    templateSeconds() {
+      if (this.planReportTemplate && this.planReportTemplate.duration) {
+        let duration = this.planReportTemplate.duration;
+        return duration % 60;
+      }
+      return null;
     }
   },
   methods: {
