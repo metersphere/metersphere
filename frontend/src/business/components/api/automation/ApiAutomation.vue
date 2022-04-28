@@ -33,7 +33,7 @@
             :checkRedirectID="checkRedirectID"
             :isRedirectEdit="isRedirectEdit"
             :is-read-only="isReadOnly"
-            @openScenario="editScenario"
+            @openScenario="clickResource"
             @edit="editScenario"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             :custom-num="customNum"
@@ -56,7 +56,7 @@
             :checkRedirectID="checkRedirectID"
             :isRedirectEdit="isRedirectEdit"
             :is-read-only="isReadOnly"
-            @openScenario="editScenario"
+            @openScenario="clickResource"
             @edit="editScenario"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             :custom-num="customNum"
@@ -105,7 +105,7 @@
 
 <script>
 
-import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, getUUID, hasPermission} from "@/common/js/utils";
 import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -668,6 +668,42 @@ export default {
         this.$refs.apiTrashScenarioList.condition.versionId = currentVersion || null;
       }
       this.refreshAll();
+    },
+    clickResource(resource) {
+      let workspaceId = getCurrentWorkspaceId();
+      let isTurnSpace = true
+      if (resource.projectId !== getCurrentProjectID()) {
+        isTurnSpace = false;
+        this.$get("/project/get/" + resource.projectId, response => {
+          if (response.data) {
+            workspaceId = response.data.workspaceId;
+            isTurnSpace = true;
+            this.checkPermission(resource, workspaceId, isTurnSpace);
+          }
+        });
+      } else {
+        this.checkPermission(resource, workspaceId, isTurnSpace);
+      }
+
+    },
+    gotoTurn(resource, workspaceId, isTurnSpace) {
+      let automationData = this.$router.resolve({
+        name: 'ApiAutomation',
+        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
+      });
+      if (isTurnSpace) {
+        window.open(automationData.href, '_blank');
+      }
+    },
+    checkPermission(resource, workspaceId, isTurnSpace) {
+      this.$get('/project/getOwnerProjectIds', res => {
+        const project = res.data.find(p => p === resource.projectId);
+        if (!project) {
+          this.$warning(this.$t('commons.no_permission'));
+        } else {
+          this.gotoTurn(resource, workspaceId, isTurnSpace)
+        }
+      })
     }
   }
 };
