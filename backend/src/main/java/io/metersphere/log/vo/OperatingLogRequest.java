@@ -22,7 +22,7 @@ public class OperatingLogRequest implements Serializable {
 
     private Long endTime;
 
-    private String operModule;
+    private List<String> operModule;
 
     private String operTitle;
 
