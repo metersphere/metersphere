@@ -73,6 +73,7 @@ export default {
     confirm_info: '未保存，是否确认关闭？',
     track: '用例',
     actuator: '执行器',
+    task_center_remark: '调试历史只展示最近的五条数据',
     from: '由',
     prompt: '提示',
     operating: '操作',
