@@ -337,7 +337,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/reduction")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void reduction(@RequestBody TestCaseBatchRequest request) {
         testCaseService.reduction(request);
     }

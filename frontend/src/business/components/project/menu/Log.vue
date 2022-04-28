@@ -159,7 +159,7 @@ export default {
       currentPage: 0,
       pageSize: 10,
       total: 0,
-      items: [],
+      times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()],
       condition: {},
       tableData: [],
       userList: [],
