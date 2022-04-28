@@ -85,6 +85,7 @@ public class ApiDefinitionExecResultService {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
                 if (result != null) {
                     // 发送通知
+                    result.setResourceId(dto.getTestId());
                     sendNotice(result);
                 }
                 //删除用例运行时存放在redis中的用户数据
@@ -118,6 +119,7 @@ public class ApiDefinitionExecResultService {
 
                         if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
                             // 发送通知
+                            result.setResourceId(dto.getTestId());
                             sendNotice(result);
                         }
                         //删除用例运行时存放在redis中的用户数据
@@ -164,11 +166,11 @@ public class ApiDefinitionExecResultService {
             }
             User user = null;
             Object userObject = redisTemplate.opsForValue().get(result.getId());
-            if(userObject != null && userObject instanceof UserDTO){
+            if (userObject != null && userObject instanceof UserDTO) {
                 user = (UserDTO) userObject;
             }
 
-            if(user == null){
+            if (user == null) {
                 if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
                     user = SessionUtils.getUser();
                 } else {
@@ -442,7 +444,7 @@ public class ApiDefinitionExecResultService {
             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
             String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
             if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
-                if(StringUtils.isNotEmpty(expandDTO.getStatus())){
+                if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
                     status = expandDTO.getStatus();
                 }
                 saveResult.setContent(JSON.toJSONString(expandDTO));
