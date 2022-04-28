@@ -74,6 +74,7 @@ export default {
     actuator: 'Actuator',
     confirm_info: 'Not saved, are you sure to close?',
     prompt: 'Prompt',
+    task_center_remark: 'The debugging history only shows the last five pieces of data',
     operating: 'Operating',
     input_limit: 'Within {0} and {1} characters',
     login: 'Sign In',
