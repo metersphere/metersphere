@@ -2,6 +2,9 @@ on: pull_request
 
 name: MeterSphere 通用 PR 处理
 
+permissions:
+  pull-requests: read
+
 jobs:
   generic_handler:
     name: 为 PR 添加标签
