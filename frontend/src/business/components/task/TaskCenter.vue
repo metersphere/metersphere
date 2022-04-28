@@ -132,8 +132,10 @@
           </div>
         </div>
         <div class="report-bottom">
-          <ms-table-pagination :change="init" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"
+          <ms-table-pagination v-if="showType !== 'SCENARIO' && showType !== 'CASE'" :change="init"
+                               :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"
                                small/>
+          <span v-else> {{ $t('commons.task_center_remark') }}</span>
         </div>
       </el-card>
 
