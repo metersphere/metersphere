@@ -509,8 +509,6 @@ public class ApiScenarioReportService {
                 .operator(userId)
                 .context(context)
                 .subject("接口自动化通知")
-                .successMailTemplate("api/ScenarioResultSuccess")
-                .failedMailTemplate("api/ScenarioResultFailed")
                 .paramMap(paramMap)
                 .event(event)
                 .build();

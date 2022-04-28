@@ -53,7 +53,7 @@ public class TestCaseReviewController {
     @PostMapping("/save")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, title = "#reviewRequest.name", content = "#msClass.getLogDetails(#reviewRequest.id)", msClass = TestCaseReviewService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "track/ReviewInitiate", subject = "测试评审通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.CREATE, subject = "测试评审通知")
     public TestCaseReview saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
         reviewRequest.setId(UUID.randomUUID().toString());
         return testCaseReviewService.saveTestCaseReview(reviewRequest);
@@ -85,7 +85,7 @@ public class TestCaseReviewController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testCaseReview.id)", title = "#testCaseReview.name", content = "#msClass.getLogDetails(#testCaseReview.id)", msClass = TestCaseReviewService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "track/ReviewUpdate", subject = "测试评审通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.UPDATE, subject = "测试评审通知")
     public TestCaseReview editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         return testCaseReviewService.editCaseReview(testCaseReview);
     }
@@ -94,7 +94,7 @@ public class TestCaseReviewController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reviewId)", msClass = TestCaseReviewService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#reviewId)", targetClass = TestCaseReviewService.class,
-            event = NoticeConstants.Event.DELETE, mailTemplate = "track/ReviewDelete", subject = "测试评审通知")
+            event = NoticeConstants.Event.DELETE, subject = "测试评审通知")
     public void deleteCaseReview(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.deleteCaseReview(reviewId);
@@ -157,7 +157,7 @@ public class TestCaseReviewController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#request.reviewId)", targetClass = TestCaseReviewService.class,
-            event = NoticeConstants.Event.COMMENT, mailTemplate = "track/TestCaseComment", subject = "测试评审通知")
+            event = NoticeConstants.Event.COMMENT, subject = "测试评审通知")
     public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());
         return testCaseCommentService.saveComment(request);
