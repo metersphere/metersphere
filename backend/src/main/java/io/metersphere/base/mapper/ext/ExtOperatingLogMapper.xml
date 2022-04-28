@@ -33,7 +33,8 @@
             or t.project_id = ""
             )
             <if test="request.operUser != null and request.operUser != ''">
-                and (t.oper_user like #{request.operUser, jdbcType=VARCHAR} or t1.name like #{request.operUser, jdbcType=VARCHAR})
+                and (t.oper_user like #{request.operUser, jdbcType=VARCHAR} or t1.name like
+                #{request.operUser, jdbcType=VARCHAR})
             </if>
             <if test="request.projectId != null and request.projectId !=''">
                 and t.project_id = #{request.projectId}
@@ -42,7 +43,10 @@
                 and t.oper_type like #{request.operType, jdbcType=VARCHAR}
             </if>
             <if test="request.operModule != null and request.operModule != ''">
-                and t.oper_module like #{request.operModule, jdbcType=VARCHAR}
+                and
+                <foreach collection="request.operModule" index="index" open="(" close=")" separator="or" item="item">
+                    t.oper_module like CONCAT('%',#{item},'%')
+                </foreach>
             </if>
             <if test="request.startTime != null and request.endTime != null">
                 AND t.oper_time BETWEEN #{request.startTime} AND #{request.endTime}
