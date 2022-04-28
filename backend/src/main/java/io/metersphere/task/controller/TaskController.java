@@ -27,14 +27,16 @@ public class TaskController {
         return PageUtils.setPageInfo(page, taskService.getTasks(request));
     }
 
-    @GetMapping("/case/{id}")
-    public List<TaskCenterDTO> getCase(@PathVariable String id) {
-        return taskService.getCases(id);
+    @GetMapping("/case/{goPage}/{pageSize}/{id}")
+    public Pager<List<TaskCenterDTO>> getCase(@PathVariable int goPage, @PathVariable int pageSize, @PathVariable String id) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, taskService.getCases(id));
     }
 
-    @GetMapping("/scenario/{id}")
-    public List<TaskCenterDTO> getScenario(@PathVariable String id) {
-        return taskService.getScenario(id);
+    @GetMapping("/scenario/{goPage}/{pageSize}/{id}")
+    public Pager<List<TaskCenterDTO>> getScenario(@PathVariable int goPage, @PathVariable int pageSize, @PathVariable String id) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, taskService.getScenario(id));
     }
 
     @PostMapping("/count/running")

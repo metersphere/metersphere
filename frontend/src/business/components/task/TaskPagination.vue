@@ -33,7 +33,7 @@
       pageSizes: {
         type: Array,
         default: function () {
-          return [5, 10, 20, 50, 100]
+          return [5, 10, 20, 50]
         }
       },
       total: {

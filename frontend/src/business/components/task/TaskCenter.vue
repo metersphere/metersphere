@@ -198,6 +198,8 @@ export default {
       reportId: "",
       executionModule: "",
       reportType: "",
+      scenarioId: "",
+      caseId: ""
     };
   },
   props: {
@@ -401,7 +403,12 @@ export default {
       this.initWebSocket();
     },
     init() {
-      if (this.showType === "CASE" || this.showType === "SCENARIO") {
+      if (this.showType === "SCENARIO") {
+        this.openScenarioHistory(this.scenarioId);
+        return;
+      }
+      if (this.showType === "CASE") {
+        this.openHistory(this.caseId);
         return;
       }
       this.condition.projectId = getCurrentProjectID();
@@ -414,8 +421,10 @@ export default {
       });
     },
     initCaseHistory(id) {
-      this.result = this.$get('/task/center/case/' + id, response => {
-        this.taskData = response.data;
+      this.caseId = id;
+      this.result = this.$get('/task/center/case/' + this.currentPage + '/' + this.pageSize + '/' + id, response => {
+        this.total = response.data.itemCount;
+        this.taskData = response.data.listObject;
       });
     },
     openHistory(id) {
@@ -424,8 +433,10 @@ export default {
       this.showType = "CASE";
     },
     openScenarioHistory(id) {
-      this.result = this.$get('/task/center/scenario/' + id, response => {
-        this.taskData = response.data;
+      this.scenarioId = id;
+      this.result = this.$get('/task/center/scenario/' + this.currentPage + '/' + this.pageSize + '/' + id, response => {
+        this.total = response.data.itemCount;
+        this.taskData = response.data.listObject;
       });
       this.showType = "SCENARIO";
       this.taskVisible = true;
