@@ -75,7 +75,7 @@ public class ApiDefinitionExecResultUtil {
         return apiResult;
     }
 
-    public static ApiDefinitionExecResult add(String resourceId, String status, String reportId) {
+    public static ApiDefinitionExecResult add(String resourceId, String status, String reportId, String userId) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         if (StringUtils.isEmpty(reportId)) {
             apiResult.setId(UUID.randomUUID().toString());
@@ -88,7 +88,7 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
         apiResult.setActuator("LOCAL");
-        apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        apiResult.setUserId(userId);
         apiResult.setResourceId(resourceId);
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());
