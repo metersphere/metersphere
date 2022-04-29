@@ -79,9 +79,19 @@ public class ApiDefinitionExecResultService {
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
                 if (result != null) {
+                    User user = null;
+                    if(MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user")){
+                        try {
+                            user = JSONObject.parseObject(String.valueOf(dto.getExtendedParameters().get("user")),User.class);
+                        }catch (Exception e){
+                            LogUtil.error("解析用户信息出错！",e);
+                        }
+                    }else if(dto.getExtendedParameters().containsKey("userId")){
+                        result.setUserId(dto.getExtendedParameters().get("userId").toString());
+                    }
                     // 发送通知
                     result.setResourceId(dto.getTestId());
-                    sendNotice(result);
+                    sendNotice(result,user);
                 }
             }
         }
@@ -111,9 +121,13 @@ public class ApiDefinitionExecResultService {
                         );
 
                         if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
+                            User user = null;
+                            if(MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user")&& dto.getExtendedParameters().get("user") instanceof User){
+                                user = (User)dto.getExtendedParameters().get("user");
+                            }
                             // 发送通知
                             result.setResourceId(dto.getTestId());
-                            sendNotice(result);
+                            sendNotice(result,user);
                         }
                     }
                 }
@@ -136,7 +150,7 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    private void sendNotice(ApiDefinitionExecResult result) {
+    private void sendNotice(ApiDefinitionExecResult result, User user) {
         try {
             String resourceId = result.getResourceId();
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
@@ -155,11 +169,12 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-            User user = null;
-            if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
-                user = SessionUtils.getUser();
-            } else {
-                user = userMapper.selectByPrimaryKey(result.getUserId());
+            if(user == null){
+                if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
+                    user = SessionUtils.getUser();
+                } else {
+                    user = userMapper.selectByPrimaryKey(result.getUserId());
+                }
             }
             Map paramMap = new HashMap<>(beanMap);
             paramMap.put("operator", user != null ? user.getName() : result.getUserId());
@@ -294,6 +309,9 @@ public class ApiDefinitionExecResultService {
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
 
                     ApiDefinitionExecResult reportResult = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
+                    if(MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")){
+                        reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
+                    }
                     String status = item.isSuccess() ? "success" : "error";
                     if (reportResult != null) {
                         status = reportResult.getStatus();
