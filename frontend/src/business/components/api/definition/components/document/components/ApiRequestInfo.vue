@@ -138,20 +138,6 @@ export default {
     },
     //构建预览数据
     genPreviewData(previewData) {
-      if (previewData !== null && previewData !== '') {
-        let showDataObj = {};
-        for (var key in previewData) {
-          let value = previewData[key];
-          if (typeof (value) == 'string') {
-            if (value.indexOf("@") >= 0) {
-              value = this.showPreview(value);
-            }
-          }
-          showDataObj[key] = value;
-        }
-        showDataObj = JSON.stringify(showDataObj);
-        previewData = formatJson(showDataObj);
-      }
       return previewData;
     },
   },

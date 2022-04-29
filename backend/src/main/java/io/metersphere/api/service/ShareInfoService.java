@@ -397,7 +397,11 @@ public class ShareInfoService {
             }
         }
         if (!previewJsonArray.isEmpty()) {
-            apiInfoDTO.setRequestPreviewData(previewJsonArray);
+            if(previewJsonArray.size() == 1){
+                apiInfoDTO.setRequestPreviewData(previewJsonArray.get(0));
+            }else {
+                apiInfoDTO.setRequestPreviewData(previewJsonArray);
+            }
         }
         apiInfoDTO.setSelectedFlag(true);
         return apiInfoDTO;
