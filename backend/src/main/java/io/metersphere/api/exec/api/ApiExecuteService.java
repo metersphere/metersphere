@@ -185,9 +185,11 @@ public class ApiExecuteService {
 
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
         runRequest.setDebug(request.isDebug());
+
         runRequest.setExtendedParameters(new HashMap<String, Object>() {{
             this.put("SYN_RES", request.isSyncResult());
-            this.put("user", Objects.requireNonNull(SessionUtils.getUser()));
+            this.put("userId", SessionUtils.getUser().getId());
+            this.put("userName", SessionUtils.getUser().getName());
         }});
         // 开始执行
         jMeterService.run(runRequest);
