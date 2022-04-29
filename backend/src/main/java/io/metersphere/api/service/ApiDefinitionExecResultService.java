@@ -13,7 +13,6 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
-import io.metersphere.dto.UserDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
@@ -31,7 +30,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,8 +68,6 @@ public class ApiDefinitionExecResultService {
     private ProjectMapper projectMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
-    @Resource
-    RedisTemplate<String, Object> redisTemplate;
 
 
     public void saveApiResult(ResultDTO dto) {
@@ -84,12 +80,20 @@ public class ApiDefinitionExecResultService {
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
                 if (result != null) {
+                    User user = null;
+                    if(MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user")){
+                        try {
+                            user = JSONObject.parseObject(String.valueOf(dto.getExtendedParameters().get("user")),User.class);
+                        }catch (Exception e){
+                            LogUtil.error("解析用户信息出错！",e);
+                        }
+                    }else if(dto.getExtendedParameters().containsKey("userId")){
+                        result.setUserId(dto.getExtendedParameters().get("userId").toString());
+                    }
                     // 发送通知
                     result.setResourceId(dto.getTestId());
-                    sendNotice(result);
+                    sendNotice(result,user);
                 }
-                //删除用例运行时存放在redis中的用户数据
-                redisTemplate.delete(dto.getReportId());
             }
         }
     }
@@ -118,12 +122,14 @@ public class ApiDefinitionExecResultService {
                         );
 
                         if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE")) {
+                            User user = null;
+                            if(MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("user")&& dto.getExtendedParameters().get("user") instanceof User){
+                                user = (User)dto.getExtendedParameters().get("user");
+                            }
                             // 发送通知
                             result.setResourceId(dto.getTestId());
-                            sendNotice(result);
+                            sendNotice(result,user);
                         }
-                        //删除用例运行时存放在redis中的用户数据
-                        redisTemplate.delete(dto.getReportId());
                     }
                 }
                 if (isSchedule) {
@@ -145,7 +151,7 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    private void sendNotice(ApiDefinitionExecResult result) {
+    private void sendNotice(ApiDefinitionExecResult result, User user) {
         try {
             String resourceId = result.getResourceId();
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
@@ -164,13 +170,7 @@ public class ApiDefinitionExecResultService {
                 event = NoticeConstants.Event.EXECUTE_FAILED;
                 status = "失败";
             }
-            User user = null;
-            Object userObject = redisTemplate.opsForValue().get(result.getId());
-            if (userObject != null && userObject instanceof UserDTO) {
-                user = (UserDTO) userObject;
-            }
-
-            if (user == null) {
+            if(user == null){
                 if (SessionUtils.getUser() != null && StringUtils.equals(SessionUtils.getUser().getId(), result.getUserId())) {
                     user = SessionUtils.getUser();
                 } else {
@@ -311,8 +311,9 @@ public class ApiDefinitionExecResultService {
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
 
                     ApiDefinitionExecResult reportResult = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
-                    redisTemplate.delete(reportResult.getId());
-
+                    if(MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("userId")){
+                        reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
+                    }
                     String status = item.isSuccess() ? "success" : "error";
                     if (reportResult != null) {
                         status = reportResult.getStatus();

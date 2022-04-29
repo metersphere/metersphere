@@ -35,7 +35,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,8 +83,6 @@ public class ApiScenarioReportService {
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
     @Resource
     private UiReportServiceProxy uiReportServiceProxy;
-    @Resource
-    RedisTemplate<String, Object> redisTemplate;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -352,8 +349,6 @@ public class ApiScenarioReportService {
         // 更新场景状态
         if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
             ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
-            //删除执行时redis记录的数据
-            redisTemplate.delete(result.getId());
             ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
             execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
             long size = definitionExecResultMapper.countByExample(execResultExample);

@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -48,6 +49,9 @@ public class ApiCaseParallelExecuteService {
             runRequest.setReportType(executionQueue.getReportType());
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             runRequest.setQueueId(executionQueue.getId());
+            Map<String,Object> extendedParameters = new HashMap<>();
+            extendedParameters.put("userId",result.getUserId());
+            runRequest.setExtendedParameters(extendedParameters);
             if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
                 runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
             }
