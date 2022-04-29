@@ -40,6 +40,7 @@ public class APISingleResultListener extends MsExecListener {
             if (apiExecutionQueueService == null) {
                 apiExecutionQueueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
             }
+
             LoggerUtil.info("执行队列处理：" + dto.getQueueId());
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
                 apiExecutionQueueService.queueNext(dto);
