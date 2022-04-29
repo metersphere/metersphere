@@ -28,6 +28,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.plugin.core.MsTestElement;
@@ -36,7 +37,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,8 +63,6 @@ public class ApiExecuteService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ObjectMapper mapper;
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
 
     public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
         ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -84,7 +82,7 @@ public class ApiExecuteService {
             request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
         }
         //提前生成报告
-        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId(),redisTemplate);
+        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId(),Objects.requireNonNull(SessionUtils.getUser()).getId());
         report.setName(caseWithBLOBs.getName());
         report.setTriggerMode(ApiRunMode.JENKINS.name());
         report.setType(ApiRunMode.JENKINS.name());
@@ -189,6 +187,7 @@ public class ApiExecuteService {
         runRequest.setDebug(request.isDebug());
         runRequest.setExtendedParameters(new HashMap<String, Object>() {{
             this.put("SYN_RES", request.isSyncResult());
+            this.put("user", Objects.requireNonNull(SessionUtils.getUser()));
         }});
         // 开始执行
         jMeterService.run(runRequest);
