@@ -19,19 +19,16 @@ import io.metersphere.track.service.TestCaseReviewService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.context.annotation.Lazy;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNoticeSender implements NoticeSender {
@@ -60,6 +57,20 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private TestCaseReviewService testCaseReviewService;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
+        // 如果有自定义字段
+        if (noticeModel.getParamMap().containsKey("customFields")) {
+            String customFields = (String) noticeModel.getParamMap().get("customFields");
+            JSONArray array = JSON.parseArray(customFields);
+            for (Object o : array) {
+                JSONObject jsonObject = JSON.parseObject(o.toString());
+                String name = jsonObject.getString("name");
+                Object value = jsonObject.getObject("value", Object.class);
+                noticeModel.getParamMap().put(name, value); // 处理人
+                if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
+                    noticeModel.getParamMap().put("processor", value); // 处理人
+                }
+            }
+        }
 
         // 处理 userIds 中包含的特殊值
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
@@ -87,6 +98,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         }
         return getContent(context, noticeModel.getParamMap());
     }
+
     protected String getContent(String template, Map<String, Object> context) {
         // 处理 null
         context.forEach((k, v) -> {
@@ -166,18 +178,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     toUsers.addAll(handleFollows(messageDetail, noticeModel));
                     break;
                 case NoticeConstants.RelatedUser.PROCESSOR:
-                    String customFields = (String) paramMap.get("customFields");
-                    JSONArray array = JSON.parseArray(customFields);
-                    for (Object o : array) {
-                        JSONObject jsonObject = JSON.parseObject(o.toString());
-                        String name = jsonObject.getString("name");
-                        Object value = jsonObject.getObject("value", Object.class);
-                        paramMap.put(name, value); // 处理人
-                        if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
-                            paramMap.put("processor", value); // 处理人
-                            toUsers.add(new Receiver(value.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                            break;
-                        }
+                    Object value = paramMap.get("processor"); // 处理人
+                    if (!Objects.isNull(value)) {
+                        toUsers.add(new Receiver(value.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                     break;
                 default:
