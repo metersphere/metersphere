@@ -93,8 +93,13 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             TestCaseNodeExample example = new TestCaseNodeExample();
             TestCaseNodeExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(node.getName())
-                    .andProjectIdEqualTo(node.getProjectId())
-                    .andLevelEqualTo(node.getLevel());
+                    .andProjectIdEqualTo(node.getProjectId());
+
+            if (StringUtils.isNotBlank(node.getParentId())) {
+                criteria.andParentIdEqualTo(node.getParentId());
+            } else {
+                criteria.andLevelEqualTo(node.getLevel());
+            }
 
             if (StringUtils.isNotBlank(node.getId())) {
                 criteria.andIdNotEqualTo(node.getId());
