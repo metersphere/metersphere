@@ -29,7 +29,10 @@
         <span v-if="!data.isEdit" class="node-icon">
           <i class="el-icon-folder"/>
         </span>
-        <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
+        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start">
+          <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
+        </el-tooltip>
+
         <span class="count-title" v-if="isDisplay !== 'relevance'">
           <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
