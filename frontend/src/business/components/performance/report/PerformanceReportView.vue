@@ -491,7 +491,12 @@ export default {
         }
       }
       localStorage.setItem("reportRefreshTime", this.refreshTime);
-    }
+    },
+    handleProjectChange() {
+      if (this.$route.name === 'perReportView') {
+        this.$router.push('/performance/report/all');
+      }
+    },
   },
   created() {
     this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE');
@@ -500,6 +505,10 @@ export default {
       this.reportId = this.perReportId;
     }
     this.getReport(this.reportId);
+    this.$EventBus.$on('projectChange', this.handleProjectChange);
+  },
+  destroyed () {
+    this.$EventBus.$off('projectChange', this.handleProjectChange);
   },
   watch: {
     '$route'(to) {
