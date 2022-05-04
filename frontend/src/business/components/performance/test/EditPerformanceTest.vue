@@ -184,6 +184,10 @@ export default {
     if (hasLicense()) {
       this.getVersionHistory();
     }
+    this.$EventBus.$on('projectChange', this.handleProjectChange);
+  },
+  destroyed () {
+    this.$EventBus.$off('projectChange', this.handleProjectChange);
   },
   mounted() {
     this.importAPITest();
@@ -619,7 +623,12 @@ export default {
           }
         }
       });
-    }
+    },
+    handleProjectChange() {
+      if (this.$route.name === 'editPerTest') {
+        this.$router.push('/performance/test/all');
+      }
+    },
   }
 };
 </script>
