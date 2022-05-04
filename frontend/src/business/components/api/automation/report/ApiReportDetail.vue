@@ -540,13 +540,19 @@ export default {
     },
     exportReportReset() {
       this.$router.go(0);
-    }
+    },
+    handleProjectChange() {
+      this.$router.push('/api/automation/report');
+    },
   },
 
   created() {
     this.getReport();
+    this.$EventBus.$on('projectChange', this.handleProjectChange);
   },
-
+  destroyed () {
+    this.$EventBus.$off('projectChange', this.handleProjectChange);
+  },
   computed: {
     path() {
       return "/api/test/edit?id=" + this.report.testId;
