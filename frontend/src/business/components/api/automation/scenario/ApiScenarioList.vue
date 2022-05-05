@@ -115,7 +115,7 @@
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=120"
-                      tooltip style="margin-left: 0px; margin-right: 2px"/>
+                      :showTooltip="true" style="margin-left: 0px; margin-right: 2px"/>
               <span/>
             </template>
           </ms-table-column>
