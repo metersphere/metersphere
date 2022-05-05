@@ -198,7 +198,7 @@ export default {
       this.page.condition.projectId = this.projectId;
       this.getProjectNode();
       this.getTestCases();
-      this.getProject();
+      this.getCustomNum();
     }
   },
   methods: {
@@ -215,11 +215,11 @@ export default {
     setProject(projectId) {
       this.projectId = projectId;
     },
-    getProject() {
-      this.$get("/project/get/" + this.projectId, result => {
+    getCustomNum() {
+      this.$get('/project_application/get/config/' + this.projectId + "/CASE_CUSTOM_NUM", result => {
         let data = result.data;
         if (data) {
-          this.customNum = data.customNum;
+          this.customNum = data.caseCustomNum;
         }
       });
     },
