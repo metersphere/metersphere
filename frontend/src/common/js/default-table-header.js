@@ -137,7 +137,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'actualEndTime', key: 'a', label: 'test_track.plan.actual_end_time'},
     {id: 'tags', key: 'b', label: 'commons.tag'},
     {id: 'scheduleStatus', key: 'c', label: 'commons.trigger_mode.schedule'},
-    {id: 'executionTimes', key: 'd', label: 'commons.execution_times'},
     {id: 'passRate', key: 'e', label: 'commons.pass_rate'},
     {id: 'createUser', key: 'f', label: 'commons.create_user'},
     {id: 'testPlanTestCaseCount', key: 'g', label: 'test_track.plan.test_plan_test_case_count'},
