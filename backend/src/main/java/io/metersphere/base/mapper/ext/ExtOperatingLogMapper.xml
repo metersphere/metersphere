@@ -43,9 +43,9 @@
                 and t.oper_type like #{request.operType, jdbcType=VARCHAR}
             </if>
             <if test="request.operModule != null and request.operModule != ''">
-                and
-                <foreach collection="request.operModule" index="index" open="(" close=")" separator="or" item="item">
-                    t.oper_module like CONCAT('%',#{item},'%')
+                and t.oper_module in
+                <foreach collection="request.operModule" index="index" open="(" close=")" separator="," item="item">
+                    #{item}
                 </foreach>
             </if>
             <if test="request.startTime != null and request.endTime != null">
