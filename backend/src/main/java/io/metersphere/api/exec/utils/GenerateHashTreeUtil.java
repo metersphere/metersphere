@@ -24,6 +24,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -141,12 +142,15 @@ public class GenerateHashTreeUtil {
 
             group.setHashTree(scenarios);
             testPlan.getHashTree().add(group);
+
+            LoggerUtil.info("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本JMX成功");
         } catch (Exception ex) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(runRequest);
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            LoggerUtil.error("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本失败", ex);
         }
         ParameterConfig config = new ParameterConfig();
         config.setScenarioId(item.getId());

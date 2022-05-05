@@ -70,7 +70,7 @@ public class ApiDefinitionExecResultService {
     private SqlSessionFactory sqlSessionFactory;
 
     public void saveApiResult(ResultDTO dto) {
-        LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】");
+        LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】条");
 
         for (RequestResult item : dto.getRequestResults()) {
             if (item.getResponseResult() != null && item.getResponseResult().getResponseTime() <= 0) {
@@ -92,6 +92,7 @@ public class ApiDefinitionExecResultService {
                     }
                     // 发送通知
                     result.setResourceId(dto.getTestId());
+                    LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
                     sendNotice(result, user);
                 }
             }
@@ -303,8 +304,9 @@ public class ApiDefinitionExecResultService {
      */
     public void saveApiResultByScheduleTask(ResultDTO dto) {
         if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
-            LoggerUtil.info("接收到定时任务执行结果【 " + dto.getRequestResults().size() + " 】");
+            LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】条");
             for (RequestResult item : dto.getRequestResults()) {
+                LoggerUtil.info("执行结果【 " + item.getName() + " 】入库存储");
                 if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                     //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
                     RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
@@ -341,7 +343,6 @@ public class ApiDefinitionExecResultService {
         if (StringUtils.isNotEmpty(dto.getReportId())) {
             apiIdResultMap.put(dto.getReportId(), status);
         }
-        LoggerUtil.info("TestPlanReportId[" + dto.getTestPlanReportId() + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
     }
 
 

@@ -114,6 +114,7 @@ public class JMeterService {
             JMeterBase.addBackendListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
         }
 
+        LoggerUtil.info("报告：[" + request.getReportId() + "] 资源：[" + request.getTestId() + "] 加入JMETER中开始执行");
         LocalRunner runner = new LocalRunner(request.getHashTree());
         runner.run(request.getReportId());
     }
