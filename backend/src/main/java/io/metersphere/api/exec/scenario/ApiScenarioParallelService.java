@@ -1,6 +1,5 @@
 package io.metersphere.api.exec.scenario;
 
-import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.exec.queue.DBTestQueue;
@@ -48,13 +47,11 @@ public class ApiScenarioParallelService {
             runRequest.setTestPlanReportId(request.getTestPlanReportId());
             runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(reportId)));
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-            if (LoggerUtil.getLogger().isDebugEnabled()) {
-                LoggerUtil.debug("Scenario run-开始并发执行：" + JSON.toJSONString(request));
-            }
             // 本地执行生成hashTree
             if (!pool.isPool()) {
                 runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
             }
+            LoggerUtil.info("进入并行模式，准备执行场景：[ " + executeQueue.get(reportId).getReport().getName() + " ], 报告ID [ " + reportId + " ]");
             jMeterService.run(runRequest);
         }
     }

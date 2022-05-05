@@ -19,7 +19,7 @@ public class APISingleResultListener extends MsExecListener {
 
     @Override
     public void handleTeardownTest(ResultDTO dto, Map<String, Object> kafkaConfig) {
-        LoggerUtil.info("处理单条执行结果报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
+        LoggerUtil.info("接收到执行结果开始处理报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
         dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
         CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
     }
@@ -30,7 +30,7 @@ public class APISingleResultListener extends MsExecListener {
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
             }
-            LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】整体执行完成；" + dto.getRunMode());
+            LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
             dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
@@ -40,7 +40,6 @@ public class APISingleResultListener extends MsExecListener {
             if (apiExecutionQueueService == null) {
                 apiExecutionQueueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
             }
-            LoggerUtil.info("执行队列处理：" + dto.getQueueId());
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
                 apiExecutionQueueService.queueNext(dto);
             }

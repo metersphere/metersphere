@@ -134,6 +134,8 @@ public class ApiScenarioReportResultService {
 
         report.setBaseInfo(JSONObject.toJSONString(getBaseInfo(result)));
         report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
+
+        LoggerUtil.info("报告ID [ " + reportId + " ] 执行请求：【 " + baseResult.getName() + "】 入库存储");
         return report;
     }
 }
