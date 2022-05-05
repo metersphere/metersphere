@@ -358,8 +358,8 @@ export default {
       this.singleRunId = "";
       this.apiCaseList[0].active = true;
       if (data) {
-        let status = data.error > 0 ? "error" : "success";
-        this.apiCaseList[0].execResult = status
+        let status = data.status === 'errorReportResult' ? data.status : data.error > 0 ? "error" : "success";
+        this.apiCaseList[0].execResult = status;
         this.apiCaseList[0].responseData = data;
         this.$refs.apiCaseItem.runLoading = false;
         this.$store.state.currentApiCase = {refresh: true, id: data.id, status: status};
