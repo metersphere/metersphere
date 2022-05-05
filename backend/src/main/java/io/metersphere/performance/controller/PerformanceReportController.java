@@ -126,7 +126,7 @@ public class PerformanceReportController {
 
     @GetMapping("log/{reportId}/{resourceId}/{goPage}")
     public Pager<List<LoadTestReportLog>> logs(@PathVariable String reportId, @PathVariable String resourceId, @PathVariable int goPage) {
-        Page<Object> page = PageHelper.startPage(goPage, 1, true);
+        Page<Object> page = PageHelper.startPage(goPage, 1, true, false, null);
         return PageUtils.setPageInfo(page, performanceReportService.getReportLogs(reportId, resourceId));
     }
 
