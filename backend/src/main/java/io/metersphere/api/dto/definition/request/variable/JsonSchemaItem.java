@@ -21,6 +21,7 @@ public class JsonSchemaItem {
     private List<JsonSchemaItem> items;
     private Map<String, Object> mock;
     private Map<String, JsonSchemaItem> properties;
+    private JsonSchemaItem additionalProperties;
     private List<String> required ;
 
     @JSONField(name = "$schema")
