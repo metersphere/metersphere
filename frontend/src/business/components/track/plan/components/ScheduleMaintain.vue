@@ -356,6 +356,8 @@ export default {
       let param = {};
       param = this.schedule;
       param.resourceId = this.testId;
+      param.name = this.paramRow.name;
+      param.group = this.scheduleTaskType;
       // 兼容问题，数据库里有的projectId为空
       if (!param.projectId) {
         param.projectId = getCurrentProjectID();
