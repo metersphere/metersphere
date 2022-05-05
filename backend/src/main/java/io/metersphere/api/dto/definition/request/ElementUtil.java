@@ -312,7 +312,7 @@ public class ElementUtil {
             }
         } else if (element.getString("type").equals("HTTPSamplerProxy")) {
             if (element.getString("authManager") != null) {
-                JSONObject authManager = JSON.parseObject(element.getString("authManager"),Feature.DisableSpecialKeyDetect);
+                JSONObject authManager = JSON.parseObject(element.getString("authManager"), Feature.DisableSpecialKeyDetect);
                 if (authManager != null && authManager.get("clazzName") == null) {
                     authManager.fluentPut("clazzName", clazzMap.get(authManager.getString("type")));
                     element.fluentPut("authManager", authManager);
@@ -390,7 +390,7 @@ public class ElementUtil {
                         if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
                             environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                         } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                            environmentMap = JSON.parseObject(environmentJson, Map.class,Feature.DisableSpecialKeyDetect);
+                            environmentMap = JSON.parseObject(environmentJson, Map.class, Feature.DisableSpecialKeyDetect);
                         }
                         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
                         if (environmentMap != null && !environmentMap.isEmpty()) {
@@ -422,6 +422,8 @@ public class ElementUtil {
                         httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
                         if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
                             HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
+                            // 清空Domain
+                            element.fluentPut("domain", "");
                             if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
                                 element.fluentPut("domain", StringUtils.isNotEmpty(object.getProtocol()) ? object.getProtocol() + "://" + object.getDomain() : object.getDomain());
                             }
