@@ -71,8 +71,7 @@ public class ApiCaseExecuteService {
      * @return
      */
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
-        List<String> ids = request.getPlanIds();
-        if (CollectionUtils.isEmpty(ids)) {
+        if (CollectionUtils.isEmpty(request.getPlanIds())) {
             return new LinkedList<>();
         }
         if (request.getConfig() == null) {
@@ -84,12 +83,13 @@ public class ApiCaseExecuteService {
         LoggerUtil.debug("开始查询测试计划用例");
 
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-        example.createCriteria().andIdIn(ids);
+        example.createCriteria().andIdIn(request.getPlanIds());
         example.setOrderByClause("`order` DESC");
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
+        LoggerUtil.debug("查询到测试计划用例 " + planApiCases.size());
 
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
@@ -121,6 +121,7 @@ public class ApiCaseExecuteService {
             }
             executeQueue.put(testPlanApiCase.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
+            LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());
         }
 
         apiCaseResultService.batchSave(executeQueue);

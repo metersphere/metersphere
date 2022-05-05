@@ -12,6 +12,7 @@ import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -49,8 +50,8 @@ public class ApiCaseParallelExecuteService {
             runRequest.setReportType(executionQueue.getReportType());
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             runRequest.setQueueId(executionQueue.getId());
-            Map<String,Object> extendedParameters = new HashMap<>();
-            extendedParameters.put("userId",result.getUserId());
+            Map<String, Object> extendedParameters = new HashMap<>();
+            extendedParameters.put("userId", result.getUserId());
             runRequest.setExtendedParameters(extendedParameters);
             if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
                 runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
@@ -59,6 +60,8 @@ public class ApiCaseParallelExecuteService {
                 HashTree hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
                 runRequest.setHashTree(hashTree);
             }
+
+            LoggerUtil.info("进入并行模式，开始执行用例：[" + result.getName() + "] 报告ID [" + reportId + "]");
             jMeterService.run(runRequest);
         }
     }
