@@ -1,7 +1,7 @@
 pipeline {
     agent {
         node {
-            label 'metersphere-buildx'
+            label 'metersphere'
         }
     }
     options { quietPeriod(600) }
