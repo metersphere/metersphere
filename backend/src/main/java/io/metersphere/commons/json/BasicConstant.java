@@ -4,6 +4,7 @@ public class BasicConstant {
     public final static String REQUIRED = "required";
     public final static String ALL_OF = "allOf";
     public final static String PROPERTIES = "properties";
+    public final static String ADDITIONAL_PROPERTIES = "additionalProperties";
     public final static String TYPE = "type";
     public final static String MS_OBJECT = "MS-OBJECT";
     public final static String ARRAY = "array";

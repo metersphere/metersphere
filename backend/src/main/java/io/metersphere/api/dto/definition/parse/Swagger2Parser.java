@@ -303,6 +303,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             item.setType("object");
             ModelImpl model = (ModelImpl) schema;
             item.setProperties(parseNewSchemaProperties(model, refSet));
+            if(model.getAdditionalProperties()!=null){
+                item.setAdditionalProperties(parseProperty(model.getAdditionalProperties(), refSet));
+            }
         } else if (schema instanceof AbstractModel) {
             AbstractModel abstractModel = (AbstractModel) schema;
             item.setType("object");
@@ -403,6 +406,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 item.setProperties(parseSchemaProperties(model.getProperties(), new HashSet<>()));
                 if(model.getRequired()!=null){
                     item.setRequired(model.getRequired());
+                }
+                if(model.getAdditionalProperties()!=null){
+                    item.setAdditionalProperties(parseProperty(model.getAdditionalProperties(), new HashSet<>()));
                 }
             }
         }else if(schema instanceof AbstractModel){
