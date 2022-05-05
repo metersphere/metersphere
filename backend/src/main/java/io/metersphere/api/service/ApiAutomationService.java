@@ -39,6 +39,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
+import io.metersphere.log.vo.schedule.ScheduleReference;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -57,6 +58,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.mybatis.spring.SqlSessionUtils;
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -90,6 +93,8 @@ public class ApiAutomationService {
     private TestCaseReviewScenarioMapper testCaseReviewScenarioMapper;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
     @Resource
     private ApiScenarioReportService apiReportService;
     @Resource
@@ -1050,8 +1055,16 @@ public class ApiAutomationService {
     }
 
     public void updateSchedule(Schedule request) {
+        JobKey jobKey = null;
+        TriggerKey triggerKey = null;
+        Class clazz = null;
         scheduleService.editSchedule(request);
+        jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
+        triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
+        clazz = ApiScenarioTestJob.class;
+        request.setJob(ApiScenarioTestJob.class.getName());
         this.addOrUpdateApiScenarioCronJob(request);
+        scheduleService.resetJob(request, jobKey, triggerKey, clazz);
     }
 
     private void addOrUpdateApiScenarioCronJob(Schedule request) {
@@ -1655,6 +1668,12 @@ public class ApiAutomationService {
     }
 
     public String getLogDetails(String id) {
+        Schedule bloB = scheduleMapper.selectByPrimaryKey(id);
+        if (bloB != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloB, ScheduleReference.scheduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(bloB.getId()), bloB.getProjectId(), bloB.getName(), bloB.getUserId(), columns);
+            return JSON.toJSONString(details);
+        }
         ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, AutomationReference.automationColumns);
@@ -1686,6 +1705,16 @@ public class ApiAutomationService {
             List<String> names = scenarios.stream().map(ApiScenario::getName).collect(Collectors.toList());
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getSelectIds()), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(ScheduleRequest request) {
+        Schedule bloBs = scheduleService.getScheduleByResource(request.getResourceId(), request.getGroup());
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, ScheduleReference.scheduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(bloBs.getId()), bloBs.getProjectId(), bloBs.getName(), bloBs.getUserId(), columns);
             return JSON.toJSONString(details);
         }
         return null;
