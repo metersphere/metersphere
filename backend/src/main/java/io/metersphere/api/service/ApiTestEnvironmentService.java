@@ -255,8 +255,7 @@ public class ApiTestEnvironmentService {
         }
         if (needUpdate) {
             String id = returnModel.getId();
-            returnModel = this.genHttpApiTestEnvironmentByUrl(project,projectNumber, protocal, name, url);
-            returnModel.setId(id);
+            returnModel = this.genHttpApiTestEnvironmentByUrl(id,project,projectNumber, protocal, name, url);
             apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(returnModel);
         }
         return returnModel;
@@ -266,12 +265,12 @@ public class ApiTestEnvironmentService {
         ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
         Project project = projectService.getProjectById(projectId);
         if(project != null){
-            return this.genHttpApiTestEnvironmentByUrl(project,projectNumber, protocal, name, baseUrl);
+            return this.genHttpApiTestEnvironmentByUrl(null,project,projectNumber, protocal, name, baseUrl);
         }
         return null;
     }
 
-    private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(Project project,String projectNumber, String protocal, String name, String baseUrl) {
+    private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(String envId,Project project,String projectNumber, String protocal, String name, String baseUrl) {
         if(project == null){
             return null;
         }
@@ -302,15 +301,6 @@ public class ApiTestEnvironmentService {
                 ipStr = urlArr[0];
             }
         }
-
-        JSONObject commonConfigObj = new JSONObject();
-        JSONArray commonVariablesArr = new JSONArray();
-        Map<String, Object> commonMap = new HashMap<>();
-        commonMap.put("enable", true);
-        commonVariablesArr.add(commonMap);
-        commonConfigObj.put("variables", commonVariablesArr);
-        commonConfigObj.put("enableHost", false);
-        commonConfigObj.put("hosts", new String[]{});
 
         JSONObject httpConfig = new JSONObject();
         httpConfig.put("socket", null);
@@ -352,32 +342,50 @@ public class ApiTestEnvironmentService {
         httpConfig.put("conditions", httpItemArr);
         httpConfig.put("defaultCondition", "NONE");
 
-        JSONArray databaseConfigObj = new JSONArray();
-
-        JSONObject tcpConfigObj = new JSONObject();
-        tcpConfigObj.put("classname", "TCPClientImpl");
-        tcpConfigObj.put("reUseConnection", false);
-        tcpConfigObj.put("nodelay", false);
-        tcpConfigObj.put("closeConnection", false);
-        if(project != null){
-            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
-            Integer mockPort = config.getMockTcpPort();
-            if(mockPort != null && mockPort != 0){
-                tcpConfigObj.put("server", tcpSocket);
-                tcpConfigObj.put("port", mockPort);
-            }
+        ApiTestEnvironmentWithBLOBs blobs = null;
+        if(StringUtils.isNotEmpty(envId)) {
+            blobs = this.get(envId);
         }
+        if(blobs != null && StringUtils.isNotEmpty(blobs.getConfig())){
+            JSONObject object = JSONObject.parseObject(blobs.getConfig());
+            object.put("httpConfig", httpConfig);
+            blobs.setConfig(object.toString());
+        }else {
+            blobs = new ApiTestEnvironmentWithBLOBs();
+            JSONObject commonConfigObj = new JSONObject();
+            JSONArray commonVariablesArr = new JSONArray();
+            Map<String, Object> commonMap = new HashMap<>();
+            commonMap.put("enable", true);
+            commonVariablesArr.add(commonMap);
+            commonConfigObj.put("variables", commonVariablesArr);
+            commonConfigObj.put("enableHost", false);
+            commonConfigObj.put("hosts", new String[]{});
 
-        JSONObject object = new JSONObject();
-        object.put("commonConfig", commonConfigObj);
-        object.put("httpConfig", httpConfig);
-        object.put("databaseConfigs", databaseConfigObj);
-        object.put("tcpConfig", tcpConfigObj);
+            JSONArray databaseConfigObj = new JSONArray();
 
-        ApiTestEnvironmentWithBLOBs blobs = new ApiTestEnvironmentWithBLOBs();
+            JSONObject tcpConfigObj = new JSONObject();
+            tcpConfigObj.put("classname", "TCPClientImpl");
+            tcpConfigObj.put("reUseConnection", false);
+            tcpConfigObj.put("nodelay", false);
+            tcpConfigObj.put("closeConnection", false);
+            if(project != null){
+                ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
+                Integer mockPort = config.getMockTcpPort();
+                if(mockPort != null && mockPort != 0){
+                    tcpConfigObj.put("server", tcpSocket);
+                    tcpConfigObj.put("port", mockPort);
+                }
+            }
+
+            JSONObject object = new JSONObject();
+            object.put("commonConfig", commonConfigObj);
+            object.put("httpConfig", httpConfig);
+            object.put("databaseConfigs", databaseConfigObj);
+            object.put("tcpConfig", tcpConfigObj);
+            blobs.setConfig(object.toString());
+        }
         blobs.setProjectId(project.getId());
         blobs.setName(name);
-        blobs.setConfig(object.toString());
 
         return blobs;
     }
