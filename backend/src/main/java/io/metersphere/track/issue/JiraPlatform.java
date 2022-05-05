@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
@@ -484,6 +485,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issues.forEach(item -> {
             try {
                 getUpdateIssue(item, jiraClientV2.getIssues(item.getPlatformId()));
+                String customFields = item.getCustomFields();
+                // 把自定义字段存入新表
+                List<CustomFieldResource> customFieldResource = customFieldService.getJiraCustomFieldResource(customFields, project.getId());
+                customFieldIssuesService.addFields(item.getId(), customFieldResource);
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {

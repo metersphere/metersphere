@@ -22,6 +22,10 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
         super.editFields(TABLE_NAME, resourceId, editFields);
     }
 
+    public void batchEditFields(String resourceId, List<CustomFieldResource> fields) {
+        super.batchEditFields(TABLE_NAME, resourceId, fields);
+    }
+
     public int updateByPrimaryKeySelective(CustomFieldResource field) {
         return super.updateByPrimaryKeySelective(TABLE_NAME, field);
     }

@@ -1,5 +1,6 @@
 package io.metersphere.base.domain;
 
+import io.metersphere.dto.CustomFieldDao;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,4 +22,5 @@ public class IssuesDao extends IssuesWithBLOBs {
     private String zentaoAssigned;
     private String refType;
     private String refId;
+    private List<CustomFieldDao> fields;
 }

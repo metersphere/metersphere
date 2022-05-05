@@ -58,7 +58,7 @@ export function parseCustomField(data, template, rules, oldFields) {
         let customField = data.fields[i];
         if (customField.id === item.id) {
           try {
-            setDefaultValue(item, JSON.parse(customField.value));
+            setDefaultValue(item, customField.value);
             item.isEdit = true;
           } catch (e) {
             console.log("JSON parse custom field value error.");

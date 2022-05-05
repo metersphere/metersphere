@@ -21,10 +21,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.service.CustomFieldTemplateService;
-import io.metersphere.service.IntegrationService;
-import io.metersphere.service.IssueTemplateService;
-import io.metersphere.service.ProjectService;
+import io.metersphere.service.*;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -78,6 +75,10 @@ public class IssuesService {
     private IssueFollowMapper issueFollowMapper;
     @Resource
     private TestPlanTestCaseMapper testPlanTestCaseMapper;
+    @Resource
+    private CustomFieldIssuesService customFieldIssuesService;
+    @Resource
+    private CustomFieldIssuesMapper customFieldIssuesMapper;
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -99,6 +100,7 @@ public class IssuesService {
             });
         }
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
+        customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
         return issues;
     }
 
@@ -109,6 +111,8 @@ public class IssuesService {
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
         });
+        customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
+        customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
         // todo 缺陷更新事件？
     }
 
@@ -178,6 +182,7 @@ public class IssuesService {
             ZentaoPlatform zentaoPlatform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issuesRequest);
             zentaoPlatform.getZentaoAssignedAndBuilds(issuesWithBLOBs);
         }
+        buildCustomField(issuesWithBLOBs);
         return issuesWithBLOBs;
     }
 
@@ -257,6 +262,7 @@ public class IssuesService {
                 testCaseIssueService.updateIssuesCount(i.getResourceId());
             }
         });
+        customFieldIssuesService.deleteByResourceId(id);
         testCaseIssuesMapper.deleteByExample(example);
     }
 
@@ -342,7 +348,32 @@ public class IssuesService {
             item.setCaseIds(new ArrayList<>(caseIdSet));
             item.setCaseCount(caseIdSet.size());
         });
+        buildCustomField(issues);
         return issues;
+    }
+
+    private void buildCustomField(List<IssuesDao> data) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+        Map<String, List<CustomFieldDao>> fieldMap =
+                customFieldIssuesService.getMapByResourceIds(data.stream().map(IssuesDao::getId).collect(Collectors.toList()));
+        data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
+    }
+
+    private void buildCustomField(IssuesDao data) {
+        CustomFieldIssuesExample example = new CustomFieldIssuesExample();
+        example.createCriteria().andResourceIdEqualTo(data.getId());
+        List<CustomFieldIssues> customFieldTestCases = customFieldIssuesMapper.selectByExample(example);
+        List<CustomFieldDao> fields = new ArrayList<>();
+        customFieldTestCases.forEach(i -> {
+            CustomFieldDao customFieldDao = new CustomFieldDao();
+            customFieldDao.setId(i.getFieldId());
+            customFieldDao.setValue(i.getValue());
+            customFieldDao.setTextValue(i.getTextValue());
+            fields.add(customFieldDao);
+        });
+        data.setFields(fields);
     }
 
     private Map<String, String> getPlanMap(List<IssuesDao> issues) {

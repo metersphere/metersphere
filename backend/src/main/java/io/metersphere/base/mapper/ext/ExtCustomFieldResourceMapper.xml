@@ -51,4 +51,7 @@
             #{resourceId}
         </foreach>
     </select>
+    <select id="countFieldResource" resultType="java.lang.Long">
+        select count(1) from ${tableName} where resource_id = #{resourceId} and field_id = #{fieldId}
+    </select>
 </mapper>

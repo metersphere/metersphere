@@ -18,4 +18,6 @@ public interface ExtCustomFieldResourceMapper {
     List<CustomFieldResource> getByResourceId(@Param("tableName") String tableName, @Param("resourceId") String resourceId);
 
     List<CustomFieldResource> getByResourceIds(@Param("tableName")  String tableName, @Param("resourceIds") List<String> resourceIds);
+
+    long countFieldResource(@Param("tableName") String tableName, @Param("resourceId") String resourceId, @Param("fieldId") String field_id);
 }

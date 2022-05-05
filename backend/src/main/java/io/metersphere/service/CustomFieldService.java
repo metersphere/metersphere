@@ -8,8 +8,11 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.CustomFieldExample;
 import io.metersphere.base.domain.CustomFieldTemplate;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.CustomFieldMapper;
+import io.metersphere.base.mapper.CustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
+import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -52,6 +55,8 @@ public class CustomFieldService {
     @Lazy
     @Resource
     CustomFieldTemplateService customFieldTemplateService;
+    @Resource
+    private CustomFieldTemplateMapper customFieldTemplateMapper;
 
     public String add(CustomField customField) {
         checkExist(customField);
@@ -59,6 +64,7 @@ public class CustomFieldService {
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
         customField.setGlobal(false);
+        customField.setThirdPart(false);
         customField.setCreateUser(SessionUtils.getUserId());
         customFieldMapper.insert(customField);
         return customField.getId();
@@ -224,6 +230,80 @@ public class CustomFieldService {
         return new ArrayList<>();
     }
 
+    public List<CustomFieldResource> getCustomFieldResource(String customFieldsStr) {
+        List<CustomFieldResource> list = new ArrayList<>();
+        if (StringUtils.isNotBlank(customFieldsStr)) {
+            if (JSONObject.parse(customFieldsStr) instanceof JSONArray) {
+                List<CustomFieldItemDTO> fieldItems = JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
+                for (CustomFieldItemDTO dto : fieldItems) {
+                    // customFieldItemDTO里的id是模版ID
+                    CustomFieldResource resource = new CustomFieldResource();
+                    CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(dto.getId());
+                    if (customFieldTemplate == null) {
+                        continue;
+                    } else {
+                        resource.setFieldId(customFieldTemplate.getFieldId());
+                    }
+                    if (StringUtils.isNotBlank(dto.getType())
+                            && StringUtils.equalsAny(CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+                        resource.setTextValue(dto.getValue().toString());
+                    } else {
+                        resource.setValue(JSONObject.toJSONString(dto.getValue()));
+                    }
+                    list.add(resource);
+                }
+                return list;
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public List<CustomFieldResource> getJiraCustomFieldResource(String customFieldsStr, String projectId) {
+        List<CustomFieldResource> list = new ArrayList<>();
+        if (StringUtils.isNotBlank(customFieldsStr)) {
+            if (JSONObject.parse(customFieldsStr) instanceof JSONArray) {
+                List<CustomFieldItemDTO> fieldItems = JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
+                for (CustomFieldItemDTO dto : fieldItems) {
+                    CustomFieldResource resource = new CustomFieldResource();
+                    // customFieldItemDTO里的id是模版ID
+                    CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(dto.getId());
+                    if (customFieldTemplate == null) {
+                        CustomField customField = customFieldMapper.selectByPrimaryKey(dto.getId());
+                        if (customField == null) {
+                            CustomField field = new CustomField();
+                            field.setId(dto.getId());
+                            field.setUpdateTime(System.currentTimeMillis());
+                            field.setCreateTime(System.currentTimeMillis());
+                            field.setGlobal(false);
+                            field.setSystem(false);
+                            field.setName(dto.getName());
+                            field.setScene(TemplateConstants.FieldTemplateScene.ISSUE.name());
+                            field.setThirdPart(true);
+                            field.setType(dto.getType());
+                            field.setProjectId(projectId);
+                            if (StringUtils.isNotBlank(SessionUtils.getUserId())) {
+                                field.setCreateUser(SessionUtils.getUserId());
+                            }
+                            customFieldMapper.insert(field);
+                        }
+                        resource.setFieldId(dto.getId());
+                    } else {
+                        resource.setFieldId(customFieldTemplate.getFieldId());
+                    }
+                    if (StringUtils.isNotBlank(dto.getType())
+                            && StringUtils.equalsAny(CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+                        resource.setTextValue(dto.getValue().toString());
+                    } else {
+                        resource.setValue(JSONObject.toJSONString(dto.getValue()));
+                    }
+                    list.add(resource);
+                }
+                return list;
+            }
+        }
+        return new ArrayList<>();
+    }
+
     public List<CustomField> getByProjectId(String projectId) {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
@@ -233,7 +313,7 @@ public class CustomFieldService {
     public Map<String, CustomField> getNameMapByProjectId(String projectId) {
         return this.getByProjectId(projectId)
                 .stream()
-                .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i));
+                .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i, (val1, val2) -> val1));
     }
 
     public Map<String, CustomField> getGlobalNameMapByProjectId() {

@@ -324,3 +324,7 @@ CREATE TABLE IF NOT EXISTS custom_field_issues
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 ALTER TABLE custom_field ADD third_part TINYINT(1) DEFAULT 0 NOT NULL;
+
+alter table issues modify title varchar(128) null;
+alter table issues modify description longtext null;
+

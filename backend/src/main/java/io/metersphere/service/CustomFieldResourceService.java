@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.customfield.CustomFieldResourceRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldItemDTO;
@@ -71,8 +72,7 @@ public class CustomFieldResourceService {
         if (CollectionUtils.isNotEmpty(addFields)) {
             this.checkInit();
             addFields.forEach(field -> {
-                field.setResourceId(resourceId);
-                extCustomFieldResourceMapper.insert(tableName, field);
+                createOrUpdateFields(tableName, resourceId, field);
             });
         }
     }
@@ -81,9 +81,38 @@ public class CustomFieldResourceService {
         if (CollectionUtils.isNotEmpty(editFields)) {
             this.checkInit();
             editFields.forEach(field -> {
-                field.setResourceId(resourceId);
-                extCustomFieldResourceMapper.updateByPrimaryKeySelective(tableName, field);
+                createOrUpdateFields(tableName, resourceId, field);
             });
+        }
+    }
+
+    protected void batchEditFields(String tableName, String resourceId, List<CustomFieldResource> fields) {
+        if (CollectionUtils.isNotEmpty(fields)) {
+            this.checkInit();
+            SqlSession sqlSession = ServiceUtils.getBatchSqlSession();
+            ExtCustomFieldResourceMapper batchMapper = sqlSession.getMapper(ExtCustomFieldResourceMapper.class);
+            for (CustomFieldResource field : fields) {
+                long count = extCustomFieldResourceMapper.countFieldResource(tableName, resourceId, field.getFieldId());
+                if (count > 0) {
+                    batchMapper.updateByPrimaryKeySelective(tableName, field);
+                } else {
+                    batchMapper.insert(tableName, field);
+                }
+            }
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+    }
+
+    private void createOrUpdateFields(String tableName, String resourceId, CustomFieldResource field) {
+        long count = extCustomFieldResourceMapper.countFieldResource(tableName, resourceId, field.getFieldId());
+        field.setResourceId(resourceId);
+        if (count > 0) {
+            extCustomFieldResourceMapper.updateByPrimaryKeySelective(tableName, field);
+        } else {
+            extCustomFieldResourceMapper.insert(tableName, field);
         }
     }
 
