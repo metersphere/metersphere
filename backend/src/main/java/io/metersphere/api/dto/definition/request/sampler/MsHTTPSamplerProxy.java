@@ -135,7 +135,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         // 非导出操作，且不是启用状态则跳过执行Ms
         if (!config.isOperating() && !this.isEnable()) {
             return;
-        }else if(config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())){
+        } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
@@ -188,7 +188,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         setSamplerPath(config, httpConfig, sampler);
 
         // 请求体处理
-        if (this.body != null && StringUtils.equalsAnyIgnoreCase(method,"POST","PUT","PATCH")) {
+        if (this.body != null && StringUtils.equalsAnyIgnoreCase(method, "POST", "PUT", "PATCH")) {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
             if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
                 AtomicBoolean kvIsEmpty = new AtomicBoolean(true);
@@ -370,7 +370,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 httpConfig.setGlobalScriptConfig(environmentConfig.getGlobalScriptConfig());
                 httpConfig.setAssertions(environmentConfig.getAssertions());
                 if (environmentConfig.isUseErrorCode()) {
-                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId(),environmentConfig.isHigherThanSuccess(),environmentConfig.isHigherThanError()));
+                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId(), environmentConfig.isHigherThanSuccess(), environmentConfig.isHigherThanError()));
                 }
                 return httpConfig;
             }
@@ -453,7 +453,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     String path = postQueryParameters(envPath);
-                    if (HTTPConstants.DELETE.equals(this.getMethod()) && !path.startsWith("${")) {
+                    if (HTTPConstants.DELETE.equals(this.getMethod()) && !path.startsWith("${") && !path.startsWith("/${")) {
                         if (!path.startsWith("/")) {
                             path = "/" + path;
                         }
