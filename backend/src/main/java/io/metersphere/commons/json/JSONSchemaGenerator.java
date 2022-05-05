@@ -6,8 +6,10 @@ import io.metersphere.commons.utils.EnumPropertyUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class JSONSchemaGenerator {
@@ -54,7 +56,11 @@ public class JSONSchemaGenerator {
                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
                 analyzeProperty(rootObj, propertyKey, propertyObj);
             }
-        } else if (object.has(BasicConstant.TYPE) && object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.ARRAY)) {
+        }else if (object.has(BasicConstant.ADDITIONAL_PROPERTIES)) {
+            JsonObject propertiesObj = object.get(BasicConstant.ADDITIONAL_PROPERTIES).getAsJsonObject();
+            analyzeProperty(rootObj, BasicConstant.ADDITIONAL_PROPERTIES, propertiesObj);
+        }
+        else if (object.has(BasicConstant.TYPE) && object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.ARRAY)) {
             analyzeProperty(rootObj, BasicConstant.MS_OBJECT, object);
         } else if (object.has(BasicConstant.TYPE) && !object.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.OBJECT)) {
             analyzeProperty(rootObj, object.getAsString(), object);
@@ -94,7 +100,7 @@ public class JSONSchemaGenerator {
                 }
             } else if (propertyObjType.equals(BasicConstant.STRING)) {
                 // 先设置空值
-                concept.put(propertyName, "");
+                concept.put(propertyName,"");
                 if (object.has("format")) {
                     String propertyFormat = object.get("format").getAsString();
                     if (propertyFormat.equals("date-time")) {
