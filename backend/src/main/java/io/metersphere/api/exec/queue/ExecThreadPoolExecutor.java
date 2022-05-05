@@ -39,9 +39,9 @@ public class ExecThreadPoolExecutor {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new NamedThreadFactory("MS-BUFFER-SCHEDULED"));
 
     public void addTask(JmeterRunRequestDTO requestDTO) {
-        outApiThreadPoolExecutorLogger();
         ExecTask task = new ExecTask(requestDTO);
         threadPool.execute(task);
+        outApiThreadPoolExecutorLogger("报告：[" + requestDTO.getReportId() + "] 资源：[" + requestDTO.getTestId() + "] 加入执行队列");
     }
 
     /**
@@ -81,18 +81,17 @@ public class ExecThreadPoolExecutor {
         return String.format("%1.2f%%", Double.parseDouble(num1 + "") / Double.parseDouble(num2 + "") * 100);
     }
 
-    public void outApiThreadPoolExecutorLogger() {
+    public void outApiThreadPoolExecutorLogger(String message) {
         ArrayBlockingQueue queue = (ArrayBlockingQueue) threadPool.getQueue();
-        StringBuffer buffer = new StringBuffer("API 并发队列详情：\n");
+        StringBuffer buffer = new StringBuffer("\n" + message);
+        buffer.append("\n").append("线程池详情：").append("\n");
         buffer.append(" 核心线程数：" + threadPool.getCorePoolSize()).append("\n");
-        buffer.append(" 活动线程数：" + threadPool.getActiveCount()).append("\n");
+        buffer.append(" 活动线程数：" + threadPool.getActiveCount()).append(" (略有波动非精确数据)").append("\n");
         buffer.append(" 最大线程数：" + threadPool.getMaximumPoolSize()).append("\n");
         buffer.append(" 线程池活跃度：" + divide(threadPool.getActiveCount(), threadPool.getMaximumPoolSize())).append("\n");
-        buffer.append(" 任务完成数：" + threadPool.getCompletedTaskCount()).append("\n");
-        buffer.append(" 队列大小：" + (queue.size() + queue.remainingCapacity())).append("\n");
+        buffer.append(" 最大队列数：" + (queue.size() + queue.remainingCapacity())).append("\n");
         buffer.append(" 当前排队线程数：" + (msRejectedExecutionHandler.getBufferQueue().size() + queue.size())).append("\n");
-        buffer.append(" 队列剩余大小：" + queue.remainingCapacity()).append("\n");
-        buffer.append(" 阻塞队列大小：" + PoolExecBlockingQueueUtil.queue.size()).append("\n");
+        buffer.append(" 执行中队列大小：" + PoolExecBlockingQueueUtil.queue.size()).append("\n");
         buffer.append(" 队列使用度：" + divide(queue.size(), queue.size() + queue.remainingCapacity()));
 
         LoggerUtil.info(buffer.toString());

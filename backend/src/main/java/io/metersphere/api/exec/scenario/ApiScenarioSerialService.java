@@ -63,15 +63,15 @@ public class ApiScenarioSerialService {
     private RedisTemplate<String, Object> redisTemplate;
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
-        LoggerUtil.debug("Scenario run-执行脚本装载-进入串行准备");
         String reportId = StringUtils.isNotEmpty(executionQueue.getReportId()) ? executionQueue.getReportId() : queue.getReportId();
         if (!StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name())) {
             reportId = queue.getReportId();
         }
-        HashTree hashTree = null;
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), hashTree);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), null);
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+
+        // 判断触发资源对象是用例/场景更新对应报告状态
         if (!StringUtils.equals(executionQueue.getReportType(), RunModeConstants.SET_REPORT.toString())
                 || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
             if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
@@ -84,6 +84,7 @@ public class ApiScenarioSerialService {
                         this.put("userId", report.getCreateUser());
                     }});
                     apiScenarioReportMapper.updateByPrimaryKey(report);
+                    LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ], 报告ID [ " + report.getId() + " ]");
                 }
             } else {
                 ApiDefinitionExecResult execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
@@ -91,20 +92,22 @@ public class ApiScenarioSerialService {
                     runRequest.setExtendedParameters(new HashMap<String, Object>() {{
                         this.put("userId", execResult.getUserId());
                     }});
+                    execResult.setStartTime(System.currentTimeMillis());
                     execResult.setStatus(APITestStatus.Running.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
+                    LoggerUtil.info("进入串行模式，准备执行资源：[" + execResult.getName() + " ], 报告ID [" + execResult.getId() + "]");
                 }
             }
         }
 
-        LoggerUtil.info("Scenario run-开始执行，队列ID：【 " + executionQueue.getReportId() + " 】");
-        runRequest.setReportType(executionQueue.getReportType());
-        runRequest.setPool(GenerateHashTreeUtil.isResourcePool(executionQueue.getPoolId()));
-        runRequest.setTestPlanReportId(executionQueue.getReportId());
-        runRequest.setRunType(RunModeConstants.SERIAL.toString());
-        runRequest.setQueueId(executionQueue.getId());
-        runRequest.setPoolId(executionQueue.getPoolId());
         try {
+            runRequest.setReportType(executionQueue.getReportType());
+            runRequest.setPool(GenerateHashTreeUtil.isResourcePool(executionQueue.getPoolId()));
+            runRequest.setTestPlanReportId(executionQueue.getReportId());
+            runRequest.setRunType(RunModeConstants.SERIAL.toString());
+            runRequest.setQueueId(executionQueue.getId());
+            runRequest.setPoolId(executionQueue.getPoolId());
+
             if (StringUtils.isEmpty(executionQueue.getPoolId())) {
                 if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                     ApiScenarioWithBLOBs scenario = null;
@@ -122,18 +125,21 @@ public class ApiScenarioSerialService {
                     if ((planEnvMap == null || planEnvMap.isEmpty()) && StringUtils.isNotEmpty(queue.getEvnMap())) {
                         planEnvMap = JSON.parseObject(queue.getEvnMap(), Map.class);
                     }
-                    hashTree = GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest);
+                    runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest));
                 } else {
                     Map<String, String> map = new LinkedHashMap<>();
                     if (StringUtils.isNotEmpty(queue.getEvnMap())) {
                         map = JSON.parseObject(queue.getEvnMap(), Map.class);
                     }
-                    hashTree = generateHashTree(queue.getTestId(), map, runRequest);
+                    runRequest.setHashTree(generateHashTree(queue.getTestId(), map, runRequest));
                 }
+
                 // 更新环境变量
-                this.initEnv(hashTree);
+                if (runRequest.getHashTree() != null) {
+                    this.initEnv(runRequest.getHashTree());
+                }
             }
-            runRequest.setHashTree(hashTree);
+
             if (queue != null) {
                 runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, queue.getId()));
             }
@@ -148,7 +154,7 @@ public class ApiScenarioSerialService {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            LoggerUtil.error("执行终止：", e);
+            LoggerUtil.error("执行队列[" + queue.getId() + "报告[" + queue.getReportId() + "入队列失败：", e);
         }
     }
 
@@ -188,6 +194,8 @@ public class ApiScenarioSerialService {
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);
                 testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+
+                LoggerUtil.info("报告ID" + runRequest.getReportId() + " 用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功");
                 return jmeterHashTree;
             }
         } catch (Exception ex) {
@@ -196,7 +204,7 @@ public class ApiScenarioSerialService {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            LoggerUtil.error("生成JMX执行脚本失败：", ex);
+            LoggerUtil.error("报告ID" + runRequest.getReportId() + " 用例资源：" + testId + ", 生成执行脚本失败", ex);
         }
         return null;
     }

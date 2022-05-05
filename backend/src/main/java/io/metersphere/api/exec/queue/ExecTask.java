@@ -20,7 +20,6 @@ public class ExecTask implements Runnable {
 
     @Override
     public void run() {
-        LoggerUtil.info("开始执行报告ID：【 " + request.getReportId() + " 】,资源ID【 " + request.getTestId() + " 】");
         CommonBeanFactory.getBean(JMeterService.class).addQueue(request);
         Object res = PoolExecBlockingQueueUtil.take(request.getReportId());
         if (res == null && !JmeterThreadUtils.isRunning(request.getReportId(), request.getTestId())) {
@@ -29,6 +28,5 @@ public class ExecTask implements Runnable {
                 JMeterEngineCache.runningEngine.remove(request.getReportId());
             }
         }
-        LoggerUtil.info("任务：【 " + request.getReportId() + " 】执行完成");
     }
 }

@@ -70,6 +70,8 @@ public class ApiExecutionQueueService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
+        LoggerUtil.info("开始生成执行链");
+
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
         executionQueue.setId(UUID.randomUUID().toString());
         executionQueue.setCreateTime(System.currentTimeMillis());
@@ -133,6 +135,8 @@ public class ApiExecutionQueueService {
             extApiExecutionQueueMapper.sqlInsert(queueDetails);
         }
         resQueue.setDetailMap(detailMap);
+
+        LoggerUtil.info("生成执行链结束");
         return resQueue;
     }
 
