@@ -31,7 +31,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
-        JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
+        JSONObject testObject = JSONObject.parseObject(testStr, Feature.DisableSpecialKeyDetect);
         this.projectId = request.getProjectId();
         if (StringUtils.isNotBlank(request.getModuleId())) {
             this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
