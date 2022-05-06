@@ -210,12 +210,21 @@ public class ShareInfoService {
                                             isJsonSchema = true;
                                         }
                                     }
-                                    if (bodyObj.containsKey("raw")) {
-                                        String raw = bodyObj.getString("raw");
-                                        apiInfoDTO.setJsonSchemaBody(raw);
-                                        apiInfoDTO.setRequestBodyStrutureData(raw);
-                                        //转化jsonObje 或者 jsonArray
+                                    JSONSchemaBodyDTO jsonSchemaBodyDTO = new JSONSchemaBodyDTO();
+                                    if(isJsonSchema){
+                                        jsonSchemaBodyDTO.setJsonSchema(bodyObj.get("jsonSchema"));
+                                        apiInfoDTO.setJsonSchemaBody(jsonSchemaBodyDTO);
+                                        String raw =JSONSchemaGenerator.getJson(JSONObject.toJSONString(bodyObj.get("jsonSchema")));
                                         this.setPreviewData(previewJsonArray, raw);
+                                    }else {
+                                        if (bodyObj.containsKey("raw")) {
+                                            String raw = bodyObj.getString("raw");
+                                            jsonSchemaBodyDTO.setRaw(raw);
+                                            apiInfoDTO.setJsonSchemaBody(jsonSchemaBodyDTO);
+                                            apiInfoDTO.setRequestBodyStrutureData(raw);
+                                            //转化jsonObje 或者 jsonArray
+                                            this.setPreviewData(previewJsonArray, raw);
+                                        }
                                     }
                                 } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
                                     if (bodyObj.containsKey("raw")) {
@@ -330,8 +339,6 @@ public class ShareInfoService {
                                     if (bodyObj.containsKey("raw")) {
                                         String raw = bodyObj.getString("raw");
                                         apiInfoDTO.setResponseBodyStrutureData(raw);
-                                        //转化jsonObje 或者 jsonArray
-                                        this.setPreviewData(previewJsonArray, raw);
                                     }
                                 }
                             } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
