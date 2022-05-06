@@ -993,7 +993,7 @@ public class ApiDefinitionService {
 
     private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
-        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class);
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
         msHTTPSamplerProxy.setId(apiDefinition.getId());
         msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
@@ -1002,7 +1002,7 @@ public class ApiDefinitionService {
 
     private String setImportTCPHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
-        MsTCPSampler tcpSampler = JSONObject.parseObject(request, MsTCPSampler.class);
+        MsTCPSampler tcpSampler = JSONObject.parseObject(request, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
         tcpSampler.setId(apiDefinition.getId());
         tcpSampler.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(tcpSampler));
