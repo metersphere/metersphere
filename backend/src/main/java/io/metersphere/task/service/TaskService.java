@@ -193,13 +193,13 @@ public class TaskService {
                                 execThreadPoolExecutor.removeQueue(item.getId());
                                 PoolExecBlockingQueueUtil.offer(item.getId());
                             }
+                            LoggerUtil.info("结束API进行中的报告");
+                            extTaskMapper.stopApi(taskCenterRequest);
+                            // 清理队列并停止测试计划报告
+                            LoggerUtil.info("清理API执行链");
+                            List<String> ids = results.stream().map(ApiDefinitionExecResult::getId).collect(Collectors.toList());
+                            apiExecutionQueueService.stop(ids);
                         }
-                        LoggerUtil.info("结束API进行中的报告");
-                        extTaskMapper.stopApi(taskCenterRequest);
-                        // 清理队列并停止测试计划报告
-                        LoggerUtil.info("清理API执行链");
-                        List<String> ids = results.stream().map(ApiDefinitionExecResult::getId).collect(Collectors.toList());
-                        apiExecutionQueueService.stop(ids);
                     }
                     if (taskRequestMap.containsKey("SCENARIO")) {
                         List<ApiScenarioReport> reports = extApiScenarioReportMapper.findByProjectIds(taskCenterRequest);
