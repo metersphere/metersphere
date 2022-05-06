@@ -244,9 +244,9 @@ export default {
         let request = {type: row.executionModule, reportId: row.id};
         array = [request];
       } else {
-        array.push({type: 'API', projectId: getCurrentProjectID()});
-        array.push({type: 'SCENARIO', projectId: getCurrentProjectID()});
-        array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID()});
+        array.push({type: 'API', projectId: getCurrentProjectID(),userId:getCurrentUser().id});
+        array.push({type: 'SCENARIO', projectId: getCurrentProjectID(),userId:getCurrentUser().id});
+        array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID(),userId:getCurrentUser().id});
       }
       this.$post('/api/automation/stop/batch', array, response => {
         this.$success(this.$t('report.test_stop_success'));
