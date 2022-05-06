@@ -460,6 +460,9 @@ public class ApiExecutionQueueService {
     }
 
     public void stop(List<String> reportIds) {
+        if (CollectionUtils.isEmpty(reportIds)) {
+            return;
+        }
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andReportIdIn(reportIds);
         List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
