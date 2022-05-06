@@ -128,12 +128,14 @@ public class ApiScenarioImportUtil {
     private static ApiDefinition getApiDefinitionResult(JSONObject object, ApiDefinitionService apiDefinitionService,Map<String,ApiDefinition>definitionMap,Set<String> userRelatedProjectIds) {
         List<String> projectIds = new ArrayList<>(userRelatedProjectIds);
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
-        apiDefinitionExample.createCriteria()
-                .andPathEqualTo(object.getString("path"))
-                .andMethodEqualTo(object.getString("method"))
-                .andProtocolEqualTo(object.getString("protocol"))
-                .andProjectIdIn(projectIds)
-                .andStatusNotEqualTo("Trash");
+        if(object.getString("path") != null && object.getString("method") != null){
+            apiDefinitionExample.createCriteria()
+                    .andPathEqualTo(object.getString("path"))
+                    .andMethodEqualTo(object.getString("method"))
+                    .andProtocolEqualTo(object.getString("protocol"))
+                    .andProjectIdIn(projectIds)
+                    .andStatusNotEqualTo("Trash");
+        }
         ApiDefinition apiDefinition = apiDefinitionService.getApiDefinition(apiDefinitionExample);
         if(apiDefinition==null){
             if(MapUtils.isEmpty(definitionMap)){
