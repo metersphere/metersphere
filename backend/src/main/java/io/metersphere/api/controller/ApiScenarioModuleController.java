@@ -29,13 +29,13 @@ public class ApiScenarioModuleController {
     }
 
     @PostMapping("/add")
-    @MsAuditLog(module = "api_automation", type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiScenarioModuleService.class)
+    @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiScenarioModuleService.class)
     public String addNode(@RequestBody ApiScenarioModule node) {
         return apiScenarioModuleService.addNode(node);
     }
 
     @PostMapping("/edit")
-    @MsAuditLog(module = "api_automation", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiScenarioModuleService.class)
+    @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiScenarioModuleService.class)
     public int editNode(@RequestBody DragApiScenarioModuleRequest node) {
         return apiScenarioModuleService.editNode(node);
     }

@@ -4,18 +4,18 @@
 
     <select id="list" resultType="io.metersphere.log.vo.OperatingLogDTO">
         SELECT
-            t.id,
-            t.project_id,
-            t.oper_user,
-            t3.source_id,
-            t.oper_type,
-            t.oper_module,
-            t.oper_title,
-            t.oper_time,
-            t1.NAME userName,
-            t2.`name` projectName
+        t.id,
+        t.project_id,
+        t.oper_user,
+        t3.source_id,
+        t.oper_type,
+        upper (t.oper_module) oper_module ,
+        t.oper_title,
+        t.oper_time,
+        t1.NAME userName,
+        t2.`name` projectName
         FROM
-            operating_log t
+        operating_log t
         LEFT JOIN `user` t1 ON t.oper_user = t1.id
         LEFT JOIN project t2 ON t.project_id = t2.id
         LEFT JOIN workspace w on t2.workspace_id = w.id
