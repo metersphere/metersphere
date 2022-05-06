@@ -1667,6 +1667,11 @@ export default {
     dataProcessing(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
+          let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+          if (typeArray.indexOf(stepArray[i].type) !== -1) {
+            stepArray[i].originalDataSourceId = stepArray[i].dataSourceId;
+            stepArray[i].originalEnvironmentId = stepArray[i].environmentId;
+          }
           if (!stepArray[i].hashTree) {
             stepArray[i].hashTree = [];
           }
