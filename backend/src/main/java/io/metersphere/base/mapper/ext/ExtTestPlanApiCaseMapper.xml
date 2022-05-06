@@ -294,7 +294,7 @@
       select
         t.id,
         c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.create_user_id,
-        c.num,t.create_user,
+        c.num,c.create_user_id AS create_user,
         t.status execResult
       from
         test_plan_api_case t
