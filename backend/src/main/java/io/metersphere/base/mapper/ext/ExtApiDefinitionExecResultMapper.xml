@@ -275,4 +275,11 @@
             #{value}
         </foreach>
     </update>
+
+    <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiDefinitionExecResult" parameterType="java.lang.String">
+      select actuator ,id   from api_definition_exec_result where status in ("running","starting","waiting") and project_id in
+        <foreach collection="request.projects" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

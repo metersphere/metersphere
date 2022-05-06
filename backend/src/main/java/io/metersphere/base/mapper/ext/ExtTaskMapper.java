@@ -18,4 +18,8 @@ public interface ExtTaskMapper {
 
     List<String> checkActuator (@Param("actuator") String actuator);
 
+    int stopScenario(@Param("request") TaskCenterRequest request);
+
+    int stopApi(@Param("request") TaskCenterRequest request);
+
 }
