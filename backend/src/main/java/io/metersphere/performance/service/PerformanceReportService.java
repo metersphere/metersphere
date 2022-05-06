@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -384,15 +385,13 @@ public class PerformanceReportService {
 
     public void deleteReportBatch(DeleteReportRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> getLoadTestReportIds(request.getProjectId()));
+                (query) -> getLoadTestReportIds(request.getCondition()));
 
         List<String> ids = request.getIds();
         ids.forEach(this::deleteReport);
     }
 
-    private List<String> getLoadTestReportIds(String projectId) {
-        ReportRequest request = new ReportRequest();
-        request.setProjectId(projectId);
+    private List<String> getLoadTestReportIds(ReportRequest request) {
         return this.getReportList(request).stream().map(LoadTestReport::getId).collect(Collectors.toList());
     }
 
