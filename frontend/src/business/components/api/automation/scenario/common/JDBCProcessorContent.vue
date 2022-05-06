@@ -226,6 +226,9 @@ export default {
           envId = this.request.refEevMap.get(id);
         }
       }
+      if(envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
+        this.request.dataSourceId = this.request.originalDataSourceId;
+      }
       let targetDataSourceName = "";
       let currentEnvironment = {};
       this.result = this.$get('/api/environment/list/' + id, response => {
