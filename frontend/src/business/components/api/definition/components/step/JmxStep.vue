@@ -264,6 +264,8 @@ export default {
           scenarioDefinition[i].environmentId = this.request.environmentId;
           if (this.request.dataSourceId && !scenarioDefinition[i].dataSourceId) {
             scenarioDefinition[i].dataSourceId = this.request.dataSourceId;
+            scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
+            scenarioDefinition[i].originalEnvironmentId = scenarioDefinition[i].environmentId;
           }
         }
       }

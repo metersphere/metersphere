@@ -365,8 +365,27 @@ export default {
     if (this.apiCase.id) {
       this.$store.state.apiCaseMap.set(this.apiCase.id, 0);
     }
+    // 记录原始数据源ID
+    this.apiCase.request.originalDataSourceId = this.apiCase.request.dataSourceId;
+    this.apiCase.request.originalEnvironmentId = this.apiCase.request.environmentId;
+
+    if (this.apiCase && this.apiCase.request && this.apiCase.request.hashTree) {
+      this.setOriginal(this.apiCase.request.hashTree);
+    }
   },
   methods: {
+    setOriginal(scenarioDefinition) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          scenarioDefinition[i].originalDataSourceId = scenarioDefinition[i].dataSourceId;
+          scenarioDefinition[i].originalEnvironmentId = scenarioDefinition[i].environmentId;
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setOriginal(scenarioDefinition[i].hashTree);
+        }
+      }
+    },
     saveStatus() {
       if (this.$store.state.apiCaseMap && this.apiCase.id) {
         let change = this.$store.state.apiCaseMap.get(this.apiCase.id);

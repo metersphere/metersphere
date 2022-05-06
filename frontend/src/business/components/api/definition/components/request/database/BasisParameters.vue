@@ -317,6 +317,10 @@ export default {
       }
       let targetDataSourceName = "";
       let currentEnvironment = {};
+
+      if(envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
+        this.request.dataSourceId = this.request.originalDataSourceId;
+      }
       this.result = this.$get('/api/environment/list/' + id, response => {
         this.environments = response.data;
         this.environments.forEach(environment => {
