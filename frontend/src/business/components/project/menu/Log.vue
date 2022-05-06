@@ -136,7 +136,7 @@ import {
   LOG_MODULE_MAP,
   LOG_TYPE,
   LOG_TYPE_MAP,
-  SYSLIST
+  SYSLIST, WORKSYSLIST
 } from "@/business/components/settings/operatinglog/config";
 import MsLogDetail from "@/business/components/settings/operatinglog/LogDetail";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -169,7 +169,7 @@ export default {
       LOG_TYPE: new LOG_TYPE(this),
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
       LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
-      sysList: new SYSLIST(),
+      sysList: new WORKSYSLIST(),
     }
   },
   mounted() {
