@@ -245,7 +245,7 @@ public class ApiAutomationController {
 
     @PostMapping("/batch/copy")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
-    @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
+    @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.batchCopy(request);
     }
