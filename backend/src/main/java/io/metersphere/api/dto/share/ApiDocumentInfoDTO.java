@@ -31,7 +31,7 @@ public class ApiDocumentInfoDTO {
     private String requestBodyFormData;
     private String requestBodyStrutureData;
     private Object requestPreviewData;
-    private String jsonSchemaBody;
+    private JSONSchemaBodyDTO jsonSchemaBody;
 
     private String responseHead;
     private String responseBody;
