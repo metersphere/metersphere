@@ -2,14 +2,20 @@
   <el-dialog :close-on-click-modal="false"
              :destroy-on-close="true"
              :title="$t('load_test.completed_test_report')" width="60%"
+             v-loading="reportLoadingResult.loading"
              :visible.sync="loadReportVisible">
-    <el-table v-loading="reportLoadingResult.loading"
-              class="basic-config"
-              :data="tableData"
-              @select-all="handleSelectAll"
-              @select="handleSelectionChange">
 
-      <el-table-column type="selection"/>
+    <el-header class="header-btn">
+      <ms-dialog-header :enable-cancel="false" @confirm="handleCompare" btn-size="mini">
+      </ms-dialog-header>
+    </el-header>
+
+    <ms-table
+      :data="tableData"
+      :show-select-all="false"
+      :screen-height="screenHeight"
+      ref="table"
+    >
       <el-table-column
         prop="name"
         :label="$t('commons.name')"
@@ -36,13 +42,9 @@
           <span class="last-modified">{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-    </el-table>
+    </ms-table>
     <ms-table-pagination :change="getCompareReports" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
-
-    <template v-slot:footer>
-      <ms-dialog-footer @cancel="close" @confirm="handleCompare"/>
-    </template>
   </el-dialog>
 </template>
 
@@ -50,11 +52,12 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
-import {WORKSPACE_ID} from "@/common/js/constants";
+import MsTable from "@/business/components/common/components/table/MsTable";
+import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 
 export default {
   name: "SameTestReports",
-  components: {ReportTriggerModeItem, MsDialogFooter, MsTablePagination},
+  components: {MsDialogHeader, MsTable, ReportTriggerModeItem, MsDialogFooter, MsTablePagination},
   data() {
     return {
       loadReportVisible: false,
@@ -63,9 +66,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      selectIds: new Set,
       report: {},
       compareReports: [],
+      screenHeight: 'calc(100vh - 400px)',
     }
   },
   methods: {
@@ -93,7 +96,8 @@ export default {
       });
     },
     handleCompare() {
-      let reportIds = [...this.selectIds];
+
+      let reportIds = [...this.$refs.table.selectIds];
       this.tableData
         .filter(r => reportIds.indexOf(r.id) > -1 && this.report.id !== r.id)
         .forEach(r => this.compareReports.push(r));
@@ -102,30 +106,20 @@ export default {
       this.close();
       this.$router.push({path: '/performance/report/compare/' + reportIds[0]});
     },
-    handleSelectAll(selection) {
-      if (selection.length > 0) {
-        this.tableData.forEach(item => {
-          this.selectIds.add(item.id);
-        });
-      } else {
-        this.tableData.forEach(item => {
-          if (this.selectIds.has(item.id)) {
-            this.selectIds.delete(item.id);
-          }
-        });
-      }
-    },
-    handleSelectionChange(selection, row) {
-      if (this.selectIds.has(row.id)) {
-        this.selectIds.delete(row.id);
-      } else {
-        this.selectIds.add(row.id);
-      }
-    },
   }
 }
 </script>
 
 <style scoped>
-
+.header-btn {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  padding: 0;
+  background: 0 0;
+  border: none;
+  outline: 0;
+  cursor: pointer;
+  height: 30px;
+}
 </style>
