@@ -1,5 +1,6 @@
 package io.metersphere.performance.controller.request;
 
+import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class ReportRequest {
+public class ReportRequest extends BaseQueryRequest {
     private String name;
     private String workspaceId;
     private String testId;

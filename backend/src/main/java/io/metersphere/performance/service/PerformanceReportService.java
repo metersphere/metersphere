@@ -384,15 +384,13 @@ public class PerformanceReportService {
 
     public void deleteReportBatch(DeleteReportRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> getLoadTestReportIds(request.getProjectId()));
+                (query) -> getLoadTestReportIds(request.getCondition()));
 
         List<String> ids = request.getIds();
         ids.forEach(this::deleteReport);
     }
 
-    private List<String> getLoadTestReportIds(String projectId) {
-        ReportRequest request = new ReportRequest();
-        request.setProjectId(projectId);
+    private List<String> getLoadTestReportIds(ReportRequest request) {
         return this.getReportList(request).stream().map(LoadTestReport::getId).collect(Collectors.toList());
     }
 
