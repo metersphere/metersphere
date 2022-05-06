@@ -36,6 +36,9 @@ public class ApiScenarioParallelService {
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         for (String reportId : executeQueue.keySet()) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
             RunModeDataDTO dataDTO = executeQueue.get(reportId);
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(dataDTO.getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode(), null);
             runRequest.setReportType(StringUtils.isNotEmpty(serialReportId) ? RunModeConstants.SET_REPORT.toString() : RunModeConstants.INDEPENDENCE.toString());
