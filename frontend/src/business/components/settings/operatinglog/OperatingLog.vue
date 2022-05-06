@@ -130,7 +130,7 @@
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST} from "./config";
+import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST, WORKSYSLIST} from "./config";
 import MsLogDetail from "./LogDetail";
 
 export default {
@@ -158,8 +158,8 @@ export default {
         LOG_TYPE: new LOG_TYPE(this),
         LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
         LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
-        sysList:new SYSLIST(),
-        loading: false
+        sysList: new SYSLIST(),
+        loading: false,
       }
     },
     mounted() {
@@ -202,7 +202,20 @@ export default {
             this.getMember();
             break;
         }
-      }
+      },
+      '$route.path': {
+        handler(toPath, fromPath) {
+          if (toPath === '/setting/operatingLog/workspace') {
+            this.sysList = new WORKSYSLIST();
+            this.condition.workspaceId = getCurrentWorkspaceId();
+          } else {
+            this.sysList = new SYSLIST();
+            this.condition.workspaceId = '';
+          }
+        },
+        deep: true,
+        immediate: true
+      },
     },
     methods: {
       isLink(row) {

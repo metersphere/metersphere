@@ -250,26 +250,94 @@ export function SYSLIST() {
                     value: [i18n.t('commons.personal_information') + "-API Keys", 'PERSONAL_INFORMATION_APIKEYS'],
                     leaf: true
                 },
-                {
-                    label: i18n.t('operating_log.auth_title'),
-                    value: [i18n.t('operating_log.auth_title'), 'AUTH_TITLE'],
-                    leaf: true
-                }
-            ]
+            {
+              label: i18n.t('operating_log.auth_title'),
+              value: [i18n.t('operating_log.auth_title'), 'AUTH_TITLE'],
+              leaf: true
+            }
+          ]
         },
     ];
-    return sysList;
+  return sysList;
+}
+
+export function WORKSYSLIST() {
+  let worksysList = [
+    {
+      label: i18n.t('test_track.test_track'), value: i18n.t('test_track.test_track'), children: [
+        {
+          label: i18n.t('permission.project_track_case.name'),
+          value: [i18n.t('permission.project_track_case.name'), 'TRACK_TEST_CASE'],
+          leaf: true
+        },
+        {
+          label: i18n.t('test_track.review.test_review'),
+          value: [i18n.t('test_track.review.test_review'), 'TRACK_TEST_CASE_REVIEW'],
+          leaf: true
+        },
+        {
+          label: i18n.t('test_track.plan.test_plan'),
+          value: [i18n.t('test_track.plan.test_plan'), 'TRACK_TEST_PLAN'],
+          leaf: true
+        },
+        {
+          label: i18n.t('test_track.issue.issue_management'),
+          value: [i18n.t('test_track.issue.issue_management'), 'TRACK_BUG'],
+          leaf: true
+        },
+        {label: i18n.t('commons.report'), value: [i18n.t('commons.report'), 'TRACK_REPORT'], leaf: true}]
+    },
+    {
+      label: i18n.t('commons.api'), value: i18n.t('commons.api'), children: [
+        {
+          label: i18n.t('workstation.table_name.api_definition'),
+          value: [i18n.t('workstation.table_name.api_definition'), 'API_DEFINITION'],
+          leaf: true
+        },
+        {
+          label: i18n.t('operating_log.api_definition_case'),
+          value: [i18n.t('operating_log.api_definition_case'), 'API_DEFINITION_CASE'],
+          leaf: true
+        },
+        {
+          label: i18n.t('workstation.table_name.api_automation'),
+          value: [i18n.t('workstation.table_name.api_automation'), 'API_AUTOMATION'],
+          leaf: true
+        },
+        {
+          label: i18n.t('permission.project_api_report.name'),
+          value: [i18n.t('permission.project_api_report.name'), 'API_AUTOMATION_REPORT'],
+          leaf: true
+        }]
+    },
+    {
+      label: i18n.t('workstation.table_name.performance'),
+      value: i18n.t('workstation.table_name.performance'),
+      children: [
+        {
+          label: i18n.t('workstation.table_name.performance'),
+          value: [i18n.t('workstation.table_name.performance'), 'PERFORMANCE_TEST'],
+          leaf: true
+        },
+        {
+          label: i18n.t('report.load_test_report'),
+          value: [i18n.t('report.load_test_report'), 'PERFORMANCE_TEST_REPORT'],
+          leaf: true
+        }]
+    },
+  ];
+  return worksysList;
 }
 
 
 export function getUrl(d, _this) {
-    let url = "/#";
-    let resourceId = d.sourceId;
-    if (resourceId && (resourceId.startsWith("\"") || resourceId.startsWith("["))) {
-        resourceId = JSON.parse(d.sourceId);
-    }
-    if (resourceId instanceof Array) {
-        if (resourceId.length === 1) {
+  let url = "/#";
+  let resourceId = d.sourceId;
+  if (resourceId && (resourceId.startsWith("\"") || resourceId.startsWith("["))) {
+    resourceId = JSON.parse(d.sourceId);
+  }
+  if (resourceId instanceof Array) {
+    if (resourceId.length === 1) {
             resourceId = resourceId[0];
         } else {
             return url;
