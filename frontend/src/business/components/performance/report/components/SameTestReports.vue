@@ -3,10 +3,11 @@
              :destroy-on-close="true"
              :title="$t('load_test.completed_test_report')" width="60%"
              v-loading="reportLoadingResult.loading"
+             :show-close="false"
              :visible.sync="loadReportVisible">
 
     <el-header class="header-btn">
-      <ms-dialog-header :enable-cancel="false" @confirm="handleCompare" btn-size="mini">
+      <ms-dialog-header :enable-cancel="true" @cancel="close" @confirm="handleCompare" btn-size="mini">
       </ms-dialog-header>
     </el-header>
 
