@@ -41,6 +41,9 @@ public class ApiCaseParallelExecuteService {
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         for (String testId : executeQueue.keySet()) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
             ApiDefinitionExecResult result = executeQueue.get(testId);
             String reportId = result.getId();
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, null);

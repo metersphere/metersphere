@@ -459,6 +459,30 @@ public class ApiExecutionQueueService {
         });
     }
 
+    public void stop(List<String> reportIds) {
+        ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+        example.createCriteria().andReportIdIn(reportIds);
+        List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
+
+        List<String> queueIds = new ArrayList<>();
+        details.forEach(item -> {
+            if (!queueIds.contains(item.getQueueId())) {
+                queueIds.add(item.getQueueId());
+            }
+        });
+        executionQueueDetailMapper.deleteByExample(example);
+
+        for (String queueId : queueIds) {
+            ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(queueId);
+            // 更新测试计划报告
+            if (queue != null && StringUtils.isNotEmpty(queue.getReportId())) {
+                CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(queue.getReportId(), "Stopped");
+                queueMapper.deleteByPrimaryKey(queueId);
+            }
+        }
+    }
+
+
     /**
      * 性能测试监听检查
      *

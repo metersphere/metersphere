@@ -131,7 +131,7 @@ public class ExecThreadPoolExecutor {
         BlockingQueue workerQueue = threadPool.getQueue();
         workerQueue.forEach(item -> {
             ExecTask task = (ExecTask) item;
-            if (task.getRequest() != null && StringUtils.equals(task.getRequest().getReportId(), reportId)) {
+            if (task != null && task.getRequest() != null && StringUtils.equals(task.getRequest().getReportId(), reportId)) {
                 workerQueue.remove(item);
             }
         });
