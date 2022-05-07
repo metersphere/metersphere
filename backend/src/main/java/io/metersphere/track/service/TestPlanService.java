@@ -470,6 +470,10 @@ public class TestPlanService {
         statusList.addAll(testPlanScenarioCaseService.getExecResultByPlanId(testPlanId));
         statusList.addAll(testPlanLoadCaseService.getStatus(testPlanId));
         TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
+        //如果测试计划是已归档状态，不处理
+        if(testPlanWithBLOBs.getStatus().equals(TestPlanStatus.Archived.name())){
+            return;
+        }
         testPlanWithBLOBs.setId(testPlanId);
         if (statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
             testPlanWithBLOBs.setStatus(TestPlanStatus.Prepare.name());

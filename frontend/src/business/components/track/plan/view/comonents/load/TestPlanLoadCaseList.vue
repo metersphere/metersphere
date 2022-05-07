@@ -5,6 +5,7 @@
         <test-plan-load-case-list-header
             :condition="condition"
             :plan-id="planId"
+            :plan-status="planStatus"
             :isShowVersion="false"
             @refresh="initTable"
             @relevanceCase="$emit('relevanceCase')"/>
@@ -187,8 +188,8 @@ export default {
         {
           tip: this.$t('api_test.run'), icon: "el-icon-video-play",
           exec: this.run,
-          class: 'run-button',
-          isDisable: this.isReadOnly,
+          class: (this.planStatus==='Archived' || this.isReadOnly )?'disable-run':'run-button',
+          isDisable: this.isReadOnly || this.planStatus==='Archived',
           permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
         },
         {
@@ -196,22 +197,22 @@ export default {
           icon: "el-icon-setting",
           exec: this.changeLoadConfig,
           type: 'success',
-          isDisable: this.isReadOnly,
+          isDisable: this.isReadOnly || this.planStatus==='Archived',
         },
         {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
           exec: this.handleDelete,
           type: 'danger',
-          isDisable: this.isReadOnly,
+          isDisable: this.isReadOnly || this.planStatus==='Archived',
           permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
         },
       ],
       buttons: [
         {
-          name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
+          name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch,  isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
         },
         {
-          name: this.$t('test_track.plan.load_case.batch_exec_cases'), handleClick: this.handleRunBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
+          name: this.$t('test_track.plan.load_case.batch_exec_cases'), handleClick: this.handleRunBatch,  isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
         }
       ],
       statusFilters: [
@@ -235,6 +236,7 @@ export default {
       default: false
     },
     planId: String,
+    planStatus: String,
     reviewId: String,
     clickType: String,
     versionEnable: Boolean,

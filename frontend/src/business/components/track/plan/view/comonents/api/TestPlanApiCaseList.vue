@@ -6,6 +6,7 @@
           :project-id="getProjectId()"
           :condition="condition"
           :plan-id="planId"
+          :plan-status="planStatus"
           @refresh="initTable"
           @relevanceCase="$emit('relevanceCase')"
           @setEnvironment="setEnvironment"
@@ -194,7 +195,7 @@ import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import {TEST_PLAN_API_CASE} from "@/common/js/constants";
 import {
   buildBatchParam,
-  checkTableRowIsSelect, deepClone, getCustomTableHeader, getCustomTableWidth,
+   deepClone, getCustomTableHeader, getCustomTableWidth,
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -250,20 +251,22 @@ export default {
         {
           tip: this.$t('api_test.run'), icon: "el-icon-video-play",
           exec: this.singleRun,
-          class: 'run-button',
+          class: this.planStatus==='Archived'?'disable-run':'run-button',
+          isDisable: this.planStatus==='Archived',
           permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
         },
         {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
           exec: this.handleDelete,
           type: 'danger',
+          isDisable: this.planStatus==='Archived',
           permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
         }
       ],
       buttons: [
-        {name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']},
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']},
-        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']}
+        {name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']},
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute, isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']},
+        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit,  isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']}
       ],
       typeArr: [
         {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
@@ -325,6 +328,7 @@ export default {
       }
     },
     planId: String,
+    planStatus: String,
     reviewId: String,
     clickType: String,
     versionEnable: Boolean,

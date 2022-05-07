@@ -11,7 +11,7 @@
     </template>
     <template v-slot:button>
       <ms-table-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" icon="el-icon-connection"
-                       :content="$t('test_track.plan_view.relevance_test_case')"
+                       :content="$t('test_track.plan_view.relevance_test_case')" :disabled="planStatus==='Archived'"
                        @click="$emit('relevanceCase')"/>
     </template>
 
@@ -29,7 +29,7 @@ export default {
   components: {
     MsTableButton, MsTableHeader, 'VersionSelect': VersionSelect.default,
   },
-  props: ['condition', 'isShowVersion'],
+  props: ['condition', 'isShowVersion', 'planStatus'],
   methods: {
     changeVersion(currentVersion) {
       this.$emit("changeVersion", currentVersion)
