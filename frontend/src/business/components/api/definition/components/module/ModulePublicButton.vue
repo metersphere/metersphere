@@ -1,8 +1,8 @@
 <template>
   <div @click="exe" class="recycle" :class="{'is-active': condition.publicEnable}" v-if="this.isXpack">
     <el-row>
-      <el-col :span="21"><i class="el-icon-reading"> {{ $t('project.case_public') }}</i></el-col>
-      <el-col :span="3"><span style="color: #6C317C">{{ publicTotal }}</span></el-col>
+      <el-col :span="20"><i class="el-icon-reading"> {{ $t('project.case_public') }}</i></el-col>
+      <el-col :span="4"><span style="color: #6C317C">{{ publicTotal }}</span></el-col>
     </el-row>
   </div>
 </template>
