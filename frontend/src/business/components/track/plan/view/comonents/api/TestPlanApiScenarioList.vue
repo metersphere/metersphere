@@ -5,6 +5,7 @@
         <test-plan-scenario-list-header
           :condition="condition"
           :projectId="projectId"
+          :plan-status="planStatus"
           @refresh="search"
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
@@ -251,6 +252,7 @@ export default {
     selectNodeIds: Array,
     reviewId: String,
     planId: String,
+    planStatus: String,
     clickType: String,
     versionEnable: Boolean,
   },
@@ -282,25 +284,27 @@ export default {
         {
           tip: this.$t('api_test.run'), icon: "el-icon-video-play",
           exec: this.execute,
-          class: 'run-button',
+          class: this.planStatus==='Archived'?'disable-run':'run-button',
+          isDisable: this.planStatus==='Archived',
           permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
         },
         {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
           exec: this.remove,
           type: 'danger',
+          isDisable: this.planStatus==='Archived',
           permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
         }
       ],
       buttons: [
         {
-          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
+          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch,  isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
         },
         {
-          name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
+          name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute,  isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
         },
         {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
+          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, isDisable: this.planStatus==='Archived',  permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
         }
       ],
       typeArr: [
