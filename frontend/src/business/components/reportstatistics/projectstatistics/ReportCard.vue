@@ -14,7 +14,7 @@
       </el-col>
       <el-col :span="4">
         <el-card :body-style="{ padding: '0px' }" class="ms-col" @click.native="openCard('trackTestCase')">
-          <img src="@/assets/track.jpg" class="image">
+          <img src="@/assets/test_case_analysis_png.png" class="image">
           <div style="padding: 10px;">
             <span>{{ $t('commons.report_statistics.test_case_analysis') }}</span>
             <div class="bottom clearfix">
@@ -23,50 +23,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="4">
-        <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="@/assets/other.png" class="image">
-          <div style="padding: 10px;">
-            <span>{{ $t('commons.report_statistics.reserved') }}</span>
-            <div class="bottom clearfix">
-              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="4">
-        <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="@/assets/other.png" class="image">
-          <div style="padding: 10px;">
-            <span>{{ $t('commons.report_statistics.reserved') }}</span>
-            <div class="bottom clearfix">
-              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="4">
-        <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="@/assets/other.png" class="image">
-          <div style="padding: 10px;">
-            <span>{{ $t('commons.report_statistics.reserved') }}</span>
-            <div class="bottom clearfix">
-              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="4">
-        <el-card :body-style="{ padding: '0px' }" class="ms-col">
-          <img src="@/assets/other.png" class="image">
-          <div style="padding: 10px;">
-            <span>{{ $t('commons.report_statistics.reserved') }}</span>
-            <div class="bottom clearfix">
-              <time class="time">{{ $t('commons.report_statistics.test_case_activity') }}</time>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
+
     </el-row>
   </div>
 </template>
