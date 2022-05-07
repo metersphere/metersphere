@@ -46,22 +46,9 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12" :offset="1">
-<!--            <el-form-item :label="$t('test_track.review.review_follow_people')" :label-width="formLabelWidth"
-                          prop="followIds">
-              <el-select v-model="form.followIds"
-                         clearable multiple
-                         :placeholder="$t('test_track.review.review_follow_people')" filterable size="small">
-                <el-option
-                  v-for="item in reviewerOptions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>-->
-          </el-col>
           <el-col :span="12">
+          </el-col>
+          <el-col :span="12" :offset="1">
             <el-form-item :label="$t('test_track.review.end_time')" :label-width="formLabelWidth" prop="endTime">
               <el-date-picker @change="endTimeChange" type="datetime" :placeholder="$t('commons.select_date')"
                               v-model="form.endTime" style="width: 100%"/>
@@ -142,7 +129,6 @@ export default {
           {required: true, message: this.$t('test_track.review.input_review_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
-        // projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
         userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
