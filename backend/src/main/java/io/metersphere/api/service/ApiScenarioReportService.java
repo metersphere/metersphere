@@ -130,7 +130,7 @@ public class ApiScenarioReportService {
         return scenarioReport;
     }
 
-    public APIScenarioReportResult get(String reportId,boolean selectReportContent) {
+    public APIScenarioReportResult get(String reportId, boolean selectReportContent) {
         ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
         if (result != null) {
             APIScenarioReportResult reportResult = new APIScenarioReportResult();
@@ -144,7 +144,7 @@ public class ApiScenarioReportService {
         APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         if (reportResult != null) {
             if (reportResult.getReportVersion() != null && reportResult.getReportVersion() > 1) {
-                reportResult.setContent(JSON.toJSONString(apiScenarioReportStructureService.assembleReport(reportId,selectReportContent)));
+                reportResult.setContent(JSON.toJSONString(apiScenarioReportStructureService.assembleReport(reportId, selectReportContent)));
             } else {
                 ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(reportId);
                 if (detail != null && reportResult != null) {
@@ -848,7 +848,7 @@ public class ApiScenarioReportService {
         } else if (errorReportResultSize > 0) {
             status = ExecuteResult.errorReportResult.name();
         } else {
-            status = ScenarioStatus.Success.name();
+            status = requestResults.isEmpty() ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name();
         }
 
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {

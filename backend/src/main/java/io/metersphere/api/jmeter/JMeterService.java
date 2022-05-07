@@ -5,11 +5,9 @@ import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
-import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
@@ -128,10 +126,9 @@ public class JMeterService {
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
+                RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+                apiScenarioReportService.testEnded(request, e.getMessage());
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ] 失败：", e);
-                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                apiScenarioReportService.delete(request.getReportId());
-                MSException.throwException(e.getMessage());
             }
         } else {
             this.send(request);
