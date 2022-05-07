@@ -9,6 +9,7 @@
         @refreshTable="refreshTable"
         @setModuleOptions="setModuleOptions"
         :plan-id="planId"
+        :plan-status="planStatus"
         :is-read-only="true"
         :redirectCharType="redirectCharType"
         ref="apiNodeTree">
@@ -27,6 +28,7 @@
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
         :plan-id="planId"
+        :plan-status="planStatus"
         ref="scenarioNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
@@ -50,6 +52,7 @@
         :version-enable="versionEnable"
         :model="'plan'"
         :plan-id="planId"
+        :plan-status="planStatus"
         :clickType="clickType"
         @refresh="refreshTree"
         @relevanceCase="openTestCaseRelevanceDialog"
@@ -61,6 +64,7 @@
         :trash-enable="trashEnable"
         :version-enable="versionEnable"
         :plan-id="planId"
+        :plan-status="planStatus"
         :clickType="clickType"
         @refresh="refreshTree"
         @relevanceCase="openTestCaseRelevanceDialog"
@@ -128,6 +132,7 @@
         'redirectCharType',
         'clickType',
         'versionEnable',
+        'planStatus'
       ],
       mounted() {
         this.checkRedirectCharType();

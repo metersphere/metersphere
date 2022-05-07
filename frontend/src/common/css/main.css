@@ -297,6 +297,12 @@ textarea {
   color: white;
 }
 
+.disable-run .el-button {
+  background-color: #409eff91;
+  border-color: #409eff00;
+  color: white;
+}
+
 .ms-full-loading .el-loading-spinner {
   font-size: 16px;
 }

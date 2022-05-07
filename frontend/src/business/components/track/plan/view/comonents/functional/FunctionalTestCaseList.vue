@@ -13,7 +13,7 @@
                          :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
         <ms-table-button v-permission="['PROJECT_TRACK_CASE:READ']" v-if="showMyTestCase" icon="el-icon-files"
                          :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
-        <ms-table-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" icon="el-icon-connection"
+        <ms-table-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" icon="el-icon-connection" :disabled="planStatus==='Archived'"
                          :content="$t('test_track.plan_view.relevance_test_case')"
                          @click="$emit('openTestCaseRelevanceDialog')"/>
       </template>
@@ -25,8 +25,8 @@
       :data="tableData"
       :condition="condition"
       :total="total"
-      :page-size.sync="pageSize"
       :operators="operators"
+      :page-size.sync="pageSize"
       :screen-height="screenHeight"
       :batch-operators="buttons"
       :fields.sync="fields"
@@ -359,28 +359,6 @@ export default {
       executorFilters: [],
       maintainerFilters: [],
       showMore: false,
-      buttons: [
-        {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit,
-          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
-        },
-        {
-          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch,
-          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
-        }
-      ],
-      operators: [
-        {
-          tip: this.$t('commons.edit'), icon: "el-icon-edit",
-          exec: this.handleEdit,
-          permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
-        },
-        {
-          tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock", type: "danger",
-          exec: this.handleDelete,
-          permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
-        }
-      ],
       typeArr: [
         {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
         {id: 'executor', name: this.$t('test_track.plan_view.executor')},
@@ -411,6 +389,9 @@ export default {
       type: Boolean,
       default: false
     },
+    planStatus: {
+      type: String
+    },
   },
   computed: {
     editTestPlanTestCaseOrder() {
@@ -419,6 +400,65 @@ export default {
     systemFiledMap() {
       return SYSTEM_FIELD_NAME_MAP;
     },
+    operators(){
+      if (this.planStatus==='Archived') {
+        return [
+          {
+            tip: this.$t('commons.edit'), icon: "el-icon-edit",
+            exec: this.handleEdit,
+            isDisable: true,
+            permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
+          },
+          {
+            tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock", type: "danger",
+            exec: this.handleDelete,
+            isDisable: true,
+            permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
+          }
+        ]
+      } else {
+        return [
+          {
+            tip: this.$t('commons.edit'), icon: "el-icon-edit",
+            exec: this.handleEdit,
+            permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
+          },
+          {
+            tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock", type: "danger",
+            exec: this.handleDelete,
+            permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
+          }
+        ]
+      }
+    },
+    buttons(){
+      if (this.planStatus==='Archived') {
+        return [
+          {
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit,
+            isDisable: true,
+            permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
+          },
+          {
+            name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch,
+            isDisable: true,
+            permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
+          }
+        ]
+
+      } else {
+        return [
+          {
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit,
+            permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
+          },
+          {
+            name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch,
+            permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
+          }
+        ]
+      }
+    } ,
   },
   watch: {
     planId() {
