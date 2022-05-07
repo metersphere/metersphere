@@ -1034,14 +1034,12 @@ public class TestPlanReportService {
             if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct())) {
                 try {
                     apiCaseInfoDTOList = JSONArray.parseArray(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct(), TestPlanFailureApiDTO.class);
-                } catch (Exception e) {
-                    LogUtil.error(e);
+                } catch (Exception ignored) {
                 }
                 if (apiCaseInfoDTOList == null) {
                     try {
                         testPlanApiCaseIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct(), Map.class);
-                    } catch (Exception e) {
-                        LogUtil.error(e);
+                    } catch (Exception ignored) {
                     }
                 } else {
                     for (TestPlanFailureApiDTO item : apiCaseInfoDTOList) {
@@ -1052,13 +1050,12 @@ public class TestPlanReportService {
             if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanScenarioReportStruct())) {
                 try {
                     scenarioInfoDTOList = JSONArray.parseArray(testPlanReportContentWithBLOBs.getPlanScenarioReportStruct(), TestPlanFailureScenarioDTO.class);
-                } catch (Exception e) {
-                    LogUtil.error(e);
+                } catch (Exception ignored) {
                 }
                 if (scenarioInfoDTOList == null) {
                     try {
                         testPlanScenarioIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanScenarioReportStruct(), Map.class);
-                    } catch (Exception ignore) {
+                    } catch (Exception ignored) {
                     }
                 } else {
                     for (TestPlanFailureScenarioDTO item : scenarioInfoDTOList) {
