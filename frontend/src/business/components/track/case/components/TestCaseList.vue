@@ -1222,4 +1222,8 @@ export default {
 .el-tag {
   margin-left: 10px;
 }
+
+/deep/ .el-table{
+  overflow: auto;
+}
 </style>
