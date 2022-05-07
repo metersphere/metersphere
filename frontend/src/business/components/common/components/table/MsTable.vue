@@ -521,9 +521,7 @@ export default {
 </script>
 
 <style scoped>
-.el-table{
-  overflow: auto;
-}
+
 .el-table__header-wrapper,.el-table__body-wrapper,.el-table__footer-wrapper{overflow:visible;}
 .el-table__body-wrapper{
   overflow-x:visible !important;
