@@ -102,6 +102,9 @@ public class UserService {
     }
 
     public Map<String, User> queryNameByIds(List<String> userIds) {
+        if(userIds.isEmpty()){
+            return new HashMap<>(0);
+        }
         return extUserMapper.queryNameByIds(userIds);
     }
 
