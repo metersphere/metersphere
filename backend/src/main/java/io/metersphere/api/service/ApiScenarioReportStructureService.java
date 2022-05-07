@@ -540,6 +540,10 @@ public class ApiScenarioReportStructureService {
         List<ApiScenarioReportStructureWithBLOBs> reportStructureWithBLOBs = mapper.selectByExampleWithBLOBs(structureExample);
 
         ApiScenarioReportDTO reportDTO = new ApiScenarioReportDTO();
+        // 写入控制台信息
+        if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs)) {
+            reportDTO.setConsole(reportStructureWithBLOBs.get(0).getConsole());
+        }
         // 组装报告
         if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs) && CollectionUtils.isNotEmpty(reportResults)) {
             ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
