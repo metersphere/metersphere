@@ -383,10 +383,15 @@ export default {
         this.result = getTestReviewTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.getPreData();
+          if (callback && typeof callback === "function") {
+            callback();
+          }
           setTimeout(() => {
             this.$refs.table.reloadTable()
           }, 200);
         });
+        this.getNexPageData();
       }
     },
     getNexPageData() {
