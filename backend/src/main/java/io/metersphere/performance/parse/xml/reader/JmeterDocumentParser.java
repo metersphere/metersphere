@@ -215,7 +215,8 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (!StringUtils.contains(filename, "/")) {
             separator = "\\";
         }
-        filename = filename.substring(filename.lastIndexOf(separator) + 1);
+        // 改成绝对路径，keystore 不能使用相对路径
+        filename = "/test/" + filename.substring(filename.lastIndexOf(separator) + 1);
         return filename;
     }
 
