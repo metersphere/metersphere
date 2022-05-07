@@ -12,6 +12,7 @@
           class="table-list"
           @refresh="refresh"
           :plan-id="planId"
+          :plan-status="planStatus"
           :clickType="clickType"
           :select-project-id="selectProjectId"
           :select-parent-nodes="selectParentNodes"
@@ -58,6 +59,7 @@ export default {
     'redirectCharType',
     'clickType',
     'versionEnable',
+    'planStatus'
   ],
   watch: {
     planId() {

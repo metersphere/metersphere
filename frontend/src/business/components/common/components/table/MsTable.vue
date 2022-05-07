@@ -521,16 +521,6 @@ export default {
 </script>
 
 <style scoped>
-
-.el-table__header-wrapper,.el-table__body-wrapper,.el-table__footer-wrapper{overflow:visible;}
-.el-table__body-wrapper{
-  overflow-x:visible !important;
-}
-/* 这个是为了解决前面样式覆盖之后伪类带出来的竖线 */
-.el-table::after{
-  position: relative;
-}
-
 .batch-popper {
   top: 300px;
   color: #1FDD02;

@@ -25,6 +25,7 @@
           @refresh="refresh"
           @setCondition="setCondition"
           :plan-id="planId"
+          :plan-status="planStatus "
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
           :version-enable="versionEnable"
@@ -96,6 +97,7 @@ export default {
     'redirectCharType',
     'clickType',
     'versionEnable',
+    'planStatus'
   ],
   mounted() {
     this.initData();

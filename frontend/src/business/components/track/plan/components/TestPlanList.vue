@@ -265,9 +265,12 @@
         </ms-table-column>
       </span>
       <template v-slot:opt-before="scope">
-        <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play" class="run-button"
+        <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play"  :class="[scope.row.status==='Archived'?'disable-run':'run-button']"  :disabled="scope.row.status === 'Archived'"
                                   @exec="handleRun(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"
-                                  style="margin-right: 10px;"/>
+                                  />
+        <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit"
+                                  @exec="handleEdit(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']" :disabled="scope.row.status === 'Archived'"
+                                  style="margin-right: 10px"/>
       </template>
       <template v-slot:opt-behind="scope">
         <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!scope.row.showFollow">
@@ -286,10 +289,10 @@
             <el-icon class="el-icon-more"></el-icon>
           </el-link>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']">
+            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"  :disabled="scope.row.status === 'Archived'" >
               {{ $t('commons.delete') }}
             </el-dropdown-item>
-            <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']">
+            <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']" :disabled="scope.row.status === 'Archived'" >
               {{ $t('commons.trigger_mode.schedule') }}
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -442,12 +445,6 @@ export default {
         }
       ],
       simpleOperators: [
-        {
-          tip: this.$t('commons.edit'),
-          icon: "el-icon-edit",
-          exec: this.handleEdit,
-          permissions: ['PROJECT_TRACK_PLAN:READ+EDIT']
-        },
         {
           tip: this.$t('commons.copy'),
           icon: "el-icon-copy-document",
