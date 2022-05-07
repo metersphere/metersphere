@@ -103,7 +103,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, subject = "接口定义通知")
-    public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+    public ApiDefinitionResult create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.create(request, bodyFiles);
     }
@@ -112,7 +112,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, subject = "接口定义通知")
-    public ApiDefinitionWithBLOBs update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+    public ApiDefinitionResult update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.update(request, bodyFiles);
     }
