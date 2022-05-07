@@ -315,7 +315,7 @@ public class ApiDefinitionService {
         }
     }
 
-    public ApiDefinitionWithBLOBs create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public ApiDefinitionResult create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         checkQuota(request.getProjectId());
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
@@ -326,11 +326,10 @@ public class ApiDefinitionService {
         } else {
             FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         }
-        ApiDefinitionWithBLOBs returnModel = createTest(request);
-        return returnModel;
+        return createTest(request);
     }
 
-    public ApiDefinitionWithBLOBs update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public ApiDefinitionResult update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         if (request.getRequest() != null) {
             deleteFileByTestId(request.getRequest().getId());
         }
@@ -342,7 +341,7 @@ public class ApiDefinitionService {
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
-        return getBLOBs(returnModel.getId());
+        return getById(returnModel.getId());
     }
 
     public void checkQuota(String projectId) {
@@ -715,7 +714,7 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinitionWithBLOBs createTest(SaveApiDefinitionRequest request) {
+    private ApiDefinitionResult createTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
@@ -762,7 +761,7 @@ public class ApiDefinitionService {
             apiDefinitionMapper.insert(test);
             saveFollows(test.getId(), request.getFollows());
         }
-        return test;
+        return getById(test.getId());
     }
 
     public int getNextNum(String projectId) {
