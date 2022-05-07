@@ -900,18 +900,18 @@ export default {
       obj.projectId = this.projectId;
       obj.selectAllDate = this.selectAll;
       obj.unSelectIds = this.unSelection;
-      obj.ids = Array.from(this.selectRows).map(row => row.id);
       obj = Object.assign(obj, this.condition);
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
       this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
         let checkResult = response.data;
-        let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + " ？";
         if (!checkResult.deleteFlag) {
           alertMsg = "";
           checkResult.checkMsg.forEach(item => {
             alertMsg += item + ";";
           });
           if (alertMsg === "") {
-            alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+            alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + " ？";
           } else {
             alertMsg += this.$t('api_test.is_continue') + " ？";
           }
