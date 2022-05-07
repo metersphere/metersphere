@@ -1,8 +1,11 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
+import io.metersphere.api.jmeter.FixedCapacityUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.BeanUtils;
@@ -10,6 +13,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -154,5 +158,36 @@ public class RemakeReportService {
         }
         report.setStatus(APITestStatus.Error.name());
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+    }
+
+    public void testEnded(JmeterRunRequestDTO request, String errorMsg) {
+        try {
+            ResultDTO dto = new ResultDTO();
+            BeanUtils.copyBean(dto, request);
+            dto.setQueueId(request.getQueueId());
+            dto.setTestId(request.getTestId());
+
+            if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
+                JMeterEngineCache.runningEngine.remove(dto.getReportId());
+            }
+            LoggerUtil.info("进入异常结果处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
+            // 全局并发队列
+            PoolExecBlockingQueueUtil.offer(dto.getReportId());
+            String consoleMsg = FixedCapacityUtils.getJmeterLogger(dto.getReportId());
+            dto.setConsole(consoleMsg + "\n" + errorMsg);
+            // 整体执行结束更新资源状态
+            CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
+
+            if (StringUtils.isNotEmpty(dto.getQueueId())) {
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            }
+            // 更新测试计划报告
+            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
+                LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
+                CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(dto.getTestPlanReportId());
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        }
     }
 }
