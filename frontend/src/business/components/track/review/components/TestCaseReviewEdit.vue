@@ -46,7 +46,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12" :offset="1">
+          <el-col :span="12">
 <!--            <el-form-item :label="$t('test_track.review.review_follow_people')" :label-width="formLabelWidth"
                           prop="followIds">
               <el-select v-model="form.followIds"
@@ -61,7 +61,7 @@
               </el-select>
             </el-form-item>-->
           </el-col>
-          <el-col :span="12">
+          <el-col :span="12" :offset="1">
             <el-form-item :label="$t('test_track.review.end_time')" :label-width="formLabelWidth" prop="endTime">
               <el-date-picker @change="endTimeChange" type="datetime" :placeholder="$t('commons.select_date')"
                               v-model="form.endTime" style="width: 100%"/>
