@@ -370,6 +370,7 @@ export default {
       if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
         return;
       } else if (this.index === this.testCases.length - 1) {
+        // this.index = 0;
         this.$emit('nextPage');
         return;
       }
@@ -380,6 +381,7 @@ export default {
       if (this.index === 0 && this.pageNum === 1) {
         return;
       } else if (this.index === 0) {
+        // this.index = this.pageSize - 1;
         this.$emit('prePage');
         return;
       }
