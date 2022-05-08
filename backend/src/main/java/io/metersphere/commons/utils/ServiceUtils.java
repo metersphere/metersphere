@@ -265,6 +265,10 @@ public class ServiceUtils {
 
     public static void buildVersionInfo(List<? extends Object> list) {
         ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
+        if (projectVersionService == null) {
+            return;
+        }
+
         List<String> versionIds = list.stream()
                 .map(i -> {
                     Class<?> clazz = i.getClass();
