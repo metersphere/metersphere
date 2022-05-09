@@ -106,10 +106,8 @@
             </include>
         </if>
         <if test="${condition}.testName != null">
-            and `name`
-            <include refid="condition">
-                <property name="object" value="${condition}.testName"/>
-            </include>
+            and `scenario_id` IN
+                (SELECT id FROM api_scenario WHERE name like CONCAT('%',  #{${condition}.testName.value},'%') )
         </if>
         <if test="${condition}.createTime != null">
             and create_time
