@@ -9,7 +9,6 @@ spec:
   selector:
     matchLabels:
       app: ms-node-controller
-  replicas: 2
   template:
     metadata:
       labels:
