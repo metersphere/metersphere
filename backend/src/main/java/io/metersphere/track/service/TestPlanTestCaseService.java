@@ -130,6 +130,9 @@ public class TestPlanTestCaseService {
     public void editTestCaseBath(TestPlanCaseBatchRequest request) {
         TestPlanTestCaseExample testPlanTestCaseExample = getBatchExample(request);
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+        if (BooleanUtils.isFalse(request.isModifyExecutor()) && StringUtils.isNotBlank(SessionUtils.getUserId())) {
+            request.setExecutor(SessionUtils.getUserId());
+        }
         BeanUtils.copyBean(testPlanTestCase, request);
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
         testPlanTestCaseMapper.updateByExampleSelective(

@@ -721,6 +721,9 @@ export default {
     batchEdit(form) {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
       param[form.type] = form.value;
+      if (form.type === 'executor') {
+        param['modifyExecutor'] = true;
+      }
       param.ids = this.$refs.table.selectIds;
       this.$post('/test/plan/case/batch/edit', param, () => {
         this.$refs.table.clear();
