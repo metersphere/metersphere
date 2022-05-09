@@ -2450,6 +2450,10 @@ export default {
     usage: 'Usage',
     backend_listener: 'Backend Listener',
     batch_add_resource_tips: 'Format: IP, Port, Monitor, maximum concurrent number<br/>such as: 192.168.1.52,8082,9100,500',
+    k8s_sa_tips: 'Permissions required to use the K8S resource pool',
+    k8s_sa_download_tips: 'Download SA executable file',
+    k8s_deploy_type_tips: 'A DaemonSet or Deployment needs to be deployed to perform interface testing',
+    k8s_deploy_download_tips: 'Download the YAML executable file',
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',
