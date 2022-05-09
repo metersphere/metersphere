@@ -805,6 +805,7 @@ export class AssertionDocument extends BaseConfig {
     this.include = false;
     this.typeVerification = false;
     this.type = "object";
+    this.enable = true;
     this.arrayVerification = false;
     this.contentVerifications = "none";
     this.expectedOutcome = "";
@@ -851,7 +852,7 @@ export class Text extends AssertionType {
     this.subject = undefined;
     this.condition = undefined;
     this.value = undefined;
-
+    this.enable = true;
     this.set(options);
   }
 }
@@ -919,7 +920,7 @@ export class JSONPath extends AssertionType {
     this.expression = undefined;
     this.expect = undefined;
     this.description = undefined;
-
+    this.enable = true;
     this.set(options);
   }
 
