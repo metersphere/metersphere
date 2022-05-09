@@ -5,8 +5,14 @@
 
     <select id="getGroupList" resultType="io.metersphere.dto.GroupDTO">
         select *,
-        (select count(distinct ug.user_id) from user_group ug join user on ug.user_id = user.id where ug.group_id =
-        temp.id) as memberSize
+        <if test="request.onlyQueryCurrentProject == true">
+            (select count(distinct ug.user_id) from user_group ug join user on ug.user_id = user.id where ug.group_id =
+            temp.id and ug.source_id = #{request.projectId}) as memberSize
+        </if>
+        <if test="request.onlyQueryCurrentProject == false">
+            (select count(distinct ug.user_id) from user_group ug join user on ug.user_id = user.id where ug.group_id =
+            temp.id) as memberSize
+        </if>
         from (
         select g.*, w.name as scopeName from `group` g, workspace w
         <where>

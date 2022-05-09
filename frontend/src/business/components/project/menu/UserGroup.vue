@@ -146,7 +146,7 @@ export default {
     initData() {
       this.condition.projectId = this.projectId;
       if (this.projectId) {
-        this.result = this.$post("/user/group/get/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
+        this.result = this.$post("/user/group/get/current/project/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
           let data = res.data;
           if (data) {
             let {itemCount, listObject} = data;
@@ -205,7 +205,7 @@ export default {
       this.initData();
     },
     memberClick(row) {
-      this.$refs.groupMember.open(row);
+      this.$refs.groupMember.open(row, '/user/group/current/project/user/', 'user/ws/current/member/list');
     }
   }
 };

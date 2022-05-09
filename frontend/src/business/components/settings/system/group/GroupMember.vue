@@ -129,6 +129,8 @@ export default {
       title: '',
       submitType: '',
       userSelectDisable: false,
+      initUserGroupUrl: "/user/group/user/",
+      initUserUrl: "/user/list/",
       rules: {
         userIds: {required: true, message: this.$t('member.please_choose_member'), trigger: 'blur'},
         sourceIds: {required: true, message: this.$t('group.select_belong_source'), trigger: 'blur'}
@@ -153,7 +155,7 @@ export default {
   methods: {
     init() {
       this.condition.userGroupId = this.group.id;
-      this.result = this.$post("/user/group/user/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
+      this.result = this.$post(this.initUserGroupUrl + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         if (data) {
           let {itemCount, listObject} = data;
@@ -162,7 +164,9 @@ export default {
         }
       })
     },
-    open(group) {
+    open(group, initUserGroupUrl, initUserUrl) {
+      this.initUserGroupUrl = initUserGroupUrl ? initUserGroupUrl : "/user/group/user/";
+      this.initUserUrl = initUserUrl ? initUserUrl : "/user/list/";
       this.visible = true;
       this.group = group;
       this.init();
@@ -211,7 +215,7 @@ export default {
       })
     },
     getUser() {
-      this.memberResult = this.$get('/user/list/', response => {
+      this.memberResult = this.$get(this.initUserUrl, response => {
         this.users = response.data;
       })
     },

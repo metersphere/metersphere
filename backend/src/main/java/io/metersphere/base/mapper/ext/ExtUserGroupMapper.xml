@@ -60,6 +60,9 @@
         <if test="request.name != null and request.name !=''">
             and user.name like concat('%', #{request.name},'%')
         </if>
+        <if test="request.onlyQueryCurrentProject == true">
+            and ug.source_id = #{request.projectId}
+        </if>
         order by ug.update_time desc
     </select>
 
