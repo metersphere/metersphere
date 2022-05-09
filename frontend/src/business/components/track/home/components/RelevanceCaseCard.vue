@@ -13,20 +13,17 @@
       </el-aside>
 
       <el-main style="padding-left: 0px;padding-right: 0px;">
-        <div style="width: 300px;margin:0 auto">
-
-          <el-row align="center">
-            <el-col :span="6" style="width:90px;padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="relevanceCountData.apiCaseCountStr"></div>
-            </el-col>
-            <el-col :span="6" style="width:90px;padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="relevanceCountData.scenarioCaseStr"></div>
-            </el-col>
-            <el-col :span="6" style="width:90px;padding: 5px;">
-              <div class="count-info-div" v-html="relevanceCountData.performanceCaseCountStr"></div>
-            </el-col>
-          </el-row>
-        </div>
+        <el-row align="center">
+          <el-col :span="8" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+            <div class="count-info-div" v-html="relevanceCountData.apiCaseCountStr"></div>
+          </el-col>
+          <el-col :span="8" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+            <div class="count-info-div" v-html="relevanceCountData.scenarioCaseStr"></div>
+          </el-col>
+          <el-col :span="8" style="padding: 5px;">
+            <div class="count-info-div" v-html="relevanceCountData.performanceCaseCountStr"></div>
+          </el-col>
+        </el-row>
       </el-main>
     </el-container>
 
@@ -149,7 +146,8 @@ export default {
 }
 
 .count-info-div{
-  margin: 3px;
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
 .count-info-div >>>p{
   font-size: 10px;
