@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.group.EditGroupUserRequest;
@@ -17,6 +18,7 @@ import io.metersphere.dto.GroupDTO;
 import io.metersphere.dto.GroupPermissionDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.GroupService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +37,17 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/get/{goPage}/{pageSize}")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.PROJECT_GROUP_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
     public Pager<List<GroupDTO>> getGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
+        request.setGoPage(goPage);
+        request.setPageSize(pageSize);
+        return groupService.getGroupList(request);
+    }
+
+    @PostMapping("/get/current/project/{goPage}/{pageSize}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_GROUP_READ}, logical = Logical.OR)
+    public Pager<List<GroupDTO>> getCurrentProjectGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
+        request.setOnlyQueryCurrentProject(true);
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
         return groupService.getGroupList(request);
@@ -117,7 +128,19 @@ public class GroupController {
     }
 
     @PostMapping("/user/{goPage}/{pageSize}")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ}, logical = Logical.OR)
     public Pager<List<User>> getGroupUser(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest editGroupRequest) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, groupService.getGroupUser(editGroupRequest));
+    }
+
+    @PostMapping("/current/project/user/{goPage}/{pageSize}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_GROUP_READ}, logical = Logical.OR)
+    public Pager<List<User>> getCurrentProjectGroupUser(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest editGroupRequest) {
+        editGroupRequest.setOnlyQueryCurrentProject(true);
+        if (StringUtils.isBlank(editGroupRequest.getProjectId())) {
+            editGroupRequest.setProjectId(SessionUtils.getCurrentProjectId());
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, groupService.getGroupUser(editGroupRequest));
     }
