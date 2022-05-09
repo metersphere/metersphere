@@ -101,7 +101,7 @@
               </el-main>
             </el-container>
           </el-aside>
-          <el-main style="padding: 0px; height: 80px; float:right;">
+          <el-main style="padding: 0px;  float:right;">
             <el-card class="no-shadow-card" body-style="padding-left:5px;padding-right:5px">
               <main>
                 <el-row>
