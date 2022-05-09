@@ -78,7 +78,7 @@
     },
     data() {
       let validateURL = (rule, value, callback) => {
-        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
+        if (!this.httpForm.path.startsWith("/")) {
           callback(this.$t('api_test.definition.request.path_valid_info'));
         }
         callback();
@@ -112,7 +112,7 @@
       saveApi() {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
-            if (this.httpForm.path && this.httpForm.path.match(/\s/) != null) {
+            if (this.httpForm.path) {
               this.$error(this.$t("api_test.definition.request.path_valid_info"));
               return false;
             }
