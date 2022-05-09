@@ -905,7 +905,7 @@
     </select>
 
     <select id="getLastExecStatusByIdList" resultType="io.metersphere.track.dto.TestCaseDTO">
-        SELECT `status`
+        SELECT `status`, case_id as id
         FROM test_plan_test_case
         WHERE case_id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
