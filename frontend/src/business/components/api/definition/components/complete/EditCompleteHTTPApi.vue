@@ -220,7 +220,7 @@ export default {
   },
   data() {
     let validateURL = (rule, value, callback) => {
-      if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
+      if (!this.httpForm.path.startsWith("/")) {
         callback(this.$t('api_test.definition.request.path_valid_info'));
       }
       callback();
@@ -497,7 +497,7 @@ export default {
     },
     getURL(urlStr) {
       try {
-        let url = new URL(urlStr);
+        let url = urlStr;
         if (url.search && url.search.length > 1) {
           let params = url.search.substr(1).split("&");
           params.forEach(param => {
