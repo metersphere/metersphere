@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :condition.sync="condition" @search="search" :show-create="false">
+          <ms-table-header :condition.sync="condition" v-if="loadIsOver" @search="search" :show-create="false">
             <template v-slot:button>
               <el-button-group>
 
@@ -145,7 +145,7 @@
 
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
-import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
+import {REPORT_CASE_CONFIGS, REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -184,6 +184,7 @@ export default {
       multipleSelection: [],
       currentPage: 1,
       pageSize: 10,
+      loadIsOver: true,
       total: 0,
       loading: false,
       currentProjectId: "",
@@ -418,6 +419,15 @@ export default {
     },
     changeTab(tabType){
       this.trashActiveDom = tabType;
+      if(tabType === 'right'){
+        this.condition.components = REPORT_CASE_CONFIGS;
+      }else {
+        this.condition.components = REPORT_CONFIGS;
+      }
+      this.loadIsOver = false;
+      this.$nextTick( () => {
+        this.loadIsOver = true;
+      });
     },
   },
 
