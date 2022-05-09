@@ -54,7 +54,7 @@ public class KafkaConfig {
         producerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
         producerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        producerProps.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 20000);
+        producerProps.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 5000);
 
         producerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         producerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -70,7 +70,7 @@ public class KafkaConfig {
         //开启批量监听
         factory.setBatchListener(true);
 
-        factory.getContainerProperties().setPollTimeout(60000);
+        factory.getContainerProperties().setPollTimeout(5000L);
 
         //设置提交偏移量的方式，
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
