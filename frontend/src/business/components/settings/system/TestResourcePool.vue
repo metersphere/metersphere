@@ -87,7 +87,19 @@
             <el-input v-model="form.gcAlgo"
                       placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
           </el-form-item>
-          <el-form-item :label="$t('test_resource_pool.type')" prop="type">
+          <el-form-item prop="type">
+            <template v-slot:label>
+              {{ $t('test_resource_pool.type') }}
+              <el-popover
+                v-if="form.type === 'K8S'"
+                placement="bottom"
+                width="450"
+                title="使用K8S资源池需要的权限"
+                trigger="hover">
+                <el-link type="primary" @click="downloadYaml({deployType:'sa', deployName:'sa'})">sa.yaml</el-link>
+                <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+            </template>
             <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                        @change="changeResourceType(form.type)">
               <el-option key="NODE" value="NODE" label="Node">Node</el-option>
@@ -113,10 +125,36 @@
                 </el-col>
               </el-row>
               <el-row>
-                <el-col>
-                  <el-form-item label="Namespace"
-                                :rules="requiredRules">
+                <el-col :span="12">
+                  <el-form-item label="Namespace" :rules="requiredRules">
                     <el-input v-model="item.namespace" type="text"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item>
+                    <template v-slot:label>
+                      Deploy Type
+                      <el-popover
+                        placement="bottom"
+                        width="450"
+                        title="执行接口测试需要部署 DaemonSet 或 Deployment"
+                        trigger="hover">
+                        <el-link type="primary" @click="downloadYaml(item)">daemonset.yaml</el-link> &nbsp;
+                        <el-link type="primary" @click="downloadYaml(item)">deployment.yaml</el-link>
+                        <i class="el-icon-info" slot="reference"></i>
+                      </el-popover>
+                    </template>
+                    <el-select v-model="item.deployType" style="width: 100%">
+                      <el-option key="DaemonSet" value="DaemonSet" label="DaemonSet"/>
+                      <el-option key="Deployment" value="Deployment" label="Deployment"/>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col>
+                  <el-form-item label="Deploy Name" :rules="requiredRules">
+                    <el-input v-model="item.deployName"/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -143,13 +181,6 @@
                 <el-col :span="8">
                   <el-form-item :label="$t('test_resource_pool.sync_jar')">
                     <el-checkbox v-model="item.enable"/>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col>
-                  <el-form-item label="nodeSelector">
-                    <el-input v-model="item.nodeSelector" placeholder='{"disktype": "ssd",...}'/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -249,6 +280,7 @@ import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import BatchAddResource from "@/business/components/settings/system/components/BatchAddResource";
+import {getYaml} from "@/business/components/settings/system/test-resource-pool";
 
 export default {
   name: "MsTestResourcePool",
@@ -288,11 +320,16 @@ export default {
       updatePool: {
         testName: '',
         haveTestUsePool: false
-      }
+      },
+      apiImage: '',
+      kafkaBootstrapServers: '',
+      apiImageTag: '',
     };
   },
   activated() {
     this.initTableData();
+    this.getApiImageTag();
+    this.getKafkaBootstrapServers();
   },
   methods: {
     initTableData() {
@@ -316,6 +353,8 @@ export default {
         info.token = '';
         info.namespace = '';
         info.podThreadLimit = 5000;
+        info.deployType = 'DaemonSet';
+        info.deployName = 'ms-node-controller';
       }
       info.maxConcurrency = 100;
       this.infoList.push(info);
@@ -365,12 +404,11 @@ export default {
       if (this.infoList.length <= 0) {
         return {validate: false, msg: this.$t('test_resource_pool.cannot_empty')};
       }
-      let resourcePoolType = this.form.type;
       let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
       this.infoList.forEach(info => {
         for (let key in info) {
           // 排除非必填项
-          if (key === 'nodeSelector' || key === 'apiImage') {
+          if (key === 'deployName' || key === 'apiImage') {
             continue;
           }
           if (info[key] != '0' && !info[key]) {
@@ -382,13 +420,6 @@ export default {
         if (!info.maxConcurrency) {
           resultValidate.validate = false;
           return false;
-        }
-        if (resourcePoolType === 'K8S' && info.nodeSelector) {
-          let validate = this.isJsonString(info.nodeSelector);
-          if (!validate) {
-            resultValidate.validate = false;
-            resultValidate.msg = this.$t('test_resource_pool.node_selector_invalid');
-          }
         }
       });
 
@@ -417,6 +448,8 @@ export default {
           let configuration = JSON.parse(resource.configuration);
           configuration.id = resource.id;
           configuration.monitorPort = configuration.monitorPort || '9100';
+          configuration.deployType = configuration.deployType || 'DaemonSet';
+          configuration.deployName = configuration.deployName || 'ms-node-controller';
           resources.push(configuration);
         });
       }
@@ -549,15 +582,42 @@ export default {
         this.result.loading = false;
       });
     },
-    isJsonString(str) {
-      try {
-        if (typeof JSON.parse(str) == "object") {
-          return true;
-        }
-      } catch (e) {
-        console.log('json invalid');
+    downloadYaml(item) {
+      if (!item.namespace) {
+        this.$error(this.$t('test_resource_pool.fill_the_data'));
+        return;
       }
-      return false;
+      if (!item.deployName) {
+        this.$error(this.$t('test_resource_pool.fill_the_data'));
+        return;
+      }
+      let apiImage = 'registry.cn-qingdao.aliyuncs.com/metersphere/ms-node-controller:' + this.apiImageTag;
+      if (item.apiImage) {
+        apiImage = item.apiImage;
+      }
+      let yaml = getYaml(item.deployType, item.deployName, item.namespace, apiImage, this.kafkaBootstrapServers);
+      let blob = new Blob([yaml], {type: 'application/yaml'});
+      let url = URL.createObjectURL(blob);
+      let downloadAnchorNode = document.createElement('a')
+      downloadAnchorNode.setAttribute("href", url);
+      downloadAnchorNode.setAttribute("download", item.deployType.toLowerCase() + ".yaml")
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    },
+    getKafkaBootstrapServers() {
+      this.$get('/system/kafka-servers', response => {
+        this.kafkaBootstrapServers = response.data;
+      })
+    },
+    getApiImageTag() {
+      this.$get('/system/version', response => {
+        if (!response.data) {
+          this.apiImageTag = 'dev';
+          return;
+        }
+        let i = response.data.lastIndexOf('-');
+        this.apiImageTag = response.data.substring(0, i);
+      });
     }
   }
 };
