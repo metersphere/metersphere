@@ -409,7 +409,7 @@ export default {
       this.infoList.forEach(info => {
         for (let key in info) {
           // 排除非必填项
-          if (key === 'deployName' || key === 'apiImage') {
+          if (key === 'apiImage') {
             continue;
           }
           if (info[key] != '0' && !info[key]) {
@@ -423,7 +423,6 @@ export default {
           return false;
         }
       });
-
       return resultValidate;
     },
     buildPagePath(path) {
@@ -451,6 +450,7 @@ export default {
           configuration.monitorPort = configuration.monitorPort || '9100';
           configuration.deployType = configuration.deployType || 'DaemonSet';
           configuration.deployName = configuration.deployName || 'ms-node-controller';
+          delete configuration.nodeSelector;
           resources.push(configuration);
         });
       }
