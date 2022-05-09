@@ -12,4 +12,5 @@ import java.util.List;
 public class TestPlanCaseBatchRequest extends TestPlanTestCase {
     private List<String> ids;
     private TestPlanFuncCaseConditions condition;
+    private boolean modifyExecutor;
 }
