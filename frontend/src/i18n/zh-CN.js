@@ -2454,6 +2454,10 @@ export default {
     usage: '用途',
     backend_listener: '后置监听器',
     batch_add_resource_tips: '格式：IP,Port,Monitor,最大并发数<br/>如：192.168.1.52,8082,9100,500',
+    k8s_sa_tips: '使用K8S资源池需要的权限',
+    k8s_sa_download_tips: '下载SA执行文件',
+    k8s_deploy_type_tips: '执行接口测试需要部署 DaemonSet 或 Deployment',
+    k8s_deploy_download_tips: '下载YAML执行文件',
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',

@@ -94,9 +94,11 @@
                 v-if="form.type === 'K8S'"
                 placement="bottom"
                 width="450"
-                title="使用K8S资源池需要的权限"
+                :title="$t('test_resource_pool.k8s_sa_tips')"
                 trigger="hover">
-                <el-link type="primary" @click="downloadYaml({deployType:'sa', deployName:'sa'})">sa.yaml</el-link>
+                <el-link type="primary" @click="downloadYaml({deployType:'sa', deployName:'sa'})">
+                  {{ $t('test_resource_pool.k8s_sa_download_tips') }}
+                </el-link>
                 <i class="el-icon-info" slot="reference"></i>
               </el-popover>
             </template>
@@ -137,10 +139,9 @@
                       <el-popover
                         placement="bottom"
                         width="450"
-                        title="执行接口测试需要部署 DaemonSet 或 Deployment"
+                        :title="$t('test_resource_pool.k8s_deploy_type_tips')"
                         trigger="hover">
-                        <el-link type="primary" @click="downloadYaml(item)">daemonset.yaml</el-link> &nbsp;
-                        <el-link type="primary" @click="downloadYaml(item)">deployment.yaml</el-link>
+                        <el-link type="primary" @click="downloadYaml(item)">{{ $t('test_resource_pool.k8s_deploy_download_tips') }}</el-link>
                         <i class="el-icon-info" slot="reference"></i>
                       </el-popover>
                     </template>
