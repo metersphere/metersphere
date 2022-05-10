@@ -1,6 +1,7 @@
 package io.metersphere.api.parse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -164,6 +165,15 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         body.initKvs();
         body.initBinary();
         request.setBody(body);
+        return request;
+    }
+
+    protected MsHTTPSamplerProxy buildRequest(String name, String path, String method, String jsonSchema) {
+        MsHTTPSamplerProxy request = buildRequest(name, path, method);
+        if (StringUtils.isNotBlank(jsonSchema)) {
+            request.getBody().setJsonSchema(JSONObject.parseObject(jsonSchema));
+            request.getBody().setFormat("JSON-SCHEMA");
+        }
         return request;
     }
 

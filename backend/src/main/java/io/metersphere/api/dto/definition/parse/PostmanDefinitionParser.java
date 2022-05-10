@@ -66,13 +66,15 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
             if (childItems != null) {
                 ApiModule module = null;
                 module = ApiDefinitionImportUtil.buildModule(parentModule, item.getName(), this.projectId);
-                parseItem(childItems, variables, results, module,  path + "/" + module.getName(), cases, repeatMap, repeatable);
+                parseItem(childItems, variables, results, module, path + "/" + module.getName(), cases, repeatMap, repeatable);
             } else {
                 MsHTTPSamplerProxy msHTTPSamplerProxy = parsePostman(item);
+                MsHTTPSamplerProxy response = parsePostmanResponse(item);
                 ApiDefinitionWithBLOBs request = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(),
                         msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), new ApiTestImportRequest());
                 request.setPath(msHTTPSamplerProxy.getPath());
                 request.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
+                request.setResponse(JSON.toJSONString(response));
                 if (parentModule != null) {
                     request.setModuleId(parentModule.getId());
                     if (StringUtils.isNotBlank(this.selectModulePath)) {
@@ -84,7 +86,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                 if (request != null) {
                     if (repeatMap.keySet().contains(request.getMethod() + request.getPath())
                             && (repeatable == null || repeatable == false)) {
-                        ApiTestCaseWithBLOBs apiTestCase =  new ApiTestCaseWithBLOBs();
+                        ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                         BeanUtils.copyBean(apiTestCase, request);
                         apiTestCase.setApiDefinitionId(repeatMap.get(request.getMethod() + request.getPath()));
                         apiTestCase.setPriority("P0");
