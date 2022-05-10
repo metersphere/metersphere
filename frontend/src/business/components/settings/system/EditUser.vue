@@ -63,7 +63,7 @@
                           :rules="{required: true, message: $t('user.select_project'), trigger: 'change'}"
             >
               <el-select filterable v-model="group.ids" :placeholder="$t('user.select_project')" multiple
-                         class="edit-user-select">
+                         class="edit-user-select" >
                 <el-option
                   v-for="item in group.projects"
                   :key="item.id"
@@ -214,6 +214,28 @@ export default {
     },
     removeGroup(item) {
       let index = this.form.groups.indexOf(item);
+      let type = item.type.split("+")[1];
+      if (type === this.ws) {
+        let isHaveWorkspace = 0;
+        let isHaveProject = 0;
+        for (let i = 0; i < this.form.groups.length; i++) {
+          if (index === i) {
+            continue;
+          }
+          let group = this.form.groups[i];
+          let _type = group.type.split("+")[1];
+          if (_type === this.ws) {
+            isHaveWorkspace += 1;
+          }
+          if (_type === this.project) {
+            isHaveProject += 1;
+          }
+        }
+        if (isHaveWorkspace === 0 && isHaveProject >0 ) {
+          this.$message.warning("不符合删除条件")
+          return;
+        }
+      }
       if (index !== -1) {
         this.form.groups.splice(index, 1)
       }
@@ -274,10 +296,39 @@ export default {
       }
       let id = idType.split("+")[0];
       let type = idType.split("+")[1];
+      let isHaveWorkspace = false;
+      if (type === 'PROJECT') {
+        for (let i = 0; i < this.form.groups.length; i++) {
+          let group = this.form.groups[i];
+          let _type = group.type.split("+")[1];
+          if (_type === 'WORKSPACE') {
+            isHaveWorkspace = true;
+            break;
+          }
+        }
+      }
       this.result = this.$get('/workspace/list/resource/' + id + "/" + type, res => {
         let data = res.data;
         if (data) {
           this._setResource(data, index, type);
+          if(isHaveWorkspace === false ){
+            this.result = this.$get('/workspace/list/resource/' + id + "/WORKSPACE", res => {
+              let data = res.data;
+              if (data) {
+                let roleInfo = {};
+                roleInfo.selects = [];
+                let ids = this.form.groups.map(r => r.type);
+                ids.forEach(id => {
+                  roleInfo.selects.push(id);
+                })
+                roleInfo.type = "ws_member+WORKSPACE";
+                roleInfo.ids = [];
+                let groups = this.form.groups;
+                groups.push(roleInfo);
+                this._setResource(data, index+1, 'WORKSPACE');
+              }
+            })
+          }
         }
       })
     },
