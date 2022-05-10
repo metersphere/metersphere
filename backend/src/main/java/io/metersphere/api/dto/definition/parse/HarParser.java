@@ -80,7 +80,7 @@ public class HarParser extends HarAbstractParser {
         for (HarEntry entry : harEntryList) {
             HarRequest harRequest = entry.request;
             String url = harRequest.url;
-            if(url == null){
+            if (url == null) {
                 continue;
             }
 
@@ -89,12 +89,12 @@ public class HarParser extends HarAbstractParser {
                 if (url.contains("?")) {
                     url = url.split("\\?")[0];
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
             }
 
-            if(savedUrl.contains(harRequest.url)){
+            if (savedUrl.contains(harRequest.url)) {
                 continue;
-            }else {
+            } else {
                 savedUrl.add(harRequest.url);
             }
 
@@ -106,7 +106,7 @@ public class HarParser extends HarAbstractParser {
             }
 
             if (harRequest != null) {
-                MsHTTPSamplerProxy request = super.buildRequest(reqName, url, harRequest.method);
+                MsHTTPSamplerProxy request = super.buildRequest(reqName, url, harRequest.method, null);
                 ApiDefinitionWithBLOBs apiDefinition = super.buildApiDefinition(request.getId(), reqName, url, harRequest.method, importRequest);
                 parseParameters(harRequest, request);
                 parseRequestBody(harRequest, request.getBody());
@@ -156,7 +156,7 @@ public class HarParser extends HarAbstractParser {
     }
 
     private void parseHeaderParameters(HarHeader harHeader, List<KeyValue> headers) {
-        addHeader(headers, harHeader.name, harHeader.value,harHeader.comment, "", false);
+        addHeader(headers, harHeader.name, harHeader.value, harHeader.comment, "", false);
     }
 
     private HttpResponse parseResponse(HarResponse response) {
@@ -206,15 +206,15 @@ public class HarParser extends HarAbstractParser {
                 contentType = org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
                 List<HarPostParam> postParams = content.params;
                 for (HarPostParam postParam : postParams) {
-                    KeyValue kv = new KeyValue(postParam.name,postParam.value);
+                    KeyValue kv = new KeyValue(postParam.name, postParam.value);
                     body.getKvs().add(kv);
                 }
             } else if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
                 contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
                 List<HarPostParam> postParams = content.params;
-                if(CollectionUtils.isNotEmpty(postParams)){
+                if (CollectionUtils.isNotEmpty(postParams)) {
                     for (HarPostParam postParam : postParams) {
-                        KeyValue kv = new KeyValue(postParam.name,postParam.value);
+                        KeyValue kv = new KeyValue(postParam.name, postParam.value);
                         body.getKvs().add(kv);
                     }
                 }
@@ -228,7 +228,7 @@ public class HarParser extends HarAbstractParser {
                 contentType = org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
                 List<HarPostParam> postParams = content.params;
                 for (HarPostParam postParam : postParams) {
-                    KeyValue kv = new KeyValue(postParam.name,postParam.value);
+                    KeyValue kv = new KeyValue(postParam.name, postParam.value);
                     body.getKvs().add(kv);
                 }
             } else {
@@ -243,7 +243,7 @@ public class HarParser extends HarAbstractParser {
             return;
         }
         String contentType = content.mimeType;
-        if(body != null){
+        if (body != null) {
             body.setType(getBodyType(contentType));
             body.setRaw(content.text);
         }
