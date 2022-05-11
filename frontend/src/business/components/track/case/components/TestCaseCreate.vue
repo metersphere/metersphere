@@ -35,8 +35,8 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item :label="$t('commons.description')" prop="description" style="margin-bottom: 29px">
-        <el-input class="ms-http-textarea" v-model="testCaseForm.description"
+      <el-form-item :label="$t('commons.remark')" prop="description" style="margin-bottom: 29px">
+        <el-input class="ms-http-textarea" v-model="testCaseForm.remark"
                   type="textarea"
                   :autosize="{ minRows: 2, maxRows: 10}"
                   :rows="2" size="small"/>
