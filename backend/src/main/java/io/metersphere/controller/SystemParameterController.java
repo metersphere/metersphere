@@ -6,7 +6,6 @@ import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.ParamConstants;
-import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.SystemStatisticData;
@@ -37,8 +36,6 @@ public class SystemParameterController {
     private WorkspaceService workspaceService;
     @Resource
     private ProjectService projectService;
-    @Resource
-    private KafkaProperties kafkaProperties;
 
     @PostMapping("/edit/email")
     @MsAuditLog(module = OperLogModule.SYSTEM_PARAMETER_SETTING, type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
@@ -54,11 +51,6 @@ public class SystemParameterController {
     @GetMapping("/version")
     public String getVersion() {
         return systemParameterService.getVersion();
-    }
-
-    @GetMapping("/kafka-servers")
-    public String getKafkaBootstrapServers() {
-        return kafkaProperties.getBootstrapServers();
     }
 
     @GetMapping("/theme")

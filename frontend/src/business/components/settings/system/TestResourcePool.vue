@@ -87,21 +87,7 @@
             <el-input v-model="form.gcAlgo"
                       placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
           </el-form-item>
-          <el-form-item prop="type">
-            <template v-slot:label>
-              {{ $t('test_resource_pool.type') }}
-              <el-popover
-                v-if="form.type === 'K8S'"
-                placement="bottom"
-                width="450"
-                :title="$t('test_resource_pool.k8s_sa_tips')"
-                trigger="hover">
-                <el-link type="primary" @click="downloadYaml({deployType:'sa', deployName:'sa'})">
-                  {{ $t('test_resource_pool.k8s_sa_download_tips') }}
-                </el-link>
-                <i class="el-icon-info" slot="reference"></i>
-              </el-popover>
-            </template>
+          <el-form-item prop="type" :label="$t('test_resource_pool.type')">
             <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                        @change="changeResourceType(form.type)">
               <el-option key="NODE" value="NODE" label="Node">Node</el-option>
@@ -127,28 +113,29 @@
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="12">
+                <el-col>
                   <el-form-item label="Namespace" :rules="requiredRules">
-                    <el-input v-model="item.namespace" type="text"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item>
                     <template v-slot:label>
-                      Deploy Type
+                      Namespace
                       <el-popover
                         placement="bottom"
                         width="450"
-                        :title="$t('test_resource_pool.k8s_deploy_type_tips')"
                         trigger="hover">
-                        <el-link type="primary" @click="downloadYaml(item)">{{ $t('test_resource_pool.k8s_deploy_download_tips') }}</el-link>
+                        <div>
+                          <strong>{{ $t('test_resource_pool.k8s_sa_tips') }}</strong><br>
+                          <el-link type="primary" @click="downloadYaml(item, 'sa')">sa.yaml</el-link>
+                        </div>
+
+                        <div style="padding-top: 20px">
+                          <strong>{{ $t('test_resource_pool.k8s_deploy_type_tips') }}</strong><br>
+                          <el-link type="primary" @click="downloadYaml(item, 'DaemonSet')">daemonset.yaml</el-link>
+                          &nbsp;
+                          <el-link type="primary" @click="downloadYaml(item, 'Deployment')">deployment.yaml</el-link>
+                        </div>
                         <i class="el-icon-info" slot="reference"></i>
                       </el-popover>
                     </template>
-                    <el-select v-model="item.deployType" style="width: 100%">
-                      <el-option key="DaemonSet" value="DaemonSet" label="DaemonSet"/>
-                      <el-option key="Deployment" value="Deployment" label="Deployment"/>
-                    </el-select>
+                    <el-input v-model="item.namespace" type="text"/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -323,14 +310,12 @@ export default {
         haveTestUsePool: false
       },
       apiImage: '',
-      kafkaBootstrapServers: '',
       apiImageTag: '',
     };
   },
   activated() {
     this.initTableData();
     this.getApiImageTag();
-    this.getKafkaBootstrapServers();
   },
   methods: {
     initTableData() {
@@ -583,7 +568,7 @@ export default {
         this.result.loading = false;
       });
     },
-    downloadYaml(item) {
+    downloadYaml(item, deployType) {
       if (!item.namespace) {
         this.$error(this.$t('test_resource_pool.fill_the_data'));
         return;
@@ -596,19 +581,14 @@ export default {
       if (item.apiImage) {
         apiImage = item.apiImage;
       }
-      let yaml = getYaml(item.deployType, item.deployName, item.namespace, apiImage, this.kafkaBootstrapServers);
+      let yaml = getYaml(deployType, item.deployName, item.namespace, apiImage);
       let blob = new Blob([yaml], {type: 'application/yaml'});
       let url = URL.createObjectURL(blob);
       let downloadAnchorNode = document.createElement('a')
       downloadAnchorNode.setAttribute("href", url);
-      downloadAnchorNode.setAttribute("download", item.deployType.toLowerCase() + ".yaml")
+      downloadAnchorNode.setAttribute("download", deployType.toLowerCase() + ".yaml")
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
-    },
-    getKafkaBootstrapServers() {
-      this.$get('/system/kafka-servers', response => {
-        this.kafkaBootstrapServers = response.data;
-      })
     },
     getApiImageTag() {
       this.$get('/system/version', response => {

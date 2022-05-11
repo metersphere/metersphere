@@ -28,8 +28,6 @@ spec:
             weight: 100
       containers:
       - env:
-        - name: KAFKA_BOOTSTRAP-SERVERS
-          value: {kafkaBootstrapServers}
         image: {image}
         imagePullPolicy: IfNotPresent
         name: ms-node-controller
@@ -77,8 +75,6 @@ spec:
             weight: 100
       containers:
       - env:
-        - name: KAFKA_BOOTSTRAP-SERVERS
-          value: {kafkaBootstrapServers}
         image: {image}
         imagePullPolicy: IfNotPresent
         name: ms-node-controller
@@ -155,20 +151,18 @@ rules:
   - delete
 `
 
-export function getYaml(type, name, namespace, image, kafkaBootstrapServers) {
+export function getYaml(type, name, namespace, image) {
   if (type === 'Deployment') {
     return deployment
       .replace('{name}', name)
       .replace('{namespace}', namespace)
-      .replace('{image}', image)
-      .replace('{kafkaBootstrapServers}', kafkaBootstrapServers);
+      .replace('{image}', image);
   }
   if (type === 'DaemonSet') {
     return daemonSet
       .replace('{name}', name)
       .replace('{namespace}', namespace)
-      .replace('{image}', image)
-      .replace('{kafkaBootstrapServers}', kafkaBootstrapServers);
+      .replace('{image}', image);
   }
   if (type === 'sa') {
     return sa.replace('{namespace}', namespace);
