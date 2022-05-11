@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
         requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
-        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? "" : url.getRaw(), requestDesc.getMethod(), requestDesc.getBody().getString("jsonSchema"));
+        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? "" : url.getRaw(), requestDesc.getMethod(), Optional.ofNullable(requestDesc.getBody()).orElse(new JSONObject()).getString("jsonSchema"));
         request.setRest(parseKeyValue(requestDesc.getUrl().getVariable()));
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];

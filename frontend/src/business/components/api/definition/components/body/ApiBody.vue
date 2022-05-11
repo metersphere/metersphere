@@ -139,7 +139,7 @@ export default {
       this.reloadCodeEdit();
     },
     'body.raw'() {
-      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw) {
+      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw && !this.body.jsonSchema) {
         try {
           const MsConvert = new Convert();
           let data = MsConvert.format(JSON.parse(this.body.raw));
