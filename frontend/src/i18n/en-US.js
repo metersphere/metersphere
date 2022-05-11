@@ -109,6 +109,7 @@ export default {
     personal_setting: 'Personal Setting',
     api_keys: 'API Keys',
     third_account: 'Third Account',
+    ui_setting: 'UI Setting',
     quota: 'Quota',
     test_resource_pool: 'Resource Pool',
     system_setting: 'Settings',
@@ -118,6 +119,7 @@ export default {
     follow_api: 'Follow API definition',
     response_time_delay: 'Response delay time',
     my_workstation: 'MyWorkstation',
+    ui_test: 'UiTest',
     performance: 'Performance',
     enable_settings: 'Enable Settings',
     view_settings: 'View Settings',
@@ -3119,6 +3121,7 @@ export default {
       api_keys: 'API Keys',
       edit_password: "EDIT PASSWORD",
       third_account: 'Third Account',
+      ui_setting: 'UI Setting',
     },
     other: {
       track: "Track",
@@ -3157,5 +3160,8 @@ export default {
     ui_automation: "UI Automation",
     ui_element: "UI Element Library",
     report: "Test Report",
+    ui_debug_mode: 'UI debugging mode',
+    ui_local_debug: 'local',
+    ui_server_debug: 'server', 
   }
 };
