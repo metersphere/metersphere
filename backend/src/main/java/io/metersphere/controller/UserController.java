@@ -9,10 +9,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.controller.request.member.AddMemberRequest;
-import io.metersphere.controller.request.member.EditPassWordRequest;
-import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.controller.request.member.UserRequest;
+import io.metersphere.controller.request.member.*;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserGroupPermissionDTO;
@@ -268,5 +265,19 @@ public class UserController {
     @GetMapping("/get/ws_pj/{userId}")
     public Map<Object, Object> getWSAndProjectByUserId(@PathVariable String userId) {
         return userService.getWSAndProjectByUserId(userId);
+    }
+
+    /**
+     * 配置 用户的selenium-server 地址 ip:port
+     */
+    @PostMapping("/update/seleniumServer")
+    @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.UPDATE, title = "selenium-server地址")
+    public int updateSeleniumServer(@RequestBody EditSeleniumServerRequest request) {
+        return userService.updateUserSeleniumServer(request);
+    }
+
+    @GetMapping("/verify/seleniumServer")
+    public String verifySeleniumServer() {
+        return userService.verifyUserSeleniumServer();
     }
 }
