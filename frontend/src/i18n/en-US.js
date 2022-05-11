@@ -2535,6 +2535,7 @@ export default {
     generate_expression: "Generate Expression",
     cron_expression_format_error: "Cron Expression Format Error",
     cron_expression_interval_short_error: "Interval time shorter than 3 minutes, please avoid running tests that take too long",
+    cron_expression_interval_error: "The interval cannot be less than 1 minute",
     cron: {
       seconds: "Seconds",
       minutes: "Minutes",

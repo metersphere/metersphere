@@ -2539,6 +2539,7 @@ export default {
     generate_expression: "自动生成",
     cron_expression_format_error: "Cron 表达式格式错误",
     cron_expression_interval_short_error: "间隔时间小于 3 分钟, 请避免执行耗时过长的测试",
+    cron_expression_interval_error: "间隔时间不能小于 1 分钟",
     cron: {
       seconds: "秒",
       minutes: "分钟",
