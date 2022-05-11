@@ -12,9 +12,9 @@
               <div class="el-step__icon-inner">1</div>
             </div>
             <span>{{ $t('schedule.edit_timer_task') }}</span>
-            <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;">
+            <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;" class="ms-el-form-item__error">
               <el-form-item :label="$t('commons.schedule_cron_title')"
-                            prop="cronValue">
+                            prop="cronValue" style="height: 50px">
                 <el-row :gutter="20">
                   <el-col :span="16">
                     <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
@@ -183,7 +183,10 @@ export default {
         callback(new Error(this.$t('commons.input_content')));
       } else if (!cronValidate(cronValue)) {
         callback(new Error(this.$t('schedule.cron_expression_format_error')));
-      } else if (!customValidate.pass) {
+      }else if(!this.intervalValidate()){
+        callback(new Error(this.$t('schedule.cron_expression_interval_error')));
+      }
+      else if (!customValidate.pass) {
         callback(new Error(customValidate.info));
       } else {
         if (!this.schedule.id){
@@ -230,6 +233,12 @@ export default {
   methods: {
     currentUser: () => {
       return getCurrentUser();
+    },
+    intervalValidate() {
+      if (this.getIntervalTime() < 1 * 60 * 1000) {
+        return false;
+      }
+      return true;
     },
     scheduleChange() {
       let flag = this.schedule.enable;
@@ -486,6 +495,11 @@ export default {
 >>> .el-link {
   /* display: -webkit-inline-box; */
   /* display: inline-flex; */
+}
+
+.ms-el-form-item__error >>> .el-form-item__error{
+  left: -42px;
+  padding-top: 0px;
 }
 
 </style>

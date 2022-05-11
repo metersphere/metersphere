@@ -81,7 +81,10 @@ export default {
         callback(new Error(this.$t('commons.input_content')));
       } else if (!cronValidate(cronValue)) {
         callback(new Error(this.$t('schedule.cron_expression_format_error')));
-      } else if (!customValidate.pass) {
+      }else if(!this.intervalValidate()){
+        callback(new Error(this.$t('schedule.cron_expression_interval_error')));
+      }
+      else if (!customValidate.pass) {
         callback(new Error(customValidate.info));
       } else {
         callback();
@@ -112,6 +115,12 @@ export default {
   methods: {
     currentUser: () => {
       return getCurrentUser();
+    },
+    intervalValidate() {
+      if (this.getIntervalTime() < 1 * 60 * 1000) {
+        return false;
+      }
+      return true;
     },
     open(param) {
       this.$post("/api/definition/getResourceId", param, response => {

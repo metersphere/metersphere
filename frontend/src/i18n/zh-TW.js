@@ -2534,6 +2534,7 @@ export default {
     generate_expression: "自动生成",
     cron_expression_format_error: "Cron 表達式格式錯誤",
     cron_expression_interval_short_error: "間隔時間小於 3 分鐘, 請避免執行耗時過長的測試",
+    cron_expression_interval_error: "間隔時間不能小於 1 分鐘",
     cron: {
       seconds: "秒",
       minutes: "分鐘",
