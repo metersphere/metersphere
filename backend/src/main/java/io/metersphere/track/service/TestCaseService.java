@@ -476,7 +476,8 @@ public class TestCaseService {
             criteria.andNameEqualTo(testCase.getName())
                     .andProjectIdEqualTo(testCase.getProjectId())
                     .andNodePathEqualTo(nodePath)
-                    .andTypeEqualTo(testCase.getType());
+                    .andTypeEqualTo(testCase.getType())
+                    .andStatusNotEqualTo("Trash");
             if (StringUtils.isNotBlank(testCase.getPriority())) {
                 criteria.andPriorityEqualTo(testCase.getPriority());
             }
