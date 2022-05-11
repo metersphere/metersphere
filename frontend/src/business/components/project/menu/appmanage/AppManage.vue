@@ -39,6 +39,28 @@
               </el-row>
             </el-tab-pane>
 
+            <!-- UI 测试 -->
+            <el-tab-pane v-if="isXpack" :label="$t('commons.ui_test')" name="ui_test" >
+              <el-row style="margin-top: 10px">
+                <span style="font-weight:bold">{{ $t('commons.view_settings') }}</span>
+              </el-row>
+              <el-row style="margin-top: 15px">
+                <app-manage-item :title="$t('ui.ui_debug_mode')"
+                                 :append-span="12" :prepend-span="12" :middle-span="0">
+                  <template #append>
+                    <el-radio-group v-model="config.uiQuickMenu" @change="switchChange('UI_QUICK_MENU', $event)">
+                      <el-radio label="local" value="local">
+                        {{ $t('ui.ui_local_debug') }}
+                      </el-radio>
+                      <el-radio label="server" value="server">
+                        {{ $t('ui.ui_server_debug') }}
+                      </el-radio>
+                    </el-radio-group>
+                  </template>
+                </app-manage-item>
+              </el-row>
+            </el-tab-pane>
+
             <el-tab-pane :label="$t('commons.api')" name="api">
               <el-row :gutter="20">
                 <el-col :span="8">
@@ -178,6 +200,7 @@ export default {
         caseCustomNum: false,
         scenarioCustomNum: false,
         apiQuickMenu: "",
+        uiQuickMenu: "server",
         casePublic: false,
         mockTcpPort: 0,
         mockTcpOpen: false,
@@ -224,6 +247,9 @@ export default {
         if (res.data) {
           this.config = res.data;
           this.config.shareReport = true;
+          if(!this.config.uiQuickMenu){
+            this.config.uiQuickMenu = "server";
+          }
         }
       });
     }
