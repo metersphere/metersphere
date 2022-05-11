@@ -172,7 +172,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         MsHTTPSamplerProxy request = buildRequest(name, path, method);
         if (StringUtils.isNotBlank(jsonSchema)) {
             request.getBody().setJsonSchema(JSONObject.parseObject(jsonSchema));
-            request.getBody().setFormat("JSON-SCHEMA");
+            request.getBody().setFormat("Raw");
         }
         return request;
     }
