@@ -20,6 +20,8 @@ public class RunDefinitionRequest {
 
     private boolean saved;
 
+    private boolean runLocal;
+
     private String requestId;
 
     private String name;

@@ -46,6 +46,12 @@ export default {
       return getCurrentUser();
     },
   },
+  mounted() {
+    this.$EventBus.$on('showPersonInfo', this.handleCommand)
+  },
+  beforeDestroy(){
+    this.$EventBus.$off("showPersonInfo")
+  },
   methods: {
     logout: function () {
       logout();

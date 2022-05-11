@@ -19,10 +19,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.WorkspaceRequest;
-import io.metersphere.controller.request.member.AddMemberRequest;
-import io.metersphere.controller.request.member.EditPassWordRequest;
-import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.controller.request.member.UserRequest;
+import io.metersphere.controller.request.member.*;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.dto.GroupResourceDTO;
 import io.metersphere.dto.UserDTO;
@@ -39,6 +36,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
+import okhttp3.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -59,6 +57,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
@@ -102,7 +101,7 @@ public class UserService {
     }
 
     public Map<String, User> queryNameByIds(List<String> userIds) {
-        if(userIds.isEmpty()){
+        if (userIds.isEmpty()) {
             return new HashMap<>(0);
         }
         return extUserMapper.queryNameByIds(userIds);
@@ -171,7 +170,7 @@ public class UserService {
 
     private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, int size) {
         if (quotaService != null) {
-            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> size));
+            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap(id -> id, id -> size));
             quotaService.checkMemberCount(addMemberMap, type);
         }
     }
@@ -1345,5 +1344,65 @@ public class UserService {
         }
 
         return false;
+    }
+
+    public int updateUserSeleniumServer(EditSeleniumServerRequest request) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId());
+        List<User> users = userMapper.selectByExample(userExample);
+        if (!CollectionUtils.isEmpty(users)) {
+            User user = users.get(0);
+            String seleniumServer = request.getSeleniumServer();
+            user.setSeleniumServer(StringUtils.isBlank(seleniumServer) ? "" : seleniumServer.trim());
+            user.setUpdateTime(System.currentTimeMillis());
+            //更新session seleniumServer 信息
+            SessionUser sessionUser = SessionUtils.getUser();
+            sessionUser.setSeleniumServer(seleniumServer);
+            SessionUtils.putUser(sessionUser);
+            return userMapper.updateByPrimaryKeySelective(user);
+        }
+        MSException.throwException("更新selenium-server地址失败！");
+        return 0;
+    }
+
+    public String verifyUserSeleniumServer() {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId());
+        List<User> users = userMapper.selectByExample(userExample);
+        if (!CollectionUtils.isEmpty(users)) {
+            User user = users.get(0);
+            if (StringUtils.isBlank(user.getSeleniumServer())) {
+                return "configErr";
+            }
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType,
+                    "{\"operationName\":\"\",\"variables\":{},\"query\":\"query Summary {\\n  grid {\\n    uri\\n    totalSlots\\n    nodeCount\\n    maxSession\\n    sessionCount\\n    sessionQueueSize\\n    version\\n    __typename\\n  }\\n}\"}");
+            Request req = new Request.Builder()
+                    .url(user.getSeleniumServer() + "/graphql")
+                    .method("POST", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            Response response = null;
+            try {
+                response = client.newCall(req).execute();
+                if (!response.isSuccessful()) {
+                    return "connectionErr";
+                }
+            } catch (Exception e) {
+                return "connectionErr";
+            } finally {
+                try {
+                    if (response != null) {
+                        response.close();
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+        }
+        return "ok";
     }
 }

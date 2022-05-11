@@ -13,6 +13,7 @@
     <result column="last_workspace_id" jdbcType="VARCHAR" property="lastWorkspaceId" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="selenium_server" jdbcType="VARCHAR" property="seleniumServer" />
     <result column="last_project_id" jdbcType="VARCHAR" property="lastProjectId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
@@ -79,7 +80,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, email, `password`, `status`, create_time, update_time, `language`, last_workspace_id, 
-    phone, `source`, last_project_id, create_user
+    phone, `source`, selenium_server, last_project_id, create_user
   </sql>
   <sql id="Blob_Column_List">
     platform_info
@@ -371,6 +372,9 @@
       </if>
       <if test="platformInfo != null">
         platform_info = #{platformInfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="seleniumServer != null">
+        `selenium_server` = #{seleniumServer,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
