@@ -220,6 +220,12 @@
             <version>5.1.0</version>
         </dependency>
 
+        <dependency>
+            <artifactId>xz</artifactId>
+            <groupId>org.tukaani</groupId>
+            <version>1.9</version>
+        </dependency>
+
 
         <!--   排除jmeter中的 xstream 解决bug     -->
         <dependency>
