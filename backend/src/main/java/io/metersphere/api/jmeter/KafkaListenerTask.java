@@ -56,7 +56,9 @@ public class KafkaListenerTask implements Runnable {
                 if (testResult != null) {
                     if (testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END") && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
                         resultDTOS.add(testResult);
-                    } else {
+                    }
+                    // 携带结果
+                    if (CollectionUtils.isNotEmpty(testResult.getRequestResults())) {
                         String key = RUN_MODE_MAP.get(testResult.getRunMode());
                         if (assortMap.containsKey(key)) {
                             assortMap.get(key).add(testResult);
@@ -68,6 +70,7 @@ public class KafkaListenerTask implements Runnable {
                     }
                 }
             });
+
             if (MapUtils.isNotEmpty(assortMap)) {
                 LoggerUtil.info("KAFKA消费执行内容存储开始");
                 testResultService.batchSaveResults(assortMap);

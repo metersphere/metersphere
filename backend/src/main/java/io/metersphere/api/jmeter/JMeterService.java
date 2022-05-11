@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
+import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.JvmInfoDTO;
@@ -22,9 +23,11 @@ import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -72,12 +75,25 @@ public class JMeterService {
         }
     }
 
+    /**
+     * 添加调试监听
+     *
+     * @param testId
+     * @param testPlan
+     */
     private void addDebugListener(String testId, HashTree testPlan) {
         MsDebugListener resultCollector = new MsDebugListener();
         resultCollector.setName(testId);
         resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
+
+        // 添加DEBUG标示
+        HashTree test = ArrayUtils.isNotEmpty(testPlan.getArray()) ? testPlan.getTree(testPlan.getArray()[0]) : null;
+        if (test != null && ArrayUtils.isNotEmpty(test.getArray()) && test.getArray()[0] instanceof ThreadGroup) {
+            ThreadGroup group = (ThreadGroup) test.getArray()[0];
+            group.setProperty(BackendListenerConstants.MS_DEBUG.name(), true);
+        }
         testPlan.add(testPlan.getArray()[0], resultCollector);
     }
 
