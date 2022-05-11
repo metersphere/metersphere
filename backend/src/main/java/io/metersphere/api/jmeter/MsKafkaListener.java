@@ -51,9 +51,9 @@ public class MsKafkaListener {
     }};
 
     // 线程池维护线程的最少数量
-    private final static int CORE_POOL_SIZE = 50;
+    private final static int CORE_POOL_SIZE = 20;
     // 线程池维护线程的最大数量
-    private final static int MAX_POOL_SIZE = 50;
+    private final static int MAX_POOL_SIZE = 20;
     // 线程池维护线程所允许的空闲时间
     private final static int KEEP_ALIVE_TIME = 1;
     // 线程池所使用的缓冲队列大小
