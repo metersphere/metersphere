@@ -89,6 +89,7 @@
              :response="response"
              :is-read-only="data.disabled"
              :extract="data"
+             :draggable="true"
              @copyRow="copyRow"
              @remove="remove"
              v-if="data.type==='Extract'"
@@ -104,6 +105,7 @@
             :response="response"
             :request="request"
             :apiId="apiId"
+            :draggable="true"
             :is-read-only="data.disabled"
             :assertions="data"/>
          </div>
