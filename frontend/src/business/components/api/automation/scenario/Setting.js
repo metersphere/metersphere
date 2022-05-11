@@ -103,7 +103,7 @@ export function init() {
     let allArray = [];
     allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_generative_controller'));
     allArray = allArray.concat(PLUGIN_ELEMENTS.get('menu_logic_controller'));
-    allArray = allArray.concat(['scenario', 'ConstantTimer', 'JSR223Processor']);
+  allArray = allArray.concat(['scenario', 'ConstantTimer', 'JSR223Processor', 'Assertions']);
     return allArray;
 }
 

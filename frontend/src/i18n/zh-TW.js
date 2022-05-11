@@ -1258,6 +1258,7 @@ export default {
         delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
         assertions_rule: "斷言規則",
+        scenario_assertions: "場景斷言",
         pre_operation: "前置操作",
         post_operation: "後置操作",
         response_header: "響應頭",
@@ -3172,6 +3173,6 @@ export default {
     report: "測試報告",
     ui_debug_mode: 'UI自動化調試管道',
     ui_local_debug: '本地調試',
-    ui_server_debug: '後端調試', 
+    ui_server_debug: '後端調試',
   }
 };

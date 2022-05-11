@@ -1258,6 +1258,7 @@ export default {
         delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
+        scenario_assertions: "场景断言",
         pre_operation: "前置操作",
         post_operation: "后置操作",
         response_header: "响应头",
@@ -3221,6 +3222,6 @@ export default {
     valiate_fail: "校验失败，请检查必填项",
     ui_debug_mode: 'UI自动化调试方式',
     ui_local_debug: '本地调试',
-    ui_server_debug: '后端调试', 
+    ui_server_debug: '后端调试',
   }
 };

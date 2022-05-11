@@ -105,7 +105,7 @@ export function buttons(this_) {
       }
     },
     {
-      title: this_.$t('api_test.definition.request.assertions_rule'),
+      title: this_.$t('api_test.definition.request.scenario_assertions'),
       show: this_.showButton("Assertions"),
       titleColor: "#A30014",
       titleBgColor: "#F7E6E9",

@@ -67,7 +67,7 @@ export default {
     JmeterElementComponent,
     MsConstantTimer: () => import("./ConstantTimer"),
     MsJsr233Processor: () => import("./Jsr233Processor"),
-    MsApiAssertions: () => import("../../../definition/components/assertion/ApiAssertions"),
+    MsScenarioAssertions: () => import("../../../definition/components/assertion/ScenarioAssertions"),
     MsApiExtract: () => import("../../../definition/components/extract/ApiExtract"),
     MsJdbcProcessor: () => import("@/business/components/api/automation/scenario/component/JDBCProcessor"),
     // MsUiCommand: () => import("@/business/components/xpack/ui/automation/scenario/component/MsUiCommandComponent")
@@ -221,7 +221,7 @@ export default {
         } else {
           this.apiId = "none";
         }
-        return "MsApiAssertions";
+        return "MsScenarioAssertions";
       } else {
         this.title = this.$t('api_test.automation.customize_script');
         this.titleColor = "#7B4D12";
