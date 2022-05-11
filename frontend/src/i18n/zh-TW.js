@@ -102,6 +102,7 @@ export default {
     personal_info: '個人信息',
     api_keys: 'API Keys',
     third_account: '第三方平臺賬號',
+    ui_setting: 'UI 設置',
     quota: '配額管理',
     status: '狀態',
     show_all: '顯示全部',
@@ -123,6 +124,7 @@ export default {
     view_settings: '顯示設置',
     functional: '功能測試',
     my_workstation: '我的工作臺',
+    ui_test: 'UI測試',
     input_content: '請輸入內容',
     create: '新建',
     edit: '編輯',
@@ -3123,6 +3125,7 @@ export default {
       api_keys: 'API Keys',
       edit_password: "修改密碼",
       third_account: '第三方平臺賬號',
+      ui_setting: 'UI 設置',
     },
     other: {
       track: "測試跟蹤",
@@ -3161,5 +3164,8 @@ export default {
     ui_automation: "UI 自動化",
     ui_element: "元素庫",
     report: "測試報告",
+    ui_debug_mode: 'UI自動化調試管道',
+    ui_local_debug: '本地調試',
+    ui_server_debug: '後端調試', 
   }
 };
