@@ -4,6 +4,7 @@ import groovy.lang.GroovyClassLoader;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.jmeter.LoadJarService;
 import io.metersphere.service.JarConfigService;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.io.File;
 import java.util.List;
 
 @Service
-public class GroovyLoadJarService {
+public class MsGroovyLoadJarService implements LoadJarService {
     /**
      * groovy 使用的是自己的类加载器，
      * 这里再执行脚本前，使用 groovy的加载器加载jar包，
