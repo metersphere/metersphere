@@ -214,6 +214,9 @@ public class PerformanceReportService {
         String reportValue = getContent(id, ReportKeys.RequestStatistics);
         // 确定顺序
         List<Statistics> statistics = JSON.parseArray(reportValue, Statistics.class);
+        if (CollectionUtils.isEmpty(statistics)) {
+            return Collections.emptyList();
+        }
         List<LoadTestExportJmx> jmxContent = getJmxContent(id);
         String jmx = jmxContent.get(0).getJmx();
         // 按照JMX顺序重新排序
