@@ -43,6 +43,7 @@
                label-position="right" label-width="100px" size="small"
                class="case-form">
         <custom-filed-form-row :form="customFieldForm"
+                               :disabled="readOnly"
                                :issue-template="testCaseTemplate"/>
       </el-form>
 

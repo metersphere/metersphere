@@ -63,6 +63,7 @@
                   </el-dropdown-menu>
                 </el-dropdown>
                 <el-button v-else  type="primary" class="ms-api-buttion" @click="handleCommand"
+                           :disabled="readOnly"
                            @command="handleCommand" size="small" style="float: right;margin-right: 20px">
                   {{ $t('commons.save') }}
                 </el-button>

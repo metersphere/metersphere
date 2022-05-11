@@ -85,7 +85,7 @@
       </el-tooltip>
       <el-row style="margin-top: 10px" v-if="type!=='add'">
         <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
-          <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
+          <el-button :disabled="readOnly" icon="el-icon-plus" type="mini" @click="openComment"></el-button>
         </el-col>
       </el-row>
       <el-row v-if="type!=='add'">
