@@ -19,10 +19,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.WorkspaceRequest;
-import io.metersphere.controller.request.member.AddMemberRequest;
-import io.metersphere.controller.request.member.EditPassWordRequest;
-import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.controller.request.member.UserRequest;
+import io.metersphere.controller.request.member.*;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.dto.GroupResourceDTO;
 import io.metersphere.dto.UserDTO;
@@ -39,8 +36,19 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
+import okhttp3.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -48,6 +56,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
+import org.apache.soap.util.net.HTTPUtils;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
@@ -58,7 +67,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
@@ -1345,5 +1356,68 @@ public class UserService {
         }
 
         return false;
+    }
+
+    public int updateUserSeleniumServer(EditSeleniumServerRequest request) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId());
+        List<User> users = userMapper.selectByExample(userExample);
+        if (!CollectionUtils.isEmpty(users)) {
+            User user = users.get(0);
+            String seleniumServer = request.getSeleniumServer();
+            user.setSeleniumServer(StringUtils.isBlank(seleniumServer) ? "" : seleniumServer.trim());
+            user.setUpdateTime(System.currentTimeMillis());
+            //更新session seleniumServer 信息
+            SessionUser sessionUser = SessionUtils.getUser();
+            sessionUser.setSeleniumServer(seleniumServer);
+            SessionUtils.putUser(sessionUser);
+            return userMapper.updateByPrimaryKeySelective(user);
+        }
+        MSException.throwException("更新selenium-server地址失败！");
+        return 0;
+    }
+
+    public String verifyUserSeleniumServer() {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdEqualTo(SessionUtils.getUser().getId());
+        List<User> users = userMapper.selectByExample(userExample);
+        if (!CollectionUtils.isEmpty(users)) {
+            User user = users.get(0);
+            if (StringUtils.isBlank(user.getSeleniumServer())) {
+                return "configErr";
+            }
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json");
+            RequestBody body = RequestBody.create(mediaType,
+                    "{\"operationName\":\"\",\"variables\":{},\"query\":\"query Summary {\\n  grid {\\n    uri\\n    totalSlots\\n    nodeCount\\n    maxSession\\n    sessionCount\\n    sessionQueueSize\\n    version\\n    __typename\\n  }\\n}\"}");
+            Request req = new Request.Builder()
+                    .url(user.getSeleniumServer() + "/graphql")
+                    .method("POST", body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            Response response = null;
+            try{
+                response = client.newCall(req).execute();
+                if(!response.isSuccessful()){
+                    return "connectionErr";
+                }
+            }
+            catch (Exception e){
+                return "connectionErr";
+            }
+            finally {
+                try{
+                    if (response != null) {
+                        response.close();
+                    }
+                }
+                catch (Exception e){
+
+                }
+            }
+        }
+        return "ok";
     }
 }
