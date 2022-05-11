@@ -6,7 +6,7 @@
         <el-col :span="24">
           <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                         :label-width="formLabelWidth">
-            <custom-filed-component :data="item" :form="form" prop="defaultValue" :disabled="item.type !== 'richText' && isPublic"/>
+            <custom-filed-component :data="item" :form="form" prop="defaultValue" :disabled="(item.type !== 'richText' && isPublic) || disabled"/>
           </el-form-item>
         </el-col>
       </span>
@@ -32,6 +32,12 @@ export default {
     formLabelWidth: String,
     form: Object,
     isPublic: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    disabled: {
       type: Boolean,
       default() {
         return false;
