@@ -708,7 +708,11 @@ export default {
             break;
           }
         }
+        this.updatePlanStatus();
       });
+    },
+    updatePlanStatus() {
+      this.$post('/test/plan/autoCheck/' + this.planId);
     },
     getTestPlanById() {
       if (this.planId) {
