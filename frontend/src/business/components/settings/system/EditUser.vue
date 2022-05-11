@@ -214,6 +214,18 @@ export default {
     },
     removeGroup(item) {
       let index = this.form.groups.indexOf(item);
+      let isRemove = this.checkRemove(item,index);
+      if (!isRemove) {
+        return;
+      }
+      if (index !== -1) {
+        this.form.groups.splice(index, 1)
+      }
+      if (this.form.groups.length < this.userGroup.length) {
+        this.btnAddRole = false;
+      }
+    },
+    checkRemove(item,index){
       let type = item.type.split("+")[1];
       if (type === this.ws) {
         let isHaveWorkspace = 0;
@@ -223,6 +235,9 @@ export default {
             continue;
           }
           let group = this.form.groups[i];
+          if (!group.type) {
+            continue;
+          }
           let _type = group.type.split("+")[1];
           if (_type === this.ws) {
             isHaveWorkspace += 1;
@@ -232,16 +247,11 @@ export default {
           }
         }
         if (isHaveWorkspace === 0 && isHaveProject >0 ) {
-          this.$message.warning("不符合删除条件")
-          return;
+          this.$message.warning(this.$t('commons.not_eligible_for_deletion'))
+          return false;
         }
       }
-      if (index !== -1) {
-        this.form.groups.splice(index, 1)
-      }
-      if (this.form.groups.length < this.userGroup.length) {
-        this.btnAddRole = false;
-      }
+      return true;
     },
     addGroup(validForm) {
       this.$refs[validForm].validate(valid => {
@@ -312,22 +322,7 @@ export default {
         if (data) {
           this._setResource(data, index, type);
           if(isHaveWorkspace === false ){
-            this.result = this.$get('/workspace/list/resource/' + id + "/WORKSPACE", res => {
-              let data = res.data;
-              if (data) {
-                let roleInfo = {};
-                roleInfo.selects = [];
-                let ids = this.form.groups.map(r => r.type);
-                ids.forEach(id => {
-                  roleInfo.selects.push(id);
-                })
-                roleInfo.type = "ws_member+WORKSPACE";
-                roleInfo.ids = [];
-                let groups = this.form.groups;
-                groups.push(roleInfo);
-                this._setResource(data, index+1, 'WORKSPACE');
-              }
-            })
+            this.addWorkspaceGroup(id,index);
           }
         }
       })
@@ -343,6 +338,24 @@ export default {
         default:
       }
     },
+    addWorkspaceGroup(id,index){
+      this.result = this.$get('/workspace/list/resource/' + id + "/WORKSPACE", res => {
+        let data = res.data;
+        if (data) {
+          let roleInfo = {};
+          roleInfo.selects = [];
+          let ids = this.form.groups.map(r => r.type);
+          ids.forEach(id => {
+            roleInfo.selects.push(id);
+          })
+          roleInfo.type = "ws_member+WORKSPACE";
+          roleInfo.ids = [];
+          let groups = this.form.groups;
+          groups.push(roleInfo);
+          this._setResource(data, index+1, 'WORKSPACE');
+        }
+      })
+    },
     getLabel(index) {
       let a = index + 1;
       return this.$t('commons.group') + a;
@@ -352,14 +365,7 @@ export default {
 </script>
 
 <style scoped>
-/*.edit-user-dialog >>> .el-dialog__body {
-  padding-bottom: 0;
-  padding-left: 0;
-}*/
 
-/*.edit-user-dialog >>> .el-dialog__footer {
-  padding-top: 0;
-}*/
 .form-input {
   width: 80%;
 }
