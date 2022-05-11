@@ -29,7 +29,7 @@
         </el-col>
         <el-col :span="2">
           <el-select size="mini" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)"
-                     :disabled="loaded">
+                     :disabled="readonly">
             <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
           </el-select>
         </el-col>
@@ -49,18 +49,20 @@
           <el-row>
             <el-col :span="8">
               <el-select size="small" v-model="apiCase.caseStatus" style="margin-right: 5px"
-                         @change="saveTestCase(apiCase,true)" :disabled="loaded">
+                         @change="saveTestCase(apiCase,true)" :disabled="readonly">
                 <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
               </el-select>
             </el-col>
             <el-col :span="16">
               <div class="tag-item" @click.stop>
-                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
+                <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow"
+                            :disabled="true">
                   <i class="el-icon-star-off"
                      style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer "
                      @click="saveFollow"/>
                 </el-tooltip>
-                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
+                <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow"
+                            :disabled="true">
                   <i class="el-icon-star-on"
                      style="color: #783987; font-size: 28px; margin-top: 2px; margin-right: 15px;cursor: pointer "
                      @click="saveFollow" v-if="showFollow"/>
@@ -71,7 +73,7 @@
           <el-row style="margin-top: 5px">
             <div class="tag-item" @click.stop>
               <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)"
-                            :disabled="loaded"/>
+                            :read-only="readonly"/>
             </div>
           </el-row>
         </el-col>
@@ -266,6 +268,7 @@ export default {
       isSave: false,
       tagCount: 0,
       requestCount: 0,
+      readonly: false
     }
   },
   props: {
@@ -308,6 +311,7 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.isXpack = true;
     }
+    this.readonly = !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE');
     if (this.apiCase && this.apiCase.id) {
       this.showFollow = false;
       this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
