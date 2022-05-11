@@ -43,7 +43,7 @@ import MsTag from "../../../../common/components/MsTag";
 import MsEnvironmentSelect from "./MsEnvironmentSelect";
 import {API_METHOD_COLOUR} from "../../model/JsonData";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "ApiCaseHeader",
@@ -88,11 +88,13 @@ export default {
   },
   methods: {
     keyDown(e) {
-      if (!(e.keyCode === 83 && (e.ctrlKey || e.metaKey))) {
-        return;
+      if (hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')) {
+        if (!(e.keyCode === 83 && (e.ctrlKey || e.metaKey))) {
+          return;
+        }
+        e.preventDefault();
+        this.saveTestCase();
       }
-      e.preventDefault();
-      this.saveTestCase();
     },
     refreshEnvironment() {
       this.$refs.environmentSelect.refreshEnvironment();
