@@ -15,6 +15,7 @@ public class ProjectConfig {
     private Boolean caseCustomNum = false;
     private Boolean scenarioCustomNum = false;
     private String apiQuickMenu;
+    private String uiQuickMenu;
     private Boolean casePublic = false;
     private Integer mockTcpPort = 0;
     private Boolean mockTcpOpen = false;
