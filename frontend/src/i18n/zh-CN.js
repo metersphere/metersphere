@@ -102,6 +102,7 @@ export default {
     personal_info: '个人信息',
     api_keys: 'API Keys',
     third_account: '第三方平台账号',
+    ui_setting: 'UI设置',
     quota: '配额管理',
     status: '状态',
     show_all: '显示全部',
@@ -123,6 +124,7 @@ export default {
     view_settings: '显示设置',
     functional: '功能测试',
     my_workstation: '我的工作台',
+    ui_test: 'UI测试',
     input_content: '请输入内容',
     create: '新建',
     edit: '编辑',
@@ -3124,6 +3126,7 @@ export default {
       api_keys: 'API Keys',
       edit_password: "修改密码",
       third_account: '第三方平台账号',
+      ui_setting: 'UI设置',
     },
     other: {
       track: "测试跟踪",
@@ -3209,6 +3212,9 @@ export default {
     cmdExtraction: "数据提取",
     cmdExtractWindow: "提取窗口信息",
     cmdExtractElement: "提取元素信息",
-    valiate_fail: "校验失败，请检查必填项"
+    valiate_fail: "校验失败，请检查必填项",
+    ui_debug_mode: 'UI自动化调试方式',
+    ui_local_debug: '本地调试',
+    ui_server_debug: '后端调试', 
   }
 };
