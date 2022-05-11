@@ -1083,6 +1083,12 @@
       "id": "PERSONAL_INFORMATION:READ+THIRD_ACCOUNT",
       "name": "permission.personal_information.third_account",
       "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+UI_SETTING",
+      "name": "permission.personal_information.ui_setting",
+      "resourceId": "PERSONAL_INFORMATION",
+      "license": true
     }
   ],
   "resource": [

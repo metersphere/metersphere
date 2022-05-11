@@ -80,6 +80,9 @@ public class ParameterConfig extends MsParameter {
     private String scenarioId;
 
     private String reportType;
+
+    private boolean runLocal;
+
     /**
      * 排除生成临界控制器的场景
      */

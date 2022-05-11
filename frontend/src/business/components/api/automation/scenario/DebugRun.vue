@@ -17,6 +17,7 @@ export default {
     debug: Boolean,
     reportId: String,
     runData: Object,
+    runLocal: Boolean,
     saved: Boolean,
     environmentType: String,
     environmentGroupId: String
@@ -78,6 +79,7 @@ export default {
       if (this.runData.variables) {
         reqObj.variables = this.runData.variables;
       }
+      reqObj.runLocal = this.runLocal;
       this.$emit('runRefresh', {});
 
       let url = '/api/automation/run/debug';
