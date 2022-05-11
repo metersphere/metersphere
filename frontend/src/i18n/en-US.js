@@ -447,6 +447,7 @@ export default {
     delete_all_version: 'All versions',
     change_password_tips: 'Your password is the initial system password, please change it as soon as possible',
     ui: 'UI TEST',
+    not_eligible_for_deletion:'Not Eligible For Deletion'
   },
   login: {
     normal_Login: "Normal Login",
