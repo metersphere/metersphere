@@ -323,14 +323,12 @@ export default {
         haveTestUsePool: false
       },
       apiImage: '',
-      kafkaBootstrapServers: '',
       apiImageTag: '',
     };
   },
   activated() {
     this.initTableData();
     this.getApiImageTag();
-    this.getKafkaBootstrapServers();
   },
   methods: {
     initTableData() {
@@ -596,7 +594,7 @@ export default {
       if (item.apiImage) {
         apiImage = item.apiImage;
       }
-      let yaml = getYaml(item.deployType, item.deployName, item.namespace, apiImage, this.kafkaBootstrapServers);
+      let yaml = getYaml(item.deployType, item.deployName, item.namespace, apiImage);
       let blob = new Blob([yaml], {type: 'application/yaml'});
       let url = URL.createObjectURL(blob);
       let downloadAnchorNode = document.createElement('a')
@@ -604,11 +602,6 @@ export default {
       downloadAnchorNode.setAttribute("download", item.deployType.toLowerCase() + ".yaml")
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
-    },
-    getKafkaBootstrapServers() {
-      this.$get('/system/kafka-servers', response => {
-        this.kafkaBootstrapServers = response.data;
-      })
     },
     getApiImageTag() {
       this.$get('/system/version', response => {
