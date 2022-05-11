@@ -69,7 +69,7 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     @ColumnWidth(50)
     @ExcelProperty("编辑模式")
     @NotRequired
-    @Pattern(regexp = "(^TEXT$)|(^STEP$)", message = "{test_case_step_model_validate}")
+    @Pattern(regexp = "(^TEXT$)|(^STEP$)|(.{0})", message = "{test_case_step_model_validate}")
     private String stepModel;
 
     @ColumnWidth(50)
