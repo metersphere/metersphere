@@ -323,7 +323,7 @@ name: "TestCaseMinder",
           nodes = [];
         }
         nodes.push(JSON.stringify(this._buildExtraNode(root)));
-        this.saveExtraNode[parent.id] = nodes;
+        this.saveExtraNode[parent.newId ? parent.newId : parent.id] = nodes;
       }
     },
     buildSaveCase(node, parent, preNode, nextNode) {
