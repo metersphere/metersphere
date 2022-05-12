@@ -177,9 +177,13 @@ export default {
     handleSelect(key) {
       let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
       if (key !== 'functional' && isTestCaseMinderChanged) {
-        this.$refs.isChangeConfirm.open();
-        this.tmpActiveIndex = key;
-        return;
+        if (this.currentPlan.status === 'Archived') {
+          this.activeIndex = key;
+        } else {
+          this.$refs.isChangeConfirm.open();
+          this.tmpActiveIndex = key;
+          return;
+        }
       }
       this.activeIndex = key;
     },
