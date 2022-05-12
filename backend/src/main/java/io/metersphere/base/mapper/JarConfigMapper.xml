@@ -12,6 +12,8 @@
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,7 +75,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, file_name, creator, modifier, `path`, `enable`, description, create_time, 
-    update_time
+    update_time, resource_id, resource_type
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.JarConfigExample" resultMap="BaseResultMap">
     select
@@ -109,11 +111,13 @@
     insert into jar_config (id, `name`, file_name, 
       creator, modifier, `path`, 
       `enable`, description, create_time, 
-      update_time)
+      update_time, resource_id, resource_type
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
       #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
       #{enable,jdbcType=BIT}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT})
+      #{updateTime,jdbcType=BIGINT}, #{resourceId,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.JarConfig">
     insert into jar_config
@@ -148,6 +152,12 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="resourceType != null">
+        resource_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -179,6 +189,12 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        #{resourceType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -221,6 +237,12 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceType != null">
+        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +259,9 @@
       `enable` = #{record.enable,jdbcType=BIT},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +296,12 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        resource_type = #{resourceType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -285,7 +315,9 @@
       `enable` = #{enable,jdbcType=BIT},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

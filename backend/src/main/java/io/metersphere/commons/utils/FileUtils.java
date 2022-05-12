@@ -156,23 +156,42 @@ public class FileUtils {
         }
 
         for (File file : files) {
-            //文件要移动的路径
-            String movePath = targetFile + File.separator + file.getName();
-            if (file.isDirectory()) {
-                //如果是目录则递归调用
-                copyFolder(file.getAbsolutePath(), movePath);
-            } else {
-                //如果是文件则复制文件
-                try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-                     BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(movePath))) {
-                    byte[] b = new byte[1024];
-                    int temp = 0;
-                    while ((temp = in.read(b)) != -1) {
-                        out.write(b, 0, temp);
-                    }
-                } catch (Exception e) {
-                    LoggerUtil.error(e);
+            copyFileToDir(file, targetFile);
+        }
+    }
+
+    public static void copyFileToDir(String filePath, String targetPath) {
+        //源文件路径
+        File sourceFile = new File(filePath);
+        //目标文件夹路径
+        File targetDir = new File(targetPath);
+
+        if (!sourceFile.exists()) {
+            return;
+        }
+        if (!targetDir.exists()) {
+            targetDir.mkdirs();
+        }
+        copyFileToDir(sourceFile, targetDir);
+    }
+
+    private static void copyFileToDir(File file, File targetDir) {
+        //文件要移动的路径
+        String movePath = targetDir + File.separator + file.getName();
+        if (file.isDirectory()) {
+            //如果是目录则递归调用
+            copyFolder(file.getAbsolutePath(), movePath);
+        } else {
+            //如果是文件则复制文件
+            try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(movePath))) {
+                byte[] b = new byte[1024];
+                int temp;
+                while ((temp = in.read(b)) != -1) {
+                    out.write(b, 0, temp);
                 }
+            } catch (Exception e) {
+                LoggerUtil.error(e);
             }
         }
     }
@@ -256,6 +275,14 @@ public class FileUtils {
 
     public static void deleteFile(String path) {
         File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    public static void deleteDir(String path) {
+        File file = new File(path);
+        FileUtil.deleteContents(file);
         if (file.exists()) {
             file.delete();
         }

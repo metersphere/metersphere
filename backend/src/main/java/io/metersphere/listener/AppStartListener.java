@@ -154,6 +154,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(testReviewTestCaseService::initOrderField, "init.sort.review.test.case");
         initOnceOperate(apiDefinitionService::initDefaultModuleId, "init.default.module.id");
         initOnceOperate(mockConfigService::initExpectNum, "init.mock.expectNum");
+        initOnceOperate(jarConfigService::initJarPath, "init.jar.path");
     }
 
     /**
