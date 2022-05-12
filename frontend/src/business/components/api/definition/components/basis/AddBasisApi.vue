@@ -120,10 +120,6 @@
       saveApi(saveAs) {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
-            if (this.httpForm.path) {
-              this.$error(this.$t("api_test.definition.request.path_valid_info"));
-              return false;
-            }
             let bodyFiles = [];
             let path = "/api/definition/create";
             this.setParameter();
