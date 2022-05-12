@@ -101,10 +101,12 @@ export default {
     'versionEnable',
   ],
   mounted() {
-    this.getNodeTreeByReviewId()
+    this.$store.commit('setTestReviewSelectNode', {});
+    this.$store.commit('setTestReviewSelectNodeIds', []);
+    this.getNodeTreeByReviewId();
   },
   activated() {
-    this.getNodeTreeByReviewId()
+    this.getNodeTreeByReviewId();
   },
   watch: {
     reviewId() {
