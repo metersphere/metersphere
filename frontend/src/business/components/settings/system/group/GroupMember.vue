@@ -100,7 +100,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import UserOptionItem from "@/business/components/settings/common/UserOptionItem";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
 
 export default {
   name: "GroupMember",
@@ -233,6 +233,12 @@ export default {
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning'
       }).then(() => {
+        if (this.initUserUrl === 'user/ws/current/member/list') {
+          if (row.id === getCurrentUserId()) {
+            this.$warning(this.$t('group.unable_to_remove_current_member'));
+            return;
+          }
+        }
         this.result = this.$get('/user/group/rm/' + row.id + '/' + this.group.id, () => {
           this.$success(this.$t('commons.remove_success'));
           this.init();
