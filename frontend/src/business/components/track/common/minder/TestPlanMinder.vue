@@ -7,6 +7,7 @@
       :tags="tags"
       :tag-enable="true"
       minder-key="testPlan"
+      :disabled=disableMinder
       :select-node="selectNode"
       :distinct-tags="[...tags, this.$t('test_track.plan.plan_status_prepare')]"
       :ignore-num="true"
@@ -67,6 +68,9 @@ name: "TestPlanMinder",
     planId: {
       type: String
     },
+    planStatus: {
+      type: String
+    },
     projectId: String,
     condition: Object
   },
@@ -76,6 +80,13 @@ name: "TestPlanMinder",
     },
     workspaceId(){
       return getCurrentWorkspaceId();
+    },
+    disableMinder(){
+      if (this.planStatus === 'Archived') {
+       return  true
+      } else {
+        return false
+      }
     }
   },
   mounted() {
