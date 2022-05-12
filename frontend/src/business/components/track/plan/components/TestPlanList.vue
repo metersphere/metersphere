@@ -289,7 +289,7 @@
             <el-icon class="el-icon-more"></el-icon>
           </el-link>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"  :disabled="scope.row.status === 'Archived'" >
+            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']" >
               {{ $t('commons.delete') }}
             </el-dropdown-item>
             <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']" :disabled="scope.row.status === 'Archived'" >
