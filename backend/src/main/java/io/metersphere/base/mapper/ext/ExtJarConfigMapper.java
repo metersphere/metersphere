@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ExtJarConfigMapper {
     List<JarConfig> list(@Param("request") JarConfigRequest request);
+
+    int checkExist(@Param("request") JarConfigRequest request);
 }

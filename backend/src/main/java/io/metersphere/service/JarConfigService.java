@@ -19,7 +19,6 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,6 +50,12 @@ public class JarConfigService {
     }
 
     public Pager<List<JarConfig>> list(JarConfigRequest request, int pageNum, int pageSize) {
+        buildQueryRequest(request);
+        Page<Object> page = PageHelper.startPage(pageNum, pageSize, true);
+        return PageUtils.setPageInfo(page, extJarConfigMapper.list(request));
+    }
+
+    public void buildQueryRequest(JarConfigRequest request) {
         if (request.getResourceId() == null || request.getResourceType() == null) {
             MSException.throwException("resourceId or resourceType could not be null!");
         }
@@ -58,8 +63,6 @@ public class JarConfigService {
             Project project = projectService.getProjectById(request.getResourceId());
             request.setWorkspaceId(project.getWorkspaceId());
         }
-        Page<Object> page = PageHelper.startPage(pageNum, pageSize, true);
-        return PageUtils.setPageInfo(page, extJarConfigMapper.list(request));
     }
 
     public JarConfig get(String id) {
@@ -119,14 +122,11 @@ public class JarConfigService {
 
     private void checkExist(JarConfig jarConfig) {
         if (jarConfig.getName() != null) {
-            JarConfigExample example = new JarConfigExample();
-            JarConfigExample.Criteria criteria = example.createCriteria();
-            criteria.andNameEqualTo(jarConfig.getName());
-            if (StringUtils.isNotBlank(jarConfig.getId())) {
-                criteria.andIdNotEqualTo(jarConfig.getId());
-            }
-            if (jarConfigMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("already_exists"));
+            JarConfigRequest request = new JarConfigRequest();
+            BeanUtils.copyBean(request, jarConfig);
+            buildQueryRequest(request);
+            if (extJarConfigMapper.checkExist(request) > 0) {
+                MSException.throwException(Translator.get("name_already_exists"));
             }
         }
     }
