@@ -29,7 +29,6 @@
 </template>
 
 <script>
-  import Setting from "@/business/components/settings/router";
   import MsPersonFromSetting from "@/business/components/settings/personal/PersonFromSetting";
   import MsApiKeys from "@/business/components/settings/personal/ApiKeys";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -41,7 +40,7 @@
   import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
   import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
   import {getIntegrationService} from "@/network/organization";
-  import {AZURE_DEVOPS, JIRA, TAPD, TokenKey, ZEN_TAO} from "@/common/js/constants";
+  import { TokenKey } from "@/common/js/constants";
 
   export default {
     name: "MsPersonRouter",
@@ -50,22 +49,7 @@
       'reload',
     ],
     data(){
-      let getMenus = function (group) {
-        let menus = [];
-        Setting.children.forEach(child => {
-          if (child.meta[group] === true) {
-            let menu = {index: Setting.path + "/" + child.path};
-            menu.title = child.meta.title;
-            menu.roles = child.meta.roles;
-            menu.permissions = child.meta.permissions;
-            menu.valid = child.meta.valid;
-            menus.push(menu);
-          }
-        });
-        return menus;
-      };
       return{
-        //persons: getMenus('person'),
         activeIndex: '',
         ruleForm:{},
         hasJira: false,
@@ -89,13 +73,13 @@
       }
     },
     mounted() {
-      this.$EventBus.$on('siwtchActive', (item) => { 
+      this.$EventBus.$on('siwtchActive', (item) => {
         if(item){
           this.activeIndex = item
         }
       })
       this.isXpack = hasLicense();
-    },  
+    },
     beforeDestroy(){
       this.$EventBus.$off("siwtchActive")
     },
@@ -170,10 +154,6 @@
       },
       updateUser(updateUserForm) {
         let param = {};
-        if(!this.form.id){
-          console.log(this.$refs.personFrom)
-          //this.form.id = this.$refs.personFrom.form.id
-        }
         Object.assign(param, this.form);
         param.platformInfo = JSON.stringify(this.form.platformInfo);
         this.result = this.$post(this.updatePath, param, response => {
@@ -226,9 +206,3 @@
   }
 </script>
 
-<style scoped>
-.ms-main-container {
-  padding: 5px 10px;
-  height: calc(100vh - 320px);
-}
-</style>
