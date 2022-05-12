@@ -11,3 +11,6 @@ FROM jar_config j JOIN workspace w;
 -- 删除无用旧数据
 DELETE FROM jar_config WHERE resource_id = '';
 -- end
+
+-- V116_1-20-2_user_group_permission 插入UI配置权限给项目管理员
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id) VALUES (uuid(), 'project_admin', 'PERSONAL_INFORMATION:READ+UI_SETTING', 'PERSONAL_INFORMATION');
