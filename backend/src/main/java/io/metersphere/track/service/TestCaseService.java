@@ -1508,8 +1508,16 @@ public class TestCaseService {
                     if (CollectionUtils.isNotEmpty(jsonArray)) {
                         for (int j = 0; j < jsonArray.size(); j++) {
                             int num = j + 1;
-                            step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");
-                            result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\n");
+                            String stepItem = jsonArray.getJSONObject(j).getString("desc");
+                            if(StringUtils.isEmpty(stepItem)){
+                                stepItem = "";
+                            }
+                            step.append(num + "." + stepItem + "\n");
+                            String resultItem = jsonArray.getJSONObject(j).getString("result");
+                            if(StringUtils.isEmpty(resultItem)){
+                                resultItem = "";
+                            }
+                            result.append(num + "." + resultItem + "\n");
 
                         }
                     }
