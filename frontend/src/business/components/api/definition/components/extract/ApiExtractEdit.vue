@@ -23,6 +23,14 @@
     <div class="extract-item-editing xpath" v-if="extract.xpath.length > 0">
       <div>
         XPath
+        <el-select v-model="extract.xpathType" size="mini" v-loading="loading" @change="reload">
+          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+        </el-select>
+        <el-tooltip placement="top">
+          <div slot="content">{{ $t('api_test.request.assertions.xpath_info') }}</div>
+          <i class="el-icon-question" style="cursor: pointer"/>
+        </el-tooltip>
+
       </div>
       <div class="regex-item" v-for="(xpath, index) in extract.xpath" :key="index">
         <ms-api-extract-common :if-from-variable-advance="ifFromVariableAdvance" :is-read-only="isReadOnly" :extract-type="type.XPATH" :list="extract.xpath" :common="xpath"
@@ -74,7 +82,8 @@
     data() {
       return {
         type: EXTRACT_TYPE,
-        loading: false
+        loading: false,
+        options:[{value:'html',label:'html'},{value:'xml',label:'xml'}]
       }
     }
   }

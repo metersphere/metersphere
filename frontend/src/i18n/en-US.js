@@ -1616,6 +1616,7 @@ export default {
         debug_first: "First, debug to get the response",
         suggest_tip: "Click the note to add the JSONPath assertion",
         regex_info: 'Special characters "$ () * +. [] \\ ^ {} |" need to be escaped as "\\ "+"special characters", such as "\\$"',
+        xpath_info: 'Select the extraction method according to the content format of the request response',
         regular_match: 'Regular match',
         none: 'Do not verify []',
         value_eq: 'Value-equal to [value=]',
