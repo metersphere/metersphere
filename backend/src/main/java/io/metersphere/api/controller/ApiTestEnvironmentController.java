@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import com.alibaba.fastjson.*;
 
 @RestController
 @RequestMapping(value = "/api/environment")
@@ -42,9 +44,13 @@ public class ApiTestEnvironmentController {
      * @return
      */
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
+    public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) throws UnsupportedEncodingException {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, apiTestEnvironmentService.listByConditions(environmentRequest));
+        List<ApiTestEnvironmentWithBLOBs> environments = apiTestEnvironmentService.listByConditions(environmentRequest);
+        for(ApiTestEnvironmentWithBLOBs i: environments) {
+            i.setConfig(java.util.Base64.getEncoder().encodeToString(i.getConfig().getBytes("utf-8")));
+        }
+        return PageUtils.setPageInfo(page, environments);
     }
 
     @GetMapping("/get/{id}")
@@ -67,6 +73,26 @@ public class ApiTestEnvironmentController {
     @PostMapping(value = "/update")
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = ApiTestEnvironmentService.class)
     public void update(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
+        try {
+            JSONObject json = JSONObject.parseObject(apiTestEnvironment.getConfig());
+            JSONObject commonConfig = json.getJSONObject("commonConfig");
+            JSONArray databaseConfigs = json.getJSONArray("databaseConfigs");
+
+            if ((int) commonConfig.get("requestTimeout") < 1 ||
+                    (int) commonConfig.get("responseTimeout") < 1 ) {
+                throw new RuntimeException("commonConfig error!");
+            }
+            for (Object databaseConfig : databaseConfigs) {
+                JSONObject database = (JSONObject) databaseConfig;
+                if ((int) database.get("poolMax") < 1 || (int) database.get("timeout") < 1) {
+                    throw new RuntimeException("databaseConfig error!");
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+            throw e;
+        }
+
         apiTestEnvironmentService.update(apiTestEnvironment, sslFiles);
     }
 

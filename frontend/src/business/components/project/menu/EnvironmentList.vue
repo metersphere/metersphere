@@ -255,7 +255,13 @@ export default {
       }
       let url = '/api/environment/list/' + this.currentPage + '/' + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
-        this.environments = response.data.listObject;
+        // this.environments = response.data.listObject;
+        let Base64 = require('js-base64').Base64
+        let tmp = response.data.listObject;
+        for (let i = 0; i < tmp.length; ++i){
+          tmp[i].config = Base64.decode(tmp[i].config);
+        }
+        this.environments = tmp;
         this.total = response.data.itemCount;
       })
     },
