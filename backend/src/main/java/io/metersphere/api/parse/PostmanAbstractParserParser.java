@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.parse.postman.*;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,10 +51,10 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         return request;
     }
 
-    protected MsHTTPSamplerProxy parsePostmanResponse(PostmanItem requestItem) {
+    protected HttpResponse parsePostmanResponse(PostmanItem requestItem) {
         List<PostmanResponse> requestList = requestItem.getResponse();
         if (CollectionUtils.isEmpty(requestList)) {
-            return new MsHTTPSamplerProxy();
+            return new HttpResponse();
         }
         PostmanResponse requestDesc = requestItem.getResponse().get(0);
         if (requestDesc == null) {
@@ -61,6 +63,9 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         PostmanUrl url = requestDesc.getOriginalRequest().getUrl();
         MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), null, null, requestDesc.getJsonSchema());
         request.setRest(parseKeyValue(requestDesc.getOriginalRequest().getUrl().getVariable()));
+        if (StringUtils.isNotBlank(requestDesc.getBody())) {
+            request.getBody().setRaw(requestDesc.getBody());
+        }
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
             path = parseVariable(path);
@@ -73,7 +78,10 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         request.setArguments(parseKeyValue(url == null ? new ArrayList<>() : url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
         addBodyHeader(request);
-        return request;
+        HttpResponse response = new HttpResponse();
+        BeanUtils.copyBean(response, request);
+        response.setType("HTTP");
+        return response;
     }
 
 
