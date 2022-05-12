@@ -35,6 +35,7 @@
           :project-id="projectId"
           :condition="condition"
           :plan-id="planId"
+          :plan-status="planStatus "
           v-if="activeDom === 'right'"
           ref="minder"
         />
