@@ -10,7 +10,7 @@
           @input="change()"
         />
       </div>
-      <div class="server-desc">(示例: http://192.168.1.101:4444)</div>
+      <div class="server-desc">(示例: http://localhost:4444)</div>
     </div>
     <div class="setting-opt-row">
       <el-button size="small" @click="cancel">{{
