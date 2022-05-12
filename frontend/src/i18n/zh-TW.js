@@ -907,6 +907,7 @@ export default {
     permission: '權限',
     please_select_group: '請選擇用戶組',
     global: '全局',
+    unable_to_remove_current_member: '無法移除當前登錄用戶！',
     ws_admin_global: '工作空間管理員才可以創建全局用戶組'
   },
   role: {
@@ -3172,6 +3173,6 @@ export default {
     report: "測試報告",
     ui_debug_mode: 'UI自動化調試管道',
     ui_local_debug: '本地調試',
-    ui_server_debug: '後端調試', 
+    ui_server_debug: '後端調試',
   }
 };
