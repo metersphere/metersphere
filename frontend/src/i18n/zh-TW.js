@@ -1621,6 +1621,7 @@ export default {
         set_failure_msg: "設置失敗消息",
         suggest_tip: "點擊便簽添加JSONPath斷言",
         regex_info: '特殊字符"$ ( ) * + . [ ] \\ ^ { } |"需轉義為"\\ "+"特殊字符",如"\\$"',
+        xpath_info: '根據請求響應內容格式，選擇提取方式',
         regular_match: '正則匹配',
         none: '不校驗[]',
         value_eq: '值-等於[value=]',

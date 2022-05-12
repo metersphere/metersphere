@@ -966,6 +966,7 @@ export class Extract extends BaseConfig {
     super();
     this.resourceId = uuid();
     this.type = "Extract";
+    this.xpathType = 'html';
     this.regex = [];
     this.json = [];
     this.xpath = [];
@@ -996,7 +997,6 @@ export class ExtractCommon extends ExtractType {
     this.expression = undefined;
     this.description = undefined;
     this.multipleMatching = undefined;
-
     this.set(options);
   }
 
