@@ -78,6 +78,8 @@ public class MsJDBCPreProcessor extends MsTestElement {
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
+        // 历史数据清理
+        this.dataSource = null;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -117,7 +119,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
             if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())
                     && isDataSource(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
                 EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
-                if(environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getApiEnvironmentid())){
+                if (environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getApiEnvironmentid())) {
                     this.environmentId = environmentConfig.getApiEnvironmentid();
                 }
                 this.initDataSource();
@@ -247,7 +249,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
     private JDBCPreProcessor jdbcPreProcessor(ParameterConfig config) {
         JDBCPreProcessor jdbcPreProcessor = new JDBCPreProcessor();
         jdbcPreProcessor.setEnabled(this.isEnable());
-        jdbcPreProcessor.setName(this.getName() == null? "JDBCPreProcessor" : this.getName());
+        jdbcPreProcessor.setName(this.getName() == null ? "JDBCPreProcessor" : this.getName());
         jdbcPreProcessor.setProperty(TestElement.TEST_CLASS, JDBCPreProcessor.class.getName());
         jdbcPreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
 
