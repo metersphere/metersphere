@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.parse.postman.PostmanCollection;
 import io.metersphere.api.dto.parse.postman.PostmanItem;
 import io.metersphere.api.dto.parse.postman.PostmanKeyValue;
@@ -69,7 +70,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                 parseItem(childItems, variables, results, module, path + "/" + module.getName(), cases, repeatMap, repeatable);
             } else {
                 MsHTTPSamplerProxy msHTTPSamplerProxy = parsePostman(item);
-                MsHTTPSamplerProxy response = parsePostmanResponse(item);
+                HttpResponse response = parsePostmanResponse(item);
                 ApiDefinitionWithBLOBs request = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(),
                         msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), new ApiTestImportRequest());
                 request.setPath(msHTTPSamplerProxy.getPath());
