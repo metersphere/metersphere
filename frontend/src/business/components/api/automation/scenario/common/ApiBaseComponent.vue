@@ -187,13 +187,13 @@ export default {
   },
   computed: {
     isSingleButton() {
-      if (this.data.type === 'ConstantTimer') {
+      if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
         return (this.innerStep && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1)
       }
       return (this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) !== -1);
     },
     isMoreButton() {
-      if (this.data.type === 'ConstantTimer') {
+      if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
         return (!this.innerStep || this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
       }
       return (this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);

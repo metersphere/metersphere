@@ -1252,6 +1252,7 @@ export default {
         delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
+        scenario_assertions: "Scenario assertion rule",
         pre_operation: "Pre operation",
         post_operation: "Post operation",
         response_header: "Response header",
@@ -3164,6 +3165,6 @@ export default {
     report: "Test Report",
     ui_debug_mode: 'UI debugging mode',
     ui_local_debug: 'local',
-    ui_server_debug: 'server', 
+    ui_server_debug: 'server',
   }
 };
