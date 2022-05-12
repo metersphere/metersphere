@@ -100,6 +100,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import UserOptionItem from "@/business/components/settings/common/UserOptionItem";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "GroupMember",
@@ -125,6 +126,10 @@ export default {
       groupSource: [],
       sourceData: [],
       users: [],
+      currentProject: {
+        id: "",
+        name: ""
+      },
       form: {},
       title: '',
       submitType: '',
@@ -163,6 +168,9 @@ export default {
           this.memberData = listObject;
         }
       })
+      this.$get("/project/get/" + getCurrentProjectID(), res => {
+        this.currentProject = res.data;
+      });
     },
     open(group, initUserGroupUrl, initUserUrl) {
       this.initUserGroupUrl = initUserGroupUrl ? initUserGroupUrl : "/user/group/user/";
@@ -274,7 +282,15 @@ export default {
           this.sourceData = data.workspaces;
           break;
         case GROUP_PROJECT:
-          this.sourceData = data.projects;
+          if (this.initUserUrl === 'user/ws/current/member/list') {
+            if (!this.currentProject.id) {
+              this.currentProject.id = sessionStorage.getItem("project_id");
+              this.currentProject.name = sessionStorage.getItem("project_name");
+            }
+            this.sourceData = [this.currentProject];
+          } else {
+            this.sourceData = data.projects;
+          }
           break;
         default:
       }
