@@ -28,7 +28,7 @@ export function getAdvSearchCustomField(componentArr, fields) {
 }
 
 function getComponentOptions(field) {
-  const fieldOptions = field.options;
+  const fieldOptions = field.options ? field.options : [];
   let type = field.type;
   let options = [];
   if (fieldOptions.length === 0 && field.type !== 'member' && field.type !== 'multipleMember') {

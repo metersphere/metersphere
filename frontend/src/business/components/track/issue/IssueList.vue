@@ -180,6 +180,7 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getProjectMember} from "@/network/user";
 import {LOCAL} from "@/common/js/constants";
 import {TEST_TRACK_ISSUE_LIST} from "@/business/components/common/components/search/search-components";
+import {getAdvSearchCustomField} from "@/business/components/common/components/search/custom-component";
 
 export default {
   name: "IssueList",
@@ -194,7 +195,8 @@ export default {
   data() {
     return {
       page: getPageInfo({
-        components: TEST_TRACK_ISSUE_LIST
+        components: TEST_TRACK_ISSUE_LIST,
+        custom: true,
       }),
       fields: [],
       tableHeaderKey:"ISSUE_LIST",
@@ -287,6 +289,10 @@ export default {
         let removeField = {id: 'platformStatus', name: 'platformStatus', remove: true};
         this.issueTemplate.customFields.push(removeField);
       }
+      // 过滤自定义字段
+      this.page.condition.components = this.page.condition.components.filter(item => item.custom !== true);
+      let comp = getAdvSearchCustomField(this.page.condition.components, this.issueTemplate.customFields);
+      this.page.condition.components.push(...comp);
       if (this.$refs.table) this.$refs.table.reloadTable();
     },
     getIssues() {
