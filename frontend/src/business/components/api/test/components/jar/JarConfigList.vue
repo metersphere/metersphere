@@ -30,10 +30,17 @@
         <el-table-column prop="creator" :label="$t('report.user_name')" show-overflow-tooltip/>
         <el-table-column prop="modifier" :label="$t('commons.modifier')" show-overflow-tooltip/>
 
+        <el-table-column prop="scope" :label="$t('作用范围')" show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.resourceType === 'WORKSPACE' ? '工作空间' : '项目' }}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column :label="$t('commons.operating')" min-width="100">
           <template v-slot:default="scope">
             <div>
               <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
+                                        :disabled="scope.row.resourceType === 'WORKSPACE'"
                                         @exec="handleDelete(scope.row.id)" v-permission="['PROJECT_FILE:READ+DELETE+JAR']"/>
             </div>
           </template>
@@ -57,6 +64,7 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "MsJarConfigList",
@@ -99,6 +107,8 @@ export default {
       if (isSearchBarQuery) {
         this.isSearchBarQuery = isSearchBarQuery;
       }
+      this.condition.resourceType = 'PROJECT';
+      this.condition.resourceId = getCurrentProjectID();
       this.result = this.$post("/jar/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         let {itemCount, listObject} = data;

@@ -1,12 +1,10 @@
 package io.metersphere.controller;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
-import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.JarConfigRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.JarConfigService;
 import org.springframework.web.bind.annotation.*;
@@ -23,19 +21,13 @@ public class JarConfigController {
     JarConfigService JarConfigService;
 
     @PostMapping("list/{goPage}/{pageSize}")
-    public Pager<List<JarConfig>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody JarConfig request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, JarConfigService.list(request));
+    public Pager<List<JarConfig>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody JarConfigRequest request) {
+        return JarConfigService.list(request, goPage, pageSize);
     }
 
     @GetMapping("list/all")
     public List<JarConfig> listAll() {
         return JarConfigService.list();
-    }
-
-    @PostMapping("list")
-    public List<JarConfig> list(@RequestBody JarConfig jarConfig) {
-        return JarConfigService.searchList(jarConfig);
     }
 
     @GetMapping("/get/{id}")
