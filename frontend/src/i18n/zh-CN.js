@@ -907,6 +907,7 @@ export default {
     permission: '权限',
     please_select_group: '请选择用户组',
     global: '全局',
+    unable_to_remove_current_member: '无法移除当前登录用户！',
     ws_admin_global: '工作空间管理员才可以创建全局用户组'
   },
   role: {
@@ -3217,6 +3218,6 @@ export default {
     valiate_fail: "校验失败，请检查必填项",
     ui_debug_mode: 'UI自动化调试方式',
     ui_local_debug: '本地调试',
-    ui_server_debug: '后端调试', 
+    ui_server_debug: '后端调试',
   }
 };

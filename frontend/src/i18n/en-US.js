@@ -903,6 +903,7 @@ export default {
     permission: 'Permission',
     please_select_group: 'Please Select Group',
     global: 'Global',
+    unable_to_remove_current_member: 'Unable to remove currently logged in user!',
     ws_admin_global: 'Only workspace administrators can create global user groups'
   },
   role: {
@@ -3164,6 +3165,6 @@ export default {
     report: "Test Report",
     ui_debug_mode: 'UI debugging mode',
     ui_local_debug: 'local',
-    ui_server_debug: 'server', 
+    ui_server_debug: 'server',
   }
 };
