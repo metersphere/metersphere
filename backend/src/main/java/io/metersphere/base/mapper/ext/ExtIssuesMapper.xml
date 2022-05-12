@@ -204,11 +204,22 @@
         </where>
     </sql>
     <sql id="combine">
-
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and issues.title
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
         <if test="${condition}.creator != null">
             and issues.creator
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.platform != null">
+            and issues.platform
+            <include refid="condition">
+                <property name="object" value="${condition}.platform"/>
             </include>
         </if>
         <if test="${condition}.followPeople != null">
@@ -218,6 +229,12 @@
                 <property name="object" value="${condition}.followPeople"/>
             </include>
             )
+        </if>
+        <if test="${condition}.createTime != null">
+            and issues.create_time
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
         </if>
     </sql>
     <sql id="condition">

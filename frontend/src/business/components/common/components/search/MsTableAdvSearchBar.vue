@@ -1,7 +1,7 @@
 <template>
   <span class="adv-search-bar">
     <el-link type="primary" @click="open" v-if="showLink">{{ $t('commons.adv_search.title') }}</el-link>
-    <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible"
+    <el-dialog :title="$t('commons.adv_search.title')" :visible.sync="visible"
                custom-class="adv-dialog" :append-to-body="true">
       <div class="search-items">
         <div class="search-item" v-for="(component) in optional.components" :key="component.key">
@@ -143,7 +143,7 @@ export default {
     init() {
       this.config = this.doInit(true);
       this.optional = this.doInit();
-      if (this.optional.components.length && this.optional.components.length === this.showItemSize) {
+      if (this.optional.components.length && this.optional.components.length <= this.showItemSize) {
         this.showAddFilterLink = false;
       }
       // 默认显示几个搜索条件

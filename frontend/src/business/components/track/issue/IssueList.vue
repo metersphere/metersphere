@@ -179,6 +179,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getProjectMember} from "@/network/user";
 import {LOCAL} from "@/common/js/constants";
+import {TEST_TRACK_ISSUE_LIST} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "IssueList",
@@ -192,7 +193,9 @@ export default {
   },
   data() {
     return {
-      page: getPageInfo(),
+      page: getPageInfo({
+        components: TEST_TRACK_ISSUE_LIST
+      }),
       fields: [],
       tableHeaderKey:"ISSUE_LIST",
       fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
