@@ -1259,6 +1259,7 @@ export default {
         delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
+        scenario_assertions: "场景断言",
         pre_operation: "前置操作",
         post_operation: "后置操作",
         response_header: "响应头",
