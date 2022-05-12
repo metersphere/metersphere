@@ -563,8 +563,12 @@ export function handleMinderIssueDelete(commandName, isPlan) {
 export function openMinderConfirm(vueObj, activeDom) {
   let isTestCaseMinderChanged = vueObj.$store.state.isTestCaseMinderChanged;
   if (vueObj.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
-    vueObj.$refs.isChangeConfirm.open();
-    vueObj.tmpActiveDom = activeDom;
+    if (vueObj.planStatus !=='Archived') {
+      vueObj.$refs.isChangeConfirm.open();
+      vueObj.tmpActiveDom = activeDom;
+    } else {
+      vueObj.activeDom = activeDom;
+    }
     return;
   }
   vueObj.activeDom = activeDom;
