@@ -98,6 +98,11 @@ export default {
       default: false,
     },
   },
+  created(){
+    if(!this.extract.xpathType){
+      this.extract.xpathType = 'html';
+    }
+  },
   data() {
     return {
       options: EXTRACT_TYPE,
