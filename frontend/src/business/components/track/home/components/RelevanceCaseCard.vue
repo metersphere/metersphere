@@ -145,9 +145,13 @@ export default {
   border-bottom: 0px solid #EBEEF5;
 }
 
+.el-card >>> .el-card__body {
+  padding-right: 0;
+}
 .count-info-div{
   margin-top: 3px;
   margin-bottom: 3px;
+  text-align: center;
 }
 .count-info-div >>>p{
   font-size: 10px;
@@ -155,5 +159,10 @@ export default {
 .info-tool-tip{
   position: absolute;
   top: 0;
+}
+
+.el-col {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
 }
 </style>
