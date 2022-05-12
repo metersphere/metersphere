@@ -6,7 +6,10 @@
         select * from jar_config jc
         <where>
             <if test="request.name != null and request.name != ''">
-                jc.name like CONCAT('%', #{request.name},'%')
+                (
+                    jc.name like CONCAT('%', #{request.name},'%')
+                    or jc.file_name like CONCAT('%', #{request.name},'%')
+                )
             </if>
             <if test="request.resourceType == 'WORKSPACE'">
                 and jc.resource_id = #{request.resourceId}
