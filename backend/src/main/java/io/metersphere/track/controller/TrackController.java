@@ -75,9 +75,9 @@ public class TrackController {
             statistics.setCoverageRage(df.format(coverageRageNumber) + "%");
         }
 
-        statistics.setApiCaseCountStr(Translator.get("api_case") + "&nbsp;&nbsp;<br/><br/>" + statistics.getApiCaseCount());
-        statistics.setPerformanceCaseCountStr(Translator.get("performance_case") + "&nbsp;&nbsp;<br/><br/>" + statistics.getPerformanceCaseCount());
-        statistics.setScenarioCaseStr(Translator.get("scenario_case") + "&nbsp;&nbsp;<br/><br/>" + statistics.getScenarioCaseCount());
+        statistics.setApiCaseCountStr(Translator.get("api_case") + "<br/><br/>" + statistics.getApiCaseCount());
+        statistics.setPerformanceCaseCountStr(Translator.get("performance_case") + "<br/><br/>" + statistics.getPerformanceCaseCount());
+        statistics.setScenarioCaseStr(Translator.get("scenario_case") + "<br/><br/>" + statistics.getScenarioCaseCount());
 
         return statistics;
     }
