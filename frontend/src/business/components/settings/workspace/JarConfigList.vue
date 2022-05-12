@@ -24,6 +24,12 @@
         <el-table-column prop="creator" :label="$t('report.user_name')" show-overflow-tooltip/>
         <el-table-column prop="modifier" :label="$t('commons.modifier')" show-overflow-tooltip/>
 
+        <el-table-column prop="scope" :label="$t('作用范围')" show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{'工作空间'}}</span>
+          </template>
+        </el-table-column>
+
         <el-table-column :label="$t('commons.operating')" min-width="100">
           <template v-slot:default="scope">
             <div>
@@ -51,6 +57,7 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsJarConfig from "@/business/components/api/test/components/jar/JarConfig";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "MsJarConfigList",
@@ -93,6 +100,9 @@ export default {
       if (isSearchBarQuery) {
         this.isSearchBarQuery = isSearchBarQuery;
       }
+
+      this.condition.resourceType = 'WORKSPACE';
+      this.condition.resourceId = getCurrentWorkspaceId();
       this.result = this.$post("/jar/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         let {itemCount, listObject} = data;

@@ -1,13 +1,19 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.JarConfigExample;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.JarConfigMapper;
+import io.metersphere.base.mapper.ext.ExtJarConfigMapper;
+import io.metersphere.commons.constants.JarConfigResourceType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.JarConfigRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -19,17 +25,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class JarConfigService {
 
     private static final String JAR_FILE_DIR = "/opt/metersphere/data/jar";
+
+    @Resource
+    ExtJarConfigMapper extJarConfigMapper;
+
+    @Resource
+    ProjectService projectService;
 
     @Resource
     private JarConfigMapper jarConfigMapper;
@@ -39,30 +50,16 @@ public class JarConfigService {
         return jarConfigMapper.selectByExample(example);
     }
 
-    public List<JarConfig> list(JarConfig jarConfig) {
-        JarConfigExample example = new JarConfigExample();
-        if (StringUtils.isNotBlank(jarConfig.getName())) {
-            example.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
+    public Pager<List<JarConfig>> list(JarConfigRequest request, int pageNum, int pageSize) {
+        if (request.getResourceId() == null || request.getResourceType() == null) {
+            MSException.throwException("resourceId or resourceType could not be null!");
         }
-        example.setOrderByClause("update_time desc");
-        return jarConfigMapper.selectByExample(example);
-    }
-
-    public List<JarConfig> searchList(JarConfig jarConfig) {
-        JarConfigExample nameExample = new JarConfigExample();
-        JarConfigExample jarExample = new JarConfigExample();
-        if (StringUtils.isNotBlank(jarConfig.getName())) {
-            nameExample.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
-            jarExample.createCriteria().andFileNameLike("%" + jarConfig.getName() + "%");
-        }   //  根据jar包的文件名和自定义名称查找
-        nameExample.setOrderByClause("update_time desc");
-        jarExample.setOrderByClause("update_time desc");
-        List<JarConfig> jarConfigList = jarConfigMapper.selectByExample(jarExample);
-        //  合并两个查找结果并去重，按时间降序
-        jarConfigList.addAll(jarConfigMapper.selectByExample(nameExample));
-        jarConfigList = jarConfigList.stream().distinct().collect(Collectors.toList());
-        Collections.sort(jarConfigList, Comparator.comparing(JarConfig::getUpdateTime).reversed());
-        return jarConfigList;
+        if (request.getResourceType().equals(JarConfigResourceType.PROJECT.name())) {
+            Project project = projectService.getProjectById(request.getResourceId());
+            request.setWorkspaceId(project.getWorkspaceId());
+        }
+        Page<Object> page = PageHelper.startPage(pageNum, pageSize, true);
+        return PageUtils.setPageInfo(page, extJarConfigMapper.list(request));
     }
 
     public JarConfig get(String id) {
@@ -70,8 +67,8 @@ public class JarConfigService {
     }
 
     public void delete(String id) {
-        JarConfig JarConfig = jarConfigMapper.selectByPrimaryKey(id);
-        FileUtils.deleteFile(JarConfig.getPath());
+        JarConfig jarConfig = jarConfigMapper.selectByPrimaryKey(id);
+        FileUtils.deleteDir(getJarDir(jarConfig.getId()));
         jarConfigMapper.deleteByPrimaryKey(id);
     }
 
@@ -83,12 +80,12 @@ public class JarConfigService {
         String deletePath = jarConfig.getPath();
         if (file != null) {
             jarConfig.setFileName(file.getOriginalFilename());
-            jarConfig.setPath(getJarPath(file));
+            jarConfig.setPath(getJarPath(file, jarConfig.getId()));
         }
         jarConfigMapper.updateByPrimaryKey(jarConfig);
         if (file != null) {
             FileUtils.deleteFile(deletePath);
-            FileUtils.uploadFile(file, JAR_FILE_DIR);
+            FileUtils.uploadFile(file, getJarDir(jarConfig.getId()));
             NewDriverManager.loadJar(jarConfig.getPath());
         }
     }
@@ -104,16 +101,20 @@ public class JarConfigService {
         jarConfig.setEnable(true);// todo 审批机制时需修改
         jarConfig.setCreateTime(System.currentTimeMillis());
         jarConfig.setUpdateTime(System.currentTimeMillis());
-        jarConfig.setPath(getJarPath(file));
+        jarConfig.setPath(getJarPath(file, jarConfig.getId()));
         jarConfig.setFileName(file.getOriginalFilename());
         jarConfigMapper.insert(jarConfig);
-        FileUtils.uploadFile(file, JAR_FILE_DIR);
+        FileUtils.uploadFile(file, getJarDir(jarConfig.getId()));
         NewDriverManager.loadJar(jarConfig.getPath());
         return jarConfig.getId();
     }
 
-    public String getJarPath(MultipartFile file) {
-        return JAR_FILE_DIR + "/" + file.getOriginalFilename();
+    public String getJarPath(MultipartFile file, String id) {
+        return JAR_FILE_DIR + "/" + id + "/" + file.getOriginalFilename();
+    }
+
+    public String getJarDir(String id) {
+        return JAR_FILE_DIR + "/" + id;
     }
 
     private void checkExist(JarConfig jarConfig) {
@@ -140,4 +141,26 @@ public class JarConfigService {
         return null;
     }
 
+    /**
+     * 兼容性处理，将原来的jar包设置成工作空间级别，并拷贝到对应的目录
+     */
+    public void initJarPath() {
+        List<JarConfig> list = jarConfigMapper.selectByExample(new JarConfigExample());
+        Set<String> oldFiles = new HashSet<>();
+        list.forEach(item -> {
+            try {
+                String path = item.getPath();
+                String[] split = path.split("/");
+                String fileName = split[split.length - 1];
+                oldFiles.add(fileName);
+                FileUtils.copyFileToDir(JAR_FILE_DIR + "/" + fileName, getJarDir(item.getId()));
+                item.setPath(getJarDir(item.getId()) + "/" + fileName);
+                jarConfigMapper.updateByPrimaryKey(item);
+            } catch (Exception e) {
+                LogUtil.error(JSONObject.toJSON(item));
+                LogUtil.error(e);
+            }
+        });
+        oldFiles.forEach(path -> FileUtils.deleteFile(JAR_FILE_DIR + "/" + path));
+    }
 }

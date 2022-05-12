@@ -25,5 +25,9 @@ public class JarConfig implements Serializable {
 
     private Long updateTime;
 
+    private String resourceId;
+
+    private String resourceType;
+
     private static final long serialVersionUID = 1L;
 }
