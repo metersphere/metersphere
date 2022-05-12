@@ -127,6 +127,8 @@ export default {
     },
   },
   mounted() {
+    this.$store.commit('setTestCaseSelectNode', {});
+    this.$store.commit('setTestCaseSelectNodeIds', []);
     this.list();
   },
   computed: {
