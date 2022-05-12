@@ -101,6 +101,7 @@ export default {
     'planStatus'
   ],
   mounted() {
+    this.$store.commit('setTestPlanViewSelectNode', {});
     this.initData();
   },
   computed: {
