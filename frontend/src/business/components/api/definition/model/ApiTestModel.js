@@ -1131,6 +1131,9 @@ export class TransactionController extends Controller {
     this.type = "TransactionController";
     this.name;
     this.hashTree = [];
+    this.generateParentSample =true;
+    this.includeTimers = true;
+
     this.set(options);
   }
 
