@@ -152,6 +152,9 @@
         let bodyUploadFiles = [];
         data.bodyUploadIds = [];
         let request = data.request;
+        if (request.url) {
+          request.path = request.url;
+        }
         if (request.body) {
           if (request.body.kvs) {
             request.body.kvs.forEach(param => {
@@ -271,7 +274,16 @@
             data.protocol = "DUBBO";
           }
           data.id = getUUID();
-          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: api.method, userId: getCurrentUser().id, request: data, moduleId: "default-module"};
+          this.httpForm = {
+            id: data.id,
+            name: data.name,
+            protocol: data.protocol,
+            path: data.path ? data.path : data.url,
+            method: api.method,
+            userId: getCurrentUser().id,
+            request: data,
+            moduleId: "default-module"
+          };
           this.getMaintainerOptions();
           this.list(data);
           this.httpVisible = true;
