@@ -244,6 +244,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
 
     private void splitCsvFile(Node item) {
         String filename = item.getText();
+        filename = StringUtils.removeStart(filename, "/test/");
         // 已经分割过的不再二次分割
         if (BooleanUtils.toBoolean(context.getSplitFlag().get(filename))) {
             return;
