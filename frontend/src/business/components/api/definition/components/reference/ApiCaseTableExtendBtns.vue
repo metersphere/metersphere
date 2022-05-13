@@ -9,6 +9,7 @@
         {{ $t('commons.execute_history') }}
       </el-dropdown-item>
       <el-dropdown-item command="create_performance" v-modules="['performance']"
+                        v-if="hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')"
                         v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
@@ -17,6 +18,8 @@
 </template>
 
 <script>
+
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "MsApiCaseTableExtendBtns",
@@ -31,6 +34,7 @@ export default {
   },
 
   methods: {
+    hasPermission,
     handleCommand(cmd) {
       if (this.row.id) {
         switch (cmd) {
