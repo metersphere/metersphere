@@ -9,7 +9,6 @@
         {{ $t('commons.execute_history') }}
       </el-dropdown-item>
       <el-dropdown-item command="create_performance" v-modules="['performance']"
-                        v-if="hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')"
                         v-permission="['PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE']">
         {{ $t('api_test.create_performance_test') }}
       </el-dropdown-item>
@@ -42,6 +41,10 @@ export default {
             this.$emit("showCaseRef", this.row);
             break;
           case "create_performance":
+            if (!hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')) {
+              this.$warning(this.$t('api_test.create_performance_test_tips'));
+              break;
+            }
             this.$emit("showEnvironment", this.row);
             break;
           case "history":

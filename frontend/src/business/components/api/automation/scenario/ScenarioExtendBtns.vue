@@ -10,7 +10,6 @@
           {{ $t('api_test.automation.schedule') }}
         </el-dropdown-item>
         <el-dropdown-item command="create_performance" v-permission="['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE']"
-                          v-if="hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')"
                           v-modules="['performance']">
           {{ $t('api_test.create_performance_test') }}
         </el-dropdown-item>
@@ -51,6 +50,10 @@ export default {
       }
     },
     createPerformance(row) {
+      if (!hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')) {
+        this.$warning(this.$t('api_test.create_performance_test_tips'));
+        return;
+      }
       this.infoDb = false;
       let url = "/api/automation/genPerformanceTestJmx";
       let run = {};

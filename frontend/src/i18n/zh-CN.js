@@ -1141,6 +1141,7 @@ export default {
     please_select_case: "请选择用例",
     fail_to_stop: "失败停止",
     batch_add_parameter: "格式：参数名:参数值 <br/> 如：Accept-Encoding:utf-8",
+    create_performance_test_tips: '没有创建性能测试的权限，无法完成此操作',
     jar_config: {
       title: "上传jar包",
       jar_file: "jar包",
