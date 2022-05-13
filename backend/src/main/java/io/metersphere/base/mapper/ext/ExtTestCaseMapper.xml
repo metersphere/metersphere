@@ -1007,4 +1007,13 @@
             SET test_case.latest = TRUE
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
+
+    <select id="moduleExtraNodeCount" resultType="java.util.Map">
+        select parent_id as moduleId, count(id) as countNum from minder_extra_node
+        where parent_id in
+        <foreach collection="nodeIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        GROUP BY parent_id
+    </select>
 </mapper>

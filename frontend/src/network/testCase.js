@@ -82,3 +82,7 @@ export function getTestPlanTestCase(pageNum, pageSize, param, callback) {
 export function getTestReviewTestCase(pageNum, pageSize, param, callback) {
   return basePost('/test/review/case/list/' + pageNum + '/' + pageSize, param, callback);
 }
+
+export function getMinderTreeExtraNodeCount(param, callback) {
+  return basePost('/case/node/minder/extraNode/count', param, callback);
+}

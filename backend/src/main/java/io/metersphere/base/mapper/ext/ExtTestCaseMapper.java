@@ -149,4 +149,6 @@ public interface ExtTestCaseMapper {
     List<TestCase> getMaintainerMap(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> getForNodeEdit(@Param("ids") List<String> ids);
+
+    List<Map<String, Object>> moduleExtraNodeCount(@Param("nodeIds") List<String> nodeIds);
 }
