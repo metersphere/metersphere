@@ -86,7 +86,9 @@ export function loadSelectNodes(param, getCaseFuc, setParamCallback, getExtraNod
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   selectNodes.forEach(node => {
-    loadNode(node, param, getCaseFuc, setParamCallback, getExtraNodeFuc);
+    if (node.children && node.children.length > 0) {
+      loadNode(node, param, getCaseFuc, setParamCallback, getExtraNodeFuc);
+    }
   });
 }
 

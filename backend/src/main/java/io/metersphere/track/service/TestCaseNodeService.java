@@ -740,4 +740,17 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
         return extTestCaseMapper.countByWorkSpaceId(workSpaceId);
     }
+
+    /**
+     * 统计某些节点下的临时节点的数量
+     * @param nodeIds
+     * @return
+     */
+    public Map<String, Integer> getMinderTreeExtraNodeCount(List<String> nodeIds) {
+        if (nodeIds.isEmpty()) {
+            return new HashMap<>();
+        }
+        List<Map<String, Object>> moduleCountList = extTestCaseMapper.moduleExtraNodeCount(nodeIds);
+        return this.parseModuleCountList(moduleCountList);
+    }
 }

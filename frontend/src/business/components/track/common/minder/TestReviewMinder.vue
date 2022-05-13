@@ -5,7 +5,7 @@
     :data-map="dataMap"
     :tags="tags"
     :tag-enable="true"
-    minder-key="testReview"
+    minder-key="REVIEW_CASE"
     :select-node="selectNode"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     :ignore-num="true"
