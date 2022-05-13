@@ -152,6 +152,11 @@ public class PerformanceReportService {
         example.createCriteria().andReportIdEqualTo(reportId);
         loadTestReportDetailMapper.deleteByExample(example);
 
+        // delete load_test_report_log
+        LoadTestReportLogExample loadTestReportLogExample = new LoadTestReportLogExample();
+        loadTestReportLogExample.createCriteria().andReportIdEqualTo(reportId);
+        loadTestReportLogMapper.deleteByExample(loadTestReportLogExample);
+
         // delete jtl file
         fileService.deleteFileById(loadTestReport.getFileId());
 
