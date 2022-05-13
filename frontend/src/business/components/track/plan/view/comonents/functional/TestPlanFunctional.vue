@@ -177,9 +177,13 @@ export default {
     },
     handleBeforeRouteLeave(to) {
       if (this.$store.state.isTestCaseMinderChanged) {
-        this.$refs.isChangeConfirm.open();
-        this.tmpPath = to.path;
-        return false;
+        if (this.planStatus !== 'Archived') {
+          this.$refs.isChangeConfirm.open();
+          this.tmpPath = to.path;
+          return false;
+        } else {
+          return true;
+        }
       } else {
         return true;
       }
