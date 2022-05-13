@@ -67,21 +67,31 @@
       </ms-table-column>
 
       <ms-table-column
-        v-if="versionEnable"
-        :label="$t('project.version.name')"
-        :filters="versionFilters"
-        min-width="100px"
-        prop="versionId">
+          v-if="versionEnable"
+          :label="$t('project.version.name')"
+          :filters="versionFilters"
+          min-width="100px"
+          prop="versionId">
         <template v-slot:default="scope">
           <span>{{ scope.row.versionName }}</span>
         </template>
       </ms-table-column>
 
+       <ms-table-column
+           sortable="createTime"
+           width="160px"
+           :label="$t('commons.create_time')"
+           prop="createTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+
       <ms-table-column
-        width="160"
-        :label="$t('api_test.definition.api_last_time')"
-        sortable="custom"
-        prop="updateTime">
+          width="160"
+          :label="$t('api_test.definition.api_last_time')"
+          sortable="custom"
+          prop="updateTime">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
