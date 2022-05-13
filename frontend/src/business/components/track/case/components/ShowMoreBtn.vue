@@ -57,7 +57,6 @@ export default {
     isDisable(item) {
       if (item.isDisable) {
         if (item.isDisable instanceof Function) {
-          console.log(item.isDisable());
           return item.isDisable();
         } else {
           return item.isDisable;
