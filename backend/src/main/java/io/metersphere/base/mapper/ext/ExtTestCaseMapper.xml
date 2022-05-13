@@ -382,8 +382,13 @@
     <select id="selectPublicIds" resultType="java.lang.String">
         select test_case.id from
         (select
-        test_case.id,test_case.update_time, test_case.ref_id , test_case.`status` , test_case.case_public ,
-        test_case.project_id
+        test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+        test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+        test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+        test_case.other_test_name, test_case.review_status, test_case.tags,
+        test_case.demand_id, test_case.demand_name, test_case.`status`,
+        test_case.custom_num, test_case.step_model, test_case.create_user,
+        test_case.custom_fields,test_case.case_public,test_case.ref_id ,test_case.`order`
         from test_case left join project on test_case.project_id = project.id) test_case
         right join (select
         max(test_case.update_time) update_time , ref_id
@@ -413,12 +418,7 @@
                 or test_case.tags like CONCAT('%', #{request.name},'%')
                 or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
-            <if test="request.ids != null">
-                and test_case.id in
-                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
-            </if>
+
             <if test="request.relevanceCreateTime >0">
                 and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
                 #{request.createTime})
@@ -435,9 +435,7 @@
             <if test="request.workspaceId != null">
                 AND test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
             </if>
-            <if test="request.projectId != null">
-                and test_case.project_id = #{request.projectId}
-            </if>
+
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
