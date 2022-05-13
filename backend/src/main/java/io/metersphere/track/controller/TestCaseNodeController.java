@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/case/node")
 @RestController
@@ -28,6 +29,11 @@ public class TestCaseNodeController {
     public List<TestCaseNodeDTO> getNodeByProjectId(@PathVariable String projectId) {
         checkPermissionService.checkProjectOwner(projectId);
         return testCaseNodeService.getNodeTreeByProjectId(projectId);
+    }
+
+    @PostMapping("/minder/extraNode/count")
+    public Map<String, Integer> getMinderTreeExtraNodeCount(@RequestBody List<String> nodeIds) {
+        return testCaseNodeService.getMinderTreeExtraNodeCount(nodeIds);
     }
 
     @GetMapping("/trashCount/{projectId}")
