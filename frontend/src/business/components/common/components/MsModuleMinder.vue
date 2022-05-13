@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="minder" :class="{'full-screen': isFullScreen}">
+    <div v-loading="loading" class="minder" :class="{'full-screen': isFullScreen}">
       <ms-full-screen-button :is-full-screen.sync="isFullScreen"/>
       <minder-editor
         v-if="isActive"
@@ -81,6 +81,9 @@ export default {
       type: Boolean,
       default: true
     },
+    getExtraNodeCount: {
+      type: Function
+    }
   },
   data() {
     return {
@@ -104,6 +107,7 @@ export default {
       isFullScreen: false,
       height: '',
       defaultMode: 3,
+      loading: false,
       tmpNode: {}
     }
   },
@@ -124,10 +128,31 @@ export default {
       } else {
         this.parse(this.importJson.root, this.treeNodes);
       }
-      this.reload();
     });
   },
   methods: {
+    getNoCaseModuleIds(ids, nodes) {
+      if (nodes) {
+        nodes.forEach(node => {
+          if (node.caseNum < 1) {
+            ids.push(node.id);
+          }
+          if (node.children) {
+            this.getNoCaseModuleIds(ids, node.children);
+          }
+        });
+      }
+    },
+    setExtraNodeCount(countMap, nodes) {
+      nodes.forEach(node => {
+        if (countMap[node.id]) {
+          node.extraNodeCount = countMap[node.id];
+        }
+        if (node.children) {
+          this.setExtraNodeCount(countMap, node.children);
+        }
+      });
+    },
     handleMoldChange(index) {
       if (this.minderKey) {
         localStorage.setItem(this.minderKey + 'minderModel', index);
@@ -137,7 +162,32 @@ export default {
     save(data) {
       this.$emit('save', data)
     },
-    parse(root, children) {
+    parse(root, nodes) {
+      this.loading = true;
+      if (this.getExtraNodeCount) {
+        // 如果有临时节点，筛选出用例数为空的模块，
+        // 去查找下这些模块下的临时节点数量，来判断模块是不是要有展开图标
+        let noCaseModuleIds = [];
+        this.getNoCaseModuleIds(noCaseModuleIds, nodes);
+        if (noCaseModuleIds.length < 1) {
+          this._parse(root, nodes);
+          this.loading = false;
+          this.reload();
+        } else {
+          this.getExtraNodeCount(noCaseModuleIds, (data) => {
+            this.setExtraNodeCount(data, nodes);
+            this._parse(root, nodes);
+            this.loading = false;
+            this.reload();
+          });
+        }
+      } else {
+        this._parse(root, nodes);
+        this.loading = false;
+        this.reload();
+      }
+    },
+    _parse(root, children) {
       root.children = [];
       if (!children) {
         children = [];
@@ -145,7 +195,14 @@ export default {
       if (root.data.text === '未规划用例' && root.data.level === 1) {
         root.data.disable = true;
       }
-      if (children.length < 1) {
+      let caseNum = root.data.caseNum;
+      let hasChildren = caseNum && caseNum > 0;
+      if (this.getExtraNodeCount) {
+        // 如果有临时节点的脑图，就判断下临时节点数量
+        let extraNodeCount = root.data.extraNodeCount;
+        hasChildren = hasChildren || (extraNodeCount && extraNodeCount > 0);
+      }
+      if (children.length < 1 && (this.ignoreNum || hasChildren)) {
         root.children.push({
           data: {
             text: '',
@@ -169,6 +226,7 @@ export default {
             level: item.level,
             resource: this.showModuleTag ? [this.$t('test_track.module.module')] : [],
             caseNum: item.caseNum,
+            extraNodeCount: item.extraNodeCount,
             path: root.data.path + "/" + item.name,
             expandState:"collapse"
           },
@@ -177,7 +235,7 @@ export default {
           node.data.tagEnable = this.tagEnable;
         }
         root.children.push(node);
-        this.parse(node, item.children);
+        this._parse(node, item.children);
       });
     },
     reload() {
@@ -210,9 +268,8 @@ export default {
       if (node && node.data) {
         let nodeData = node.data;
         let importJson = this.getImportJsonBySelectNode(nodeData);
-        this.parse(importJson.root, nodeData.children);
         this.setJsonImport(importJson);
-        this.reload();
+        this.parse(importJson.root, nodeData.children);
       }
     },
     getImportJsonBySelectNode(nodeData) {
