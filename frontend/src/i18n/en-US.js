@@ -1135,6 +1135,7 @@ export default {
     please_select_case: "Please select case",
     fail_to_stop: "Fail to stop",
     batch_add_parameter: "Format: parameter name: parameter value <br/> like：Accept-Encoding:utf-8",
+    create_performance_test_tips: 'This operation cannot be completed without permission to create performance tests',
     jar_config: {
       title: "Upload jar package",
       jar_file: "Jar Package",

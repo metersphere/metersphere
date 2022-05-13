@@ -1141,6 +1141,7 @@ export default {
     please_select_case: "請選擇用例",
     fail_to_stop: "失敗停止",
     batch_add_parameter: "格式：參數名:參數值 <br/> 如：Accept-Encoding:utf-8",
+    create_performance_test_tips: '沒有創建性能測試的權限，無法完成此操作',
     jar_config: {
       title: "上傳jar包",
       jar_file: "jar包",
