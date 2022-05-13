@@ -10,6 +10,7 @@
           {{ $t('api_test.automation.schedule') }}
         </el-dropdown-item>
         <el-dropdown-item command="create_performance" v-permission="['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE']"
+                          v-if="hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')"
                           v-modules="['performance']">
           {{ $t('api_test.create_performance_test') }}
         </el-dropdown-item>
@@ -24,7 +25,7 @@
 <script>
 import MsReferenceView from "@/business/components/api/automation/scenario/ReferenceView";
 import MsScheduleMaintain from "@/business/components/api/automation/schedule/ScheduleMaintain";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
 
 export default {
   name: "MsScenarioExtendButtons",
@@ -34,6 +35,7 @@ export default {
     request: {}
   },
   methods: {
+    hasPermission,
     handleCommand(cmd) {
       switch (cmd) {
         case  "ref":
