@@ -147,14 +147,12 @@
         if (!data.method) {
           data.method = data.protocol;
         }
+        data.request.path = this.httpForm.path;
       },
       getBodyUploadFiles(data) {
         let bodyUploadFiles = [];
         data.bodyUploadIds = [];
         let request = data.request;
-        if (request.url) {
-          request.path = request.url;
-        }
         if (request.body) {
           if (request.body.kvs) {
             request.body.kvs.forEach(param => {
@@ -274,6 +272,7 @@
             data.protocol = "DUBBO";
           }
           data.id = getUUID();
+          data.path = this.httpForm.path;
           this.httpForm = {
             id: data.id,
             name: data.name,
