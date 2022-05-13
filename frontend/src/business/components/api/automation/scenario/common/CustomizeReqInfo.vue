@@ -63,7 +63,7 @@ export default {
       this.isUrl = false;
       if (!this.request.path || this.request.path.indexOf('?') === -1) return;
       let url = this.getURL(this.addProtocol(this.request.path));
-      if (url && this.isUrl) {
+      if (url) {
         this.request.path = decodeURIComponent(this.request.path.substr(0, this.request.path.indexOf("?")));
       }
     },
@@ -76,7 +76,7 @@ export default {
         let url = this.getURL(this.addProtocol(this.request.url));
         if (url) {
           let paramUrl = this.request.url.substr(this.request.url.indexOf("?") + 1);
-          if (paramUrl && this.isUrl) {
+          if (paramUrl) {
             this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
           }
         }
@@ -99,6 +99,7 @@ export default {
             if (param) {
               let keyValues = param.split("=");
               if (keyValues) {
+                this.isUrl = true;
                 this.request.arguments.splice(0, 0, new KeyValue({
                   name: keyValues[0],
                   required: false,

@@ -497,7 +497,7 @@ export default {
     },
     getURL(urlStr) {
       try {
-        let url = urlStr;
+        let url = new URL(urlStr);
         if (url.search && url.search.length > 1) {
           let params = url.search.substr(1).split("&");
           params.forEach(param => {
