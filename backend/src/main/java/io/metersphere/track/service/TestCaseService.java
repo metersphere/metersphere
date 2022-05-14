@@ -2204,16 +2204,39 @@ public class TestCaseService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectPublicIds(query));
         List<String> ids = request.getIds();
+        List<String> needDelete = new ArrayList<>();
+        List<String> noDelete = new ArrayList<>();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         if (CollectionUtils.isNotEmpty(ids)) {
             for (String id : ids) {
                 TestCase testCase = testCaseMapper.selectByPrimaryKey(id);
                 if ((StringUtils.isNotEmpty(testCase.getMaintainer()) && testCase.getMaintainer().equals(SessionUtils.getUserId())) ||
                         (StringUtils.isNotEmpty(testCase.getCreateUser()) && testCase.getCreateUser().equals(SessionUtils.getUserId()))) {
-                    this.deleteTestCasePublic(null, testCase.getRefId());
+                    needDelete.add(testCase.getRefId());
                 } else {
-                    MSException.throwException(Translator.get("check_owner_case"));
+                    noDelete.add(testCase.getName());
                 }
             }
+        }
+        try {
+            if (CollectionUtils.isNotEmpty(needDelete)) {
+                for (int i = 0; i < needDelete.size(); i++) {
+                    TestCaseExample e = new TestCaseExample();
+                    e.createCriteria().andRefIdEqualTo(needDelete.get(i));
+                    TestCaseWithBLOBs t = new TestCaseWithBLOBs();
+                    t.setCasePublic(false);
+                    mapper.updateByExampleSelective(t, e);
+                    if (i % 50 == 0)
+                        sqlSession.flushStatements();
+                }
+                sqlSession.flushStatements();
+            }
+        } finally {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+        if (CollectionUtils.isNotEmpty(noDelete)) {
+            MSException.throwException(Translator.get("check_owner_case"));
         }
     }
 
