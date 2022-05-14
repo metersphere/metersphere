@@ -2621,16 +2621,10 @@ public class TestCaseService {
     }
 
     public void deleteTestCasePublic(String versionId, String refId) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TestCase testCase = new TestCase();
-                testCase.setRefId(refId);
-                testCase.setVersionId(versionId);
-                extTestCaseMapper.deletePublic(testCase);
-            }
-        });
-        thread.start();
+        TestCase testCase = new TestCase();
+        testCase.setRefId(refId);
+        testCase.setVersionId(versionId);
+        extTestCaseMapper.deletePublic(testCase);
     }
 
     public Boolean hasOtherInfo(String caseId) {
