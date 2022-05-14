@@ -42,7 +42,8 @@
 
         <slot name="button" v-if="showVersion"></slot>
 
-        <el-button v-if="showVersion" size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"
+        <el-button v-if="showVersion && showCopy" size="mini" icon="el-icon-copy-document" circle @click="copyRow"
+                   style="padding: 5px"
                    :disabled="(data.disabled && !data.root) || !showVersion "/>
 
         <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"
