@@ -1,6 +1,7 @@
 package io.metersphere.track.request.testcase;
 
 import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,8 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private String workspaceId;
 
     private List<String> tapdUsers;
+    private List<CustomFieldResource> addFields;
+    private List<CustomFieldResource> editFields;
     /**
      * zentao bug 处理人
      */

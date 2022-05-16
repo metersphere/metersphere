@@ -572,6 +572,25 @@ export const PLAN_CASE_STATUS = {
   }
 }
 
+export const PLATFORM = {
+  key: "platform",
+  name: 'MsTableSearchSelect',
+  label: "所属平台",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: "Tapd", value: "Tapd"},
+    {label: "Jira", value: "Jira"},
+    {label: "Zentao", value: "Zentao"},
+    {label: "Local", value: "Local"},
+  ],
+  props: {
+    multiple: true
+  }
+}
+
+
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
@@ -608,3 +627,10 @@ export const TEST_PLAN_RELEVANCE_LOAD_CASE= [NAME, STATUS, CREATE_TIME, UPDATE_T
 export const TEST_CASE_RELEVANCE_API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, CREATOR];
 export const TEST_CASE_RELEVANCE_API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, CREATOR];
 export const TEST_CASE_RELEVANCE_LOAD_CASE= [NAME, STATUS, CREATE_TIME, UPDATE_TIME, CREATOR];
+
+
+// 测试跟踪-缺陷管理-缺陷列表
+export const TEST_TRACK_ISSUE_LIST = [NAME, PLATFORM, CREATE_TIME, CREATOR];
+
+// 测试跟踪-测试用例-关联缺陷
+export const TEST_CASE_RELEVANCE_ISSUE_LIST = [NAME, PLATFORM, CREATE_TIME, CREATOR];

@@ -23,6 +23,8 @@ public interface ExtProjectMapper {
 
     List<String> getProjectIds();
 
+    List<Project> getProjectForCustomField(String workspaceId);
+
     String getMaxSystemId();
 
     @MapKey("id")

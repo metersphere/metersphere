@@ -5,8 +5,10 @@
     :title="$t('test_track.case.relate_issue')"
     @confirm="save"
     ref="relevanceDialog">
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="getIssues" class="search-input" size="small"
-                 v-model="page.condition.name"/>
+    <ms-search
+      :base-search-tip="$t('commons.search_by_name_or_id')"
+      :condition.sync="page.condition"
+      @search="getIssues"/>
     <ms-table
       v-loading="page.result.loading"
       :data="page.data"
@@ -80,12 +82,18 @@ import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {getPageInfo} from "@/common/js/tableUtils";
 import {getCurrentProjectID} from "@/common/js/utils";
+import {
+  TEST_CASE_RELEVANCE_ISSUE_LIST
+} from "@/business/components/common/components/search/search-components";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 export default {
   name: "IssueRelateList",
-  components: {MsTablePagination, IssueDescriptionTableItem, MsTableColumn, MsTable, MsEditDialog},
+  components: {MsTablePagination, IssueDescriptionTableItem, MsTableColumn, MsTable, MsEditDialog, MsSearch},
   data() {
     return {
-      page: getPageInfo(),
+      page: getPageInfo({
+        components: TEST_CASE_RELEVANCE_ISSUE_LIST
+      }),
       visible: false,
       isThirdPart: false
     }

@@ -17,11 +17,11 @@ export const Test_Case_Review = [
   {id: 'name', label: i18n.t('test_track.review.review_name')},
   {id: 'reviewer', label: i18n.t('test_track.review.reviewer')},
   {id: 'projectName', label: i18n.t('test_track.review.review_project')},
-  {id: 'creatorName', label: i18n.t('test_track.review.review_creator')},
+  {id: 'creatorName', label: i18n.t('test_track.review.creator')},
   {id: 'status', label: i18n.t('test_track.review.review_status')},
   {id: 'createTime', label: i18n.t('commons.create_time')},
   {id: 'endTime', label: i18n.t('test_track.review.end_time')},
-  {id: 'tags', label: '标签'},
+  {id: 'tags', label: i18n.t('commons.tag')},
 ]
 //测试计划-测试用例
 export const Test_Plan_List = [

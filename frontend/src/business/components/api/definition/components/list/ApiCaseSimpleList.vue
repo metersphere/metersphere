@@ -4,9 +4,11 @@
       <div class="ms-opt-btn" v-if="apiDefinitionId && versionEnable">
           {{ $t('project.version.name') }}:  {{ apiDefinition.versionName }}
       </div>
-      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @change="search"
-                class="search-input" size="small"
-                v-model="condition.name"/>
+      <ms-search
+        :condition.sync="condition"
+        :base-search-tip="$t('commons.search_by_id_name_tag')"
+        @search="search">
+      </ms-search>
       <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small"
                  @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}
       </el-button>
@@ -222,8 +224,6 @@
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->
     <ms-reference-view ref="viewRef"/>
-    <!--高级搜索-->
-    <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="initTable"/>
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
 
@@ -285,6 +285,7 @@ import MsRequestResultTail from "../../../../api/definition/components/response/
 import {editApiTestCaseOrder} from "@/network/api";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import i18n from "@/i18n/i18n";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -311,6 +312,7 @@ export default {
     MsTableColumn,
     MsRequestResultTail,
     MsApiCaseRunModeWithEnv,
+    MsSearch,
     PlanStatusTableItem: () => import("../../../../track/common/tableItems/plan/PlanStatusTableItem"),
     MsTaskCenter: () => import("@/business/components/task/TaskCenter"),
   },

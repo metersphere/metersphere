@@ -104,7 +104,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '1', label: 'test_track.review.review_name'},
     {id: 'reviewer', key: '2', label: 'test_track.review.reviewer'},
     {id: 'projectName', key: '3', label: 'test_track.review.review_project'},
-    {id: 'creatorName', key: '4', label: 'test_track.review.review_creator'},
+    {id: 'creatorName', key: '4', label: 'test_track.review.creator'},
     {id: 'status', key: '5', label: 'test_track.review.review_status'},
     {id: 'createTime', key: '6', label: 'commons.create_time'},
     {id: 'endTime', key: '7', label: 'test_track.review.end_time'},

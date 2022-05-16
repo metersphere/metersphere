@@ -213,6 +213,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 IssuesWithBLOBs updateIssue = getUpdateIssue(issuesMapper.selectByPrimaryKey(id), bug, statusMap);
                 updateIssue.setId(id);
                 updateIssue.setCustomFields(syncIssueCustomField(updateIssue.getCustomFields(), bug));
+                customFieldIssuesService.addFields(id, customFieldService.getCustomFieldResource(updateIssue.getCustomFields()));
                 issuesMapper.updateByPrimaryKeySelective(updateIssue);
                 ids.remove(platformId);
             });

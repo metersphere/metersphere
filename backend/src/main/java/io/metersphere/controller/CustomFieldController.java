@@ -46,6 +46,11 @@ public class CustomFieldController {
         customFieldService.delete(id);
     }
 
+    @GetMapping("/get/{id}")
+    public CustomField get(@PathVariable(value = "id") String id) {
+        return customFieldService.get(id);
+    }
+
     @PostMapping("/update")
     @MsAuditLog(module = OperLogModule.WORKSPACE_TEMPLATE_SETTINGS_FIELD, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#customField.id)", content = "#msClass.getLogDetails(#customField.id)", msClass = CustomFieldService.class)
     public void update(@RequestBody CustomField customField) {

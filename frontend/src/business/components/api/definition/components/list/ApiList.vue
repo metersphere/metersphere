@@ -1,12 +1,12 @@
 <template>
   <span>
     <span>
-      <el-input :placeholder="$t('commons.search_by_id_name_tag_path')" @blur="search" class="search-input" size="small"
-                @keyup.enter.native="enterSearch"
-                v-model="condition.name" ref="inputVal"/>
-      <el-link type="primary" @click="open" style="float: right;margin-top: 5px;padding-right: 10px">
-        {{ $t('commons.adv_search.title') }}
-      </el-link>
+      <ms-search
+        :condition.sync="condition"
+        :base-search-tip="$t('commons.search_by_id_name_tag_path')"
+        :base-search-width="260"
+        @search="search">
+      </ms-search>
 
       <ms-table
         :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
@@ -248,6 +248,7 @@ import {editApiDefinitionOrder} from "@/network/api";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
 import {getGraphByCondition} from "@/network/graph";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -275,6 +276,7 @@ export default {
     MsTableAdvSearchBar,
     MsTable,
     MsTableColumn,
+    MsSearch,
     "relationshipGraphDrawer": relationshipGraphDrawer.default,
   },
   data() {

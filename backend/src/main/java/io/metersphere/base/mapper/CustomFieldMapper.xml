@@ -13,6 +13,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="third_part" jdbcType="BIT" property="thirdPart" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.CustomField">
     <result column="options" jdbcType="LONGVARCHAR" property="options" />
@@ -76,8 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, scene, `type`, remark, `system`, `global`, create_time, update_time, 
-    create_user, project_id
+    id, `name`, scene, `type`, remark, `system`, `global`, create_time, update_time,
+    create_user, project_id, third_part
   </sql>
   <sql id="Blob_Column_List">
     `options`
@@ -113,7 +114,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -132,13 +133,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.CustomField">
     INSERT INTO custom_field (id, `name`, scene,
-      `type`, remark, `system`, `global`, 
-      create_time, update_time, create_user, 
-      project_id, `options`)
+      `type`, remark, `system`, `global`,
+      create_time, update_time, create_user,
+      project_id, third_part, `options`)
     VALUES (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scene,jdbcType=VARCHAR},
-      #{type,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, #{global,jdbcType=BIT}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{options,jdbcType=LONGVARCHAR})
+      #{type,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, #{global,jdbcType=BIT},
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR},
+      #{projectId,jdbcType=VARCHAR}, #{thirdPart,jdbcType=BIT}, #{options,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.CustomField">
     insert into custom_field
@@ -175,6 +176,9 @@
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="thirdPart != null">
+        third_part,
       </if>
       <if test="options != null">
         `options`,
@@ -213,6 +217,9 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="thirdPart != null">
+        #{thirdPart,jdbcType=BIT},
       </if>
       <if test="options != null">
         #{options,jdbcType=LONGVARCHAR},
@@ -258,6 +265,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.thirdPart != null">
+        third_part = #{record.thirdPart,jdbcType=BIT},
+      </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
@@ -282,6 +292,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      third_part = #{record.thirdPart,jdbcType=BIT},
       `options` = #{record.options,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -300,6 +311,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      third_part = #{record.thirdPart,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -334,6 +347,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="thirdPart != null">
+        third_part = #{thirdPart,jdbcType=BIT},
+      </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
@@ -355,12 +371,13 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
+      third_part = #{thirdPart,jdbcType=BIT},
       `options` = #{options,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.CustomField">
-    UPDATE custom_field
-    SET `name` = #{name,jdbcType=VARCHAR},
+    update custom_field
+    set `name` = #{name,jdbcType=VARCHAR},
       scene = #{scene,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
@@ -369,7 +386,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR}
-    WHERE id = #{id,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR},
+      third_part = #{thirdPart,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

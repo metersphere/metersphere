@@ -1,5 +1,5 @@
 import {post, get} from "@/common/js/ajax";
-import {getPageDate} from "@/common/js/tableUtils";
+import {getPageDate, parseCustomFilesForList} from "@/common/js/tableUtils";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import {baseGet, basePost} from "@/network/base-network";
 import {getCurrentProject} from "@/network/project";
@@ -20,7 +20,8 @@ export function buildIssues(page) {
 export function getIssues(page) {
   return post('issues/list/' + page.currentPage + '/' + page.pageSize, page.condition, (response) => {
     getPageDate(response, page);
-    buildIssues(page);
+    parseCustomFilesForList(page.data);
+    // buildIssues(page);
   });
 }
 

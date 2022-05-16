@@ -1,5 +1,5 @@
 <template>
-  <ms-table-search-component v-model="component.operator.value" :component="component">
+  <ms-table-search-component v-model="component.operator.value" :component="component" v-bind="$attrs" v-on="$listeners">
     <template v-slot="scope">
       <el-input v-model="scope.component.value" v-bind="props"
                 :placeholder="$t('commons.input_content')" size="small"/>
@@ -13,6 +13,7 @@
   export default {
     name: "MsTableSearchInput",
     components: {MsTableSearchComponent},
+    inheritAttrs: false,
     props: ['component'],
     data() {
       return {

@@ -1,5 +1,5 @@
 <template>
-  <ms-table-search-component v-model="component.operator.value" :component="component" @change="change">
+  <ms-table-search-component v-model="component.operator.value" :component="component" @change="change" v-bind="$attrs" v-on="$listeners">
     <template v-slot="scope">
       <el-date-picker v-model="scope.component.value" v-bind="scope.component.props"
                       :placeholder="$t('commons.date.select_date_time')" size="small"
@@ -22,6 +22,7 @@
     name: "MsTableSearchDateTimePicker",
     components: {MsTableSearchComponent},
     props: ['component'],
+    inheritAttrs: false,
     methods: {
       change(value) {
         if (value === OPERATORS.BETWEEN.value) {

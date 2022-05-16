@@ -393,4 +393,7 @@
         NULL)
     </insert>
 
+    <select id="getProjectForCustomField" resultType="io.metersphere.base.domain.Project">
+        select id, platform, third_part_template from project where workspace_id = #{workspaceId}
+    </select>
 </mapper>

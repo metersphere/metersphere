@@ -1,11 +1,9 @@
 <template>
   <div>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
-              @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-
-    <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
-                             v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="initTable"/>
+    <ms-search
+      :condition.sync="condition"
+      @search="initTable">
+    </ms-search>
     <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"
                     class="search-input"/>
 
@@ -75,6 +73,7 @@ import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsTag from "@/business/components/common/components/MsTag";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import MsSearch from "@/business/components/common/components/search/MsSearch";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
@@ -87,6 +86,7 @@ export default {
     MsTableColumn,
     MsTableAdvSearchBar,
     MsTag,
+    MsSearch,
     'VersionSelect': VersionSelect.default,
   },
   data() {

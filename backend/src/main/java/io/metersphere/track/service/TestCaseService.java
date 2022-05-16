@@ -15,6 +15,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
@@ -161,6 +162,10 @@ public class TestCaseService {
     @Lazy
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private CustomFieldTestCaseMapper customFieldTestCaseMapper;
+    @Resource
+    private CustomFieldTestCaseService customFieldTestCaseService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
     private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
@@ -212,6 +217,7 @@ public class TestCaseService {
 
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
+        customFieldTestCaseService.addFields(request.getId(), request.getAddFields());
         return request;
     }
 
@@ -298,14 +304,12 @@ public class TestCaseService {
         }
     }
 
-    public List<TestCase> getTestCaseByNodeId(List<String> nodeIds) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andNodeIdIn(nodeIds);
-        return testCaseMapper.selectByExample(testCaseExample);
-    }
-
-    public TestCaseWithBLOBs getTestCase(String testCaseId) {
-        return testCaseMapper.selectByPrimaryKey(testCaseId);
+    public TestCaseDTO getTestCase(String testCaseId) {
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
+        TestCaseDTO testCaseDTO =  new TestCaseDTO();
+        BeanUtils.copyBean(testCaseDTO, testCaseWithBLOBs);
+        buildCustomField(testCaseDTO);
+        return testCaseDTO;
     }
 
     public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
@@ -339,6 +343,9 @@ public class TestCaseService {
                 testCaseMapper.updateByExampleSelective(testCaseWithBLOBs, example);
             }
         }
+
+        customFieldTestCaseService.editFields(testCase.getId(), testCase.getEditFields());
+        customFieldTestCaseService.addFields(testCase.getId(), testCase.getAddFields());
 
         testCase.setLatest(null);
 
@@ -559,6 +566,7 @@ public class TestCaseService {
         relateDelete(testCaseId);
         relationshipEdgeService.delete(testCaseId); // 删除关系图
         deleteFollows(testCaseId);
+        customFieldTestCaseService.deleteByResourceId(testCaseId); // 删除自定义字段关联关系
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -616,8 +624,33 @@ public class TestCaseService {
         } else {
             buildProjectInfoWidthoutProject(list);
         }
+        buildCustomField(list);
         list = this.parseStatus(list);
         return list;
+    }
+
+    private void buildCustomField(List<TestCaseDTO> data) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+        Map<String, List<CustomFieldDao>> fieldMap =
+                customFieldTestCaseService.getMapByResourceIds(data.stream().map(TestCaseDTO::getId).collect(Collectors.toList()));
+        data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
+    }
+
+    private void buildCustomField(TestCaseDTO data) {
+        CustomFieldTestCaseExample example = new CustomFieldTestCaseExample();
+        example.createCriteria().andResourceIdEqualTo(data.getId());
+        List<CustomFieldTestCase> customFieldTestCases = customFieldTestCaseMapper.selectByExample(example);
+        List<CustomFieldDao> fields = new ArrayList<>();
+        customFieldTestCases.forEach(i -> {
+            CustomFieldDao customFieldDao = new CustomFieldDao();
+            customFieldDao.setId(i.getFieldId());
+            customFieldDao.setValue(i.getValue());
+            customFieldDao.setTextValue(i.getTextValue());
+            fields.add(customFieldDao);
+        });
+        data.setFields(fields);
     }
 
     private void buildProjectInfoWidthoutProject(List<TestCaseDTO> resList) {
@@ -1428,10 +1461,11 @@ public class TestCaseService {
         StringBuilder result = new StringBuilder("");
 
         Map<String, Map<String, String>> customSelectValueMap = new HashMap<>();
+        Map<String, String> customNameMap = new HashMap<>();
         TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
         TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(request.getProjectId());
 
-        List<CustomFieldDao> customFieldList = null;
+        List<CustomFieldDao> customFieldList;
         if (testCaseTemplate == null) {
             customFieldList = new ArrayList<>();
         } else {
@@ -1462,7 +1496,8 @@ public class TestCaseService {
                 } catch (Exception e) {
                 }
             }
-            customSelectValueMap.put(dto.getName(), map);
+            customSelectValueMap.put(dto.getId(), map);
+            customNameMap.put(dto.getId(), dto.getName());
         }
 
 
@@ -1548,23 +1583,20 @@ public class TestCaseService {
             }
             data.setMaintainer(t.getMaintainer());
             data.setStatus(t.getStatus());
-            String customFields = t.getCustomFields();
             try {
-                JSONArray customFieldsArr = JSONArray.parseArray(customFields);
+                List<CustomFieldResource> fields = customFieldTestCaseService.getByResourceId(t.getId());
                 Map<String, String> map = new HashMap<>();
-                for (int index = 0; index < customFieldsArr.size(); index++) {
-                    JSONObject obj = customFieldsArr.getJSONObject(index);
-                    if (obj.containsKey("name") && obj.containsKey("value")) {
-                        //进行key value对换
-                        String name = obj.getString("name");
-                        String value = obj.getString("value");
-                        if (customSelectValueMap.containsKey(name)) {
-                            if (customSelectValueMap.get(name).containsKey(value)) {
-                                value = customSelectValueMap.get(name).get(value);
-                            }
+                for (int index = 0; index < fields.size(); index++) {
+                    CustomFieldResource field = fields.get(index);
+                    //进行key value对换
+                    String id = field.getFieldId();
+                    String value = JSONObject.parse(field.getValue()).toString();
+                    if (customSelectValueMap.containsKey(id)) {
+                        if (customSelectValueMap.get(id).containsKey(value)) {
+                            value = customSelectValueMap.get(id).get(value);
                         }
-                        map.put(name, value);
                     }
+                    map.put(customNameMap.get(id), value);
                 }
                 data.setCustomDatas(map);
             } catch (Exception e) {
@@ -1589,33 +1621,20 @@ public class TestCaseService {
         if (request.getCustomField() != null) {
             List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
             testCases.forEach((testCase) -> {
-                String customFields = testCase.getCustomFields();
-                List<TestCaseBatchRequest.CustomFiledRequest> fields;
-                if (StringUtils.isBlank(customFields)) {
-                    fields = new ArrayList<>();
+                CustomFieldResourceDTO customField = request.getCustomField();
+                if (StringUtils.equals(customField.getName(), "用例等级")) {
+                    testCase.setPriority(JSONObject.parse(customField.getValue()).toString());
+                } else if (StringUtils.equals(request.getCustomField().getName(), "用例状态")) {
+                    testCase.setStatus(JSONObject.parse(customField.getValue()).toString());
+                } else if (StringUtils.equals(customField.getName(), "责任人")) {
+                    testCase.setMaintainer(JSONObject.parse(customField.getValue()).toString());
                 } else {
-                    fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
-                }
-
-                boolean hasField = false;
-                for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
-                    if (StringUtils.equals(request.getCustomField().getName(), field.getName())) {
-                        field.setValue(request.getCustomField().getValue());
-                        hasField = true;
-                        break;
+                    customField.setResourceId(testCase.getId());
+                    int row = customFieldTestCaseService.updateByPrimaryKeySelective(customField);
+                    if (row < 1) {
+                        customFieldTestCaseService.insert(customField);
                     }
                 }
-                if (!hasField) {
-                    TestCaseBatchRequest.CustomFiledRequest customField = request.getCustomField();
-                    customField.setId(request.getCustomTemplateFieldId());
-                    customField.setName(request.getCustomField().getName());
-                    customField.setValue(request.getCustomField().getValue());
-                    fields.add(request.getCustomField());
-                }
-                if (StringUtils.equals(request.getCustomField().getName(), "用例等级")) {
-                    testCase.setPriority((String) request.getCustomField().getValue());
-                }
-                testCase.setCustomFields(JSONObject.toJSONString(fields));
                 testCase.setUpdateTime(System.currentTimeMillis());
                 TestCaseExample example = new TestCaseExample();
                 example.createCriteria().andIdEqualTo(testCase.getId());
@@ -1697,6 +1716,7 @@ public class TestCaseService {
 
         deleteTestPlanTestCaseBath(request.getIds());
         relationshipEdgeService.delete(request.getIds()); // 删除关系图
+        customFieldTestCaseService.deleteByResourceIds(request.getIds()); // 删除自定义字段
 
         request.getIds().forEach(testCaseId -> { // todo 优化下效率
             testCaseIssueService.delTestCaseIssues(testCaseId);
@@ -1897,17 +1917,6 @@ public class TestCaseService {
 
         List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
         if (CollectionUtils.isNotEmpty(data)) {
-            List<String> editIds = data.stream()
-                    .filter(TestCaseMinderEditRequest.TestCaseMinderEditItem::getIsEdit)
-                    .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
-
-            Map<String, TestCaseWithBLOBs> testCaseMap = new HashMap<>();
-            if (CollectionUtils.isNotEmpty(editIds)) {
-                TestCaseExample example = new TestCaseExample();
-                example.createCriteria().andIdIn(editIds);
-                List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
-                testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
-            }
 
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
@@ -1915,12 +1924,9 @@ public class TestCaseService {
                 }
                 item.setProjectId(request.getProjectId());
                 if (item.getIsEdit()) {
-                    TestCaseWithBLOBs dbCase = testCaseMap.get(item.getId());
-                    if (editCustomFieldsPriority(dbCase, item.getPriority())) {
-                        item.setCustomFields(dbCase.getCustomFields());
-                    }
                     EditTestCaseRequest editRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editRequest, item);
+                    editRequest.setCustomFields(null);
                     editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
                 } else {
@@ -1947,29 +1953,6 @@ public class TestCaseService {
             resetOrderRequest.setMoveMode(item.getMoveMode());
             updateOrder(resetOrderRequest);
         }
-    }
-
-    /**
-     * 脑图编辑之后修改用例等级，同时修改自定义字段的用例等级
-     *
-     * @param dbCase
-     * @param priority
-     * @return
-     */
-    private boolean editCustomFieldsPriority(TestCaseWithBLOBs dbCase, String priority) {
-        String customFields = dbCase.getCustomFields();
-        if (StringUtils.isNotBlank(customFields)) {
-            JSONArray fields = JSONObject.parseArray(customFields);
-            for (int i = 0; i < fields.size(); i++) {
-                JSONObject field = fields.getJSONObject(i);
-                if (field.getString("name").equals("用例等级")) {
-                    field.put("value", priority);
-                    dbCase.setCustomFields(JSONObject.toJSONString(fields));
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public List<TestCase> getTestCaseByProjectId(String projectId) {

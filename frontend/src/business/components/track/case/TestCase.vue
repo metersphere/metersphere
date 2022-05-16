@@ -50,6 +50,7 @@
           </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane name="public" v-if="publicEnable" :label="$t('project.case_public')">
+          <div style="height: 6px;"></div>
           <test-case-list
             :checkRedirectID="checkRedirectID"
             :isRedirectEdit="isRedirectEdit"

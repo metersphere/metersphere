@@ -1,5 +1,5 @@
 <template>
-  <ms-table-search-component v-model="component.operator.value" :component="component">
+  <ms-table-search-component v-model="component.operator.value" :component="component" v-bind="$attrs" v-on="$listeners">
     <template v-slot="scope">
       <el-select v-model="scope.component.value" :placeholder="$t('commons.please_select')" size="small"
                  filterable v-bind="scope.component.props" class="search-select">
@@ -16,6 +16,7 @@
     name: "MsTableSearchSelect",
     components: {MsTableSearchComponent},
     props: ['component'],
+    inheritAttrs: false,
     data() {
       return {
         options: !(this.component.options instanceof Array) ? [] : this.component.options || []
