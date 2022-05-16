@@ -27,11 +27,13 @@
       </div>
     </el-row>
 
-    <el-dialog :title="$t('api_test.request.assertions.script')" :visible.sync="visible" width="900px" append-to-body>
+    <el-dialog :title="$t('api_test.request.assertions.script')" :visible.sync="visible" width="900px" append-to-body
+               :close-on-click-modal="false">
       <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <div class="assertion-item input">
           <el-input size="small" v-model="assertion.variable"
-                    :placeholder="$t('api_test.request.assertions.variable_name')" @change="quickScript" :disabled="disabled"/>
+                    :placeholder="$t('api_test.request.assertions.variable_name')" @change="quickScript"
+                    :disabled="disabled"/>
         </div>
 
         <div class="assertion-item select">
