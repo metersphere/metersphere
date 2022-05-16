@@ -13,7 +13,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.service.CustomFieldService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.TapdClient;
