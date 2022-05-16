@@ -32,7 +32,4 @@ public interface TestPlanReportMapper {
     int updateByPrimaryKeySelective(TestPlanReport record);
 
     int updateByPrimaryKey(TestPlanReport record);
-
-    @MapKey("id")
-    Map<String, ParamsDTO> reportCount(@Param("planIds") Set<String> planIds);
 }
