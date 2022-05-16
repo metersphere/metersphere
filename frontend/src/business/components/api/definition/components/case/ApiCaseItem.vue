@@ -469,6 +469,7 @@ export default {
         this.currentApi.request = item.request;
         this.currentApi.request.changeId = getUUID();
       }
+      this.$emit("setSelectedCaseId", item.id);
     },
     changePriority(row) {
       if (row.id) {
