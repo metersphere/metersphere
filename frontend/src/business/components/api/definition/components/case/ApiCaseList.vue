@@ -3,38 +3,41 @@
     <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer">
       <template v-slot:header>
         <api-case-header
-          :api="api"
-          @setEnvironment="setEnvironment"
-          @addCase="addCase"
-          @saveCase="saveCase(apiCaseList[0])"
-          :condition="condition"
-          :priorities="priorities"
-          :project-id="projectId"
-          :useEnvironment="environment"
-          :is-case-edit="isCaseEdit"
-          :button-text="saveButtonText"
-          ref="header"/>
+            :api="api"
+            @setEnvironment="setEnvironment"
+            @addCase="addCase"
+            @saveCase="saveCase"
+            :condition="condition"
+            :priorities="priorities"
+            :project-id="projectId"
+            :useEnvironment="environment"
+            :is-case-edit="isCaseEdit"
+            :button-text="saveButtonText"
+            ref="header"/>
       </template>
 
       <el-container v-if="!result.loading">
         <el-main>
-          <api-case-item
-            :loading="singleLoading && singleRunId === apiCaseList[0].id || batchLoadingIds.indexOf(apiCaseList[0].id) > -1"
-            @refresh="refresh"
-            @singleRun="singleRun"
-            @stop="stop"
-            @refreshModule="refreshModule"
-            @copyCase="copyCase"
-            @showExecResult="showExecResult"
-            @showHistory="showHistory"
-            @reLoadCase="reLoadCase"
-            :environment="environment"
-            :is-case-edit="isCaseEdit"
-            :api="api"
-            :currentApi="currentApi"
-            :loaded="loaded"
-            :maintainerOptions="maintainerOptions"
-            :api-case="apiCaseList[0]" ref="apiCaseItem"/>
+          <div v-for="item in apiCaseList" :key="item.id ? item.id : item.uuid">
+            <api-case-item
+                :loading="singleLoading && singleRunId ===item.id || batchLoadingIds.indexOf(item.id) > -1"
+                @refresh="refresh"
+                @singleRun="singleRun"
+                @stop="stop"
+                @refreshModule="refreshModule"
+                @copyCase="copyCase"
+                @showExecResult="showExecResult"
+                @showHistory="showHistory"
+                @reLoadCase="reLoadCase"
+                :environment="environment"
+                @setSelectedCaseId="setSelectedCaseId"
+                :is-case-edit="isCaseEdit"
+                :api="api"
+                :currentApi="currentApi"
+                :loaded="loaded"
+                :maintainerOptions="maintainerOptions"
+                :api-case="item" ref="apiCaseItem"/>
+          </div>
         </el-main>
       </el-container>
     </ms-drawer>
@@ -204,8 +207,20 @@ export default {
       }
       this.visible = true;
     },
-    saveCase(item, hideAlert) {
-      this.$refs.apiCaseItem.saveTestCase(item, hideAlert);
+    setSelectedCaseId(caseId) {
+      this.selectCaseId = caseId;
+    },
+    saveCase(hideAlert) {
+      let index = 0;
+      if (this.selectCaseId && this.selectCaseId !== '') {
+        for (let i = 0; i < this.apiCaseList.length; i++) {
+          if (this.apiCaseList[i].id === this.selectCaseId) {
+            index = i;
+          }
+        }
+      }
+      let item = this.apiCaseList[index];
+      this.$refs.apiCaseItem[index].saveTestCase(item, hideAlert);
     },
     saveApiAndCase(api) {
       if (api && api.url) {
