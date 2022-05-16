@@ -41,7 +41,7 @@
                    style="width: 100%;"
                    :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
           <el-option
-            v-for="item in receiveTypeOptions"
+            v-for="item in (hasLicense() ? receiveTypeOptions: receiveTypeOptions.filter(v => v.value !=='WEBHOOK'))"
             :key="item.value"
             :label="item.label"
             :value="item.value">
@@ -53,21 +53,19 @@
       <template v-slot:header>
         Webhook
         <el-tooltip effect="dark" placement="top-start"
-                    style="padding-left: 10px;"
-                    content="支持企业微信、钉钉、飞书以及自定义Webhook（X-Pack）">
+                    style="padding-left: 10px;">
+          <template v-slot:content>
+            支持企业微信、钉钉、飞书以及自定义Webhook（X-Pack）
+            <div>
+              自定义 Webhook 需要配置自定义模版才能发送成功，请自行查询对应的消息模版
+            </div>
+          </template>
           <i class="el-icon-info pointer"/>
         </el-tooltip>
       </template>
       <template v-slot:default="scope">
         <el-input v-model="scope.row.webhook" size="mini"
                   :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
-        <div v-if="scope.row.type === 'WEBHOOK'" style="font-size: 10px; color: gray; font-style:italic;">
-          <span v-if="scope.row.webhook.indexOf('qyapi.weixin') > -1">企业微信 Webhook</span>
-          <span v-else-if="scope.row.webhook.indexOf('oapi.dingtalk') > -1">钉钉 Webhook</span>
-          <span v-else-if="scope.row.webhook.indexOf('open.feishu.cn') > -1">飞书 Webhook</span>
-          <span v-else-if="scope.row.webhook.startsWith('http') && hasLicense()">自定义 Webhook</span>
-          <span v-else-if="scope.row.webhook">识别失败，如需支持自定义Webhook，请使用X-Pack（企业版）</span>
-        </div>
       </template>
     </el-table-column>
     <el-table-column :label="$t('commons.operating')" width="150" prop="result">
@@ -122,6 +120,7 @@
 
 <script>
 import MsTipButton from "@/business/components/common/components/MsTipButton";
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "NotificationTable",
@@ -141,6 +140,7 @@ export default {
     return {}
   },
   methods: {
+    hasLicense,
     rowClass() {
       return "text-align:center";
     },
