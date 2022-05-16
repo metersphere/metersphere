@@ -74,6 +74,16 @@
           :label="'创建人'"/>
 
         <ms-table-column
+          sortable="createTime"
+          width="160px"
+          :label="$t('commons.create_time')"
+          prop="createTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
           sortable="updateTime"
           width="160px"
           :label="$t('api_test.definition.api_last_time')"
