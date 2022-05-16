@@ -34,6 +34,8 @@ public interface NoticeConstants {
         String WECHAT_ROBOT = "WECHAT_ROBOT";
         String LARK = "LARK";
         String IN_SITE = "IN_SITE";
+
+        String WEBHOOK = "WEBHOOK";
     }
 
     interface Event {

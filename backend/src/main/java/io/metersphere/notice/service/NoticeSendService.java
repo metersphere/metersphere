@@ -30,6 +30,8 @@ public class NoticeSendService {
     private NoticeService noticeService;
     @Resource
     private InSiteNoticeSender inSiteNoticeSender;
+    @Resource
+    private WebhookNoticeSender webhookNoticeSender;
 
 
     private AbstractNoticeSender getNoticeSender(MessageDetail messageDetail) {
@@ -49,6 +51,9 @@ public class NoticeSendService {
                 break;
             case NoticeConstants.Type.IN_SITE:
                 noticeSender = inSiteNoticeSender;
+                break;
+            case NoticeConstants.Type.WEBHOOK:
+                noticeSender = webhookNoticeSender;
                 break;
             default:
                 break;

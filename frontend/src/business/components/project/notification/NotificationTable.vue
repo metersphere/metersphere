@@ -41,7 +41,7 @@
                    style="width: 100%;"
                    :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
           <el-option
-            v-for="item in receiveTypeOptions"
+            v-for="item in (hasLicense() ? receiveTypeOptions: receiveTypeOptions.filter(v => v.value !=='WEBHOOK'))"
             :key="item.value"
             :label="item.label"
             :value="item.value">
@@ -122,6 +122,7 @@
 
 <script>
 import MsTipButton from "@/business/components/common/components/MsTipButton";
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "NotificationTable",
@@ -141,6 +142,7 @@ export default {
     return {}
   },
   methods: {
+    hasLicense,
     rowClass() {
       return "text-align:center";
     },

@@ -69,7 +69,10 @@ export default {
       ],
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
-        {value: 'WEBHOOK', label: 'Webhook'},
+        {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
+        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
+        {value: 'LARK', label: this.$t('organization.message.lark')},
+        {value: 'WEBHOOK', label: this.$t('organization.message.webhook')},
       ],
       variables: [
         {
