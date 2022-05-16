@@ -140,4 +140,17 @@
             </foreach>
         </if>
     </select>
+
+    <select id="reportCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
+        select t.test_plan_id as id , count(*) from test_plan_report t
+        <where>
+            <if test="planIds != null and planIds.size() > 0">
+                and t.test_plan_id IN
+                <foreach collection="planIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t.test_plan_id
+    </select>
 </mapper>

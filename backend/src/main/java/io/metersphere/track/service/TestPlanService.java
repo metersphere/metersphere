@@ -147,7 +147,7 @@ public class TestPlanService {
     @Resource
     private TestCaseTestMapper testCaseTestMapper;
     @Resource
-    private TestPlanReportMapper testPlanReportMapper;
+    private ExtTestPlanReportMapper extTestPlanReportMapper;
     @Resource
     private TestPlanReportService testPlanReportService;
     @Lazy
@@ -438,7 +438,7 @@ public class TestPlanService {
         ArrayList<String> idList = new ArrayList<>(ids);
         List<Schedule> scheduleByResourceIds = scheduleService.getScheduleByResourceIds(idList, ScheduleGroup.TEST_PLAN_TEST.name());
         Map<String, Schedule> scheduleMap = scheduleByResourceIds.stream().collect(Collectors.toMap(Schedule::getResourceId, Schedule -> Schedule));
-        Map<String, ParamsDTO> stringParamsDTOMap = testPlanReportMapper.reportCount(ids);
+        Map<String, ParamsDTO> stringParamsDTOMap = extTestPlanReportMapper.reportCount(ids);
 
         testPlans.forEach(item -> {
             item.setExecutionTimes(stringParamsDTOMap.get(item.getId()) == null ? 0 : Integer.parseInt(stringParamsDTOMap.get(item.getId()).getValue() == null ? "0" : stringParamsDTOMap.get(item.getId()).getValue()));
