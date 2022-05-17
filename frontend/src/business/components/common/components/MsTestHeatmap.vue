@@ -61,7 +61,7 @@
 <style scoped>
 
   .el-card {
-    height: 370px;
+    height: 335px;
   }
 
 </style>
