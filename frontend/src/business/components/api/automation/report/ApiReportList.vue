@@ -197,6 +197,7 @@ export default {
         {text: 'Error', value: 'Error'},
         {text: 'Success', value: 'Success'},
         {text: 'stopped', value: 'stop'},
+        {text: 'Rerunning', value: 'Rerunning'},
         {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
       ],
       reportTypeFilters:[],
@@ -300,7 +301,7 @@ export default {
     },
     handleView(report) {
       this.reportId = report.id;
-      if (report.status === 'Running') {
+      if (report.status === 'Running' || report.status ==='Rerunning') {
         this.$warning(this.$t('commons.run_warning'))
         return;
       }
