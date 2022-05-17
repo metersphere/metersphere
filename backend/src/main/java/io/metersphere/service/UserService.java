@@ -1405,4 +1405,8 @@ public class UserService {
         }
         return "ok";
     }
+
+    public List<User> getProjectMemberOption(String projectId) {
+        return extUserGroupMapper.getProjectMemberOption(projectId);
+    }
 }
