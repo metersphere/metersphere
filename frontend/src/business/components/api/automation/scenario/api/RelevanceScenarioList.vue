@@ -223,6 +223,7 @@ export default {
       }
     },
     getConditions() {
+      this.condition.tableDataIds = Array.from(this.tableData).map(row => row.id);
       return this.condition;
     },
     checkEnv() {
