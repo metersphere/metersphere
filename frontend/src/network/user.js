@@ -2,6 +2,7 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import {post} from "@/common/js/ajax";
 import axios from "axios";
 import {ORGANIZATION_ID, PROJECT_ID, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
+import {baseGet} from "@/network/base-network";
 
 export function getProjectMember(callBack) {
   return new Promise((resolve) => {
@@ -32,4 +33,10 @@ export function logout() {
     sessionStorage.removeItem(PROJECT_ID);
     window.location.href = "/login";
   });
+}
+
+let baseUrl = '/user/';
+
+export function getProjectMemberOption(callback) {
+  return baseGet(baseUrl + 'project/member/option/' + getCurrentProjectID(), callback);
 }

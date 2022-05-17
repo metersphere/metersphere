@@ -147,6 +147,11 @@ public class UserController {
         return userService.getProjectMemberList(request);
     }
 
+    @GetMapping("/project/member/option/{projectId}")
+    public List<User> getProjectMemberOption(@PathVariable String projectId) {
+        return userService.getProjectMemberOption(projectId);
+    }
+
     /**
      * 获取工作空间成员用户 不分页
      */

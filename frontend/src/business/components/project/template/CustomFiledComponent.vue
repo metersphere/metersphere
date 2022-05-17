@@ -87,7 +87,7 @@
        <el-option
          v-for="(item) in memberOptions"
          :key="item.id"
-         :label="item.name + ' (' + item.id + ')'"
+         :label="item.name + ' (' + item.email + ')'"
          :value="item.id">
        </el-option>
     </el-select>
@@ -115,6 +115,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
+import {getProjectMemberOption} from "@/network/user";
 
 export default {
   name: "CustomFiledComponent",
@@ -131,8 +132,8 @@ export default {
     };
   },
   mounted() {
-    this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-      this.memberOptions = response.data;
+    getProjectMemberOption((data) => {
+      this.memberOptions = data;
     });
   },
   methods: {
