@@ -133,6 +133,9 @@ export default {
       this.buttonIsWorking = true;
       let scenarios = [];
       let conditions = this.getConditions();
+      this.currentScenarioIds.sort((a, b) => {
+        return conditions.tableDataIds.indexOf(a) - conditions.tableDataIds.indexOf(b);
+      });
       if (conditions.selectAll) {
         let url = "/api/automation/id/all/";
         let params = {};
