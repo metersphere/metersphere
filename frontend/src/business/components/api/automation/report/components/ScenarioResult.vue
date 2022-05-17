@@ -9,7 +9,10 @@
           </div>
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
-          <span>{{ node.label }}</span>
+          <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
+            {{ node.label }}
+          </el-link>
+          <span v-else>{{ node.label }}</span>
         </el-tooltip>
       </el-card>
     </div>
@@ -25,9 +28,11 @@
       <ms-request-result
         :step-id="node.stepId"
         :request="node.value"
+        :redirect="node.redirect"
         :indexNumber="node.index"
         :error-code="node.errorCode"
         :scenarioName="node.label"
+        :resourceId="node.resourceId"
         :total-status="node.totalStatus"
         :console="console"
         :isActive="isActive"
@@ -55,13 +60,33 @@ export default {
     console: String,
     isActive: Boolean,
   },
-
   data() {
     return {
       stepFilter: new STEP,
     }
   },
   methods: {
+    isLink() {
+      let uri =  "/#/api/automation?resourceId=" + this.node.resourceId;
+      this.clickResource(uri)
+    },
+    clickResource(uri) {
+      this.$get('/user/update/currentByResourceId/' + this.node.resourceId, () => {
+        this.toPage(uri);
+      });
+    },
+    toPage(uri) {
+      let id = "new_a";
+      let a = document.createElement("a");
+      a.setAttribute("href", uri);
+      a.setAttribute("target", "_blank");
+      a.setAttribute("id", id);
+      document.body.appendChild(a);
+      a.click();
+
+      let element = document.getElementById(id);
+      element.parentNode.removeChild(element);
+    },
     active() {
       this.isActive = !this.isActive;
     },
@@ -127,6 +152,12 @@ export default {
   color: #008080;
 }
 
+.report-label-head {
+  border-bottom: 1px solid #303133;
+  color: #303133;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+  font-size: 13px;
+}
 
 /deep/ .el-step__icon {
   width: 20px;

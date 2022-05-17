@@ -1423,6 +1423,7 @@ export default {
       request_success: "成功",
       request_error: "失败",
       generate_report: "生成报告",
+      rerun: "失败重跑",
     },
     environment: {
       id: '环境ID',
@@ -2693,6 +2694,7 @@ export default {
     set_report: "集合报告",
     report_name: "报告名称",
     run_with_resource_pool: "资源池运行",
+    retry_on_failure: "失败重试",
   },
   operating_log: {
     title: "操作日志",

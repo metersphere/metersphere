@@ -438,7 +438,7 @@ public class ApiDefinitionExecResultService {
 
     private ApiDefinitionExecResult editResult(RequestResult item, String reportId, String console, String type, String testId, ApiDefinitionExecResultMapper batchMapper) {
         if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
-            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+            ApiDefinitionExecResultWithBLOBs saveResult = new ApiDefinitionExecResultWithBLOBs();
             item.getResponseResult().setConsole(console);
             saveResult.setId(reportId);
             //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读

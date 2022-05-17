@@ -2,8 +2,10 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import java.util.List;
+import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface ApiDefinitionExecResultMapper {
     long countByExample(ApiDefinitionExecResultExample example);
@@ -12,25 +14,25 @@ public interface ApiDefinitionExecResultMapper {
 
     int deleteByPrimaryKey(String id);
 
-    int insert(ApiDefinitionExecResult record);
+    int insert(ApiDefinitionExecResultWithBLOBs record);
 
-    int insertSelective(ApiDefinitionExecResult record);
+    int insertSelective(ApiDefinitionExecResultWithBLOBs record);
 
-    List<ApiDefinitionExecResult> selectByExampleWithBLOBs(ApiDefinitionExecResultExample example);
+    List<ApiDefinitionExecResultWithBLOBs> selectByExampleWithBLOBs(ApiDefinitionExecResultExample example);
 
     List<ApiDefinitionExecResult> selectByExample(ApiDefinitionExecResultExample example);
 
-    ApiDefinitionExecResult selectByPrimaryKey(String id);
+    ApiDefinitionExecResultWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") ApiDefinitionExecResult record, @Param("example") ApiDefinitionExecResultExample example);
+    int updateByExampleSelective(@Param("record") ApiDefinitionExecResultWithBLOBs record, @Param("example") ApiDefinitionExecResultExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ApiDefinitionExecResult record, @Param("example") ApiDefinitionExecResultExample example);
+    int updateByExampleWithBLOBs(@Param("record") ApiDefinitionExecResultWithBLOBs record, @Param("example") ApiDefinitionExecResultExample example);
 
     int updateByExample(@Param("record") ApiDefinitionExecResult record, @Param("example") ApiDefinitionExecResultExample example);
 
-    int updateByPrimaryKeySelective(ApiDefinitionExecResult record);
+    int updateByPrimaryKeySelective(ApiDefinitionExecResultWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(ApiDefinitionExecResult record);
+    int updateByPrimaryKeyWithBLOBs(ApiDefinitionExecResultWithBLOBs record);
 
     int updateByPrimaryKey(ApiDefinitionExecResult record);
 }

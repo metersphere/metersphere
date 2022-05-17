@@ -13,6 +13,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.exec.api.ApiRetryOnFailureService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
@@ -23,7 +24,10 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.HashTreeUtil;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -37,7 +41,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 @Service
 public class ApiScenarioSerialService {
@@ -70,7 +77,8 @@ public class ApiScenarioSerialService {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), null);
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-
+        runRequest.setRetryEnable(queue.getRetryEnable() == null ? false : queue.getRetryEnable());
+        runRequest.setRetryNum(queue.getRetryNumber());
         // 判断触发资源对象是用例/场景更新对应报告状态
         if (!StringUtils.equals(executionQueue.getReportType(), RunModeConstants.SET_REPORT.toString())
                 || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
@@ -87,7 +95,7 @@ public class ApiScenarioSerialService {
                     LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ], 报告ID [ " + report.getId() + " ]");
                 }
             } else {
-                ApiDefinitionExecResult execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
+                ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
                 if (execResult != null) {
                     runRequest.setExtendedParameters(new HashMap<String, Object>() {{
                         this.put("userId", execResult.getUserId());
@@ -180,6 +188,14 @@ public class ApiScenarioSerialService {
                 envId = envMap.get(caseWithBLOBs.getProjectId());
             }
             if (caseWithBLOBs != null) {
+                String data = caseWithBLOBs.getRequest();
+                // 失败重试
+                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
+                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum());
+                    data = StringUtils.isNotEmpty(retryData) ? retryData : data;
+                }
+
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
@@ -189,7 +205,7 @@ public class ApiScenarioSerialService {
                 group.setName(runRequest.getReportId());
                 group.setProjectId(caseWithBLOBs.getProjectId());
 
-                MsTestElement testElement = parse(caseWithBLOBs, testId, envId);
+                MsTestElement testElement = parse(data, testId, envId);
                 group.setHashTree(new LinkedList<>());
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);
@@ -209,9 +225,8 @@ public class ApiScenarioSerialService {
         return null;
     }
 
-    private MsTestElement parse(ApiTestCaseWithBLOBs caseWithBLOBs, String planId, String envId) {
+    private MsTestElement parse(String api, String planId, String envId) {
         try {
-            String api = caseWithBLOBs.getRequest();
             JSONObject element = JSON.parseObject(api, Feature.DisableSpecialKeyDetect);
             ElementUtil.dataFormatting(element);
 

@@ -579,6 +579,10 @@ public class ElementUtil {
         if (StringUtils.isNotEmpty(config.getScenarioId()) && StringUtils.equals(config.getReportType(), RunModeConstants.SET_REPORT.toString())) {
             resourceId = config.getScenarioId() + "=" + resourceId;
         }
+        // 跳过失败重试层
+        if (parent != null && StringUtils.equalsAnyIgnoreCase("RetryLoopController", parent.getType())) {
+            parent = parent.getParent();
+        }
         return resourceId + "_" + ElementUtil.getFullIndexPath(parent, indexPath);
     }
 
