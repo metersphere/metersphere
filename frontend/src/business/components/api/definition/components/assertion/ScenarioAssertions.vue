@@ -10,6 +10,7 @@
     :show-btn="showBtn"
     :inner-step="innerStep"
     :show-version="showVersion"
+    :show-copy="false"
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.scenario_assertions')">
