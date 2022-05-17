@@ -395,6 +395,7 @@ import {
 } from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
+import {hisDataProcessing} from "@/business/components/api/definition/api-definition";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -1134,7 +1135,21 @@ export default {
       }
     },
     addComponent(type, plugin) {
-      setComponent(type, this, plugin);
+      let isAssertions = false;
+      if (type === 'Assertions') {
+        this.scenarioDefinition.forEach(item => {
+          if (item.type === type) {
+            item.active = true;
+            isAssertions = true;
+            return;
+          }
+        })
+        if (!isAssertions) {
+          setComponent(type, this, plugin);
+        }
+      } else {
+        setComponent(type, this, plugin);
+      }
     },
     nodeClick(data, node) {
       if ((data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) || data.refType === 'CASE') {
@@ -1622,7 +1637,7 @@ export default {
                 } else {
                   this.onSampleError = obj.onSampleError;
                 }
-                this.dataProcessing(obj.hashTree);
+                this.dataProcessing(obj.hashTree, obj);
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1664,9 +1679,16 @@ export default {
         })
       }
     },
-    dataProcessing(stepArray) {
+    dataProcessing(stepArray, obj) {
       if (stepArray) {
         for (let i in stepArray) {
+          if (stepArray[i].type === "Assertions") {
+            hisDataProcessing(stepArray, obj)
+            let assertions = stepArray[i];
+            stepArray.splice(i, 1);
+            stepArray.unshift(assertions);
+            this.sort();
+          }
           let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
             stepArray[i].originalDataSourceId = stepArray[i].dataSourceId;
@@ -1682,7 +1704,7 @@ export default {
             };
           }
           if (stepArray[i].hashTree.length > 0) {
-            this.dataProcessing(stepArray[i].hashTree);
+            this.dataProcessing(stepArray[i].hashTree, stepArray[i]);
           }
         }
       }
