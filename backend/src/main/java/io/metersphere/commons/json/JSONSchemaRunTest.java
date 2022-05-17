@@ -145,8 +145,13 @@ public class JSONSchemaRunTest {
                                 int value = itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsInt();
                                 array.add(value);
                             } else if (StringUtils.equalsIgnoreCase(type, BasicConstant.NUMBER)) {
-                                Number value = itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsNumber();
-                                array.add(value);
+                                JsonElement valueObj = itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK);
+                                Number value = valueObj.getAsNumber();
+                                if (StringUtils.isNotEmpty(valueObj.getAsString()) && valueObj.getAsString().indexOf(".") != -1) {
+                                    array.add(value.floatValue());
+                                } else {
+                                    array.add(value.longValue());
+                                }
                             }
                         } catch (Exception e) {
                             String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
