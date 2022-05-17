@@ -333,6 +333,10 @@ export default {
         param = batchParam;
       }
       param.ids = Array.from(sampleSelectRows).map(row => row.id);
+      let tableDataIds = Array.from(this.tableData).map(row => row.id);
+      param.ids.sort((a, b) => {
+        return tableDataIds.indexOf(a) - tableDataIds.indexOf(b);
+      });
       return param;
     },
     checkVersionEnable() {
