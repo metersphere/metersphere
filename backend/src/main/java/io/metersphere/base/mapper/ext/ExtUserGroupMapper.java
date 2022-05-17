@@ -30,4 +30,6 @@ public interface ExtUserGroupMapper {
     int checkSourceRole(@Param("sourceId") String sourceId, @Param("userId") String userId, @Param("groupId") String groupId);
 
     List<UserGroupInfoDTO> getUserGroupInfo();
+
+    List<User> getProjectMemberOption(@Param("projectId")  String projectId);
 }
