@@ -18,6 +18,8 @@ public class StepTreeDTO {
     private RequestResult value;
     private String allIndex;
     private String stepId;
+    // 某个场景未执行总量
+    private int unExecuteTotal;
 
     //误报库编码
     private String errorCode;

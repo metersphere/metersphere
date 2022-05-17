@@ -9,8 +9,8 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ApiDefinitionExecResultWithBLOBs extends ApiDefinitionExecResult implements Serializable {
-    private String content;
+public class ApiScenarioReportWithBLOBs extends ApiScenarioReport implements Serializable {
+    private String description;
 
     private String envConfig;
 

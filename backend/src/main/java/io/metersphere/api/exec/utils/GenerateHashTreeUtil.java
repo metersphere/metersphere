@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.exec.api.ApiRetryOnFailureService;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.RemakeReportService;
@@ -134,7 +135,15 @@ public class GenerateHashTreeUtil {
             } else {
                 setScenarioEnv(scenario, item);
             }
-            GenerateHashTreeUtil.parse(item.getScenarioDefinition(), scenario);
+            String data = item.getScenarioDefinition();
+            // 失败重试
+            if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
+                String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum());
+                data = StringUtils.isNotEmpty(retryData) ? retryData : data;
+            }
+
+            GenerateHashTreeUtil.parse(data, scenario);
 
             group.setEnableCookieShare(scenario.isEnableCookieShare());
             LinkedList<MsTestElement> scenarios = new LinkedList<>();
@@ -156,6 +165,8 @@ public class GenerateHashTreeUtil {
         config.setScenarioId(item.getId());
         config.setReportType(runRequest.getReportType());
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
+
+        LogUtil.info(testPlan.getJmx(jmeterHashTree));
         return jmeterHashTree;
     }
 

@@ -1422,6 +1422,7 @@ export default {
       request_success: "success",
       request_error: "error",
       generate_report: "Generate report",
+      rerun: "fail and rerun",
     },
     environment: {
       id: 'Environment ID',
@@ -2693,6 +2694,7 @@ export default {
     set_report: "Set report",
     report_name: "Report name",
     run_with_resource_pool: "Run Within Resource pool",
+    retry_on_failure: "retry on failure",
   },
   operating_log: {
     title: "Operating Log",
