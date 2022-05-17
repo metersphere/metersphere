@@ -136,7 +136,7 @@ public class ApiScenarioEnvService {
                 if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), "Created") || (httpSamplerProxy.getIsRefEnvironment() != null &&
                         httpSamplerProxy.getIsRefEnvironment())) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());
-                    env.setFullUrl(false);
+                    env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : false);
                 }
             } else if (StringUtils.equals(testElement.getType(), "JDBCSampler") || StringUtils.equals(testElement.getType(), "TCPSampler")) {
                 env.getProjectIds().add(testElement.getProjectId());

@@ -1151,13 +1151,14 @@ export default {
         setComponent(type, this, plugin);
       }
     },
+
     nodeClick(data, node) {
       if ((data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) || data.refType === 'CASE') {
         this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
       }
-      if (!this.operatingElements && this.stepFilter) {
+      if ((!this.operatingElements && this.stepFilter)|| this.stepFilter.get("AllSamplerProxy").indexOf(data.type) !== -1) {
         this.operatingElements = this.stepFilter.get("ALL");
       }
       this.selectedTreeNode = data;
@@ -1227,9 +1228,14 @@ export default {
     addCustomizeApi(request) {
       this.customizeVisible = false;
       request.enable === undefined ? request.enable = true : request.enable;
-      if (this.selectedTreeNode !== undefined) {
-        this.selectedTreeNode.hashTree.push(request);
-      } else {
+      if(this.selectedTreeNode !== undefined){
+        if(this.stepFilter.get("AllSamplerProxy").indexOf(this.selectedTreeNode.type) !== -1){
+          this.scenarioDefinition.splice(this.selectedTreeNode.index,0,request);
+          this.$store.state.forceRerenderIndex = getUUID();
+        }else{
+          this.selectedTreeNode.hashTree.push(request) ;
+        }
+      }else{
         this.scenarioDefinition.push(request);
       }
       this.customizeRequest = {};
@@ -1250,9 +1256,14 @@ export default {
           this.resetResourceId(item.hashTree);
           item.enable === undefined ? item.enable = true : item.enable;
           item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
-          if (this.selectedTreeNode !== undefined) {
-            this.selectedTreeNode.hashTree.push(item);
-          } else {
+          if(this.selectedTreeNode !== undefined){
+            if(this.stepFilter.get("AllSamplerProxy").indexOf(this.selectedTreeNode.type) !== -1){
+              this.scenarioDefinition.splice(this.selectedTreeNode.index,0,item);
+              this.$store.state.forceRerenderIndex = getUUID();
+            }else{
+              this.selectedTreeNode.hashTree.push(item) ;
+            }
+          }else{
             this.scenarioDefinition.push(item);
           }
         })
@@ -1297,9 +1308,14 @@ export default {
       if (referenced === 'REF' && request.hashTree) {
         this.recursiveSorting(request.hashTree);
       }
-      if (this.selectedTreeNode !== undefined) {
-        this.selectedTreeNode.hashTree.push(request);
-      } else {
+      if(this.selectedTreeNode !== undefined){
+        if(this.stepFilter.get("AllSamplerProxy").indexOf(this.selectedTreeNode.type) !== -1){
+          this.scenarioDefinition.splice(this.selectedTreeNode.index,0,request);
+          this.$store.state.forceRerenderIndex = getUUID();
+        }else{
+          this.selectedTreeNode.hashTree.push(request) ;
+        }
+      }else{
         this.scenarioDefinition.push(request);
       }
     },
