@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class="user-select-left">{{ user.name }} ({{ user.id }})</span>
+    <span class="user-select-left">{{ user.name }} ({{ user.email }})</span>
     <span class="user-select-right">{{ user.email }}</span>
   </div>
 </template>

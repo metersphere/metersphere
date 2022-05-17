@@ -61,7 +61,7 @@
                   <el-option
                     v-for="item in maintainerOptions"
                     :key="item.id"
-                    :label="item.name + ' (' + item.id + ')'"
+                    :label="item.name + ' (' + item.email + ')'"
                     :value="item.id">
                   </el-option>
                 </el-select>
@@ -201,6 +201,7 @@ import HttpApiVersionDiff from "./version/HttpApiVersionDiff";
 import {createComponent} from ".././jmeter/components";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {getProjectMemberOption} from "@/network/user";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
@@ -443,8 +444,8 @@ export default {
       });
     },
     getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-        this.maintainerOptions = response.data;
+      getProjectMemberOption(data => {
+        this.maintainerOptions = data;
       });
     },
     setParameter() {

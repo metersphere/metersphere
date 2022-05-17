@@ -30,7 +30,7 @@
               <el-option
                 v-for="item in maintainerOptions"
                 :key="item.id"
-                :label="item.name + ' (' + item.id + ')'"
+                :label="item.name + ' (' + item.email + ')'"
                 :value="item.id">
               </el-option>
             </el-select>
@@ -60,7 +60,7 @@
   import {API_STATUS} from "../../model/JsonData";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
-  import {getCurrentProjectID} from "@/common/js/utils";
+  import {getProjectMemberOption} from "@/network/user";
 
   export default {
     name: "MsBasisApi",
@@ -163,8 +163,8 @@
         }
       },
       getMaintainerOptions() {
-        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-          this.maintainerOptions = response.data;
+        getProjectMemberOption(data => {
+          this.maintainerOptions = data;
         });
       },
       reload() {
