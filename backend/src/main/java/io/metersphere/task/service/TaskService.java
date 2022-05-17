@@ -148,7 +148,7 @@ public class TaskService {
                 apiExecutionQueueService.stop(request.getReportId());
                 PoolExecBlockingQueueUtil.offer(request.getReportId());
                 if (StringUtils.equals(request.getType(), "API")) {
-                    ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
+                    ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
                     if (result != null) {
                         result.setStatus("STOP");
                         apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
@@ -156,7 +156,7 @@ public class TaskService {
                     }
                 }
                 if (StringUtils.equals(request.getType(), "SCENARIO")) {
-                    ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
+                    ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                     if (report != null) {
                         report.setStatus("STOP");
                         apiScenarioReportMapper.updateByPrimaryKeySelective(report);

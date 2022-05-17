@@ -7,7 +7,7 @@ import java.util.List;
 public class ExtApiExecutionQueueProvider {
     public String insertListSql(List<ApiExecutionQueueDetail> list) {
         StringBuffer sqlList = new StringBuffer();
-        sqlList.append("insert into api_execution_queue_detail (id, queue_id, sort, report_id, test_id, `type`, create_time, evn_map) values ");
+        sqlList.append("insert into api_execution_queue_detail (id, queue_id, sort, report_id, test_id, `type`, create_time, evn_map,retry_enable,retry_number) values ");
         for (int i = 0; i < list.size(); i++) {
             ApiExecutionQueueDetail result = list.get(i);
             sqlList.append(" (")
@@ -27,7 +27,10 @@ public class ExtApiExecutionQueueProvider {
                     .append(result.getCreateTime())
                     .append(",'")
                     .append(result.getEvnMap())
-                    .append("'")
+                    .append("',")
+                    .append(result.getRetryEnable())
+                    .append(",")
+                    .append(result.getRetryNumber())
                     .append(")");
             if (i < list.size() - 1) {
                 sqlList.append(",");

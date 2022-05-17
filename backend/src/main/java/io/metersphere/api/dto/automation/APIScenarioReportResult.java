@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.automation;
 
-import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class APIScenarioReportResult extends ApiScenarioReport {
+public class APIScenarioReportResult extends ApiScenarioReportWithBLOBs {
 
     private String testName;
 
