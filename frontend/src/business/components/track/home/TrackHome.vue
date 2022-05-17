@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container v-loading="result.loading">
-      <el-row :gutter="10">
+      <el-row :gutter="5">
         <el-col :span="6">
           <div class="square">
             <case-count-card :track-count-data="trackCountData" class="track-card" @redirectPage="redirectPage"/>
@@ -20,7 +20,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="10">
+      <el-row :gutter="5">
         <el-col :span="12">
           <bug-count-card class="track-card"/>
         </el-col>
@@ -29,7 +29,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="10">
+      <el-row :gutter="5">
         <el-col :span="12">
           <review-list class="track-card"/>
         </el-col>
@@ -199,9 +199,8 @@ export default {
 }
 
 .el-row {
-  margin-bottom: 20px;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .track-card {
