@@ -96,14 +96,6 @@ public class ApiScenarioReportService {
         example.createCriteria().andReportIdEqualTo(dto.getReportId());
         List<ApiScenarioReportResult> requestResults = apiScenarioReportResultMapper.selectByExample(example);
 
-        if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-            String status = getStatus(requestResults, dto);
-            Map<String, String> reportMap = new HashMap<String, String>() {{
-                this.put(dto.getReportId(), status);
-            }};
-            testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(dto.getReportId()) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(reportMap));
-        }
-
         ApiScenarioReport scenarioReport;
         if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             scenarioReport = updatePlanCase(requestResults, dto);
@@ -287,6 +279,11 @@ public class ApiScenarioReportService {
 
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
         String status = getStatus(requestResults, dto);
+        List<String> requestResultIdList = new ArrayList<>();
+        for (ApiScenarioReportResult result : requestResults) {
+            requestResultIdList.add(result.getId());
+        }
+        testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(dto.getReportId()) + " EXECUTE OVER. STATUS : " + status + ", ResultIds:" + JSONObject.toJSONString(requestResultIdList));
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
