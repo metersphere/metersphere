@@ -9,6 +9,8 @@
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="retry_enable" jdbcType="BIT" property="retryEnable" />
+    <result column="retry_number" jdbcType="BIGINT" property="retryNumber" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiExecutionQueueDetail">
     <result column="evn_map" jdbcType="LONGVARCHAR" property="evnMap" />
@@ -72,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, queue_id, sort, report_id, test_id, `type`, create_time
+    id, queue_id, sort, report_id, test_id, `type`, create_time, retry_enable, retry_number
   </sql>
   <sql id="Blob_Column_List">
     evn_map
@@ -128,10 +130,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiExecutionQueueDetail">
     insert into api_execution_queue_detail (id, queue_id, sort, 
       report_id, test_id, `type`, 
-      create_time, evn_map)
+      create_time, retry_enable, retry_number, 
+      evn_map)
     values (#{id,jdbcType=VARCHAR}, #{queueId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, 
       #{reportId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{evnMap,jdbcType=LONGVARCHAR})
+      #{createTime,jdbcType=BIGINT}, #{retryEnable,jdbcType=BIT}, #{retryNumber,jdbcType=BIGINT}, 
+      #{evnMap,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiExecutionQueueDetail">
     insert into api_execution_queue_detail
@@ -156,6 +160,12 @@
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="retryEnable != null">
+        retry_enable,
+      </if>
+      <if test="retryNumber != null">
+        retry_number,
       </if>
       <if test="evnMap != null">
         evn_map,
@@ -182,6 +192,12 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="retryEnable != null">
+        #{retryEnable,jdbcType=BIT},
+      </if>
+      <if test="retryNumber != null">
+        #{retryNumber,jdbcType=BIGINT},
       </if>
       <if test="evnMap != null">
         #{evnMap,jdbcType=LONGVARCHAR},
@@ -218,6 +234,12 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.retryEnable != null">
+        retry_enable = #{record.retryEnable,jdbcType=BIT},
+      </if>
+      <if test="record.retryNumber != null">
+        retry_number = #{record.retryNumber,jdbcType=BIGINT},
+      </if>
       <if test="record.evnMap != null">
         evn_map = #{record.evnMap,jdbcType=LONGVARCHAR},
       </if>
@@ -235,6 +257,8 @@
       test_id = #{record.testId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      retry_enable = #{record.retryEnable,jdbcType=BIT},
+      retry_number = #{record.retryNumber,jdbcType=BIGINT},
       evn_map = #{record.evnMap,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -248,7 +272,9 @@
       report_id = #{record.reportId,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      retry_enable = #{record.retryEnable,jdbcType=BIT},
+      retry_number = #{record.retryNumber,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -274,6 +300,12 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="retryEnable != null">
+        retry_enable = #{retryEnable,jdbcType=BIT},
+      </if>
+      <if test="retryNumber != null">
+        retry_number = #{retryNumber,jdbcType=BIGINT},
+      </if>
       <if test="evnMap != null">
         evn_map = #{evnMap,jdbcType=LONGVARCHAR},
       </if>
@@ -288,6 +320,8 @@
       test_id = #{testId,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
+      retry_enable = #{retryEnable,jdbcType=BIT},
+      retry_number = #{retryNumber,jdbcType=BIGINT},
       evn_map = #{evnMap,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -298,7 +332,9 @@
       report_id = #{reportId,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      retry_enable = #{retryEnable,jdbcType=BIT},
+      retry_number = #{retryNumber,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

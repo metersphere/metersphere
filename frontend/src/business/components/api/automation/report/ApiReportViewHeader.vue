@@ -45,7 +45,11 @@
           </el-button>
         </el-popover>
 
-        <el-button v-if="showCancelButton" class="export-button" plain  size="mini" @click="returnView()" >
+        <el-button v-if="showRerunButton" class="rerun-button" plain  size="mini" @click="rerun" >
+          {{$t('api_test.automation.rerun')}}
+        </el-button>
+
+        <el-button v-if="showCancelButton" class="export-button" plain  size="mini" @click="returnView" >
           {{$t('commons.cancel')}}
         </el-button>
 
@@ -67,6 +71,10 @@ export default {
     showCancelButton: {
       type: Boolean,
       default: true,
+    },
+    showRerunButton: {
+      type: Boolean,
+      default: false,
     },
     isTemplate: Boolean,
     exportFlag: {
@@ -120,6 +128,17 @@ export default {
     handleSaveKeyUp($event) {
       $event.target.blur();
     },
+    rerun(){
+      let type = this.report.reportType;
+      let rerunObj = {type :type,reportId:this.report.id}
+      this.$post('/api/test/exec/rerun',rerunObj, res => {
+        if (res.data !=='SUCCESS') {
+          this.$error(res.data);
+        }else{
+          this.$success("已经开始重跑，稍后刷新结果查看");
+        }
+      });
+    },
     returnView(){
       if (this.isUi) {
         this.$router.push('/ui/report');
@@ -169,4 +188,10 @@ export default {
   margin-right: 10px;
 }
 
+.rerun-button{
+  float: right;
+  margin-right: 10px;
+  background-color: #F2F9EF;
+  color: #87C45D;
+}
 </style>

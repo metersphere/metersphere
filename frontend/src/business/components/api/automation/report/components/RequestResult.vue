@@ -10,7 +10,10 @@
                   <div class="el-step__icon-inner"> {{ indexNumber }}</div>
                 </div>
                 <i class="icon el-icon-arrow-right" :class="{'is-active': showActive}" @click="active" @click.stop/>
-                <span>{{ getName(request.name) }}</span>
+                <el-link class="report-label-req" @click="isLink" v-if="redirect && resourceId">
+                  {{ request.name }}
+                </el-link>
+                <span v-else>{{ getName(request.name) }}</span>
               </div>
             </el-tooltip>
           </el-col>
@@ -168,11 +171,13 @@ export default {
   },
   props: {
     request: Object,
+    resourceId: String,
     scenarioName: String,
     stepId: String,
     indexNumber: Number,
     console: String,
     totalStatus: String,
+    redirect: Boolean,
     errorCode: {
       type: String,
       default: ""
@@ -233,6 +238,27 @@ export default {
     }
   },
   methods: {
+    isLink() {
+      let uri =  "/#/api/definition?caseId=" + this.resourceId;
+      this.clickResource(uri)
+    },
+    clickResource(uri) {
+      this.$get('/user/update/currentByResourceId/' + this.resourceId, () => {
+        this.toPage(uri);
+      });
+    },
+    toPage(uri) {
+      let id = "new_a";
+      let a = document.createElement("a");
+      a.setAttribute("href", uri);
+      a.setAttribute("target", "_blank");
+      a.setAttribute("id", id);
+      document.body.appendChild(a);
+      a.click();
+
+      let element = document.getElementById(id);
+      element.parentNode.removeChild(element);
+    },
     loadRequestInfoExpand() {
       if (!this.requestInfo.hasData) {
         if (this.request.responseResult && this.request.responseResult.body) {
@@ -405,5 +431,10 @@ export default {
 
 .ms-req-name-col {
   overflow-x: hidden;
+}
+
+.report-label-req {
+  height: 20px;
+  border-bottom: 1px solid #303133;
 }
 </style>

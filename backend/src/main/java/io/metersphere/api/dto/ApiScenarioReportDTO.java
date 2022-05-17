@@ -32,4 +32,9 @@ public class ApiScenarioReportDTO {
     private long totalAssertions = 0;
     private long passAssertions = 0;
     private long errorCodeAssertions = 0;
+
+    private String actuator;
+    private String name;
+    private String envConfig;
+
 }

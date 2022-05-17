@@ -15,6 +15,7 @@ import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
@@ -63,6 +64,8 @@ public class ApiCaseExecuteService {
     private ApiCaseResultService apiCaseResultService;
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
+    @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     /**
      * 测试计划case执行
@@ -91,7 +94,7 @@ public class ApiCaseExecuteService {
         }
         LoggerUtil.debug("查询到测试计划用例 " + planApiCases.size());
 
-        Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
+        Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = request.isRerun() ? request.getExecuteQueue() : new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
 
@@ -106,25 +109,25 @@ public class ApiCaseExecuteService {
         if (request.getConfig() != null && GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()).isPool()) {
             resourcePoolId = request.getConfig().getResourcePoolId();
         }
-
-        Map<String, String> planProjects = new HashMap<>();
-        for (TestPlanApiCase testPlanApiCase : planApiCases) {
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, caseMap, resourcePoolId);
-            if (planProjects.containsKey(testPlanApiCase.getTestPlanId())) {
-                report.setProjectId(planProjects.get(testPlanApiCase.getTestPlanId()));
-            } else {
-                TestPlan plan = CommonBeanFactory.getBean(TestPlanMapper.class).selectByPrimaryKey(testPlanApiCase.getTestPlanId());
-                if (plan != null) {
-                    planProjects.put(plan.getId(), plan.getProjectId());
-                    report.setProjectId(plan.getProjectId());
+        if (!request.isRerun()) {
+            Map<String, String> planProjects = new HashMap<>();
+            for (TestPlanApiCase testPlanApiCase : planApiCases) {
+                ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.addResult(request, testPlanApiCase, status, caseMap, resourcePoolId);
+                if (planProjects.containsKey(testPlanApiCase.getTestPlanId())) {
+                    report.setProjectId(planProjects.get(testPlanApiCase.getTestPlanId()));
+                } else {
+                    TestPlan plan = CommonBeanFactory.getBean(TestPlanMapper.class).selectByPrimaryKey(testPlanApiCase.getTestPlanId());
+                    if (plan != null) {
+                        planProjects.put(plan.getId(), plan.getProjectId());
+                        report.setProjectId(plan.getProjectId());
+                    }
                 }
+                executeQueue.put(testPlanApiCase.getId(), report);
+                responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
+                LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());
             }
-            executeQueue.put(testPlanApiCase.getId(), report);
-            responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
-            LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());
+            apiCaseResultService.batchSave(executeQueue);
         }
-
-        apiCaseResultService.batchSave(executeQueue);
 
         LoggerUtil.debug("开始生成测试计划队列");
         String reportType = request.getConfig().getReportType();
@@ -227,21 +230,29 @@ public class ApiCaseExecuteService {
             this.checkEnv(caseList);
         }
         // 集合报告设置
-        String serialReportId = null;
-        if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
+        String serialReportId = request.isRerun() ? request.getReportId() : null;
+        if (!request.isRerun() && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())
                 && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             serialReportId = UUID.randomUUID().toString();
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(null, APITestStatus.Running.name(), serialReportId, request.getConfig());
+            ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(null, APITestStatus.Running.name(), serialReportId, request.getConfig());
             report.setName(request.getConfig().getReportName());
             report.setProjectId(request.getProjectId());
             report.setReportType(ReportTypeConstants.API_INTEGRATED.name());
             report.setVersionId(caseList.get(0).getVersionId());
-            Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
+
+            Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = new LinkedHashMap<>();
             executeQueue.put(serialReportId, report);
 
             apiScenarioReportStructureService.save(serialReportId, new ArrayList<>());
             apiCaseResultService.batchSave(executeQueue);
             responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(request.getIds()), report.getId(), request.getTriggerMode()));
+        }
+        // 失败重跑报告状态更新
+        if (request.isRerun()) {
+            ApiDefinitionExecResultWithBLOBs result = new ApiDefinitionExecResultWithBLOBs();
+            result.setId(serialReportId);
+            result.setStatus(APITestStatus.Rerunning.name());
+            apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
         }
 
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -258,27 +269,29 @@ public class ApiCaseExecuteService {
             request.setTriggerMode(ApiRunMode.DEFINITION.name());
         }
 
-        Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
+        Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = request.isRerun() ? request.getExecuteQueue() : new LinkedHashMap<>();
+
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
-
-        for (int i = 0; i < caseList.size(); i++) {
-            ApiTestCaseWithBLOBs caseWithBLOBs = caseList.get(i);
-            ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
-            report.setStatus(status);
-            report.setName(caseWithBLOBs.getName());
-            report.setProjectId(caseWithBLOBs.getProjectId());
-            report.setVersionId(caseWithBLOBs.getVersionId());
-            report.setCreateTime(System.currentTimeMillis() + i);
-            if (StringUtils.isNotEmpty(serialReportId)) {
-                report.setIntegratedReportId(serialReportId);
+        // 第一次执行非重跑的报告处理
+        if (!request.isRerun()) {
+            for (int i = 0; i < caseList.size(); i++) {
+                ApiTestCaseWithBLOBs caseWithBLOBs = caseList.get(i);
+                ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
+                report.setStatus(status);
+                report.setName(caseWithBLOBs.getName());
+                report.setProjectId(caseWithBLOBs.getProjectId());
+                report.setVersionId(caseWithBLOBs.getVersionId());
+                report.setCreateTime(System.currentTimeMillis() + i);
+                if (StringUtils.isNotEmpty(serialReportId)) {
+                    report.setIntegratedReportId(serialReportId);
+                }
+                executeQueue.put(caseWithBLOBs.getId(), report);
+                if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                    responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
+                }
             }
-            executeQueue.put(caseWithBLOBs.getId(), report);
-            if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                responseDTOS.add(new MsExecResponseDTO(caseWithBLOBs.getId(), report.getId(), request.getTriggerMode()));
-            }
+            apiCaseResultService.batchSave(executeQueue);
         }
-
-        apiCaseResultService.batchSave(executeQueue);
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
