@@ -133,11 +133,15 @@ public class ApiScenarioEnvService {
             if (StringUtils.equals(testElement.getType(), "HTTPSamplerProxy")) {
                 // 校验是否是全路径
                 MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) testElement;
-                if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), "Created") || (httpSamplerProxy.getIsRefEnvironment() != null &&
+                if (httpSamplerProxy.isCustomizeReq()) {
+                    env.getProjectIds().add(httpSamplerProxy.getProjectId());
+                    env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : httpSamplerProxy.getIsRefEnvironment());
+                } else if (!StringUtils.equalsIgnoreCase(httpSamplerProxy.getReferenced(), "Created") || (httpSamplerProxy.getIsRefEnvironment() != null &&
                         httpSamplerProxy.getIsRefEnvironment())) {
                     env.getProjectIds().add(httpSamplerProxy.getProjectId());
-                    env.setFullUrl(httpSamplerProxy.getIsRefEnvironment() == null ? true : false);
+                    env.setFullUrl(false);
                 }
+
             } else if (StringUtils.equals(testElement.getType(), "JDBCSampler") || StringUtils.equals(testElement.getType(), "TCPSampler")) {
                 env.getProjectIds().add(testElement.getProjectId());
                 env.setFullUrl(false);
