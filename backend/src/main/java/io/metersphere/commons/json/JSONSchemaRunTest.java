@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.NumberUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -70,6 +71,53 @@ public class JSONSchemaRunTest {
         return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
     }
 
+    private static void valueOf(String evlValue, String propertyName, JSONObject concept) {
+        if (StringUtils.startsWith(evlValue, "@")) {
+            String str = ScriptEngineUtils.calculate(evlValue);
+            switch (evlValue) {
+                case "@integer":
+                    concept.put(propertyName, NumberUtils.parseNumber(str, Long.class));
+                    break;
+                case "@boolean":
+                    concept.put(propertyName, Boolean.parseBoolean(str));
+                    break;
+                case "@float":
+                    concept.put(propertyName, Float.parseFloat(str));
+                    break;
+                default:
+                    concept.put(propertyName, str);
+                    break;
+            }
+        } else {
+            String value = ScriptEngineUtils.buildFunctionCallString(evlValue);
+            concept.put(propertyName, value);
+        }
+    }
+
+    private static void arrayValueOf(String evlValue, List<Object> array) {
+        if (StringUtils.startsWith(evlValue, "@")) {
+            String str = ScriptEngineUtils.calculate(evlValue);
+            switch (evlValue) {
+                case "@integer":
+                    array.add(NumberUtils.parseNumber(str, Long.class));
+                    break;
+                case "@boolean":
+                    array.add(Boolean.parseBoolean(str));
+                    break;
+                case "@float":
+                    array.add(Float.parseFloat(str));
+                    break;
+                default:
+                    array.add(str);
+                    break;
+            }
+        } else {
+            String value = ScriptEngineUtils.buildFunctionCallString(evlValue);
+            array.add(value);
+        }
+    }
+
+
     private static void analyzeProperty(JSONObject concept, String propertyName,
                                         JsonObject object, Map<String, String> map) {
         if (!object.has(BasicConstant.TYPE)) {
@@ -93,8 +141,7 @@ public class JSONSchemaRunTest {
                     }
                 }
             } catch (Exception e) {
-                String value = ScriptEngineUtils.buildFunctionCallString(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
-                concept.put(propertyName, value);
+                valueOf(object.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString(), propertyName, concept);
             }
         } else if (propertyObjType.equals(BasicConstant.BOOLEAN)) {
             // 先设置空值
@@ -152,17 +199,17 @@ public class JSONSchemaRunTest {
                                 } else {
                                     array.add(value.longValue());
                                 }
+                            } else {
+                                arrayValueOf(itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString(), array);
                             }
                         } catch (Exception e) {
-                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
-                            array.add(value);
+                            arrayValueOf(itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString(), array);
                         }
                     } else if (itemsObject.has(BasicConstant.TYPE) && (itemsObject.has(BasicConstant.ENUM) || itemsObject.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.STRING))) {
                         array.add(getValue(itemsObject));
                     } else if (itemsObject.has(BasicConstant.TYPE) && itemsObject.get(BasicConstant.TYPE).getAsString().equals(BasicConstant.NUMBER)) {
                         if (isMock(itemsObject)) {
-                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString());
-                            array.add(value);
+                            arrayValueOf(itemsObject.get(BasicConstant.MOCK).getAsJsonObject().get(BasicConstant.MOCK).getAsString(), array);
                         } else {
                             array.add(0);
                         }
