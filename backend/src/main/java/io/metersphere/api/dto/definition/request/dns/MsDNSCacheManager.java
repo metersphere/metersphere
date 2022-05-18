@@ -76,6 +76,8 @@ public class MsDNSCacheManager extends MsTestElement {
                     String hostDomain = host.getDomain().trim().replace("http://", "").replace("https://", "");
                     if (StringUtils.equals(hostDomain, domain)) {
                         dnsMap.put(hostDomain, host.getIp());
+                    }else if(StringUtils.startsWith(hostDomain,domain+":")){
+                        dnsMap.put(domain,StringUtils.replace(hostDomain,domain,host.getIp()));
                     }
                 }
             });
