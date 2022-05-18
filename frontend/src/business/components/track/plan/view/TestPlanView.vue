@@ -234,4 +234,8 @@ export default {
 .plan-report >>> .report-content {
   height: calc(100vh - 140px);
 }
+
+.el-menu-item {
+  padding: 0 10px;
+}
 </style>
