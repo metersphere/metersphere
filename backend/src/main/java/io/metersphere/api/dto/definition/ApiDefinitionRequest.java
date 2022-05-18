@@ -28,4 +28,6 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
 
     // 测试计划是否允许重复
     private boolean repeatCase;
+    //是否进入待更新列表
+    private Boolean toBeUpdated;
 }

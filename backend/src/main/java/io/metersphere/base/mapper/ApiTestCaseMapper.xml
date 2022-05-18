@@ -22,6 +22,7 @@
     <result column="order" jdbcType="BIGINT" property="order" />
     <result column="case_status" jdbcType="VARCHAR" property="caseStatus" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="to_be_updated" jdbcType="BIT" property="toBeUpdated" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -88,7 +89,7 @@
   <sql id="Base_Column_List">
     id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id, 
     create_time, update_time, num, tags, last_result_id, `status`, original_status, delete_time, 
-    delete_user_id, version, `order`, case_status, version_id
+    delete_user_id, version, `order`, case_status, version_id, to_be_updated
   </sql>
   <sql id="Blob_Column_List">
     description, request
@@ -148,16 +149,16 @@
       num, tags, last_result_id, 
       `status`, original_status, delete_time, 
       delete_user_id, version, `order`, 
-      case_status, version_id, description, 
-      request)
+      case_status, version_id, to_be_updated, 
+      description, request)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR}, 
       #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{lastResultId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
       #{deleteUserId,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, 
-      #{caseStatus,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{request,jdbcType=LONGVARCHAR})
+      #{caseStatus,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{toBeUpdated,jdbcType=BIT}, 
+      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     insert into api_test_case
@@ -221,6 +222,9 @@
       </if>
       <if test="versionId != null">
         version_id,
+      </if>
+      <if test="toBeUpdated != null">
+        to_be_updated,
       </if>
       <if test="description != null">
         description,
@@ -289,6 +293,9 @@
       </if>
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="toBeUpdated != null">
+        #{toBeUpdated,jdbcType=BIT},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -367,6 +374,9 @@
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
       </if>
+      <if test="record.toBeUpdated != null">
+        to_be_updated = #{record.toBeUpdated,jdbcType=BIT},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -400,6 +410,7 @@
       `order` = #{record.order,jdbcType=BIGINT},
       case_status = #{record.caseStatus,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
+      to_be_updated = #{record.toBeUpdated,jdbcType=BIT},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -427,7 +438,8 @@
       version = #{record.version,jdbcType=INTEGER},
       `order` = #{record.order,jdbcType=BIGINT},
       case_status = #{record.caseStatus,jdbcType=VARCHAR},
-      version_id = #{record.versionId,jdbcType=VARCHAR}
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      to_be_updated = #{record.toBeUpdated,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -492,6 +504,9 @@
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
       </if>
+      <if test="toBeUpdated != null">
+        to_be_updated = #{toBeUpdated,jdbcType=BIT},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -522,6 +537,7 @@
       `order` = #{order,jdbcType=BIGINT},
       case_status = #{caseStatus,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
+      to_be_updated = #{toBeUpdated,jdbcType=BIT},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -546,7 +562,8 @@
       version = #{version,jdbcType=INTEGER},
       `order` = #{order,jdbcType=BIGINT},
       case_status = #{caseStatus,jdbcType=VARCHAR},
-      version_id = #{versionId,jdbcType=VARCHAR}
+      version_id = #{versionId,jdbcType=VARCHAR},
+      to_be_updated = #{toBeUpdated,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -449,7 +449,9 @@ export default {
     delete_all_version: 'All versions',
     change_password_tips: 'Your password is the initial system password, please change it as soon as possible',
     ui: 'UI TEST',
-    not_eligible_for_deletion:'Not Eligible For Deletion'
+    not_eligible_for_deletion:'Not Eligible For Deletion',
+    batch:'Batch',
+    change:'Change',
   },
   login: {
     normal_Login: "Normal Login",
@@ -472,6 +474,8 @@ export default {
     expired: 'expired',
   },
   workstation: {
+    sync:'Synchronize',
+    ignore:'Ignore',
     dash_board: 'My DashBoard',
     upcoming: 'My Upcoming',
     focus: 'My Focus',
@@ -480,6 +484,7 @@ export default {
     creation_issue: 'My Creation Issue',
     creation_case_tip: 'No use case has been created yet, create it now',
     creation_issue_tip: 'No defects have been created yet, create them now',
+    delNotSame:'Remove parameters in use cases that cannot correspond to API documentation',
     table_name: {
       track_case: 'Track Case',
       track_plan: 'Track Plan',

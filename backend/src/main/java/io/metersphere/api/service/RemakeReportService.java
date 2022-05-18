@@ -28,6 +28,8 @@ public class RemakeReportService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
     private ApiDefinitionExecResultMapper execResultMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
@@ -70,6 +72,11 @@ public class RemakeReportService {
                         apiTestCase.setStatus("error");
                         apiTestCase.setUpdateTime(System.currentTimeMillis());
                         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+                        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
+                        if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                            apiDefinitionWithBLOBs.setToBeUpdated(true);
+                            apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
+                        }
                     }
                 }
             } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {

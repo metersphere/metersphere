@@ -451,7 +451,9 @@ export default {
     delete_all_version: '全部版本',
     change_password_tips: '您的密碼是系統初始密碼，請盡快修改密碼',
     ui: 'UI 測試',
-    not_eligible_for_deletion:'不符合删除條件'
+    not_eligible_for_deletion:'不符合删除條件',
+    batch:'批量',
+    change:'改变',
   },
   login: {
     normal_Login: "普通登錄",
@@ -474,6 +476,8 @@ export default {
     expired: '已過期',
   },
   workstation: {
+    sync:'同步',
+    ignore:'忽略',
     dash_board: '我的儀表盤',
     upcoming: '我的待辦',
     focus: '我的關註',
@@ -482,6 +486,7 @@ export default {
     creation_issue: '我創建的缺陷',
     creation_case_tip: '暫時還沒有創建用例，馬上創建',
     creation_issue_tip: '暫時還沒有創建缺陷，馬上創建',
+    delNotSame:'刪除用例中無法與API文檔對應的參數',
     table_name: {
       track_case: '功能用例',
       track_plan: '測試計劃',

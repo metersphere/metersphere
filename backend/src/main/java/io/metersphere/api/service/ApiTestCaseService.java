@@ -707,6 +707,12 @@ public class ApiTestCaseService {
             apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
             apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
         }
+        if (StringUtils.isNotEmpty(request.getCaseStatus())) {
+            ApiTestCaseWithBLOBs apiDefinitionWithBLOBs = new ApiTestCaseWithBLOBs();
+            apiDefinitionWithBLOBs.setCaseStatus(request.getCaseStatus());
+            apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+            apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
+        }
         if (StringUtils.isNotEmpty(request.getEnvId())) {
             List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -758,7 +764,7 @@ public class ApiTestCaseService {
         }
     }
 
-    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol) {
+    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol,Boolean toBeUpdated) {
         if ((StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path) && RequestType.HTTP.equals(protocol))) {
             ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
             apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
@@ -788,6 +794,9 @@ public class ApiTestCaseService {
                 }
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
+                if(toBeUpdated!=null){
+                    apiTestCase.setToBeUpdated(toBeUpdated);
+                }
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
             });
             sqlSession.flushStatements();

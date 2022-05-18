@@ -89,4 +89,7 @@ public interface ExtApiDefinitionMapper {
     List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
 
     String selectNameById(String testId);
+
+    int toBeUpdateApi(@Param("ids") List<String> ids,@Param("toBeUpdate") Boolean toBeUpdate);
+
 }

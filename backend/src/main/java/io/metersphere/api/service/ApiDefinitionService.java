@@ -3,6 +3,9 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
@@ -342,6 +345,12 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
+        // 存储依赖关系
+        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+        if (apiDefinitionSyncService != null) {
+            apiDefinitionSyncService.syncApi(request);
+        }
+
         ApiDefinitionWithBLOBs returnModel = updateTest(request);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
@@ -535,30 +544,30 @@ public class ApiDefinitionService {
         }
     }
 
-    private List<ApiDefinition> getSameRequest(SaveApiDefinitionRequest request) {
+    private List<ApiDefinitionWithBLOBs> getSameRequest(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
             example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExample(example);
+            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
         } else {
             example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
                     .andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExample(example);
+            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
         }
     }
 
-    private List<ApiDefinition> getSameRequestById(String id, String projectId) {
+    private List<ApiDefinitionWithBLOBs> getSameRequestById(String id, String projectId) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andStatusNotEqualTo("Trash")
                 .andProjectIdEqualTo(projectId)
                 .andIdEqualTo(id);
-        return apiDefinitionMapper.selectByExample(example);
+        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
     }
 
-    private List<ApiDefinition> getSameRequestWithName(SaveApiDefinitionRequest request) {
+    private List<ApiDefinitionWithBLOBs> getSameRequestWithName(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
             example.createCriteria()
@@ -576,7 +585,7 @@ public class ApiDefinitionService {
                     .andIdNotEqualTo(request.getId());
         }
 
-        return apiDefinitionMapper.selectByExample(example);
+        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
 
     }
 
@@ -606,6 +615,9 @@ public class ApiDefinitionService {
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
         test.setRemark(request.getRemark());
+        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
+            test.setToBeUpdated(request.getToBeUpdated());
+        }
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
@@ -637,7 +649,11 @@ public class ApiDefinitionService {
         if (StringUtils.equals(test.getProtocol(), "HTTP")) {
             List<String> ids = new ArrayList<>();
             ids.add(request.getId());
-            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol());
+            Boolean toBeUpdated = null;
+            if(request.getToBeUpdated()!=null) {
+                toBeUpdated = request.getToBeUpdated();
+            }
+            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol(),toBeUpdated);
         }
         //
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
@@ -801,7 +817,7 @@ public class ApiDefinitionService {
         }
         apiDefinition.setDescription(apiDefinition.getDescription());
 
-        List<ApiDefinition> sameRequest;
+        List<ApiDefinitionWithBLOBs> sameRequest;
         if (repeatable == null || !repeatable) {
             sameRequest = getSameRequest(saveReq);
         } else {
@@ -868,7 +884,7 @@ public class ApiDefinitionService {
         return order;
     }
 
-    private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
+    private void _importCreate(List<ApiDefinitionWithBLOBs> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
                                ApiTestCaseMapper apiTestCaseMapper, ExtApiDefinitionMapper extApiDefinitionMapper,
                                ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks) {
         String originId = apiDefinition.getId();
@@ -905,7 +921,7 @@ public class ApiDefinitionService {
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
                 apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
             }
-            Optional<ApiDefinition> apiOp = sameRequest.stream()
+            Optional<ApiDefinitionWithBLOBs> apiOp = sameRequest.stream()
                     .filter(api -> StringUtils.equals(api.getVersionId(), apiTestImportRequest.getUpdateVersionId()))
                     .findFirst();
 
@@ -920,7 +936,7 @@ public class ApiDefinitionService {
                 }
                 batchMapper.insert(apiDefinition);
             } else {
-                ApiDefinition existApi = apiOp.get();
+                ApiDefinitionWithBLOBs existApi = apiOp.get();
                 apiDefinition.setStatus(existApi.getStatus());
                 apiDefinition.setOriginalState(existApi.getOriginalState());
                 apiDefinition.setCaseStatus(existApi.getCaseStatus());
@@ -930,9 +946,17 @@ public class ApiDefinitionService {
                 if (existApi.getUserId() != null) {
                     apiDefinition.setUserId(existApi.getUserId());
                 }
+                //Check whether the content has changed, if not, do not change the creation time
+                Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
+                if (!toChangeTime) {
+                    apiDefinition.setUpdateTime(existApi.getUpdateTime());
+                }
                 // case 设置版本
                 cases.forEach(c -> {
                     c.setVersionId(apiDefinition.getVersionId());
+                    if (apiDefinition.getToBeUpdated() != null && apiDefinition.getToBeUpdated()) {
+                        c.setToBeUpdated(true);
+                    }
                 });
                 if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
                     apiDefinition.setTags(existApi.getTags()); // 其他格式 tag 不变，MS 格式替换
@@ -963,6 +987,89 @@ public class ApiDefinitionService {
             extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
             extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         }
+    }
+
+    private Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi,ApiDefinitionWithBLOBs apiDefinition)  {
+
+        ApiDefinition exApi;
+        ApiDefinition api;
+        exApi = existApi;
+        api = apiDefinition;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String exApiString = null;
+        String apiString = null;
+        try {
+            exApiString = objectMapper.writeValueAsString(exApi);
+            apiString = objectMapper.writeValueAsString(api);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        //Compare the basic information of the API. If it contains the comparison that needs to be done for the synchronization information,
+        // put the data into the to-be-synchronized
+        if (!StringUtils.equals(exApiString,apiString)) {
+            if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
+            if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
+
+            if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
+
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getRemark(),apiDefinition.getRemark())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getDescription(),apiDefinition.getDescription())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getResponse(),apiDefinition.getResponse())) {
+            return true;
+        }
+
+        JsonNode exApiRequest = null;
+        JsonNode apiRequest = null;
+        try {
+            exApiRequest = objectMapper.readTree(existApi.getRequest());
+            apiRequest = objectMapper.readTree(apiDefinition.getRequest());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        if (exApiRequest == null || apiRequest == null) {
+            return false;
+        }
+        if (!StringUtils.equals(exApiRequest.get("headers").toString(),apiRequest.get("headers").toString())){
+            apiDefinition.setToBeUpdated(true);
+            return true;
+        }
+
+        if (!StringUtils.equals(exApiRequest.get("arguments").toString(),apiRequest.get("arguments").toString())){
+            apiDefinition.setToBeUpdated(true);
+            return true;
+        }
+
+        if (!StringUtils.equals(exApiRequest.get("rest").toString(),apiRequest.get("rest").toString())){
+            apiDefinition.setToBeUpdated(true);
+            return true;
+        }
+
+        if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())){
+            apiDefinition.setToBeUpdated(true);
+            return true;
+        }
+
+        return false;
     }
 
     /**

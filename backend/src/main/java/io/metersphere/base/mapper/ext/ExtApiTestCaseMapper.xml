@@ -454,14 +454,16 @@
                     <if test="key=='status' and values.size == 0">
                         and (t1.status is null or t1.status != 'Trash')
                     </if>
-                </if>
+
+
+          </if>
             </foreach>
         </if>
         <if test="request.filters == null || request.filters.size() == 0 ">
             and (t1.status is null or t1.status != 'Trash')
         </if>
-        <if test="request.toUpdate !=null and request.toUpdate == true">
-            and (t1.update_time >= #{request.updateTime} or t3.status = 'error')
+        <if test="request.toBeUpdated !=null">
+            and (t1.to_be_updated = #{request.toBeUpdated} or t3.status = 'error')
         </if>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="t1"/>
@@ -816,6 +818,14 @@
     <update id="reduction">
         update api_test_case
         set status = original_status
+        where id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+    <update id="toBeUpdateCase">
+        update api_test_case
+        set to_be_updated = #{toBeUpdate}
         where id IN
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}

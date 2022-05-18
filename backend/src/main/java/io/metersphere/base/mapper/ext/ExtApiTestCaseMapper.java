@@ -76,4 +76,6 @@ public interface ExtApiTestCaseMapper {
     void insertNewVersionCases(@Param("api") ApiDefinition apiDefinition, @Param("old") ApiDefinition old);
 
     List<ApiTestCase> checkName(@Param("request") SaveApiTestCaseRequest request);
+
+    int toBeUpdateCase(@Param("ids") List<String> ids,@Param("toBeUpdate") Boolean toBeUpdate);
 }
