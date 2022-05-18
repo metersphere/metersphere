@@ -213,6 +213,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
+        if (config.isOperating() && config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
+            //导出的需要将DNSCache去掉，并把域名进行ip替换
+            Map<String,String> dnsMap = MsDNSCacheManager.getEnvironmentDns(config.getConfig().get(this.getProjectId()), httpConfig);
+            String domain = sampler.getDomain();
+            if(dnsMap.containsKey(domain)){
+                sampler.setDomain(dnsMap.get(domain));
+            }
+        }
         final HashTree httpSamplerTree = tree.add(sampler);
 
         // 注意顺序，放在config前面，会优先于环境的请求头生效
@@ -236,7 +245,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             httpSamplerTree.add(arguments);
         }
         //判断是否要开启DNS
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (!config.isOperating() && config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()), httpConfig);
@@ -276,7 +285,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
-
         //根据配置增加全局前后至脚本
         if (httpConfig != null) {
             JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), true);
