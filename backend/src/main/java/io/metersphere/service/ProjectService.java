@@ -112,7 +112,8 @@ public class ProjectService {
     private ProjectApplicationMapper projectApplicationMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
-
+    @Resource
+    private ProjectVersionMapper projectVersionMapper;
 
     public Project addProject(AddProjectRequest project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -171,23 +172,35 @@ public class ProjectService {
         if (quotaService != null) {
             quotaService.projectUseDefaultQuota(pjId);
         }
-
-        ProjectVersionService projectVersionService = CommonBeanFactory.getBean(ProjectVersionService.class);
-        if (projectVersionService != null) {
-            ProjectVersion projectVersion = new ProjectVersion();
-            projectVersion.setId(UUID.randomUUID().toString());
-            projectVersion.setName("v1.0.0");
-            projectVersion.setProjectId(project.getId());
-            projectVersion.setCreateTime(System.currentTimeMillis());
-            projectVersion.setCreateTime(System.currentTimeMillis());
-            projectVersion.setStartTime(System.currentTimeMillis());
-            projectVersion.setPublishTime(System.currentTimeMillis());
-            projectVersion.setLatest(true);
-            projectVersion.setStatus("open");
-            projectVersionService.addProjectVersion(projectVersion);
-        }
+        // 创建默认版本
+        addProjectVersion(project);
+        // 初始化项目应用管理
         initProjectApplication(project.getId());
         return project;
+    }
+
+    public void addProjectVersion(Project project) {
+        ProjectVersion projectVersion = new ProjectVersion();
+        projectVersion.setId(UUID.randomUUID().toString());
+        projectVersion.setName("v1.0.0");
+        projectVersion.setProjectId(project.getId());
+        projectVersion.setCreateTime(System.currentTimeMillis());
+        projectVersion.setCreateTime(System.currentTimeMillis());
+        projectVersion.setStartTime(System.currentTimeMillis());
+        projectVersion.setPublishTime(System.currentTimeMillis());
+        projectVersion.setLatest(true);
+        projectVersion.setStatus("open");
+
+        String name = projectVersion.getName();
+        ProjectVersionExample example = new ProjectVersionExample();
+        example.createCriteria().andProjectIdEqualTo(projectVersion.getProjectId()).andNameEqualTo(name);
+        if (projectVersionMapper.countByExample(example) > 0) {
+            MSException.throwException("当前版本已经存在");
+        }
+        projectVersion.setId(UUID.randomUUID().toString());
+        projectVersion.setCreateUser(SessionUtils.getUserId());
+        projectVersion.setCreateTime(System.currentTimeMillis());
+        projectVersionMapper.insertSelective(projectVersion);
     }
 
     private void initProjectApplication(String projectId) {
