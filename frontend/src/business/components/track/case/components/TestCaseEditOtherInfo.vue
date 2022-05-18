@@ -131,7 +131,7 @@ export default {
     ReviewCommentItem,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText
   },
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit', 'type', 'comments'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit', 'type', 'comments', 'isClickAttachmentTab'],
   data() {
     return {
       result: {},
@@ -291,6 +291,7 @@ export default {
       this.$error(this.$t('load_test.file_size_limit'));
     },
     getFileMetaData(id) {
+      this.$emit("update:isClickAttachmentTab", true);
       // 保存用例后传入用例id，刷新文件列表，可以预览和下载
       if (this.uploadList && this.uploadList.length > 0 && !id) {
         return;
