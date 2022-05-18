@@ -21,6 +21,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.track.dto.TestCaseDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +82,17 @@ public class GroupService {
         List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId(), request.getProjectId());
         List<String> groupTypeList = userGroup.stream().map(UserGroupDTO::getType).distinct().collect(Collectors.toList());
         return getGroups(groupTypeList, request);
+    }
+
+    public void buildUserInfo(List<GroupDTO> testCases) {
+        List<String> userIds = new ArrayList();
+        userIds.addAll(testCases.stream().map(GroupDTO::getCreator).collect(Collectors.toList()));
+        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
+            Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
+            testCases.forEach(caseResult -> {
+                caseResult.setCreator(userMap.get(caseResult.getCreator()));
+            });
+        }
     }
 
     public Group addGroup(EditGroupRequest request) {
@@ -313,6 +325,7 @@ public class GroupService {
         request.setScopes(scopes);
 //        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);
+        buildUserInfo(groups);
         return PageUtils.setPageInfo(page, groups);
     }
 
