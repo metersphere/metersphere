@@ -1443,6 +1443,66 @@ public class ApiTestCaseExample {
             addCriterion("version_id not between", value1, value2, "versionId");
             return (Criteria) this;
         }
+
+        public Criteria andToBeUpdatedIsNull() {
+            addCriterion("to_be_updated is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedIsNotNull() {
+            addCriterion("to_be_updated is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedEqualTo(Boolean value) {
+            addCriterion("to_be_updated =", value, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedNotEqualTo(Boolean value) {
+            addCriterion("to_be_updated <>", value, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedGreaterThan(Boolean value) {
+            addCriterion("to_be_updated >", value, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("to_be_updated >=", value, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedLessThan(Boolean value) {
+            addCriterion("to_be_updated <", value, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedLessThanOrEqualTo(Boolean value) {
+            addCriterion("to_be_updated <=", value, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedIn(List<Boolean> values) {
+            addCriterion("to_be_updated in", values, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedNotIn(List<Boolean> values) {
+            addCriterion("to_be_updated not in", values, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedBetween(Boolean value1, Boolean value2) {
+            addCriterion("to_be_updated between", value1, value2, "toBeUpdated");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdatedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("to_be_updated not between", value1, value2, "toBeUpdated");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -38,6 +38,10 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
      */
     private boolean toUpdate;
     /**
+     * 是否进入待更新列表
+     */
+    private Boolean toBeUpdated;
+    /**
      * 是否需要查询环境字段
      */
     private boolean selectEnvironment = false;

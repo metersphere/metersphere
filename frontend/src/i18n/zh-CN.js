@@ -451,7 +451,9 @@ export default {
     delete_all_version: '全部版本',
     change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
     ui: 'UI 测试',
-    not_eligible_for_deletion:'不符合删除条件'
+    not_eligible_for_deletion:'不符合删除条件',
+    batch:'批量',
+    change:'改变',
   },
   login: {
     normal_Login: "普通登录",
@@ -474,6 +476,8 @@ export default {
     expired: '已过期',
   },
   workstation: {
+    sync:'同步',
+    ignore:'忽略',
     dash_board: '我的仪表盘',
     upcoming: '我的待办',
     focus: '我的关注',
@@ -482,6 +486,7 @@ export default {
     creation_issue: '我创建的缺陷',
     creation_case_tip: '暂时还没有创建用例，马上创建',
     creation_issue_tip: '暂时还没有创建缺陷，马上创建',
+    delNotSame:'删除用例中无法与API文档对应的参数',
     table_name: {
       track_case: '功能用例',
       track_plan: '测试计划',
@@ -492,7 +497,10 @@ export default {
       api_case: '接口用例',
       performance: '性能测试',
       scenario_case: '场景用例'
-    }
+    },
+    sync_case_tips: '注意: 忽略后，受影响的用例将不再有提醒，请谨慎操作',
+    batch_sync_api_tips: '注意: 批量同步，有可能部分不需要同步的用例参数也被覆盖，导致测试不通过，请谨慎操作',
+    batch_ignore_case_tips: '注意: 批量忽略后，受影响的用例将不再有提醒，请谨慎操作',
   },
   display: {
     title: '显示设置',

@@ -20,6 +20,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.TcpApiParamService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
@@ -53,6 +54,8 @@ public class ApiExecuteService {
     private JMeterService jMeterService;
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
@@ -129,6 +132,11 @@ public class ApiExecuteService {
                     ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
                     caseWithBLOBs.setStatus("error");
                     apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+                    ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(caseWithBLOBs.getApiDefinitionId());
+                    if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                        apiDefinitionWithBLOBs.setToBeUpdated(true);
+                        apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
+                    }
                 }
                 LogUtil.error(ex.getMessage(), ex);
             }

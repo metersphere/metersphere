@@ -698,6 +698,9 @@
             <if test="request.moduleId != null">
                 AND api_definition.module_id = #{request.moduleId}
             </if>
+            <if test="request.toBeUpdated != null">
+                AND api_definition.to_be_updated = #{request.toBeUpdated}
+            </if>
             <if test="request.notInIds != null and request.notInIds.size() > 0">
                 and api_definition.id not in
                 <foreach collection="request.notInIds" item="id" separator="," open="(" close=")">
@@ -927,6 +930,16 @@
         LIMIT 1)) AS t ON api_definition.id = t.id
         SET api_definition.latest = TRUE
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="toBeUpdateApi">
+        update api_definition
+        set
+        to_be_updated = #{toBeUpdate}
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
     </update>
 
     <select id="selectRefIdsForVersionChange" resultType="java.lang.String">

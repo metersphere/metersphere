@@ -68,4 +68,7 @@ public class SaveApiDefinitionRequest {
     private boolean newVersionMock;
     // 复制的请求Id
     private String sourceId;
+    //是否进入待更新列表
+    private Boolean toBeUpdated;
+
 }
