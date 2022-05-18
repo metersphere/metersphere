@@ -1,5 +1,5 @@
 <template>
-  <ms-chart v-if="visible && pieData.length > 0" :options="options" :autoresize ="true"  style="width: 100%"/>
+  <ms-chart v-if="visible && pieData.length > 0" :options="options" :autoresize ="true" :height="height" style="width: 100%"/>
 </template>
 
 <script>
@@ -74,6 +74,9 @@ export default {
       default() {
         return []
       }
+    },
+    height:{
+      type: [Number, String],
     }
   }
 }
