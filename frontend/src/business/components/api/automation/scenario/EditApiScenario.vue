@@ -1141,11 +1141,20 @@ export default {
           if (item.type === type) {
             item.active = true;
             isAssertions = true;
-            return;
+            this.reloadTree = getUUID();
           }
         })
         if (!isAssertions) {
           setComponent(type, this, plugin);
+          for (let i in this.scenarioDefinition) {
+            if (this.scenarioDefinition[i].type === "Assertions") {
+              this.scenarioDefinition[i].active = true;
+              let assertions = this.scenarioDefinition[i];
+              this.scenarioDefinition.splice(i, 1);
+              this.scenarioDefinition.unshift(assertions);
+              this.sort();
+            }
+          }
         }
       } else {
         setComponent(type, this, plugin);
