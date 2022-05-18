@@ -164,7 +164,6 @@ public class HarParser extends HarAbstractParser {
         msResponse.setBody(new Body());
         msResponse.setHeaders(new ArrayList<>());
         msResponse.setType(RequestType.HTTP);
-        // todo 状态码要调整？
         msResponse.setStatusCode(new ArrayList<>());
         if (response != null) {
             String responseCode = String.valueOf(response.status);
