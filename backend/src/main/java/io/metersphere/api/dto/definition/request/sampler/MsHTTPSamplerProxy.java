@@ -216,10 +216,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config.isOperating() && config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             //导出的需要将DNSCache去掉，并把域名进行ip替换
-            Map<String,String> dnsMap = MsDNSCacheManager.getEnvironmentDns(config.getConfig().get(this.getProjectId()), httpConfig);
+            Map<String, String> dnsMap = MsDNSCacheManager.getEnvironmentDns(config.getConfig().get(this.getProjectId()), httpConfig);
             String domain = sampler.getDomain();
-            if(dnsMap.containsKey(domain)){
-                sampler.setDomain(dnsMap.get(domain));
+            if (dnsMap.containsKey(domain)) {
+                String address = dnsMap.get(domain);
+                if (address.contains(":")) {
+                    String[] addressArr = StringUtils.split(address, ":");
+                    if (addressArr.length == 2) {
+                        try {
+                            sampler.setDomain(addressArr[0]);
+                            sampler.setPort(Integer.parseInt(addressArr[1]));
+                        } catch (Exception ignored) {
+                        }
+                    }
+                } else {
+                    sampler.setDomain(dnsMap.get(domain));
+                }
             }
         }
         final HashTree httpSamplerTree = tree.add(sampler);
@@ -682,28 +694,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                    try {
-                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                        if (keyValue.getValue() == null) {
-                            httpArgument.setValue("");
-                        }
-                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                            httpArgument.setContentType(keyValue.getContentType());
-                        }
-                        if (StringUtils.equalsIgnoreCase(this.method, "get")) {
-                            if (StringUtils.isNotEmpty(httpArgument.getValue())) {
-                                arguments.addArgument(httpArgument);
-                            }
-                        } else {
-                            arguments.addArgument(httpArgument);
-                        }
-                    } catch (Exception e) {
+                            try {
+                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                                if (keyValue.getValue() == null) {
+                                    httpArgument.setValue("");
+                                }
+                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                                    httpArgument.setContentType(keyValue.getContentType());
+                                }
+                                if (StringUtils.equalsIgnoreCase(this.method, "get")) {
+                                    if (StringUtils.isNotEmpty(httpArgument.getValue())) {
+                                        arguments.addArgument(httpArgument);
+                                    }
+                                } else {
+                                    arguments.addArgument(httpArgument);
+                                }
+                            } catch (Exception e) {
 
-                    }
-                }
-        );
+                            }
+                        }
+                );
         return arguments;
     }
 
