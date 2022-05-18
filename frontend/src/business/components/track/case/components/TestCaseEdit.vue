@@ -89,6 +89,7 @@
                                          :label-width="formLabelWidth" :case-id="form.id"
                                          :type="type" :comments="comments"
                                          @openComment="openComment"
+                                         :is-click-attachment-tab.sync="isClickAttachmentTab"
                                          :version-enable="versionEnable"
                                          ref="otherInfo"/>
               <test-case-comment :case-id="form.id"
@@ -282,6 +283,7 @@ export default {
       selectedOtherInfo: null,
       currentProjectId: "",
       casePublic: false,
+      isClickAttachmentTab: false,
     };
   },
   props: {
@@ -796,6 +798,7 @@ export default {
         param.fileIds = [];
         param.updatedFileList = [];
       }
+      param.handleAttachment = this.isClickAttachmentTab;
 
       let requestJson = JSON.stringify(param, function (key, value) {
         return key === "file" ? undefined : value

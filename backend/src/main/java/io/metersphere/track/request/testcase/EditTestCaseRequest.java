@@ -20,6 +20,8 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
      */
     private List<String> fileIds = new ArrayList<>();
     private List<List<String>> selected = new ArrayList<>();
+    // 是否处理附件文件
+    private boolean handleAttachment = true;
 
     /**
      * 创建新版本时 是否连带复制其他信息的配置类
