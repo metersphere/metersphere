@@ -86,7 +86,7 @@ public class GroupService {
     public void buildUserInfo(List<GroupDTO> testCases) {
         List<String> userIds = new ArrayList();
         userIds.addAll(testCases.stream().map(GroupDTO::getCreator).collect(Collectors.toList()));
-        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
+        if (!userIds.isEmpty()) {
             Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
             testCases.forEach(caseResult -> {
                 caseResult.setCreator(userMap.get(caseResult.getCreator()));
