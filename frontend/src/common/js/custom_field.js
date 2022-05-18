@@ -96,7 +96,7 @@ export function buildCustomFields(data, param, template) {
     template.customFields.forEach(item => {
       let customField = {
         fieldId: item.id,
-        value: JSON.stringify(item.defaultValue),
+        value: item.defaultValue ? JSON.stringify(item.defaultValue): "",
       };
       if (item.isEdit) {
         editFields.push(customField);
