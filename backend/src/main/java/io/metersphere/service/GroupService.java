@@ -21,7 +21,6 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
-import io.metersphere.track.dto.TestCaseDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,13 +64,13 @@ public class GroupService {
 
     private static final String GLOBAL = "global";
 
-    private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4) {{
+    private static final Map<String, List<String>> map = new HashMap<>(4) {{
         put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.WORKSPACE, Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
         put(UserGroupType.PROJECT, Collections.singletonList(UserGroupType.PROJECT));
     }};
 
-    private static final Map<String, String> typeMap = new HashMap<String, String>(4) {{
+    private static final Map<String, String> typeMap = new HashMap<>(4) {{
         put(UserGroupType.SYSTEM, "系统");
         put(UserGroupType.WORKSPACE, "工作空间");
         put(UserGroupType.PROJECT, "项目");
