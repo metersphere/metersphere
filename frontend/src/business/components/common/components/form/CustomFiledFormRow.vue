@@ -57,7 +57,7 @@ export default {
       let total = 0;//定义total用于控制循环结束
       let customFields = this.issueTemplate.customFields;
       for (let i = 0; total < customFields.length; total++) {
-        if (customFields[i].type === 'input' && typeof (customFields[i].defaultValue) === 'string' || customFields[i].defaultValue instanceof String) {
+        if (typeof (customFields[i].defaultValue) === 'string' || customFields[i].defaultValue instanceof String) {
           try {
             customFields[i].defaultValue = JSON.parse(customFields[i].defaultValue);
           } catch (e) {

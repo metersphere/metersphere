@@ -218,7 +218,9 @@ public class TestCaseService {
 
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
-        customFieldTestCaseService.addFields(request.getId(), request.getAddFields());
+        List<CustomFieldResource> addFields = request.getAddFields();
+        addFields.addAll(request.getEditFields());
+        customFieldTestCaseService.addFields(request.getId(), addFields);
         return request;
     }
 
