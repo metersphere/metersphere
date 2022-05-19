@@ -433,6 +433,8 @@ name: "TestCaseMinder",
             if (preId && preId.length > 15) {
               testCase.targetId = preId;
               testCase.moveMode = 'AFTER';
+            } else {
+              testCase.moveMode = 'APPEND';
             }
           } else if (this.isCaseNode(nextNode)) {
             let nextId = nextNode.data.id;

@@ -12,6 +12,8 @@ public class ResetOrderRequest {
     private String groupId;
 
     public enum MoveMode {
-        BEFORE, AFTER
+        BEFORE,
+        AFTER,
+        APPEND // 脑图添加多个用例时，后面的用例类型
     }
 }
