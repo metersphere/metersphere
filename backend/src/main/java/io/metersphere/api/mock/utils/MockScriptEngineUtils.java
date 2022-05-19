@@ -63,10 +63,10 @@ public class MockScriptEngineUtils {
     /**
      * 加载jar包
      */
-    private void loadJars() {
+    private void loadJars(String projectId) {
         JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
         if (jarConfigService != null) {
-            List<JarConfig> jars = jarConfigService.list();
+            List<JarConfig> jars = jarConfigService.listByProjectId(projectId);
             jars.forEach(jarConfig -> {
                 try {
                     this.loadJar(jarConfig.getPath());
@@ -78,7 +78,7 @@ public class MockScriptEngineUtils {
         }
     }
 
-    public ScriptEngine getBaseScriptEngine(String scriptLanguage, String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
+    public ScriptEngine getBaseScriptEngine(String projectId, String scriptLanguage, String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
         ScriptEngine engine = null;
         try {
             if (StringUtils.isEmpty(scriptLanguage)) {
@@ -94,7 +94,7 @@ public class MockScriptEngineUtils {
                 engine = scriptEngineFactory.getEngineByName(scriptLanguage);
                 preScript = this.genPythonPreScript(url, headerMap, requestMockParams);
             }
-            this.loadJars();
+            this.loadJars(projectId);
             engine.eval(preScript);
         } catch (Exception e) {
             LogUtil.error(e);
@@ -250,7 +250,7 @@ public class MockScriptEngineUtils {
                 LogUtil.error(e);
             }
         }
-        if (StringUtils.isEmpty(value) || StringUtils.equals(value,"null")) {
+        if (StringUtils.isEmpty(value) || StringUtils.equals(value, "null")) {
             value = paramKey;
         }
         return value;
