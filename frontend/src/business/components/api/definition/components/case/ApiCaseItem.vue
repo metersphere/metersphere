@@ -423,7 +423,8 @@ export default {
       });
     },
     singleRun(data) {
-      if (data.apiMethod !== "SQL" && data.apiMethod !== "DUBBO" && data.apiMethod !== "dubbo://" && data.apiMethod !== "TCP" && !this.environment) {
+      let methods =["SQL","DUBBO","dubbo://","TCP" ];
+      if (data.apiMethod && methods.indexOf(data.apiMethod) === -1 && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }

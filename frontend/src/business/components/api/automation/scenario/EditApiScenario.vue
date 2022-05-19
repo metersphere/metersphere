@@ -905,8 +905,6 @@ export default {
       this.debugReportId = getUUID().substring(0, 8);
       this.messageWebSocket = getReportMessageSocket(this.debugReportId);
       this.messageWebSocket.onmessage = this.onDebugMessage;
-      // 开始执行
-      this.messageWebSocket.onopen = this.run();
     },
     runningEditParent(node) {
       if (node.parent && node.parent.data && node.parent.data.id) {
@@ -983,6 +981,10 @@ export default {
       }
     },
     onDebugMessage(e) {
+      // 确认连接建立成功，开始执行
+      if(e && e.data === "CONN_SUCCEEDED"){
+        this.run();
+      }
       if (e.data && e.data.startsWith("result_")) {
         let data = JSON.parse(e.data.substring(7));
         this.reqTotal += 1;
