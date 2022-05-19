@@ -1411,10 +1411,12 @@ public class ApiAutomationService {
                 return;
             }
             JSONObject element = JSON.parseObject(scenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
-            JSONArray hashTree = element.getJSONArray("hashTree");
-            ApiScenarioImportUtil.formatHashTree(hashTree);
-            setHashTree(hashTree);
-            scenario.setScenarioDefinition(JSONObject.toJSONString(element));
+            if (element != null) {
+                JSONArray hashTree = element.getJSONArray("hashTree");
+                ApiScenarioImportUtil.formatHashTree(hashTree);
+                setHashTree(hashTree);
+                scenario.setScenarioDefinition(JSONObject.toJSONString(element));
+            }
             names.add(scenario.getName());
             ids.add(scenario.getId());
         }
@@ -1456,6 +1458,8 @@ public class ApiAutomationService {
 
     public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
+        //检查运行环境
+        checkExportEnv(apiScenarioWithBLOBs);
         // 生成jmx
         List<ApiScenarioExportJmxDTO> resList = new ArrayList<>();
         apiScenarioWithBLOBs.forEach(item -> {
@@ -1483,6 +1487,8 @@ public class ApiAutomationService {
 
     public byte[] exportZip(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> scenarios = getExportResult(request);
+        //环境检查
+        checkExportEnv(scenarios);
         // 生成jmx
         Map<String, byte[]> files = new LinkedHashMap<>();
         scenarios.forEach(item -> {
@@ -1503,6 +1509,23 @@ public class ApiAutomationService {
             request.setId(JSON.toJSONString(ids));
         }
         return FileUtils.listBytesToZip(files);
+    }
+
+    private void checkExportEnv(List<ApiScenarioWithBLOBs> scenarios) {
+        StringBuilder builder = new StringBuilder();
+        for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : scenarios) {
+            try {
+                boolean haveEnv = apiScenarioEnvService.checkScenarioEnv(apiScenarioWithBLOBs, null);
+                if (!haveEnv) {
+                    builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                }
+            } catch (Exception e) {
+                MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+            }
+        }
+        if (builder.length() > 0) {
+            MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+        }
     }
 
     public void batchUpdateEnv(ApiScenarioBatchRequest request) {
