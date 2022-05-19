@@ -1142,6 +1142,7 @@ export default {
         this.scenarioDefinition.forEach(item => {
           if (item.type === type) {
             item.active = true;
+            item.scenarioAss = true;
             isAssertions = true;
             this.reloadTree = getUUID();
           }
@@ -1151,6 +1152,7 @@ export default {
           for (let i in this.scenarioDefinition) {
             if (this.scenarioDefinition[i].type === "Assertions") {
               this.scenarioDefinition[i].active = true;
+              this.scenarioDefinition[i].scenarioAss = true;
               let assertions = this.scenarioDefinition[i];
               this.scenarioDefinition.splice(i, 1);
               this.scenarioDefinition.unshift(assertions);
