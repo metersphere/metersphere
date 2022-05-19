@@ -25,6 +25,7 @@ import java.util.List;
 public class MsAssertions extends MsTestElement {
     private String clazzName = MsAssertions.class.getCanonicalName();
 
+    private boolean scenarioAss;
     private List<MsAssertionRegex> regex;
     private List<MsAssertionJsonPath> jsonPath;
     private List<MsAssertionJSR223> jsr223;
@@ -40,7 +41,7 @@ public class MsAssertions extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (this.isScenarioAss() && !config.isOperating() && !this.isEnable()) {
             return;
         }
         if (StringUtils.isEmpty(this.getName())) {
