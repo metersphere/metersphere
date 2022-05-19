@@ -1922,6 +1922,8 @@ public class TestCaseService {
         List<TestCaseMinderEditRequest.TestCaseMinderEditItem> data = request.getData();
         if (CollectionUtils.isNotEmpty(data)) {
 
+            String lastAddId = null;
+
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                     item.setNodeId("");
@@ -1933,6 +1935,7 @@ public class TestCaseService {
                     editRequest.setCustomFields(null);
                     editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
+                    lastAddId = null;
                 } else {
                     if (StringUtils.isBlank(item.getMaintainer())) {
                         item.setMaintainer(SessionUtils.getUserId());
@@ -1940,6 +1943,11 @@ public class TestCaseService {
                     EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editTestCaseRequest, item);
                     addTestCase(editTestCaseRequest);
+                    if (StringUtils.equals(item.getMoveMode(), ResetOrderRequest.MoveMode.APPEND.name()) && StringUtils.isNotBlank(lastAddId)) {
+                        item.setMoveMode(ResetOrderRequest.MoveMode.AFTER.name());
+                        item.setTargetId(lastAddId);
+                    }
+                    lastAddId = editTestCaseRequest.getId();
                     changeOrder(item, request.getProjectId());
                 }
             }
