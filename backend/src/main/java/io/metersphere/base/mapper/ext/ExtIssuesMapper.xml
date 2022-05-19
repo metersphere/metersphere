@@ -196,6 +196,15 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key.startsWith('custom')">
+                                and issues.id in (
+                                select resource_id from custom_field_issues where concat('custom',field_id) = #{key}
+                                and trim(both '"' from value) in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                                )
+                            </when>
                         </choose>
                     </if>
                 </foreach>

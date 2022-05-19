@@ -505,6 +505,15 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key.startsWith('custom')">
+                            and test_case.id in (
+                                select resource_id from custom_field_test_case where concat('custom',field_id) = #{key}
+                                and trim(both '"' from value) in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            )
+                        </when>
                     </choose>
                 </if>
                 <if test="key=='status' and (values == null || values.size() == 0)">

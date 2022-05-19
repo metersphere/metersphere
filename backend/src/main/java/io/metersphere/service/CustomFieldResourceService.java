@@ -72,7 +72,7 @@ public class CustomFieldResourceService {
         if (CollectionUtils.isNotEmpty(addFields)) {
             this.checkInit();
             addFields.forEach(field -> {
-                if (StringUtils.isNotBlank(field.getValue()) && StringUtils.isNotBlank(field.getTextValue())) {
+                if (StringUtils.isNotBlank(field.getValue()) || StringUtils.isNotBlank(field.getTextValue())) {
                     createOrUpdateFields(tableName, resourceId, field);
                 }
             });

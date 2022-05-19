@@ -189,6 +189,7 @@
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
                          :min-width="120"
+                         :column-key="'custom' + field.id"
                          :prop="field.name">
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
@@ -630,7 +631,7 @@ export default {
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
-        this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
+        this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields, this.members);
         // todo 处理高级搜索自定义字段部分
         let comp = getAdvSearchCustomField(this.condition.components, this.testCaseTemplate.customFields);
         this.condition.components.push(...comp);
@@ -671,12 +672,8 @@ export default {
       return value ? value : '';
     },
     getCustomFieldFilter(field) {
-      if (field.name === '用例等级') {
-        return this.priorityFilters;
-      } else if (field.name === '用例状态') {
-        return this.statusFilters;
-      }
-      return null;
+      return !Array.isArray(field.options) ?
+        (field.options.length > 0 ? field.options : null) : null;
     },
     checkRedirectEditPage(redirectParam) {
       if (redirectParam != null) {

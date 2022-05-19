@@ -283,11 +283,18 @@ function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
  * @param customFields
  * @returns {[]|*}
  */
-export function getTableHeaderWithCustomFields(key, customFields) {
+export function getTableHeaderWithCustomFields(key, customFields, projectMembers=[]) {
   let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
   fieldSetting = JSON.parse(JSON.stringify(fieldSetting)); // 复制，国际化
   translateLabel(fieldSetting);
   let keys = getCustomFieldsKeys(customFields);
+  projectMembers.forEach(member => {
+    member['text'] = member.name;
+    // 高级搜索使用
+    member['label'] = member.name;
+    member['value'] = member.id;
+    member['showLabel'] = member.name + "(" + member.id + ")";
+  })
   customFields.forEach(item => {
     if (!item.key) {
       // 兼容旧版，更新key
@@ -301,6 +308,9 @@ export function getTableHeaderWithCustomFields(key, customFields) {
       isCustom: true
     }
     fieldSetting.push(field);
+    if (item.type === 'member' && projectMembers && projectMembers.length > 0) {
+      item.options = projectMembers;
+    }
   });
   return getCustomTableHeaderByFiledSetting(key, fieldSetting);
 }
