@@ -403,7 +403,7 @@ export default {
     filterNode(value, data) {
       if (!value) return true;
       if (data.label) {
-        return data.label.indexOf(value.toLowerCase()) !== -1;
+        return data.label.toLowerCase().indexOf(value.toLowerCase()) !== -1;
       }
       return false;
     },
