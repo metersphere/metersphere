@@ -524,7 +524,8 @@ export default {
       this.$emit('showExecResult', row);
     },
     singleRun(row) {
-      if (row.apiMethod !== "SQL" && row.apiMethod !== "DUBBO" && row.apiMethod !== "dubbo://" && row.apiMethod !== "TCP" && !this.environment) {
+      let methods =["SQL","DUBBO","dubbo://","TCP" ];
+      if (row.apiMethod && methods.indexOf(row.apiMethod) === -1 && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
