@@ -1,6 +1,7 @@
 package io.metersphere.websocket.c.to.c;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.websocket.c.to.c.util.MsgDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,11 @@ public class IndexWebSocket {
     @OnOpen
     public void openSession(@PathParam("reportId") String reportId, Session session) {
         WebSocketUtils.ONLINE_USER_SESSIONS.put(reportId, session);
-        log.info("客户端: [" + reportId + "] : 连接成功！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
+        RemoteEndpoint.Async async = session.getAsyncRemote();
+        if (async != null) {
+            async.sendText("CONN_SUCCEEDED");
+        }
+        LoggerUtil.info("客户端: [" + reportId + "] : 连接成功！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
     }
 
     /**
@@ -29,7 +34,7 @@ public class IndexWebSocket {
      */
     @OnMessage
     public void onMessage(@PathParam("reportId") String reportId, String message) {
-        log.info("服务器收到：[" + reportId + "] : " + message);
+        LoggerUtil.info("服务器收到：[" + reportId + "] : " + message);
         MsgDto dto = JSON.parseObject(message, MsgDto.class);
         dto.setContent(dto.getContent());
         WebSocketUtils.sendMessageSingle(dto);
@@ -42,7 +47,7 @@ public class IndexWebSocket {
     public void onClose(@PathParam("reportId") String reportId, Session session) throws IOException {
         //当前的Session 移除
         WebSocketUtils.ONLINE_USER_SESSIONS.remove(reportId);
-        log.info("[" + reportId + "] : 断开连接！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
+        LoggerUtil.info("[" + reportId + "] : 断开连接！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
         //并且通知其他人当前用户已经断开连接了
         session.close();
     }
