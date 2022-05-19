@@ -36,7 +36,7 @@ export default {
   watch: {
     reportId() {
       // 开启链接
-      this.socketSyncResult();
+      this.socketSync();
     },
     isStop() {
       if (!this.isStop && this.websocket && this.websocket.close instanceof Function) {
@@ -45,7 +45,7 @@ export default {
     }
   },
   methods: {
-    socketSyncResult() {
+    socketSync() {
       let protocol = "ws://";
       if (window.location.protocol === 'https:') {
         protocol = "wss://";
@@ -53,10 +53,18 @@ export default {
       const uri = protocol + window.location.host + "/ws/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessages;
-      // 开始执行
-      this.websocket.onopen = this.run();
+      this.websocket.onerror = this.onError;
+    },
+    onError(){
+      this.$emit('runRefresh', "");
+      this.$error("The connection is abnormal, please check the environment configuration");
     },
     onMessages(e) {
+      // 确认连接建立成功，开始执行
+      if(e && e.data === "CONN_SUCCEEDED"){
+        this.run();
+      }
+
       if (e.data && e.data.startsWith("result_")) {
         try {
           let data = e.data.substring(7);
