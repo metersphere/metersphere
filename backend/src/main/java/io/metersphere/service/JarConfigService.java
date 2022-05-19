@@ -49,6 +49,12 @@ public class JarConfigService {
         return jarConfigMapper.selectByExample(example);
     }
 
+    public List<JarConfig> listByProjectId(String projectId) {
+        JarConfigExample example = new JarConfigExample();
+        example.createCriteria().andResourceTypeEqualTo("PROJECT").andResourceIdEqualTo(projectId);
+        return jarConfigMapper.selectByExample(example);
+    }
+
     public Pager<List<JarConfig>> list(JarConfigRequest request, int pageNum, int pageSize) {
         buildQueryRequest(request);
         Page<Object> page = PageHelper.startPage(pageNum, pageSize, true);

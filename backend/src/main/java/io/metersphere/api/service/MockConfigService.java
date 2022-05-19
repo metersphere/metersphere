@@ -9,10 +9,7 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
-import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
-import io.metersphere.api.dto.mock.MockConfigRequestParams;
-import io.metersphere.api.dto.mock.MockParamSuggestions;
-import io.metersphere.api.dto.mock.RequestMockParams;
+import io.metersphere.api.dto.mock.*;
 import io.metersphere.api.dto.mockconfig.MockConfigImportDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
@@ -704,7 +701,7 @@ public class MockConfigService {
         return returnModel;
     }
 
-    public String updateHttpServletResponse(MockExpectConfigResponse finalExpectConfig, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, HttpServletResponse response) {
+    public String updateHttpServletResponse(String projectId,MockExpectConfigResponse finalExpectConfig, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, HttpServletResponse response) {
         String returnStr = "";
         try {
             //设置响应头和响应码
@@ -736,7 +733,7 @@ public class MockConfigService {
                     if (responseJsonObj.containsKey("usePostScript")) {
                         useScript = responseJsonObj.getBoolean("usePostScript");
                     }
-                    returnStr = mockApiUtils.getResultByResponseResult(responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams, useScript);
+                    returnStr = mockApiUtils.getResultByResponseResult(projectId,responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams, useScript);
                 }
                 if (responseJsonObj.containsKey("httpCode")) {
                     int httpCodeNum = 500;
@@ -1002,7 +999,7 @@ public class MockConfigService {
                     MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                     MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
                     if (finalExpectConfig != null) {
-                        returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, mockParams, response);
+                        returnStr = this.updateHttpServletResponse(project.getId(),finalExpectConfig, url, requestHeaderMap, mockParams, response);
                     }else {
                         returnStr = this.getApiDefinitionResponse(api, response);
                     }
@@ -1047,7 +1044,7 @@ public class MockConfigService {
                     if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
                         MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), paramMap);
                         if (finalExpectConfig != null) {
-                            returnStr = this.updateHttpServletResponse(finalExpectConfig, url, requestHeaderMap, paramMap, response);
+                            returnStr = this.updateHttpServletResponse(project.getId(),finalExpectConfig, url, requestHeaderMap, paramMap, response);
                         }else {
                             returnStr = this.getApiDefinitionResponse(api, response);
                         }
@@ -1131,7 +1128,7 @@ public class MockConfigService {
         return returnList;
     }
 
-    public MockExpectConfigWithBLOBs matchTcpMockExpect(String message, int port) {
+    public MockExpectConfigDTO matchTcpMockExpect(String message, int port) {
         ProjectApplicationExample pae = new ProjectApplicationExample();
         pae.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_OPEN.name())
                 .andTypeValueEqualTo(String.valueOf(true));
@@ -1149,8 +1146,8 @@ public class MockConfigService {
         boolean isJsonMessage = this.checkMessageIsJson(message);
         boolean isXMLMessage = this.checkMessageIsXml(message);
 
-        List<MockExpectConfigWithBLOBs> structResult = new ArrayList<>();
-        List<MockExpectConfigWithBLOBs> rawResult = new ArrayList<>();
+        List<MockExpectConfigDTO> structResult = new ArrayList<>();
+        List<MockExpectConfigDTO> rawResult = new ArrayList<>();
 
         for (Project project : projectList) {
             String projectId = project.getId();
@@ -1204,9 +1201,15 @@ public class MockConfigService {
                             JSONObject responseObj = JSONObject.parseObject(responseStr);
                             if (responseObj.containsKey("body")) {
                                 if (isRaw) {
-                                    rawResult.add(expectConfig);
+                                    MockExpectConfigDTO dto = new MockExpectConfigDTO();
+                                    dto.setMockExpectConfig(expectConfig);
+                                    dto.setProjectId(projectId);
+                                    rawResult.add(dto);
                                 } else {
-                                    structResult.add(expectConfig);
+                                    MockExpectConfigDTO dto = new MockExpectConfigDTO();
+                                    dto.setMockExpectConfig(expectConfig);
+                                    dto.setProjectId(projectId);
+                                    structResult.add(dto);
                                 }
                             }
                         }
