@@ -139,12 +139,12 @@ export default {
       this.reloadCodeEdit();
     },
     'body.raw'() {
-      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw && !this.body.jsonSchema) {
+      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw) {
         try {
           const MsConvert = new Convert();
           let data = MsConvert.format(JSON.parse(this.body.raw));
           if (this.body.jsonSchema) {
-            this.body.jsonSchema = this.deepAssign(data);
+            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
           } else {
             this.body.jsonSchema = data;
           }
