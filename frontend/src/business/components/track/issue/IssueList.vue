@@ -128,9 +128,11 @@
          </ms-table-column>
 
           <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
+                           :filters="Array.isArray(field.options) ? (field.options.length > 0 ? field.options : null) : null"
                            :field="item"
                            :fields-width="fieldsWidth"
                            :label="field.system ? $t(systemNameMap[field.name]) :field.name"
+                           :column-key="'custom' + field.id"
                            :prop="field.name">
               <template v-slot="scope">
                 <span v-if="field.name === '状态'">

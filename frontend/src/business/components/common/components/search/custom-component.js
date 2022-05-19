@@ -28,32 +28,7 @@ export function getAdvSearchCustomField(componentArr, fields) {
 }
 
 function getComponentOptions(field) {
-  const fieldOptions = field.options ? field.options : [];
-  let type = field.type;
-  let options = [];
-  if (fieldOptions.length === 0 && field.type !== 'member' && field.type !== 'multipleMember') {
-    return options;
-  }
-
-  if (type === 'member' || type === 'multipleMember') {
-    options = { // 异步获取候选项
-      url: "/user/list",
-      labelKey: "name",
-      valueKey: "id",
-      showLabel: option => {
-        return option.label + "(" + option.value + ")";
-      }
-    }
-  }
-
-  for (let option of fieldOptions) {
-    let temp = {
-      value: option.value,
-      label: option.text
-    }
-    options.push(temp);
-  }
-  return options;
+  return Array.isArray(field.options) ? (field.options.length > 0 ? field.options : []) : [];
 }
 
 function getComponentName(type) {

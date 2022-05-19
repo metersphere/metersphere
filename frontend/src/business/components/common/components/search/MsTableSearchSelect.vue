@@ -42,7 +42,12 @@
           if (this.component.options.showLabel) {
             return this.component.options.showLabel(op);
           }
-          return op.label.indexOf(".") !== -1 ? this.$t(op.label) : op.label;
+          if (op.label) {
+            return op.label.indexOf(".") !== -1 ? this.$t(op.label) : op.label;
+          } else {
+            // 自定义字段
+            return op.text;
+          }
         }
       }
     }
