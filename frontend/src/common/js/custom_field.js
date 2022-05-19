@@ -28,7 +28,13 @@ export function parseCustomField(data, template, rules, oldFields) {
   template.customFields.forEach(item => {
 
     if (item.defaultValue && !item.hasParse) {
-      setDefaultValue(item, JSON.parse(item.defaultValue));
+      let val = item.defaultValue;
+      try {
+        val = JSON.parse(item.defaultValue);
+      } catch (e) {
+        //
+      }
+      setDefaultValue(item, val);
     }
 
     // 添加自定义字段必填校验
