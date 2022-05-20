@@ -1,6 +1,6 @@
 <template>
   <ms-report-export-template :title="title" :type="$t('report.api_test_report')">
-    <ms-metric-chart :content="content" :is-export="true" :totalTime="totalTime"/>
+    <ms-metric-chart :content="content" :is-export="true" :totalTime="totalTime" :report="report"/>
     <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
       <div>
         <el-card>
@@ -95,6 +95,7 @@
       MsReportTitle, MsMetricChart, ApiReportReqestHeaderItem, MsRequestResultTail, MsScenarioResult ,MsAssertionResults
     },
     props: {
+      report:Object,
       content: Object,
       totalTime: Number,
       title: String
