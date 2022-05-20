@@ -527,7 +527,7 @@ export default {
     issue_severity: 'Severity',
     create: 'Create Field',
     update: 'Update Field',
-    name: 'Custom Field',
+    name: 'Template Field',
     system_field: 'System Field',
     scene: 'Use Scene',
     attribute_type: 'Attribute Type',

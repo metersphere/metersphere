@@ -308,7 +308,7 @@ export function getTableHeaderWithCustomFields(key, customFields, projectMembers
       isCustom: true
     }
     fieldSetting.push(field);
-    if (item.type === 'member' && projectMembers && projectMembers.length > 0) {
+    if ((item.type === 'member' || item.type === 'multipleMember' ) && projectMembers && projectMembers.length > 0) {
       item.options = projectMembers;
     }
   });

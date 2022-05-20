@@ -75,11 +75,11 @@ export default {
       }
       if (this.condition.custom) {
         let components = [];
-        this.systemFiled = config.components.filter(co => co.custom === undefined || false);
+        this.systemFiled = config.components.filter(co => co.custom === undefined || co.custom === false);
         this.customFiled = config.components.filter(co => co.custom === true);
         // 选项分组
-        this.$set(components, 0, {label: "系统字段", child: this.systemFiled});
-        this.$set(components, 1, {label: "自定义字段", child: this.customFiled});
+        this.$set(components, 0, {label: this.$t('custom_field.system_field'), child: this.systemFiled});
+        this.$set(components, 1, {label: this.$t('custom_field.name'), child: this.customFiled});
         this.$set(config, "components", components);
       }
       return config;
@@ -120,7 +120,8 @@ export default {
         condition['customs'].push({
           id: component.key,
           operator: component.operator.value,
-          value: component.value
+          value: component.type === "multipleMember" ? JSON.stringify(component.value) : component.value,
+          type: component.type
         });
       }
 

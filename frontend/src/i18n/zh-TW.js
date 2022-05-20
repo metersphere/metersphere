@@ -529,7 +529,7 @@ export default {
     issue_severity: '嚴重程度',
     create: '創建字段',
     update: '更新字段',
-    name: '自定義字段',
+    name: '模版字段',
     system_field: '系統字段',
     scene: '使用場景',
     attribute_type: '屬性類型',
