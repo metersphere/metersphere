@@ -506,7 +506,6 @@ export default {
     },
     handleGetTotalChart(res) {
       res = res.filter(v => !!v);
-      // console.log(res);
       for (let i = 0; i < res.length; i++) {
         if (i === 0) {
           this.baseOption.yAxis.push({

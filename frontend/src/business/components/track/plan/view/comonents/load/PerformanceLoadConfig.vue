@@ -654,7 +654,6 @@ export default {
         handler.options.xAxis.data = handler.options.xAxis.data.sort((a, b) => a - b);
         handler.options.series.push(seriesData);
       }
-      // console.log(JSON.stringify(handler.options));
     },
     validConfig() {
       if (!this.resourcePool) {

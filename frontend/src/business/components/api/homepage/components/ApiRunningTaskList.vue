@@ -163,9 +163,6 @@ export default {
   activated() {
     this.search();
   },
-  handleStatus(scope) {
-    // console.log(scope.row.userId)
-  }
   }
 </script>
 

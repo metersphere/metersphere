@@ -151,7 +151,6 @@ export default {
       this.$refs.deleteConfirm.open(row);
     },
     copy(row) {
-      // console.log(row);
     },
     setPermission(row) {
       this.$refs.editPermission.open(row);

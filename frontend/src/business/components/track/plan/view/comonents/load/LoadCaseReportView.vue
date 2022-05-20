@@ -334,20 +334,12 @@ export default {
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning'
       }).then(() => {
-        // this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
-        //   this.reportId = response.data;
-        //   this.$router.push({path: '/performance/report/view/' + this.reportId});
-        //   // 注册 socket
-        //   this.initWebSocket();
-        // })
       }).catch(() => {
       });
     },
     onOpen() {
-      // window.console.log("socket opening.");
     },
     onError(e) {
-      // window.console.error(e)
     },
     onMessage(e) {
       this.$set(this.report, "refresh", e.data); // 触发刷新
@@ -359,7 +351,6 @@ export default {
       this.$set(this.report, "status", 'Running');
       this.status = 'Running';
       this.initReportTimeInfo();
-      // window.console.log('receive a message:', e.data);
     },
     onClose(e) {
       if (e.code === 1005) {
@@ -369,7 +360,6 @@ export default {
       this.$set(this.report, "refresh", Math.random()); // 触发刷新
       this.$set(this.report, "status", 'Completed');
       this.initReportTimeInfo();
-      // window.console.log("socket closed.");
     },
     handleExport(name) {
       this.result.loading = true;

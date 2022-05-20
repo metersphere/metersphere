@@ -273,7 +273,6 @@ export default {
     handleAddTask(index, data) {
 
       if (data.event && data.userIds.length > 0 && data.type) {
-        // console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT' || data.type === 'LARK') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
