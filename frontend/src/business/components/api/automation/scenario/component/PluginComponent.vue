@@ -243,6 +243,7 @@ export default {
   },
   watch: {
     message() {
+      this.forStatus();
       this.reload();
     },
     'request.hashTree'() {
@@ -398,6 +399,30 @@ export default {
             this.request.plugin_del = true;
           }
         });
+      }
+    },
+    forStatus() {
+      this.reqSuccess = true;
+      if (this.request.result && this.request.result.length > 0) {
+        this.request.result.forEach(item => {
+          item.requestResult.forEach(req => {
+            if (!req.success) {
+              this.reqSuccess = req.success;
+            }
+          })
+        })
+      } else if (this.request.requestResult && this.request.requestResult.length > 1) {
+        this.request.requestResult.forEach(item => {
+          if (!item.success) {
+            this.reqSuccess = item.success;
+            if (this.node && this.node.parent && this.node.parent.data) {
+              this.node.parent.data.code = 'error';
+            }
+          }
+        })
+      }
+      if (this.request.requestResult && this.request.requestResult.length > 0) {
+        this.response = this.request.requestResult[0];
       }
     },
     reload() {
