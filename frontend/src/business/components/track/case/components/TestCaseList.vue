@@ -333,7 +333,7 @@ export default {
       condition: {
         components: TEST_CASE_CONFIGS,
         filters: {},
-        custom: true,
+        custom: false,
       },
       versionFilters: [],
       graphData: {},
@@ -633,7 +633,7 @@ export default {
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields, this.members);
         // todo 处理高级搜索自定义字段部分
-        let comp = getAdvSearchCustomField(this.condition.components, this.testCaseTemplate.customFields);
+        let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
         this.condition.components.push(...comp);
         this.setTestCaseDefaultValue(template);
         this.typeArr = [];

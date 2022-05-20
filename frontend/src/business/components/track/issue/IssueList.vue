@@ -198,7 +198,7 @@ export default {
     return {
       page: getPageInfo({
         components: TEST_TRACK_ISSUE_LIST,
-        custom: true,
+        custom: false,
       }),
       fields: [],
       tableHeaderKey:"ISSUE_LIST",
@@ -293,7 +293,7 @@ export default {
       }
       // 过滤自定义字段
       this.page.condition.components = this.page.condition.components.filter(item => item.custom !== true);
-      let comp = getAdvSearchCustomField(this.page.condition.components, this.issueTemplate.customFields);
+      let comp = getAdvSearchCustomField(this.page.condition, this.issueTemplate.customFields);
       this.page.condition.components.push(...comp);
       if (this.$refs.table) this.$refs.table.reloadTable();
     },

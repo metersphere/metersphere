@@ -1,10 +1,14 @@
 import {OPERATORS} from "@/business/components/common/components/search/search-components";
 
-export function getAdvSearchCustomField(componentArr, fields) {
+export function getAdvSearchCustomField(condition, fields) {
+  let componentArr = condition.components;
   const components = [];
   for (let field of fields) {
     let index = componentArr.findIndex(a => a.key === field.id);
     if (index > -1) {
+      continue;
+    }
+    if (field.id === 'platformStatus') {
       continue;
     }
     const componentType = getComponentName(field.type);
@@ -14,12 +18,23 @@ export function getAdvSearchCustomField(componentArr, fields) {
       label: field.name,
       operator: getComponentOperator(componentType, field.type, false), // 自定义字段可以异步获取选项？
       options: getComponentOptions(field),
-      custom: true,
+      custom: !field.system,
+      type: field.type
+    }
+    // 自定义字段中有"系统字段"属性为否的，记录为含有自定义字段
+    if (!field.system && !condition.custom) {
+      condition.custom = true;
     }
     // 作为搜索条件时，可以多选
     if (componentType === 'MsTableSearchSelect') {
       component['props'] = {
         multiple: true
+      }
+    }
+    //
+    if (component.type === 'member' || component.type === 'multipleMember') {
+      component['isShow']= operator => {
+        return operator !== OPERATORS.CURRENT_USER.value;
       }
     }
     components.push(component);

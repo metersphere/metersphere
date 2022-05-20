@@ -82,10 +82,16 @@
             <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
                 and test_case.id in (
                     select resource_id from custom_field_test_case where field_id = #{custom.id}
-                    and trim(both '"' from value)
-                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
-                        <property name="object" value="custom"/>
-                    </include>)
+                    <if test="custom.type == 'multipleMember'">
+                        and `value` = #{custom.value}
+                    </if>
+                    <if test="custom.type != 'multipleMember'">
+                        and trim(both '"' from value)
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </if>
+                    )
             </foreach>
         </if>
     </sql>
