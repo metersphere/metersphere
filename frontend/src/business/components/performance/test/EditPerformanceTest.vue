@@ -207,10 +207,7 @@ export default {
     },
     importAPITest() {
       let apiTest = this.$store.state.test;
-      console.log("输出vuex的test");
-      console.log(apiTest);
       if (apiTest && apiTest.name) {
-        console.log("set test name");
         this.$set(this.test, "name", apiTest.name);
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
@@ -247,10 +244,7 @@ export default {
         this.$store.commit("clearTest");
       } else {
         let scenarioJmxs = this.$store.state.scenarioJmxs;
-        console.log("输出vuex的scenarioJmxs");
-        console.log(scenarioJmxs);
         if (scenarioJmxs && scenarioJmxs.name) {
-          console.log("set scenarioJmxs name");
           this.$set(this.test, "name", scenarioJmxs.name);
           let relateApiList = [];
           if (scenarioJmxs.jmxs) {

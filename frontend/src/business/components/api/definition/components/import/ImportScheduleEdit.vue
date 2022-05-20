@@ -125,9 +125,7 @@ export default {
     open(param) {
       this.$post("/api/definition/getResourceId", param, response => {
         this.paramSwaggerUrlId = response.data
-        if (this.paramSwaggerUrlId === "" || this.paramSwaggerUrlId === null || this.paramSwaggerUrlId === undefined) {
-          console.log(this.paramSwaggerUrlId)
-        } else {
+        if (this.paramSwaggerUrlId ) {
           this.findSchedule(this.paramSwaggerUrlId);
 
         }

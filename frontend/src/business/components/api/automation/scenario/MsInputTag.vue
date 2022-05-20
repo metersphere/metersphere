@@ -83,9 +83,7 @@ export default {
   },
   methods: {
     foucusTagInput() {
-      if (this.readOnly || !this.$el.querySelector('.tag-input')) {
-        console.log()
-      } else {
+      if (!this.readOnly && this.$el.querySelector('.tag-input')) {
         this.$el.querySelector('.tag-input').focus()
       }
     },

@@ -361,8 +361,6 @@ export default{
         this.oldColor = "rgb(241,200,196,0.45)"
         this.newColor = "rgb(121, 225, 153,0.3)";
       }
-      console.log(this.$refs.old)
-      console.log(this.$refs.new)
       diff(oldVnode,vnode,this.oldColor,this.newColor);
       this.isReloadData = false
     },

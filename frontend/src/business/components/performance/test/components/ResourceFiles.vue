@@ -197,7 +197,6 @@ export default {
       this.currentRow = row;
     },
     handleDelete(row) {
-      console.log(row);
       this.$confirm(this.$t('project.file_delete_tip', [row.name]), '', {
         confirmButtonText: this.$t('commons.confirm'),
         cancelButtonText: this.$t('commons.cancel'),
