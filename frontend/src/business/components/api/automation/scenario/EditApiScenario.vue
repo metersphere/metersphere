@@ -1790,9 +1790,6 @@ export default {
     },
     async setParameter() {
       this.initParameter();
-      let definition = JSON.parse(JSON.stringify(this.currentScenario));
-      definition.hashTree = this.scenarioDefinition;
-      await this.getEnv(JSON.stringify(definition));
       // 保存时同步所需要的项目环境
       savePreciseEnvProjectIds(this.projectIds, this.projectEnvMap);
     },
