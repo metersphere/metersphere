@@ -46,15 +46,17 @@ public class KafkaListenerTask implements Runnable {
     @Override
     public void run() {
         try {
-            LoggerUtil.info("进入KAFKA消费，接收到执行结果开始存储：" + records.size());
             // 分三类存储
             Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
             List<ResultDTO> resultDTOS = new LinkedList<>();
 
             records.forEach(record -> {
                 ResultDTO testResult = this.formatResult(record.value());
+
+                LoggerUtil.info("KAFKA消费结果处理：【" + testResult.getReportId() + "】", testResult.getArbitraryData() != null ? testResult.getArbitraryData().get("TEST_END") : false);
                 if (testResult != null) {
-                    if (testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END") && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
+                    if (testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END")
+                            && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
                         resultDTOS.add(testResult);
                     }
                     // 携带结果
