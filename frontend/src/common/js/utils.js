@@ -371,7 +371,6 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
 
 export function handleCtrlSEvent(event, func) {
   if (event.keyCode === 83 && event.ctrlKey) {
-    // console.log('拦截到 ctrl + s');//ctrl+s
     func();
     event.preventDefault();
     event.returnValue = false;

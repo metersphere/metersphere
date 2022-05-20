@@ -321,7 +321,6 @@ export default {
     },
     onOpen() {
       this.refresh();
-      // window.console.log("socket opening.");
     },
     onError(e) {
       // window.console.error(e)
@@ -336,7 +335,6 @@ export default {
       this.$set(this.report, "status", 'Running');
       this.status = 'Running';
       this.initReportTimeInfo();
-      // window.console.log('receive a message:', e.data);
     },
     onClose(e) {
       if (e.code === 1005) {
@@ -346,7 +344,6 @@ export default {
       this.$set(this.report, "refresh", Math.random()); // 触发刷新
       this.$set(this.report, "status", 'Completed');
       this.initReportTimeInfo();
-      // window.console.log("socket closed.");
     },
     handleExport(name) {
       this.result.loading = true;
@@ -522,7 +519,6 @@ export default {
           this.initReportTimeInfo();
         });
       } else {
-        // console.log("close socket.");
         this.websocket.close(); //离开路由之后断开websocket连接
       }
     },

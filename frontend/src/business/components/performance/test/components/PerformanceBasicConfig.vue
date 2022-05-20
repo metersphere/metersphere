@@ -355,7 +355,6 @@ export default {
       this.$refs.existScenarios.selectIds.add(scenarioId);
     },
     importCase(caseObj) {
-      console.log("case: ", caseObj);
       let suffixIndex = caseObj.name.lastIndexOf(".jmx");
       let jmxName = caseObj.name.substring(0, suffixIndex) + "_" + new Date().getTime() + ".jmx";
       let threadGroups = findThreadGroup(caseObj.xml, jmxName);
