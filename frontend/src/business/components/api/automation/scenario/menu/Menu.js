@@ -147,7 +147,7 @@ export function buttons(this_) {
 }
 export function setNode(_this,node) {
   if(_this.selectedTreeNode !== undefined){
-    if(_this.stepFilter.get("AllSamplerProxy").indexOf(_this.selectedTreeNode.type) !== -1){
+    if(_this.stepFilter.get("SpecialSteps").indexOf(_this.selectedTreeNode.type) !== -1){
       _this.scenarioDefinition.splice(_this.selectedTreeNode.index,0,node);
       _this.$store.state.forceRerenderIndex = getUUID();
     }else{

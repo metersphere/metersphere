@@ -1171,7 +1171,7 @@ export default {
       } else {
         this.operatingElements = [];
       }
-      if ((!this.operatingElements && this.stepFilter)|| this.stepFilter.get("AllSamplerProxy").indexOf(data.type) !== -1) {
+      if ((!this.operatingElements && this.stepFilter)|| this.stepFilter.get("SpecialSteps").indexOf(data.type) !== -1) {
         this.operatingElements = this.stepFilter.get("ALL");
       }
       this.selectedTreeNode = data;
@@ -1242,7 +1242,7 @@ export default {
       this.customizeVisible = false;
       request.enable === undefined ? request.enable = true : request.enable;
       if(this.selectedTreeNode !== undefined){
-        if(this.stepFilter.get("AllSamplerProxy").indexOf(this.selectedTreeNode.type) !== -1){
+        if(this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1){
           this.scenarioDefinition.splice(this.selectedTreeNode.index,0,request);
           this.$store.state.forceRerenderIndex = getUUID();
         }else{
@@ -1270,7 +1270,7 @@ export default {
           item.enable === undefined ? item.enable = true : item.enable;
           item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
           if(this.selectedTreeNode !== undefined){
-            if(this.stepFilter.get("AllSamplerProxy").indexOf(this.selectedTreeNode.type) !== -1){
+            if(this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1){
               this.scenarioDefinition.splice(this.selectedTreeNode.index,0,item);
               this.$store.state.forceRerenderIndex = getUUID();
             }else{
@@ -1322,7 +1322,7 @@ export default {
         this.recursiveSorting(request.hashTree);
       }
       if(this.selectedTreeNode !== undefined){
-        if(this.stepFilter.get("AllSamplerProxy").indexOf(this.selectedTreeNode.type) !== -1){
+        if(this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1){
           this.scenarioDefinition.splice(this.selectedTreeNode.index,0,request);
           this.$store.state.forceRerenderIndex = getUUID();
         }else{
