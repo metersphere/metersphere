@@ -128,7 +128,7 @@
         a_r.name,
         a_r.id,
         a_r.project_id,
-        a_r.create_time,
+        a_r.create_time as create_time,
         a_r.create_time as update_time,
         a_r.status,
         a_r.trigger_mode,

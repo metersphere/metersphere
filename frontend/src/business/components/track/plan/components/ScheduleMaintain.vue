@@ -221,8 +221,7 @@ export default {
         reportType: "iddReport",
         onSampleError: false,
         runWithinResourcePool: false,
-        resourcePoolId: null,
-        environmentType: ENV_TYPE.JSON
+        resourcePoolId: null
       },
       projectList: [],
       testType: 'API',
@@ -311,7 +310,6 @@ export default {
       listenGoBack(this.close);
       this.activeName = 'first';
       this.getResourcePools();
-      this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {
       let scheduleResourceID = this.testId;
@@ -321,6 +319,9 @@ export default {
           this.schedule = response.data;
           if (response.data.config) {
             this.runConfig = JSON.parse(response.data.config);
+            if (this.runConfig.environmentType) {
+              delete this.runConfig.environmentType;
+            }
           }
         } else {
           this.schedule = {
