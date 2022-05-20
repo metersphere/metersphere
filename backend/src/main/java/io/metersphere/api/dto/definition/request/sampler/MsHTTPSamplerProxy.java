@@ -188,7 +188,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         setSamplerPath(config, httpConfig, sampler);
 
         // 请求体处理
-        if (this.body != null && !StringUtils.equalsAnyIgnoreCase(method, "GET")) {
+        if (this.body != null) {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
             if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
                 AtomicBoolean kvIsEmpty = new AtomicBoolean(true);
@@ -512,11 +512,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProperty("HTTPSampler.path", envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    if (StringUtils.equalsIgnoreCase(this.getMethod(), "GET")) {
-                        getQueryParameters(sampler);
-                    } else {
-                        sampler.setProperty("HTTPSampler.path", postQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
-                    }
+                    sampler.setProperty("HTTPSampler.path", postQueryParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8")));
                 }
             }
         } catch (Exception e) {
@@ -694,28 +690,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                            try {
-                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                                if (keyValue.getValue() == null) {
-                                    httpArgument.setValue("");
-                                }
-                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                                    httpArgument.setContentType(keyValue.getContentType());
-                                }
-                                if (StringUtils.equalsIgnoreCase(this.method, "get")) {
-                                    if (StringUtils.isNotEmpty(httpArgument.getValue())) {
-                                        arguments.addArgument(httpArgument);
-                                    }
-                                } else {
-                                    arguments.addArgument(httpArgument);
-                                }
-                            } catch (Exception e) {
-
-                            }
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
                         }
-                );
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        if (StringUtils.equalsIgnoreCase(this.method, "get")) {
+                            if (StringUtils.isNotEmpty(httpArgument.getValue())) {
+                                arguments.addArgument(httpArgument);
+                            }
+                        } else {
+                            arguments.addArgument(httpArgument);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+        );
         return arguments;
     }
 
