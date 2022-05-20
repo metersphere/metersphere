@@ -672,7 +672,7 @@ export default {
       return value ? value : '';
     },
     getCustomFieldFilter(field) {
-      return !Array.isArray(field.options) ?
+      return Array.isArray(field.options) ?
         (field.options.length > 0 ? field.options : null) : null;
     },
     checkRedirectEditPage(redirectParam) {
