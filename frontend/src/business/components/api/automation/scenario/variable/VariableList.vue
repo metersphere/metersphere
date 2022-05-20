@@ -368,6 +368,9 @@ export default {
       this.editData = {delimiter: ",", quotedData: 'false', files: []};
       this.editData.type = this.selectType;
       this.showDelete = false;
+      if (this.editData.type === 'CSV') {
+        this.$refs.csv.cleanPreview();
+      }
       this.$refs.variableTable.cancelCurrentRow();
     },
     confirmVariable() {
