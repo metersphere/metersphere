@@ -59,7 +59,7 @@
       </div>
       <div class="split"></div>
       <!-- 场景统计 -->
-      <div style="width: 50%">
+      <div style="width: 50%" v-if="report">
         <el-row type="flex" justify="center" align="middle" v-if="report.reportType !== 'API_INTEGRATED'">
           <div class="metric-box">
             <div class="value">{{ content.scenarioTotal ? content.scenarioTotal : 0 }}</div>
