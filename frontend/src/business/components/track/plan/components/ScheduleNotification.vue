@@ -176,7 +176,6 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/' + this.testId, response => {
-        // console.log(response.data);
         this.scheduleTask = response.data;
       });
     },
