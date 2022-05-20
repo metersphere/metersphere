@@ -1926,8 +1926,6 @@ public class TestCaseService {
 
             String lastAddId = null;
 
-            String lastAddId = null;
-
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                     item.setNodeId("");
