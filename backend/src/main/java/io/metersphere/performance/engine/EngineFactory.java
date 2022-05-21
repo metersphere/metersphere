@@ -16,7 +16,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
-import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.KubernetesTestEngine;
 import io.metersphere.service.TestResourcePoolService;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class EngineFactory {
     private static FileService fileService;
-    private static PerformanceTestService performanceTestService;
+    private static PerformanceReportService performanceReportService;
     private static TestResourcePoolService testResourcePoolService;
 
     public static Class<? extends KubernetesTestEngine> getKubernetesTestEngineClass() {
@@ -94,10 +94,10 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestReportWithBLOBs loadTestReport, double[] ratios, String reportId, int resourceIndex) {
-        final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTestReport.getTestId());
-        if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
-            MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTestReport.getTestId());
+    public static EngineContext createContext(LoadTestReportWithBLOBs loadTestReport, double[] ratios, int resourceIndex) {
+        final List<FileMetadata> fileMetadataList = performanceReportService.getFileMetadataByReportId(loadTestReport.getId());
+        if (CollectionUtils.isEmpty(fileMetadataList)) {
+            MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTestReport.getId());
         }
         // 报告页面点击下载执行zip
         boolean isLocal = false;
@@ -116,7 +116,7 @@ public class EngineFactory {
         engineContext.setNamespace(loadTestReport.getProjectId());
         engineContext.setFileType(FileType.JMX.name());
         engineContext.setResourcePoolId(loadTestReport.getTestResourcePoolId());
-        engineContext.setReportId(reportId);
+        engineContext.setReportId(loadTestReport.getId());
         engineContext.setResourceIndex(resourceIndex);
         engineContext.setRatios(ratios);
 
@@ -379,7 +379,7 @@ public class EngineFactory {
     }
 
     @Resource
-    public void setPerformanceTestService(PerformanceTestService performanceTestService) {
-        EngineFactory.performanceTestService = performanceTestService;
+    public void setPerformanceReportService(PerformanceReportService performanceReportService) {
+        EngineFactory.performanceReportService = performanceReportService;
     }
 }
