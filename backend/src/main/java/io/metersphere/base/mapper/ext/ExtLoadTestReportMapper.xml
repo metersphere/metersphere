@@ -194,4 +194,11 @@
           and report_value = #{preStatus,jdbcType=VARCHAR}
     </update>
 
+    <select id="getFileMetadataById" resultType="io.metersphere.base.domain.FileMetadata">
+        SELECT file_metadata.*
+        FROM load_test_report_file
+        JOIN file_metadata ON file_id = file_metadata.id
+        WHERE report_id = #{reportId}
+        ORDER BY sort
+    </select>
 </mapper>
