@@ -537,4 +537,8 @@ public class PerformanceReportService {
         request.setIds(ids);
         deleteReportBatch(request);
     }
+
+    public List<FileMetadata> getFileMetadataByReportId(String reportId) {
+        return extLoadTestReportMapper.getFileMetadataById(reportId);
+    }
 }
