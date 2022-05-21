@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.performance.dto.ZipDTO;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.engine.EngineFactory;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class JmeterFileService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
 
-    public byte[] downloadZip(String reportId, double[] ratios, int resourceIndex) {
+    public ZipDTO downloadZip(String reportId, double[] ratios, int resourceIndex) {
         try {
             LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
             int wait = 0;
@@ -43,8 +44,9 @@ public class JmeterFileService {
             if (loadTestReport == null) {
                 MSException.throwException("测试报告不存在或还没产生");
             }
-            EngineContext context = EngineFactory.createContext(loadTestReport, ratios, reportId, resourceIndex);
-            return zipFilesToByteArray(context);
+            EngineContext context = EngineFactory.createContext(loadTestReport, ratios, resourceIndex);
+            byte[] bytes = zipFilesToByteArray(context);
+            return new ZipDTO(loadTestReport.getTestId(), bytes);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
