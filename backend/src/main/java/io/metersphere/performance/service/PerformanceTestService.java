@@ -130,6 +130,8 @@ public class PerformanceTestService {
     private ExtProjectVersionMapper extProjectVersionMapper;
     @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private LoadTestReportFileMapper loadTestReportFileMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -509,12 +511,14 @@ public class PerformanceTestService {
             reportResult.setReportValue("Ready"); // 初始化一个 result_status, 这个值用在data-streaming中
             loadTestReportResultMapper.insertSelective(reportResult);
             // 保存标记
-            LoadTestReportResult  rr = new LoadTestReportResult();
+            LoadTestReportResult rr = new LoadTestReportResult();
             rr.setId(UUID.randomUUID().toString());
             rr.setReportId(testReport.getId());
             rr.setReportKey(ReportKeys.VumProcessedStatus.name());
             rr.setReportValue(VumProcessedStatus.NOT_PROCESSED); // 避免测试运行出错时，对报告重复处理vum_used值
             loadTestReportResultMapper.insertSelective(rr);
+            // 保存执行当时的file
+            saveLoadTestReportFiles(testReport);
             // 检查配额
             this.checkLoadQuota(testReport, engine);
             return testReport.getId();
@@ -530,6 +534,19 @@ public class PerformanceTestService {
             loadTestReportMapper.deleteByPrimaryKey(testReport.getId());
             throw e;
         }
+    }
+
+    private void saveLoadTestReportFiles(LoadTestReport report) {
+        LoadTestFileExample example = new LoadTestFileExample();
+        example.createCriteria().andTestIdEqualTo(report.getTestId());
+        List<LoadTestFile> files = loadTestFileMapper.selectByExample(example);
+        files.forEach(f -> {
+            LoadTestReportFile record = new LoadTestReportFile();
+            record.setFileId(f.getFileId());
+            record.setSort(f.getSort());
+            record.setReportId(report.getId());
+            loadTestReportFileMapper.insert(record);
+        });
     }
 
     private void checkLoadQuota(LoadTestReportWithBLOBs testReport, Engine engine) {
