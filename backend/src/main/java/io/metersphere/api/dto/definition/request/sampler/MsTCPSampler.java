@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
+import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.parse.JMeterScriptUtil;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
@@ -119,6 +120,29 @@ public class MsTCPSampler extends MsTestElement {
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
+
+        //检查request
+        if (StringUtils.isNotEmpty(reportType)) {
+            switch (reportType) {
+                case "json":
+                    if(StringUtils.isNotEmpty(this.jsonDataStruct)){
+                        request = this.jsonDataStruct;
+                    }
+                    break;
+                case "xml":
+                    if(CollectionUtils.isNotEmpty(this.xmlDataStruct)){
+                        request = TcpTreeTableDataParser.treeTableData2Xml(this.xmlDataStruct);
+                    }
+                    break;
+                case "raw":
+                    if(StringUtils.isNotEmpty(this.rawDataStruct)){
+                        request = this.rawDataStruct;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
