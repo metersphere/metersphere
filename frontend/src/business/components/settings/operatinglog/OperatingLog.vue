@@ -32,7 +32,7 @@
                     size="small"
                     highlight-first-item
                     value-key="email"
-                    @select="handleSelect" style="width: 100%">
+                    @select="handleSelect" style="width: 95%">
                     <template v-slot:default="scope">
                       <span class="ws-member-name">{{ scope.item.name }}</span>
                       <span class="ws-member-email">{{ scope.item.email }}</span>
@@ -41,9 +41,19 @@
                 </el-form-item>
               </el-col>
 
-              <el-col :span="8">
+              <el-col :span="8" v-if="isSystem">
+                <el-form-item :label="$t('commons.workspace')" prop="workspace">
+                  <el-select size="small" v-model="condition.workspaceId" @change="initTableData" clearable
+                             style="width: 100%">
+                    <el-option v-for="o in workspaceList" :key="o.id" :label="$t(o.label)" :value="o.id"/>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="8" v-if="!isSystem">
                 <el-form-item :label="$t('commons.project')" prop="project">
-                  <el-select size="small" v-model="condition.projectId" @change="initTableData" clearable style="width: 100%">
+                  <el-select size="small" v-model="condition.projectId" @change="initTableData" clearable
+                             style="width: 100%">
                     <el-option v-for="o in items" :key="o.id" :label="$t(o.label)" :value="o.id"/>
                   </el-select>
                 </el-form-item>
@@ -67,7 +77,7 @@
                                :placeholder="$t('operating_log.object')"
                                :props="props"
                                class="ms-case"
-                               @change="initTableData" ref="cascade" style="width: 100%"/>
+                               @change="initTableData" ref="cascade" style="width: 95%"/>
                 </el-form-item>
               </el-col>
 
@@ -92,7 +102,8 @@
             <span>{{ scope.row.operTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="userName" :label="$t('operating_log.user')"/>
+        <el-table-column width='100px' prop="userName" :label="$t('operating_log.user')"/>
+        <el-table-column prop="workspaceName" :label="$t('commons.workspace')" v-if="isSystem"/>
         <el-table-column prop="projectName" :label="$t('commons.project')"/>
         <el-table-column prop="operType" :label="$t('operating_log.type')" width="100px">
           <template v-slot:default="scope">
@@ -129,7 +140,7 @@
 <script>
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableOperator from "../../common/components/MsTableOperator";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST, WORKSYSLIST} from "./config";
 import MsLogDetail from "./LogDetail";
 
@@ -149,6 +160,8 @@ export default {
         pageSize: 10,
         total: 0,
         items: [],
+        workspaceList: [],
+        isSystem: false,
         condition: {
           times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()],
         },
@@ -165,7 +178,7 @@ export default {
     mounted() {
       switch (this.$route.name) {
         case "system":
-          this.initProject("/project/listAll");
+          this.getWorkSpaceList();
           this.getMember();
           break;
         case "organization":
@@ -186,7 +199,7 @@ export default {
       '$route'(to, from) {
         switch (to.name) {
           case "system":
-            this.initProject("/project/listAll");
+            this.getWorkSpaceList();
             this.getMember();
             break;
           case "organization":
@@ -206,9 +219,12 @@ export default {
       '$route.path': {
         handler(toPath, fromPath) {
           if (toPath === '/setting/operatingLog/workspace') {
+            this.isSystem = false;
             this.sysList = new WORKSYSLIST();
             this.condition.workspaceId = getCurrentWorkspaceId();
           } else {
+            this.getWorkSpaceList();
+            this.isSystem = true;
             this.sysList = new SYSLIST();
             this.condition.workspaceId = '';
           }
@@ -217,17 +233,17 @@ export default {
         immediate: true
       },
     },
-    methods: {
-      isLink(row) {
-        let uri = getUrl(row, this);
-        if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
-          return true;
-        }
-        return false;
-      },
-      clickResource(resource) {
-        let uri = getUrl(resource, this);
-        if (!resource.sourceId) {
+  methods: {
+    isLink(row) {
+      let uri = getUrl(row, this);
+      if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
+        return true;
+      }
+      return false;
+    },
+    clickResource(resource) {
+      let uri = getUrl(resource, this);
+      if (!resource.sourceId) {
             this.toPage(uri);
         }
         let operModule = resource.operModule;
@@ -282,6 +298,11 @@ export default {
         if (this.condition.operModules && this.condition.operModules.length > 0) {
           this.condition.operModule = this.condition.operModules[1];
         }
+        if (this.isSystem) {
+          this.condition.projectIds = [];
+        } else {
+          this.condition.workspaceIds = [];
+        }
         let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
         this.loading = true;
         this.$post(url, this.condition, response => {
@@ -291,21 +312,37 @@ export default {
         })
 
       },
-      reset() {
-        let projectIds = this.condition.projectIds;
-        this.condition = {projectIds: projectIds};
+    reset() {
+      let projectIds = this.condition.projectIds;
+      this.condition = {projectIds: projectIds};
+      this.initTableData();
+    },
+    getWorkSpaceList() {
+      this.$get("/workspace/list/userworkspace/" + encodeURIComponent(getCurrentUserId()), response => {
+        let workspaceList = response.data;
+        let workspaceIds = [];
+        if (workspaceList) {
+          this.workspaceList = [];
+          workspaceList.forEach(item => {
+            let data = {id: item.id, label: item.name};
+            this.workspaceList.push(data);
+            workspaceIds.push(item.id);
+          })
+        }
+        this.condition.workspaceIds = workspaceIds;
         this.initTableData();
-      },
-      initProject(url) {
-        this.result = this.$get(url, response => {
-          let projects = response.data;
-          let projectIds = [];
-          if (projects) {
-            this.items = [];
-            projects.forEach(item => {
-              let data = {id: item.id, label: item.name};
-              this.items.push(data);
-              projectIds.push(item.id);
+      });
+    },
+    initProject(url) {
+      this.result = this.$get(url, response => {
+        let projects = response.data;
+        let projectIds = [];
+        if (projects) {
+          this.items = [];
+          projects.forEach(item => {
+            let data = {id: item.id, label: item.name};
+            this.items.push(data);
+            projectIds.push(item.id);
             })
           }
           this.condition.projectIds = projectIds;

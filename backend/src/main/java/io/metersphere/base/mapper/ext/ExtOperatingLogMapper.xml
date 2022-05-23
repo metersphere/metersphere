@@ -13,7 +13,9 @@
         t.oper_title,
         t.oper_time,
         t1.NAME userName,
-        t2.`name` projectName
+        t2.`name` projectName ,
+        t2.workspace_id workspace_id ,
+        w.name workspaceName
         FROM
         operating_log t
         LEFT JOIN `user` t1 ON t.oper_user = t1.id
@@ -28,6 +30,12 @@
                     #{projectId}
                 </foreach>
             </if>
+            <if test="request.workspaceIds != null and request.workspaceIds.size > 0 ">
+                t2.workspace_id in
+                <foreach collection="request.workspaceIds" item="workspaceId" separator="," open="(" close=")">
+                    #{workspaceId}
+                </foreach>
+            </if>
             <if test="request.workspaceId == ''">
                 or t.project_id is null
                 or t.project_id = ""
@@ -39,6 +47,9 @@
             </if>
             <if test="request.projectId != null and request.projectId !=''">
                 and t.project_id = #{request.projectId}
+            </if>
+            <if test="request.workspaceId != null and request.workspaceId !=''">
+                and t2.workspace_id = #{request.workspaceId}
             </if>
             <if test="request.operType != null and request.operType != ''">
                 and t.oper_type like #{request.operType, jdbcType=VARCHAR}
