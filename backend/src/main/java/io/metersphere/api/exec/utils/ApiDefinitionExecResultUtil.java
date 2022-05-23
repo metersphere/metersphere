@@ -43,7 +43,7 @@ public class ApiDefinitionExecResultUtil {
         return apiResult;
     }
 
-    public static ApiDefinitionExecResultWithBLOBs addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status,
+    public static ApiDefinitionExecResultWithBLOBs addResult(BatchRunDefinitionRequest request, RunModeConfigDTO runModeConfigDTO, TestPlanApiCase key, String status,
                                                              Map<String, ApiTestCase> caseMap, String poolId) {
         ApiDefinitionExecResultWithBLOBs apiResult = new ApiDefinitionExecResultWithBLOBs();
         apiResult.setId(UUID.randomUUID().toString());
@@ -75,7 +75,7 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setType(ApiRunMode.API_PLAN.name());
         apiResult.setStatus(status);
         apiResult.setContent(request.getPlanReportId());
-        apiResult.setEnvConfig(JSON.toJSONString(request.getConfig()));
+        apiResult.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
 
         return apiResult;
     }

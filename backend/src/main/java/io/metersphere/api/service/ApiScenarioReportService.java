@@ -155,13 +155,14 @@ public class ApiScenarioReportService {
      * @return
      */
     public APIScenarioReportResult getApiIntegrated(String reportId) {
-        ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
+        ApiDefinitionExecResultWithBLOBs result = definitionExecResultMapper.selectByPrimaryKey(reportId);
         if (result != null) {
             APIScenarioReportResult reportResult = new APIScenarioReportResult();
             BeanUtils.copyBean(reportResult, result);
             reportResult.setReportVersion(2);
             reportResult.setTestId(reportId);
             ApiScenarioReportDTO dto = apiScenarioReportStructureService.apiIntegratedReport(reportId);
+            apiScenarioReportStructureService.initProjectEnvironmentByEnvConfig(dto, result.getEnvConfig());
             reportResult.setContent(JSON.toJSONString(dto));
             return reportResult;
         }

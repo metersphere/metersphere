@@ -19,6 +19,9 @@
     <result column="components" jdbcType="VARCHAR" property="components" />
     <result column="is_new" jdbcType="BIT" property="isNew" />
   </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanReport">
+    <result column="run_info" jdbcType="LONGVARCHAR" property="runInfo" />
+  </resultMap>
   <sql id="Example_Where_Clause">
     <where>
       <foreach collection="oredCriteria" item="criteria" separator="or">
@@ -82,6 +85,25 @@
     start_time, end_time, is_api_case_executing, is_scenario_executing, is_performance_executing, 
     principal, components, is_new
   </sql>
+  <sql id="Blob_Column_List">
+    run_info
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanReportExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from test_plan_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestPlanReportExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -96,9 +118,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from test_plan_report
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -118,13 +142,13 @@
       trigger_mode, creator, start_time, 
       end_time, is_api_case_executing, is_scenario_executing, 
       is_performance_executing, principal, components, 
-      is_new)
+      is_new, run_info)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{triggerMode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{isApiCaseExecuting,jdbcType=BIT}, #{isScenarioExecuting,jdbcType=BIT}, 
       #{isPerformanceExecuting,jdbcType=BIT}, #{principal,jdbcType=VARCHAR}, #{components,jdbcType=VARCHAR}, 
-      #{isNew,jdbcType=BIT})
+      #{isNew,jdbcType=BIT}, #{runInfo,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReport">
     insert into test_plan_report
@@ -177,6 +201,9 @@
       <if test="isNew != null">
         is_new,
       </if>
+      <if test="runInfo != null">
+        run_info,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -227,6 +254,9 @@
       <if test="isNew != null">
         #{isNew,jdbcType=BIT},
       </if>
+      <if test="runInfo != null">
+        #{runInfo,jdbcType=LONGVARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.TestPlanReportExample" resultType="java.lang.Long">
@@ -235,7 +265,6 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
-
   <update id="updateByExampleSelective" parameterType="map">
     update test_plan_report
     <set>
@@ -287,7 +316,33 @@
       <if test="record.isNew != null">
         is_new = #{record.isNew,jdbcType=BIT},
       </if>
+      <if test="record.runInfo != null">
+        run_info = #{record.runInfo,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update test_plan_report
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT},
+      is_api_case_executing = #{record.isApiCaseExecuting,jdbcType=BIT},
+      is_scenario_executing = #{record.isScenarioExecuting,jdbcType=BIT},
+      is_performance_executing = #{record.isPerformanceExecuting,jdbcType=BIT},
+      principal = #{record.principal,jdbcType=VARCHAR},
+      components = #{record.components,jdbcType=VARCHAR},
+      is_new = #{record.isNew,jdbcType=BIT},
+      run_info = #{record.runInfo,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -362,7 +417,30 @@
       <if test="isNew != null">
         is_new = #{isNew,jdbcType=BIT},
       </if>
+      <if test="runInfo != null">
+        run_info = #{runInfo,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanReport">
+    update test_plan_report
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      `name` = #{name,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT},
+      is_api_case_executing = #{isApiCaseExecuting,jdbcType=BIT},
+      is_scenario_executing = #{isScenarioExecuting,jdbcType=BIT},
+      is_performance_executing = #{isPerformanceExecuting,jdbcType=BIT},
+      principal = #{principal,jdbcType=VARCHAR},
+      components = #{components,jdbcType=VARCHAR},
+      is_new = #{isNew,jdbcType=BIT},
+      run_info = #{runInfo,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanReport">

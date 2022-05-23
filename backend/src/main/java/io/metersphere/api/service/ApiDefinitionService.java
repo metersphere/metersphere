@@ -42,6 +42,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RelationshipEdgeDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -58,6 +59,7 @@ import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +154,8 @@ public class ApiDefinitionService {
     @Lazy
     @Resource
     private ApiModuleService apiModuleService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -1225,6 +1229,13 @@ public class ApiDefinitionService {
             result.setName(reportName);
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
+            if (StringUtils.isNotEmpty(request.getEnvironmentId())) {
+                RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
+                runModeConfigDTO.setEnvMap(new HashMap<>() {{
+                    this.put(request.getProjectId(), request.getEnvironmentId());
+                }});
+                result.setEnvConfig(JSONObject.toJSONString(runModeConfigDTO));
+            }
             apiDefinitionExecResultMapper.insert(result);
         }
         if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
@@ -1278,8 +1289,29 @@ public class ApiDefinitionService {
         }
         APIReportResult reportResult = new APIReportResult();
         reportResult.setStatus(result.getStatus());
-        reportResult.setContent(result.getContent());
+        if (StringUtils.isNotEmpty(result.getEnvConfig())) {
+            JSONObject content = JSONObject.parseObject(result.getContent());
+            content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+            reportResult.setContent(content.toJSONString());
+        } else {
+            reportResult.setContent(result.getContent());
+        }
         return reportResult;
+    }
+
+    public String getEnvNameByEnvConfig(String projectId, String envConfig) {
+        String envName = null;
+        RunModeConfigDTO runModeConfigDTO = null;
+        try {
+            runModeConfigDTO = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
+        } catch (Exception e) {
+            LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
+        }
+        if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
+            String envId = runModeConfigDTO.getEnvMap().get(projectId);
+            envName = apiTestEnvironmentService.selectNameById(envId);
+        }
+        return envName;
     }
 
     public APIReportResult getDbResult(String testId, String type) {

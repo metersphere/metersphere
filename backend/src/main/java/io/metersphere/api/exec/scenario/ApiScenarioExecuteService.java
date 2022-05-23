@@ -2,6 +2,7 @@ package io.metersphere.api.exec.scenario;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.RunModeConfigWithEnvironmentDTO;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
@@ -9,6 +10,7 @@ import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
@@ -16,7 +18,10 @@ import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
 import io.metersphere.api.service.TcpApiParamService;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiScenarioExample;
+import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
@@ -26,10 +31,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ReportTypeConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.MsExecResponseDTO;
@@ -85,6 +87,8 @@ public class ApiScenarioExecuteService {
     private ApiScenarioParallelService apiScenarioParallelService;
     @Resource
     private TcpApiParamService tcpApiParamService;
+    @Resource
+    private ApiCaseExecuteService apiCaseExecuteService;
     @Resource
     protected JMeterService jMeterService;
 
@@ -154,10 +158,18 @@ public class ApiScenarioExecuteService {
                 LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);
                 request.getConfig().setReportId(UUID.randomUUID().toString());
                 String reportScenarioIds = generateScenarioIds(scenarioIds);
-
+                if (request.getConfig() == null) {
+                    request.setConfig(new RunModeConfigWithEnvironmentDTO());
+                }
+                if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
+                    RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
+                    BeanUtils.copyBean(runModeConfig, request.getConfig());
+                    Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
+                    apiCaseExecuteService.setExecutionEnvironmen(runModeConfig, projectEnvMap);
+                    request.setConfig(runModeConfig);
+                }
                 APIScenarioReportResult report = getApiScenarioReportResult(request, serialReportId, scenarioNames, reportScenarioIds);
                 report.setVersionId(apiScenarios.get(0).getVersionId());
-
                 apiScenarioReportMapper.insert(report);
 
                 responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
@@ -206,7 +218,7 @@ public class ApiScenarioExecuteService {
     }
 
     protected APIScenarioReportResult getApiScenarioReportResult(RunScenarioRequest request, String serialReportId,
-                                                               StringBuilder scenarioNames, String reportScenarioIds) {
+                                                                 StringBuilder scenarioNames, String reportScenarioIds) {
         APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), reportScenarioIds,
                 scenarioNames.toString(), request.getTriggerMode(), ExecuteType.Saved.name(), request.getProjectId(),
                 request.getReportUserID(), request.getConfig());
@@ -303,7 +315,12 @@ public class ApiScenarioExecuteService {
             executeQueue.put(report.getId(), runModeDataDTO);
             scenarioNames.append(scenario.getName()).append(",");
             if (request.getConfig() != null) {
-                report.setEnvConfig(JSON.toJSONString(request.getConfig()));
+                RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
+                BeanUtils.copyBean(runModeConfig, request.getConfig());
+                if (MapUtils.isEmpty(runModeConfig.getEnvMap())) {
+                    apiCaseExecuteService.setRunModeConfigEnvironment(runModeConfig, planEnvMap);
+                }
+                report.setEnvConfig(JSON.toJSONString(runModeConfig));
             }
             // 生成文档结构
             if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
@@ -385,6 +402,12 @@ public class ApiScenarioExecuteService {
             MSException.throwException(e.getMessage());
         }
         if (request.isSaved()) {
+            //记录环境
+            RunModeConfigDTO runModeCconfig = request.getConfig();
+            if (runModeCconfig == null) {
+                runModeCconfig = new RunModeConfigDTO();
+                runModeCconfig.setEnvMap(map);
+            }
             APIScenarioReportResult report = apiScenarioReportService.init(request.getId(),
                     request.getScenarioId(),
                     request.getScenarioName(),
@@ -392,7 +415,7 @@ public class ApiScenarioExecuteService {
                     request.getExecuteType(),
                     request.getProjectId(),
                     SessionUtils.getUserId(),
-                    request.getConfig());
+                    runModeCconfig);
             ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getScenarioId());
             String reportType = request.getConfig() != null ? request.getConfig().getReportType() : null;
             if (scenario != null) {
