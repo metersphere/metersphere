@@ -557,7 +557,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     private void processBackendListener(Element backendListener) {
         String resourcePoolId = context.getResourcePoolId();
         TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
-        if (checkLicense() && !BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+        if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
             return;
         }
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
@@ -617,7 +617,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     private void processCheckoutBackendListener(Element element) {
         String resourcePoolId = context.getResourcePoolId();
         TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
-        if (checkLicense() && !BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+        if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
             return;
         }
         // 已经添加过不再重复添加
@@ -646,20 +646,6 @@ public class JmeterDocumentParser implements EngineSourceParser {
         listenerParent.addElement(HASH_TREE_ELEMENT);
         // 标记已经添加上
         context.setCheckBackendListener(true);
-    }
-
-    private boolean checkLicense() {
-        try {
-            ClassUtils.getClass("io.metersphere.xpack.license.service.LicenseService");
-            Object licenseService = CommonBeanFactory.getBean("licenseService");
-            Object result = MethodUtils.invokeMethod(licenseService, "valid");
-            Object status = MethodUtils.invokeMethod(result, "getStatus");
-            if (StringUtils.equalsIgnoreCase("VALID", status.toString())) {
-                return true;
-            }
-        } catch (Exception ignored) {
-        }
-        return false;
     }
 
     private void processThreadGroup(Element threadGroup) {
