@@ -396,6 +396,7 @@ import {
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
 import {hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {request} from "@/common/js/ajax";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -1621,6 +1622,8 @@ export default {
       if (this.currentScenario && this.currentScenario.id) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
           if (response.data) {
+            this.currentScenario.apiScenarioModuleId = response.data.apiScenarioModuleId;
+            this.currentScenario.modulePath = response.data.modulePath;
             this.path = "/api/automation/update";
             if (response.data.scenarioDefinition != null) {
               let obj = JSON.parse(response.data.scenarioDefinition);
