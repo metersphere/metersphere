@@ -205,7 +205,7 @@ public class MsJDBCSampler extends MsTestElement {
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+                    arguments.addArgument(keyValue.getName(), ElementUtil.getEvlValue(keyValue.getValue()), "=")
             );
             // 清空变量，防止重复添加
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
