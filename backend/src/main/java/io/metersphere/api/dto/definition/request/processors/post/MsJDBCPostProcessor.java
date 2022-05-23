@@ -239,7 +239,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
             variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+                    arguments.addArgument(keyValue.getName(), ElementUtil.getEvlValue(keyValue.getValue()), "=")
             );
             return arguments;
         }
