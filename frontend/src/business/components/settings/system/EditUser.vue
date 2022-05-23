@@ -230,6 +230,9 @@ export default {
       }
     },
     checkRemove(item,index){
+      if (!item.type) {
+        return true;
+      }
       let type = item.type.split("+")[1];
       if (type === this.ws) {
         let isHaveWorkspace = 0;
