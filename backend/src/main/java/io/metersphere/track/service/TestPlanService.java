@@ -471,7 +471,7 @@ public class TestPlanService {
         statusList.addAll(testPlanLoadCaseService.getStatus(testPlanId));
         TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
         //如果测试计划是已归档状态，不处理
-        if(testPlanWithBLOBs.getStatus().equals(TestPlanStatus.Archived.name())){
+        if (testPlanWithBLOBs.getStatus().equals(TestPlanStatus.Archived.name())) {
             return;
         }
         testPlanWithBLOBs.setId(testPlanId);
@@ -940,8 +940,8 @@ public class TestPlanService {
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    TestPlanScheduleReportInfoDTO genTestPlanReport(String planReportId, String planId, String userId, String triggerMode) {
-        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode);
+    TestPlanScheduleReportInfoDTO genTestPlanReport(String planReportId, String planId, String userId, String triggerMode, RunModeConfigDTO runModeConfigDTO) {
+        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode,runModeConfigDTO);
         return reportInfoDTO;
     }
 
@@ -968,7 +968,7 @@ public class TestPlanService {
         }
 
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
-        TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanID, userId, triggerMode);
+        TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanID, userId, triggerMode, runModeConfig);
         //测试计划准备执行，取消测试计划的实际结束时间
         extTestPlanMapper.updateActualEndTimeIsNullById(testPlanID);
 
@@ -2152,7 +2152,8 @@ public class TestPlanService {
             TestPlanWithBLOBs testPlan = testPlanMap.get(id);
             String planReportId = UUID.randomUUID().toString();
             //创建测试报告
-            this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode());
+            // TODO: 2022/5/16  genTestPlanReport的runModeConfig先赋值为null，日后这里需要将前台传递的具体数据填写进来
+            this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode(),null);
             //测试计划准备执行，取消测试计划的实际结束时间
             extTestPlanMapper.updateActualEndTimeIsNullById(testPlan.getId());
             executeQueue.put(testPlan.getId(), planReportId);
