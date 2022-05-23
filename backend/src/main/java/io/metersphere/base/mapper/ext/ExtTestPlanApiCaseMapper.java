@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.track.dto.PlanReportCaseDTO;
+import io.metersphere.track.dto.testplan.TestPlanApiCaseInfoDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
@@ -29,7 +30,7 @@ public interface ExtTestPlanApiCaseMapper {
     ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId);
 
 
-    List<TestPlanApiCase> selectLegalDataByTestPlanId(String planId);
+    List<TestPlanApiCaseInfoDTO> selectLegalDataByTestPlanId(String planId);
 
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
