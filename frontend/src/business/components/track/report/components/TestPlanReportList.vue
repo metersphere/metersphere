@@ -81,11 +81,11 @@
         sortable
         :label="$t('commons.status')">
         <template v-slot:default="scope">
-          <ms-tag v-if="scope.row.status == 'RUNNING'" type="success" effect="plain" :content="'Running'"/>
+          <ms-tag v-if="scope.row.status == 'RUNNING'" type="primary" effect="plain" :content="'Running'"/>
           <ms-tag
             v-else-if="scope.row.status == 'COMPLETED'||scope.row.status == 'SUCCESS'||scope.row.status == 'FAILED'"
             type="info" effect="plain" :content="'Completed'"/>
-          <ms-tag v-else type="effect" effect="plain" :content="scope.row.status"/>
+          <ms-tag v-else type="info" effect="plain" :content="scope.row.status"/>
         </template>
       </ms-table-column>
 
