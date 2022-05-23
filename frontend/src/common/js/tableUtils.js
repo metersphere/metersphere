@@ -525,7 +525,7 @@ export function getCustomFieldValue(row, field, members) {
             val += i + ' ';
           });
           return val;
-        } else if (field.type === 'datetime') {
+        } else if (field.type === 'datetime' || field.type === 'date') {
           return timestampFormatDate(item.value);
         } else if (['richText', 'textarea'].indexOf(field.type) > -1) {
           return item.textValue;

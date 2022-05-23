@@ -633,6 +633,7 @@ export default {
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields, this.members);
         // todo 处理高级搜索自定义字段部分
+        this.condition.components = this.condition.components.filter(item => item.custom !== true);
         let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
         this.condition.components.push(...comp);
         this.setTestCaseDefaultValue(template);
@@ -672,6 +673,9 @@ export default {
       return value ? value : '';
     },
     getCustomFieldFilter(field) {
+      if (field.type === 'multipleMember') {
+        return null;
+      }
       return Array.isArray(field.options) ?
         (field.options.length > 0 ? field.options : null) : null;
     },
