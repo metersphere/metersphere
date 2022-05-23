@@ -39,7 +39,7 @@ public class MsJSR223PostProcessor extends MsTestElement {
         ParameterConfig config = (ParameterConfig) msParameter;
         if (StringUtils.isEmpty(this.getEnvironmentId())) {
             if (config.getConfig() != null) {
-                if (config.getProjectId() != null) {
+                if (config.getProjectId() != null && config.getConfig().containsKey(config.getProjectId())) {
                     String evnId = config.getConfig().get(config.getProjectId()).getApiEnvironmentid();
                     this.setEnvironmentId(evnId);
                 } else {

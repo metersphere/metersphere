@@ -580,6 +580,7 @@ export default {
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
+    this.getEnvironments();
     this.buttonData = buttons(this);
     this.getPlugins().then(() => {
       this.initPlugins();
@@ -1847,6 +1848,93 @@ export default {
       });
       this.$store.state.scenarioEnvMap = map;
       this.setDomain(true);
+      this.setStep(this.scenarioDefinition);
+    },
+    setStep(stepArray){
+      for (let i in stepArray) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if(typeArray.indexOf(stepArray[i].type) !==-1) {
+          this.setStepEnv(stepArray[i]);
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.setStep(stepArray[i].hashTree);
+        }
+      }
+    },
+
+    setStepEnv(request) {
+      let envId = "";
+      let projectId = request.projectId ? request.projectId : this.projectId;
+      if (this.projectEnvMap.has(projectId)) {
+        envId = this.projectEnvMap.get(projectId);
+      }
+      // 场景开启自身环境
+      if (request.environmentEnable && request.refEevMap) {
+        let obj = Object.prototype.toString.call(request.refEevMap).match(/\[object (\w+)\]/)[1].toLowerCase();
+        if (obj !== 'object' && obj !== "map") {
+          request.refEevMap = objToStrMap(JSON.parse(request.refEevMap));
+        } else if (obj === 'object' && obj !== "map") {
+          request.refEevMap = objToStrMap(request.refEevMap);
+        }
+        if (request.refEevMap instanceof Map && request.refEevMap.has(projectId)) {
+          envId = request.refEevMap.get(projectId);
+        }
+      }
+      if(envId === request.originalEnvironmentId && request.originalDataSourceId) {
+        request.dataSourceId = request.originalDataSourceId;
+      }
+      let targetDataSourceName = "";
+      let currentEnvironment = {};
+      this.environments.forEach(environment => {
+        // 找到原始环境和数据源名称
+        if (environment.id === request.environmentId && environment.id !== envId) {
+          if (environment.config && environment.config.databaseConfigs) {
+            environment.config.databaseConfigs.forEach(item => {
+              if (item.id === request.dataSourceId) {
+                targetDataSourceName = item.name;
+              }
+            });
+          }
+        }
+        if (envId && environment.id === envId) {
+          currentEnvironment = environment;
+        }
+      });
+     this.initDataSource(envId, currentEnvironment, targetDataSourceName,request);
+    },
+    initDataSource(envId, currentEnvironment, targetDataSourceName,request) {
+      this.databaseConfigsOptions = [];
+      if (envId) {
+        request.environmentId = envId;
+      } else {
+        for (let i in this.environments) {
+          if (this.environments[i].id === request.environmentId) {
+            currentEnvironment = this.environments[i];
+            break;
+          }
+        }
+      }
+      let flag = false;
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
+        currentEnvironment.config.databaseConfigs.forEach(item => {
+          if (item.id === request.dataSourceId) {
+            flag = true;
+          }
+          // 按照名称匹配
+          else if (targetDataSourceName && item.name === targetDataSourceName) {
+            request.dataSourceId = item.id;
+            flag = true;
+          }
+          this.databaseConfigsOptions.push(item);
+        });
+        if (!flag && currentEnvironment.config.databaseConfigs.length > 0) {
+          request.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
+          flag = true;
+        }
+      }
+      if (!flag) {
+        request.dataSourceId = "";
+      }
     },
     setEnvGroup(id) {
       this.envGroupId = id;
