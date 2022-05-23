@@ -108,6 +108,10 @@ export default {
   name: "MsApiVariable",
   components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance, MsApiVariableJson},
   props: {
+    urlEncode:  {
+      type: Boolean,
+      default: false
+    },
     keyPlaceholder: String,
     valuePlaceholder: String,
     description: String,
@@ -220,6 +224,7 @@ export default {
         this.parameters.push(new KeyValue({
           type: 'text',
           enable: true,
+          urlEncode: this.urlEncode,
           uuid: this.uuid(),
           required: false,
           contentType: 'text/plain'
@@ -309,6 +314,7 @@ export default {
         type: 'text',
         enable: true,
         required: false,
+        urlEncode: this.urlEncode,
         uuid: this.uuid(),
         contentType: 'text/plain'
       }));
