@@ -26,6 +26,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -772,5 +773,17 @@ public class ElementUtil {
             }
         }
         return elementList;
+    }
+
+    public static String getEvlValue(String evlValue) {
+        try {
+            if (StringUtils.startsWith(evlValue, "@")) {
+                return ScriptEngineUtils.calculate(evlValue);
+            } else {
+                return ScriptEngineUtils.buildFunctionCallString(evlValue);
+            }
+        } catch (Exception e) {
+            return evlValue;
+        }
     }
 }
