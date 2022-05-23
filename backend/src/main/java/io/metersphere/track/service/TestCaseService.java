@@ -1912,6 +1912,7 @@ public class TestCaseService {
                 List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
                 testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
             }
+            String lastAddId = null;
 
             for (TestCaseMinderEditRequest.TestCaseMinderEditItem item : data) {
                 if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
