@@ -33,6 +33,7 @@
         :with-mor-setting="true"
         :is-read-only="isReadOnly"
         :parameters="body.kvs"
+        :urlEncode="body.type == 'WWW_FORM'"
         :isShowEnable="isShowEnable"
         :scenario-definition="scenarioDefinition"
         @editScenarioAdvance="editScenarioAdvance"
@@ -249,6 +250,11 @@ export default {
           isType = true;
         }
       })
+      if(this.body && this.body.kvs && value === "application/x-www-form-urlencoded") {
+        this.body.kvs.forEach(item => {
+          item.urlEncode = true;
+        });
+      }
       if (!isType) {
         this.headers.unshift(new KeyValue({name: "Content-Type", value: value}));
         this.$emit('headersChange');
