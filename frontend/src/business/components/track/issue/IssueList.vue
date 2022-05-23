@@ -128,7 +128,7 @@
          </ms-table-column>
 
           <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
-                           :filters="Array.isArray(field.options) ? (field.options.length > 0 ? field.options : null) : null"
+                           :filters="getCustomFieldFilter(field)"
                            :field="item"
                            :fields-width="fieldsWidth"
                            :label="field.system ? $t(systemNameMap[field.name]) :field.name"
@@ -272,6 +272,13 @@ export default {
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
     },
+    getCustomFieldFilter(field) {
+      if (field.type === 'multipleMember') {
+        return null;
+      }
+      return Array.isArray(field.options) ?
+        (field.options.length > 0 ? field.options : null) : null;
+    },
     initFields(template) {
       this.issueTemplate = template;
       if (this.issueTemplate.platform === LOCAL) {
@@ -279,7 +286,7 @@ export default {
       } else {
         this.isThirdPart = true;
       }
-      this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields);
+      this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields, this.members);
       if (!this.isThirdPart) {
         for (let i = 0; i < this.fields.length; i++) {
           if (this.fields[i].id === 'platformStatus') {
