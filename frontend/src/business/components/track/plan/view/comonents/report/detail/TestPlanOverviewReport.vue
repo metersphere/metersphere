@@ -2,23 +2,38 @@
   <test-plan-report-container id="overview" :title="$t('test_track.report.overview')">
     <el-form class="form-info" v-loading="result.loading">
       <el-form-item :label="$t('test_track.report.testing_time') + ':'">
-        {{showTime}}
+        {{ showTime }}
       </el-form-item>
+      <el-row type="flex" class="select-time"
+              v-if="report.envGroupName || report.projectEnvMap">
+        <span> {{ $t('commons.environment') + ':' }} </span>
+        <div v-if="report.envGroupName" style="margin-left: 12px">
+          <ms-tag type="danger" :content="$t('commons.group')"></ms-tag>
+          {{ report.envGroupName }}
+        </div>
+        <div v-else-if="report.projectEnvMap" style="margin-left: 12px">
+          <div v-for="(values,key) in report.projectEnvMap" :key="key" style="margin-right: 10px">
+            {{ key + ":" }}
+            <ms-tag v-for="(item,index) in values" :key="index" type="success" :content="item"
+                    style="margin-left: 2px"/>
+          </div>
+        </div>
+      </el-row>
       <el-row type="flex" justify="space-between" class="select-time">
         <el-col :span="8">
           <el-form-item :label="$t('test_track.report.total_number_tests') + ':'">
-            {{report.caseCount}}
+            {{ report.caseCount }}
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('test_track.report.exacutive_rate') + ':'">
-            {{ (report.executeRate ? (report.executeRate * 100).toFixed(1) : 0) + '%'}}
+            {{ (report.executeRate ? (report.executeRate * 100).toFixed(1) : 0) + '%' }}
             <ms-instructions-icon :content="$t('test_track.report.exacutive_rate_tip')"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('test_track.report.passing_rate') + ':'">
-            {{ (report.passRate ? (report.passRate  * 100 ).toFixed(1) : 0) + '%'}}
+            {{ (report.passRate ? (report.passRate * 100).toFixed(1) : 0) + '%' }}
             <ms-instructions-icon :content="$t('test_track.report.passing_rate_tip')"/>
           </el-form-item>
         </el-col>
@@ -33,9 +48,11 @@ import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import {timestampFormatDate} from "@/common/js/filter";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import MsTag from "@/business/components/common/components/MsTag";
+
 export default {
   name: "TestPlanOverviewReport",
-  components: {MsInstructionsIcon, TestPlanReportContainer, MsFormDivider},
+  components: {MsInstructionsIcon, TestPlanReportContainer, MsFormDivider, MsTag},
   props: {
     report: Object,
   },

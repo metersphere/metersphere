@@ -8,7 +8,9 @@
           :content="responseResult.responseCode"
           placement="top">
 
-          <div v-if="response.attachInfoMap && response.attachInfoMap.errorReportResult && response.attachInfoMap.status === 'errorReportResult'" class="node-title" :class="'ms-req-error-report-result'">
+          <div
+            v-if="response.attachInfoMap && response.attachInfoMap.errorReportResult && response.attachInfoMap.status === 'errorReportResult'"
+            class="node-title" :class="'ms-req-error-report-result'">
             {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
           </div>
           <div v-else class="node-title" :class="response && response.success ?'ms-req-success':'ms-req-error'">
@@ -19,10 +21,12 @@
           {{ responseResult && responseResult.responseCode ? responseResult.responseCode : '0' }}
         </div>
         <div v-if="response && response.attachInfoMap && response.attachInfoMap.errorReportResult">
-          <div class="node-title ms-req-error-report-result" v-if="response.attachInfoMap.status === 'errorReportResult'" style="margin-left: 0px;padding-left: 0px">
+          <div class="node-title ms-req-error-report-result"
+               v-if="response.attachInfoMap.status === 'errorReportResult'" style="margin-left: 0px;padding-left: 0px">
             {{ response.attachInfoMap.errorReportResult }}
           </div>
-          <div class="node-title ms-req-success" v-else-if="response.success" style="margin-left: 0px;padding-left: 0px">
+          <div class="node-title ms-req-success" v-else-if="response.success"
+               style="margin-left: 0px;padding-left: 0px">
             {{ response.attachInfoMap.errorReportResult }}
           </div>
           <div class="node-title ms-req-error" v-else style="margin-left: 0px;padding-left: 0px">
@@ -32,12 +36,24 @@
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{ $t('api_report.response_time') }} :</div>
-        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{ responseResult && responseResult.responseTime ? responseResult.responseTime : 0 }} ms</div>
+        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">
+          {{ responseResult && responseResult.responseTime ? responseResult.responseTime : 0 }} ms
+        </div>
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{ $t('api_report.response_size') }} :</div>
-        <div style="font-size: 14px;color:#61C550; margin-top:2px;margin-left:10px;float: left">{{ responseResult && responseResult.responseSize ? responseResult.responseSize : 0 }} bytes</div>
+        <div style="font-size: 14px;color:#61C550; margin-top:2px;margin-left:10px;float: left">
+          {{ responseResult && responseResult.responseSize ? responseResult.responseSize : 0 }} bytes
+        </div>
       </el-col>
+    </el-row>
+    <el-row type="flex" v-if="response.envName">
+      <div style="font-size: 14px;color: #AAAAAA;float: left">
+        <span> {{ $t('commons.environment') + ':' }} </span>
+      </div>
+      <div style="font-size: 14px;color:#61C550; margin-left:10px;float: left">
+        {{ response.envName }}
+      </div>
     </el-row>
   </div>
 </template>

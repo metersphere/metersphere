@@ -178,7 +178,7 @@ public class EnvironmentGroupService {
         }
 
         if (environmentGroupMapper.countByExample(environmentGroupExample) > 0) {
-            MSException.throwException(Translator.get("environment_group_name")+request.getName()+Translator.get("environment_group_exist"));
+            MSException.throwException(Translator.get("environment_group_name") + request.getName() + Translator.get("environment_group_exist"));
         }
     }
 
@@ -306,5 +306,9 @@ public class EnvironmentGroupService {
             result.add(dto);
         }
         return result;
+    }
+
+    public EnvironmentGroup selectById(String id) {
+        return environmentGroupMapper.selectByPrimaryKey(id);
     }
 }

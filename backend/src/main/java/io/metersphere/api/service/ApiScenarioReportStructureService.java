@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
-import io.metersphere.api.dto.ApiScenarioReportDTO;
-import io.metersphere.api.dto.RequestResultExpandDTO;
-import io.metersphere.api.dto.StepTreeDTO;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.exec.utils.ResultParseUtil;
 import io.metersphere.api.service.vo.ApiDefinitionExecResultVo;
 import io.metersphere.base.domain.*;
@@ -22,10 +19,14 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
+import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.service.ProjectService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,11 @@ public class ApiScenarioReportStructureService {
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
+    @Lazy
+    @Resource
+    private ProjectService projectService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");
     private static final List<String> controls = Arrays.asList("Assertions", "IfController", "ConstantTimer");
@@ -524,7 +530,70 @@ public class ApiScenarioReportStructureService {
             dto.setActuator(report.getActuator());
             dto.setName(report.getName());
             dto.setEnvConfig(report.getEnvConfig());
+            this.initProjectEnvironmentByEnvConfig(dto, report.getEnvConfig());
             return dto;
+        }
+    }
+
+    public void initProjectEnvironmentByEnvConfig(ApiScenarioReportDTO dto, String envConfig) {
+        if (StringUtils.isNotEmpty(envConfig)) {
+            //运行设置中选择的环境信息（批量执行时在前台选择了执行信息）
+            Map<String, String> envMapByRunConfig = null;
+            //执行时选择的环境信息 （一般在集合报告中会记录）
+            Map<String, List<String>> envMapByExecution = null;
+
+            try {
+                JSONObject jsonObject = JSONObject.parseObject(envConfig);
+                if (jsonObject.containsKey("executionEnvironmentMap")) {
+                    RunModeConfigWithEnvironmentDTO configWithEnvironment = JSONObject.parseObject(envConfig, RunModeConfigWithEnvironmentDTO.class);
+                    if (MapUtils.isNotEmpty(configWithEnvironment.getExecutionEnvironmentMap())) {
+                        envMapByExecution = configWithEnvironment.getExecutionEnvironmentMap();
+                    } else {
+                        envMapByRunConfig = configWithEnvironment.getEnvMap();
+                    }
+                } else {
+                    RunModeConfigDTO config = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
+                    envMapByRunConfig = config.getEnvMap();
+                }
+            } catch (Exception e) {
+                LogUtil.error("解析RunModeConfig失败!参数：" + envConfig, e);
+            }
+
+            LinkedHashMap<String, List<String>> projectEnvMap = new LinkedHashMap<>();
+
+            if (MapUtils.isNotEmpty(envMapByExecution)) {
+                for (Map.Entry<String, List<String>> entry : envMapByExecution.entrySet()) {
+                    String projectId = entry.getKey();
+                    List<String> envIdList = entry.getValue();
+                    String projectName = projectService.selectNameById(projectId);
+                    List<String> envNameList = apiTestEnvironmentService.selectNameByIds(envIdList);
+                    if (CollectionUtils.isNotEmpty(envNameList) && StringUtils.isNotEmpty(projectName)) {
+                        projectEnvMap.put(projectName, new ArrayList<>() {{
+                            this.addAll(envNameList);
+                        }});
+                    }
+                }
+                if (MapUtils.isNotEmpty(projectEnvMap)) {
+                    dto.setProjectEnvMap(projectEnvMap);
+                }
+            }
+
+            if (MapUtils.isNotEmpty(envMapByRunConfig)) {
+                for (Map.Entry<String, String> entry : envMapByRunConfig.entrySet()) {
+                    String projectId = entry.getKey();
+                    String envId = entry.getValue();
+                    String projectName = projectService.selectNameById(projectId);
+                    String envName = apiTestEnvironmentService.selectNameById(envId);
+                    if (StringUtils.isNoneEmpty(projectName, envName)) {
+                        projectEnvMap.put(projectName, new ArrayList<>() {{
+                            this.add(envName);
+                        }});
+                    }
+                }
+                if (MapUtils.isNotEmpty(projectEnvMap)) {
+                    dto.setProjectEnvMap(projectEnvMap);
+                }
+            }
         }
     }
 

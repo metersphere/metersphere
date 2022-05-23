@@ -29,10 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -277,7 +274,15 @@ public class ApiScenarioEnvService {
         }
     }
 
-    public void checkEnv(RunScenarioRequest request, List<ApiScenarioWithBLOBs> apiScenarios) {
+    /**
+     * 检查是否存在运行环境。若不存在则报错，存在的话返回所存在的运行环境
+     *
+     * @param request
+     * @param apiScenarios
+     * @return <projectId,envIds>
+     */
+    public Map<String, List<String>> checkEnv(RunScenarioRequest request, List<ApiScenarioWithBLOBs> apiScenarios) {
+        Map<String, List<String>> projectEnvMap = new HashMap<>();
         if (StringUtils.equals(request.getRequestOriginator(), "TEST_PLAN")) {
             this.checkPlanScenarioEnv(request);
         } else if (StringUtils.isNotBlank(request.getRunMode()) &&
@@ -306,6 +311,55 @@ public class ApiScenarioEnvService {
                 }
             }
         }
+        return projectEnvMap;
+    }
+
+    public Map<String, List<String>> selectApiScenarioEnv(List<ApiScenarioWithBLOBs> list) {
+        Map<String, List<String>> projectEnvMap = new LinkedHashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            try {
+                Map<String, String> map = new HashMap<>();
+                String environmentType = list.get(i).getEnvironmentType();
+                String environmentGroupId = list.get(i).getEnvironmentGroupId();
+                String env = list.get(i).getEnvironmentJson();
+                if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                    // 环境属性为空 跳过
+                    if (StringUtils.isBlank(env)) {
+                        continue;
+                    }
+                    map = JSON.parseObject(env, Map.class);
+                } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                    map = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                }
+
+                Set<String> set = map.keySet();
+                HashMap<String, String> envMap = new HashMap<>(16);
+                // 项目为空 跳过
+                if (set.isEmpty()) {
+                    continue;
+                }
+                for (String projectId : set) {
+                    String envId = map.get(projectId);
+                    envMap.put(projectId, envId);
+                }
+                for (Map.Entry<String, String> entry : envMap.entrySet()) {
+                    String projectId = entry.getKey();
+                    String envId = entry.getValue();
+                    if (projectEnvMap.containsKey(projectId)) {
+                        if (!projectEnvMap.get(projectId).contains(envId)) {
+                            projectEnvMap.get(projectId).add(envId);
+                        }
+                    } else {
+                        projectEnvMap.put(projectId, new ArrayList<>() {{
+                            this.add(envId);
+                        }});
+                    }
+                }
+            } catch (Exception e) {
+                LogUtil.error("api scenario environment map incorrect parsing. api scenario id:" + list.get(i).getId());
+            }
+        }
+        return projectEnvMap;
     }
 
     public void setApiScenarioEnv(List<ApiScenarioDTO> list) {

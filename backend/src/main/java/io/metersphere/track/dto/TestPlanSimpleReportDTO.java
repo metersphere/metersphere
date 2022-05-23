@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Getter
@@ -19,6 +20,16 @@ public class TestPlanSimpleReportDTO extends TestPlanReportContent {
     private int passCount;
     private String summary;
     private String config;
+
+    /**
+     * 运行环境信息
+     * runMode:运行模式  并行/串行
+     * envGroupName： 用户组名称
+     * projectEnvMap: <项目,运行环境>
+     */
+    private String runMode;
+    private String envGroupName;
+    private Map<String, List<String>> projectEnvMap;
 
     /**
      * 导出保存国际化

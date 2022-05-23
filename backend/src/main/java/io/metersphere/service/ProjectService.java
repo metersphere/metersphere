@@ -1076,4 +1076,13 @@ public class ProjectService {
             }
         }
     }
+
+    public String selectNameById(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return null;
+        } else {
+            return project.getName();
+        }
+    }
 }

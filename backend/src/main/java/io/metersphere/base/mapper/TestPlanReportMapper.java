@@ -1,13 +1,8 @@
 package io.metersphere.base.mapper;
 
-import io.metersphere.api.dto.definition.ParamsDTO;
 import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.base.domain.TestPlanReportExample;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 public interface TestPlanReportMapper {
@@ -21,15 +16,21 @@ public interface TestPlanReportMapper {
 
     int insertSelective(TestPlanReport record);
 
+    List<TestPlanReport> selectByExampleWithBLOBs(TestPlanReportExample example);
+
     List<TestPlanReport> selectByExample(TestPlanReportExample example);
 
     TestPlanReport selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") TestPlanReport record, @Param("example") TestPlanReportExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") TestPlanReport record, @Param("example") TestPlanReportExample example);
+
     int updateByExample(@Param("record") TestPlanReport record, @Param("example") TestPlanReportExample example);
 
     int updateByPrimaryKeySelective(TestPlanReport record);
+
+    int updateByPrimaryKeyWithBLOBs(TestPlanReport record);
 
     int updateByPrimaryKey(TestPlanReport record);
 }

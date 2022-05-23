@@ -86,8 +86,7 @@
         <!--            <ignoreColumn column="clean_load_report_expr"/>-->
         <!--            <ignoreColumn column="repeatable"/>-->
         <!--        </table>-->
-        <table tableName="api_case_execution_info"/>
-        <table tableName="scenario_execution_info"/>
+        <table tableName="test_plan_report"/>
         <!--<table tableName="enterprise_test_report_send_record"/>-->
         <!--<table tableName="test_case_review_api_case"/>
         <table tableName="test_case_review_load"/>

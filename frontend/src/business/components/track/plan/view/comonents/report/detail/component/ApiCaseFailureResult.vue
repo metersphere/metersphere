@@ -13,33 +13,33 @@
                     :data="apiCases">
 
             <ms-table-column
-                :width="80"
-                :label="$t('commons.id')"
-                prop="num">
+              :width="80"
+              :label="$t('commons.id')"
+              prop="num">
             </ms-table-column>
 
             <ms-table-column
-                :label="$t('commons.name')"
-                prop="name">
+              :label="$t('commons.name')"
+              prop="name">
             </ms-table-column>
 
             <ms-table-column
-                :label="$t('commons.create_user')"
-                prop="creatorName"/>
+              :label="$t('commons.create_user')"
+              prop="creatorName"/>
 
             <ms-table-column
-                :label="$t('test_track.case.priority')"
-                :width="80"
-                prop="priority">
+              :label="$t('test_track.case.priority')"
+              :width="80"
+              prop="priority">
               <template v-slot:default="scope">
                 <priority-table-item :value="scope.row.priority" ref="priority"/>
               </template>
             </ms-table-column>
 
             <ms-table-column
-                :width="80"
-                :label="$t('test_track.plan_view.execute_result')"
-                prop="lastResult">
+              :width="80"
+              :label="$t('test_track.plan_view.execute_result')"
+              prop="lastResult">
               <template v-slot:default="scope">
                 <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
                 <status-table-item v-else-if="scope.row.execResult === 'error'" :value="'Failure'"/>
@@ -69,10 +69,14 @@ import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTabl
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
 import {
-  getPlanApiAllCase, getPlanApiErrorReportCase,
-  getPlanApiFailureCase, getPlanApiUnExecuteCase,
-  getSharePlanApiAllCase, getSharePlanApiErrorReportCase,
-  getSharePlanApiFailureCase, getSharePlanApiUnExecuteCase
+  getPlanApiAllCase,
+  getPlanApiErrorReportCase,
+  getPlanApiFailureCase,
+  getPlanApiUnExecuteCase,
+  getSharePlanApiAllCase,
+  getSharePlanApiErrorReportCase,
+  getSharePlanApiFailureCase,
+  getSharePlanApiUnExecuteCase
 } from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
