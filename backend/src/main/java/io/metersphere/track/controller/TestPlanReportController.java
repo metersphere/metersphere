@@ -76,7 +76,7 @@ public class TestPlanReportController {
         String userId = SessionUtils.getUser().getId();
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, triggerMode);
-        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest);
+        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest,null);
         testPlanReportService.genTestPlanReportContent(report);
         testPlanReportService.countReportByTestPlanReportId(report.getTestPlanReport().getId(), null, triggerMode);
         return "success";
