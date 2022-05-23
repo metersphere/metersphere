@@ -644,7 +644,7 @@ public class TestCaseService {
     private void buildCustomField(TestCaseDTO data) {
         CustomFieldTestCaseExample example = new CustomFieldTestCaseExample();
         example.createCriteria().andResourceIdEqualTo(data.getId());
-        List<CustomFieldTestCase> customFieldTestCases = customFieldTestCaseMapper.selectByExample(example);
+        List<CustomFieldTestCase> customFieldTestCases = customFieldTestCaseMapper.selectByExampleWithBLOBs(example);
         List<CustomFieldDao> fields = new ArrayList<>();
         customFieldTestCases.forEach(i -> {
             CustomFieldDao customFieldDao = new CustomFieldDao();

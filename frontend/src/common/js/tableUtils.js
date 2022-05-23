@@ -590,7 +590,7 @@ export function parseCustomFilesForItem(data) {
     data.value = JSON.parse(data.value);
   }
   if (data.textValue) {
-    // data.textValue = data.textValue;
+    data.value = data.textValue;
   }
 }
 
