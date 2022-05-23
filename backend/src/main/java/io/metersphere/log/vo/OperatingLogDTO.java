@@ -12,6 +12,8 @@ public class OperatingLogDTO implements Serializable {
 
     private String projectName;
 
+    private String workspaceName;
+
     private String operUser;
 
     private String userName;
