@@ -111,6 +111,13 @@
         return !(this.editData.name && this.editData.name !== "");
       }
     },
+    watch: {
+      'editData.name': {
+        handler(v) {
+          this.handleClick();
+        }
+      }
+    },
     methods: {
       complete(results) {
         if (results.errors && results.errors.length > 0) {
