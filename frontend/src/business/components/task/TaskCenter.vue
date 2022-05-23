@@ -111,20 +111,28 @@
                 <el-col :span="4">
                   <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'"
                         class="ms-task-error">
-                     error
+                     Error
                   </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
                         class="ms-task-success">
-                       success
+                       Success
                   </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
-                      stopped
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'"
+                        class="ms-task-stopped">
+                      Stopped
                   </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'" class="ms-task-error-report-status">
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'"
+                        class="ms-task-error-report-status">
                       {{ $t('error_report_library.option.name') }}
                   </span>
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'running'"
+                        class="ms-task-running">
+                      Running
+                  </span>
                   <span v-else>
-                      {{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}
+                      {{
+                      item.executionStatus ? item.executionStatus.toLowerCase()[0].toUpperCase() + item.executionStatus.toLowerCase().substr(1) : item.executionStatus
+                    }}
                   </span>
                 </el-col>
               </el-row>
@@ -182,16 +190,16 @@ export default {
       ],
       runStatus: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
-        {id: 'saved', label: 'saved'},
-        {id: 'starting', label: 'starting'},
-        {id: 'running', label: 'running'},
-        {id: 'reporting', label: 'reporting'},
-        {id: 'completed', label: 'completed'},
-        {id: 'error', label: 'error'},
-        {id: 'success', label: 'success'},
-        {id: 'waiting', label: 'waiting'},
-        {id: 'fail', label: 'fail'},
-        {id: 'stop', label: 'stopped'}
+        {id: 'saved', label: 'Saved'},
+        {id: 'starting', label: 'Starting'},
+        {id: 'running', label: 'Running'},
+        {id: 'reporting', label: 'Reporting'},
+        {id: 'completed', label: 'Completed'},
+        {id: 'error', label: 'Error'},
+        {id: 'success', label: 'Success'},
+        {id: 'waiting', label: 'Waiting'},
+        {id: 'fail', label: 'Fail'},
+        {id: 'stop', label: 'Stopped'}
       ],
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
@@ -546,6 +554,14 @@ export default {
 
 .ms-task-success {
   color: #67C23A;
+}
+
+.ms-task-stopped {
+  color: #909399;
+}
+
+.ms-task-running {
+  color: #783887;
 }
 
 .ms-task-name-width {
