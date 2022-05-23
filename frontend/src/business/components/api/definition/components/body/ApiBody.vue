@@ -138,21 +138,6 @@ export default {
     'body.typeChange'() {
       this.reloadCodeEdit();
     },
-    'body.raw'() {
-      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw) {
-        try {
-          const MsConvert = new Convert();
-          let data = MsConvert.format(JSON.parse(this.body.raw));
-          if (this.body.jsonSchema) {
-            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
-          } else {
-            this.body.jsonSchema = data;
-          }
-        } catch (ex) {
-          this.body.jsonSchema = "";
-        }
-      }
-    },
   },
   methods: {
     isObj(x) {
@@ -223,6 +208,9 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw && !this.body.jsonSchema) {
           this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+        }else{
+          let data = MsConvert.format(JSON.parse(this.body.raw));
+          this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
         }
       } else {
         if (this.body.jsonSchema) {
