@@ -262,6 +262,12 @@
                                 <property name="object" value="custom"/>
                             </include>
                         </when>
+                        <when test="custom.type == 'richText' or custom.type == 'textarea'">
+                            and text_value
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
                         <otherwise>
                             and trim(both '"' from value)
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">

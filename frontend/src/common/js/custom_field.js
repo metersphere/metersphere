@@ -64,7 +64,11 @@ export function parseCustomField(data, template, rules, oldFields) {
         let customField = data.fields[i];
         if (customField.id === item.id) {
           try {
-            setDefaultValue(item, customField.value);
+            if (customField.textValue) {
+              setDefaultValue(item, customField.textValue);
+            } else {
+              setDefaultValue(item, customField.value);
+            }
             item.isEdit = true;
           } catch (e) {
             console.log("JSON parse custom field value error.");
@@ -100,10 +104,12 @@ export function buildCustomFields(data, param, template) {
     let editFields = [];
 
     template.customFields.forEach(item => {
-      let customField = {
-        fieldId: item.id,
-        value: item.defaultValue ? JSON.stringify(item.defaultValue): "",
-      };
+      let customField = {fieldId: item.id};
+      if (['richText', 'textarea'].indexOf(item.type) > -1) {
+        customField['textValue'] = item.defaultValue;
+      } else {
+        customField['value'] = item.defaultValue ? JSON.stringify(item.defaultValue): "";
+      }
       if (item.isEdit) {
         editFields.push(customField);
       } else {
