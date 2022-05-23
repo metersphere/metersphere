@@ -83,7 +83,10 @@
                 and test_case.id in (
                     select resource_id from custom_field_test_case where field_id = #{custom.id}
                     <if test="custom.type == 'multipleMember'">
-                        and `value` = #{custom.value}
+                        <foreach item="item" collection='custom.value.split(",")' open="" separator="" close="">
+                            and left(`value`, 1) = '['
+                            and find_in_set(#{item}, replace(replace(`value`, ']', ''), '[', ''))
+                        </foreach>
                     </if>
                     <if test="custom.type != 'multipleMember'">
                         and trim(both '"' from value)

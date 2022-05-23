@@ -117,10 +117,19 @@ export default {
         if (!condition.customs) {
           condition['customs'] = [];
         }
+        let value = component.value;
+        if (component.type === "multipleMember") {
+          try {
+            let str = JSON.stringify(component.value);
+            value = str.substring(1, str.length - 1);
+          } catch (e) {
+            // nothing
+          }
+        }
         condition['customs'].push({
           id: component.key,
           operator: component.operator.value,
-          value: component.type === "multipleMember" ? JSON.stringify(component.value) : component.value,
+          value: value,
           type: component.type
         });
       }
