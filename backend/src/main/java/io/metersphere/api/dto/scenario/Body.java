@@ -97,7 +97,7 @@ public class Body {
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
-                        JSONObject jsonObject = JSON.parseObject(this.getRaw(), Feature.OrderedField,Feature.DisableSpecialKeyDetect);
+                        JSONObject jsonObject = JSON.parseObject(this.getRaw(), Feature.OrderedField, Feature.DisableSpecialKeyDetect);
                         if (!this.getRaw().contains("$ref")) {
                             jsonMockParse(jsonObject);
                         }
@@ -128,23 +128,24 @@ public class Body {
         List<HTTPFileArg> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(this.getKvs())) {
             this.getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-                setFileArg(list, keyValue.getFiles(), keyValue, requestId);
+                setFileArg(list, keyValue.getFiles(), keyValue, requestId, false);
             });
         }
         if (CollectionUtils.isNotEmpty(this.getBinary())) {
             this.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-                setFileArg(list, keyValue.getFiles(), keyValue, requestId);
+                setFileArg(list, keyValue.getFiles(), keyValue, requestId, true);
             });
         }
         return list.toArray(new HTTPFileArg[0]);
     }
 
-    private void setFileArg(List<HTTPFileArg> list, List<BodyFile> files, KeyValue keyValue, String requestId) {
+    private void setFileArg(List<HTTPFileArg> list, List<BodyFile> files,
+                            KeyValue keyValue, String requestId, boolean isBinary) {
         if (files != null) {
             files.forEach(file -> {
                 String paramName = keyValue.getName() == null ? requestId : keyValue.getName();
                 String path = null;
-                if (StringUtils.isNotBlank(file.getId())) {
+                if (StringUtils.isNotBlank(file.getId()) && !isBinary) {
                     // 旧数据
                     path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
                 } else if (StringUtils.isNotBlank(this.tmpFilePath)) {
