@@ -11,7 +11,7 @@
 
     <keep-names>
         <class template="class io.metersphere.xpack.*" access="private+">
-            <field access="protected+"/>
+            <field access="private+"/>
             <method access="protected+"/>
         </class>
     </keep-names>
