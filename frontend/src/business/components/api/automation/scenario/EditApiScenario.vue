@@ -1622,6 +1622,8 @@ export default {
       if (this.currentScenario && this.currentScenario.id) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
           if (response.data) {
+            this.currentScenario.apiScenarioModuleId = response.data.apiScenarioModuleId;
+            this.currentScenario.modulePath = response.data.modulePath;
             this.path = "/api/automation/update";
             if (response.data.scenarioDefinition != null) {
               let obj = JSON.parse(response.data.scenarioDefinition);
