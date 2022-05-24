@@ -1,6 +1,6 @@
 <template>
   <div class="report-export">
-    <ms-report-title :title="title" :type="type"/>
+    <ms-report-title :title="title" :type="type" :report="report"/>
     <slot></slot>
   </div>
 </template>
@@ -10,7 +10,7 @@
     export default {
       name: "MsReportExportTemplate",
       components: {MsReportTitle},
-      props: {title: String, type: String},
+      props: {title: String, type: String, report: Object},
     }
 </script>
 
