@@ -14,8 +14,10 @@ import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
@@ -72,7 +74,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     }
 
     private ApiDefinitionImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
-        ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class,Feature.DisableSpecialKeyDetect);
+        ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class, Feature.DisableSpecialKeyDetect);
 
         Map<String, List<ApiTestCaseWithBLOBs>> caseMap = new HashMap<>();
         if (apiDefinitionImport.getCases() != null) {
@@ -101,6 +103,13 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         apiDefinitionImport.getData().forEach(apiDefinition -> {
             parseApiDefinition(apiDefinition, importRequest, caseMap, finalNodeMap);
         });
+        if (MapUtils.isNotEmpty(caseMap)) {
+            List<ApiTestCaseWithBLOBs> list = new ArrayList<>();
+            caseMap.forEach((k, v) -> {
+                list.addAll(v);
+            });
+            apiDefinitionImport.setCases(list);
+        }
         return apiDefinitionImport;
     }
 
@@ -120,20 +129,18 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         }
 
         apiDefinition.setProjectId(this.projectId);
-        String request = apiDefinition.getRequest();
-        JSONObject requestObj = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
-        if(requestObj.get("projectId")!=null){
-            requestObj.put("projectId", apiDefinition.getProjectId());
-        }
-        if(StringUtils.isBlank(requestObj.getString("path"))){
-            if(StringUtils.isNotBlank(requestObj.getString("url"))){
-                ApiImportAbstractParser apiImportAbstractParser = CommonBeanFactory.getBean(ApiImportAbstractParser.class);
-                String path = apiImportAbstractParser.formatPath(requestObj.getString("url"));
-                requestObj.put("path",path);
+        JSONObject requestObj = this.parseObject(apiDefinition.getRequest(), apiDefinition.getProjectId());
+        if (requestObj != null) {
+            if (StringUtils.isBlank(requestObj.getString("path"))) {
+                if (StringUtils.isNotBlank(requestObj.getString("url"))) {
+                    ApiImportAbstractParser apiImportAbstractParser = CommonBeanFactory.getBean(ApiImportAbstractParser.class);
+                    String path = apiImportAbstractParser.formatPath(requestObj.getString("url"));
+                    requestObj.put("path", path);
+                }
             }
+            requestObj.put("url", "");
+            apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
         }
-        requestObj.put("url","");
-        apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
         apiDefinition.setCreateUser(SessionUtils.getUserId());
         apiDefinition.setUserId(SessionUtils.getUserId());
         apiDefinition.setDeleteUserId(null);
@@ -146,14 +153,40 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         if (CollectionUtils.isEmpty(cases)) {
             return;
         }
+        List<ApiTestCaseWithBLOBs> errorRequests = new ArrayList<>();
         cases.forEach(item -> {
-            String request = item.getRequest();
-            JSONObject requestObj = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
-            requestObj.put("useEnvironment", "");
-            item.setRequest(JSONObject.toJSONString(requestObj));
             item.setApiDefinitionId(apiDefinition.getId());
             item.setProjectId(importRequest.getProjectId());
+            // request 内容处理
+            JSONObject requestObj = this.parseObject(item.getRequest(), item.getProjectId());
+            if (requestObj != null) {
+                item.setRequest(JSONObject.toJSONString(requestObj));
+            } else {
+                errorRequests.add(item);
+            }
         });
+        if (CollectionUtils.isNotEmpty(errorRequests)) {
+            cases.removeAll(errorRequests);
+            if (CollectionUtils.isEmpty(cases)) {
+                caseMap.remove(originId);
+            }
+        }
+    }
+
+    private JSONObject parseObject(String request, String projectId) {
+        try {
+            if (StringUtils.isEmpty(request)) {
+                return null;
+            }
+            JSONObject requestObj = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
+            requestObj.put("useEnvironment", "");
+            requestObj.put("environmentId", "");
+            requestObj.put("projectId", projectId);
+            return requestObj;
+        } catch (Exception e) {
+            LogUtil.error(request, e);
+            return null;
+        }
     }
 
     private void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiDefinitionWithBLOBs apiDefinition) {

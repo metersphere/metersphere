@@ -59,12 +59,18 @@ public class MsLoopController extends MsTestElement {
             return;
         }
         final HashTree groupTree = controller(tree);
+        // 自身场景
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
             ElementUtil.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
             ElementUtil.addCounter(groupTree, config.getVariables(), true);
             ElementUtil.addRandom(groupTree, config.getVariables());
         }
-
+        // 当前引用场景
+        if (CollectionUtils.isNotEmpty(config.getTransferVariables())) {
+            ElementUtil.addCsvDataSet(groupTree, config.getTransferVariables(), config, "shareMode.thread");
+            ElementUtil.addCounter(groupTree, config.getTransferVariables(), true);
+            ElementUtil.addRandom(groupTree, config.getTransferVariables());
+        }
         // 循环下都增加一个计数器，用于结果统计
         groupTree.add(addCounterConfig());
         // 不打开执行成功后轮询功能，则成功后就停止循环
