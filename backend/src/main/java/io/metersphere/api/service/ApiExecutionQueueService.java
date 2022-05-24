@@ -1,7 +1,9 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.RunModeDataDTO;
+import io.metersphere.api.dto.UiExecutionQueueParam;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
@@ -40,13 +42,15 @@ import java.util.stream.Collectors;
 @Service
 public class ApiExecutionQueueService {
     @Resource
-    private ApiExecutionQueueMapper queueMapper;
+    protected ApiExecutionQueueMapper queueMapper;
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
+    @Resource
+    private UiScenarioSerialServiceProxy uiScenarioSerialServiceProxy;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
@@ -60,7 +64,7 @@ public class ApiExecutionQueueService {
     @Resource
     private JMeterService jMeterService;
     @Resource
-    private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
+    protected ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
     @Lazy
@@ -72,14 +76,7 @@ public class ApiExecutionQueueService {
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
         LoggerUtil.info("开始生成执行链");
 
-        ApiExecutionQueue executionQueue = new ApiExecutionQueue();
-        executionQueue.setId(UUID.randomUUID().toString());
-        executionQueue.setCreateTime(System.currentTimeMillis());
-        executionQueue.setPoolId(poolId);
-        executionQueue.setFailure(config.isOnSampleError());
-        executionQueue.setReportId(reportId);
-        executionQueue.setReportType(StringUtils.isNotEmpty(reportType) ? reportType : RunModeConstants.INDEPENDENCE.toString());
-        executionQueue.setRunMode(runMode);
+        ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, reportId, reportType, runMode, config);
         queueMapper.insert(executionQueue);
         DBTestQueue resQueue = new DBTestQueue();
         BeanUtils.copyBean(resQueue, executionQueue);
@@ -125,7 +122,13 @@ public class ApiExecutionQueueService {
             Map<String, RunModeDataDTO> runMap = (Map<String, RunModeDataDTO>) runObj;
             final int[] sort = {0};
             runMap.forEach((k, v) -> {
-                ApiExecutionQueueDetail queue = detail(k, v.getTestId(), config.getMode(), sort[0], executionQueue.getId(), JSON.toJSONString(v.getPlanEnvMap()));
+                String envMap = JSON.toJSONString(v.getPlanEnvMap());
+                if (StringUtils.startsWith(type, "UI_")) {
+                    UiExecutionQueueParam param = new UiExecutionQueueParam();
+                    BeanUtils.copyBean(param, config);
+                    envMap = JSONObject.toJSONString(param);
+                }
+                ApiExecutionQueueDetail queue = detail(k, v.getTestId(), config.getMode(), sort[0], executionQueue.getId(), envMap);
                 queue.setSort(sort[0]);
                 if (sort[0] == 0) {
                     resQueue.setQueue(queue);
@@ -146,7 +149,19 @@ public class ApiExecutionQueueService {
         return resQueue;
     }
 
-    private ApiExecutionQueueDetail detail(String reportId, String testId, String type, int sort, String queueId, String envMap) {
+    protected ApiExecutionQueue getApiExecutionQueue(String poolId, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
+        ApiExecutionQueue executionQueue = new ApiExecutionQueue();
+        executionQueue.setId(UUID.randomUUID().toString());
+        executionQueue.setCreateTime(System.currentTimeMillis());
+        executionQueue.setPoolId(poolId);
+        executionQueue.setFailure(config.isOnSampleError());
+        executionQueue.setReportId(reportId);
+        executionQueue.setReportType(StringUtils.isNotEmpty(reportType) ? reportType : RunModeConstants.INDEPENDENCE.toString());
+        executionQueue.setRunMode(runMode);
+        return executionQueue;
+    }
+
+    protected ApiExecutionQueueDetail detail(String reportId, String testId, String type, int sort, String queueId, String envMap) {
         ApiExecutionQueueDetail queue = new ApiExecutionQueueDetail();
         queue.setCreateTime(System.currentTimeMillis());
         queue.setId(UUID.randomUUID().toString());
@@ -162,9 +177,7 @@ public class ApiExecutionQueueService {
     private boolean failure(DBTestQueue executionQueue, ResultDTO dto) {
         LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
         boolean isError = false;
-        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO.name(),
-                ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
-                ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+        if (StringUtils.contains(dto.getRunMode(), ApiRunMode.SCENARIO.name())) {
             if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
                 example.createCriteria().andReportIdEqualTo(dto.getReportId()).andStatusEqualTo(ExecuteResult.Error.name());
@@ -315,7 +328,11 @@ public class ApiExecutionQueueService {
                     boolean isNext = redisTemplate.opsForValue().setIfAbsent(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), executionQueue.getQueue().getQueueId());
                     if (isNext) {
                         redisTemplate.expire(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), 60, TimeUnit.MINUTES);
-                        apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
+                        if (StringUtils.startsWith(executionQueue.getRunMode(), "UI")) {
+                            uiScenarioSerialServiceProxy.serial(executionQueue, executionQueue.getQueue());
+                        } else {
+                            apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
+                        }
                     }
                 }
             } else {

@@ -6,7 +6,6 @@ import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.RemakeReportService;
-import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
@@ -187,15 +186,6 @@ public class JMeterService {
 
 
     public void run(JmeterRunRequestDTO request) {
-        if (request.getPool().isPool()) {
-            this.runNode(request);
-        } else {
-            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
-        }
-    }
-
-    @Deprecated
-    public void run(JmeterRunRequestDTO request, List<TestResource> resources) {
         if (request.getPool().isPool()) {
             this.runNode(request);
         } else {

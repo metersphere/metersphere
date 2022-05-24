@@ -1,31 +1,31 @@
 package io.metersphere.api.service;
 
+import io.metersphere.base.domain.ApiExecutionQueue;
+import io.metersphere.base.domain.ApiExecutionQueueDetail;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.dto.RequestResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.function.Function;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class UiReportServiceProxy {
+public class UiScenarioSerialServiceProxy {
 
-    public Object saveUiResult(String reportId, List<RequestResult> queue) {
+    public Object serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
        return invoke((clazz) -> {
            try {
-               return clazz.getDeclaredMethod("saveUiResult", String.class, List.class);
+               return clazz.getDeclaredMethod("serial", ApiExecutionQueue.class, ApiExecutionQueueDetail.class);
            } catch (NoSuchMethodException e) {
                e.printStackTrace();
                return null;
            }
-       }, reportId, queue);
+       }, executionQueue, queue);
     }
 
     private Object invoke(Function<Class, Method> getDeclaredMethod, Object... args) {
-        return CommonBeanFactory.invoke("uiReportService", getDeclaredMethod, args);
+        return CommonBeanFactory.invoke("uiScenarioSerialService", getDeclaredMethod, args);
     }
 
 }

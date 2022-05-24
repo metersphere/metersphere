@@ -154,11 +154,7 @@ public class GenerateHashTreeUtil {
 
             LoggerUtil.info("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本JMX成功");
         } catch (Exception ex) {
-            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-            remakeReportService.remake(runRequest);
-            ResultDTO dto = new ResultDTO();
-            BeanUtils.copyBean(dto, runRequest);
-            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            remakeException(runRequest);
             LoggerUtil.error("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本失败", ex);
         }
         ParameterConfig config = new ParameterConfig();
@@ -170,8 +166,20 @@ public class GenerateHashTreeUtil {
         return jmeterHashTree;
     }
 
+    public static void remakeException(JmeterRunRequestDTO runRequest) {
+        RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+        remakeReportService.remake(runRequest);
+        ResultDTO dto = new ResultDTO();
+        BeanUtils.copyBean(dto, runRequest);
+        CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+    }
+
     public static boolean isSetReport(RunModeConfigDTO config) {
-        return config != null && StringUtils.equals(config.getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(config.getReportName());
+        return config != null && isSetReport(config.getReportType()) && StringUtils.isNotEmpty(config.getReportName());
+    }
+
+    public static boolean isSetReport(String reportType) {
+        return StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString());
     }
 
     public static String getPlatformUrl(BaseSystemConfigDTO baseInfo, JmeterRunRequestDTO request, String queueDetailId) {
