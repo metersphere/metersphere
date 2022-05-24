@@ -49,3 +49,11 @@ DELIMITER ;
 CALL load_test_report_file_add();
 DROP PROCEDURE IF EXISTS load_test_report_file_add;
 -- end
+
+-- V120__1-20-4_retry_related_fields 队列信息表 增加重试相关字段 用例/场景 增加环境配置字段
+-- start
+ALTER TABLE `api_execution_queue_detail` ADD retry_enable TINYINT(1) DEFAULT 0 COMMENT '是否开启失败重试';
+ALTER TABLE `api_execution_queue_detail` ADD retry_number BIGINT(13) COMMENT '失败重试次数';
+ALTER TABLE `api_definition_exec_result` ADD env_config LONGTEXT COMMENT '执行环境配置';
+ALTER TABLE `api_scenario_report` ADD env_config LONGTEXT COMMENT '执行环境配置';
+-- end
