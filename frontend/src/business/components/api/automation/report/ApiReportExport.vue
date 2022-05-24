@@ -1,13 +1,14 @@
 <template>
-  <ms-report-export-template :title="title" :type="$t('report.api_test_report')">
+  <ms-report-export-template :title="title" :report="report" :type="$t('report.api_test_report')">
     <ms-metric-chart :content="content" :is-export="true" :totalTime="totalTime" :report="report"/>
     <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
       <div>
         <el-card>
           <template v-slot:header>
-            {{$t('api_report.scenario_name')}}：{{scenario.name}}
+            {{ $t('api_report.scenario_name') }}：{{ scenario.name }}
           </template>
-          <div class="ms-border clearfix" v-for="(request, index) in scenario.requestResults" :key="index" :request="request">
+          <div class="ms-border clearfix" v-for="(request, index) in scenario.requestResults" :key="index"
+               :request="request">
 
             <div class="request-top">
               <div>
@@ -17,7 +18,6 @@
                 {{request.url}}
               </div>
             </div>
-
             <el-divider/>
             <div class="request-middle">
               <api-report-reqest-header-item :title="$t('api_test.request.method')">

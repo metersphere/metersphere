@@ -2,10 +2,13 @@
   <div class="clearfix report-title">
     <div class="report-left">
       <div class="title">
-        【{{type}}】- {{title}}
-      </div>
-      <div>
-        <span class="time">{{new Date() | timestampFormatDate}}</span>
+        【{{ type }}】- {{ title }}
+        <span v-if="report.endTime || report.createTime">
+          <span style="margin-left: 10px">{{ $t('report.test_start_time') }}：</span>
+          <span class="time"> {{ report.createTime | timestampFormatDate }}</span>
+          <span style="margin-left: 10px">{{ $t('report.test_end_time') }}：</span>
+          <span class="time"> {{ report.endTime | timestampFormatDate }}</span>
+        </span>
       </div>
     </div>
     <div class="report-right">
@@ -18,11 +21,9 @@
 <script>
     export default {
       name: "MsReportTitle",
-      props: {title: String, type: String},
+      props: {title: String, type: String, report: Object},
       data() {
-        return {
-
-        }
+        return {}
       }
     }
 </script>
