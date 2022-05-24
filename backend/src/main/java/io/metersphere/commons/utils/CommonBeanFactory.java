@@ -5,7 +5,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.function.Function;
 
 public class CommonBeanFactory implements ApplicationContextAware {
     private static ApplicationContext context;
@@ -35,6 +37,17 @@ public class CommonBeanFactory implements ApplicationContextAware {
 
     public static <T> Map<String, T> getBeansOfType(Class<T> className) {
         return context.getBeansOfType(className);
+    }
+
+    public static Object invoke(String beanName, Function<Class, Method> methodFunction, Object... args) {
+        Object bean = getBean(beanName);
+        try {
+            Class<?> clazz = bean.getClass();
+            return methodFunction.apply(clazz).invoke(bean, args);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return null;
     }
 }
 

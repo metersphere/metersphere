@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ApiScenarioSerialService {
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
@@ -80,31 +82,12 @@ public class ApiScenarioSerialService {
         runRequest.setRetryEnable(queue.getRetryEnable() == null ? false : queue.getRetryEnable());
         runRequest.setRetryNum(queue.getRetryNumber());
         // 判断触发资源对象是用例/场景更新对应报告状态
-        if (!StringUtils.equals(executionQueue.getReportType(), RunModeConstants.SET_REPORT.toString())
+        if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
                 || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
             if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(queue.getReportId());
-                if (report != null) {
-                    report.setStatus(APITestStatus.Running.name());
-                    report.setCreateTime(System.currentTimeMillis());
-                    report.setUpdateTime(System.currentTimeMillis());
-                    runRequest.setExtendedParameters(new HashMap<String, Object>() {{
-                        this.put("userId", report.getCreateUser());
-                    }});
-                    apiScenarioReportMapper.updateByPrimaryKey(report);
-                    LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ], 报告ID [ " + report.getId() + " ]");
-                }
+                updateReportToRunning(queue, runRequest);
             } else {
-                ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
-                if (execResult != null) {
-                    runRequest.setExtendedParameters(new HashMap<String, Object>() {{
-                        this.put("userId", execResult.getUserId());
-                    }});
-                    execResult.setStartTime(System.currentTimeMillis());
-                    execResult.setStatus(APITestStatus.Running.name());
-                    apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
-                    LoggerUtil.info("进入串行模式，准备执行资源：[" + execResult.getName() + " ], 报告ID [" + execResult.getId() + "]");
-                }
+                updateDefinitionExecResultToRunning(queue, runRequest);
             }
         }
 
@@ -163,6 +146,33 @@ public class ApiScenarioSerialService {
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
             LoggerUtil.error("执行队列[" + queue.getId() + "报告[" + queue.getReportId() + "入队列失败：", e);
+        }
+    }
+
+    protected void updateDefinitionExecResultToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
+        ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
+        if (execResult != null) {
+            runRequest.setExtendedParameters(new HashMap<String, Object>() {{
+                this.put("userId", execResult.getUserId());
+            }});
+            execResult.setStartTime(System.currentTimeMillis());
+            execResult.setStatus(APITestStatus.Running.name());
+            apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
+            LoggerUtil.info("进入串行模式，准备执行资源：[" + execResult.getName() + " ], 报告ID [" + execResult.getId() + "]");
+        }
+    }
+
+    public void updateReportToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
+        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(queue.getReportId());
+        if (report != null) {
+            report.setStatus(APITestStatus.Running.name());
+            report.setCreateTime(System.currentTimeMillis());
+            report.setUpdateTime(System.currentTimeMillis());
+            runRequest.setExtendedParameters(new HashMap<String, Object>() {{
+                this.put("userId", report.getCreateUser());
+            }});
+            apiScenarioReportMapper.updateByPrimaryKey(report);
+            LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ], 报告ID [ " + report.getId() + " ]");
         }
     }
 
