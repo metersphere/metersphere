@@ -86,10 +86,15 @@
           </el-checkbox>
           <span v-if="runConfig.retryEnable">
             <el-tooltip placement="top">
-              <div slot="content">重试接口/UI用例，重试n次后，仍然失败，则用失败用例</div>
+              <div slot="content">{{ $t('run_mode.retry_message') }}</div>
               <i class="el-icon-question" style="cursor: pointer"/>
             </el-tooltip>
-            <span>重试  <el-input-number v-model="runConfig.retryNum" :min="1" size="mini"/> &nbsp;次</span>
+            <span>
+              {{ $t('run_mode.retry') }}
+              <el-input-number v-model="runConfig.retryNum" :min="1" :max="10000000" size="mini"/>
+              &nbsp;
+              {{ $t('run_mode.retry_frequency') }}
+            </span>
           </span>
         </el-col>
       </el-row>
@@ -136,7 +141,9 @@
           resourcePoolId: null,
           envMap: new Map(),
           environmentGroupId: "",
-          environmentType: ENV_TYPE.JSON
+          environmentType: ENV_TYPE.JSON,
+          retryEnable: false,
+          retryNum: 1,
         },
         isHasLicense: hasLicense(),
         projectEnvListMap: {},
