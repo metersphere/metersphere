@@ -708,9 +708,13 @@ public class ApiAutomationService {
                 } else if (value instanceof JSONArray) {
                     JSONArray valueArray = (JSONArray) value;
                     for (int i = 0; i < valueArray.size(); i++) {
-                        JSONObject obj = (JSONObject) valueArray.get(i);
-                        JSONObject targetValue = jsonMerge(obj, (JSONObject) target.getJSONArray(key).get(i));
-                        target.getJSONArray(key).set(i, targetValue);
+                        try {
+                            JSONObject obj = (JSONObject) valueArray.get(i);
+                            JSONObject targetValue = jsonMerge(obj, (JSONObject) target.getJSONArray(key).get(i));
+                            target.getJSONArray(key).set(i, targetValue);
+                        } catch (Exception e) {
+                            LogUtil.error(e);
+                        }
                     }
                 } else {
                     target.put(key, value);
