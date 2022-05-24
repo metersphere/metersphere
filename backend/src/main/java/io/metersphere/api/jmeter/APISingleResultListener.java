@@ -50,13 +50,14 @@ public class APISingleResultListener implements MsExecListener {
             }
 
             JMeterBase.resultFormatting(queues, dto);
+
+            dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
 
             LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
-            dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
 

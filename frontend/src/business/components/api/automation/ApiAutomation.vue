@@ -609,6 +609,11 @@ export default {
       }
     },
     editScenario(row) {
+      if(!row) {
+        this.activeName === 'default'
+        this.$error("跳转的应场景已经删除！");
+        return;
+      }
       const index = this.tabs.find(p => p.currentScenario.id === row.id && p.currentScenario.copy === row.copy);
       if (!index) {
         this.addTab({name: 'edit', currentScenario: row});
