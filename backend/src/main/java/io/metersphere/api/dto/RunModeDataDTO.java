@@ -2,6 +2,7 @@ package io.metersphere.api.dto;
 
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.UiScenarioWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 public class RunModeDataDTO {
     // 执行HashTree
     private ApiScenarioWithBLOBs scenario;
+    private UiScenarioWithBLOBs uiScenario;
     // 测试场景/测试用例
     private String testId;
 
