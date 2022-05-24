@@ -7,6 +7,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.exec.SystemCommand;
@@ -122,7 +123,6 @@ public class CommandService {
                                 File destFile = new File(newKeyStore);
                                 List<String> arguments = new ArrayList();
                                 arguments.add("keytool");
-                                arguments.add("-genkeypair");
                                 arguments.add("-importkeystore");
                                 arguments.add("-srckeystore");
                                 arguments.add(srcFile.getName());
@@ -142,6 +142,7 @@ public class CommandService {
                                 arguments.add("-destkeypass");
                                 arguments.add("ms123...");
 
+                                LoggerUtil.info("证书合并命令：", String.join(" ", arguments));
                                 SystemCommand nativeCommand = new SystemCommand(destFile.getParentFile(), (Map) null);
                                 int exitVal = nativeCommand.run(arguments);
                                 if (exitVal > 0) {
