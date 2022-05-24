@@ -142,7 +142,7 @@ public class ApiScenarioReportStructureService {
     }
 
     public static StepTreeDTO dataFormatting(UiScenarioWithBLOBs uiScenario, String reportType) {
-        return dataFormatting(uiScenario.getId(), uiScenario.getName(), uiScenario.getScenarioDefinition(), reportType);
+        return dataFormatting(null, uiScenario.getName(), uiScenario.getScenarioDefinition(), reportType);
     }
 
     public static StepTreeDTO dataFormatting(String id, String name, String scenarioDefinition, String reportType) {

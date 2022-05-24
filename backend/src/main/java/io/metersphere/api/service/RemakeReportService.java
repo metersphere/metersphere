@@ -107,7 +107,10 @@ public class RemakeReportService {
                     }
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 }
-            } else {
+            } else if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.UI_SCENARIO_PLAN.name(),
+                    request.getRunMode(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name())) {
+                remarkUiScenarioPlan(request);
+            }else {
                 ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setStatus(APITestStatus.Error.name());
@@ -134,6 +137,11 @@ public class RemakeReportService {
             LogUtil.error(e);
         }
     }
+
+    private void remarkUiScenarioPlan(JmeterRunRequestDTO request) {
+        // todo
+    }
+
 
     public void remakeScenario(String runMode, String scenarioId, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiScenarioReportWithBLOBs report) {
         // 生成失败报告
