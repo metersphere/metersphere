@@ -779,8 +779,6 @@ export default {
       param.environmentType = environmentType;
       param.environmentGroupId = environmentGroupId;
       param.requestOriginator = "TEST_PLAN";
-      param.retryEnable = config.retryEnable;
-      param.retryNum = config.retryNum;
       if(config.isRun === true){
         this.$refs.taskCenter.open();
         this.result = this.$post('test/plan/run/', param, () => {

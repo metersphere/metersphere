@@ -64,8 +64,6 @@ public class ApiScenarioParallelService {
         runRequest.setTestPlanReportId(request.getTestPlanReportId());
         runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(reportId)));
         runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-        runRequest.setRetryNum(request.getConfig().getRetryNum());
-        runRequest.setRetryEnable(request.getConfig().isRetryEnable());
         return runRequest;
     }
 }

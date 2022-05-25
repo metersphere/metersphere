@@ -69,18 +69,6 @@ public class ApiScenarioReportStructureService {
         this.save(reportId, dtoList);
     }
 
-    public List<StepTreeDTO> get(List<ApiScenarioWithBLOBs> apiScenarios, String reportType) {
-        List<StepTreeDTO> dtoList = new LinkedList<>();
-        for (ApiScenarioWithBLOBs bos : apiScenarios) {
-            StepTreeDTO dto = dataFormatting(bos, reportType);
-            dtoList.add(dto);
-        }
-        if (LoggerUtil.getLogger().isDebugEnabled()) {
-            LoggerUtil.debug("Scenario run-执行脚本装载-生成场景报告结构：" + JSON.toJSONString(dtoList));
-        }
-        return dtoList;
-    }
-
     public void saveUi(List<UiScenarioWithBLOBs> uiScenarios, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
         for (UiScenarioWithBLOBs bos : uiScenarios) {
@@ -114,17 +102,6 @@ public class ApiScenarioReportStructureService {
         structure.setReportId(reportId);
         structure.setResourceTree(JSON.toJSONString(dtoList).getBytes(StandardCharsets.UTF_8));
         mapper.insert(structure);
-    }
-
-    public void update(String reportId, List<StepTreeDTO> dtoList) {
-        ApiScenarioReportStructureExample example = new ApiScenarioReportStructureExample();
-        example.createCriteria().andReportIdEqualTo(reportId);
-        List<ApiScenarioReportStructureWithBLOBs> structures = mapper.selectByExampleWithBLOBs(example);
-        if (CollectionUtils.isNotEmpty(structures)) {
-            ApiScenarioReportStructureWithBLOBs structure = structures.get(0);
-            structure.setResourceTree(JSON.toJSONString(dtoList).getBytes(StandardCharsets.UTF_8));
-            mapper.updateByPrimaryKeySelective(structure);
-        }
     }
 
     public void update(String reportId, String console) {
@@ -248,7 +225,6 @@ public class ApiScenarioReportStructureService {
 
     private void calculateStep(List<StepTreeDTO> dtoList, AtomicLong stepTotal, AtomicLong stepError, AtomicLong stepErrorCode, AtomicLong stepUnExecute) {
         for (StepTreeDTO root : dtoList) {
-            int unExecSize = 0;
             if (CollectionUtils.isNotEmpty(root.getChildren())) {
                 stepTotal.set((stepTotal.longValue() + root.getChildren().size()));
                 for (StepTreeDTO step : root.getChildren()) {
@@ -258,11 +234,9 @@ public class ApiScenarioReportStructureService {
                         stepErrorCode.set(stepErrorCode.longValue() + 1);
                     } else if (!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")) {
                         stepUnExecute.set(stepUnExecute.longValue() + 1);
-                        unExecSize++;
                     }
                 }
             }
-            root.setUnExecuteTotal(unExecSize);
         }
     }
 
@@ -439,10 +413,10 @@ public class ApiScenarioReportStructureService {
         ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
         example.createCriteria().andIntegratedReportIdEqualTo(reportId);
         example.setOrderByClause("create_time asc");
-        List<ApiDefinitionExecResultWithBLOBs> reportResults = definitionExecResultMapper.selectByExampleWithBLOBs(example);
+        List<ApiDefinitionExecResult> reportResults = definitionExecResultMapper.selectByExampleWithBLOBs(example);
         List<ApiDefinitionExecResultVo> resultVos = new LinkedList<>();
         for (int i = 0; i < reportResults.size(); i++) {
-            ApiDefinitionExecResultWithBLOBs item = reportResults.get(i);
+            ApiDefinitionExecResult item = reportResults.get(i);
             if (StringUtils.equalsIgnoreCase(item.getErrorCode(), "null")) {
                 item.setErrorCode(null);
             }
@@ -528,15 +502,11 @@ public class ApiScenarioReportStructureService {
     }
 
     public ApiScenarioReportDTO assembleReport(String reportId, boolean selectReportContent) {
-        ApiScenarioReportWithBLOBs report = scenarioReportMapper.selectByPrimaryKey(reportId);
+        ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
         if (report != null && report.getReportType().equals(ReportTypeConstants.API_INTEGRATED.name())) {
             return this.apiIntegratedReport(reportId);
         } else {
-            ApiScenarioReportDTO dto = this.getReport(reportId, selectReportContent);
-            dto.setActuator(report.getActuator());
-            dto.setName(report.getName());
-            dto.setEnvConfig(report.getEnvConfig());
-            return dto;
+            return this.getReport(reportId, selectReportContent);
         }
     }
 

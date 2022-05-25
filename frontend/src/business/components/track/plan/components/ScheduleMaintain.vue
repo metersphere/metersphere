@@ -104,33 +104,6 @@
               </el-row>
             </div>
 
-            <!-- 失败重试 -->
-            <div class="ms-mode-div" v-if="isHasLicense">
-              <el-row>
-                <el-col :span="3">
-                  <span class="ms-mode-span">&nbsp;</span>
-                </el-col>
-                <el-col :span="18">
-                  <el-checkbox v-model="runConfig.retryEnable" class="ms-failure-div-right">
-                    {{ $t('run_mode.retry_on_failure') }}
-                  </el-checkbox>
-                  <span v-if="runConfig.retryEnable">
-                  <el-tooltip placement="top">
-                    <div slot="content">{{ $t('run_mode.retry_message') }}</div>
-                    <i class="el-icon-question" style="cursor: pointer"/>
-                  </el-tooltip>
-                  <span>
-                    {{ $t('run_mode.retry') }}
-                    <el-input-number v-model="runConfig.retryNum" :min="1" :max="10000000" size="mini"/>
-                    &nbsp;
-                    {{ $t('run_mode.retry_frequency') }}
-                  </span>
-                  </span>
-                </el-col>
-              </el-row>
-            </div>
-
-
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
               <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
@@ -252,8 +225,6 @@ export default {
         onSampleError: false,
         runWithinResourcePool: false,
         resourcePoolId: null,
-        retryEnable: false,
-        retryNum: 1,
       },
       projectList: [],
       testType: 'API',
@@ -343,8 +314,6 @@ export default {
       this.activeName = 'first';
       this.getResourcePools();
       this.runConfig.environmentType = ENV_TYPE.JSON;
-      this.runConfig.retryEnable = false;
-      this.runConfig.retryNum = 1;
     },
     findSchedule() {
       let scheduleResourceID = this.testId;

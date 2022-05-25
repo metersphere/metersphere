@@ -10,9 +10,6 @@
         </template>
         <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate"
                    :plan-id="planId" @setSize="setFailureSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
-        </el-button>
       </el-tab-pane>
       <el-tab-pane style="min-height: 500px" name="third" v-if="errorReportEnable">
         <template v-slot:label>
@@ -20,10 +17,6 @@
         </template>
         <api-cases :is-db="isDb" :is-error-report="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setErrorReportSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
-        </el-button>
-
       </el-tab-pane>
       <el-tab-pane style="min-height: 500px" name="fourth" v-if="unExecuteEnable">
         <template v-slot:label>
@@ -31,10 +24,6 @@
         </template>
         <api-cases :is-db="isDb" :is-un-execute="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setUnExecuteSize"/>
-
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
-        </el-button>
       </el-tab-pane>
 
       <el-tab-pane style="min-height: 500px" name="fifth" v-if="allEnable">
@@ -43,10 +32,6 @@
         </template>
         <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
-        </el-button>
-
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -59,7 +44,6 @@ import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import ApiCases from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCases";
 import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
-import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "TestPlanApiReport",
@@ -71,11 +55,7 @@ export default {
       errorReportSize: 0,
       unExecuteSize:0,
       allSize: 0,
-      showRerunBtn: true,
     };
-  },
-  created(){
-    this.showRerunBtn = hasLicense();
   },
   props: [
     'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'isDb'
@@ -144,68 +124,12 @@ export default {
       this.allSize = size;
     },
     handleClick(tab, event) {
-    },
-    rerun(){
-      let type = "TEST_PLAN";
-      let scenarios = [];
-      let cases = [];
-      let performanceCases = [];
-      let rerunObj = {
-        type: type,
-        reportId: this.report.id,
-        scenarios: scenarios,
-        cases: cases,
-        performanceCases: performanceCases
-      }
-      // 获取需要重跑的用例
-      if(this.report && this.report.apiFailureCases){
-        this.format(cases,this.report.apiFailureCases);
-      }
-      if(this.report && this.report.unExecuteCases){
-        this.format(cases,this.report.unExecuteCases);
-      }
-      // 获取需要重跑的场景
-      if(this.report && this.report.scenarioFailureCases){
-        this.format(scenarios,this.report.scenarioFailureCases);
-      }
-      if(this.report && this.report.unExecuteScenarios){
-        this.format(scenarios,this.report.unExecuteScenarios);
-      }
-      // 获取需要重跑的性能用例
-      if(this.report && this.report.loadFailureCases){
-        this.format(performanceCases,this.report.loadFailureCases);
-      }
-
-      this.$post('/api/test/exec/rerun', rerunObj, res => {
-        if (res.data !== 'SUCCESS') {
-          this.$error(res.data);
-        } else {
-          this.$success("已经开始重跑，稍后刷新结果查看");
-        }
-      });
-    },
-    format(cases, datas){
-      if(this.report && datas){
-        datas.forEach(item=>{
-          if(item){
-            let obj = {id: item.id, reportId: item.reportId,userId:item.createUser};
-            cases.push(obj);
-          }
-        });
-      }
     }
   }
+
 }
 </script>
 
 <style scoped>
-  .rerun-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    margin-right: 10px;
-    z-index: 1100;
-    background-color: #F2F9EF;
-    color: #87C45D;
-  }
+
 </style>

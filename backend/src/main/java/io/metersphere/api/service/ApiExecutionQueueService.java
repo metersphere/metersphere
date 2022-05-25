@@ -95,8 +95,6 @@ public class ApiExecutionQueueService {
                     resQueue.setQueue(queue);
                 }
                 sort[0]++;
-                queue.setRetryEnable(config.isRetryEnable());
-                queue.setRetryNumber(config.getRetryNum());
                 queueDetails.add(queue);
                 detailMap.put(k, queue.getId());
             });
@@ -113,8 +111,6 @@ public class ApiExecutionQueueService {
                     resQueue.setQueue(queue);
                 }
                 sort[0]++;
-                queue.setRetryEnable(config.isRetryEnable());
-                queue.setRetryNumber(config.getRetryNum());
                 queueDetails.add(queue);
                 detailMap.put(k, queue.getId());
             });
@@ -134,8 +130,6 @@ public class ApiExecutionQueueService {
                     resQueue.setQueue(queue);
                 }
                 sort[0]++;
-                queue.setRetryEnable(config.isRetryEnable());
-                queue.setRetryNumber(config.getRetryNum());
                 queueDetails.add(queue);
                 detailMap.put(k, queue.getId());
             });
@@ -385,7 +379,7 @@ public class ApiExecutionQueueService {
                     ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
                     ApiRunMode.SCHEDULE_SCENARIO.name(),
                     ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 // 报告已经被删除则队列也删除
                 if (report == null) {
                     executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
@@ -417,7 +411,7 @@ public class ApiExecutionQueueService {
                 }
             } else {
                 // 用例/接口超时结果处理
-                ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
+                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
                 if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
                     result.setStatus(ScenarioStatus.Timeout.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
@@ -431,7 +425,7 @@ public class ApiExecutionQueueService {
         List<ApiExecutionQueue> executionQueues = queueMapper.selectByExample(queueDetailExample);
         if (CollectionUtils.isNotEmpty(executionQueues)) {
             executionQueues.forEach(item -> {
-                ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name(), APITestStatus.Waiting.name())
                         && (report.getUpdateTime() < timeout)) {
                     report.setStatus(ScenarioStatus.Timeout.name());

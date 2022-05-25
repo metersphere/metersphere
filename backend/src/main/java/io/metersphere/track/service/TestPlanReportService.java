@@ -3,6 +3,7 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.esotericsoftware.minlog.Log;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
@@ -14,9 +15,15 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.TestPlanExecuteReportDTO;
+import io.metersphere.dto.UserDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.report.QueryTestPlanReportRequest;
@@ -24,6 +31,7 @@ import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -430,7 +438,7 @@ public class TestPlanReportService {
         }
         if (testPlanReport != null) {
             boolean isSendMessage = false;
-            if (StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), ExecuteResult.RUNNING.name())) {
+            if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),ExecuteResult.RUNNING.name())){
                 isSendMessage = true;
             }
             //初始化测试计划包含组件信息
@@ -443,7 +451,7 @@ public class TestPlanReportService {
             long endTime = System.currentTimeMillis();
             long testCaseCount = testPlanTestCaseMapper.countByExample(testPlanTestCaseExample);
             boolean updateTestPlanTime = testCaseCount > 0;
-            if (updateTestPlanTime && !StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
+            if (updateTestPlanTime) {
                 testPlanReport.setEndTime(endTime);
                 testPlanReport.setUpdateTime(endTime);
             }
@@ -525,10 +533,8 @@ public class TestPlanReportService {
                     }
                 }
                 //更新content表对结束日期
-                if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
-                    content.setStartTime(testPlanReport.getStartTime());
-                    content.setEndTime(endTime);
-                }
+                content.setStartTime(testPlanReport.getStartTime());
+                content.setEndTime(endTime);
                 testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
             }
             //计算测试计划状态

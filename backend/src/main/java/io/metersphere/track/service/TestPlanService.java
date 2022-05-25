@@ -471,7 +471,7 @@ public class TestPlanService {
         statusList.addAll(testPlanLoadCaseService.getStatus(testPlanId));
         TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
         //如果测试计划是已归档状态，不处理
-        if (testPlanWithBLOBs.getStatus().equals(TestPlanStatus.Archived.name())) {
+        if(testPlanWithBLOBs.getStatus().equals(TestPlanStatus.Archived.name())){
             return;
         }
         testPlanWithBLOBs.setId(testPlanId);
@@ -1936,8 +1936,6 @@ public class TestPlanService {
         } else {
             runModeConfig.setReportType(testplanRunRequest.getReportType());
         }
-        runModeConfig.setRetryEnable(testplanRunRequest.isRetryEnable());
-        runModeConfig.setRetryNum(testplanRunRequest.getRetryNum());
         return runModeConfig;
     }
 

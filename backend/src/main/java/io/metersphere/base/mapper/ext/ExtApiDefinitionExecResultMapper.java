@@ -4,7 +4,6 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -19,9 +18,9 @@ public interface ExtApiDefinitionExecResultMapper {
 
     void deleteByResourceId(String id);
 
-    ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceId(String resourceId);
+    ApiDefinitionExecResult selectMaxResultByResourceId(String resourceId);
 
-    ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceIdAndType(String resourceId, String type);
+    ApiDefinitionExecResult selectMaxResultByResourceIdAndType(String resourceId, String type);
 
 
     long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
@@ -32,7 +31,7 @@ public interface ExtApiDefinitionExecResultMapper {
 
     String selectExecResult(String resourceId);
 
-    ApiDefinitionExecResultWithBLOBs selectPlanApiMaxResultByTestIdAndType(String resourceId, String type);
+    ApiDefinitionExecResult selectPlanApiMaxResultByTestIdAndType(String resourceId, String type);
 
     List<ApiDefinitionExecResult> selectStatusByIdList(@Param("ids") Collection<String> values);
 

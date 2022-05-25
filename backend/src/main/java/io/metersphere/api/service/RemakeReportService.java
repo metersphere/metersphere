@@ -40,7 +40,7 @@ public class RemakeReportService {
         try {
             // 清理零时报告
             if (StringUtils.equalsAnyIgnoreCase(request.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
-                ApiDefinitionExecResultWithBLOBs result = execResultMapper.selectByPrimaryKey(request.getReportId());
+                ApiDefinitionExecResult result = execResultMapper.selectByPrimaryKey(request.getReportId());
                 if (result != null) {
                     result.setStatus("error");
                     result.setEndTime(System.currentTimeMillis());
@@ -60,7 +60,7 @@ public class RemakeReportService {
                     }
                 }
             } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
-                ApiDefinitionExecResultWithBLOBs result = execResultMapper.selectByPrimaryKey(request.getReportId());
+                ApiDefinitionExecResult result = execResultMapper.selectByPrimaryKey(request.getReportId());
                 if (result != null) {
                     result.setStatus("error");
                     result.setEndTime(System.currentTimeMillis());
@@ -89,7 +89,7 @@ public class RemakeReportService {
                     apiScenarioReportMapper.updateByPrimaryKey(report);
                 }
             } else if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setEndTime(System.currentTimeMillis());
                     report.setStatus(APITestStatus.Error.name());
@@ -111,7 +111,7 @@ public class RemakeReportService {
                     request.getRunMode(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name())) {
                 remarkUiScenarioPlan(request);
             }else {
-                ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
+                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setStatus(APITestStatus.Error.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
@@ -143,7 +143,7 @@ public class RemakeReportService {
     }
 
 
-    public void remakeScenario(String runMode, String scenarioId, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiScenarioReportWithBLOBs report) {
+    public void remakeScenario(String runMode, String scenarioId, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiScenarioReport report) {
         // 生成失败报告
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name())) {
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioId);

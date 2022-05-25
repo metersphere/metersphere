@@ -103,7 +103,7 @@ public class ApiScenarioExecuteService {
         }
 
         // 生成集成报告
-        String serialReportId = request.isRerun() && GenerateHashTreeUtil.isSetReport(request.getConfig()) ? request.getSerialReportId() : null;
+        String serialReportId = null;
         LoggerUtil.info("Scenario run-执行脚本装载-根据条件查询所有场景 ");
         List<ApiScenarioWithBLOBs> apiScenarios = this.get(request);
         // 只有一个场景且没有测试步骤，则提示
@@ -114,7 +114,7 @@ public class ApiScenarioExecuteService {
         LoggerUtil.info("Scenario run-执行脚本装载-开始针对所有执行场景进行环境检查");
         apiScenarioEnvService.checkEnv(request, apiScenarios);
         // 集合报告设置
-        if (!request.isRerun() && GenerateHashTreeUtil.isSetReport(request.getConfig())) {
+        if (GenerateHashTreeUtil.isSetReport(request.getConfig())) {
             if (isSerial(request)) {
                 request.setExecuteType(ExecuteType.Completed.name());
             } else {
@@ -143,25 +143,17 @@ public class ApiScenarioExecuteService {
             return responseDTOS;
         }
         if (GenerateHashTreeUtil.isSetReport(request.getConfig())) {
-            // 失败重跑更新报告状态
-            if (request.isRerun()) {
-                ApiScenarioReportWithBLOBs report = new ApiScenarioReportWithBLOBs();
-                report.setId(serialReportId);
-                report.setStatus(APITestStatus.Rerunning.name());
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            } else {
-                LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);
-                request.getConfig().setReportId(UUID.randomUUID().toString());
-                String reportScenarioIds = generateScenarioIds(scenarioIds);
+            LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);
+            request.getConfig().setReportId(UUID.randomUUID().toString());
+            String reportScenarioIds = generateScenarioIds(scenarioIds);
 
-                APIScenarioReportResult report = getApiScenarioReportResult(request, serialReportId, scenarioNames, reportScenarioIds);
-                report.setVersionId(apiScenarios.get(0).getVersionId());
+            APIScenarioReportResult report = getApiScenarioReportResult(request, serialReportId, scenarioNames, reportScenarioIds);
+            report.setVersionId(apiScenarios.get(0).getVersionId());
 
-                apiScenarioReportMapper.insert(report);
+            apiScenarioReportMapper.insert(report);
 
-                responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
-                apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig().getReportType());
-            }
+            responseDTOS.add(new MsExecResponseDTO(JSON.toJSONString(scenarioIds), serialReportId, request.getRunMode()));
+            apiScenarioReportStructureService.save(apiScenarios, serialReportId, request.getConfig().getReportType());
         }
 
         String reportType = request.getConfig().getReportType();
@@ -171,7 +163,7 @@ public class ApiScenarioExecuteService {
                 , ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig());
 
         // 预生成报告
-        if (!request.isRerun() && !GenerateHashTreeUtil.isSetReport(request.getConfig())) {
+        if (!GenerateHashTreeUtil.isSetReport(request.getConfig())) {
             apiScenarioReportService.batchSave(executeQueue, serialReportId, request.getRunMode(), responseDTOS);
         }
         // 开始执行
@@ -205,7 +197,7 @@ public class ApiScenarioExecuteService {
     }
 
     protected APIScenarioReportResult getApiScenarioReportResult(RunScenarioRequest request, String serialReportId,
-                                                               StringBuilder scenarioNames, String reportScenarioIds) {
+                                                                 StringBuilder scenarioNames, String reportScenarioIds) {
         APIScenarioReportResult report = apiScenarioReportService.init(request.getConfig().getReportId(), reportScenarioIds,
                 scenarioNames.toString(), request.getTriggerMode(), ExecuteType.Saved.name(), request.getProjectId(),
                 request.getReportUserID(), request.getConfig());
@@ -213,9 +205,6 @@ public class ApiScenarioExecuteService {
         report.setId(serialReportId);
         report.setReportType(ReportTypeConstants.SCENARIO_INTEGRATED.name());
         request.getConfig().setAmassReport(serialReportId);
-        if (request.getConfig() != null) {
-            report.setEnvConfig(JSON.toJSONString(request.getConfig()));
-        }
         report.setStatus(APITestStatus.Running.name());
         return report;
     }
@@ -282,12 +271,8 @@ public class ApiScenarioExecuteService {
                 projectId = scenario.getProjectId();
             }
 
-            APIScenarioReportResult report = request.isRerun() ? request.getReportMap().get(scenarioId) :
-                    apiScenarioReportService.init(reportId, testPlanScenarioId, scenario.getName(), request.getTriggerMode(),
+            APIScenarioReportResult report = apiScenarioReportService.init(reportId, testPlanScenarioId, scenario.getName(), request.getTriggerMode(),
                             request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig());
-            if (report == null) {
-                report = request.getReportMap().get(testPlanScenarioId);
-            }
             if (report == null) {
                 return;
             }
@@ -301,9 +286,6 @@ public class ApiScenarioExecuteService {
             runModeDataDTO.setScenario(scenario);
             executeQueue.put(report.getId(), runModeDataDTO);
             scenarioNames.append(scenario.getName()).append(",");
-            if (request.getConfig() != null) {
-                report.setEnvConfig(JSON.toJSONString(request.getConfig()));
-            }
             // 生成文档结构
             if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);

@@ -13,7 +13,6 @@ import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
-import io.metersphere.api.exec.api.ApiRetryOnFailureService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
@@ -79,8 +78,6 @@ public class ApiScenarioSerialService {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), null);
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-        runRequest.setRetryEnable(queue.getRetryEnable() == null ? false : queue.getRetryEnable());
-        runRequest.setRetryNum(queue.getRetryNumber());
         // 判断触发资源对象是用例/场景更新对应报告状态
         if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
                 || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
@@ -150,7 +147,7 @@ public class ApiScenarioSerialService {
     }
 
     protected void updateDefinitionExecResultToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
-        ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
+        ApiDefinitionExecResult execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
         if (execResult != null) {
             runRequest.setExtendedParameters(new HashMap<String, Object>() {{
                 this.put("userId", execResult.getUserId());
@@ -199,13 +196,6 @@ public class ApiScenarioSerialService {
             }
             if (caseWithBLOBs != null) {
                 String data = caseWithBLOBs.getRequest();
-                // 失败重试
-                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
-                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum());
-                    data = StringUtils.isNotEmpty(retryData) ? retryData : data;
-                }
-
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());

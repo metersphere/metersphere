@@ -40,5 +40,7 @@ public class ApiScenarioReport implements Serializable {
 
     private String reportType;
 
+    private String description;
+
     private static final long serialVersionUID = 1L;
 }
