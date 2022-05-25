@@ -256,6 +256,8 @@ export default {
         if (isHaveWorkspace === 0 && isHaveProject >0 ) {
           this.$message.warning(this.$t('commons.not_eligible_for_deletion'))
           return false;
+        } else {
+          this.currentGroupWSIds = new Set;
         }
       }
       return true;
@@ -317,9 +319,6 @@ export default {
       if (type === 'PROJECT') {
         for (let i = 0; i < this.form.groups.length; i++) {
           let group = this.form.groups[i];
-          if (i === this.currentWSGroupIndex) {
-            this.form.groups[i].ids = [];
-          }
           let _type = group.type.split("+")[1];
           if (_type === 'WORKSPACE') {
             isHaveWorkspace = true;
