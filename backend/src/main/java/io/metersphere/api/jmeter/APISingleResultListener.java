@@ -27,7 +27,7 @@ public class APISingleResultListener implements MsExecListener {
      */
     @Override
     public void setupTest() {
-        queues = new ArrayList<>();
+        queues = new LinkedList<>();
         LoggerUtil.info("初始化监听");
     }
 
