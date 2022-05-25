@@ -1513,6 +1513,9 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
+      if (draggingNode.data.type === 'Assertions' || dropNode.data.type === 'Assertions') {
+        return false;
+      }
       // 增加插件权限控制
       if (dropType != "inner") {
         if (draggingNode.data.disabled && draggingNode.parent && draggingNode.parent.data && draggingNode.parent.data.disabled) {
