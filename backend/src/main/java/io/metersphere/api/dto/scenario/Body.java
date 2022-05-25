@@ -11,6 +11,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -72,9 +73,9 @@ public class Body {
             body = this.getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
             HTTPFileArg[] httpFileArgs = httpFileArgs(requestId);
             // 文件上传
-            if (httpFileArgs.length > 0) {
+            if (ArrayUtils.isNotEmpty(httpFileArgs)) {
                 sampler.setHTTPFiles(httpFileArgs(requestId));
-                sampler.setDoMultipart(true);
+                sampler.setDoMultipart(!StringUtils.equalsIgnoreCase(this.type, "BINARY"));
             }
         } else {
             if (StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema() != null) {
@@ -157,7 +158,7 @@ public class Body {
                 if (StringUtils.isBlank(mimetype)) {
                     mimetype = ContentType.APPLICATION_OCTET_STREAM.getMimeType();
                 }
-                list.add(new HTTPFileArg(path, paramName, mimetype));
+                list.add(new HTTPFileArg(path, isBinary ? "" : paramName, mimetype));
             });
         }
     }
