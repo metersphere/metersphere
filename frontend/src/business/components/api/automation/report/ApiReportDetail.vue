@@ -171,6 +171,11 @@
         if (this.isTemplate) {
           this.getReport();
         }
+      },
+      isShare() {
+        if(this.isShare()){
+          this.handleExport()
+        }
       }
     },
     methods: {
