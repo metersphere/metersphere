@@ -8,7 +8,12 @@
                  ref="currentScenario">
           <!-- 基础信息 -->
           <el-form-item :label="$t('commons.name')" prop="name">
-            <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>
+            <el-input
+              class="ms-scenario-input"
+              size="small"
+              v-model="currentScenario.name"
+              maxlength="100"
+              show-word-limit/>
           </el-form-item>
 
           <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
