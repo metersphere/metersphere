@@ -80,23 +80,8 @@
         </template>
       </ms-table-column>
 
-      <ms-table-column
-        sortable
-        :label="$t('commons.create_time')"
-        prop="createTime">
-        <template v-slot="scope">
-          <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-        </template>
-      </ms-table-column>
-
-      <ms-table-column
-        sortable
-        :label="$t('commons.update_time')"
-        prop="updateTime">
-        <template v-slot="scope">
-          <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-        </template>
-      </ms-table-column>
+      <ms-update-time-column/>
+      <ms-create-time-column/>
 
     </ms-table>
 
@@ -120,6 +105,8 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
+import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -127,6 +114,8 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "FunctionalRelevance",
   components: {
+    MsUpdateTimeColumn,
+    MsCreateTimeColumn,
     MsTag,
     MsTablePagination,
     MsTable,
