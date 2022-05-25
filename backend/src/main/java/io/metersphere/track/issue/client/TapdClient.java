@@ -36,7 +36,13 @@ public class TapdClient extends BaseClient {
 
     public Map<String, String> getStatusMap(String projectId) {
         String url = getBaseUrl() + "/workflows/status_map?workspace_id={1}&system=bug";
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
+        } catch (Exception e) {
+            MSException.throwException("请检查配置信息是否填写正确！");
+            LogUtil.error(e);
+        }
         String resultForObject = (String) getResultForObject(String.class, response);
         JSONObject jsonObject = JSONObject.parseObject(resultForObject);
         String data = jsonObject.getString("data");
