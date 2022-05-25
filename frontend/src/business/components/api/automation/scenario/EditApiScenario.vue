@@ -1860,8 +1860,14 @@ export default {
     setStep(stepArray){
       for (let i in stepArray) {
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
-        if(typeArray.indexOf(stepArray[i].type) !==-1) {
-          this.setStepEnv(stepArray[i]);
+        if(typeArray.indexOf(stepArray[i].type) !== -1) {
+          if(stepArray[i].customizeReq  ){
+            if(stepArray[i].isRefEnvironment){
+              this.setStepEnv(stepArray[i]);
+            }
+          }else {
+            this.setStepEnv(stepArray[i]);
+          }
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.setStep(stepArray[i].hashTree);
