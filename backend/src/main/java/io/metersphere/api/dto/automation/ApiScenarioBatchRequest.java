@@ -28,4 +28,14 @@ public class ApiScenarioBatchRequest extends ApiScenarioWithBLOBs {
      * 场景用例跨项目的关系
      */
     private Map<String, List<String>> mapping;
+
+    /**
+     * 批量编辑标签
+     */
+    private List<String> tagList;
+    private String type;
+    /**
+     * 默认覆盖原标签
+     */
+    private boolean appendTag = false;
 }

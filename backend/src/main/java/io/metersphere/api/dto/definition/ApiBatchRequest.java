@@ -16,6 +16,14 @@ public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
     private String projectId;
     private String moduleId;
     private String protocol;
-
+    /**
+     * 批量编辑标签
+     */
+    private List<String> tagList;
+    private String type;
+    /**
+     * 默认覆盖原标签
+     */
+    private boolean appendTag = false;
     private ApiDefinitionRequest condition;
 }

@@ -386,6 +386,7 @@ export default {
         {id: 'status', name: this.$t('api_test.definition.api_status')},
         {id: 'method', name: this.$t('api_test.definition.api_type')},
         {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+        {id: 'tags', name: this.$t('commons.tag')},
       ],
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
@@ -789,7 +790,13 @@ export default {
     },
     batchEdit(form) {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
-      param[form.type] = form.value;
+      if (form.type === 'tags') {
+        param.type = form.type;
+        param.appendTag = form.appendTag;
+        param.tagList = form.tags;
+      } else {
+        param[form.type] = form.value;
+      }
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.initTable();

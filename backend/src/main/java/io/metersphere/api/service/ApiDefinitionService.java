@@ -55,6 +55,7 @@ import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1340,12 +1341,53 @@ public class ApiDefinitionService {
     }
 
     public void editApiByParam(ApiBatchRequest request) {
+        if (StringUtils.equals("tags", request.getType())) {
+            this.batchEditDefinitionTags(request);
+            return;
+        }
         //name在这里只是查询参数
         request.setName(null);
         ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
+    }
+
+    private void batchEditDefinitionTags(ApiBatchRequest request) {
+        if (request.getTagList().isEmpty()) {
+            return;
+        }
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        for (ApiDefinition apiDefinition : apiDefinitions) {
+            String tags = apiDefinition.getTags();
+            if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
+                apiDefinition.setTags(JSON.toJSONString(request.getTagList()));
+            } else {
+                try {
+                    List<String> list = JSON.parseArray(tags, String.class);
+                    list.addAll(request.getTagList());
+                    apiDefinition.setTags(JSON.toJSONString(list));
+                } catch (Exception e) {
+                    LogUtil.error("batch edit tags error.");
+                    LogUtil.error(e, e.getMessage());
+                    apiDefinition.setTags(JSON.toJSONString(request.getTagList()));
+                }
+            }
+            mapper.updateByPrimaryKey(apiDefinition);
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public void testPlanRelevance(ApiCaseRelevanceRequest request) {

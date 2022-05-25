@@ -30,6 +30,15 @@
         <el-form-item v-else-if="fieldType === 'custom'" :label="$t('test_track.case.updated_attr_value')">
           <custom-filed-component :data="customField" prop="defaultValue"/>
         </el-form-item>
+        <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.updated_attr_value')">
+          <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"></ms-input-tag>
+          <el-checkbox v-model="form.appendTag">
+            追加标签
+            <el-tooltip class="item" effect="dark" content="勾选：新增标签；不勾选：覆盖原有标签；" placement="top">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </el-checkbox>
+        </el-form-item>
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
@@ -55,13 +64,15 @@ import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 import {ENV_TYPE} from "@/common/js/constants";
 import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "BatchEdit",
   components: {
     CustomFiledComponent,
     EnvPopover,
-    MsDialogFooter
+    MsDialogFooter,
+    MsInputTag
   },
   props: {
     typeArr: Array,
@@ -77,7 +88,9 @@ export default {
       return {
         dialogVisible: false,
         showConfigButtonWithOutPermission:false,
-        form: {},
+        form: {
+          appendTag: true
+        },
         size: 0,
         rules: {
           type: {required: true, message: this.$t('test_track.case.please_select_attr'), trigger: ['blur','change']},
@@ -96,7 +109,8 @@ export default {
         environmentType: ENV_TYPE.JSON,
         envGroupId: "",
         customField: {},
-        fieldType: ""
+        fieldType: "",
+        showInputTag: true
       }
     },
     computed: {
@@ -137,6 +151,9 @@ export default {
       open(size) {
         this.dialogVisible = true;
         this.projectEnvMap.clear();
+        this.form = {
+          appendTag: true
+        }
         if (size) {
           this.size = size;
         } else {

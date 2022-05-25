@@ -402,7 +402,8 @@ export default {
         },
       ],
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')}
+        {id: 'priority', name: this.$t('test_track.case.priority')},
+        {id: 'tags', name: this.$t('commons.tag')},
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -951,7 +952,13 @@ export default {
       let arr = Array.from(this.selectRows);
       let ids = arr.map(row => row.id);
       let param = {};
-      param[form.type] = form.value;
+      if (form.type === 'tags') {
+        param.type = form.type;
+        param.appendTag = form.appendTag;
+        param.tagList = form.tags;
+      } else {
+        param[form.type] = form.value;
+      }
       param.ids = ids;
       param.projectId = this.projectId;
       param.selectAllDate = this.selectAll;
