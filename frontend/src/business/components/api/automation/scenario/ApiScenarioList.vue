@@ -556,6 +556,7 @@ export default {
         },
         // {id: 'environmentId', name: this.$t('api_test.definition.request.run_env'), optionMethod: this.getEnvsOptions},
         {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
+        {id: 'tags', name: this.$t('commons.tag')},
       ],
       valueArr: {
         level: [
@@ -821,15 +822,19 @@ export default {
       } else {
         // 批量修改其它
         let param = {};
-        param[form.type] = form.value;
+        if (form.type === 'tags') {
+          param.type = form.type;
+          param.appendTag = form.appendTag;
+          param.tagList = form.tags;
+        } else {
+          param[form.type] = form.value;
+        }
         this.buildBatchParam(param);
         this.$post('/api/automation/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         });
       }
-
-
     },
     getPrincipalOptions(option) {
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {

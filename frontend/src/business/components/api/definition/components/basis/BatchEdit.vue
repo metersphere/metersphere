@@ -17,6 +17,15 @@
         <el-form-item v-if="form.type ==='path'" :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-input size="small" v-model="form.value"/>
         </el-form-item>
+        <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.updated_attr_value')">
+          <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"></ms-input-tag>
+          <el-checkbox v-model="form.appendTag">
+            追加标签
+            <el-tooltip class="item" effect="dark" content="勾选：新增标签；不勾选：覆盖原有标签；" placement="top">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </el-checkbox>
+        </el-form-item>
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="$t(option.label)">
@@ -39,11 +48,13 @@
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
   export default {
     name: "BatchEdit",
     components: {
-      MsDialogFooter
+      MsDialogFooter,
+      MsInputTag
     },
     props: {
       typeArr: Array,
@@ -59,7 +70,9 @@
     data() {
       return {
         dialogVisible: false,
-        form: {},
+        form: {
+          appendTag: true
+        },
         size: 0,
         rules: {
           type: {required: true, message: this.$t('test_track.case.please_select_attr'), trigger: ['blur', 'change']},
@@ -67,6 +80,7 @@
         },
         options: [],
         filterable: false,
+        showInputTag: true
       }
     },
     methods: {
@@ -82,6 +96,9 @@
       },
       open() {
         this.dialogVisible = true;
+        this.form = {
+          appendTag: true
+        }
         this.size = this.dataCount ? this.dataCount : this.$parent.selectDataCounts;
         listenGoBack(this.handleClose);
       },

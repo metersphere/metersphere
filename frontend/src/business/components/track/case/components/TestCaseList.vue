@@ -638,6 +638,10 @@ export default {
         this.condition.components.push(...comp);
         this.setTestCaseDefaultValue(template);
         this.typeArr = [];
+        this.typeArr.push({
+          id: "tags",
+          name: this.$t('commons.tag')
+        })
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
 
         this.$nextTick(() => {
@@ -1048,16 +1052,22 @@ export default {
       let ids = this.$refs.table.selectIds;
       let param = {};
       param.ids = ids;
-      param.customTemplateFieldId = form.type.slice(6);
       param.condition = this.condition;
-      param.customField = {
-        fieldId: form.customField.id,
-        name: form.customField.name,
-      };
-      if (form.customField.type && (form.customField.type === 'richText' || form.customField.type === 'textarea')) {
-        param.customField.textValue = form.customField.defaultValue;
-      } else {
-        param.customField.value = JSON.stringify(form.customField.defaultValue ? form.customField.defaultValue : '');
+      if (form.type.startsWith("custom")) {
+        param.customTemplateFieldId = form.type.slice(6);
+        param.customField = {
+          fieldId: form.customField.id,
+          name: form.customField.name,
+        };
+        if (form.customField.type && (form.customField.type === 'richText' || form.customField.type === 'textarea')) {
+          param.customField.textValue = form.customField.defaultValue;
+        } else {
+          param.customField.value = JSON.stringify(form.customField.defaultValue ? form.customField.defaultValue : '');
+        }
+      } else if (form.type === 'tags') {
+        param.type = form.type;
+        param.appendTag = form.appendTag;
+        param.tagList = form.tags;
       }
       this.$post('/test/case/batch/edit', param, () => {
         this.$success(this.$t('commons.save_success'));

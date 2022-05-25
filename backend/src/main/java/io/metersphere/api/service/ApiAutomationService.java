@@ -1110,6 +1110,11 @@ public class ApiAutomationService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
 
+        if (StringUtils.equals("tags", request.getType())) {
+            this.batchEditTags(request, request.getIds());
+            return;
+        }
+
         if (StringUtils.isNotBlank(request.getEnvironmentId())) {
             bathEditEnv(request);
             return;
@@ -1122,6 +1127,38 @@ public class ApiAutomationService {
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
+    }
+
+    private void batchEditTags(ApiScenarioBatchRequest request, List<String> ids) {
+        if (request.getTagList().isEmpty() || CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        for (ApiScenario apiScenario : apiScenarios) {
+            String tags = apiScenario.getTags();
+            if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
+                apiScenario.setTags(JSON.toJSONString(request.getTagList()));
+            } else {
+                try {
+                    List<String> list = JSON.parseArray(tags, String.class);
+                    list.addAll(request.getTagList());
+                    apiScenario.setTags(JSON.toJSONString(list));
+                } catch (Exception e) {
+                    LogUtil.error("batch edit tags error.");
+                    LogUtil.error(e, e.getMessage());
+                    apiScenario.setTags(JSON.toJSONString(request.getTagList()));
+                }
+            }
+            mapper.updateByPrimaryKey(apiScenario);
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
     }
 
     public void bathEditEnv(ApiScenarioBatchRequest request) {

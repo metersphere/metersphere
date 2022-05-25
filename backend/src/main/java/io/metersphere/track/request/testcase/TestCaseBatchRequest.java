@@ -17,6 +17,8 @@ public class TestCaseBatchRequest extends TestCaseWithBLOBs {
     private CustomFieldResourceDTO customField;
     private QueryTestCaseRequest condition;
     private String customTemplateFieldId;
+    private List<String> tagList;
+    private boolean appendTag = false;
 
     @Getter
     @Setter

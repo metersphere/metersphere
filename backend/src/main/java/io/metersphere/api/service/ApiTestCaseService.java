@@ -703,6 +703,11 @@ public class ApiTestCaseService {
         if (request.isSelectAll()) {
             ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), null, request.getCombine());
         }
+
+        if (StringUtils.equals("tags", request.getType())) {
+            this.batchEditTags(request, ids);
+            return;
+        }
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
         if (StringUtils.isNotEmpty(request.getPriority())) {
@@ -727,6 +732,38 @@ public class ApiTestCaseService {
             if (sqlSession != null && sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
+        }
+    }
+
+    private void batchEditTags(ApiTestBatchRequest request, List<String> ids) {
+        if (request.getTagList().isEmpty() || CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiTestCaseMapper mapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        for (ApiTestCase apiTestCase : apiTestCases) {
+            String tags = apiTestCase.getTags();
+            if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
+                apiTestCase.setTags(JSON.toJSONString(request.getTagList()));
+            } else {
+                try {
+                    List<String> list = JSON.parseArray(tags, String.class);
+                    list.addAll(request.getTagList());
+                    apiTestCase.setTags(JSON.toJSONString(list));
+                } catch (Exception e) {
+                    LogUtil.error("batch edit tags error.");
+                    LogUtil.error(e, e.getMessage());
+                    apiTestCase.setTags(JSON.toJSONString(request.getTagList()));
+                }
+            }
+            mapper.updateByPrimaryKey(apiTestCase);
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 

@@ -1643,6 +1643,36 @@ public class TestCaseService {
                 example.createCriteria().andIdEqualTo(testCase.getId());
                 testCaseMapper.updateByExampleSelective(testCase, example);
             });
+        } else if (StringUtils.equals("tags", request.getType())) {
+            if (request.getTagList().isEmpty()) {
+                return;
+            }
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+            for (TestCase tc : testCaseList) {
+                String tags = tc.getTags();
+                if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
+                    tc.setTags(JSON.toJSONString(request.getTagList()));
+                } else {
+                    try {
+                        List<String> list = JSON.parseArray(tags, String.class);
+                        list.addAll(request.getTagList());
+                        tc.setTags(JSON.toJSONString(list));
+                    } catch (Exception e) {
+                        LogUtil.error("batch edit tags error.");
+                        LogUtil.error(e, e.getMessage());
+                        tc.setTags(JSON.toJSONString(request.getTagList()));
+                    }
+                }
+                mapper.updateByPrimaryKey(tc);
+            }
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
         } else {
             // 批量移动
             TestCaseWithBLOBs batchEdit = new TestCaseWithBLOBs();
