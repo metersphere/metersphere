@@ -21,6 +21,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.task.service.TaskService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.websocket.c.to.c.WebSocketUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -332,6 +333,8 @@ public class ApiAutomationController {
             taskRequest.setReportId(reportId);
             taskRequest.setType("SCENARIO");
             reportIds.add(taskRequest);
+
+            WebSocketUtils.onClose(reportId);
             taskService.stop(reportIds);
         }
     }
