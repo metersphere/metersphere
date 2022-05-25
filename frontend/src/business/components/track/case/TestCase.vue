@@ -632,7 +632,6 @@ export default {
     },
     refreshAll() {
       this.$refs.nodeTree.list();
-      this.refresh();
     },
     openRecentTestCaseEditDialog(caseId) {
       if (caseId) {
