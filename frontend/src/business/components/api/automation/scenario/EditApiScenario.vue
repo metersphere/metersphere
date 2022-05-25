@@ -516,7 +516,6 @@ export default {
       buttonData: [],
       stepFilter: new STEP,
       plugins: [],
-      clearMessage: "",
       runScenario: undefined,
       showFollow: false,
       envGroupId: "",
@@ -815,10 +814,9 @@ export default {
     },
     stop() {
       if (this.reportId) {
-        this.debugLoading = false;
         try {
           if (this.messageWebSocket) {
-            this.messageWebSocket.close();
+           this.messageWebSocket.close();
           }
           this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
           this.clearDebug();
@@ -830,6 +828,9 @@ export default {
         // 停止jmeter执行
         let url = "/api/automation/stop/" + this.reportId;
         this.$get(url, response => {
+          this.debugLoading = false;
+        },error =>{
+          this.debugLoading = false;
         });
       }
     },
@@ -1413,13 +1414,19 @@ export default {
       this.reportId = this.debugReportId;
     },
     runDebug(runScenario) {
+      if(this.debugLoading){
+        return;
+      }
+      this.debugLoading = true;
       if (this.scenarioDefinition.length < 1) {
+        this.debugLoading = false;
         return;
       }
       this.stopDebug = "";
       this.clearDebug();
       this.validatePluginData(this.scenarioDefinition);
       if (this.pluginDelStep) {
+        this.debugLoading = false;
         this.$error("场景包含插件步骤，对应场景已经删除不能调试！");
         return;
       }
@@ -1435,8 +1442,7 @@ export default {
           await this.$refs.envPopover.initEnv();
           const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
           if (!sign) {
-            this.buttonIsLoading = false;
-            this.clearMessage = getUUID().substring(0, 8);
+            this.debugLoading = false;
             return;
           }
           let scenario = undefined;
@@ -1467,8 +1473,8 @@ export default {
           this.pluginDelStep = false;
           // 建立消息链接
           this.initMessageSocket();
-        } else {
-          this.clearMessage = getUUID().substring(0, 8);
+        }else{
+          this.debugLoading = false;
         }
       })
     },
@@ -1810,7 +1816,6 @@ export default {
       this.loading = false;
       this.runScenario = undefined;
       this.message = "stop";
-      this.clearMessage = getUUID().substring(0, 8);
       this.debugData = {};
     },
     showScenarioParameters() {
