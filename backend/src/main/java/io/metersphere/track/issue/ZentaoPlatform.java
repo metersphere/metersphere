@@ -13,6 +13,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.ZentaoClient;
+import io.metersphere.track.issue.client.ZentaoGetClient;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.AddIssueResponse;
 import io.metersphere.track.issue.domain.zentao.GetIssueResponse;
@@ -443,8 +444,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 }
 
                 if (Arrays.stream(imgArray).anyMatch(imgType -> StringUtils.equals(imgType, srcContent.substring(srcContent.indexOf('.') + 1)))) {
-                    if (zentaoClient.getBaseUrl().contains("biz")) {
-                        // 禅道企业版
+                    if (zentaoClient instanceof ZentaoGetClient) {
                         path = zentaoClient.getBaseUrl() + "/index.php?m=file&f=read&fileID=" + srcContent;
                     } else {
                         // 禅道开源版
@@ -453,6 +453,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 } else {
                     return result;
                 }
+            } else {
+                name = name.replaceAll("&amp;", "&");
+                path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
             }
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
