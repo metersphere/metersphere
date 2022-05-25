@@ -964,7 +964,7 @@ export default {
     _handleDeleteToGc(testCase) {
       let testCaseId = testCase.id;
       this.$post('/test/case/deleteToGc/' + testCaseId, {}, () => {
-        this.$emit('refreshTable');
+        this.$emit('refreshAll');
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
       });
@@ -1119,13 +1119,13 @@ export default {
           this.$get('/test/case/deletePublic/' + testCase.versionId + '/' + testCase.refId, () => {
             this.$success(this.$t('commons.delete_success'));
             this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshTable");
+            this.$emit("refreshAll");
           });
         } else {
           this.$get('/test/case/delete/' + testCase.versionId + '/' + testCase.refId, () => {
             this.$success(this.$t('commons.delete_success'));
             this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshTable");
+            this.$emit("refreshAll");
           });
         }
       }
@@ -1137,7 +1137,7 @@ export default {
             this.$success(this.$t('commons.delete_success'));
             // this.initTable();
             this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshTable");
+            this.$emit("refreshAll");
 
           });
         } else {

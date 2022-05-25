@@ -165,14 +165,14 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 String customId = data.getCustomNum();
                 if (StringUtils.isEmpty(customId)) {
                     stringBuilder.append(Translator.get("id_required") + ";");
-                } else if (customIds.contains(customId)) {
+                } else if (customIds.contains(customId.toLowerCase())) {
                     stringBuilder.append(Translator.get("id_repeat_in_table") + ";");
                 } else if (StringUtils.equals(FunctionCaseImportEnum.Create.name(), importType) && savedCustomIds.contains(customId)) {
                     stringBuilder.append(Translator.get("custom_num_is_exist") + ";");
                 } else if (StringUtils.equals(FunctionCaseImportEnum.Update.name(), importType) && !savedCustomIds.contains(customId)) {
                     stringBuilder.append(Translator.get("custom_num_is_not_exist") + ";");
                 } else {
-                    customIds.add(customId);
+                    customIds.add(customId.toLowerCase());
                 }
             }
         }
