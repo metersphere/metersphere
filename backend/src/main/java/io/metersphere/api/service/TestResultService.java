@@ -209,7 +209,7 @@ public class TestResultService {
                 }
             }
         } else if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            ApiDefinitionExecResultWithBLOBs record = new ApiDefinitionExecResultWithBLOBs();
+            ApiDefinitionExecResult record = new ApiDefinitionExecResult();
             record.setId(dto.getReportId());
             record.setStatus("STOP");
 

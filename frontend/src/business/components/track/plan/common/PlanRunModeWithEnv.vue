@@ -74,32 +74,6 @@
         </el-col>
       </el-row>
     </div>
-    <!-- 失败重试 -->
-    <div class="ms-failure-div" v-if="isHasLicense">
-      <el-row>
-        <el-col :span="6">
-          <span class="ms-mode-span">&nbsp;</span>
-        </el-col>
-        <el-col :span="18">
-          <el-checkbox v-model="runConfig.retryEnable" class="ms-failure-div-right">
-            {{ $t('run_mode.retry_on_failure') }}
-          </el-checkbox>
-          <span v-if="runConfig.retryEnable">
-            <el-tooltip placement="top">
-              <div slot="content">{{ $t('run_mode.retry_message') }}</div>
-              <i class="el-icon-question" style="cursor: pointer"/>
-            </el-tooltip>
-            <span>
-              {{ $t('run_mode.retry') }}
-              <el-input-number v-model="runConfig.retryNum" :min="1" :max="10000000" size="mini"/>
-              &nbsp;
-              {{ $t('run_mode.retry_frequency') }}
-            </span>
-          </span>
-        </el-col>
-      </el-row>
-    </div>
-
     <template v-slot:footer>
       <div class="dialog-footer" v-if="showSave">
         <el-button @click="close">{{$t('commons.cancel')}}</el-button>
@@ -142,8 +116,6 @@
           envMap: new Map(),
           environmentGroupId: "",
           environmentType: ENV_TYPE.JSON,
-          retryEnable: false,
-          retryNum: 1,
         },
         isHasLicense: hasLicense(),
         projectEnvListMap: {},

@@ -10,16 +10,15 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.MsExecListener;
 import io.metersphere.utils.LoggerUtil;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class APISingleResultListener implements MsExecListener {
     private ApiExecutionQueueService apiExecutionQueueService;
-    private final static String RETRY = "MsRetry_";
     private List<SampleResult> queues;
 
     /**
@@ -44,10 +43,6 @@ public class APISingleResultListener implements MsExecListener {
     @Override
     public void testEnded(ResultDTO dto, Map<String, Object> kafkaConfig) {
         try {
-            if (dto.isRetryEnable()) {
-                LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】，进入重试结果处理");
-                mergeRetryResults(queues);
-            }
 
             JMeterBase.resultFormatting(queues, dto);
 
@@ -82,36 +77,6 @@ public class APISingleResultListener implements MsExecListener {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
             }
             queues.clear();
-        }
-    }
-
-    /**
-     * 合并掉重试结果；保留最后一次重试结果
-     *
-     * @param results
-     */
-    public void mergeRetryResults(List<SampleResult> results) {
-        if (CollectionUtils.isNotEmpty(results)) {
-            Map<String, List<SampleResult>> resultMap = results.stream().collect(Collectors.groupingBy(SampleResult::getResourceId));
-            List<SampleResult> list = new LinkedList<>();
-            resultMap.forEach((k, v) -> {
-                // 校验是否含重试结果
-                List<SampleResult> isRetryResults = v
-                        .stream()
-                        .filter(c -> StringUtils.isNotEmpty(c.getSampleLabel()) && c.getSampleLabel().startsWith(RETRY))
-                        .collect(Collectors.toList());
-
-                if (CollectionUtils.isNotEmpty(isRetryResults) && v.size() > 1) {
-                    Collections.sort(v, Comparator.comparing(SampleResult::getResourceId));
-                    SampleResult sampleResult = v.get(v.size() - 1);
-                    sampleResult.setSampleLabel(v.get(0).getSampleLabel());
-                    list.add(sampleResult);
-                } else {
-                    list.addAll(v);
-                }
-            });
-            results.clear();
-            results.addAll(list);
         }
     }
 }

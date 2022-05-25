@@ -15,19 +15,4 @@
         FROM api_scenario_report_result
         WHERE report_id = #{0}
     </select>
-
-    <delete id="deleteHisReportResult">
-        DELETE from api_scenario_report_result where report_id = #{reportId,jdbcType=VARCHAR} and
-        <foreach collection="scenarioIds" item="id" separator="or" open="(" close=")">
-            resource_id like CONCAT('%',#{id},'%')
-        </foreach>
-    </delete>
-
-    <select id="getReportIds" resultType="java.lang.String">
-        SELECT t.id FROM api_scenario_report t left JOIN api_scenario t1 on t.scenario_id = t1.id
-        where t1.id is not null and t.id in
-        <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </select>
 </mapper>

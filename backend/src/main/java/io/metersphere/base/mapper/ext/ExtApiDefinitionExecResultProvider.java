@@ -1,16 +1,16 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
 
 import java.util.List;
 
 public class ExtApiDefinitionExecResultProvider {
-    public String insertListSql(List<ApiDefinitionExecResultWithBLOBs> list) {
+    public String insertListSql(List<ApiDefinitionExecResult> list) {
         StringBuffer sqlList = new StringBuffer();
         sqlList.append("insert into api_definition_exec_result (id, `name`, resource_id, `status`, user_id, start_time, end_time," +
-                " create_time, `type`, actuator, trigger_mode, version_id, error_code,project_id,integrated_report_id,report_type, content,env_config) values ");
+                " create_time, `type`, actuator, trigger_mode, version_id, error_code,project_id,integrated_report_id,report_type, content) values ");
         for (int i = 0; i < list.size(); i++) {
-            ApiDefinitionExecResultWithBLOBs result = list.get(i);
+            ApiDefinitionExecResult result = list.get(i);
             sqlList.append(" (")
                     .append("'")
                     .append(result.getId())
@@ -46,8 +46,6 @@ public class ExtApiDefinitionExecResultProvider {
                     .append(result.getReportType())
                     .append("','")
                     .append(result.getContent())
-                    .append("','")
-                    .append(result.getEnvConfig())
                     .append("'")
                     .append(")");
             if (i < list.size() - 1) {

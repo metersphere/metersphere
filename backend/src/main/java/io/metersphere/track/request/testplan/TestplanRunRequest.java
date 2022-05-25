@@ -24,11 +24,7 @@ public class TestplanRunRequest {
     private String environmentGroupId;
     private List<String> testPlanIds;
     private Boolean isAll;
-    private String reportId;
+    private String  reportId;
     private QueryTestPlanRequest queryTestPlanRequest;
-
-    // 失败重试
-    private boolean retryEnable;
-    private long retryNum;
 }
 

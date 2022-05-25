@@ -19,9 +19,8 @@
     <result column="integrated_report_id" jdbcType="VARCHAR" property="integratedReportId" />
     <result column="report_type" jdbcType="VARCHAR" property="reportType" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionExecResult">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
-    <result column="env_config" jdbcType="LONGVARCHAR" property="envConfig" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -87,7 +86,7 @@
     report_type
   </sql>
   <sql id="Blob_Column_List">
-    content, env_config
+    content
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiDefinitionExecResultExample" resultMap="ResultMapWithBLOBs">
     select
@@ -137,23 +136,21 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result (id, `name`, resource_id, 
       `status`, user_id, start_time, 
       end_time, create_time, `type`, 
       actuator, trigger_mode, error_code, 
       version_id, project_id, integrated_report_id, 
-      report_type, content, env_config
-      )
+      report_type, content)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, 
       #{actuator,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{errorCode,jdbcType=VARCHAR}, 
       #{versionId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{integratedReportId,jdbcType=VARCHAR}, 
-      #{reportType,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}, #{envConfig,jdbcType=LONGVARCHAR}
-      )
+      #{reportType,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -207,9 +204,6 @@
       <if test="content != null">
         content,
       </if>
-      <if test="envConfig != null">
-        env_config,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -262,9 +256,6 @@
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="envConfig != null">
-        #{envConfig,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -328,9 +319,6 @@
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.envConfig != null">
-        env_config = #{record.envConfig,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -354,8 +342,7 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR},
       report_type = #{record.reportType,jdbcType=VARCHAR},
-      content = #{record.content,jdbcType=LONGVARCHAR},
-      env_config = #{record.envConfig,jdbcType=LONGVARCHAR}
+      content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -382,7 +369,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     update api_definition_exec_result
     <set>
       <if test="name != null">
@@ -433,13 +420,10 @@
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
-      <if test="envConfig != null">
-        env_config = #{envConfig,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     update api_definition_exec_result
     set `name` = #{name,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
@@ -456,8 +440,7 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       integrated_report_id = #{integratedReportId,jdbcType=VARCHAR},
       report_type = #{reportType,jdbcType=VARCHAR},
-      content = #{content,jdbcType=LONGVARCHAR},
-      env_config = #{envConfig,jdbcType=LONGVARCHAR}
+      content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">

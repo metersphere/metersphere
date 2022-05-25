@@ -20,9 +20,8 @@
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="report_type" jdbcType="VARCHAR" property="reportType" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReportWithBLOBs">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReport">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
-    <result column="env_config" jdbcType="LONGVARCHAR" property="envConfig" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -88,7 +87,7 @@
     version_id, report_type
   </sql>
   <sql id="Blob_Column_List">
-    description, env_config
+    description
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportExample" resultMap="ResultMapWithBLOBs">
     select
@@ -138,23 +137,23 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReportWithBLOBs">
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     insert into api_scenario_report (id, project_id, `name`, 
       create_time, update_time, `status`, 
       user_id, trigger_mode, execute_type, 
       scenario_name, scenario_id, create_user, 
       actuator, end_time, report_version, 
-      version_id, report_type, description, 
-      env_config)
+      version_id, report_type, description
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{executeType,jdbcType=VARCHAR}, 
       #{scenarioName,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{actuator,jdbcType=VARCHAR}, #{endTime,jdbcType=BIGINT}, #{reportVersion,jdbcType=INTEGER}, 
-      #{versionId,jdbcType=VARCHAR}, #{reportType,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{envConfig,jdbcType=LONGVARCHAR})
+      #{versionId,jdbcType=VARCHAR}, #{reportType,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReportWithBLOBs">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     insert into api_scenario_report
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -211,9 +210,6 @@
       <if test="description != null">
         description,
       </if>
-      <if test="envConfig != null">
-        env_config,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -269,9 +265,6 @@
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="envConfig != null">
-        #{envConfig,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -338,9 +331,6 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.envConfig != null">
-        env_config = #{record.envConfig,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -365,8 +355,7 @@
       report_version = #{record.reportVersion,jdbcType=INTEGER},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       report_type = #{record.reportType,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=LONGVARCHAR},
-      env_config = #{record.envConfig,jdbcType=LONGVARCHAR}
+      description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -394,7 +383,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReportWithBLOBs">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     update api_scenario_report
     <set>
       <if test="projectId != null">
@@ -448,13 +437,10 @@
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
-      <if test="envConfig != null">
-        env_config = #{envConfig,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportWithBLOBs">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     update api_scenario_report
     set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
@@ -472,8 +458,7 @@
       report_version = #{reportVersion,jdbcType=INTEGER},
       version_id = #{versionId,jdbcType=VARCHAR},
       report_type = #{reportType,jdbcType=VARCHAR},
-      description = #{description,jdbcType=LONGVARCHAR},
-      env_config = #{envConfig,jdbcType=LONGVARCHAR}
+      description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenarioReport">

@@ -1107,7 +1107,7 @@ public class ApiDefinitionService {
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                     request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
-            ApiDefinitionExecResultWithBLOBs result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
+            ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
             apiDefinitionExecResultMapper.insert(result);
@@ -1129,21 +1129,21 @@ public class ApiDefinitionService {
      * @return
      */
     public APIReportResult getDbResult(String testId) {
-        ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
         return buildAPIReportResult(result);
     }
 
     public APIReportResult getByResultId(String reportId) {
-        ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+        ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
         return buildAPIReportResult(result);
     }
 
     public APIReportResult getReportById(String testId) {
-        ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
+        ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
     }
 
-    public APIReportResult buildAPIReportResult(ApiDefinitionExecResultWithBLOBs result) {
+    public APIReportResult buildAPIReportResult(ApiDefinitionExecResult result) {
         if (result == null) {
             return null;
         }
@@ -1154,7 +1154,7 @@ public class ApiDefinitionService {
     }
 
     public APIReportResult getDbResult(String testId, String type) {
-        ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(testId, type);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(testId, type);
         return buildAPIReportResult(result);
     }
 
@@ -1842,7 +1842,7 @@ public class ApiDefinitionService {
     }
 
     public APIReportResult getTestPlanApiCaseReport(String testId, String type) {
-        ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
         return buildAPIReportResult(result);
     }
 

@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiExecutionQueueDetail implements Serializable {
@@ -19,10 +18,6 @@ public class ApiExecutionQueueDetail implements Serializable {
     private String type;
 
     private Long createTime;
-
-    private Boolean retryEnable;
-
-    private Long retryNumber;
 
     private String evnMap;
 

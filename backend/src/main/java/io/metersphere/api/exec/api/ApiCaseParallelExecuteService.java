@@ -5,7 +5,7 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -32,7 +32,7 @@ public class ApiCaseParallelExecuteService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
-    public void parallel(Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue, RunModeConfigDTO config, DBTestQueue executionQueue, String runMode) {
+    public void parallel(Map<String, ApiDefinitionExecResult> executeQueue, RunModeConfigDTO config, DBTestQueue executionQueue, String runMode) {
         BooleanPool pool = GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId());
         // 初始化分配策略
         if (pool.isPool()) {
@@ -44,7 +44,7 @@ public class ApiCaseParallelExecuteService {
             if (Thread.currentThread().isInterrupted()) {
                 break;
             }
-            ApiDefinitionExecResultWithBLOBs result = executeQueue.get(testId);
+            ApiDefinitionExecResult result = executeQueue.get(testId);
             String reportId = result.getId();
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, null);
             runRequest.setPool(pool);
@@ -53,10 +53,6 @@ public class ApiCaseParallelExecuteService {
             runRequest.setReportType(executionQueue.getReportType());
             runRequest.setRunType(RunModeConstants.PARALLEL.toString());
             runRequest.setQueueId(executionQueue.getId());
-
-            runRequest.setRetryNum(config.getRetryNum());
-            runRequest.setRetryEnable(config.isRetryEnable());
-
             Map<String, Object> extendedParameters = new HashMap<>();
             extendedParameters.put("userId", result.getUserId());
             runRequest.setExtendedParameters(extendedParameters);

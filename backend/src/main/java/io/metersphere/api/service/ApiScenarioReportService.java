@@ -209,10 +209,10 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public ApiScenarioReportWithBLOBs editReport(String reportType, String reportId, String status, String runMode) {
-        ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+    public ApiScenarioReport editReport(String reportType, String reportId, String status, String runMode) {
+        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
         if (report == null) {
-            report = new ApiScenarioReportWithBLOBs();
+            report = new ApiScenarioReport();
             report.setId(reportId);
         }
         if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
@@ -234,7 +234,7 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updateReport(APIScenarioReportResult test) {
         checkNameExist(test);
-        ApiScenarioReportWithBLOBs report = new ApiScenarioReportWithBLOBs();
+        ApiScenarioReport report = new ApiScenarioReport();
         report.setId(test.getId());
         report.setProjectId(test.getProjectId());
         report.setName(test.getName());
@@ -301,7 +301,7 @@ public class ApiScenarioReportService {
 
         long errorSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Error.name())).count();
         String status = getStatus(requestResults, dto);
-        ApiScenarioReportWithBLOBs report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
                 testPlanReportIdList.add(dto.getTestPlanReportId());
@@ -348,25 +348,21 @@ public class ApiScenarioReportService {
     public void margeReport(String reportId, String runMode) {
         // 更新场景状态
         if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
-            ApiDefinitionExecResultWithBLOBs result = definitionExecResultMapper.selectByPrimaryKey(reportId);
-            if (!StringUtils.equalsAnyIgnoreCase(result.getStatus(), APITestStatus.Rerunning.name())) {
-                result.setEndTime(System.currentTimeMillis());
-            }
+            ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
             ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
             execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
             long size = definitionExecResultMapper.countByExample(execResultExample);
             result.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+            result.setEndTime(System.currentTimeMillis());
             definitionExecResultMapper.updateByPrimaryKeySelective(result);
         } else {
             ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
             if (report != null) {
-                if (!StringUtils.equalsAnyIgnoreCase(report.getStatus(), APITestStatus.Rerunning.name())) {
-                    report.setEndTime(System.currentTimeMillis());
-                }
                 ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
                 example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo(ScenarioStatus.Error.name());
                 long size = apiScenarioReportResultMapper.countByExample(example);
                 report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+                report.setEndTime(System.currentTimeMillis());
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
             }
@@ -832,9 +828,6 @@ public class ApiScenarioReportService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
-        if (config != null) {
-            report.setEnvConfig(JSON.toJSONString(config));
-        }
         report.setReportType(ReportTypeConstants.SCENARIO_INDEPENDENT.name());
         return report;
     }
@@ -906,7 +899,7 @@ public class ApiScenarioReportService {
 
     public void reName(ApiScenarioReport reportRequest) {
         if (StringUtils.equalsIgnoreCase(reportRequest.getReportType(), ReportTypeConstants.API_INDEPENDENT.name())) {
-            ApiDefinitionExecResultWithBLOBs result = definitionExecResultMapper.selectByPrimaryKey(reportRequest.getId());
+            ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportRequest.getId());
             if (result != null) {
                 result.setName(reportRequest.getName());
                 definitionExecResultMapper.updateByPrimaryKeySelective(result);

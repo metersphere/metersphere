@@ -1,8 +1,7 @@
 package io.metersphere.api.exec.utils;
 
-import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -17,8 +16,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class ApiDefinitionExecResultUtil {
-    public static ApiDefinitionExecResultWithBLOBs initBase(String resourceId, String status, String reportId, RunModeConfigDTO config) {
-        ApiDefinitionExecResultWithBLOBs apiResult = new ApiDefinitionExecResultWithBLOBs();
+    public static ApiDefinitionExecResult initBase(String resourceId, String status, String reportId, RunModeConfigDTO config) {
+        ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         if (StringUtils.isEmpty(reportId)) {
             apiResult.setId(UUID.randomUUID().toString());
         } else {
@@ -38,14 +37,12 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());
         apiResult.setStatus(status);
-        apiResult.setEnvConfig(JSON.toJSONString(config));
-
         return apiResult;
     }
 
-    public static ApiDefinitionExecResultWithBLOBs addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status,
-                                                             Map<String, ApiTestCase> caseMap, String poolId) {
-        ApiDefinitionExecResultWithBLOBs apiResult = new ApiDefinitionExecResultWithBLOBs();
+    public static ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status,
+                                                    Map<String, ApiTestCase> caseMap, String poolId) {
+        ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
@@ -75,13 +72,11 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setType(ApiRunMode.API_PLAN.name());
         apiResult.setStatus(status);
         apiResult.setContent(request.getPlanReportId());
-        apiResult.setEnvConfig(JSON.toJSONString(request.getConfig()));
-
         return apiResult;
     }
 
-    public static ApiDefinitionExecResultWithBLOBs add(String resourceId, String status, String reportId, String userId) {
-        ApiDefinitionExecResultWithBLOBs apiResult = new ApiDefinitionExecResultWithBLOBs();
+    public static ApiDefinitionExecResult add(String resourceId, String status, String reportId, String userId) {
+        ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         if (StringUtils.isEmpty(reportId)) {
             apiResult.setId(UUID.randomUUID().toString());
         } else {

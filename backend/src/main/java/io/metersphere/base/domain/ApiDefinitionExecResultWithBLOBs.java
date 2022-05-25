@@ -1,10 +1,9 @@
 package io.metersphere.base.domain;
 
+import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -12,7 +11,7 @@ import java.io.Serializable;
 public class ApiDefinitionExecResultWithBLOBs extends ApiDefinitionExecResult implements Serializable {
     private String content;
 
-    private String envConfig;
+    private String errorCode;
 
     private static final long serialVersionUID = 1L;
 }

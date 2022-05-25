@@ -47,10 +47,4 @@ public class RunScenarioRequest {
     private String testPlanReportId;
 
     private String requestOriginator;
-
-    // 失败重跑
-    private boolean isRerun;
-    private String serialReportId;
-    private Map<String, APIScenarioReportResult> reportMap;
-
 }
