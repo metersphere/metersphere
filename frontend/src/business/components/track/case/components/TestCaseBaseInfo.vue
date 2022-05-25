@@ -10,7 +10,13 @@
           :placeholder="$t('test_track.case.input_name')"
           :label="$t('test_track.case.name')"
           prop="name">
-          <el-input :disabled="readOnly" v-model="form.name" size="small" class="ms-case-input"></el-input>
+          <el-input
+            v-model="form.name"
+            size="small"
+            class="ms-case-input"
+            maxlength="225"
+            show-word-limit
+            :disabled="readOnly"/>
         </el-form-item>
       </el-row>
 
