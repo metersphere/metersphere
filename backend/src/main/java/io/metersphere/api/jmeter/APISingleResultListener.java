@@ -13,7 +13,7 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class APISingleResultListener implements MsExecListener {
      */
     @Override
     public void setupTest() {
-        queues = new ArrayList<>();
+        queues = new LinkedList<>();
         LoggerUtil.info("初始化监听");
     }
 
