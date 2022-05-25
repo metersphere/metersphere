@@ -129,6 +129,19 @@ rules:
   - apps
   resources:
   - daemonsets
+  - deployments
+  verbs:
+  - get
+  - watch
+  - list
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - extensions
+  resources:
+  - deployments
   verbs:
   - get
   - watch
