@@ -18,7 +18,6 @@
         <shiro.version>1.8.0</shiro.version>
         <java.version>11</java.version>
         <flyway.version>7.15.0</flyway.version>
-        <dubbo.version>2.7.15</dubbo.version>
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
     </properties>
 
@@ -172,18 +171,6 @@
             </exclusions>
         </dependency>
 
-        <!--  手动引入，不然会有 java.lang.NoClassDefFoundError: Could not initialize class org.apache.dubbo.config.ReferenceConfig      -->
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo</artifactId>
-            <version>${dubbo.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-context</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- jdk11 环境下有 Illegal reflective access   -->
         <dependency>
             <groupId>com.google.inject</groupId>
