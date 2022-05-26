@@ -314,7 +314,8 @@ export default {
     if (this.apiCase.request && this.apiCase.request.hashTree && this.apiCase.request.hashTree.length > 0) {
       this.apiCase.request.hashTree.forEach(item => {
         if (item.type === 'Assertions') {
-          item.document.nodeType = 'Case'
+          item.document.nodeType = 'Case';
+          item.document.apiDefinitionId = this.apiCase.apiDefinitionId;
         }
       })
     }
