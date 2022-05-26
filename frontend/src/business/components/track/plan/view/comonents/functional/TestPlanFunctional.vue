@@ -101,7 +101,6 @@ export default {
     'planStatus'
   ],
   mounted() {
-    this.$store.commit('setTestPlanViewSelectNode', {});
     this.initData();
   },
   computed: {
@@ -110,6 +109,7 @@ export default {
     },
   },
   activated() {
+    this.clearSelectNode();
     this.initData();
     this.openTestCaseEdit(this.$route.path);
   },
@@ -118,15 +118,19 @@ export default {
       this.openTestCaseEdit(to.path);
     },
     planId() {
+      this.clearSelectNode();
       this.initData();
     }
   },
   methods: {
     refresh() {
-      this.selectNodeIds = [];
-      this.$store.commit('setTestPlanViewSelectNode', {});
+      this.clearSelectNode();
       this.$refs.testCaseRelevance.search();
       this.getNodeTreeByPlanId();
+    },
+    clearSelectNode() {
+      this.selectNodeIds = [];
+      this.$store.commit('setTestPlanViewSelectNode', {});
     },
     initData() {
       this.getNodeTreeByPlanId();
