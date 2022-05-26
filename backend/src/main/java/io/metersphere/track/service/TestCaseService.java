@@ -1965,6 +1965,7 @@ public class TestCaseService {
                     EditTestCaseRequest editRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editRequest, item);
                     editRequest.setCustomFields(null);
+                    editRequest.setTags(null);
                     editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
                     lastAddId = null;
