@@ -92,35 +92,6 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!--  后续考虑移到jmeter core -->
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>jmeter-plugins-webdriver</artifactId>
-            <version>3.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.jmeter</groupId>
-                    <artifactId>ApacheJMeter_core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-nop</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>servlet-api</artifactId>
-                    <groupId>javax.servlet</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mail</artifactId>
-                    <groupId>javax.mail</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>geronimo-spec-javamail</artifactId>
-                    <groupId>geronimo-spec</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -188,7 +159,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>ms-jmeter-core</artifactId>
-            <version>1.1.8</version>
+            <version>1.1.9</version>
             <exclusions>
                 <exclusion>
                     <artifactId>netty</artifactId>
