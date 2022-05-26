@@ -220,7 +220,7 @@
 
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
 
-    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
 
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
