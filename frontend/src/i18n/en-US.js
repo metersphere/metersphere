@@ -2458,6 +2458,7 @@ export default {
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
     node_selector_invalid: 'nodeSelector must be JSON',
+    node_selector_tip: 'Configure the nodeSelector of the load test Pod',
     pod_thread_limit: 'Maximum number of threads per POD',
     usage: 'Usage',
     backend_listener: 'Backend Listener',

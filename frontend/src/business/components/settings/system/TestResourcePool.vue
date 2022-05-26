@@ -172,6 +172,21 @@
                   </el-form-item>
                 </el-col>
               </el-row>
+              <el-row>
+                <el-col>
+                  <el-form-item>
+                    <template v-slot:label>
+                      NodeSelector
+                      <el-tooltip :content="$t('test_resource_pool.node_selector_tip')"
+                                  effect="light"
+                                  trigger="hover">
+                        <i class="el-icon-info"></i>
+                      </el-tooltip>
+                    </template>
+                    <el-input v-model="item.nodeSelector" placeholder='{"disktype": "ssd",...}'/>
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </div>
           </div>
 
@@ -390,11 +405,12 @@ export default {
       if (this.infoList.length <= 0) {
         return {validate: false, msg: this.$t('test_resource_pool.cannot_empty')};
       }
+      let resourcePoolType = this.form.type;
       let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
       this.infoList.forEach(info => {
         for (let key in info) {
           // 排除非必填项
-          if (key === 'apiImage') {
+          if (key === 'nodeSelector' || key === 'apiImage') {
             continue;
           }
           if (info[key] != '0' && !info[key]) {
@@ -406,6 +422,14 @@ export default {
         if (!info.maxConcurrency) {
           resultValidate.validate = false;
           return false;
+        }
+
+        if (resourcePoolType === 'K8S' && info.nodeSelector) {
+          let validate = this.isJsonString(info.nodeSelector);
+          if (!validate) {
+            resultValidate.validate = false;
+            resultValidate.msg = this.$t('test_resource_pool.node_selector_invalid');
+          }
         }
       });
       return resultValidate;
@@ -435,7 +459,6 @@ export default {
           configuration.monitorPort = configuration.monitorPort || '9100';
           configuration.deployType = configuration.deployType || 'DaemonSet';
           configuration.deployName = configuration.deployName || 'ms-node-controller';
-          delete configuration.nodeSelector;
           resources.push(configuration);
         });
       }
@@ -599,6 +622,16 @@ export default {
         let i = response.data.lastIndexOf('-');
         this.apiImageTag = response.data.substring(0, i);
       });
+    },
+    isJsonString(str) {
+      try {
+        if (typeof JSON.parse(str) == "object") {
+          return true;
+        }
+      } catch (e) {
+        return false;
+      }
+      return false;
     }
   }
 };

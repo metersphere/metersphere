@@ -2462,6 +2462,7 @@ export default {
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
     node_selector_invalid: 'nodeSelector 必须是有效的JSON',
+    node_selector_tip: '配置性能测试Pod的 nodeSelector',
     pod_thread_limit: '单POD最大线程数',
     usage: '用途',
     backend_listener: '后置监听器',
