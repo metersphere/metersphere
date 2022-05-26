@@ -124,6 +124,7 @@
     <select id="list" resultType="io.metersphere.base.domain.ApiDefinitionExecResultExpand">
         SELECT a_r.name AS test_name,
         a_r.end_time as end_time,
+        if (a_r.end_time + 0 > a_r.create_time + 0, a_r.end_time, a_r.create_time) as calc_end_time,
         a_r.user_id,
         a_r.name,
         a_r.id,
@@ -181,7 +182,14 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
+                <choose>
+                    <when test="order.name == 'end_time' ">
+                        calc_end_time ${order.type}
+                    </when>
+                    <otherwise>
+                        `${order.name}` ${order.type}
+                    </otherwise>
+                </choose>
             </foreach>
         </if>
     </select>
