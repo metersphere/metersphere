@@ -301,7 +301,7 @@
             @runRefresh="runRefresh"
             ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
-    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </div>

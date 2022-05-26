@@ -21,7 +21,7 @@
       @setCount="setPostCount"
       :resource-type="resourceType" ref="postRelationshipList"/>
 
-    <relationship-graph-drawer v-permission :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-xpack v-permission :graph-data="graphData" ref="relationshipGraph"/>
 
   </div>
 </template>
