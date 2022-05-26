@@ -35,6 +35,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -460,6 +462,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 name = name.replaceAll("&amp;", "&");
                 path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
             }
+            path = "/resource/md/get/url?url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
         }
