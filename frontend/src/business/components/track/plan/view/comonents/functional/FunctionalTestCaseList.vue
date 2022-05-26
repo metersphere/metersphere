@@ -555,13 +555,13 @@ export default {
         }
         this.status = 'all';
       }
+      this.condition.nodeIds = [];
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        // param.nodeIds = this.selectNodeIds;
         this.condition.nodeIds = this.selectNodeIds;
       }
       this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
-        getTestPlanTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
+        this.result = getTestPlanTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
