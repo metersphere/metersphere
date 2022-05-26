@@ -140,18 +140,18 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-            SELECT s_r.name AS test_name,
-            s_r.end_time as end_time,
-            s_r.user_id,
-            s_r.name,
-            s_r.id,
-            s_r.project_id,
-            s_r.create_time,
-            s_r.update_time,
-            s_r.status,
-            s_r.trigger_mode,
-            s_r.execute_type,
-            s_r.report_type
+        SELECT s_r.name AS test_name,
+        if (s_r.end_time + 0 > s_r.create_time + 0, s_r.end_time, s_r.create_time) as end_time,
+        s_r.user_id,
+        s_r.name,
+        s_r.id,
+        s_r.project_id,
+        s_r.create_time,
+        s_r.update_time,
+        s_r.status,
+        s_r.trigger_mode,
+        s_r.execute_type,
+        s_r.report_type
             FROM api_scenario_report s_r
         <where>
             <if test="request.combine != null">
@@ -210,7 +210,7 @@
             <if test="request.orders != null and request.orders.size() > 0">
                 order by
                 <foreach collection="request.orders" separator="," item="order">
-                    s_r.${order.name} ${order.type}
+                    ${order.name} ${order.type}
                 </foreach>
             </if>
         </where>
