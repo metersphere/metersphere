@@ -511,6 +511,9 @@ export default {
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;
     },
+    selectNode() {
+      return this.$store.state.testCaseSelectNode;
+    },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
     },
@@ -708,20 +711,21 @@ export default {
     initTableData() {
       this.condition.planId = "";
       this.condition.nodeIds = [];
-      //initCondition(this.condition);
       initCondition(this.condition, this.condition.selectAll);
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
       this.condition.versionId = this.currentVersion || null;
       this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
 
       if (this.planId) {
-        // param.planId = this.planId;
         this.condition.planId = this.planId;
       }
+
       if (!this.trashEnable && !this.publicEnable) {
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-          // param.nodeIds = this.selectNodeIds;
-          this.condition.nodeIds = this.selectNodeIds;
+          if (!this.selectNode || this.selectNode.data.id !== 'root') {
+            // 优化：如果当前选中节点是root节点，则不添加过滤条件
+            this.condition.nodeIds = this.selectNodeIds;
+          }
         }
       }
       this.getData();
