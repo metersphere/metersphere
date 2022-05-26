@@ -18,8 +18,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.ApiCaseExecutionInfoService;
 import io.metersphere.service.ApiExecutionInfoService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
-import io.metersphere.track.dto.TestPlanDTO;
-import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
@@ -325,16 +323,19 @@ public class ApiDefinitionExecResultService {
                         reportResult.setUserId(String.valueOf(dto.getExtendedParameters().get("userId")));
                     }
                     String status = item.isSuccess() ? "success" : "error";
+                    String triggerMode = "";
                     if (reportResult != null) {
                         status = reportResult.getStatus();
+                        triggerMode = reportResult.getTriggerMode();
                     }
+
                     if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
                         status = expandDTO.getStatus();
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                         if (apiCase != null) {
-                            apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getApiCaseId(), status);
+                            apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), status, triggerMode);
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
@@ -414,7 +415,7 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
+            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
 
@@ -423,17 +424,17 @@ public class ApiDefinitionExecResultService {
                     //开始遍历查询TestPlan信息 --> 提供前台做超链接
                     ExecutedCaseInfoResult item = list.get(i);
 
-                    QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
-                    planRequest.setProjectId(projectId);
-                    if ("scenario".equals(item.getCaseType())) {
-                        planRequest.setScenarioId(item.getTestCaseID());
-                    } else if ("apiCase".equals(item.getCaseType())) {
-                        planRequest.setApiId(item.getTestCaseID());
-                    } else if ("load".equals(item.getCaseType())) {
-                        planRequest.setLoadId(item.getTestCaseID());
-                    }
-                    List<TestPlanDTO> dtoList = extTestPlanMapper.selectTestPlanByRelevancy(planRequest);
-                    item.setTestPlanDTOList(dtoList);
+//                    QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
+//                    planRequest.setProjectId(projectId);
+//                    if ("scenario".equals(item.getCaseType())) {
+//                        planRequest.setScenarioId(item.getTestCaseID());
+//                    } else if ("apiCase".equals(item.getCaseType())) {
+//                        planRequest.setApiId(item.getTestCaseID());
+//                    } else if ("load".equals(item.getCaseType())) {
+//                        planRequest.setLoadId(item.getTestCaseID());
+//                    }
+//                    List<TestPlanDTO> dtoList = extTestPlanMapper.selectTestPlanByRelevancy(planRequest);
+//                    item.setTestPlanDTOList(dtoList);
                     returnList.add(item);
                 } else {
                     break;

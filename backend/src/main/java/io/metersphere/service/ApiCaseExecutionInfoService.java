@@ -23,13 +23,14 @@ public class ApiCaseExecutionInfoService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     @Lazy
-    public void insertExecutionInfo(String apiCaseId, String result) {
+    public void insertExecutionInfo(String apiCaseId, String result, String triggerMode) {
         if (StringUtils.isNotEmpty(apiCaseId) && StringUtils.isNotEmpty(result)) {
             ApiCaseExecutionInfo executionInfo = new ApiCaseExecutionInfo();
             executionInfo.setResult(result);
             executionInfo.setSourceId(apiCaseId);
             executionInfo.setId(UUID.randomUUID().toString());
             executionInfo.setCreateTime(System.currentTimeMillis());
+            executionInfo.setTriggerMode(triggerMode);
             apiCaseExecutionInfoMapper.insert(executionInfo);
         }
     }

@@ -30,8 +30,8 @@ public class ProjectApplicationController {
     }
 
     @GetMapping("/get/{projectId}/{type}")
-    public ProjectApplication getProjectApplication(@PathVariable String projectId,@PathVariable String type) {
-        return projectApplicationService.getProjectApplication(projectId,type);
+    public ProjectApplication getProjectApplication(@PathVariable String projectId, @PathVariable String type) {
+        return projectApplicationService.getProjectApplication(projectId, type);
     }
 
     @GetMapping("/get/config/{projectId}")

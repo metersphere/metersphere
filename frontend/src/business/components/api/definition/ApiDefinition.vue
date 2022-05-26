@@ -61,7 +61,6 @@
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
                 :trash-enable="true"
-                :queryDataType="queryDataType"
                 :selectDataRange="selectDataRange"
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
@@ -81,7 +80,6 @@
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
                 :trash-enable="true"
-                :queryDataType="queryDataType"
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
@@ -122,7 +120,6 @@
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
                 :trash-enable="false"
-                :queryDataType="queryDataType"
                 :selectDataRange="selectDataRange"
                 :is-read-only="isReadOnly"
                 @runTest="runTest"
@@ -146,7 +143,6 @@
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
                 :trash-enable="false"
-                :queryDataType="queryDataType"
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
@@ -271,20 +267,12 @@ import MsEditCompleteContainer from "./components/EditCompleteContainer";
 import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
 import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
-
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
-
 
 export default {
   name: "ApiDefinition",
   computed: {
-    queryDataType: function () {
-      let routeParam = this.$route.params.dataType;
-      let redirectIDParam = this.$route.params.redirectID;
-      this.changeRedirectParam(redirectIDParam);
-      return routeParam;
-    },
     isReadOnly() {
       return false;
     },
@@ -367,29 +355,31 @@ export default {
   },
   activated() {
     this.selectNodeIds = [];
-    let dataRange = this.$route.params.dataSelectRange;
-    if (dataRange && dataRange.length > 0) {
-      this.activeDom = 'middle';
-    }
-    let dataType = this.$route.params.dataType;
-    if (dataType) {
-      if (dataType === "api") {
-        this.activeDom = 'left';
-      } else {
+    let routeParamObj = this.$route.params.paramObj;
+    if (routeParamObj) {
+      let dataRange = routeParamObj.dataSelectRange;
+      if (dataRange && dataRange.length > 0) {
         this.activeDom = 'middle';
       }
-    }
-
-    if (this.$route.params.dataSelectRange) {
-      let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
-      if (item !== undefined) {
-        let type = item.taskGroup.toString();
-        if (type === "SWAGGER_IMPORT") {
-          this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
-          this.param = item;
+      let dataType = routeParamObj.dataType;
+      if (dataType) {
+        if (dataType === "api") {
+          this.activeDom = 'left';
+        } else {
+          this.activeDom = 'middle';
         }
       }
+      if (routeParamObj.dataSelectRange) {
+        let item = JSON.parse(JSON.stringify(routeParamObj.dataSelectRange)).param;
+        if (item !== undefined) {
+          let type = item.taskGroup.toString();
+          if (type === "SWAGGER_IMPORT") {
+            this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
+            this.param = item;
+          }
+        }
 
+      }
     }
   },
   watch: {
@@ -420,22 +410,29 @@ export default {
     },
   },
   created() {
-    let workspaceId = this.$route.params.workspaceId;
-    if (workspaceId) {
-      sessionStorage.setItem(WORKSPACE_ID, workspaceId);
-    } else {
-      if (this.$route.query.workspaceId) {
-        workspaceId = this.$route.query.workspaceId;
+    let routeParamObj = this.$route.params.paramObj;
+    if (routeParamObj) {
+      let workspaceId = routeParamObj.workspaceId;
+      if (workspaceId) {
         sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+      } else {
+        if (this.$route.query.workspaceId) {
+          workspaceId = this.$route.query.workspaceId;
+          sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+        }
       }
-    }
-    let projectId = this.$route.params.projectId;
-    if (projectId) {
-      sessionStorage.setItem(PROJECT_ID, projectId);
-    } else {
-      if (this.$route.query.projectId) {
-        projectId = this.$route.query.projectId;
-        sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
+      let projectId = routeParamObj.projectId;
+      if (projectId) {
+        sessionStorage.setItem(PROJECT_ID, projectId);
+      } else {
+        if (this.$route.query.projectId) {
+          projectId = this.$route.query.projectId;
+          sessionStorage.setItem(PROJECT_ID, projectId);
+        }
+      }
+      // 通知过来的数据跳转到编辑
+      if (this.routeParamObj.caseId) {
+        this.activeDom = 'middle';
       }
     }
     this.getEnv();
@@ -714,16 +711,19 @@ export default {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
     },
     init() {
-      let dataRange = this.$route.params.dataSelectRange;
-      let dataType = this.$route.params.dataType;
-      if (dataRange) {
-        let selectParamArr = dataRange.split("edit:");
-        if (selectParamArr.length === 2) {
-          let scenarioId = selectParamArr[1];
-          if (dataType === 'api') {
-            this.$get('/api/definition/get/' + scenarioId, (response) => {
-              this.editApi(response.data);
-            });
+      let routeParamObj = this.$route.params.paramObj;
+      if (routeParamObj) {
+        let dataRange = routeParamObj.dataSelectRange;
+        let dataType = routeParamObj.dataType;
+        if (dataRange) {
+          let selectParamArr = dataRange.split("edit:");
+          if (selectParamArr.length === 2) {
+            let scenarioId = selectParamArr[1];
+            if (dataType === 'api') {
+              this.$get('/api/definition/get/' + scenarioId, (response) => {
+                this.editApi(response.data);
+              });
+            }
           }
         }
       }
@@ -872,7 +872,9 @@ export default {
       this.nodeTree = data;
     },
     changeSelectDataRangeAll(tableType) {
-      this.$route.params.dataSelectRange = 'all';
+      if (this.$route.params.paramObj) {
+        this.$route.params.paramObj.dataSelectRange = 'all';
+      }
     },
     enableTrash(data) {
       this.initApiTableOpretion = "trashEnable";

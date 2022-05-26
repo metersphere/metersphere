@@ -310,7 +310,15 @@
 </template>
 
 <script>
-import {downloadFile, getCurrentProjectID, getUUID, hasLicense, hasPermission, objToStrMap, strMapToObj} from "@/common/js/utils";
+import {
+  downloadFile,
+  getCurrentProjectID,
+  getUUID,
+  hasLicense,
+  hasPermission,
+  objToStrMap,
+  strMapToObj
+} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
@@ -430,6 +438,7 @@ export default {
       schedule: {},
       tableData: [],
       selectDataRange: 'all',
+      selectDataType: 'all',
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -722,19 +731,26 @@ export default {
       //检查是否只查询本周数据
       this.condition.selectThisWeedData = false;
       this.condition.executeStatus = null;
-      this.isSelectThissWeekData();
+      this.condition.selectDataType = this.selectDataType;
+      this.isRedirectFilter();
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
           break;
-        case 'unExecute':
+        case 'unexecuteCount':
           this.condition.executeStatus = 'unExecute';
           break;
-        case 'executeFailed':
+        case 'executionFailedCount':
           this.condition.executeStatus = 'executeFailed';
           break;
-        case 'executePass':
+        case 'fakeErrorCount':
+          this.condition.executeStatus = 'fakeError';
+          break;
+        case 'executionPassCount':
           this.condition.executeStatus = 'executePass';
+          break;
+        case 'notSuccessCount':
+          this.condition.executeStatus = 'notSuccess';
           break;
       }
       if (this.selectDataRange != null) {
@@ -1153,9 +1169,16 @@ export default {
       this.showReportId = row.reportId;
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
-    isSelectThissWeekData() {
-      let dataRange = this.$route.params.dataSelectRange;
-      this.selectDataRange = dataRange;
+    isRedirectFilter() {
+      this.selectDataRange = "all";
+      this.selectDataType = "all";
+      let routeParamObj = this.$route.params.paramObj;
+      if (routeParamObj) {
+        let dataRange = routeParamObj.dataSelectRange;
+        let dataType = routeParamObj.dataType;
+        this.selectDataRange = dataRange;
+        this.selectDataType = dataType;
+      }
     },
     changeSelectDataRangeAll() {
       this.$emit("changeSelectDataRangeAll");

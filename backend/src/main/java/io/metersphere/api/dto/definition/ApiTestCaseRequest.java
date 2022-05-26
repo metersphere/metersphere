@@ -50,4 +50,7 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
      * 查询排除一些接口
      */
     private List<String> notInIds;
+    
+    //页面跳转时附带的过滤条件
+    private String redirectFilter;
 }

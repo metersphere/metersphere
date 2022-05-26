@@ -244,6 +244,14 @@
             <if test="request.createTime >0 ">
                 AND api_scenario.create_time >= #{request.createTime}
             </if>
+            <if test="request.scheduleCreateTime >0 ">
+                AND api_scenario.id IN
+                (
+                SELECT resource_id FROM `schedule`
+                WHERE `group` = 'API_SCENARIO_TEST'
+                AND create_time >= #{request.scheduleCreateTime}
+                )
+            </if>
             <if test="request.ids != null and request.ids.size() > 0">
                 AND api_scenario.id in
                 <foreach collection="request.ids" item="itemId" separator="," open="(" close=")">
@@ -330,14 +338,38 @@
             <if test="request.filters == null || request.filters.size() == 0 ">
                 and (api_scenario.status is null or api_scenario.status != 'Trash')
             </if>
-            <if test="request.executeStatus == 'unExecute'">
+            <if test="request.executeStatus == 'unExecute' and request.selectDataType != 'schedule' ">
                 and api_scenario.last_result IS NULL
             </if>
-            <if test="request.executeStatus == 'executeFailed'">
+            <if test="request.executeStatus == 'executeFailed' and request.selectDataType != 'schedule' ">
                 and api_scenario.last_result = 'Fail'
             </if>
-            <if test="request.executeStatus == 'executePass'">
+            <if test="request.executeStatus == 'executePass' and request.selectDataType != 'schedule' ">
                 and api_scenario.last_result = 'Success'
+            </if>
+            <if test="request.executeStatus == 'fakeError' and request.selectDataType != 'schedule' ">
+                and api_scenario.last_result = 'errorReportResult'
+            </if>
+            <if test="request.executeStatus == 'notSuccess' and request.selectDataType != 'schedule' ">
+                and api_scenario.last_result IN ('Fail','errorReportResult')
+            </if>
+            <if test="request.executeStatus == 'executeFailed' and request.selectDataType == 'schedule' ">
+                AND api_scenario.id IN
+                (SELECT source_id FROM scenario_execution_info WHERE trigger_mode = 'SCHEDULE' AND result = 'Error')
+            </if>
+            <if test="request.executeStatus == 'executePass' and request.selectDataType == 'schedule' ">
+                AND api_scenario.id IN
+                (SELECT source_id FROM scenario_execution_info WHERE trigger_mode = 'SCHEDULE' AND result = 'Success')
+            </if>
+            <if test="request.executeStatus == 'fakeError' and request.selectDataType == 'schedule' ">
+                AND api_scenario.id IN
+                (SELECT source_id FROM scenario_execution_info WHERE trigger_mode = 'SCHEDULE' AND result =
+                'errorReportResult')
+            </if>
+            <if test="request.executeStatus == 'notSuccess' and request.selectDataType == 'schedule' ">
+                AND api_scenario.id IN
+                (SELECT source_id FROM scenario_execution_info WHERE trigger_mode = 'SCHEDULE' AND result IN
+                ('errorReportResult','Error'))
             </if>
             <if test="request.notInTestPlan">
                 and api_scenario.id not in (
@@ -678,6 +710,12 @@
             </if>
             <if test="request.executeStatus == 'executePass'">
                 and api_scenario.last_result = 'Success'
+            </if>
+            <if test="request.executeStatus == 'fakeError'">
+                and api_scenario.last_result = 'errorReportResult'
+            </if>
+            <if test="request.executeStatus == 'notSuccess'">
+                and api_scenario.last_result IN ('Fail','errorReportResult')
             </if>
             <if test="request.notInTestPlan == true ">
                 and api_scenario.id not in (

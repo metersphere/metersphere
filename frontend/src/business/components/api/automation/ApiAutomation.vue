@@ -176,6 +176,9 @@ export default {
       sessionStorage.setItem(PROJECT_ID, projectId);
     }
   },
+  activated() {
+    this.selectNodeIds = [];
+  },
   mounted() {
     this.getProject();
     this.getTrashCase();
@@ -707,7 +710,13 @@ export default {
     gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
+        params: {
+          redirectID: getUUID(),
+          dataType: "scenario",
+          dataSelectRange: 'edit:' + resource.id,
+          projectId: resource.projectId,
+          workspaceId: workspaceId
+        }
       });
       if (isTurnSpace) {
         window.open(automationData.href, '_blank');

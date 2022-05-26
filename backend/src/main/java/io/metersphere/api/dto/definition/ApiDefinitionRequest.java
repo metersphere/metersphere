@@ -20,7 +20,9 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private boolean isSelectThisWeedData = false;
     private long createTime = 0;
     private String status;
+    private String apiCoverage;
     private String apiCaseCoverage;
+    private String scenarioCoverage;
     private String reviewId;
     private String refId;
     private String versionId;

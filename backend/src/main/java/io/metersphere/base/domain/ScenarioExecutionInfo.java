@@ -11,6 +11,8 @@ public class ScenarioExecutionInfo implements Serializable {
 
     private String result;
 
+    private String triggerMode;
+
     private Long createTime;
 
     private static final long serialVersionUID = 1L;

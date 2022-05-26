@@ -169,7 +169,7 @@
         s_r.trigger_mode,
         s_r.execute_type,
         s_r.report_type
-            FROM api_scenario_report s_r
+        FROM api_scenario_report s_r
         <where>
             <if test="request.combine != null">
                 <include refid="listCombine">
@@ -241,32 +241,32 @@
 
     <select id="idList" resultType="java.lang.String">
         select r.id from (
-            SELECT s_r.name AS test_name,
-            s_r.end_time,
-            s_r.user_id,
-            s_r.name,
-            s_r.id,
-            s_r.project_id,
-            s_r.create_time,
-            s_r.update_time,
-            s_r.status,
-            s_r.trigger_mode,
-            s_r.execute_type,
-            s_r.report_type
+        SELECT s_r.name AS test_name,
+        s_r.end_time,
+        s_r.user_id,
+        s_r.name,
+        s_r.id,
+        s_r.project_id,
+        s_r.create_time,
+        s_r.update_time,
+        s_r.status,
+        s_r.trigger_mode,
+        s_r.execute_type,
+        s_r.report_type
         FROM api_scenario_report s_r
         union all
         select a_r.name as test_name,
-            a_r.end_time,
-            a_r.user_id,
-            a_r.name,
-            a_r.id,
-            a_r.project_id,
-            a_r.create_time,
-            a_r.create_time as update_time,
-            a_r.status,
-            a_r.trigger_mode,
-            'Saved' as execute_type,
-            'API_INDEPENDENT' as report_type
+        a_r.end_time,
+        a_r.user_id,
+        a_r.name,
+        a_r.id,
+        a_r.project_id,
+        a_r.create_time,
+        a_r.create_time as update_time,
+        a_r.status,
+        a_r.trigger_mode,
+        'Saved' as execute_type,
+        'API_INDEPENDENT' as report_type
         from api_definition_exec_result a_r
         where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
         ) r
@@ -357,27 +357,24 @@
 
     <select id="countByProjectIdAndCreateAndByScheduleInThisWeek" resultType="java.lang.Long">
         SELECT count(ar.id) AS countNumber
-        FROM api_scenario_report ar
-                 INNER JOIN (
-            SELECT acitem.`name`, acitem.id
-            FROM api_scenario acitem
-                     INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
-        ) ac on ar.scenario_id = ac.id
-        WHERE ar.project_id = #{projectId}
-          AND ar.trigger_mode = 'SCHEDULE'
-          AND ar.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+        FROM scenario_execution_info ar
+        WHERE trigger_mode = 'SCHEDULE'
+          AND source_id IN (SELECT id
+                            FROM api_scenario
+                            WHERE project_id = #{projectId}
+                              AND latest = 1)
+          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+
     </select>
 
     <select id="countByProjectIdGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT count(ar.id) AS countNumber, ar.status AS groupField
-        FROM api_scenario_report ar
-                 INNER JOIN (
-            SELECT acitem.`name`, acitem.id
-            FROM api_scenario acitem
-                     INNER JOIN `schedule` sc ON acitem.id = sc.resource_id and latest = 1
-        ) ac on ar.scenario_id = ac.id
-        WHERE ar.project_id = #{projectId}
-          AND ar.trigger_mode = 'SCHEDULE'
+        SELECT count(id) AS countNumber, result AS groupField
+        FROM scenario_execution_info ar
+        WHERE trigger_mode = 'SCHEDULE'
+          AND source_id IN (SELECT id
+                            FROM api_scenario
+                            WHERE project_id = #{projectId}
+                              AND latest = 1)
         GROUP BY groupField;
     </select>
     <select id="selectLastReportByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
@@ -410,7 +407,7 @@
           and scenario_id = #{scenarioId}
           and id != #{nowId}
         ORDER BY create_time desc
-        LIMIT 5, 1
+            LIMIT 5, 1
     </select>
 
     <select id="countByApiScenarioId" resultType="io.metersphere.dto.ApiReportCountDTO">
@@ -429,7 +426,8 @@
           and t.execute_type != 'Debug'
           and t.execute_type != 'Marge'
           and t.project_id = #{projectId}
-          and t.`STATUS` in ('running', 'waiting')
+          and t.`STATUS` in ('running'
+            , 'waiting')
 
     </select>
 
@@ -455,8 +453,9 @@
         </foreach>
     </update>
 
-    <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiScenarioReport" parameterType="java.lang.String">
-        select actuator ,id   from api_scenario_report where status in ("running","starting","waiting") and project_id in
+    <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiScenarioReport"
+            parameterType="java.lang.String">
+        select actuator ,id from api_scenario_report where status in ("running","starting","waiting") and project_id in
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>

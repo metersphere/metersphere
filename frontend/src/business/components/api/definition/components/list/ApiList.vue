@@ -617,15 +617,28 @@ export default {
       this.getSelectDataRange();
       this.condition.selectThisWeedData = false;
       this.condition.apiCaseCoverage = null;
+      this.condition.apiCoverage = null;
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
           break;
-        case 'uncoverage':
+        case 'notCoverate':
+          this.condition.apiCoverage = 'uncoverage';
+          break;
+        case 'coverate':
+          this.condition.apiCoverage = 'coverage';
+          break;
+        case 'unCoverageTestCase':
           this.condition.apiCaseCoverage = 'uncoverage';
           break;
-        case 'coverage':
+        case 'coverageTestCase':
           this.condition.apiCaseCoverage = 'coverage';
+          break;
+        case 'coverageScenario':
+          this.condition.scenarioCoverage = 'coverage';
+          break;
+        case 'unCoverageScenario':
+          this.condition.scenarioCoverage = 'uncoverage';
           break;
         case 'Prepare':
           this.condition.filters.status = [this.selectDataRange];
@@ -895,16 +908,19 @@ export default {
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
     getSelectDataRange() {
-      let dataRange = this.$route.params.dataSelectRange;
-      let dataType = this.$route.params.dataType;
-      this.selectDataRange = dataType === 'api' ? dataRange : "all";
-      if (this.selectDataRange &&
-        Object.prototype.toString.call(this.selectDataRange).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-        && this.selectDataRange.indexOf(":") !== -1) {
-        let selectParamArr = this.selectDataRange.split(":");
-        if (selectParamArr.length === 2) {
-          if (selectParamArr[0] === "apiList") {
-            this.condition.name = selectParamArr[1];
+      let routeParamObj = this.$route.params.paramObj;
+      if (routeParamObj) {
+        let dataRange = routeParamObj.dataSelectRange;
+        let dataType = routeParamObj.dataType;
+        this.selectDataRange = dataType === 'api' ? dataRange : "all";
+        if (this.selectDataRange &&
+          Object.prototype.toString.call(this.selectDataRange).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+          && this.selectDataRange.indexOf(":") !== -1) {
+          let selectParamArr = this.selectDataRange.split(":");
+          if (selectParamArr.length === 2) {
+            if (selectParamArr[0] === "apiList") {
+              this.condition.name = selectParamArr[1];
+            }
           }
         }
       }

@@ -1,12 +1,8 @@
 package io.metersphere.api.dto.automation;
 
 import io.metersphere.controller.request.BaseQueryRequest;
-import io.metersphere.controller.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -20,7 +16,9 @@ public class ApiScenarioRequest extends BaseQueryRequest {
     private boolean recent = false;
     private boolean isSelectThisWeedData;
     private long createTime = 0;
+    private long scheduleCreateTime = 0;
     private String executeStatus;
+    private String selectDataType;
     private boolean notInTestPlan;
     private String reviewId;
     private String versionId;

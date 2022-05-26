@@ -310,7 +310,7 @@ public class ApiScenarioReportService {
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
 
             //增加场景的运行记录
-            scenarioExecutionInfoService.insertExecutionInfo(testPlanApiScenario.getApiScenarioId(), status);
+            scenarioExecutionInfoService.insertExecutionInfo(testPlanApiScenario.getId(), status, report.getTriggerMode());
 
             // 更新场景状态
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
@@ -434,7 +434,7 @@ public class ApiScenarioReportService {
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
                 //场景集合报告，按照集合报告的结果作为场景的最后执行结果
-                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus());
+                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus(), report.getTriggerMode());
             }
         }
 

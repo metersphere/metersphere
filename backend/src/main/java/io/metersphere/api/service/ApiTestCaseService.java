@@ -9,6 +9,7 @@ import io.metersphere.api.dto.ApiCaseEditRequest;
 import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
@@ -1186,4 +1187,7 @@ public class ApiTestCaseService {
         return null;
     }
 
+    public List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId) {
+        return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId);
+    }
 }

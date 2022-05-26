@@ -646,10 +646,10 @@
     </select>
 
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
-        select id, path, method
+        select id, path, method, protocol
         from api_definition
         WHERE project_id = #{0}
-          AND status != 'Trash' AND protocol = 'HTTP' AND latest = 1
+          AND status != 'Trash' AND latest = 1
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
@@ -766,6 +766,27 @@
                 </when>
             </choose>
             <include refid="filter"/>
+
+            <if test="request.apiCoverage == 'uncoverage' ">
+                and
+                api_definition.id not in (SELECT api_definition_id FROM api_test_case)
+                and
+                api_definition.id not in (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') AND reference_id is not null
+                )
+            </if>
+            <if test="request.apiCoverage == 'coverage' ">
+                and
+                (
+                api_definition.id in (SELECT api_definition_id FROM api_test_case)
+                or
+                api_definition.id in (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
+                )
+                )
+            </if>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case)
@@ -773,6 +794,20 @@
             <if test="request.apiCaseCoverage == 'coverage' ">
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.scenarioCoverage == 'uncoverage' ">
+                and api_definition.id not in
+                (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
+                )
+            </if>
+            <if test="request.scenarioCoverage == 'coverage' ">
+                and api_definition.id in
+                (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
+                )
             </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
@@ -836,6 +871,26 @@
                 </when>
             </choose>
             <include refid="filter"/>
+            <if test="request.apiCoverage == 'uncoverage' ">
+                and
+                api_definition.id not in (SELECT api_definition_id FROM api_test_case)
+                and
+                api_definition.id not in (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') AND reference_id is not null
+                )
+            </if>
+            <if test="request.apiCoverage == 'coverage' ">
+                and
+                (
+                api_definition.id in (SELECT api_definition_id FROM api_test_case)
+                or
+                api_definition.id in (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash')
+                )
+                )
+            </if>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case)
@@ -843,6 +898,20 @@
             <if test="request.apiCaseCoverage == 'coverage' ">
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.scenarioCoverage == 'uncoverage' ">
+                and api_definition.id not in
+                (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
+                )
+            </if>
+            <if test="request.scenarioCoverage == 'coverage' ">
+                and api_definition.id in
+                (
+                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
+                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
+                )
             </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
