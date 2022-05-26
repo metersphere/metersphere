@@ -1926,6 +1926,7 @@ public class TestCaseService {
                     }
                     EditTestCaseRequest editRequest = new EditTestCaseRequest();
                     BeanUtils.copyBean(editRequest, item);
+                    editRequest.setTags(null);
                     editTestCase(editRequest);
                     changeOrder(item, request.getProjectId());
                     lastAddId = null;
