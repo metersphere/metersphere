@@ -586,6 +586,8 @@ public class ApiScenarioReportStructureService {
             AtomicLong allUnExecute = new AtomicLong();
             this.countAllUnexecute(stepList, allUnExecute);
             reportDTO.setUnExecute(allUnExecute.longValue());
+            //之前的total中请求数是按照获得报告的响应数来算的。这里要加上未执行的数量
+            reportDTO.setTotal(reportDTO.getTotal() + allUnExecute.longValue());
         }
         return reportDTO;
     }
