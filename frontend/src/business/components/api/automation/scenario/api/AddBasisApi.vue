@@ -148,6 +148,16 @@
           data.method = data.protocol;
         }
         data.request.path = this.httpForm.path;
+        if (data.request.hashTree && data.request.hashTree.length > 0) {
+          let arrays = ["Extract", "JSR223PreProcessor", "JDBCPreProcessor", "ConstantTimer", "JSR223PostProcessor", "JDBCPostProcessor", "Assertions"];
+          let hashTree = [];
+          data.request.hashTree.forEach(item => {
+            if (arrays.indexOf(item.type) !== -1) {
+              hashTree.push(item);
+            }
+          })
+          data.request.hashTree = hashTree;
+        }
       },
       getBodyUploadFiles(data) {
         let bodyUploadFiles = [];
