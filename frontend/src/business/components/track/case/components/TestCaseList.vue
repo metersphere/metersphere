@@ -221,7 +221,7 @@
 
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
 
-    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
 
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
