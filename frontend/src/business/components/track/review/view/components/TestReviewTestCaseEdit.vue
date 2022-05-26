@@ -331,9 +331,7 @@ export default {
           this.testCase.reviewStatus = status;
           // 修改当前用例在整个用例列表的状态
           this.testCases[this.index].reviewStatus = status;
-          if (this.index < this.testCases.length - 1) {
-            this.handleNext();
-          }
+          this.handleNext();
           // 切换状态后需要修改旧的状态
           this.oldReviewStatus = status;
         });
