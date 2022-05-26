@@ -67,7 +67,7 @@ public class ApiDefinitionExecResultUtil {
             apiResult.setUserId(request.getUserId());
         }
 
-        apiResult.setResourceId(key.getApiCaseId());
+        apiResult.setResourceId(key.getId());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.API_PLAN.name());
         apiResult.setStatus(status);
