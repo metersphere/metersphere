@@ -205,7 +205,7 @@
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"/>
 
-    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </span>
