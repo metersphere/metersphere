@@ -260,7 +260,7 @@ export default {
       element.parentNode.removeChild(element);
     },
     loadRequestInfoExpand() {
-      if(!this.request.responseResult || !this.request.responseResult.body){
+      if( !this.request.responseResult || (!this.request.responseResult.body && this.request.responseResult.body === null)){
         this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
           let requestResult = response.data;
           if (requestResult) {
@@ -271,7 +271,7 @@ export default {
           });
         });
       }else {
-        if (this.request.responseResult && this.request.responseResult.body) {
+        if (this.request.responseResult && (this.request.responseResult.body || this.request.responseResult.body === '')) {
           this.requestInfo = this.request;
         }
       }
