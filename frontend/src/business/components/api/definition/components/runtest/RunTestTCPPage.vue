@@ -339,6 +339,9 @@ export default {
       if (requireComponent != null && JSON.stringify(esbDefinition) !== '{}') {
         this.showXpackCompnent = true;
       }
+      if(this.api.environmentId) {
+        this.api.request.useEnvironment = this.api.environmentId;
+      }
       this.checkVersionEnable();
     }
   },
