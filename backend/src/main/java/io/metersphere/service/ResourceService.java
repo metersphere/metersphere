@@ -7,12 +7,15 @@ import io.metersphere.controller.request.MdUploadRequest;
 import io.metersphere.i18n.Translator;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -22,6 +25,9 @@ import java.util.Date;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ResourceService {
+
+    @Resource
+    private RestTemplate restTemplate;
 
     public void mdUpload(MdUploadRequest request, MultipartFile file) {
         FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, request.getId() + "_" + request.getFileName());
@@ -81,5 +87,19 @@ public class ResourceService {
             MSException.throwException(Translator.get("invalid_parameter"));
         }
         FileUtils.deleteFile(FileUtils.MD_IMAGE_DIR + "/" + fileName);
+    }
+
+    /**
+     * http 代理
+     * 如果当前访问地址是 https，直接访问 http 的图片资源
+     * 由于浏览器的安全机制，http 会被转成 https
+     * @param url
+     * @return
+     */
+    public ResponseEntity<byte[]> getMdImageByUrl(String url) {
+        if (url.contains("md/get/url")) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
+        return restTemplate.exchange(url, HttpMethod.GET, null, byte[].class);
     }
 }
