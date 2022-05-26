@@ -533,11 +533,12 @@ export default {
       this.singleLoading = true;
       this.singleRunId = row.id;
       row.request.name = row.id;
-      if (row.apiMethod !== "SQL" && row.apiMethod !== "DUBBO" && row.apiMethod !== "dubbo://" && row.apiMethod !== "TCP") {
+      if (row.apiMethod !== "SQL" && row.apiMethod !== "DUBBO" && row.apiMethod !== "dubbo://") {
         row.request.useEnvironment = this.environment;
       } else {
         row.request.useEnvironment = row.request.environmentId;
       }
+
       row.request.projectId = this.projectId;
       row.request.id = row.id;
       this.runData.push(row.request);
