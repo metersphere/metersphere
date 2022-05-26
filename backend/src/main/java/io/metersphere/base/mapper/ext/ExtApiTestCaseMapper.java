@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCase;
@@ -80,4 +81,6 @@ public interface ExtApiTestCaseMapper {
     int toBeUpdateCase(@Param("ids") List<String> ids, @Param("toBeUpdate") Boolean toBeUpdate);
 
     int countById(String resourceID);
+
+    List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId);
 }

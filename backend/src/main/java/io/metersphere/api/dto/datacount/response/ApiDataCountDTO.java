@@ -2,8 +2,10 @@ package io.metersphere.api.dto.datacount.response;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.commons.constants.ExecuteResult;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -86,6 +88,10 @@ public class ApiDataCountDTO {
      */
     private long executionPassCount = 0;
     /**
+     * 执行误报
+     */
+    private long fakeErrorCount = 0;
+    /**
      * 失败
      */
     private long failedCount = 0;
@@ -116,16 +122,15 @@ public class ApiDataCountDTO {
      */
     private String interfaceCoverage = " 0%";
 
-    public ApiDataCountDTO(){}
-
     /**
      * 对Protocal视角对查询结果进行统计
+     *
      * @param countResultList 查询参数
      */
-    public void countProtocal(List<ApiDataCountResult> countResultList){
+    public void countProtocal(List<ApiDataCountResult> countResultList) {
         for (ApiDataCountResult countResult :
                 countResultList) {
-            switch (countResult.getGroupField().toUpperCase()){
+            switch (countResult.getGroupField().toUpperCase()) {
                 case RequestType.DUBBO:
                     this.rpcApiDataCountNumber += countResult.getCountNumber();
                     break;
@@ -148,19 +153,20 @@ public class ApiDataCountDTO {
 
     /**
      * 对Status视角对查询结果进行统计
+     *
      * @param countResultList 查询参数
      */
-    public void countStatus(List<ApiDataCountResult> countResultList){
+    public void countStatus(List<ApiDataCountResult> countResultList) {
         for (ApiDataCountResult countResult :
                 countResultList) {
-            if("Underway".equals(countResult.getGroupField())){
+            if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "Underway")) {
                 //运行中
-                this.runningCount+= countResult.getCountNumber();
-            }else if("Completed".equals(countResult.getGroupField())){
+                this.runningCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "Completed")) {
                 //已完成
-                this.finishedCount+= countResult.getCountNumber();
-            }else if("Prepare".equals(countResult.getGroupField())){
-                this.notStartedCount+= countResult.getCountNumber();
+                this.finishedCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "Prepare")) {
+                this.notStartedCount += countResult.getCountNumber();
             }
         }
     }
@@ -168,35 +174,39 @@ public class ApiDataCountDTO {
     public void countApiCoverage(List<ApiDataCountResult> countResultList) {
 
         for (ApiDataCountResult countResult : countResultList) {
-            if("coverage".equals(countResult.getGroupField())){
-                this.coverageCount+= countResult.getCountNumber();
-            }else if("uncoverage".equals(countResult.getGroupField())){
-                this.uncoverageCount+= countResult.getCountNumber();
+            if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "coverage")) {
+                this.coverageCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "uncoverage")) {
+                this.uncoverageCount += countResult.getCountNumber();
             }
         }
     }
 
     public void countRunResult(List<ApiDataCountResult> countResultByRunResult) {
-
         for (ApiDataCountResult countResult : countResultByRunResult) {
-            if("notRun".equals(countResult.getGroupField())){
-                this.unexecuteCount+= countResult.getCountNumber();
-            }else if("Fail".equals(countResult.getGroupField())){
-                this.executionFailedCount+= countResult.getCountNumber();
-            }else {
-                this.executionPassCount+= countResult.getCountNumber();
+            if ("notRun".equals(countResult.getGroupField())) {
+                this.unexecuteCount += countResult.getCountNumber();
+            } else if ("Fail".equals(countResult.getGroupField())) {
+                this.executionFailedCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ExecuteResult.ERROR_REPORT_RESULT.toString(), ExecuteResult.ERROR_REPORT.toString())) {
+                this.fakeErrorCount += countResult.getCountNumber();
+            } else {
+                this.executionPassCount += countResult.getCountNumber();
             }
         }
     }
 
     public void countScheduleExecute(List<ApiDataCountResult> allExecuteResult) {
         for (ApiDataCountResult countResult : allExecuteResult) {
-            if("Success".equals(countResult.getGroupField())){
-                this.successCount+= countResult.getCountNumber();
-                this.executedCount+= countResult.getCountNumber();
-            }else if("Error".equals(countResult.getGroupField())||"Fail".equals(countResult.getGroupField())){
-                this.failedCount+= countResult.getCountNumber();
-                this.executedCount+= countResult.getCountNumber();
+            if (StringUtils.equalsIgnoreCase(countResult.getGroupField(), "success")) {
+                this.successCount += countResult.getCountNumber();
+                this.executedCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ExecuteResult.SCENARIO_ERROR.toString(), "Fail")) {
+                this.failedCount += countResult.getCountNumber();
+                this.executedCount += countResult.getCountNumber();
+            } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
+                this.fakeErrorCount += countResult.getCountNumber();
+                this.executedCount += countResult.getCountNumber();
             }
         }
     }

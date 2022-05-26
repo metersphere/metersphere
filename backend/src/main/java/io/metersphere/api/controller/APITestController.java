@@ -6,13 +6,15 @@ import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
-import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
-import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
-import io.metersphere.api.dto.datacount.response.TaskInfoResult;
+import io.metersphere.api.dto.datacount.response.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
+import io.metersphere.base.domain.ApiTest;
+import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.BaseQueryRequest;
@@ -22,6 +24,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -229,6 +232,36 @@ public class APITestController {
         apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getTcpApiDataCountNumber());
         apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>" + apiCountResult.getSqlApiDataCountNumber());
 
+        //计算用例的通过率
+        List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(projectId);
+        long unexecuteCount = 0;
+        long executionFailedCount = 0;
+        long executionPassCount = 0;
+        long fakeErrorCount = 0;
+        for (ExecuteResultCountDTO execResult : apiCaseExecResultList) {
+            if (StringUtils.isEmpty(execResult.getExecResult())) {
+                unexecuteCount += execResult.getCount();
+            } else if (StringUtils.equalsIgnoreCase(execResult.getExecResult(), ExecuteResult.API_SUCCESS.toString())) {
+                executionPassCount += execResult.getCount();
+            } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), ExecuteResult.ERROR_REPORT_RESULT.toString(), ExecuteResult.ERROR_REPORT.toString())) {
+                fakeErrorCount += execResult.getCount();
+            } else {
+                executionFailedCount += execResult.getCount();
+            }
+        }
+        apiCountResult.setUnexecuteCount(unexecuteCount);
+        apiCountResult.setExecutionFailedCount(executionFailedCount);
+        apiCountResult.setExecutionPassCount(executionPassCount);
+        apiCountResult.setFakeErrorCount(fakeErrorCount);
+
+        if (unexecuteCount + executedCountNumber + executionPassCount > 0) {
+            //通过率
+            float coverageRageNumber = (float) executionPassCount * 100 / (unexecuteCount + executedCountNumber + executionPassCount);
+            DecimalFormat df = new DecimalFormat("0.0");
+            apiCountResult.setPassRage(df.format(coverageRageNumber) + "%");
+        } else {
+            apiCountResult.setPassRage("0%");
+        }
         return apiCountResult;
     }
 
@@ -263,9 +296,15 @@ public class APITestController {
         return apiCountResult;
     }
 
+    /**
+     * 接口覆盖率统计
+     *
+     * @param projectId
+     * @return
+     */
     @GetMapping("/countApiCoverage/{projectId}")
-    public String countApiCoverage(@PathVariable String projectId) {
-        String returnStr = "0%";
+    public CoverageDTO countApiCoverage(@PathVariable String projectId) {
+        CoverageDTO coverage = new CoverageDTO();
         /**
          * 接口覆盖率
          * 接口有案例/被场景引用 ： 所有的接口
@@ -273,34 +312,40 @@ public class APITestController {
         long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId);
         long sourceIdCount = apiDefinitionService.countQuotedApiByProjectId(projectId);
         try {
-            if(sourceIdCount != 0){
+            if (sourceIdCount != 0) {
+                coverage.setCoverate(sourceIdCount);
+                coverage.setNotCoverate(effectiveApiCount - sourceIdCount);
                 float coverageRageNumber = (float) sourceIdCount * 100 / effectiveApiCount;
                 DecimalFormat df = new DecimalFormat("0.0");
-                returnStr = df.format(coverageRageNumber) + "%";
+                coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtil.error(e);
         }
-        return  returnStr;
+        return coverage;
     }
 
-    @GetMapping("/countInterfaceCoverage/{projectId}")
-    public String countInterfaceCoverage(@PathVariable String projectId) {
-        String returnStr = "0%";
+    /**
+     * 场景覆盖率统计
+     *
+     * @param projectId
+     * @return
+     */
+    @GetMapping("/countScenarioCoverage/{projectId}")
+    public CoverageDTO countScenarioCoverage(@PathVariable String projectId) {
+        CoverageDTO coverage = new CoverageDTO();
         /**
          * 接口覆盖率
          * 复制的接口定义/复制或引用的单接口用例/ 添加的自定义请求 url 路径与现有的接口定义一致的请求
          */
-        Map<String,List<String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId);
+        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId);
         List<ApiDefinition> allEffectiveApiIdList = apiDefinitionService.selectEffectiveIdByProjectId(projectId);
         try {
-            float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(scenarioUrlList, allEffectiveApiIdList);
-            DecimalFormat df = new DecimalFormat("0.0");
-            returnStr = df.format(intetfaceCoverageRageNumber) + "%";
-        }catch (Exception e){
+            coverage = apiAutomationService.countInterfaceCoverage(projectId, scenarioUrlList, allEffectiveApiIdList);
+        } catch (Exception e) {
             LogUtil.error(e);
         }
-        return  returnStr;
+        return coverage;
     }
 
     @GetMapping("/scheduleTaskInfoCount/{projectId}")
@@ -348,6 +393,7 @@ public class APITestController {
                 dataDTO.setCaseName(selectData.getCaseName());
                 dataDTO.setTestPlan(selectData.getTestPlan());
                 dataDTO.setFailureTimes(selectData.getFailureTimes());
+                dataDTO.setTestPlanId(selectData.getTestPlanId());
                 dataDTO.setCaseType(selectData.getCaseType());
                 dataDTO.setId(selectData.getId());
                 dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
@@ -361,7 +407,7 @@ public class APITestController {
     }
 
     @PostMapping("/runningTask/{projectID}")
-    public List<TaskInfoResult> runningTask(@PathVariable String projectID,@RequestBody BaseQueryRequest request) {
+    public List<TaskInfoResult> runningTask(@PathVariable String projectID, @RequestBody BaseQueryRequest request) {
         List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID, request);
         int dataIndex = 1;
         for (TaskInfoResult taskInfo :

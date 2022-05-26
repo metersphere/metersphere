@@ -314,6 +314,76 @@ public class ApiCaseExecutionInfoExample {
             return (Criteria) this;
         }
 
+        public Criteria andTriggerModeIsNull() {
+            addCriterion("trigger_mode is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIsNotNull() {
+            addCriterion("trigger_mode is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeEqualTo(String value) {
+            addCriterion("trigger_mode =", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotEqualTo(String value) {
+            addCriterion("trigger_mode <>", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeGreaterThan(String value) {
+            addCriterion("trigger_mode >", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeGreaterThanOrEqualTo(String value) {
+            addCriterion("trigger_mode >=", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLessThan(String value) {
+            addCriterion("trigger_mode <", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLessThanOrEqualTo(String value) {
+            addCriterion("trigger_mode <=", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLike(String value) {
+            addCriterion("trigger_mode like", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotLike(String value) {
+            addCriterion("trigger_mode not like", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIn(List<String> values) {
+            addCriterion("trigger_mode in", values, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotIn(List<String> values) {
+            addCriterion("trigger_mode not in", values, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeBetween(String value1, String value2) {
+            addCriterion("trigger_mode between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotBetween(String value1, String value2) {
+            addCriterion("trigger_mode not between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;

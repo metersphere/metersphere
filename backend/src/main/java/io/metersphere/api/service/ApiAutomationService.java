@@ -12,6 +12,7 @@ import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.response.CoverageDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
@@ -73,6 +74,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -231,7 +233,11 @@ public class ApiAutomationService {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
                 Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
                 if (weekFirstTime != null) {
-                    request.setCreateTime(weekFirstTime.getTime());
+                    if (StringUtils.equalsIgnoreCase(request.getSelectDataType(), "SCHEDULE")) {
+                        request.setScheduleCreateTime(weekFirstTime.getTime());
+                    } else {
+                        request.setCreateTime(weekFirstTime.getTime());
+                    }
                 }
             }
         }
@@ -1680,20 +1686,51 @@ public class ApiAutomationService {
      * @param allEffectiveApiList 接口集合（id / path 必须有数据）
      * @return
      */
-    public float countInterfaceCoverage(Map<String, List<String>> scenarioUrlMap, List<ApiDefinition> allEffectiveApiList) {
+    public CoverageDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> allEffectiveApiList) {
+        CoverageDTO coverage = new CoverageDTO();
+
         if (MapUtils.isEmpty(scenarioUrlMap) || CollectionUtils.isEmpty(allEffectiveApiList)) {
-            return 0;
+            return coverage;
         }
+
+        ProjectApplication urlRepeatableConfig = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
+        boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
+
         int containsCount = 0;
         for (ApiDefinition model : allEffectiveApiList) {
-            List<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod());
-            boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
-            if (matchedUrl) {
-                containsCount++;
+            if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
+                Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
+                if (stepIdAndUrlMap != null) {
+                    if (isUrlRepeatable) {
+                        String url = stepIdAndUrlMap.get(model.getId());
+                        if (StringUtils.isNotEmpty(url)) {
+                            boolean matchedUrl = MockApiUtils.isUrlMatch(model.getPath(), url);
+                            if (matchedUrl) {
+                                containsCount++;
+                            }
+                        }
+                    } else {
+                        Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
+                        boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
+                        if (matchedUrl) {
+                            containsCount++;
+                        }
+                    }
+                }
+            } else {
+                Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");
+                if (stepIdAndUrlMap != null && stepIdAndUrlMap.containsKey(model.getId())) {
+                    containsCount++;
+                }
             }
         }
+        coverage.setCoverate(containsCount);
+        coverage.setNotCoverate(allEffectiveApiList.size() - containsCount);
         float coverageRageNumber = (float) containsCount * 100 / allEffectiveApiList.size();
-        return coverageRageNumber;
+        DecimalFormat df = new DecimalFormat("0.0");
+        coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
+
+        return coverage;
     }
 
     public ScenarioEnv getApiScenarioProjectId(String id) {
@@ -2057,7 +2094,7 @@ public class ApiAutomationService {
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
         List<String> scenarioIds = apiScenarios.stream().map(ApiScenario::getId).collect(toList());
         scenarioExecutionInfoService.deleteByScenarioIdList(scenarioIds);
-        
+
         apiScenarioMapper.deleteByExample(example);
         scheduleService.deleteByResourceId(refId, ScheduleGroup.API_SCENARIO_TEST.name());
         checkAndSetLatestVersion(refId);
@@ -2151,17 +2188,25 @@ public class ApiAutomationService {
         }
     }
 
-    public Map<String, List<String>> selectScenarioUseUrlByProjectId(String projectId) {
+    /**
+     * 获取当前项目的场景下引用的接口路径和id
+     *
+     * @param projectId
+     * @return <get/post, <step-id,url>>
+     */
+    public Map<String, Map<String, String>> selectScenarioUseUrlByProjectId(String projectId) {
         List<ApiScenarioReferenceId> list = apiScenarioReferenceIdService.selectUrlByProjectId(projectId);
-        Map<String, List<String>> returnMap = new HashMap<>();
+        Map<String, Map<String, String>> returnMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(item -> {
-                if (returnMap.containsKey(item.getMethod())) {
-                    returnMap.get(item.getMethod()).add(item.getUrl());
+                String method = item.getMethod() == null ? "MS_NOT_HTTP" : item.getMethod();
+                if (returnMap.containsKey(method)) {
+                    returnMap.get(method).put(item.getReferenceId(), item.getUrl());
                 } else {
-                    List<String> urlList = new ArrayList<>();
-                    urlList.add(item.getUrl());
-                    returnMap.put(item.getMethod(), urlList);
+                    Map<String, String> urlMap = new HashMap() {{
+                        this.put(item.getReferenceId(), item.getUrl());
+                    }};
+                    returnMap.put(method, urlMap);
                 }
             });
         }

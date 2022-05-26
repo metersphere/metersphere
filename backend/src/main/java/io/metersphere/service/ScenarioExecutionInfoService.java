@@ -22,32 +22,27 @@ public class ScenarioExecutionInfoService {
     private ScenarioExecutionInfoMapper scenarioExecutionInfoMapper;
 
     @Lazy
-    public void insertExecutionInfo(String scenarioId, String result) {
+    public void insertExecutionInfo(String scenarioId, String result, String triggerMode) {
         if (StringUtils.isNotEmpty(scenarioId) && StringUtils.isNotEmpty(result)) {
             ScenarioExecutionInfo executionInfo = new ScenarioExecutionInfo();
             executionInfo.setResult(result);
             executionInfo.setSourceId(scenarioId);
             executionInfo.setId(UUID.randomUUID().toString());
             executionInfo.setCreateTime(System.currentTimeMillis());
+            executionInfo.setTriggerMode(triggerMode);
             scenarioExecutionInfoMapper.insert(executionInfo);
         }
     }
 
-    public void insertExecutionInfoByScenarioIds(String scenarioIdJsonString, String status) {
+    public void insertExecutionInfoByScenarioIds(String scenarioIdJsonString, String status, String triggerMode) {
         try {
             List<String> scenarioIdList = JSONArray.parseArray(scenarioIdJsonString, String.class);
             for (String scenarioId : scenarioIdList) {
-                this.insertExecutionInfo(scenarioId, status);
+                this.insertExecutionInfo(scenarioId, status, triggerMode);
             }
         } catch (Exception e) {
             LogUtil.error("解析场景ID的JSON" + scenarioIdJsonString + "失败！", e);
         }
-    }
-
-    public void deleteByScenarioId(String resourceId) {
-        ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
-        example.createCriteria().andSourceIdEqualTo(resourceId);
-        scenarioExecutionInfoMapper.deleteByExample(example);
     }
 
     public void deleteByScenarioIdList(List<String> resourceIdList) {

@@ -184,7 +184,7 @@ public class TestResultService {
                 } else {
                     ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                     if (apiScenario != null) {
-                        scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus());
+                        scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode());
                         environment = apiScenarioReportService.getEnvironment(apiScenario);
                         userName = apiAutomationService.getUser(apiScenario.getUserId());
                         principal = apiAutomationService.getUser(apiScenario.getPrincipal());

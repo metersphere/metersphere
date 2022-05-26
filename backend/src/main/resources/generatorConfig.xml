@@ -9,12 +9,12 @@
     <!-- 此处指定生成针对MyBatis3的DAO -->
     <context id="mysql" targetRuntime="MyBatis3">
         <!-- 字段带`,解决列表跟关键字冲突问题 -->
-        <property name="autoDelimitKeywords" value="true" />
-        <property name="beginningDelimiter" value="`" />
-        <property name="endingDelimiter" value="`" />
+        <property name="autoDelimitKeywords" value="true"/>
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
 
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
-        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
         <!-- Lombok插件 -->
         <plugin type="com.itfsw.mybatis.generator.plugins.LombokPlugin">
             <!-- @Data 默认开启,同时插件会对子类自动附加@EqualsAndHashCode(callSuper = true)，@ToString(callSuper = true) -->
@@ -71,22 +71,23 @@
         <!--<table tableName="test_plan"/>-->
         <!--<table tableName="api_scenario_report"/>-->
         <!--<table tableName="test_case_review"/>-->
-<!--        <table tableName="project">-->
-<!--            <ignoreColumn column="custom_num"/>-->
-<!--            <ignoreColumn column="scenario_custom_num"/>-->
-<!--            <ignoreColumn column="mock_tcp_port"/>-->
-<!--            <ignoreColumn column="is_mock_tcp_open"/>-->
-<!--            <ignoreColumn column="api_quick"/>-->
-<!--            <ignoreColumn column="case_public"/>-->
-<!--            <ignoreColumn column="clean_track_report"/>-->
-<!--            <ignoreColumn column="clean_track_report_expr"/>-->
-<!--            <ignoreColumn column="clean_api_report"/>-->
-<!--            <ignoreColumn column="clean_api_report_expr"/>-->
-<!--            <ignoreColumn column="clean_load_report"/>-->
-<!--            <ignoreColumn column="clean_load_report_expr"/>-->
-<!--            <ignoreColumn column="repeatable"/>-->
-<!--        </table>-->
-        <table tableName="api_test_case"/>
+        <!--        <table tableName="project">-->
+        <!--            <ignoreColumn column="custom_num"/>-->
+        <!--            <ignoreColumn column="scenario_custom_num"/>-->
+        <!--            <ignoreColumn column="mock_tcp_port"/>-->
+        <!--            <ignoreColumn column="is_mock_tcp_open"/>-->
+        <!--            <ignoreColumn column="api_quick"/>-->
+        <!--            <ignoreColumn column="case_public"/>-->
+        <!--            <ignoreColumn column="clean_track_report"/>-->
+        <!--            <ignoreColumn column="clean_track_report_expr"/>-->
+        <!--            <ignoreColumn column="clean_api_report"/>-->
+        <!--            <ignoreColumn column="clean_api_report_expr"/>-->
+        <!--            <ignoreColumn column="clean_load_report"/>-->
+        <!--            <ignoreColumn column="clean_load_report_expr"/>-->
+        <!--            <ignoreColumn column="repeatable"/>-->
+        <!--        </table>-->
+        <table tableName="api_case_execution_info"/>
+        <table tableName="scenario_execution_info"/>
         <!--<table tableName="enterprise_test_report_send_record"/>-->
         <!--<table tableName="test_case_review_api_case"/>
         <table tableName="test_case_review_load"/>
@@ -110,7 +111,7 @@
 
 
         <!--        表名和关键字冲突-->
-<!--                <table tableName="group" delimitIdentifiers="true"></table>-->
+        <!--                <table tableName="group" delimitIdentifiers="true"></table>-->
 
     </context>
 </generatorConfiguration>

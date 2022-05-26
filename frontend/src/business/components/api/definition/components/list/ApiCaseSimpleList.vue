@@ -746,12 +746,15 @@ export default {
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
-      //检查是否只查询本周数据
-      this.isSelectThisWeekData();
+      //检查是否有跳转数据筛选
+      this.isRedirectFilter();
       this.condition.selectThisWeedData = false;
       this.condition.id = null;
+      this.condition.redirectFilter = null;
       if (this.selectDataRange == 'thisWeekCount') {
         this.condition.selectThisWeedData = true;
+      } else if (this.selectDataRange === 'executionPassCount' || this.selectDataRange === 'unexecuteCount' || this.selectDataRange === 'executionFailedCount' || this.selectDataRange === 'fakeErrorCount' || this.selectDataRange === 'notSuccessCount') {
+        this.condition.redirectFilter = this.selectDataRange;
       } else if (this.selectDataRange != null) {
         let selectParamArr = this.selectDataRange.split(":");
         if (selectParamArr.length === 2) {
@@ -1112,12 +1115,15 @@ export default {
       }
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
-    isSelectThisWeekData() {
+    isRedirectFilter() {
       this.selectDataRange = "all";
-      let routeParam = this.$route.params.dataSelectRange;
-      let dataType = this.$route.params.dataType;
-      if (dataType === 'apiTestCase') {
-        this.selectDataRange = routeParam;
+      let routeParamObj = this.$route.params.paramObj;
+      if (routeParamObj) {
+        let routeParam = routeParamObj.dataSelectRange;
+        let dataType = routeParamObj.dataType;
+        if (dataType === 'apiTestCase') {
+          this.selectDataRange = routeParam;
+        }
       }
     },
     changeSelectDataRangeAll() {

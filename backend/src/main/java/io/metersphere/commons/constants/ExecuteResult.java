@@ -2,7 +2,7 @@ package io.metersphere.commons.constants;
 
 public enum ExecuteResult {
     //误报状态
-    ERROR_REPORT_RESULT("errorReportResult"),
+    ERROR_REPORT_RESULT("errorReportResult"), ERROR_REPORT("errorReport"),
     //停止状态
     STOP("STOP"),
     //接口执行状态(兼容旧数据)

@@ -703,7 +703,46 @@ public class MockApiUtils {
         }
     }
 
-    public static boolean isUrlInList(String url, List<String> urlList) {
+    public static boolean isUrlMatch(String url, String compareUrl) {
+        String urlSuffix = url;
+        if (urlSuffix.startsWith("/")) {
+            urlSuffix = urlSuffix.substring(1);
+        }
+        String[] urlParams = urlSuffix.split("/");
+        if (StringUtils.equalsAny(compareUrl, url, "/" + url)) {
+            return true;
+        } else {
+            if (StringUtils.isEmpty(compareUrl)) {
+                return false;
+            }
+            if (compareUrl.startsWith("/")) {
+                compareUrl = compareUrl.substring(1);
+            }
+            if (StringUtils.isNotEmpty(compareUrl)) {
+                String[] pathArr = compareUrl.split("/");
+                if (pathArr.length == urlParams.length) {
+                    boolean isFetch = true;
+                    for (int i = 0; i < urlParams.length; i++) {
+                        String pathItem = pathArr[i];
+                        String urlItem = urlParams[i];
+                        if (!(pathItem.startsWith("{") && pathItem.endsWith("}")) && !(urlItem.startsWith("{") && urlItem.endsWith("}"))) {
+                            if (!StringUtils.equals(pathArr[i], urlParams[i])) {
+                                isFetch = false;
+                                break;
+                            }
+                        }
+
+                    }
+                    if (isFetch) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isUrlInList(String url, Collection<String> urlList) {
         if (CollectionUtils.isEmpty(urlList)) {
             return false;
         }

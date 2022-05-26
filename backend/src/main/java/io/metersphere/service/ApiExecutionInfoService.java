@@ -50,23 +50,24 @@ public class ApiExecutionInfoService {
             } else {
                 boolean isApiCase = extApiTestCaseMapper.countById(resourceID) > 0;
                 if (isApiCase) {
-                    this.insertApiCaseExecutionInfo(resourceID, result.getStatus());
+                    this.insertApiCaseExecutionInfo(resourceID, result.getStatus(), result.getTriggerMode());
                 } else {
                     String apiCaseIdInTestPlan = extTestPlanApiCaseMapper.getApiTestCaseIdById(resourceID);
                     if (StringUtils.isNotEmpty(apiCaseIdInTestPlan)) {
-                        this.insertApiCaseExecutionInfo(apiCaseIdInTestPlan, result.getStatus());
+                        this.insertApiCaseExecutionInfo(resourceID, result.getStatus(), result.getTriggerMode());
                     }
                 }
             }
         }
     }
 
-    private void insertApiCaseExecutionInfo(String resourceID, String status) {
+    private void insertApiCaseExecutionInfo(String resourceID, String status, String triggerMode) {
         ApiCaseExecutionInfo info = new ApiCaseExecutionInfo();
         info.setId(UUID.randomUUID().toString());
         info.setSourceId(resourceID);
         info.setCreateTime(System.currentTimeMillis());
         info.setResult(status);
+        info.setTriggerMode(triggerMode);
         apiCaseExecutionInfoMapper.insert(info);
     }
 
