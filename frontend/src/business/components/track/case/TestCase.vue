@@ -108,7 +108,7 @@
               :project-id="projectId"
               :condition="condition"
               v-if="activeDom === 'right'"
-              @refresh="refreshTable"
+              @refresh="refreshAll"
               ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
@@ -122,7 +122,7 @@
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
               :version-enable="versionEnable"
-              @refresh="refreshTable"
+              @refresh="refreshAll"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
               @checkout="checkout($event, item)"
@@ -140,7 +140,7 @@
             <test-case-edit-show
               :currentTestCaseInfo="item.testCaseInfo"
               :version-enable="versionEnable"
-              @refresh="refreshTable"
+              @refresh="refreshAll"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
@@ -534,13 +534,6 @@ export default {
       this.publicEnable = false;
       this.activeName = "default";
     },
-    refreshTable(data) {
-      if (this.$refs.testCaseList) {
-        this.$refs.testCaseList.initTableData();
-      }
-      this.$refs.nodeTree.list();
-      this.setTable(data);
-    },
     increase(id) {
       this.$refs.nodeTree.increase(id);
     },
@@ -614,9 +607,11 @@ export default {
       this.testCaseReadOnly = true;
     },
     refresh(data) {
-      this.$store.commit('setTestCaseSelectNode', {});
-      this.$store.commit('setTestCaseSelectNodeIds', []);
-      this.refreshTable(data);
+      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+        this.$store.commit('setTestCaseSelectNode', {});
+        this.$store.commit('setTestCaseSelectNodeIds', []);
+      }
+      this.refreshAll(data);
     },
     setTable(data) {
       if (data) {
@@ -629,24 +624,12 @@ export default {
         }
       }
     },
-    refreshAll() {
-      this.$refs.nodeTree.list();
-    },
-    openRecentTestCaseEditDialog(caseId) {
-      if (caseId) {
-        // this.getProjectByCaseId(caseId);
-        this.$get('/test/case/get/' + caseId, response => {
-          if (response.data) {
-            /*
-                        this.$refs.testCaseEditDialog.open(response.data);
-            */
-          }
-        });
-      } else {
-        /*
-                this.$refs.testCaseEditDialog.open();
-        */
+    refreshAll(data) {
+      if (this.$refs.testCaseList) {
+        this.$refs.testCaseList.initTableData();
       }
+      this.$refs.nodeTree.list();
+      this.setTable(data);
     },
     setTreeNodes(data) {
       this.treeNodes = data;
