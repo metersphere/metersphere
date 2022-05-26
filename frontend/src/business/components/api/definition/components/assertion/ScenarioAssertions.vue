@@ -18,6 +18,13 @@
     <el-card :draggable="true">
       <el-row>
         <span>{{ $t('api_test.request.assertions.description') }}</span>
+        <span style="float: right">
+        <api-json-path-suggest-button
+          :show-suggest-button="false"
+          :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+          :isReadOnly="isReadOnly"
+          @clear="clearJson"/>
+      </span>
       </el-row>
       <div class="assertion-add" :draggable="draggable">
         <el-row :gutter="10">

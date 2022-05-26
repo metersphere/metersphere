@@ -1,6 +1,7 @@
 <template>
   <span class="json-path-suggest-button">
-    <el-button size="mini" type="primary" @click="$emit('open')" @click.stop :disabled="isReadOnly">
+    <el-button size="mini" type="primary" @click="$emit('open')" @click.stop :disabled="isReadOnly"
+               v-if="showSuggestButton">
       {{ openTip }}
     </el-button>
     <el-button size="mini" type="danger" @click="$emit('clear')" :disabled="isReadOnly">
@@ -12,7 +13,15 @@
 <script>
 export default {
   name: "ApiJsonPathSuggestButton",
-  props: ['openTip', 'clearTip','isReadOnly']
+  props: {
+    openTip: String,
+    clearTip: String,
+    isReadOnly: Boolean,
+    showSuggestButton: {
+      type: Boolean,
+      default: true,
+    }
+  }
 }
 </script>
 
