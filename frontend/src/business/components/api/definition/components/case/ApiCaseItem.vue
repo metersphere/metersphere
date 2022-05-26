@@ -311,6 +311,13 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.isXpack = true;
     }
+    if (this.apiCase.request && this.apiCase.request.hashTree && this.apiCase.request.hashTree.length > 0) {
+      this.apiCase.request.hashTree.forEach(item => {
+        if (item.type === 'Assertions') {
+          item.document.nodeType = 'Case'
+        }
+      })
+    }
     this.readonly = !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE');
     if (this.apiCase && this.apiCase.id) {
       this.showFollow = false;

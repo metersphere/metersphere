@@ -218,7 +218,7 @@ export default {
     },
     getDocument() {
       // 来自场景步骤，请求id为用例id
-      if (this.document && this.document.nodeType && this.document.nodeType === "scenario") {
+      if (this.document && this.document.nodeType && (this.document.nodeType === "scenario" || this.document.nodeType === "Case")) {
         this.getCase();
       } else {
         this.getAPI();
