@@ -222,6 +222,11 @@ export default {
         this.getCase();
       } else if (this.document && this.document.nodeType && this.document.nodeType === "Case" && this.document.apiDefinitionId) {
         this.getAPI(this.document.apiDefinitionId);
+        if (this.document.type === "JSON") {
+          this.document.data.jsonFollowAPI = this.document.apiDefinitionId;
+        } else {
+          this.document.data.xmlFollowAPI = this.document.apiDefinitionId;
+        }
       } else {
         this.getAPI();
       }
