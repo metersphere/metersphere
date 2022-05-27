@@ -64,7 +64,8 @@
           </el-col>
           <el-col class="assertion-remove-btn">
             <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
-              <el-switch v-model="assertions.enable" class="enable-switch" size="mini" :disabled="assertions.disabled" style="width: 30px;margin-right: 10px"/>
+              <el-switch v-model="assertions.document.enable" class="enable-switch" size="mini"
+                         :disabled="assertions.disabled" style="width: 30px;margin-right: 10px"/>
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
               <el-button icon="el-icon-delete" type="danger" size="mini" circle @click="remove()"
