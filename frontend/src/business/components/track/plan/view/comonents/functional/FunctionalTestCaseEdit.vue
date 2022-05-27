@@ -46,7 +46,11 @@
                     <el-row class="head-bar">
                       <el-col>
                         <el-divider content-position="left">
-                          <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.customNum }}-{{ testCase.name }}</el-button>
+                          <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
+                            <span class="title-link" :title="testCase.name">
+                              {{ testCase.customNum }}-{{ testCase.name }}
+                            </span>
+                          </el-button>
                         </el-divider>
                       </el-col>
                     </el-row>
@@ -605,6 +609,16 @@ p {
 .test-case-name {
   padding: 0;
   text-decoration: underline solid #783887;
+}
+
+.title-link {
+  display: inline-block;
+  max-width: 300px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+  margin-right: 5px;
 }
 
 /deep/ .el-drawer__body {
