@@ -310,6 +310,11 @@ export default {
       } else {
         this.activeName = 'default';
       }
+    },
+    '$store.state.temWorkspaceId'() {
+      if (this.$store.state.temWorkspaceId) {
+        this.$refs.isChangeConfirm.open(null, this.$store.state.temWorkspaceId);
+      }
     }
   },
   computed: {
@@ -364,8 +369,12 @@ export default {
     updateActiveDom(activeDom) {
       openMinderConfirm(this, activeDom);
     },
-    changeConfirm(isSave) {
+    changeConfirm(isSave, temWorkspaceId) {
       saveMinderConfirm(this, isSave);
+      if (temWorkspaceId) {
+        // 如果是切换工作空间提示的保存，则保存完后跳转到对应的工作空间
+        this.$EventBus.$emit('changeWs', temWorkspaceId);
+      }
     },
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
