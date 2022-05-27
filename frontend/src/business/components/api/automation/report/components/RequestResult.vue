@@ -234,7 +234,7 @@ export default {
   },
   methods: {
     loadRequestInfoExpand() {
-      if( !this.request.responseResult || (!this.request.responseResult.body && this.request.responseResult.body === null)){
+      if( !this.request.responseResult || (!this.request.responseResult.body && (this.request.responseResult.body === null || this.request.responseResult.body === undefined))){
         this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
           let requestResult = response.data;
           if (requestResult) {
