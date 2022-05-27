@@ -148,7 +148,11 @@ export function buttons(this_) {
 export function setNode(_this,node) {
   if(_this.selectedTreeNode !== undefined){
     if(_this.stepFilter.get("SpecialSteps").indexOf(_this.selectedTreeNode.type) !== -1){
-      _this.scenarioDefinition.splice(_this.selectedTreeNode.index,0,node);
+      if (_this.selectedNode.parent.data.hashTree) {
+        _this.selectedNode.parent.data.hashTree.splice(_this.selectedTreeNode.index, 0, node);
+      } else {
+        _this.scenarioDefinition.splice(_this.selectedTreeNode.index, 0, node);
+      }
       _this.$store.state.forceRerenderIndex = getUUID();
     }else{
       _this.selectedTreeNode.hashTree.push(node) ;
