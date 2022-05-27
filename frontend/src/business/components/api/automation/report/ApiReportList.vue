@@ -146,7 +146,7 @@
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
 import {REPORT_CASE_CONFIGS, REPORT_CONFIGS} from "../../../common/components/search/search-components";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLastTableSortField} from "@/common/js/tableUtils";
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsRequestResultTail from "../../../api/definition/components/response/RequestResultTail";
@@ -256,13 +256,17 @@ export default {
       this.selectDataCounts = 0;
 
       this.condition.reportType = this.reportType;
-
+      if (this.condition.orders) {
+        let order = this.condition.orders[this.condition.orders.length - 1];
+        this.condition.orders = [];
+        this.condition.orders.push(order);
+      }
       let url = ''
-      if(this.trashActiveDom==='left'){
-        this.reportTypeFilters =this.reportScenarioFilters;
+      if (this.trashActiveDom === 'left') {
+        this.reportTypeFilters = this.reportScenarioFilters;
         url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
-      }else{
-        this.reportTypeFilters =this.reportCaseFilters;
+      } else {
+        this.reportTypeFilters = this.reportCaseFilters;
         url = "/api/execute/result/list/" + this.currentPage + "/" + this.pageSize;
       }
 
