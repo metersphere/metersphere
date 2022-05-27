@@ -122,15 +122,18 @@ export default {
         this.defaultMode = Number.parseInt(model);
       }
     }
-    this.$nextTick(() => {
-      if (this.selectNode && this.selectNode.data) {
-        this.handleNodeSelect(this.selectNode);
-      } else {
-        this.parse(this.importJson.root, this.treeNodes);
-      }
-    });
+    this.initData();
   },
   methods: {
+    initData() {
+      this.$nextTick(() => {
+        if (this.selectNode && this.selectNode.data) {
+          this.handleNodeSelect(this.selectNode);
+        } else {
+          this.parse(this.importJson.root, this.treeNodes);
+        }
+      });
+    },
     getNoCaseModuleIds(ids, nodes) {
       if (nodes) {
         nodes.forEach(node => {
