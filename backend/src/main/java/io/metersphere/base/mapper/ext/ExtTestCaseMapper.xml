@@ -733,9 +733,11 @@
 
     <select id="listForMinder" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
-        <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>,
-        <include refid="io.metersphere.base.mapper.TestCaseMapper.Blob_Column_List"/>
+        test_case.*,
+        project_version.name as versionName,
+        project_version.id as versionId
         from test_case
+        left join project_version on project_version.id = test_case.version_id
         <include refid="queryWhereCondition"/>
         <if test="request.nodeId != null">
             and test_case.node_id = #{request.nodeId}
