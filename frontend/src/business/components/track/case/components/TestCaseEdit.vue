@@ -87,7 +87,7 @@
               <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                          :is-copy="currentTestCaseInfo.isCopy"
                                          :label-width="formLabelWidth" :case-id="form.id"
-                                         :type="type" :comments="comments"
+                                         :type="type" :comments.sync="comments"
                                          @openComment="openComment"
                                          :is-click-attachment-tab.sync="isClickAttachmentTab"
                                          :version-enable="versionEnable"

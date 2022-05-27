@@ -201,7 +201,7 @@ export default {
         id = this.form.id;
       }
       this.result = this.$get('/test/case/comment/list/' + id, res => {
-        this.comments = res.data;
+        this.$emit('update:comments', res.data);
       })
     },
     setRelationshipCount(count) {
