@@ -194,6 +194,7 @@ export default {
     please_upload: '請上傳文件',
     please_fill_path: '請填寫ur路徑',
     formatErr: '格式錯誤',
+    response_time_warning: '回應時間應該是大於0的整數',
     please_save: '請先保存',
     reference_documentation: "參考文檔",
     id: 'ID',
