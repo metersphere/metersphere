@@ -188,6 +188,11 @@ export default {
         });
         this.form = Object.assign({}, row);
       }
+
+      if (this.$refs.createUserForm) {
+        this.$refs.createUserForm.clearValidate();
+      }
+
       this.createVisible = true;
       this.getAllUserGroup();
     },
