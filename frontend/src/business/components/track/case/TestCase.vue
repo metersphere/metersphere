@@ -105,6 +105,7 @@
               ref="testCaseList">
             </test-case-list>
             <test-case-minder
+              :current-version="currentVersion"
               :tree-nodes="treeNodes"
               :project-id="projectId"
               :condition="condition"

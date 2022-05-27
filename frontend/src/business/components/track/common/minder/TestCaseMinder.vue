@@ -87,6 +87,7 @@ name: "TestCaseMinder",
         return []
       }
     },
+    currentVersion: String,
     condition: Object,
     projectId: String,
   },
@@ -120,6 +121,9 @@ name: "TestCaseMinder",
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
+    },
+    currentVersion() {
+      this.$refs.minder.initData();
     }
   },
   mounted() {
@@ -182,6 +186,7 @@ name: "TestCaseMinder",
       return {
         request: {
           projectId: this.projectId,
+          versionId: this.currentVersion,
           orders: this.condition.orders
         },
         result: this.result,
@@ -330,12 +335,7 @@ name: "TestCaseMinder",
         this.saveExtraNode[parent.newId ? parent.newId : parent.id] = nodes;
       }
     },
-    buildSaveCase(node, parent, preNode, nextNode) {
-      let data = node.data;
-      if (!data.text) {
-        return;
-      }
-
+    validate(parent, data) {
       if (parent.id === 'root') {
         this.throwError(this.$t('test_track.case.minder_all_module_tip'));
       }
@@ -347,6 +347,14 @@ name: "TestCaseMinder",
       if (data.type === 'node') {
         this.throwError(this.$t('test_track.case.minder_is_module_tip', [data.text]));
       }
+    },
+    buildSaveCase(node, parent, preNode, nextNode) {
+      let data = node.data;
+      if (!data.text) {
+        return;
+      }
+
+      this.validate(parent, data);
 
       let isChange = false;
 
