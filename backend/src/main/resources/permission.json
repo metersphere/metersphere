@@ -483,6 +483,43 @@
       "resourceId": "PROJECT_TRACK_CASE"
     },
     {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_EDIT",
+      "name": "test_track.case.batch_edit_case",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_MOVE",
+      "name": "test_track.case.batch_move_case",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_COPY",
+      "name": "api_test.batch_copy",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_DELETE",
+      "name": "test_track.case.batch_delete_case",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_REDUCTION",
+      "name": "commons.batch_restore",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES",
+      "name": "test_track.case.generate_dependencies",
+      "resourceId": "PROJECT_TRACK_CASE",
+      "license": true
+    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_ADD_PUBLIC",
+      "name": "test_track.case.batch_add_public",
+      "resourceId": "PROJECT_TRACK_CASE",
+      "license": true
+    },
+    {
       "id": "PROJECT_TRACK_REVIEW:READ",
       "name": "permission.project_track_review.read",
       "resourceId": "PROJECT_TRACK_REVIEW"
