@@ -188,6 +188,7 @@ export default {
     incorrect_input: 'Incorrect input',
     delete_confirm: 'Please enter the following to confirm deletion:',
     login_username: 'ID or email',
+    response_time_warning: 'Reply time should be greater than 0 for members',
     input_login_username: 'Please input the user ID or email',
     input_name: 'Please enter name',
     please_save: 'Please save first',
