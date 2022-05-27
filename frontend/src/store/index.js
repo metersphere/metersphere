@@ -47,7 +47,8 @@ const state = {
   uiElementLibraryModuleIds: null,
   uiElementLibraryElements: null,
   refreshUiScenario: false,
-  showLicenseCountWarning: false
+  showLicenseCountWarning: false,
+  temWorkspaceId: null
 }
 
 const store = new Vuex.Store({

@@ -40,7 +40,11 @@ import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 export default {
   name: "MsHeaderWs",
   created() {
+    this.$EventBus.$on('changeWs', this._changeWs);
     this.initMenuData();
+  },
+  destroyed() {
+    this.$EventBus.$off('changeWs', this._changeWs);
   },
   inject: [
     'reloadTopMenus',
@@ -98,15 +102,26 @@ export default {
       if (!workspaceId || getCurrentWorkspaceId() === workspaceId) {
         return false;
       }
-      const loading = fullScreenLoading(this);
-      this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
-        saveLocalStorage(response);
-        sessionStorage.setItem(WORKSPACE_ID, workspaceId);
-        sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-        this.$router.push(this.getRedirectUrl(response.data)).then(() => {
-          this.reloadTopMenus(stopFullScreenLoading(loading));
-        }).catch(err => err);
-      });
+      let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
+      if (isTestCaseMinderChanged) {
+        // 脑图提示保存
+        this.$store.commit('setTemWorkspaceId', workspaceId);
+        return;
+      }
+      this._changeWs(workspaceId);
+    },
+    _changeWs(workspaceId) {
+      if (workspaceId) {
+        const loading = fullScreenLoading(this);
+        this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
+          saveLocalStorage(response);
+          sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+          sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+          this.$router.push(this.getRedirectUrl(response.data)).then(() => {
+            this.reloadTopMenus(stopFullScreenLoading(loading));
+          }).catch(err => err);
+        });
+      }
     },
     query(queryString) {
       this.workspaceList = queryString ? this.wsListCopy.filter(this.createFilter(queryString)) : this.wsListCopy;
