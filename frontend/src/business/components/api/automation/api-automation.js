@@ -128,7 +128,7 @@ export function savePreciseEnvProjectIds(projectIds, envMap) {
 export function scenarioSort(_this) {
   for (let i in _this.scenarioDefinition) {
     // 排序
-    _this.scenarioDefinition[i].index = Number(i) + 1;
+    _this.$set(_this.scenarioDefinition[i], 'index', Number(i) + 1);
     // 设置循环控制
     if (_this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && _this.scenarioDefinition[i].hashTree
       && _this.scenarioDefinition[i].hashTree.length > 1) {
