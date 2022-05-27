@@ -20,14 +20,14 @@
 
                   <el-row type="flex" class="head-bar">
 
-                    <el-col :span="8">
+                    <el-col :span="2">
                       <el-button plain size="mini"
                                  icon="el-icon-back"
                                  @click="cancel">{{ $t('test_track.return') }}
                       </el-button>
                     </el-col>
 
-                    <el-col :span="14" class="head-right">
+                    <el-col :span="22" class="head-right">
 
                       <ms-previous-next-button
                         :index="index"
@@ -62,7 +62,9 @@
                     <el-col>
                       <el-divider content-position="left">
                         <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
-                          {{ testCase.num }}-{{ testCase.name }}
+                          <span class="title-link" :title="testCase.name">
+                            {{ testCase.num }}-{{ testCase.name }}
+                          </span>
                         </el-button>
                       </el-divider>
                     </el-col>
@@ -582,6 +584,16 @@ export default {
 .test-case-name {
   padding: 0;
   text-decoration: underline solid #783887;
+}
+
+.title-link {
+  display: inline-block;
+  max-width: 300px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+  margin-right: 5px;
 }
 
 .step-info {
