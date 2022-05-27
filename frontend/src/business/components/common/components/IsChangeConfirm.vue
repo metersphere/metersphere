@@ -4,7 +4,8 @@
     width="20%"
     :title="title"
     :with-footer="false"
-    :close-on-click-modal="false">
+    :close-on-click-modal="false"
+    @close="handleClose">
     {{tip}}
     <template v-slot:footer>
       <el-button type="primary" @click="save" @keydown.enter.native.prevent>{{$t('保存')}}</el-button>
@@ -21,22 +22,28 @@ export default {
   data() {
     return {
       visible: false,
-      data: {}
+      data: {
+        temWorkspaceId: null
+      }
     }
   },
   props: ['title','tip', 'versionEnable'],
   methods: {
-    open(item) {
+    open(item, temWorkspaceId) {
       this.visible = true;
+      this.temWorkspaceId = temWorkspaceId ? temWorkspaceId : null;
       this.data = item;
     },
     save() {
-      this.$emit('confirm', true);
+      this.$emit('confirm', true, this.temWorkspaceId);
       this.visible = false;
     },
     cancel() {
-      this.$emit('confirm', false);
+      this.$emit('confirm', false, this.temWorkspaceId);
       this.visible = false;
+    },
+    handleClose() {
+      this.$store.commit('setTemWorkspaceId', null);
     }
   }
 
