@@ -367,56 +367,56 @@ export default {
         {
           name: this.$t('test_track.case.batch_edit_case'),
           handleClick: this.handleBatchEdit,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_EDIT']
         },
         {
           name: this.$t('test_track.case.batch_move_case'),
           handleClick: this.handleBatchMove,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_MOVE']
         },
         {
           name: this.$t('api_test.batch_copy'),
           handleClick: this.handleBatchCopy,
-          permissions: ['PROJECT_TRACK_CASE:READ+COPY']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_COPY']
         },
         {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatchToGc,
-          permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE']
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
           isXPack: true,
           handleClick: this.generateGraph,
-          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+          permissions: ['PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES']
         },
         {
           name: this.$t('test_track.case.batch_add_public'),
           isXPack: true,
           handleClick: this.handleBatchAddPublic,
-          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API'],
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_ADD_PUBLIC'],
         }
       ],
       publicButtons: [
         {
           name: this.$t('test_track.case.batch_copy'),
           handleClick: this.handleBatchMove,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_COPY']
         }, {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatchToPublic,
-          permissions: ['PROJECT_TRACK_CASE:READ+DELETE'],
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE'],
         },
       ],
       trashButtons: [
         {
           name: this.$t('commons.reduction'),
           handleClick: this.batchReduction,
-          permissions: ['PROJECT_TRACK_CASE:READ+RECOVER']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_REDUCTION']
         }, {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatch,
-          permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE']
         }
       ],
       operators: [],
