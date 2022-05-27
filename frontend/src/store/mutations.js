@@ -30,6 +30,7 @@ const mutations = {
   setRefreshUiScenario: (state, value) => state.refreshUiScenario = value,
   setSelectUiGroup: (state, value) => state.selectUiGroup = value,
   setShowLicenseCountWarning: (state, value) => state.showLicenseCountWarning = value,
+  setTemWorkspaceId: (state, value) => state.temWorkspaceId = value,
 }
 
 export default mutations;
