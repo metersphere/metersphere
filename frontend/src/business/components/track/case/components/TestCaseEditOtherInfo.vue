@@ -13,9 +13,12 @@
       <el-col :span="8">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
-
-          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions" style="width: 100%"
-                       clearable filterable :filter-method="filterDemand"/>
+          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions"
+                       clearable filterable :filter-method="filterDemand">
+            <template slot-scope="{ node, data }">
+              <span class="demand-span" :title="data.label">{{ data.label }}</span>
+            </template>
+          </el-cascader>
         </el-form-item>
       </el-col>
       <el-col :span="8" :offset="2">
@@ -403,5 +406,15 @@ export default {
   width: 18px;
   font-size: xx-small;
   border-radius: 50%;
+}
+
+.demand-span {
+  display: inline-block;
+  max-width: 400px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+  margin-right: 5px;
 }
 </style>
