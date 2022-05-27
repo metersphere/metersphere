@@ -43,8 +43,8 @@
                   </div>
                 </div>
               </div>
-              <el-divider ></el-divider>
-              <div class="metric-icon-box" style="height: 26px">
+              <el-divider v-if="content.unExecute > 0"></el-divider>
+              <div class="metric-icon-box" style="height: 26px" v-if="content.unExecute > 0">
                 <span class="ms-point-unexecute" style="margin: 7px;float: left;"/>
                 <div class="metric-box" >
                   <div class="value" style="font-size: 12px">{{ content.unExecute }}
@@ -208,6 +208,22 @@ export default {
     },
   },
   computed: {
+    totalCount(){
+      let total = 0;
+      if(this.content.success){
+        total += this.content.success;
+      }
+      if(this.content.error){
+        total += this.content.error;
+      }
+      if(this.content.errorCode){
+        total += this.content.errorCode;
+      }
+      if(this.content.unExecute){
+        total += this.content.unExecute;
+      }
+      return total;
+    },
     options() {
       return {
         color: ['#67C23A', '#F56C6C', '#F6972A', '#9C9B9A'],
@@ -216,7 +232,7 @@ export default {
           formatter: '{b}: {c} ({d}%)'
         },
         title: [{
-          text: (this.content.success + this.content.error  + this.content.errorCode + this.content.unExecute),
+          text: this.totalCount,
           subtext: this.isUi ? '指令' : this.$t('api_report.request'),
           top: 'center',
           left: 'center',
