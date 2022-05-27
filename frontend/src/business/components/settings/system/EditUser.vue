@@ -28,7 +28,7 @@
                         :rules="{required: true, message: $t('user.select_group'), trigger: 'change'}"
           >
             <el-select filterable v-model="group.type" :placeholder="$t('user.select_group')"
-                       class="edit-user-select" @change="getResource(group.type, index)">
+                       class="edit-user-select" :disabled="form.groups[index].type != null && form.groups[index].type !== '' " @change="getResource(group.type, index)">
               <el-option
                 v-for="item in activeGroup(group)"
                 :key="item.id"
@@ -222,6 +222,14 @@ export default {
       if (!isRemove) {
         return;
       }
+      let _type = item.type.split("+")[1];
+      if (_type === 'WORKSPACE') {
+        this.currentWSGroupIndex = -1;
+      } else {
+        if (this.currentWSGroupIndex > index) {
+          this.currentWSGroupIndex = this.currentWSGroupIndex-1
+        }
+      }
       if (index !== -1) {
         this.form.groups.splice(index, 1)
       }
@@ -315,6 +323,9 @@ export default {
       }
       let id = idType.split("+")[0];
       let type = idType.split("+")[1];
+      if (index>0 && this.form.groups[index].ids && this.form.groups[index].ids.length >0) {
+       return;
+      }
       let isHaveWorkspace = false;
       if (type === 'PROJECT') {
         for (let i = 0; i < this.form.groups.length; i++) {
