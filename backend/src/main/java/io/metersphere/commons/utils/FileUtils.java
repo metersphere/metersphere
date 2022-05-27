@@ -209,8 +209,10 @@ public class FileUtils {
 
     public static void copyBdyFile(String originId, String toId) {
         try {
-            FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + "/" + originId),
-                    new File(FileUtils.BODY_FILE_DIR + "/" + toId));
+            if (StringUtils.isNotEmpty(originId) && StringUtils.isNotEmpty(toId) && !StringUtils.equals(originId, toId)) {
+                FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + "/" + originId),
+                        new File(FileUtils.BODY_FILE_DIR + "/" + toId));
+            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
