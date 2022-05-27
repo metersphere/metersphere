@@ -234,20 +234,16 @@ export default {
   },
   methods: {
     loadRequestInfoExpand() {
-      if( !this.request.responseResult || (!this.request.responseResult.body && this.request.responseResult.body === null)){
+      if (!this.request.responseResult ||
+        (this.request.responseResult.body === null || this.request.responseResult.body === undefined)) {
         this.$get("/api/scenario/report/selectReportContent/" + this.stepId, response => {
-          let requestResult = response.data;
-          if (requestResult) {
-            this.requestInfo = requestResult;
-          }
+          this.requestInfo = response.data;
           this.$nextTick(() => {
             this.requestInfo.loading = false;
           });
         });
-      }else {
-        if (this.request.responseResult && (this.request.responseResult.body || this.request.responseResult.body === '')) {
-          this.requestInfo = this.request;
-        }
+      } else {
+        this.requestInfo = this.request;
       }
     },
     active() {
