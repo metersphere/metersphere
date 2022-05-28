@@ -53,10 +53,10 @@ MeterSphere 是一站式开源持续测试平台, 涵盖测试跟踪、接口测
 curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | sh
 ```
 
-文档和演示视频：
+在线文档和教学视频：
 
--   [完整文档](https://metersphere.io/docs/)
--   [演示视频](https://www.bilibili.com/video/BV1yp4y1p72C/)
+-   [在线文档](https://metersphere.io/docs/)
+-   [教学视频](https://space.bilibili.com/510493147/channel/collectiondetail?sid=397323)
 
 ### 社区
 
