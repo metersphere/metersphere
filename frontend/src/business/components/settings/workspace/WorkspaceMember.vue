@@ -11,7 +11,7 @@
                 @select-all="handleSelectAll"
                 @select="handleSelect"
                 ref="userTable">
-        <el-table-column type="selection" width="50"/>
+        <el-table-column v-if="hasPermission('WORKSPACE_PROJECT_MANAGER:READ+ADD_USER')" type="selection" width="50"/>
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize>total?total:pageSize"
                                         :total="total"
@@ -21,7 +21,8 @@
                                         @selectAll="isSelectDataAll(true)"/>
         <el-table-column width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn v-permission="['WORKSPACE_PROJECT_MANAGER:READ+ADD_USER']"
+                           :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <el-table-column prop="id" label="ID"/>
@@ -101,7 +102,7 @@ import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, hasPermission,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -172,6 +173,7 @@ export default {
     this.initTableData();
   },
   methods: {
+    hasPermission,
     currentUser: () => {
       return getCurrentUser();
     },
