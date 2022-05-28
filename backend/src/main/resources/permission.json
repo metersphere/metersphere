@@ -186,6 +186,21 @@
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+ADD_USER",
+      "name": "permission.workspace_user.create",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+EDIT_USER",
+      "name": "permission.workspace_user.edit",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+DELETE_USER",
+      "name": "permission.workspace_user.delete",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
       "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
       "name": "permission.workspace_project_environment.read",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
