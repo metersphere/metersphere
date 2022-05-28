@@ -391,6 +391,18 @@ public class UserService {
         }
         user.setPassword(null);
         user.setUpdateTime(System.currentTimeMillis());
+        // 变更前
+        User userFromDB = userMapper.selectByPrimaryKey(user.getId());
+        // last workspace id 变了
+        if (!StringUtils.equals(user.getLastWorkspaceId(), userFromDB.getLastWorkspaceId())) {
+            List<Project> projects = getProjectListByWsAndUserId(user.getLastWorkspaceId());
+            if (projects.size() > 0) {
+                user.setLastProjectId(projects.get(0).getId());
+            } else {
+                user.setLastProjectId("");
+            }
+        }
+        // 执行变更
         userMapper.updateByPrimaryKeySelective(user);
         if (StringUtils.equals(user.getStatus(), UserStatus.DISABLED)) {
             SessionUtils.kickOutUser(user.getId());
