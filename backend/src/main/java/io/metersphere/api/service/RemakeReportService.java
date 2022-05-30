@@ -181,7 +181,7 @@ public class RemakeReportService {
             LoggerUtil.info("进入异常结果处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
-            String consoleMsg = FixedCapacityUtils.getJmeterLogger(dto.getReportId());
+            String consoleMsg = FixedCapacityUtils.getJmeterLogger(dto.getReportId(),true);
             dto.setConsole(consoleMsg + "\n" + errorMsg);
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);

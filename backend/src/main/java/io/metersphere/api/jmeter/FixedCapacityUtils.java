@@ -33,11 +33,11 @@ public class FixedCapacityUtils {
     }
 
 
-    public static String getJmeterLogger(String testId) {
+    public static String getJmeterLogger(String reportId, boolean isClear) {
         try {
-            Long startTime = FixedCapacityUtils.jmeterLogTask.get(testId);
+            Long startTime = FixedCapacityUtils.jmeterLogTask.get(reportId);
             if (startTime == null) {
-                startTime = FixedCapacityUtils.jmeterLogTask.get("[" + testId + "]");
+                startTime = FixedCapacityUtils.jmeterLogTask.get("[" + reportId + "]");
             }
             if (startTime == null) {
                 startTime = System.currentTimeMillis();
@@ -47,9 +47,14 @@ public class FixedCapacityUtils {
             String logMessage = FixedCapacityUtils.fixedCapacityCache.entrySet().stream()
                     .filter(map -> map.getKey() > finalStartTime && map.getKey() <= endTime)
                     .map(map -> map.getValue()).collect(Collectors.joining());
+
             return logMessage;
         } catch (Exception e) {
             return "";
+        } finally {
+            if (isClear && FixedCapacityUtils.jmeterLogTask.containsKey(reportId)) {
+                FixedCapacityUtils.jmeterLogTask.remove(reportId);
+            }
         }
     }
 }

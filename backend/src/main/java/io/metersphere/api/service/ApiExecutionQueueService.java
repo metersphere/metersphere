@@ -212,7 +212,7 @@ public class ApiExecutionQueueService {
                 if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
                     reportId = dto.getTestPlanReportId();
                 }
-                apiScenarioReportService.margeReport(reportId, dto.getRunMode());
+                apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
             }
             return false;
         }
@@ -299,7 +299,7 @@ public class ApiExecutionQueueService {
                     if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
                         reportId = dto.getTestPlanReportId();
                     }
-                    apiScenarioReportService.margeReport(reportId, dto.getRunMode());
+                    apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
                 }
             }
             return;
@@ -335,7 +335,7 @@ public class ApiExecutionQueueService {
                     if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
                         reportId = dto.getTestPlanReportId();
                     }
-                    apiScenarioReportService.margeReport(reportId, dto.getRunMode());
+                    apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
                 }
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
                 LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
