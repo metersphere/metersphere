@@ -227,12 +227,14 @@ export default {
       if (!isRemove) {
         return;
       }
-      let _type = item.type.split("+")[1];
-      if (_type === 'WORKSPACE') {
-        this.currentWSGroupIndex = -1;
-      } else {
-        if (this.currentWSGroupIndex > index) {
-          this.currentWSGroupIndex = this.currentWSGroupIndex-1
+      if (item.type) {
+        let _type = item.type.split("+")[1];
+        if (_type === 'WORKSPACE') {
+          this.currentWSGroupIndex = -1;
+        } else {
+          if (this.currentWSGroupIndex > index) {
+            this.currentWSGroupIndex = this.currentWSGroupIndex-1
+          }
         }
       }
       if (index !== -1) {
@@ -366,16 +368,25 @@ export default {
       }
     },
     addWorkspaceGroup(id,index){
+      let isHaveWorkSpace ;
+      this.form.groups.forEach(item =>{
+        if (item.type === "ws_member+WORKSPACE") {
+          isHaveWorkSpace = true;
+        }
+      })
+      if (isHaveWorkSpace) {
+        return;
+      }
       this.result = this.$get('/workspace/list/resource/' + id + "/WORKSPACE", res => {
         let data = res.data;
         if (data) {
           let roleInfo = {};
           roleInfo.selects = [];
+          roleInfo.type = "ws_member+WORKSPACE";
           let ids = this.form.groups.map(r => r.type);
           ids.forEach(id => {
             roleInfo.selects.push(id);
           })
-          roleInfo.type = "ws_member+WORKSPACE";
           if (this.currentGroupWSIds.size > 0) {
             roleInfo.ids = [];
             this.currentGroupWSIds.forEach(item =>{
