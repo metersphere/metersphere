@@ -2088,7 +2088,7 @@ export default {
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
       img_loading_fail: "Image failed to load",
       pdf_loading_fail: "PDF loading failed",
-      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx, txt, json, jmx files can be uploaded",
+      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx, txt, json, jmx, side files can be uploaded",
       attachment: "Attachment",
       upload_time: "Upload Time",
       total: "Total Case",

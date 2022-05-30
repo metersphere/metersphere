@@ -5,7 +5,7 @@ public enum FileType {
     JPG(".jpg"), PNG(".png"), JPEG(".jpeg"), DOC(".doc"),
     XLSX(".xlsx"), DOCX(".docx"), JAR(".jar"), JS(".js"), TXT(".txt"),
     P12(".p12"), JKS(".jks"), PFX(".pfx"),
-    DER(".der"), CER(".cer"), PEM(".pem"), CRT(".crt"),
+    DER(".der"), CER(".cer"), PEM(".pem"), CRT(".crt"), SIDE(".side")
     ;
 
     // 保存后缀
