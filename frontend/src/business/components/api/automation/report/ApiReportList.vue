@@ -98,7 +98,12 @@
           </el-table-column>
           <el-table-column prop="endTime" min-width="120" :label="$t('report.test_end_time')" sortable>
             <template v-slot:default="scope">
-              {{ scope.row.endTime | timestampFormatDate }}
+              <span v-if="scope.row.endTime && scope.row.endTime > 0">
+                {{ scope.row.endTime | timestampFormatDate }}
+              </span>
+              <span v-else>
+                {{ scope.row.updateTime | timestampFormatDate }}
+              </span>
             </template>
           </el-table-column>
           <el-table-column prop="triggerMode" width="150" :label="$t('commons.trigger_mode.name')"
