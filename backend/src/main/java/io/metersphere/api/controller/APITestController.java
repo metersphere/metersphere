@@ -407,7 +407,7 @@ public class APITestController {
     public Pager<List<ApiDefinitionExecResultExpand>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setLimit("LIMIT " + (goPage - 1) * pageSize + "," + pageSize * 50);
-        return PageUtils.setPageInfo(page, apiDefinitionExecResultService.exceReportlist(request));
+        return PageUtils.setPageInfo(page, apiDefinitionExecResultService.apiReportList(request));
     }
 
 }

@@ -34,6 +34,10 @@ public class ServiceUtils {
         return getDefaultOrder(null, orders);
     }
 
+    public static List<OrderRequest> getDefaultOrder(List<OrderRequest> orders, String field) {
+        return getDefaultOrder(null, field, orders);
+    }
+
     public static List<OrderRequest> getDefaultSortOrder(List<OrderRequest> orders) {
         return getDefaultOrderByField(null, orders, "order");
     }
@@ -44,6 +48,10 @@ public class ServiceUtils {
 
     public static List<OrderRequest> getDefaultOrder(String prefix, List<OrderRequest> orders) {
         return getDefaultOrderByField(prefix, orders, "update_time");
+    }
+
+    public static List<OrderRequest> getDefaultOrder(String prefix, String field, List<OrderRequest> orders) {
+        return getDefaultOrderByField(prefix, orders, field);
     }
 
     private static List<OrderRequest> getDefaultOrderByField(String prefix, List<OrderRequest> orders, String field) {
@@ -129,6 +137,7 @@ public class ServiceUtils {
 
     /**
      * 初始化 order 列
+     *
      * @param clazz
      * @param mapClazz
      * @param selectProjectIdsFunc
@@ -137,8 +146,8 @@ public class ServiceUtils {
      * @param <M>
      */
     public static <T, M> void initOrderField(Class<T> clazz, Class<M> mapClazz,
-                                          Supplier<List<String>> selectProjectIdsFunc,
-                                          Function<String, List<String>> getIdsOrderByUpdateTimeFunc) {
+                                             Supplier<List<String>> selectProjectIdsFunc,
+                                             Function<String, List<String>> getIdsOrderByUpdateTimeFunc) {
 
         try {
 
@@ -172,7 +181,6 @@ public class ServiceUtils {
     }
 
     /**
-     *
      * @param request
      * @param clazz
      * @param selectByPrimaryKeyFunc
@@ -182,10 +190,10 @@ public class ServiceUtils {
      * @param <T>
      */
     public static <T> void updateOrderField(ResetOrderRequest request, Class<T> clazz,
-                              Function<String, T> selectByPrimaryKeyFunc,
-                              BiFunction<String, Long, Long> getPreOrderFunc,
-                              BiFunction<String, Long, Long> getLastOrderFunc,
-                              Consumer<T> updateByPrimaryKeySelectiveFuc) {
+                                            Function<String, T> selectByPrimaryKeyFunc,
+                                            BiFunction<String, Long, Long> getPreOrderFunc,
+                                            BiFunction<String, Long, Long> getLastOrderFunc,
+                                            Consumer<T> updateByPrimaryKeySelectiveFuc) {
         Long order;
         Long lastOrPreOrder;
         try {
@@ -226,13 +234,14 @@ public class ServiceUtils {
 
     /**
      * 创建时获取下一个 order 值
+     *
      * @param groupId
      * @param getLastOrderFunc
      * @return
      */
     public static Long getNextOrder(String groupId, BiFunction<String, Long, Long> getLastOrderFunc) {
         Long lastOrder = getLastOrderFunc.apply(groupId, null);
-       return (lastOrder == null ? 0 : lastOrder) + ServiceUtils.ORDER_STEP;
+        return (lastOrder == null ? 0 : lastOrder) + ServiceUtils.ORDER_STEP;
     }
 
     public static <T> int getNextNum(String projectId, Class<T> clazz, Function<String, T> getNextNumFunc) {
@@ -242,7 +251,7 @@ public class ServiceUtils {
             if (data == null || getNum.invoke(data) == null) {
                 return 100001;
             } else {
-                return Optional.ofNullable((Integer)getNum.invoke(data) + 1).orElse(100001);
+                return Optional.ofNullable((Integer) getNum.invoke(data) + 1).orElse(100001);
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
