@@ -104,12 +104,14 @@ export default {
       let apiPermission = hasPermissions('PROJECT_API_DEFINITION:READ', 'PROJECT_API_SCENARIO:READ', 'PROJECT_API_REPORT:READ');
       let performancePermission = hasPermissions('PROJECT_PERFORMANCE_TEST:READ', 'PROJECT_PERFORMANCE_REPORT:READ');
       let projectPermission = hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ');
+      let uiPermission = hasPermissions('PROJECT_UI_ELEMENT:READ', 'PROJECT_UI_SCENARIO:READ', 'PROJECT_UI_REPORT:READ');
 
       let redirectMap = {
         track: trackPermission,
         api: apiPermission,
         performance: performancePermission,
         project: projectPermission,
+        ui: uiPermission,
       };
       let locations = redirectUrl.split('/');
       if (locations.length > 2) {
