@@ -6,7 +6,8 @@
                   :placeholder="$t('api_test.request.extract.json_path_expression')"/>
       </el-col>
       <el-col>
-        <el-select v-model="jsonPath.option" class="ms-col-type" size="small" style="width:40%;margin-right: 10px" @change="reload">
+        <el-select :disabled="isReadOnly" v-model="jsonPath.option" class="ms-col-type" size="small"
+                   style="width:40%;margin-right: 10px" @change="reload">
           <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
