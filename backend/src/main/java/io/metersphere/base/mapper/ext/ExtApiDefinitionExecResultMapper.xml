@@ -65,6 +65,7 @@
                  GROUP BY apiScene.api_scenario_id
              )apiScene ON apiScene.api_scenario_id = scene.id
             WHERE report.project_id = #{projectId}
+              AND scene.`status` != 'Trash'
               AND ( report.STATUS = 'Error' OR report.STATUS = 'Fail' )  AND report.create_time >= #{startTimestamp}
             GROUP BY scene.id
             UNION
