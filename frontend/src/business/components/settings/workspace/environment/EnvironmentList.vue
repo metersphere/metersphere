@@ -394,9 +394,11 @@ export default {
         if (env.config) {  //旧环境可能没有config数据
           let tempConfig = JSON.parse(env.config);
           if (tempConfig.httpConfig.conditions && tempConfig.httpConfig.conditions.length > 0) {
-            tempConfig.httpConfig.conditions = tempConfig.httpConfig.conditions.filter(condition => {   //删除”模块启用条件“，因为导入导出环境对应的项目不同，模块也就不同，
-              return condition.type !== 'MODULE';
-            });
+            tempConfig.httpConfig.conditions.map(condition => {
+              if (condition.type === 'MODULE') {
+                condition.details = [];
+              }
+            })
             env.config = JSON.stringify(tempConfig);
           }
         }
