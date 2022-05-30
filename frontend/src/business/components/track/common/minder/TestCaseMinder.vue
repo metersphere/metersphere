@@ -397,8 +397,14 @@ name: "TestCaseMinder",
           if (childData.type === 'issue') return;
           if (childData.resource && childData.resource.indexOf(this.$t('test_track.case.prerequisite')) > -1) {
             testCase.prerequisite = childData.text;
+            if (childNode.children && childNode.children.length > 0) {
+              this.throwError('[' + testCase.name + ']前置条件下不能添加子节点！');
+            }
           } else if (childData.resource && childData.resource.indexOf(this.$t('commons.remark')) > -1) {
             testCase.remark = childData.text;
+             if (childNode.children && childNode.children.length > 0) {
+               this.throwError('[' + testCase.name + ']备注下不能添加子节点！');
+             }
           } else {
             // 测试步骤
             let step = {};
@@ -408,7 +414,9 @@ name: "TestCaseMinder",
               let result = "";
               childNode.children.forEach((child) => {
                 result += child.data.text;
-                if (child.data.changed) isChange = true;
+                if (child.data.changed) {
+                  isChange = true;
+                }
               })
               step.result = result;
             }
@@ -419,7 +427,15 @@ name: "TestCaseMinder",
               testCase.expectedResult = step.result;
             }
           }
-          if (childData.changed) isChange = true;
+          if (childData.changed) {
+            isChange = true;
+          }
+
+          childNode.children.forEach((child) => {
+            if (child.children && child.children.length > 0) {
+              this.throwError('['+ testCase.name + ']用例下子节点不能超过两层！');
+            }
+          });
         })
       }
       testCase.steps = JSON.stringify(steps);
