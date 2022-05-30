@@ -394,7 +394,7 @@ public class UserService {
         // 变更前
         User userFromDB = userMapper.selectByPrimaryKey(user.getId());
         // last workspace id 变了
-        if (!StringUtils.equals(user.getLastWorkspaceId(), userFromDB.getLastWorkspaceId())) {
+        if (user.getLastWorkspaceId() != null && !StringUtils.equals(user.getLastWorkspaceId(), userFromDB.getLastWorkspaceId())) {
             List<Project> projects = getProjectListByWsAndUserId(user.getLastWorkspaceId());
             if (projects.size() > 0) {
                 user.setLastProjectId(projects.get(0).getId());
