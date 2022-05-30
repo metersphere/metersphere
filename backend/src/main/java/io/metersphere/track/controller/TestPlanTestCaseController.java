@@ -47,6 +47,12 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.listForMinder(request);
     }
 
+    @PostMapping("/list/minder/{goPage}/{pageSize}")
+    public Pager<List<TestPlanCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testPlanTestCaseService.listForMinder(request));
+    }
+
     @GetMapping("/list/node/{planId}/{nodePaths}")
     public List<TestPlanCaseDTO> getTestPlanCasesByNodePath(@PathVariable String planId, @PathVariable String nodePaths) {
         String nodePath = nodePaths.replace("f", "/");
