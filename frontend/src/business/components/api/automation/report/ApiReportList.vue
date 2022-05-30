@@ -98,12 +98,7 @@
           </el-table-column>
           <el-table-column prop="endTime" min-width="120" :label="$t('report.test_end_time')" sortable>
             <template v-slot:default="scope">
-              <span v-if="scope.row.endTime < scope.row.createTime">
-                {{ scope.row.updateTime | timestampFormatDate }}
-              </span>
-              <span v-else>
-                {{ scope.row.endTime | timestampFormatDate }}
-              </span>
+              {{ scope.row.endTime | timestampFormatDate }}
             </template>
           </el-table-column>
           <el-table-column prop="triggerMode" width="150" :label="$t('commons.trigger_mode.name')"
@@ -142,7 +137,6 @@
     </ms-main-container>
   </ms-container>
 </template>
-
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
 import {REPORT_CASE_CONFIGS, REPORT_CONFIGS} from "../../../common/components/search/search-components";

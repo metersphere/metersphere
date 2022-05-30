@@ -124,13 +124,12 @@
     </select>
     <select id="list" resultType="io.metersphere.base.domain.ApiDefinitionExecResultExpand">
         SELECT a_r.name AS test_name,
-        if (a_r.end_time + 0 > a_r.create_time + 0, a_r.end_time, a_r.create_time) as end_time,
+        a_r.end_time,
         a_r.user_id,
         a_r.name,
         a_r.id,
         a_r.project_id,
-        a_r.create_time as create_time,
-        a_r.create_time as update_time,
+        a_r.create_time,
         a_r.status,
         a_r.trigger_mode,
         a_r.report_type,
