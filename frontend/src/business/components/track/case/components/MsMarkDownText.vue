@@ -1,14 +1,16 @@
 <template>
-      <mavon-editor :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpen" class="mavon-editor"
-                  :xss-options="xssOptions"
-                  @change="$emit('change')"
-                  :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
+  <mavon-editor :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpen"
+                :xss-options="xssOptions" :style="{'min-height': customMinHeight + 'px'}"
+                @change="$emit('change')"
+                :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="!disabled"
+                @imgDel="imgDel" v-model="data[prop]" ref="md"/>
 </template>
 
 <script>
 import {getCurrentUser, getUUID} from "@/common/js/utils";
 import {deleteMarkDownImg, uploadMarkDownImg} from "@/network/image";
 import {DEFAULT_XSS_ATTR} from "@/common/js/constants";
+
 export default {
   name: "MsMarkDownText",
   components: {},
@@ -20,6 +22,12 @@ export default {
       type: Boolean,
       default() {
         return true;
+      }
+    },
+    customMinHeight: {
+      type: [Number, String],
+      default() {
+        return 20;
       }
     },
     toolbars: {
@@ -99,9 +107,6 @@ export default {
           dt: DEFAULT_XSS_ATTR,
           em: DEFAULT_XSS_ATTR,
           blockquote: DEFAULT_XSS_ATTR,
-          // 如果支持视频
-    //      audio: ['autoplay', 'controls', 'loop', 'preload', 'src'],
-    //      video: ['autoplay', 'controls', 'loop', 'preload', 'src', 'height', 'width']
         },
         stripIgnoreTagBody: true
       },
@@ -130,7 +135,7 @@ export default {
     }
   },
   mounted() {
-    if(!this.disabled){
+    if (!this.disabled) {
       // 点击编辑，失去焦点展示
       let el = document.getElementById(this.id);
       if (!this.autoReview) {
@@ -157,11 +162,11 @@ export default {
 
   },
   methods: {
-    imgAdd(pos, file){
+    imgAdd(pos, file) {
       this.result.loading = true;
       uploadMarkDownImg(file, (response, param) => {
         this.$success(this.$t('commons.save_success'));
-        let url = '/resource/md/get?fileName='  +  param.id + '_' + encodeURIComponent(param.fileName);
+        let url = '/resource/md/get?fileName=' + param.id + '_' + encodeURIComponent(param.fileName);
         this.$refs.md.$img2Url(pos, url);
         this.result.loading = false;
       });
@@ -184,10 +189,6 @@ export default {
 </script>
 
 <style scoped>
-
-.mavon-editor {
-  min-height: 20px;
-}
 
 /deep/ .v-note-wrapper {
   position: initial;
