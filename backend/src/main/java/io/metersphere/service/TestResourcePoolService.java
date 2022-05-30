@@ -195,12 +195,6 @@ public class TestResourcePoolService {
         return nodeResourcePoolService.validate(testResourcePool);
     }
 
-    private void deleteTestResource(String testResourcePoolId) {
-        TestResourceExample testResourceExample = new TestResourceExample();
-        testResourceExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
-        testResourceMapper.deleteByExample(testResourceExample);
-    }
-
     public TestResourcePool getResourcePool(String resourcePoolId) {
         return testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
     }
