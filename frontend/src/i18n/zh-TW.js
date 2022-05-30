@@ -2086,7 +2086,7 @@ export default {
       cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
       img_loading_fail: "圖片加載失敗",
       pdf_loading_fail: "PDF加載失敗",
-      upload_tip: "只能上傳jpg、jpeg、png、docx、doc、pdf、xlsx、txt、json、jmx文件",
+      upload_tip: "只能上傳jpg、jpeg、png、docx、doc、pdf、xlsx、txt、json、jmx、side文件",
       attachment: "附件",
       upload_time: "上傳時間",
       total: "用例總數",
