@@ -17,7 +17,7 @@
     <div>
       <div class="editors_div_style">
         <div id="editorsDiv">
-          <ms-mark-down-text prop="description" :data="form" :toolbars="toolbars" ref="md"/>
+          <ms-mark-down-text prop="description" :data="form" :toolbars="toolbars" ref="md" custom-min-height="220"/>
         </div>
       </div>
 

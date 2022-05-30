@@ -48,7 +48,7 @@
       <div>
         <div class="editors_div_style">
           <div id="editorsDiv">
-            <ms-mark-down-text prop="description" :data="comment" :toolbars="toolbars"/>
+            <ms-mark-down-text prop="description" :data="comment" :toolbars="toolbars" :custom-min-height="200"/>
           </div>
         </div>
         <div>
