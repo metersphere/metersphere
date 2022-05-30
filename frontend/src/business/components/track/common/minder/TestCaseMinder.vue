@@ -178,6 +178,17 @@ name: "TestCaseMinder",
           // 这些情况则脑图有改变
           this.setIsChange(true);
         }
+
+        if ('removenode' === even.commandName) {
+          let nodes = window.minder.getSelectedNodes();
+          if (nodes) {
+            nodes.forEach((node) => {
+              if (isModuleNodeData(node.data) && node.children && node.children.length > 0) {
+                this.$warning('删除模块将删除模块下的所有资源');
+              }
+            });
+          }
+        }
       });
 
       addIssueHotBox(this);
