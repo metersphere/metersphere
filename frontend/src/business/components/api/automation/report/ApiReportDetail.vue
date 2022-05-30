@@ -16,6 +16,8 @@
                   <ms-scenario-results :treeData="fullTreeNodes"
                                        :console="content.console"
                                        :report="report"
+                                       :is-share="isShare"
+                                       :share-id="shareId"
                                        v-on:requestResult="requestResult"
                                        ref="resultsTree"/>
                 </el-tab-pane>
@@ -26,6 +28,8 @@
                   <ms-scenario-results v-on:requestResult="requestResult"
                                        :console="content.console"
                                        :report="report"
+                                       :is-share="isShare"
+                                       :share-id="shareId"
                                        :treeData="fullTreeNodes" ref="failsTree"
                                        :errorReport="content.error"/>
                 </el-tab-pane>
@@ -36,6 +40,8 @@
                   <ms-scenario-results v-on:requestResult="requestResult"
                                        :report="report"
                                        :console="content.console"
+                                       :is-share="isShare"
+                                       :share-id="shareId"
                                        :treeData="fullTreeNodes" ref="errorReportTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
@@ -47,6 +53,8 @@
                   <ms-scenario-results v-on:requestResult="requestResult"
                                        :report="report"
                                        :console="content.console"
+                                       :is-share="isShare"
+                                       :share-id="shareId"
                                        :treeData="fullTreeNodes" ref="unExecuteTree"/>
                 </el-tab-pane>
                 <el-tab-pane name="console">

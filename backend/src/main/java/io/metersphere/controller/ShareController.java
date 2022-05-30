@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
@@ -70,6 +71,8 @@ public class ShareController {
     MetricQueryService metricService;
     @Resource
     private TestResourcePoolService testResourcePoolService;
+    @Resource
+    private ApiScenarioReportService apiReportService;
 
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
@@ -307,5 +310,11 @@ public class ShareController {
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
         resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
         return testResourcePoolService.listResourcePools(resourcePoolRequest);
+    }
+
+    @GetMapping("/{shareId}/scenario/report/selectReportContent/{stepId}")
+    public RequestResult selectReportContent(@PathVariable String stepId, @PathVariable String shareId) {
+        shareInfoService.validateExpired(shareId);
+        return apiReportService.selectReportContent(stepId);
     }
 }
