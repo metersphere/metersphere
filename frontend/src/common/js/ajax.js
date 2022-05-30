@@ -31,8 +31,15 @@ export function getUploadConfig(url, formData) {
 
 // 登入请求不重定向
 let unRedirectUrls = new Set(['signin', 'ldap/signin', '/signin', '/ldap/signin']);
+// session 是否掉线
+let isSessionTimeout = false;
 
 export function login() {
+  if (isSessionTimeout) {
+    // 已经弹出session掉线框
+    return;
+  }
+  isSessionTimeout = true;
   MessageBox.alert(i18n.t('commons.tips'), i18n.t('commons.prompt'), {
     callback: () => {
       axios.get("/signout");
@@ -43,6 +50,11 @@ export function login() {
 }
 
 function then(success, response, result) {
+  // 已经掉线不再弹出错误信息，避免满屏都是错误
+  if (response && response.headers["authentication-status"] === "invalid") {
+    login();
+    return;
+  }
   if (!response.data) {
     success(response);
   } else if (response.data.success !== false) {
