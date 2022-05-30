@@ -88,9 +88,16 @@ public class TestCaseController {
     }
 
     @PostMapping("/list/minder")
-    public List<TestCaseDTO> listDetail(@RequestBody QueryTestCaseRequest request) {
+    public List<TestCaseDTO> listForMinder(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.listTestCaseForMinder(request);
+    }
+
+    @PostMapping("/list/minder/{goPage}/{pageSize}")
+    public Pager<List<TestCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkProjectOwner(request.getProjectId());
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.listTestCaseForMinder(request));
     }
 
     /*jenkins项目下所有接口和性能测试用例*/
