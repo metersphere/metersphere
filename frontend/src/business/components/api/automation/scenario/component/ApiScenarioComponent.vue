@@ -148,6 +148,24 @@ export default {
       }
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));
+      let variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
+
+      // 合并自身依赖场景变量
+      if(runScenario && runScenario.variableEnable && runScenario.variables){
+         if(variables){
+          // 同名合并
+           runScenario.variables.forEach(data =>{
+             variables.forEach(item =>{
+              if(data.type === item.type && data.name === item.name){
+                Object.assign(data,item);
+              }
+            })
+          });
+        }
+      }else{
+        runScenario.variables = variables;
+      }
+
       runScenario.hashTree = [this.scenario];
       runScenario.stepScenario = true;
       this.$emit('runScenario', runScenario);

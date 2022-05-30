@@ -235,6 +235,7 @@ export default {
       environmentMap: this.envMap,
       isShowNum: false,
       response: {},
+      currentScenarioData: {},
     }
   },
   created() {
@@ -499,6 +500,8 @@ export default {
       this.reload();
     },
     run() {
+      this.currentScenarioData = undefined;
+      this.getParentVariables(this.node);
       let selectEnvId;
       // 自定义请求
       if (this.isApiImport || this.request.isRefEnvironment) {
@@ -527,16 +530,47 @@ export default {
         this.request.environmentId = selectEnvId;
       }
       this.request.customizeReq = this.isCustomizeReq;
+      // 场景变量
+      let variables = [];
+      if(this.currentScenario && this.currentScenario.variables) {
+        JSON.parse(JSON.stringify(this.currentScenario.variables));
+      }
       let debugData = {
         id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-        variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
+        variables: variables, referenced: 'Created', headers: this.currentScenario.headers,
         enableCookieShare: this.enableCookieShare, environmentId: selectEnvId, hashTree: [this.request],
       };
+      // 合并自身依赖场景变量
+      if(this.currentScenarioData && this.currentScenarioData.variableEnable && this.currentScenarioData.variables){
+        if(!debugData.variables || debugData.variables.length === 0){
+          debugData.variables = this.currentScenarioData.variables;
+        }else if(this.currentScenarioData.variables){
+           // 同名合并
+          debugData.variables.forEach(data =>{
+            this.currentScenarioData.variables.forEach(item =>{
+              if(data.type === item.type && data.name === item.name){
+                Object.assign(data,item);
+              }
+            })
+          });
+        }
+      }
       this.runData.push(debugData);
       this.request.requestResult = [];
       this.request.result = undefined;
       /*触发执行操作*/
       this.reportId = getUUID();
+    },
+    getParentVariables(node){
+      if(!this.currentScenarioData) {
+        if (node && node.data && node.data.type === "scenario") {
+          this.currentScenarioData = node.data;
+        } else {
+          if (node.parent && node.parent.data) {
+            this.getParentVariables(node.parent);
+          }
+        }
+      }
     },
     stop() {
       let url = "/api/automation/stop/" + this.reportId;
