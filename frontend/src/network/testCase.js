@@ -4,26 +4,47 @@ import i18n from "@/i18n/i18n";
 import {basePost} from "@/network/base-network";
 import {baseGet} from "./base-network";
 
+export const minderPageInfoMap = new Map();
+
+function getMinderPageInfo(request) {
+  if (!minderPageInfoMap.get(request.nodeId)) {
+    minderPageInfoMap.set(request.nodeId, {
+      pageNum: 1,
+      pageSize: 100
+    });
+  }
+  return minderPageInfoMap.get(request.nodeId);
+}
+
 export function getTestCasesForMinder(request, callback) {
-  return post('/test/case/list/minder', request, (response) => {
+  let minderPageInfo = getMinderPageInfo(request);
+  let url = '/test/case/list/minder/' + minderPageInfo.pageNum + '/' + minderPageInfo.pageSize;
+  return post(url, request, (response) => {
     if (callback) {
-      callback(response.data);
+      minderPageInfo.total = response.data.itemCount;
+      callback(response.data.listObject);
     }
   });
 }
 
 export function getPlanCasesForMinder(request, callback) {
-  return post('/test/plan/case/list/minder', request, (response) => {
+  let minderPageInfo = getMinderPageInfo(request);
+  let url = '/test/plan/case/list/minder/' + minderPageInfo.pageNum + '/' + minderPageInfo.pageSize;
+  return post(url, request, (response) => {
     if (callback) {
-      callback(response.data);
+      minderPageInfo.total = response.data.itemCount;
+      callback(response.data.listObject);
     }
   });
 }
 
 export function getReviewCasesForMinder(request, callback) {
-  return post('/test/review/case/list/minder', request, (response) => {
+  let minderPageInfo = getMinderPageInfo(request);
+  let url = '/test/review/case/list/minder/' + minderPageInfo.pageNum + '/' + minderPageInfo.pageSize;
+  return post(url, request, (response) => {
     if (callback) {
-      callback(response.data);
+      minderPageInfo.total = response.data.itemCount;
+      callback(response.data.listObject);
     }
   });
 }
