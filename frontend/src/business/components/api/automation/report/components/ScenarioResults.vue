@@ -15,8 +15,8 @@
              highlight-current
              class="ms-tree ms-report-tree" ref="resultsTree">
           <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
-            <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"
-                                :isActive="isActive"/>
+            <ms-scenario-result :node="data" :console="console"  v-on:requestResult="requestResult"
+                                :isActive="isActive" :is-share="isShare" :share-id="shareId"/>
           </span>
     </el-tree>
   </el-card>
@@ -37,7 +37,9 @@ export default {
     defaultExpand: {
       default: false,
       type: Boolean,
-    }
+    },
+    isShare:Boolean,
+    shareId: String,
   },
   data() {
     return {

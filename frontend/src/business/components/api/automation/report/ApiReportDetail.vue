@@ -26,6 +26,8 @@
                   :treeData="fullTreeNodes"
                   :console="content.console"
                   :report="report"
+                  :is-share="isShare"
+                  :share-id="shareId"
                   v-on:requestResult="requestResult"
                   ref="resultsTree"/>
               </el-tab-pane>
@@ -38,6 +40,8 @@
                   v-on:requestResult="requestResult"
                   :console="content.console"
                   :report="report"
+                  :is-share="isShare"
+                  :share-id="shareId"
                   :treeData="fullTreeNodes" ref="failsTree"
                   :errorReport="content.error"/>
               </el-tab-pane>
@@ -51,6 +55,8 @@
                 <ms-scenario-results
                   v-on:requestResult="requestResult"
                   :report="report"
+                  :is-share="isShare"
+                  :share-id="shareId"
                   :console="content.console"
                   :treeData="fullTreeNodes" ref="errorReportTree"/>
               </el-tab-pane>
@@ -65,6 +71,8 @@
                 <ms-scenario-results
                   v-on:requestResult="requestResult"
                   :report="report"
+                  :is-share="isShare"
+                  :share-id="shareId"
                   :console="content.console"
                   :treeData="fullTreeNodes" ref="unExecuteTree"/>
               </el-tab-pane>
@@ -170,11 +178,6 @@
       templateReport() {
         if (this.isTemplate) {
           this.getReport();
-        }
-      },
-      isShare() {
-        if(this.isShare()){
-          this.handleExport()
         }
       }
     },

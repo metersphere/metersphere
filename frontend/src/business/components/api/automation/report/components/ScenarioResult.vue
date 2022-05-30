@@ -36,6 +36,8 @@
         :total-status="node.totalStatus"
         :console="console"
         :isActive="isActive"
+        :is-share="isShare"
+        :share-id="shareId"
         v-on:requestResult="requestResult"
       />
     </div>
@@ -59,6 +61,8 @@ export default {
     node: Object,
     console: String,
     isActive: Boolean,
+    isShare:Boolean,
+    shareId: String,
   },
   data() {
     return {
