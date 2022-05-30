@@ -50,8 +50,6 @@ public class ApiScenarioReportStructureService {
     @Resource
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
     @Resource
-    private ApiScenarioReportResultService apiScenarioReportResultService;
-    @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
 
     private static final List<String> requests = Arrays.asList("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler");

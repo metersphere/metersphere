@@ -345,7 +345,7 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public void margeReport(String reportId, String runMode) {
+    public void margeReport(String reportId, String runMode, String console) {
         // 更新场景状态
         if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
             ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
@@ -367,8 +367,15 @@ public class ApiScenarioReportService {
                 apiScenarioReportMapper.updateByPrimaryKey(report);
             }
         }
+
+        console = StringUtils.isNotEmpty(console) ? console : FixedCapacityUtils.getJmeterLogger(reportId, true);
+        if (StringUtils.isNotEmpty(console)) {
+            apiScenarioReportStructureService.update(reportId, console);
+        }
         // 更新控制台信息
-        apiScenarioReportStructureService.update(reportId, FixedCapacityUtils.getJmeterLogger(reportId));
+        if (FixedCapacityUtils.jmeterLogTask.containsKey(reportId)) {
+            FixedCapacityUtils.jmeterLogTask.remove(reportId);
+        }
     }
 
     public ApiScenarioReport updateScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto) {
