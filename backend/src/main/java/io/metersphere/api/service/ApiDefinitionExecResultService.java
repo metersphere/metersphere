@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
@@ -455,7 +456,9 @@ public class ApiDefinitionExecResultService {
             saveResult.setStatus(status);
             saveResult.setStartTime(item.getStartTime());
             saveResult.setEndTime(item.getEndTime());
-
+            if (item.getStartTime() >= item.getEndTime()) {
+                saveResult.setEndTime(System.currentTimeMillis());
+            }
             if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                 saveResult.setTriggerMode(TriggerMode.MANUAL.name());
             }
@@ -495,8 +498,23 @@ public class ApiDefinitionExecResultService {
         return extApiDefinitionExecResultMapper.selectForPlanReport(apiReportIds);
     }
 
-    public List<ApiDefinitionExecResultExpand> exceReportlist(QueryAPIReportRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+    private static List<OrderRequest> getDefaultOrderByField(String prefix, List<OrderRequest> orders, String field) {
+        if (orders == null || orders.size() < 1) {
+            OrderRequest orderRequest = new OrderRequest();
+            orderRequest.setName(field);
+            orderRequest.setType("desc");
+            if (StringUtils.isNotBlank(prefix)) {
+                orderRequest.setPrefix(prefix);
+            }
+            orders = new ArrayList<>();
+            orders.add(orderRequest);
+            return orders;
+        }
+        return orders;
+    }
+
+    public List<ApiDefinitionExecResultExpand> apiReportList(QueryAPIReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders(), "end_time"));
         List<ApiDefinitionExecResultExpand> list = extApiDefinitionExecResultMapper.list(request);
         List<String> userIds = list.stream().map(ApiDefinitionExecResult::getUserId)
                 .collect(Collectors.toList());

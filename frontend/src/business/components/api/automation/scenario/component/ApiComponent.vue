@@ -533,7 +533,7 @@ export default {
       // 场景变量
       let variables = [];
       if(this.currentScenario && this.currentScenario.variables) {
-        JSON.parse(JSON.stringify(this.currentScenario.variables));
+        variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
       }
       let debugData = {
         id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
