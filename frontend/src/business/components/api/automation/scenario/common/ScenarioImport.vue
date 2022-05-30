@@ -291,6 +291,7 @@ export default {
           file: undefined,
           swaggerUrl: '',
           modeId: this.formData.modeId,
+          moduleId: '',
         };
         this.fileList = [];
         removeGoBackListener(this.close);
