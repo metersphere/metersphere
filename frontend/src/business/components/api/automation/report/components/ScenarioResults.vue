@@ -73,7 +73,7 @@ export default {
           if (this.isUi) {
             return data.value.success === false && data.value.startTime > 0;
           } else {
-            return data.value.error > 0;
+            return data.totalStatus !== 'errorReportResult' && data.value.error > 0;
           }
         }
       }
