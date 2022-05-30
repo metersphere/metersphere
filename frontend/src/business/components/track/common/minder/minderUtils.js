@@ -2,6 +2,7 @@ import i18n from "@/i18n/i18n";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import {success, warning} from "../../../../../common/js/message";
 import {deleteIssueRelate} from "@/network/Issue";
+import {minderPageInfoMap} from "@/network/testCase";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -61,7 +62,7 @@ export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNode
     }
     if (getCaseFuc) {
       getCaseFuc(request, (testCases) => {
-        appendCaseNodes(node, testCases, param, setParamCallback);
+        initNodeCase(node, testCases, param, setParamCallback);
 
         if (getExtraNodeFuc) {
           param.result.loading = true;
@@ -71,6 +72,21 @@ export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNode
           });
         }
 
+      });
+    }
+  } else if (data.type === 'nextPage') {
+    // 分页处理，如果某个模块下用例太多，则分步加载
+    if (param.result) {
+      param.result.loading = true;
+    }
+    let request = param.request;
+    request.nodeId = data.nodeId;
+    let minderPageInfo = minderPageInfoMap.get(request.nodeId);
+    minderPageInfo.pageNum++;
+    if (getCaseFuc) {
+      getCaseFuc(request, (testCases) => {
+        appendNodeCases(node.parent, testCases, param, setParamCallback);
+        window.minder.removeNode(node);
       });
     }
   }
@@ -277,21 +293,61 @@ function getNodeData(text, resource, isDisable, type) {
 }
 
 /**
- * 添加用例节点
+ * 初始化模块下的用例
  * @param parent
  * @param testCases
  * @param result
  */
-export function appendCaseNodes(parent, testCases, param, setParamCallback) {
+export function initNodeCase(parent, testCases, param, setParamCallback) {
   clearChildren(parent);
+  appendNodeCases(parent, testCases, param, setParamCallback);
+}
+
+/**
+ * 在模块下添加用例
+ * @param parent
+ * @param testCases
+ * @param param
+ * @param setParamCallback
+ */
+export function appendNodeCases(parent, testCases, param, setParamCallback) {
   if (testCases) {
     for (let i = 0; i < testCases.length; i++) {
       appendCase(parent, testCases[i], param.isDisable, setParamCallback);
     }
   }
+
+  appendNextPageNode(parent);
+
   expandNode(parent);
   if (param.result) {
     param.result.loading = false;
+  }
+}
+
+/**
+ * 判断下当前模块的用例数量是不是分页的
+ * 是分页的话，添加下一页节点
+ * @param parent
+ */
+export function appendNextPageNode(parent) {
+  let caseNum = 0;
+  if (parent.children) {
+    for (const item of parent.children) {
+      if (item.data.type === 'case') {
+        caseNum++;
+      }
+    }
+  }
+  let minderPageInfo = minderPageInfoMap.get(parent.data.id === 'root' ? '' : parent.data.id);
+  let total = minderPageInfo.total;
+  if (total > caseNum) {
+    let nexPageNode = {
+      text: '...',
+      type: 'nextPage',
+      nodeId: parent.data.id
+    }
+    appendChildNode(parent, nexPageNode);
   }
 }
 
@@ -342,7 +398,6 @@ function appendChildNode(parent, childData, fresh) {
   }
   let km = window.minder;
   var node = km.createNode(childData, parent);
-  km.select(node, true);
   if (fresh) {
     if (parent.isExpanded()) {
       node.render();

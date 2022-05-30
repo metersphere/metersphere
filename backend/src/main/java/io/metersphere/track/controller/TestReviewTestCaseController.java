@@ -61,6 +61,12 @@ public class TestReviewTestCaseController {
         return testReviewTestCaseService.listForMinder(request);
     }
 
+    @PostMapping("/list/minder/{goPage}/{pageSize}")
+    public Pager<List<TestReviewCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testReviewTestCaseService.listForMinder(request));
+    }
+
     @PostMapping("/edit")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.REVIEW, content = "#msClass.getLogDetails(#testCaseReviewTestCase)", msClass = TestReviewTestCaseService.class)
     public void editTestCase(@RequestBody TestCaseReviewTestCase testCaseReviewTestCase) {
