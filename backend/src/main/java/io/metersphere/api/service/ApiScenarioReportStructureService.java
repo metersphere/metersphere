@@ -471,8 +471,7 @@ public class ApiScenarioReportStructureService {
                 RequestResultExpandDTO expandDTO = (RequestResultExpandDTO) vo.getRequestResult();
                 if (expandDTO.getAttachInfoMap() != null && expandDTO.getAttachInfoMap().get("errorReportResult") != null) {
                     treeDTO.setErrorCode(expandDTO.getAttachInfoMap().get("errorReportResult"));
-                    treeDTO.setTotalStatus("errorCode");
-                    vo.setStatus("errorReportResult");
+                    treeDTO.setTotalStatus(vo.getStatus());
                 } else if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
                     vo.setStatus(expandDTO.getStatus());
                     treeDTO.setTotalStatus(expandDTO.getStatus());
