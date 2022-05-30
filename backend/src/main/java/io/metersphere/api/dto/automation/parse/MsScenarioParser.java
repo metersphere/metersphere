@@ -89,6 +89,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                         item.setEnvironmentType(EnvironmentType.JSON.name());
                         item.setEnvironmentJson(null);
                         item.setEnvironmentGroupId(null);
+                        scenarioDefinition.put("projectId", this.projectId);
                         item.setScenarioDefinition(JSONObject.toJSONString(scenarioDefinition));
                     }
                 }
