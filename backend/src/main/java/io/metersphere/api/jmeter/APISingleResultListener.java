@@ -6,6 +6,7 @@ import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.cache.JMeterEngineCache;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.MsExecListener;
@@ -51,7 +52,7 @@ public class APISingleResultListener implements MsExecListener {
 
             JMeterBase.resultFormatting(queues, dto);
 
-            dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
+            dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())));
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
 
@@ -75,9 +76,6 @@ public class APISingleResultListener implements MsExecListener {
         } catch (Exception e) {
             LoggerUtil.error(e);
         } finally {
-            if (FixedCapacityUtils.jmeterLogTask.containsKey(dto.getReportId())) {
-                FixedCapacityUtils.jmeterLogTask.remove(dto.getReportId());
-            }
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
             }
