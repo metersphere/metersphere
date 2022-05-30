@@ -77,7 +77,18 @@ public class ShiroConfig implements EnvironmentAware {
         Long timeout = env.getProperty("spring.session.timeout", Long.class);
         String storeType = env.getProperty("spring.session.store-type");
         if (StringUtils.equals(storeType, "none")) {
-            return ShiroUtils.getSessionManager(timeout, memoryConstrainedCacheManager());
+            String sameSiteConfig = env.getProperty("server.servlet.session.cookie.same-site");
+            
+            SameSiteOptions sameSite;
+            if (StringUtils.equals(sameSiteConfig, "none")) {
+                sameSite = SameSiteOptions.NONE;
+            } else if(StringUtils.equals(sameSiteConfig, "strict")) {
+                sameSite = SameSiteOptions.STRICT;
+            } else {
+                sameSite = SameSiteOptions.LAX;
+            }
+
+            return ShiroUtils.getSessionManager(timeout, memoryConstrainedCacheManager(), sameSite);
         }
         return new ServletContainerSessionManager();
     }
