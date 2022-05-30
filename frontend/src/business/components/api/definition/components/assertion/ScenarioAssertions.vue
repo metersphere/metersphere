@@ -22,14 +22,14 @@
         <api-json-path-suggest-button
           :show-suggest-button="false"
           :clear-tip="$t('api_test.request.assertions.json_path_clear')"
-          :isReadOnly="isReadOnly"
+          :isReadOnly="request.disabled"
           @clear="clearJson"/>
       </span>
       </el-row>
       <div class="assertion-add" :draggable="draggable">
         <el-row :gutter="10">
           <el-col :span="4">
-            <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
+            <el-select :disabled="request.disabled" class="assertion-item" v-model="type"
                        :placeholder="$t('api_test.request.assertions.select_type')" size="small">
               <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
               <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
@@ -42,45 +42,45 @@
           </el-col>
           <el-col :span="20">
             <ms-api-assertion-text
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               :list="assertions.regex"
               :callback="after"
               v-if="type === options.TEXT"
             />
             <ms-api-assertion-regex
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               :list="assertions.regex"
               :callback="after"
               @callback="after"
               v-if="type === options.REGEX"
             />
             <ms-api-assertion-json-path
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               :list="assertions.jsonPath"
               :callback="after"
               v-if="type === options.JSON_PATH"
             />
             <ms-api-assertion-x-path2
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               :list="assertions.xpath2"
               :callback="after"
               v-if="type === options.XPATH2"
             />
             <ms-api-assertion-duration
               v-model="time"
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               :duration="assertions.duration"
               :callback="after"
               v-if="type === options.DURATION"
             />
             <ms-api-assertion-jsr223
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               :list="assertions.jsr223"
               :callback="after"
               v-if="type === options.JSR223"
             />
             <ms-api-assertion-document
-              :is-read-only="isReadOnly"
+              :is-read-only="request.disabled"
               v-model="time"
               :document="assertions.document"
               :callback="after"
@@ -95,7 +95,7 @@
 
 
       <ms-api-assertions-edit
-        :is-read-only="isReadOnly"
+        :is-read-only="request.disabled"
         :assertions="assertions"
         :apiId="apiId"
         :reloadData="reloadData"
