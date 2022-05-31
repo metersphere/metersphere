@@ -8,12 +8,16 @@
       <el-form-item>
         <span>{{ $t('api_test.environment.request_timeout') }}:</span>
         <el-input-number style="margin-left: 20px" controls-position="right" size="small"
-                         v-model="commonConfig.requestTimeout">
+                         v-model="commonConfig.requestTimeout"
+                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                         :precision="0">
           {{ $t('api_test.environment.globalVariable') }}
         </el-input-number>
         <span style="margin-left: 30px">{{ $t('api_test.environment.response_timeout') }}:</span>
         <el-input-number style="margin-left: 20px" controls-position="right" size="small"
-                         v-model="commonConfig.responseTimeout">
+                         v-model="commonConfig.responseTimeout"
+                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                         :precision="0">
           {{ $t('api_test.environment.globalVariable') }}
         </el-input-number>
       </el-form-item>
