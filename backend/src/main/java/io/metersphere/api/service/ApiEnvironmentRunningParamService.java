@@ -128,9 +128,15 @@ public class ApiEnvironmentRunningParamService {
         for (String env : envStringArr) {
             if (StringUtils.contains(env, "=")) {
                 String[] envItem = env.split("=");
+                if (ArrayUtils.isEmpty(envItem)) {
+                    continue;
+                }
                 String jmeterVarKey = envItem[0];
                 if (this.checkValidity(jmeterVarKey, "MS.ENV.")) {
                     String[] envAndKeyArr = jmeterVarKey.substring("MS.ENV.".length()).split("\\.");
+                    if (ArrayUtils.isEmpty(envAndKeyArr)) {
+                        continue;
+                    }
                     String envId = envAndKeyArr[0];
                     String[] keyArr = ArrayUtils.remove(envAndKeyArr, 0);
                     String key = StringUtils.join(keyArr, ".");
@@ -158,8 +164,12 @@ public class ApiEnvironmentRunningParamService {
     }
 
     public void parseEnvironment(List<String> evnStrList) {
-        for (String evnStr : evnStrList) {
-            this.parseEvn(evnStr);
+        try {
+            for (String evnStr : evnStrList) {
+                this.parseEvn(evnStr);
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
         }
     }
 
