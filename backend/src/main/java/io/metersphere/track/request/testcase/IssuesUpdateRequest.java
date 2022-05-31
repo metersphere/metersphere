@@ -2,6 +2,7 @@ package io.metersphere.track.request.testcase;
 
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,4 +38,6 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * azure devops bug同步fields
      */
     private String devopsFields;
+
+    private JiraTransitionsResponse.Transitions transitions;
 }

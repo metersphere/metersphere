@@ -1,6 +1,8 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate, parseCustomFilesForList} from "@/common/js/tableUtils";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getPageDate} from "@/common/js/tableUtils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import {baseGet, basePost} from "@/network/base-network";
 import {getCurrentProject} from "@/network/project";
 import {JIRA, LOCAL} from "@/common/js/constants";
@@ -21,7 +23,6 @@ export function getIssues(page) {
   return post('issues/list/' + page.currentPage + '/' + page.pageSize, page.condition, (response) => {
     getPageDate(response, page);
     parseCustomFilesForList(page.data);
-    // buildIssues(page);
   });
 }
 
@@ -163,4 +164,12 @@ export function isThirdPartEnable(callback) {
 
 export function getJiraIssueType(param, callback) {
   return basePost('/issues/jira/issuetype', param, callback);
+}
+
+export function getJiraTransitions(jiraKey, callback) {
+  return basePost('/issues/jira/transitions', {
+    jiraKey,
+    projectId: getCurrentProjectID(),
+    workspaceId: getCurrentWorkspaceId()
+  }, callback);
 }

@@ -127,6 +127,11 @@ public abstract class JiraAbstractClient extends BaseClient {
         return (JiraAddIssueResponse) getResultForObject(JiraAddIssueResponse.class, response);
     }
 
+    public List<JiraTransitionsResponse.Transitions> getTransitions(String issueKey) {
+        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/issue/{1}/transitions", HttpMethod.GET, getAuthHttpEntity(), String.class, issueKey);
+        return ((JiraTransitionsResponse) getResultForObject(JiraTransitionsResponse.class, response)).getTransitions();
+    }
+
     public void updateIssue(String id, String body) {
         LogUtil.info("addIssue: " + body);
         HttpHeaders headers = getAuthHeader();
@@ -209,6 +214,12 @@ public abstract class JiraAbstractClient extends BaseClient {
         return getBasicHttpHeaders(USER_NAME, PASSWD);
     }
 
+    protected HttpHeaders getAuthJsonHeader() {
+        HttpHeaders headers = getAuthHeader();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
+
     protected String getBaseUrl() {
         return ENDPOINT + PREFIX;
     }
@@ -236,5 +247,18 @@ public abstract class JiraAbstractClient extends BaseClient {
         responseEntity = restTemplate.exchange(getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}",
                 HttpMethod.GET, getAuthHttpEntity(), String.class, startAt, maxResults, projectKey, issueType);
         return  (JiraIssueListResponse)getResultForObject(JiraIssueListResponse.class, responseEntity);
+    }
+
+    public void setTransitions(String jiraKey, JiraTransitionsResponse.Transitions transitions) {
+        LogUtil.info("setTransitions: " + transitions);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("transition", transitions);
+        HttpEntity<String> requestEntity = new HttpEntity<>(jsonObject.toJSONString(), getAuthJsonHeader());
+        try {
+            restTemplate.exchange(getBaseUrl() + "/issue/{1}/transitions", HttpMethod.POST, requestEntity, String.class, jiraKey);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
     }
 }

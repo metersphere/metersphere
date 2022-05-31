@@ -32,6 +32,19 @@
           <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="issueTemplate"/>
         </el-form>
 
+        <el-row v-if="jiraTransitions">
+          <el-col :span="8">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.platform_status')"
+                          prop="platformStatus">
+              <el-select v-model="form.platformStatus" filterable
+                         :placeholder="$t('test_track.issue.please_choose_current_owner')">
+                <el-option v-for="(transition, index) in jiraTransitions" :key="index" :label="transition.to.name"
+                           :value="transition.to.name"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <form-rich-text-item v-if="!enableThirdPartTemplate" :title="$t('custom_field.issue_content')" :data="form" prop="description"/>
 
         <el-row v-if="!enableThirdPartTemplate" class="custom-field-row">
@@ -118,11 +131,12 @@ import CustomFiledComponent from "@/business/components/project/template/CustomF
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId,} from "@/common/js/utils";
-import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getIssuesListById} from "@/network/Issue";
+import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getJiraTransitions} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 import IssueComment from "@/business/components/track/issue/IssueComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
+import {JIRA} from "@/common/js/constants";
 
 const {getIssuesById} = require("@/network/Issue");
 
@@ -172,13 +186,15 @@ export default {
         remark: null,
         tapdUsers:[],
         zentaoBuilds:[],
-        zentaoAssigned: ''
+        zentaoAssigned: '',
+        platformStatus: null
       },
       tapdUsers: [],
       zentaoUsers: [],
       Builds: [],
       hasTapdId: false,
       hasZentaoId: false,
+      jiraTransitions: null,
       currentProject: null,
       toolbars: {
         bold: false, // 粗体
@@ -277,12 +293,13 @@ export default {
     },
     init(template, data) {
       this.issueTemplate = template;
-      this.getThirdPartyInfo();
       this.initEdit(data);
+      this.getThirdPartyInfo();
       this.result.loading = false;
     },
     getThirdPartyInfo() {
       let platform = this.issueTemplate.platform;
+      this.jiraTransitions = null;
       if (platform === 'Zentao') {
         this.hasZentaoId = true;
         this.result = this.$post("/issues/zentao/builds", {
@@ -299,14 +316,17 @@ export default {
             this.zentaoUsers = response.data;
           });
         });
-      }
-      if (platform === 'Tapd') {
+      } else if (platform === 'Tapd') {
         this.hasTapdId = true;
         this.result = this.$post("/issues/tapd/user", {
           projectId: this.projectId,
           workspaceId: getCurrentWorkspaceId()
         }, (response) => {
           this.tapdUsers = response.data;
+        });
+      } else if (JIRA === platform && this.form.id) {
+        getJiraTransitions(this.form.platformId, (data) => {
+          this.jiraTransitions = data;
         });
       }
     },
@@ -369,6 +389,13 @@ export default {
       Object.assign(param, this.form);
       param.projectId = this.projectId;
       param.workspaceId = getCurrentWorkspaceId();
+      if (this.jiraTransitions) {
+        this.jiraTransitions.forEach(item => {
+          if (item.to.name === this.form.platformStatus) {
+            param.transitions = item;
+          }
+        });
+      }
       buildCustomFields(this.form, param, this.issueTemplate);
       if (this.planId) {
         // 测试计划用例创建缺陷
