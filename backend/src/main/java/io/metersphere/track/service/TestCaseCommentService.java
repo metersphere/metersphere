@@ -87,7 +87,7 @@ public class TestCaseCommentService {
     private void checkCommentOwner(String commentId) {
         TestCaseComment comment = testCaseCommentMapper.selectByPrimaryKey(commentId);
         if (comment == null) {
-            MSException.throwException("The requested resource does not exist.");
+            MSException.throwException(Translator.get("resource_not_exist"));
         }
         if (!StringUtils.equals(comment.getAuthor(), SessionUtils.getUser().getId())) {
             MSException.throwException(Translator.get("check_owner_comment"));
