@@ -3,7 +3,7 @@
     <div class="table-page">
       <el-pagination
         background
-        pager-count="5"
+        :pager-count="5"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
