@@ -29,6 +29,7 @@ import io.metersphere.track.dto.*;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
+import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
@@ -754,5 +755,16 @@ public class IssuesService {
     public  List<IssuesDao> listByWorkspaceId(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         return extIssuesMapper.getIssues(request);
+    }
+
+    public List<JiraTransitionsResponse.Transitions> getJiraTransitions(JiraIssueTypeRequest request) {
+        IssuesRequest issuesRequest = getDefaultIssueRequest(request.getProjectId(), request.getWorkspaceId());
+        JiraPlatform platform = (JiraPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest);
+        try {
+            return platform.getTransitions(request.getJiraKey());
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return new ArrayList<>();
     }
 }

@@ -1,6 +1,6 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import {baseGet, basePost} from "@/network/base-network";
 import {getCurrentProject} from "@/network/project";
 import {JIRA, LOCAL} from "@/common/js/constants";
@@ -162,4 +162,12 @@ export function isThirdPartEnable(callback) {
 
 export function getJiraIssueType(param, callback) {
   return basePost('/issues/jira/issuetype', param, callback);
+}
+
+export function getJiraTransitions(jiraKey, callback) {
+  return basePost('/issues/jira/transitions', {
+    jiraKey,
+    projectId: getCurrentProjectID(),
+    workspaceId: getCurrentWorkspaceId()
+  }, callback);
 }
