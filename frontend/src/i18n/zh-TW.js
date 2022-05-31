@@ -1458,6 +1458,7 @@ export default {
       repeat_warning: "啟用條件為 '無' 的域名已經存在！",
       copy_warning: "啟用條件為 '無' 的域名不支持複製！",
       path_warning: "路徑不能為空",
+      project_warning: "項目不能為空",
       module_warning: "模塊不能為空"
     },
     scenario: {

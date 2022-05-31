@@ -1453,6 +1453,7 @@ export default {
       repeat_warning: "The domain name whose activation condition is'None' already exists!",
       copy_warning: "Domain names whose enabling conditions are'none' do not support copying!",
       path_warning: "The path cannot be empty",
+      project_warning: "project id cannot be empty",
       module_warning: "The path cannot be empty"
     },
     scenario: {
