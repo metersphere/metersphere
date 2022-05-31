@@ -74,4 +74,6 @@ public interface ExtApiTestCaseMapper {
     List<ParamsDTO> getApiCaseEnvironments(@Param("caseIds") List<String> caseIds);
 
     void insertNewVersionCases(@Param("api") ApiDefinition apiDefinition, @Param("old") ApiDefinition old);
+
+    List<ApiTestCase> checkName(@Param("request") SaveApiTestCaseRequest request);
 }

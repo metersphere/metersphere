@@ -780,7 +780,28 @@
         </foreach>
     </select>
     <select id="getApiCaseEnvironment" resultType="java.lang.String">
-        select JSON_UNQUOTE(JSON_EXTRACT(request, '$.useEnvironment')) from api_test_case where id = #{caseId}
+        select JSON_UNQUOTE(JSON_EXTRACT(request, '$.useEnvironment'))
+        from api_test_case
+        where id = #{caseId}
+    </select>
+    <select id="checkName" resultType="io.metersphere.base.domain.ApiTestCase">
+        select * from api_test_case
+        <where>
+            (api_test_case.status is null or api_test_case.status != 'Trash')
+            <if test="request.name !='' || request.name != null">
+                and name =#{request.name}
+            </if>
+            <if test="request.apiDefinitionId !='' || request.apiDefinitionId != null">
+                and api_definition_id =#{request.apiDefinitionId}
+            </if>
+            <if test="request.id !='' || request.id != null">
+                and id !=#{request.id}
+            </if>
+            <if test="request.versionId !='' || request.versionId != null">
+                and version_id =#{request.versionId}
+            </if>
+
+        </where>
     </select>
     <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">
         update api_test_case
