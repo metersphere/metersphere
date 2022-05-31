@@ -197,6 +197,7 @@ export default {
         {text: 'Success', value: 'Success'},
         {text: 'stopped', value: 'stop'},
         {text: 'Rerunning', value: 'Rerunning'},
+        {text: 'Unexecute', value: 'unexecute'},
         {text: this.$t('error_report_library.option.name'), value: 'errorReportResult'},
       ],
       reportTypeFilters:[],
