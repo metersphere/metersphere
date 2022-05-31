@@ -31,7 +31,7 @@ import {getCurrentWorkspaceId} from "@/common/js/utils";
 export default {
   name: "ProjectJiraConfig",
   components: {MsInstructionsIcon},
-  props: ['labelWidth', 'form'],
+  props: ['labelWidth', 'form', 'result'],
   data() {
     return {
       issueTypes: []
@@ -43,12 +43,31 @@ export default {
   methods: {
     getIssueTypeOption() {
       this.issueTypes = [];
+      this.result.loading = true;
       getJiraIssueType({
         projectId: this.form.id,
         workspaceId: getCurrentWorkspaceId(),
         jiraKey: this.form.jiraKey
       }, (data) => {
         this.issueTypes = data;
+        let hasJiraIssueType = false;
+        let hasJiraStoryType = false;
+        if (data) {
+          data.forEach(item => {
+            if (this.form.issueConfigObj.jiraIssueTypeId === item.id) {
+              hasJiraIssueType = true;
+            } else if (this.form.issueConfigObj.jiraStoryTypeId === item.id) {
+              hasJiraStoryType = true;
+            }
+          });
+        }
+        if (!hasJiraIssueType) {
+          this.form.issueConfigObj.jiraIssueTypeId = null;
+        }
+        if (!hasJiraStoryType) {
+          this.form.issueConfigObj.jiraStoryTypeId = null;
+        }
+        this.result.loading = false;
       });
     }
   }

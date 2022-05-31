@@ -258,6 +258,23 @@ export default {
     },
   },
   methods: {
+    resetForm() {
+      this.form = {
+        title: '',
+        description: '',
+        creator: null,
+        remark: null,
+        tapdUsers:[],
+        zentaoBuilds:[],
+        zentaoAssigned: '',
+        platformStatus: null
+      };
+      this.customFieldForm = null;
+      this.issueTemplate = {};
+      if (this.$refs.testCaseIssueList) {
+        this.$refs.testCaseIssueList.tableData = [];
+      }
+    },
     open(data, type) {
       this.result.loading = true;
       this.type = type;
@@ -277,7 +294,7 @@ export default {
               break;
             }
           }
-        })
+        });
         getIssuesById(data.id, (data) => {
           this.form.tapdUsers = data.tapdUsers;
           this.form.zentaoBuilds = data.zentaoBuilds;

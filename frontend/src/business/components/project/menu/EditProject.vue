@@ -1,8 +1,8 @@
 <template>
-  <div v-loading="result.loading">
+  <div>
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
                @close="handleClose">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="80px" size="small">
+      <el-form v-loading="result.loading" :model="form" :rules="rules" ref="form" label-position="right" label-width="80px" size="small">
         <el-form-item :label-width="labelWidth" :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
@@ -42,7 +42,7 @@
           <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
         </el-form-item>
 
-        <project-jira-config v-if="jira" :label-width="labelWidth" :form="form">
+        <project-jira-config :result="result" v-if="jira" :label-width="labelWidth" :form="form" ref="jiraConfig">
           <template #checkBtn>
             <el-button @click="check" type="primary" class="checkButton">{{ $t('test_track.issue.check_id_exist') }}</el-button>
           </template>
@@ -225,9 +225,12 @@ export default {
       } else {
         this.form = {issueConfigObj: {}};
       }
+      if (this.$refs.jiraConfig) {
+        this.$refs.jiraConfig.getIssueTypeOption(this.form);
+      }
       this.platformOptions = [];
       this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
-      this.$get("/service/integration/all/" + getCurrentUser().lastWorkspaceId, response => {
+      this.result = this.$get("/service/integration/all/" + getCurrentUser().lastWorkspaceId, response => {
         let data = response.data;
         let platforms = data.map(d => d.platform);
         this.filterPlatformOptions(platforms, TAPD);
