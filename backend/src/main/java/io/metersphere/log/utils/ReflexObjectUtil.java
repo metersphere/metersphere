@@ -178,25 +178,25 @@ public class ReflexObjectUtil {
                         // 深度对比
                         else if (StringUtils.equals(module, "API_DEFINITION")) {
                             if (originalColumns.get(i).getColumnName().equals("request")) {
-                                String newValue = newColumns.get(i).getOriginalValue().toString();
-                                String oldValue = column.getOriginalValue().toString();
+                                String newValue = Objects.toString(column.getNewValue().toString(), "");
+                                String oldValue = Objects.toString(column.getOriginalValue(), "");
                                 column.setDiffValue(ApiDefinitionDiffUtil.diff(newValue, oldValue));
                             } else if (originalColumns.get(i).getColumnName().equals("response")) {
-                                String newValue = newColumns.get(i).getOriginalValue().toString();
-                                String oldValue = column.getOriginalValue().toString();
+                                String newValue = Objects.toString(column.getNewValue().toString(), "");
+                                String oldValue = Objects.toString(column.getOriginalValue(), "");
                                 column.setDiffValue(ApiDefinitionDiffUtil.diffResponse(newValue, oldValue));
                             }
                         }
                         // 环境全局前后置脚本深度对比
                         else if(StringUtils.equals(module, "PROJECT_ENVIRONMENT_SETTING")){
                             if (originalColumns.get(i).getColumnName().equals("config")) {
-                                String newValue = newColumns.get(i).getOriginalValue().toString();
-                                String oldValue = column.getOriginalValue().toString();
+                                String newValue = Objects.toString(column.getNewValue().toString(), "");
+                                String oldValue = Objects.toString(column.getOriginalValue(), "");
                                 column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
                             }
                         }
                         else {
-                            String newValue = column.getNewValue().toString();
+                            String newValue = Objects.toString(column.getNewValue().toString(), "");
                             if (StringUtils.isNotEmpty(newValue)) {
                                 column.setNewValue(newValue.replaceAll("\\n", " "));
                             }
