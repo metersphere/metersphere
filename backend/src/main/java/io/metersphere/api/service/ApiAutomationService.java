@@ -813,8 +813,7 @@ public class ApiAutomationService {
         config.setOperating(true);
         config.getExcludeScenarioIds().add(apiScenario.getId());
         try {
-
-            MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class);
+            MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class,Feature.DisableSpecialKeyDetect);
             if (scenario == null) {
                 return null;
             }
@@ -824,7 +823,7 @@ public class ApiAutomationService {
             String environmentJson = apiScenario.getEnvironmentJson();
             String environmentGroupId = apiScenario.getEnvironmentGroupId();
             if (StringUtils.equals(environmentType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(environmentJson)) {
-                scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class));
+                scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class,Feature.DisableSpecialKeyDetect));
             } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
                 Map<String, String> envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                 scenario.setEnvironmentMap(envMap);
