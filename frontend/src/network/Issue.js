@@ -1,7 +1,5 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate, parseCustomFilesForList} from "@/common/js/tableUtils";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
-import {getPageDate} from "@/common/js/tableUtils";
 import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
 import {baseGet, basePost} from "@/network/base-network";
 import {getCurrentProject} from "@/network/project";

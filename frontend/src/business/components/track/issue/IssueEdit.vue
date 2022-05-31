@@ -32,14 +32,16 @@ export default {
     open(data, type) {
       this.visible = true;
       this.$nextTick(() => {
-          this.$refs.issueEditDetail.open(data, type);
-      })
+        this.$refs.issueEditDetail.open(data, type);
+      });
     },
     handleClose() {
       this.visible = false;
+      this.$refs.issueEditDetail.resetForm();
     },
     save() {
       this.$refs.issueEditDetail.save();
+      this.$refs.issueEditDetail.resetForm();
     },
     refresh(data) {
       this.$emit('refresh', data);
