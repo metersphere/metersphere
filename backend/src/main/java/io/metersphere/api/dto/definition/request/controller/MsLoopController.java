@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.plugin.core.MsParameter;
@@ -25,8 +26,11 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -67,9 +71,24 @@ public class MsLoopController extends MsTestElement {
         }
         // 当前引用场景
         if (CollectionUtils.isNotEmpty(config.getTransferVariables())) {
-            ElementUtil.addCsvDataSet(groupTree, config.getTransferVariables(), config, "shareMode.thread");
-            ElementUtil.addCounter(groupTree, config.getTransferVariables(), true);
-            ElementUtil.addRandom(groupTree, config.getTransferVariables());
+            final List<ScenarioVariable> variables = new LinkedList<>();
+            if (CollectionUtils.isEmpty(config.getVariables())) {
+                variables.addAll(config.getTransferVariables());
+            } else {
+                // 合并处理
+                Map<String, ScenarioVariable> variableMap = config.getVariables().stream().collect(Collectors.toMap(ScenarioVariable::getId, a -> a, (k1, k2) -> k1));
+                config.getTransferVariables().forEach(item -> {
+                    if (!variableMap.containsKey(item.getId())) {
+                        variables.add(item);
+                    }
+                });
+            }
+
+            if (CollectionUtils.isNotEmpty(variables)) {
+                ElementUtil.addCsvDataSet(groupTree, variables, config, "shareMode.thread");
+                ElementUtil.addCounter(groupTree, variables, true);
+                ElementUtil.addRandom(groupTree, variables);
+            }
         }
         // 循环下都增加一个计数器，用于结果统计
         groupTree.add(addCounterConfig());
