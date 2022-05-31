@@ -159,7 +159,9 @@ public class MsTCPSampler extends MsTestElement {
         }
         if (config.getConfig() == null) {
             // 单独接口执行
-            this.setProjectId(config.getProjectId());
+            if(StringUtils.isNotEmpty(config.getProjectId())) {
+                this.setProjectId(config.getProjectId());
+            }
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(this.getEnvironmentId()) ? this.getEnvironmentId() : useEnvironment, this.getProjectId(), this.isMockEnvironment()));
         }
         EnvironmentConfig envConfig = null;
