@@ -127,7 +127,7 @@ public class MsScenario extends MsTestElement {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(this.getVariables())) {
+        if (CollectionUtils.isNotEmpty(this.getVariables()) &&  (this.variableEnable == null || this.variableEnable)) {
             config.setVariables(this.variables);
         }
         HashTree scenarioTree = tree;

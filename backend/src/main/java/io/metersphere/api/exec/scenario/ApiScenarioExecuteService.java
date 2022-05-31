@@ -7,6 +7,7 @@ import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
@@ -184,7 +185,7 @@ public class ApiScenarioExecuteService {
         String finalSerialReportId = serialReportId;
         Thread thread = new Thread(() ->
         {
-            Thread.currentThread().setName("SCENARIO-PARALLEL-THREAD");
+            Thread.currentThread().setName("SCENARIO-THREAD");
             if (isSerial(request)) {
                 apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
             } else {
@@ -416,6 +417,7 @@ public class ApiScenarioExecuteService {
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         // 调用执行方法
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
+        LoggerUtil.info(new MsTestPlan().getJmx(hashTree));
         runRequest.setDebug(true);
         jMeterService.run(runRequest);
         return request.getId();
