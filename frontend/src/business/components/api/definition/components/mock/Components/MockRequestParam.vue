@@ -48,7 +48,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.rest" :parameters="request.rest"/>
+              <mock-combination-condition :is-rest="true" :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.rest" :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->

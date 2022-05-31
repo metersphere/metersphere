@@ -422,10 +422,14 @@ public class MockConfigService {
             }
         }
 
+        String restFilterType = paramsFilterType;
+        if (expectParamsObj.containsKey("restFilterType") && StringUtils.isNotEmpty(expectParamsObj.getString("restFilterType"))) {
+            restFilterType = expectParamsObj.getString("restFilterType");
+        }
         if (expectParamsObj.containsKey("rest")) {
             JSONArray restArray = expectParamsObj.getJSONArray("rest");
             List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(restArray);
-            if (!MockApiUtils.checkParamsCompliance(requestMockParams.getRestParamsObj(), mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
+            if (!MockApiUtils.checkParamsCompliance(requestMockParams.getRestParamsObj(), mockConfigRequestParams, StringUtils.equals(restFilterType, "And"))) {
                 return false;
             }
         }
