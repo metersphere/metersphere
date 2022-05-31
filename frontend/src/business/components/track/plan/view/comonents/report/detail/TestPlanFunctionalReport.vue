@@ -10,7 +10,7 @@
         </template>
         <functional-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane v-if="issueEnable" name="third">
+      <el-tab-pane v-if="issueEnable && hasPermission('PROJECT_TRACK_ISSUE:READ')" name="third">
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.issue_list')" :count="issueSize"/>
         </template>
@@ -36,6 +36,7 @@ import FunctionalIssueList
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
+import {hasPermission} from "@/common/js/utils";
 export default {
   name: "TestPlanFunctionalReport",
   components: {
@@ -109,7 +110,8 @@ export default {
       this.allSize = size;
     },
     handleClick(tab, event) {
-    }
+    },
+    hasPermission,
   }
 
 }
