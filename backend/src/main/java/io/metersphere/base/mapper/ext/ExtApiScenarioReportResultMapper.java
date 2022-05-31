@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ExtApiScenarioReportResultMapper {
     List<ApiScenarioReportResultWithBLOBs> selectBaseInfoResultByReportId(String reportId);
+    List<String> selectDistinctStatusByReportId(String reportId);
 }
