@@ -203,6 +203,7 @@ export default {
         {id: 'success', label: 'Success'},
         {id: 'waiting', label: 'Waiting'},
         {id: 'fail', label: 'Fail'},
+        {id: 'unexecute', label: 'unexecute'},
         {id: 'stop', label: 'Stopped'}
       ],
       condition: {triggerMode: "", executionStatus: ""},
@@ -338,7 +339,7 @@ export default {
     showStop(status) {
       if (status) {
         status = status.toLowerCase();
-        if (status === "stop" || status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
+        if (status === "stop" || status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'unexecute' || status === 'errorreportresult') {
           return false;
         }
       }
@@ -362,7 +363,7 @@ export default {
       let status = row.executionStatus;
       if (status) {
         status = row.executionStatus.toLowerCase();
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'unexecute' || status === 'errorreportresult') {
           this.size = 1400;
           this.reportId = row.id;
           this.executionModule = row.executionModule;
