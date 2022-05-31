@@ -30,11 +30,11 @@
       </template>
 
       <template v-slot:behindHeaderLeft>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">
+        <el-tag size="small" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">
           {{ $t('api_test.automation.reference_deleted') }}
         </el-tag>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-        <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{
+        <el-tag size="small" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+        <el-tag size="small" class="ms-tag" v-if="request.referenced ==='REF'">{{
             $t('api_test.scenario.reference')
           }}
         </el-tag>
@@ -59,7 +59,7 @@
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;"
@@ -706,10 +706,6 @@ export default {
   color: #409EFF;
 }
 
-/deep/ .el-card__body {
-  padding: 6px 10px;
-}
-
 .icon.is-active {
   transform: rotate(90deg);
 }
@@ -720,17 +716,18 @@ export default {
 }
 
 .ms-btn {
+  padding: 5px;
   background-color: #409EFF;
   color: white;
 }
 
-.ms-btn-flot {
+.ms-btn-float {
   margin: 20px;
   float: right;
 }
 
 .ms-step-name-api {
-  padding-left: 10px;
+  padding-left: 5px;
 }
 
 .ms-tag {
