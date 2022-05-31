@@ -457,73 +457,6 @@ public class TestPlanReportService {
             }
             boolean hasErrorCase = false;
             if (content != null) {
-                //更新接口用例、场景用例的最终执行状态
-                if (StringUtils.isNotEmpty(content.getPlanApiCaseReportStruct())) {
-                    try {
-                        List<TestPlanFailureApiDTO> apiTestCases = JSONArray.parseArray(content.getPlanApiCaseReportStruct(), TestPlanFailureApiDTO.class);
-                        List<String> reportIdList = new ArrayList<>();
-                        apiTestCases.forEach(item -> {
-                            if (StringUtils.isNotEmpty(item.getReportId())) {
-                                reportIdList.add(item.getReportId());
-                            }
-                        });
-                        Map<String, String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(reportIdList);
-                        String defaultStatus = "error";
-                        for (TestPlanFailureApiDTO dto : apiTestCases) {
-                            String reportId = dto.getReportId();
-                            if (StringUtils.isEmpty(reportId)) {
-                                dto.setExecResult(defaultStatus);
-                            } else {
-                                String execStatus = reportResult.get(reportId);
-                                if (execStatus == null) {
-                                    execStatus = defaultStatus;
-                                }
-                                dto.setExecResult(execStatus);
-                            }
-                            if (!StringUtils.equalsAnyIgnoreCase(dto.getExecResult(), "success")) {
-                                hasErrorCase = true;
-                            }
-                        }
-                        content.setPlanApiCaseReportStruct(JSONObject.toJSONString(apiTestCases));
-                    } catch (Exception e) {
-                        LogUtil.error("update test plan api error! ", e);
-                    }
-                }
-                if (StringUtils.isNotEmpty(content.getPlanScenarioReportStruct())) {
-                    try {
-                        List<TestPlanFailureScenarioDTO> scenarioCases = JSONArray.parseArray(content.getPlanScenarioReportStruct(), TestPlanFailureScenarioDTO.class);
-                        List<String> reportIdList = new ArrayList<>();
-                        scenarioCases.forEach(item -> {
-                            if (StringUtils.isNotEmpty(item.getReportId())) {
-                                reportIdList.add(item.getReportId());
-                            }
-                        });
-                        String defaultStatus = "Fail";
-                        Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(reportIdList);
-
-                        for (TestPlanFailureScenarioDTO dto : scenarioCases) {
-                            String reportId = dto.getReportId();
-                            if (StringUtils.isNotEmpty(reportId)) {
-                                String execStatus = reportStatus.get(reportId);
-                                if (execStatus == null) {
-                                    execStatus = defaultStatus;
-                                } else {
-                                    if (StringUtils.equalsIgnoreCase(status, "Error")) {
-                                        status = "Fail";
-                                    }
-                                }
-                                dto.setLastResult(execStatus);
-                                dto.setStatus(execStatus);
-                                if (!StringUtils.equalsAnyIgnoreCase(execStatus, "success")) {
-                                    hasErrorCase = true;
-                                }
-                            }
-                        }
-                        content.setPlanScenarioReportStruct(JSONObject.toJSONString(scenarioCases));
-                    } catch (Exception e) {
-                        LogUtil.error("update test plan api error! ", e);
-                    }
-                }
                 //更新content表对结束日期
                 if (!StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name())) {
                     content.setStartTime(testPlanReport.getStartTime());
@@ -1064,7 +997,7 @@ public class TestPlanReportService {
                 }
             }
         }
-        TestPlanExecuteReportDTO returnDTO = new TestPlanExecuteReportDTO(testPlanApiCaseIdAndReportIdMap, testPlanScenarioIdAndReportIdMap, testPlanLoadCaseIdAndReportIdMap, apiCaseInfoDTOList, scenarioInfoDTOList);
+        TestPlanExecuteReportDTO returnDTO = new TestPlanExecuteReportDTO(testPlanApiCaseIdAndReportIdMap, testPlanScenarioIdAndReportIdMap, testPlanLoadCaseIdAndReportIdMap);
         return returnDTO;
     }
 
