@@ -6,7 +6,11 @@
           <div class="top-line-box" :style="{ height:lineDivTopHeight+'px',marginTop:lineDivMarginTopHeight+'px'}">
           </div>
           <div>
-            <el-select class="ms-http-select" size="small" v-model="filterTypeObject.paramsFilterType"
+            <el-select v-if="isRest" class="ms-http-select" size="small" v-model="filterTypeObject.restFilterType"
+                       style="width: 100px">
+              <el-option v-for="item in filterTypes" :key="item.id" :label="item.label" :value="item.id"/>
+            </el-select>
+            <el-select v-else class="ms-http-select" size="small" v-model="filterTypeObject.paramsFilterType"
                        style="width: 100px">
               <el-option v-for="item in filterTypes" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
@@ -51,6 +55,7 @@ export default {
     suggestions: Array,
     parameters: Array,
     filterTypeObject: Object,
+    isRest: Boolean,
     isReadOnly: {
       type: Boolean,
       default: false
