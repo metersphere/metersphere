@@ -24,12 +24,16 @@
     <el-row :gutter="10">
       <el-col :span="12">
         <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
-          <el-input-number v-model="config.ctimeout" controls-position="right" :min="0" :step="1000" :controls="false"/>
+          <el-input-number v-model="config.ctimeout" controls-position="right" :min="0" :step="1000" :controls="false"
+                           onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                           :precision="0"/>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout" label-width="120px">
-          <el-input-number v-model="config.timeout" controls-position="right" :min="0" :step="1000" :controls="false"/>
+          <el-input-number v-model="config.timeout" controls-position="right" :min="0" :step="1000" :controls="false"
+                           onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                           :precision="0"/>
         </el-form-item>
       </el-col>
     </el-row>
