@@ -11,6 +11,7 @@
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
+        :is-relevance="true"
         :is-read-only="true"
         ref="nodeTree"/>
     </template>
