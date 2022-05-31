@@ -296,6 +296,7 @@
           data.remark = response.data.remark;
           data.versionId = response.data.versionId;
           data.versionName = response.data.versionName;
+          data.refId = response.data.refId;
           this.$emit('saveApi', data);
         });
         this.responseCount = 0;
