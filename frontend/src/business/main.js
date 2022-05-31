@@ -18,7 +18,7 @@ import '../common/css/menu-header.css';
 import '../common/css/main.css';
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import VueFab from 'vue-float-action-button'
-import {left2RightDrag, bottom2TopDrag, right2LeftDrag} from "../common/js/directive";
+import {left2RightDrag, bottom2TopDrag, right2LeftDrag, onceLinkClick} from "../common/js/directive";
 import JsonSchemaEditor from './components/common/json-schema/schema/index';
 import ComparedEditor from './components/history/api/json-view/schema/index';
 import JSONPathPicker from 'vue-jsonpath-picker';
@@ -80,6 +80,9 @@ Vue.directive('preventReClick', {
     })
   }
 });
+
+// 防止a标签重复点击
+Vue.directive('preventLinkReClick', onceLinkClick);
 
 // 添加全局事件总线
 Vue.prototype.$EventBus = new Vue();
