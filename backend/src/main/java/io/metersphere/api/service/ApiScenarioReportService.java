@@ -13,6 +13,7 @@ import io.metersphere.api.jmeter.FixedCapacityUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -83,6 +84,8 @@ public class ApiScenarioReportService {
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
     @Resource
     private UiReportServiceProxy uiReportServiceProxy;
+    @Resource
+    private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -363,10 +366,30 @@ public class ApiScenarioReportService {
                 if (!StringUtils.equalsAnyIgnoreCase(report.getStatus(), APITestStatus.Rerunning.name())) {
                     report.setEndTime(System.currentTimeMillis());
                 }
-                ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
-                example.createCriteria().andReportIdEqualTo(reportId).andStatusEqualTo(ScenarioStatus.Error.name());
-                long size = apiScenarioReportResultMapper.countByExample(example);
-                report.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+                List<String> statusList = extApiScenarioReportResultMapper.selectDistinctStatusByReportId(reportId);
+                boolean hasError = false, hasErrorReport = false, hasUnExecute = false, hasOtherStatus = false;
+                for (String status : statusList) {
+                    if (StringUtils.equalsIgnoreCase(status, ExecuteResult.Error.name())) {
+                        hasError = true;
+                    } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
+                        hasErrorReport = true;
+                    } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.unexecute.name())) {
+                        hasUnExecute = true;
+                    } else {
+                        hasOtherStatus = true;
+                    }
+                }
+
+                if (hasUnExecute && (hasError || hasErrorReport || hasOtherStatus)) {
+                    //只有全部状态都是未执行时，集合报告的状态才可以是未执行
+                    hasUnExecute = false;
+                }else if(CollectionUtils.isEmpty(statusList)){
+                    //查不到任何结果也按照未执行来处理
+                    hasUnExecute = true;
+                }
+                report.setStatus(hasError ? ScenarioStatus.Error.name() :
+                        hasErrorReport ? ExecuteResult.errorReportResult.name() :
+                                hasUnExecute ? ExecuteResult.unexecute.name() : ScenarioStatus.Success.name());
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
             }
