@@ -93,10 +93,15 @@ export default {
                 JSON.parse(fileString).map(env => {
                   //projectId为空字符串要转换为null，空字符串会被认为有projectId
                   env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
+                  if (!env.projectId) {
+                    this.$warning(this.$t('api_test.environment.project_warning'));
+                    return;
+                  }
                   this.$fileUpload('/api/environment/add', null,[],  env, response => {
+                    this.dialogVisible = false;
                     this.$emit('refresh');
                     this.$success(this.$t('commons.save_success'));
-                  })
+                  });
                 })
               } catch (exception) {
                 this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
