@@ -17,6 +17,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
+import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
@@ -168,6 +169,11 @@ public class IssuesController {
     @PostMapping("/jira/issuetype")
     public List<JiraIssueType> getJiraIssueType(@RequestBody JiraIssueTypeRequest request) {
         return issuesService.getIssueTypes(request);
+    }
+
+    @PostMapping("/jira/transitions")
+    public List<JiraTransitionsResponse.Transitions> getJiraTransitions(@RequestBody JiraIssueTypeRequest request) {
+        return issuesService.getJiraTransitions(request);
     }
 
     @GetMapping("/demand/list/{projectId}")

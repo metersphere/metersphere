@@ -446,6 +446,14 @@ public class JiraPlatform extends AbstractIssuePlatform {
         // 上传新附件
         imageFiles.forEach(img -> jiraClientV2.uploadAttachment(request.getPlatformId(), img));
 
+        if (request.getTransitions() != null) {
+            try {
+                jiraClientV2.setTransitions(request.getPlatformId(), request.getTransitions());
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        }
+
         handleIssueUpdate(request);
     }
 
@@ -527,6 +535,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public JiraConfig setUserConfig() {
         return setUserConfig(getUserPlatInfo(this.workspaceId));
+    }
+
+    public List<JiraTransitionsResponse.Transitions> getTransitions(String issueKey) {
+        return jiraClientV2.getTransitions(issueKey);
     }
 
     public IssueTemplateDao getThirdPartTemplate() {
