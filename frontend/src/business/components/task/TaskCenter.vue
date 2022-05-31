@@ -121,6 +121,10 @@
                         class="ms-task-stopped">
                       Stopped
                   </span>
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'unexecute'"
+                        class="ms-task-stopped">
+                      unexecute
+                  </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'"
                         class="ms-task-error-report-status">
                       {{ $t('error_report_library.option.name') }}
@@ -325,7 +329,7 @@ export default {
         if (status === "waiting" || status === 'stop') {
           return 0;
         }
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'errorreportresult') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'unexecute' || status === 'errorreportresult') {
           return 100;
         }
       }

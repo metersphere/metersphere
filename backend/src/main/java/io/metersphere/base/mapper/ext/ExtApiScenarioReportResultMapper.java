@@ -12,4 +12,5 @@ public interface ExtApiScenarioReportResultMapper {
 
     List<String> getReportIds(@Param("ids") List<String> ids);
 
+    List<String> selectDistinctStatusByReportId(String reportId);
 }
