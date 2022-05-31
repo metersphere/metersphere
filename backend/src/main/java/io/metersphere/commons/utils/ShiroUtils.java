@@ -89,11 +89,6 @@ public class ShiroUtils {
         sessionIdCookie.setPath("/");
         sessionIdCookie.setName("MS_SESSION_ID");
         sessionIdCookie.setSameSite(sameSite);
-        if (sameSite == SameSiteOptions.NONE) {
-            // disable https only
-            sessionIdCookie.setSecure(false);
-        }
-        
         return sessionIdCookie;
     }
 
