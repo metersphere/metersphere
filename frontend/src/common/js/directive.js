@@ -57,3 +57,16 @@ export const bottom2TopDrag = {
     };
   }
 };
+
+export const onceLinkClick = {
+  inserted (el, binding) {
+    el.addEventListener('click', () => {
+      if (el.style.pointerEvents === '') {
+        el.style.pointerEvents = 'none'; // 防止a标签
+        setTimeout(() => {
+          el.style.pointerEvents = '';
+        }, binding.value || 3000);
+      }
+    })
+  }
+}
