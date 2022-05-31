@@ -35,6 +35,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -398,20 +399,30 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         while (matcher.find()) {
             // get file name
             String originSubUrl = matcher.group(1);
-            String fileName = originSubUrl.substring(10);
-            fileName = resourceService.decodeFileName(fileName);
-            // get file
-            ResponseEntity<FileSystemResource> mdImage = resourceService.getMdImage(fileName);
-            // upload zentao
-            String id = uploadFile(mdImage.getBody());
-            // todo delete local file
-            int index = fileName.lastIndexOf(".");
-            String suffix = "";
-            if (index != -1) {
-                suffix = fileName.substring(index);
+            if (originSubUrl.contains("/url?url=")) {
+                String path = URLDecoder.decode(originSubUrl, StandardCharsets.UTF_8);
+                String fileName;
+                if (path.indexOf("fileID") > 0) {
+                    fileName = path.substring(path.indexOf("fileID") + 7);
+                } else {
+                    fileName = path.substring(path.indexOf("file-read-") + 10);
+                }
+                zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), fileName);
+            } else {
+                String fileName = originSubUrl.substring(10);
+                // get file
+                ResponseEntity<FileSystemResource> mdImage = resourceService.getMdImage(fileName);
+                // upload zentao
+                String id = uploadFile(mdImage.getBody());
+                // todo delete local file
+                int index = fileName.lastIndexOf(".");
+                String suffix = "";
+                if (index != -1) {
+                    suffix = fileName.substring(index);
+                }
+                // replace id
+                zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), id + suffix);
             }
-            // replace id
-            zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(originSubUrl), id + suffix);
         }
         // image link
         String netImgRegex = "!\\[(.*?)]\\((http.*?)\\)";
