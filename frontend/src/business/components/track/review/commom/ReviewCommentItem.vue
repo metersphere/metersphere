@@ -20,7 +20,7 @@
       </span>
       <span class="comment-delete">
         <el-link icon="el-icon-edit" style="font-size: 9px;margin-right: 6px;" @click="openEdit" :disabled="readOnly"/>
-        <el-link icon="el-icon-close" @click="deleteComment" :disabled="readOnly"/>
+        <el-link icon="el-icon-close" v-prevent-link-re-click @click="deleteComment" :disabled="readOnly"/>
       </span>
       <br/>
 
