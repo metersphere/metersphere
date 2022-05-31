@@ -1,12 +1,12 @@
 <template>
-  <el-card :style="{'border-color':colorStyle}">
-    <div class="header" @click="active(data)">
+  <el-card :style="{'border-color':colorStyle}" class="ms-base-card">
+    <div class="ms-base-header" @click="active(data)">
       <slot name="beforeHeaderLeft">
-        <div v-if="data.index" class="el-step__icon is-text enable-switch" :style="{'color': color, 'background-color': backgroundColor}">
+        <div v-if="data.index" class="el-step__icon is-text" :style="{'color': color, 'background-color': backgroundColor}">
           <div class="el-step__icon-inner" :key="$store.state.forceRerenderIndex">{{ data.index }}</div>
         </div>
+        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
-        <el-tag class="ms-left-btn" size="mini" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
       </slot>
 
       <span v-show="!isMax">
@@ -28,7 +28,7 @@
       </span>
       <span v-show="isMax">
         <slot name="headerLeft">
-            <span style="font-size: 12px" class="ms-step-name-width">{{ data.name }}</span>
+            <span class="ms-step-name-width">{{ data.name }}</span>
         </slot>
       </span>
 
@@ -36,11 +36,11 @@
         <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
 
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="(data.disabled && !data.root) || !showVersion" style="width: 30px"/>
-        </el-tooltip>
-
         <slot name="button" v-if="showVersion"></slot>
+
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="(data.disabled && !data.root) || !showVersion"/>
+        </el-tooltip>
 
         <el-button v-if="showVersion && showCopy" size="mini" icon="el-icon-copy-document" circle @click="copyRow"
                    style="padding: 5px"
@@ -48,6 +48,7 @@
 
         <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"
                    :disabled="(data.disabled && !data.root) || !showVersion "/>
+
         <step-extend-btns style="display: contents"
                           :data="data"
                           :environmentType="environmentType"
@@ -63,7 +64,7 @@
 
     </div>
     <!--最大化不显示具体内容-->
-    <div class="header" v-if="!isMax">
+    <div v-if="!isMax">
       <el-collapse-transition>
         <!-- 这里的组件默认不展开时不加载 -->
         <div v-if="data.active && showCollapse" :draggable="draggable">
@@ -261,7 +262,7 @@ export default {
 }
 
 .el-icon-arrow-right {
-  margin-right: 5px;
+  margin-right: 3px;
 }
 
 .ms-left-btn {
@@ -269,14 +270,19 @@ export default {
   margin-left: 0px;
 }
 
+.ms-base-header{
+  min-height: 26px;
+}
 .header-right {
-  margin-top: 0px;
+  margin-top: 1px;
   float: right;
   z-index: 1;
 }
 
 .enable-switch {
-  margin-right: 10px;
+  margin: 0px 5px 0px;
+  padding-bottom: 2px;
+  width: 30px;
 }
 
 .scenario-version {
@@ -321,7 +327,7 @@ export default {
 .scenario-name {
   display: inline-block;
   font-size: 13px;
-  margin: 0 5px;
+  margin: 0 0px;
   /*overflow-x: hidden;*/
   overflow-x: auto;
   overflow-y: hidden;
@@ -364,7 +370,7 @@ export default {
 .scenario-unscroll {
   display: inline-block;
   font-size: 13px;
-  margin: 0 5px;
+  margin: 0 0px;
   overflow-x: hidden;
   /*overflow-x: auto;*/
   overflow-y: hidden;
@@ -395,6 +401,7 @@ fieldset {
 }
 
 .ms-step-name-width {
+  font-size: 12px;
   display: inline-block;
   margin: 0 0px;
   overflow-x: hidden;
@@ -404,5 +411,10 @@ fieldset {
   white-space: nowrap;
   width: 60px;
 }
-
+.ms-base-card{
+  min-height: 36px;
+}
+.is-text{
+  margin-right: 5px;
+}
 </style>
