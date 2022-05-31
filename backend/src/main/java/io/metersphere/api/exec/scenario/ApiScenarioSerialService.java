@@ -205,7 +205,7 @@ public class ApiScenarioSerialService {
                 group.setName(runRequest.getReportId());
                 group.setProjectId(caseWithBLOBs.getProjectId());
 
-                MsTestElement testElement = parse(data, testId, envId);
+                MsTestElement testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
                 group.setHashTree(new LinkedList<>());
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);
@@ -225,7 +225,7 @@ public class ApiScenarioSerialService {
         return null;
     }
 
-    private MsTestElement parse(String api, String planId, String envId) {
+    private MsTestElement parse(String api, String planId, String envId, String projectId) {
         try {
             JSONObject element = JSON.parseObject(api, Feature.DisableSpecialKeyDetect);
             ElementUtil.dataFormatting(element);
@@ -248,6 +248,9 @@ public class ApiScenarioSerialService {
             }
             if (element.getString("type").equals("TCPSampler")) {
                 MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
+                if (StringUtils.isEmpty(msTCPSampler.getProjectId())) {
+                    msTCPSampler.setProjectId(projectId);
+                }
                 if (StringUtils.isNotEmpty(envId)) {
                     msTCPSampler.setUseEnvironment(envId);
                 }
