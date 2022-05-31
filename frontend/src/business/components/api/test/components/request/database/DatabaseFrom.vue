@@ -32,12 +32,18 @@
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.pool_max')" prop="poolMax">
-        <el-input-number size="small" :disabled="isReadOnly" v-model="currentConfig.poolMax" :placeholder="$t('commons.please_select')" :max="100" :min="0"/>
+        <el-input-number size="small" :disabled="isReadOnly" v-model="currentConfig.poolMax"
+                         :placeholder="$t('commons.please_select')" :max="100" :min="0"
+                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                         :precision="0"/>
       </el-form-item>
 
 
       <el-form-item :label="$t('api_test.request.sql.timeout')" prop="timeout">
-        <el-input-number size="small" :disabled="isReadOnly" v-model="currentConfig.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+        <el-input-number size="small" :disabled="isReadOnly" v-model="currentConfig.timeout"
+                         :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"
+                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+                         :precision="0"/>
       </el-form-item>
 
       <el-form-item>
