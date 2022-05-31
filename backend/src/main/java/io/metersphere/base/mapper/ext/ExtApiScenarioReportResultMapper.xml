@@ -15,4 +15,9 @@
         FROM api_scenario_report_result
         WHERE report_id = #{0}
     </select>
+    <select id="selectDistinctStatusByReportId" resultType="java.lang.String">
+        SELECT DISTINCT status
+        FROM api_scenario_report_result
+        WHERE report_id = #{0}
+    </select>
 </mapper>
