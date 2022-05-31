@@ -5,7 +5,7 @@
     </el-col>
     <el-col :span="12" class="head-right">
       <el-button plain size="mini" @click="handleCancel">{{ $t('test_track.return') }}</el-button>
-      <el-button type="primary" size="mini" @click="handleSave">{{ $t('test_track.save') }}</el-button>
+      <el-button v-prevent-re-click type="primary" size="mini" @click="handleSave">{{ $t('test_track.save') }}</el-button>
     </el-col>
   </el-row>
 
