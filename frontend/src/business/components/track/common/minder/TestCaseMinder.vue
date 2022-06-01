@@ -207,7 +207,7 @@ name: "TestCaseMinder",
     setIsChange(isChanged) {
       this.$store.commit('setIsTestCaseMinderChanged', isChanged);
     },
-    save() {
+    save(callback) {
       this.saveCases = [];
       this.saveModules = [];
       this.deleteNodes = []; // 包含测试模块、用例和临时节点
@@ -242,6 +242,9 @@ name: "TestCaseMinder",
         this.extraNodeChanged = [];
         this.$emit('refresh');
         this.setIsChange(false);
+        if (callback) {
+          callback();
+        }
       });
 
     },
