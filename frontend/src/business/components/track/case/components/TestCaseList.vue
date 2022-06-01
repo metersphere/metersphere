@@ -712,7 +712,7 @@ export default {
       let dataType = this.$route.params.dataType;
       this.selectDataRange = dataType === 'case' ? dataRange : 'all';
     },
-    initTableData() {
+    initTableData(nodeIds) {
       this.condition.planId = "";
       this.condition.nodeIds = [];
       initCondition(this.condition, this.condition.selectAll);
@@ -731,6 +731,11 @@ export default {
             this.condition.nodeIds = this.selectNodeIds;
           }
         }
+      }
+
+      if (nodeIds && nodeIds.length > 0) {
+        this.condition.nodeIds = nodeIds;
+        this.condition.workspaceId = getCurrentWorkspaceId();
       }
       this.getData();
     },
@@ -1108,7 +1113,7 @@ export default {
             let param = buildBatchParam(this, this.$refs.table.selectIds);
             this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
               this.$refs.table.clear();
-              this.$emit("refresh");
+              this.$emit("refreshPublic");
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -1130,7 +1135,7 @@ export default {
           this.$get('/test/case/deletePublic/' + testCase.versionId + '/' + testCase.refId, () => {
             this.$success(this.$t('commons.delete_success'));
             this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshAll");
+            this.$emit("refreshPublic");
           });
         } else {
           this.$get('/test/case/delete/' + testCase.versionId + '/' + testCase.refId, () => {
@@ -1144,12 +1149,11 @@ export default {
       else {
         if (this.publicEnable) {
           let param = buildBatchParam(this, this.$refs.table.selectIds);
+          param.ids.push(testCase.id);
           this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
             this.$success(this.$t('commons.delete_success'));
-            // this.initTable();
             this.$refs.apiDeleteConfirm.close();
-            this.$emit("refreshAll");
-
+            this.$emit("refreshPublic");
           });
         } else {
           this._handleDeleteToGc(testCase);
