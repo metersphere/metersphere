@@ -222,7 +222,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
             if (StringUtils.isNotBlank(fieldName)) {
                 if (item.getValue() != null) {
                     if (StringUtils.isNotBlank(item.getType())) {
-                        if (StringUtils.equalsAny(item.getType(),  "richText")) {
+                        if (StringUtils.equalsAny(item.getType(),  "richText")
+                                && !item.getId().equals("description")) {
                             files.addAll(getImageFiles(item.getValue().toString()));
                         }
                     }
