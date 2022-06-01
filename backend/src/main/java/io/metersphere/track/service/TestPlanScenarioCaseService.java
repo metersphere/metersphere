@@ -100,8 +100,8 @@ public class TestPlanScenarioCaseService {
             Project project = projectMap.get(item.getProjectId());
             if(project != null){
                 ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
-                boolean custom = config.getCaseCustomNum();
-                if(custom){
+                boolean custom = config.getScenarioCustomNum();
+                if (custom) {
                     item.setCustomNum(item.getCustomNum());
                 }else {
                     item.setCustomNum(item.getNum().toString());
@@ -528,15 +528,12 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap) {
-        List<TestPlanFailureScenarioDTO> apiTestCases =
-                extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
-
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap, Map<String, TestPlanFailureScenarioDTO> scenarioInfoDTOMap) {
         String defaultStatus = "Fail";
         Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
         Map<String, String> savedReportMap = new HashMap<>(idMap);
-
-        for (TestPlanFailureScenarioDTO dto : apiTestCases) {
+        List<TestPlanFailureScenarioDTO> apiTestCases = new ArrayList<>();
+        for (TestPlanFailureScenarioDTO dto : scenarioInfoDTOMap.values()) {
             String reportId = savedReportMap.get(dto.getId());
             savedReportMap.remove(dto.getId());
             dto.setReportId(reportId);
@@ -552,33 +549,8 @@ public class TestPlanScenarioCaseService {
                 dto.setLastResult(status);
                 dto.setStatus(status);
             }
+            apiTestCases.add(dto);
         }
-
-        if (!MapUtils.isEmpty(savedReportMap)) {
-            for (Map.Entry<String, String> entry : savedReportMap.entrySet()) {
-                String testPlanApiCaseId = entry.getKey();
-                String reportId = entry.getValue();
-                TestPlanFailureScenarioDTO dto = new TestPlanFailureScenarioDTO();
-                dto.setId(testPlanApiCaseId);
-                dto.setReportId(reportId);
-                dto.setName("DELETED");
-                dto.setNum(0);
-                if (StringUtils.isNotEmpty(reportId)) {
-                    String status = reportStatus.get(reportId);
-                    if (status == null) {
-                        status = defaultStatus;
-                    } else {
-                        if (StringUtils.equalsIgnoreCase(status, "Error")) {
-                            status = "Fail";
-                        }
-                    }
-                    dto.setLastResult(status);
-                    dto.setStatus(status);
-                }
-                apiTestCases.add(dto);
-            }
-        }
-
         return buildCases(apiTestCases);
     }
 
