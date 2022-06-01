@@ -16,4 +16,6 @@ public class TestPlanExecuteReportDTO {
     private Map<String,String> testPlanApiCaseIdAndReportIdMap;
     private Map<String,String> testPlanScenarioIdAndReportIdMap;
     private Map<String,String> testPlanLoadCaseIdAndReportIdMap;
+    private Map<String,TestPlanFailureApiDTO> apiCaseInfoDTOMap;
+    private Map<String,TestPlanFailureScenarioDTO> scenarioInfoDTOMap;
 }

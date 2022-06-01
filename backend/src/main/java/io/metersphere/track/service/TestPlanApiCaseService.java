@@ -428,15 +428,15 @@ public class TestPlanApiCaseService {
                 testPlanApiCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap) {
+    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap, Map<String, TestPlanFailureApiDTO> apiCaseInfoDTOMap) {
         if (testPlanApiCaseReportMap.isEmpty()) {
             return new ArrayList<>();
         }
         String defaultStatus = "error";
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(testPlanApiCaseReportMap.keySet(), null);
         Map<String, String> reportResult = apiDefinitionExecResultService.selectReportResultByReportIds(testPlanApiCaseReportMap.values());
         Map<String, String> savedReportMap = new HashMap<>(testPlanApiCaseReportMap);
-        for (TestPlanFailureApiDTO dto : apiTestCases) {
+        List<TestPlanFailureApiDTO> apiTestCases = new ArrayList<>();
+        for (TestPlanFailureApiDTO dto : apiCaseInfoDTOMap.values()) {
             String testPlanApiCaseId = dto.getId();
             String reportId = savedReportMap.get(testPlanApiCaseId);
             savedReportMap.remove(testPlanApiCaseId);
@@ -450,27 +450,7 @@ public class TestPlanApiCaseService {
                 }
                 dto.setExecResult(status);
             }
-        }
-        if (!MapUtils.isEmpty(savedReportMap)) {
-            for (Map.Entry<String, String> entry : savedReportMap.entrySet()) {
-                String testPlanApiCaseId = entry.getKey();
-                String reportId = entry.getValue();
-                TestPlanFailureApiDTO dto = new TestPlanFailureApiDTO();
-                dto.setId(testPlanApiCaseId);
-                dto.setReportId(reportId);
-                dto.setName("DELETED");
-                dto.setNum(0);
-                if (StringUtils.isEmpty(reportId)) {
-                    dto.setExecResult(defaultStatus);
-                } else {
-                    String status = reportResult.get(reportId);
-                    if (status == null) {
-                        status = defaultStatus;
-                    }
-                    dto.setExecResult(status);
-                }
-                apiTestCases.add(dto);
-            }
+            apiTestCases.add(dto);
         }
         return buildCases(apiTestCases);
     }
