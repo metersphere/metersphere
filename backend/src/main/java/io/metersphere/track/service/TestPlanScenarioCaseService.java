@@ -100,8 +100,8 @@ public class TestPlanScenarioCaseService {
             Project project = projectMap.get(item.getProjectId());
             if(project != null){
                 ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
-                boolean custom = config.getCaseCustomNum();
-                if(custom){
+                boolean custom = config.getScenarioCustomNum();
+                if (custom) {
                     item.setCustomNum(item.getCustomNum());
                 }else {
                     item.setCustomNum(item.getNum().toString());
@@ -528,7 +528,7 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap) {
+    public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap, Map<String, TestPlanFailureScenarioDTO> scenarioInfoDTOMap) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
                 extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
 
@@ -558,11 +558,14 @@ public class TestPlanScenarioCaseService {
             for (Map.Entry<String, String> entry : savedReportMap.entrySet()) {
                 String testPlanApiCaseId = entry.getKey();
                 String reportId = entry.getValue();
-                TestPlanFailureScenarioDTO dto = new TestPlanFailureScenarioDTO();
-                dto.setId(testPlanApiCaseId);
-                dto.setReportId(reportId);
-                dto.setName("DELETED");
-                dto.setNum(0);
+                TestPlanFailureScenarioDTO dto = scenarioInfoDTOMap.get(testPlanApiCaseId);
+                if (dto == null) {
+                    dto = new TestPlanFailureScenarioDTO();
+                    dto.setId(testPlanApiCaseId);
+                    dto.setReportId(reportId);
+                    dto.setName("DELETED");
+                    dto.setNum(0);
+                }
                 if (StringUtils.isNotEmpty(reportId)) {
                     String status = reportStatus.get(reportId);
                     if (status == null) {
