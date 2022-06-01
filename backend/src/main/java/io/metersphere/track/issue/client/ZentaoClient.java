@@ -153,12 +153,12 @@ public abstract class ZentaoClient extends BaseClient {
         return JSONObject.parseObject(response.getBody()).getJSONObject("data").getInnerMap();
     }
 
-    public JSONArray getBugsByProjectId(String projectId, int pageNum, int pageSize) {
+    public JSONObject getBugsByProjectId(String projectId, int pageNum, int pageSize) {
         String sessionId = login();
         ResponseEntity<String> response = restTemplate.exchange(requestUrl.getBugList(),
                 HttpMethod.GET, null, String.class, projectId, 9999999, pageSize, pageNum, sessionId);
         try {
-            return JSONObject.parseObject(response.getBody()).getJSONObject("data").getJSONArray("bugs");
+            return JSONObject.parseObject(response.getBody()).getJSONObject("data");
         } catch (Exception e) {
             LogUtil.error(e);
             MSException.throwException("请检查配置信息是否填写正确！");
