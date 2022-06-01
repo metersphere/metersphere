@@ -793,7 +793,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 ((MsLoopController) elementNode).setLoopType(LoopConstants.LOOP_COUNT.name());
                 LoopController loopController = (LoopController) key;
                 CountController countController = new CountController();
-                countController.setLoops(loopController.getLoops());
+                countController.setLoops(String.valueOf(loopController.getLoops()));
                 countController.setProceed(true);
                 ((MsLoopController) elementNode).setCountController(countController);
             }
