@@ -3,8 +3,7 @@
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
-          <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly"
-                   style="margin: 20px">
+          <el-form class="tcp" :model="request" :inline="true" :rules="rules" ref="request" :disabled="isReadOnly">
             <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
               <!--test-->
               <el-tab-pane name="parameters">
@@ -50,7 +49,7 @@
               </el-tab-pane>
 
               <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="other" class="other-config">
-                <el-row>
+                <el-row :gutter="20">
                   <el-col :span="8">
                     <el-form-item label="TCPClient" prop="classname">
                       <el-select v-model="request.classname" style="width: 100%" size="small">
@@ -69,25 +68,26 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-                <el-row :gutter="10">
-                  <el-col :span="6">
+                <el-row :gutter="20">
+                  <el-col :span="12">
                     <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
                       <el-input v-model="request.soLinger" size="small"/>
                     </el-form-item>
                   </el-col>
 
-                  <el-col :span="6">
+                  <el-col :span="12">
                     <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
                       <el-input v-model="request.eolByte" size="small"/>
                     </el-form-item>
                   </el-col>
-
-                  <el-col :span="6">
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :span="12">
                     <el-form-item :label="$t('api_test.request.tcp.username')" prop="username">
                       <el-input v-model="request.username" maxlength="100" show-word-limit size="small"/>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="6">
+                  <el-col :span="12">
                     <el-form-item :label="$t('api_test.request.tcp.password')" prop="password">
                       <el-input v-model="request.password" maxlength="30" show-word-limit show-password
                                 autocomplete="new-password" size="small"/>
