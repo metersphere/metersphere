@@ -1544,9 +1544,9 @@ public class TestPlanService {
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
             if (checkReportConfig(config, "api", "all")) {
                 // 接口
-                apiAllCases = testPlanApiCaseService.getByApiExecReportIds(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap());
+                apiAllCases = testPlanApiCaseService.getByApiExecReportIds(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap(),testPlanExecuteReportDTO.getApiCaseInfoDTOMap());
                 //场景
-                scenarioAllCases = testPlanScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap());
+                scenarioAllCases = testPlanScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap(),testPlanExecuteReportDTO.getScenarioInfoDTOMap());
                 this.checkApiCaseCreatorName(apiAllCases, scenarioAllCases);
                 report.setApiAllCases(apiAllCases);
                 report.setScenarioAllCases(scenarioAllCases);
