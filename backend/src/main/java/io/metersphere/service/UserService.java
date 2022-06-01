@@ -395,9 +395,13 @@ public class UserService {
         User userFromDB = userMapper.selectByPrimaryKey(user.getId());
         // last workspace id 变了
         if (user.getLastWorkspaceId() != null && !StringUtils.equals(user.getLastWorkspaceId(), userFromDB.getLastWorkspaceId())) {
-            List<Project> projects = getProjectListByWsAndUserId(user.getLastWorkspaceId());
+            List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastWorkspaceId());
             if (projects.size() > 0) {
-                user.setLastProjectId(projects.get(0).getId());
+                // 如果传入的 last_project_id 是 last_workspace_id 下面的
+                boolean present = projects.stream().anyMatch(p -> StringUtils.equals(p.getId(), user.getLastProjectId()));
+                if (!present) {
+                    user.setLastProjectId(projects.get(0).getId());
+                }
             } else {
                 user.setLastProjectId("");
             }
@@ -417,7 +421,7 @@ public class UserService {
 
         if (StringUtils.equals("workspace", sign)) {
             user.setLastWorkspaceId(sourceId);
-            List<Project> projects = getProjectListByWsAndUserId(sourceId);
+            List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
             if (projects.size() > 0) {
                 user.setLastProjectId(projects.get(0).getId());
             } else {
@@ -430,14 +434,13 @@ public class UserService {
         userMapper.updateByPrimaryKeySelective(newUser);
     }
 
-    private List<Project> getProjectListByWsAndUserId(String workspaceId) {
-        String useId = SessionUtils.getUser().getId();
+    private List<Project> getProjectListByWsAndUserId(String userId, String workspaceId) {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         List<Project> projects = projectMapper.selectByExample(projectExample);
 
         UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andUserIdEqualTo(useId);
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
         List<Project> projectList = new ArrayList<>();
         userGroups.forEach(userGroup -> projects.forEach(project -> {
