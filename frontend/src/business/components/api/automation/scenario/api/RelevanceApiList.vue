@@ -104,9 +104,7 @@ export default {
   },
   created() {
     this.condition.versionId = this.currentVersion;
-    if (this.currentProtocol !== null) {
-      this.initTable();
-    }
+    this.initTable();
   },
   watch: {
     selectNodeIds() {
