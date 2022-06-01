@@ -223,7 +223,7 @@ export default {
         this.form = Object.assign({}, row);
         this.issueTemplateId = row.issueTemplateId;
       } else {
-        this.form = {issueConfigObj: {}};
+        this.form = {issueConfigObj: {jiraIssueTypeId: null, jiraStoryTypeId: null}};
       }
       if (this.$refs.jiraConfig) {
         this.$refs.jiraConfig.getIssueTypeOption(this.form);
