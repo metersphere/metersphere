@@ -21,6 +21,15 @@
       />
     </ms-aside-container>
 
+    <ms-aside-container v-if="showPublicNode">
+      <node-tree class="node-tree"
+                 :is-display="'public'"
+                 v-loading="result.loading"
+                 @nodeSelectEvent="publicNodeChange"
+                 :tree-nodes="publicTreeNodes"
+                 ref="publicNodeTree"/>
+    </ms-aside-container>
+
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
@@ -66,6 +75,7 @@
             @getPublicList="getPublicList"
             @refresh="refresh"
             @refreshAll="refreshAll"
+            @refreshPublic="refreshPublic"
             @setCondition="setCondition"
             ref="testCasePublicList">
           </test-case-list>
@@ -253,6 +263,8 @@ export default {
       currentTrashVersion: null,
       versionEnable: false,
       isAsideHidden: true,
+      showPublicNode: false,
+      publicTreeNodes: []
     };
   },
   mounted() {
@@ -286,6 +298,7 @@ export default {
     },
     activeName(newVal, oldVal) {
       this.isAsideHidden = this.activeName === 'default';
+      this.showPublicNode = this.activeName === 'public';
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
@@ -307,6 +320,9 @@ export default {
     publicEnable() {
       if (this.publicEnable) {
         this.activeName = 'public';
+        this.result = this.$post('/test/case/public/case/node', {workspaceId: getCurrentWorkspaceId()}, res => {
+          this.publicTreeNodes = res.data;
+        })
       } else {
         this.activeName = 'default';
       }
@@ -561,6 +577,13 @@ export default {
       this.publicEnable = false;
       this.activeName = "default";
     },
+    publicNodeChange(node, nodeIds, pNodes) {
+      this.activeName = 'public';
+      this.publicEnable = true;
+      if (this.$refs.testCasePublicList) {
+        this.$refs.testCasePublicList.initTableData(nodeIds);
+      }
+    },
     increase(id) {
       this.$refs.nodeTree.increase(id);
     },
@@ -657,6 +680,14 @@ export default {
       }
       this.$refs.nodeTree.list();
       this.setTable(data);
+    },
+    refreshPublic() {
+      if (this.$refs.testCasePublicList) {
+        this.$refs.testCasePublicList.initTableData([]);
+      }
+      this.result = this.$post('/test/case/public/case/node', {workspaceId: getCurrentWorkspaceId()}, res => {
+        this.publicTreeNodes = res.data;
+      })
     },
     setTreeNodes(data) {
       this.treeNodes = data;
