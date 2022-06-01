@@ -83,17 +83,6 @@
               </el-table-column>
 
               <el-table-column
-                prop="type"
-                :filters="typeFilters"
-                column-key="type"
-                :label="$t('test_track.case.type')"
-                show-overflow-tooltip>
-                <template v-slot:default="scope">
-                  <type-table-item :value="scope.row.type"/>
-                </template>
-              </el-table-column>
-
-              <el-table-column
                 :filters="statusFilters"
                 column-key="reviewStatus"
                 :label="$t('test_track.case.status')"
@@ -195,11 +184,6 @@ export default {
         {text: 'P1', value: 'P1'},
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
-      ],
-      typeFilters: [
-        {text: this.$t('commons.functional'), value: 'functional'},
-        {text: this.$t('commons.performance'), value: 'performance'},
-        {text: this.$t('commons.api'), value: 'api'}
       ],
       statusFilters: [
         {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
