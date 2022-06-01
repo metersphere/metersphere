@@ -151,13 +151,16 @@ export default {
           this.condition.protocol = this.$route.params.type;
           this.$emit('protocolChange', this.condition.protocol);
           this.list();
-        }else if(!this.isRelevance){
+        }else if (!this.isRelevance) {
           //展示页面是非引用页面才会查询上一次接口类型
           this.$get('/api/module/getUserDefaultApiType/', response => {
             this.condition.protocol = response.data;
             this.$emit('protocolChange', this.condition.protocol);
             this.list();
           });
+        } else {
+          this.$emit('protocolChange', this.condition.protocol);
+          this.list();
         }
       },
       filter() {
