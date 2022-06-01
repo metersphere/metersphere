@@ -149,7 +149,7 @@
           :showScript="true"
           :request="apiCase.request"
           :response="apiCase.responseData"
-          v-if="api.protocol==='SQL'"/>
+          v-if="api.method==='SQL'"/>
         <ms-dubbo-basis-parameters
           :showScript="true"
           :request="apiCase.request"

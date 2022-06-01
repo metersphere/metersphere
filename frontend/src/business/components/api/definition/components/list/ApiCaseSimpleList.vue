@@ -861,6 +861,11 @@ export default {
         let uuid = getUUID();
         let apiCaseRequest = JSON.parse(data.request);
         apiCaseRequest.id = uuid;
+        if(apiCaseRequest.type === "TCPSampler"){
+          apiCaseRequest.method = "TCP";
+        }else if(apiCaseRequest.type === "JDBCSampler"){
+          apiCaseRequest.method = "SQL";
+        }
         let obj = {
           name: "copy_" + data.name,
           apiDefinitionId: row.apiDefinitionId,
