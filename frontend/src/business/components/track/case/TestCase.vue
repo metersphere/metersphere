@@ -370,7 +370,24 @@ export default {
       openMinderConfirm(this, activeDom);
     },
     changeConfirm(isSave, temWorkspaceId) {
-      saveMinderConfirm(this, isSave);
+      if (isSave) {
+        this.$refs.minder.save(() => {
+          // 保存成功之后再切换tab
+          this.activeDom = this.tmpActiveDom;
+          this.tmpActiveDom = null;
+        });
+      }
+
+      this.$store.commit('setIsTestCaseMinderChanged', false);
+      this.$nextTick(() => {
+        if (this.tmpPath) {
+          this.$router.push({
+            path: this.tmpPath
+          });
+          this.tmpPath = null;
+        }
+      });
+
       if (temWorkspaceId) {
         // 如果是切换工作空间提示的保存，则保存完后跳转到对应的工作空间
         this.$EventBus.$emit('changeWs', temWorkspaceId);
