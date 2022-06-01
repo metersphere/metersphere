@@ -70,9 +70,11 @@ public class Body {
     public List<KeyValue> getBodyParams(HTTPSamplerProxy sampler, String requestId) {
         List<KeyValue> body = new ArrayList<>();
         if (this.isKV() || this.isBinary()) {
-            body = this.getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
+            if (StringUtils.equalsAnyIgnoreCase(this.type, WWW_FROM, FORM_DATA)) {
+                body = this.getKvs().stream().filter(KeyValue::isValid).collect(Collectors.toList());
+            }
+            // 处理上传文件
             HTTPFileArg[] httpFileArgs = httpFileArgs(requestId);
-            // 文件上传
             if (ArrayUtils.isNotEmpty(httpFileArgs)) {
                 sampler.setHTTPFiles(httpFileArgs(requestId));
                 sampler.setDoMultipart(!StringUtils.equalsIgnoreCase(this.type, "BINARY"));
@@ -127,12 +129,12 @@ public class Body {
 
     private HTTPFileArg[] httpFileArgs(String requestId) {
         List<HTTPFileArg> list = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(this.getKvs())) {
+        if (StringUtils.equalsAnyIgnoreCase(this.type, WWW_FROM, FORM_DATA) && CollectionUtils.isNotEmpty(this.getKvs())) {
             this.getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
                 setFileArg(list, keyValue.getFiles(), keyValue, requestId, false);
             });
         }
-        if (CollectionUtils.isNotEmpty(this.getBinary())) {
+        if (StringUtils.equalsIgnoreCase(this.type, BINARY) && CollectionUtils.isNotEmpty(this.getBinary())) {
             this.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
                 setFileArg(list, keyValue.getFiles(), keyValue, requestId, true);
             });
