@@ -632,11 +632,21 @@ public class UserService {
     }
 
     private void autoSwitch(UserDTO user) {
+        // 用户有 last_project_id 权限
         if (StringUtils.isNotBlank(user.getLastProjectId())) {
             List<UserGroup> projectUserGroups = user.getUserGroups().stream()
                     .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(projectUserGroups)) {
+                return;
+            }
+        }
+        // 用户有 last_workspace_id 权限
+        if (StringUtils.isNotBlank(user.getLastWorkspaceId())) {
+            List<UserGroup> workspaceUserGroups = user.getUserGroups().stream()
+                    .filter(ug -> StringUtils.equals(user.getLastWorkspaceId(), ug.getSourceId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(workspaceUserGroups)) {
                 return;
             }
         }
