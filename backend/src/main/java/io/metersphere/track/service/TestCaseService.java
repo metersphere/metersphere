@@ -46,6 +46,7 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.issue.AbstractIssuePlatform;
 import io.metersphere.track.issue.IssueFactory;
 import io.metersphere.track.issue.service.XpackIssueService;
@@ -2688,5 +2689,10 @@ public class TestCaseService {
             }
         }
         return false;
+    }
+
+    public List<TestCaseNodeDTO> getPublicCaseNode(QueryTestCaseRequest request) {
+        List<TestCaseDTO> testCaseDTOS = publicListTestCase(request);
+        return testCaseNodeService.getNodeByTestCases(testCaseDTOS);
     }
 }

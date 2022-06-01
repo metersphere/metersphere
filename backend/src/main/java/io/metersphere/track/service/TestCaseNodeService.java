@@ -143,10 +143,14 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
     }
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        return getNodeTreeByProjectId(projectId, request);
+    }
+
+    public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId, QueryTestCaseRequest request) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
-        QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setUserId(SessionUtils.getUserId());
         request.setProjectId(projectId);
 
@@ -303,6 +307,25 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         List<TestCase> testCases = extTestPlanTestCaseMapper.getTestCaseWithNodeInfo(planId);
         Map<String, List<String>> projectNodeMap = getProjectNodeMap(testCases);
         return getNodeTreeWithPruningTree(projectNodeMap);
+    }
+
+    public List<TestCaseNodeDTO> getNodeByTestCases(List<TestCaseDTO> testCaseDTOS) {
+        Map<String, List<String>> projectNodeMap = new HashMap<>();
+        for (TestCase testCase : testCaseDTOS) {
+            List<String> nodeIds = Optional.ofNullable(projectNodeMap.get(testCase.getProjectId())).orElse(new ArrayList<>());
+            nodeIds.add(testCase.getNodeId());
+            projectNodeMap.put(testCase.getProjectId(), nodeIds);
+        }
+        List<TestCaseNodeDTO> tree = getNodeTreeWithPruningTree(projectNodeMap);
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        request.setCasePublic(true);
+        for (TestCaseNodeDTO dto : tree) {
+            List<TestCaseNodeDTO> children = this.getNodeTreeByProjectId(dto.getId(), request);
+            dto.setChildren(children);
+            int sum = children.stream().mapToInt(TestCaseNodeDTO::getCaseNum).sum();
+            dto.setCaseNum(sum);
+        }
+        return tree;
     }
 
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {
