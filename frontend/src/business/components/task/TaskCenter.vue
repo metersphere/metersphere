@@ -587,7 +587,7 @@ export default {
   position: fixed;
   right: 1372px;
   top: 50%;
-  z-index: 1;
+  z-index: 5;
   width: 20px;
   height: 60px;
   padding: 3px;
