@@ -218,7 +218,7 @@ public class ApiScenarioReportStructureService {
             totalScenario.set(totalScenario.longValue() + 1);
             if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "fail")) {
                 scenarioError.set(scenarioError.longValue() + 1);
-            } else if (StringUtils.equalsIgnoreCase(step.getTotalStatus(), "errorCode")) {
+            } else if (StringUtils.equalsAnyIgnoreCase(step.getTotalStatus(), "errorCode", ExecuteResult.errorReportResult.name())) {
                 errorReport.set(errorReport.longValue() + 1);
             } else if (!StringUtils.equalsIgnoreCase(step.getTotalStatus(), "success")) {
                 unExecute.set(unExecute.longValue() + 1);
