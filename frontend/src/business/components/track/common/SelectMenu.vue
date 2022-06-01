@@ -3,7 +3,9 @@
     <span class="menu-title">{{'[' + title + ']'}}</span>
     <el-select filterable slot="prepend" v-model="value" @change="changeData" :style="{width: width}"
                size="small">
-      <el-option v-for="(item,index) in data" :key="index" :label="item.name" :value="index"/>
+      <el-option v-for="(item,index) in data" :key="index" :label="item.name" :value="index">
+        <span class="span-name" :title="item.name">{{ item.name }}</span>
+      </el-option>
     </el-select>
   </div>
 </template>
@@ -54,6 +56,16 @@
     color: darkgrey;
     margin-left: 10px;
     margin-right: 10px;
+  }
+
+  .span-name {
+    display: inline-block;
+    max-width: 300px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+    margin-right: 5px;
   }
 
 </style>
