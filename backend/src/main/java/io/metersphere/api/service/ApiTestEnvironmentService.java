@@ -231,16 +231,17 @@ public class ApiTestEnvironmentService {
                 Integer mockPortStr = config.getMockTcpPort();
                 if(mockPortStr != null && mockPortStr != 0){
                     if(configObj.containsKey("tcpConfig")){
-                        if(configObj.containsKey("port")){
-                            if(configObj.getInteger("port").intValue() != mockPortStr){
+                        JSONObject tcpConfigObj = configObj.getJSONObject("tcpConfig");
+                        if(tcpConfigObj.containsKey("port")){
+                            if(tcpConfigObj.getInteger("port").intValue() != mockPortStr){
                                 needUpdate = true;
                             }
                         }else {
                             needUpdate = true;
                         }
 
-                        if(configObj.containsKey("server")){
-                            if(!StringUtils.equals(configObj.getString("server"),url)){
+                        if(tcpConfigObj.containsKey("server")){
+                            if(!StringUtils.equals(tcpConfigObj.getString("server"),url)){
                                 needUpdate = true;
                             }
                         }else {
@@ -342,6 +343,20 @@ public class ApiTestEnvironmentService {
         httpConfig.put("conditions", httpItemArr);
         httpConfig.put("defaultCondition", "NONE");
 
+        JSONObject tcpConfigObj = new JSONObject();
+        tcpConfigObj.put("classname", "TCPClientImpl");
+        tcpConfigObj.put("reUseConnection", false);
+        tcpConfigObj.put("nodelay", false);
+        tcpConfigObj.put("closeConnection", false);
+        if(project != null){
+            ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
+            Integer mockPort = config.getMockTcpPort();
+            if(mockPort != null && mockPort != 0){
+                tcpConfigObj.put("server", tcpSocket);
+                tcpConfigObj.put("port", mockPort);
+            }
+        }
+
         ApiTestEnvironmentWithBLOBs blobs = null;
         if(StringUtils.isNotEmpty(envId)) {
             blobs = this.get(envId);
@@ -349,6 +364,7 @@ public class ApiTestEnvironmentService {
         if(blobs != null && StringUtils.isNotEmpty(blobs.getConfig())){
             JSONObject object = JSONObject.parseObject(blobs.getConfig());
             object.put("httpConfig", httpConfig);
+            object.put("tcpConfig", tcpConfigObj);
             blobs.setConfig(object.toString());
         }else {
             blobs = new ApiTestEnvironmentWithBLOBs();
@@ -362,20 +378,6 @@ public class ApiTestEnvironmentService {
             commonConfigObj.put("hosts", new String[]{});
 
             JSONArray databaseConfigObj = new JSONArray();
-
-            JSONObject tcpConfigObj = new JSONObject();
-            tcpConfigObj.put("classname", "TCPClientImpl");
-            tcpConfigObj.put("reUseConnection", false);
-            tcpConfigObj.put("nodelay", false);
-            tcpConfigObj.put("closeConnection", false);
-            if(project != null){
-                ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.MOCK_TCP_PORT.name());
-                Integer mockPort = config.getMockTcpPort();
-                if(mockPort != null && mockPort != 0){
-                    tcpConfigObj.put("server", tcpSocket);
-                    tcpConfigObj.put("port", mockPort);
-                }
-            }
 
             JSONObject object = new JSONObject();
             object.put("commonConfig", commonConfigObj);
