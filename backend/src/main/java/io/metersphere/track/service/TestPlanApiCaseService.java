@@ -428,7 +428,7 @@ public class TestPlanApiCaseService {
                 testPlanApiCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap) {
+    public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap, Map<String, TestPlanFailureApiDTO> apiCaseInfoDTOMap) {
         if (testPlanApiCaseReportMap.isEmpty()) {
             return new ArrayList<>();
         }
@@ -455,11 +455,14 @@ public class TestPlanApiCaseService {
             for (Map.Entry<String, String> entry : savedReportMap.entrySet()) {
                 String testPlanApiCaseId = entry.getKey();
                 String reportId = entry.getValue();
-                TestPlanFailureApiDTO dto = new TestPlanFailureApiDTO();
-                dto.setId(testPlanApiCaseId);
-                dto.setReportId(reportId);
-                dto.setName("DELETED");
-                dto.setNum(0);
+                TestPlanFailureApiDTO dto = apiCaseInfoDTOMap.get(testPlanApiCaseId);
+                if(dto == null){
+                    dto = new TestPlanFailureApiDTO();
+                    dto.setId(testPlanApiCaseId);
+                    dto.setReportId(reportId);
+                    dto.setName("DELETED");
+                    dto.setNum(0);
+                }
                 if (StringUtils.isEmpty(reportId)) {
                     dto.setExecResult(defaultStatus);
                 } else {
