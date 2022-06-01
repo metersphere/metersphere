@@ -403,11 +403,7 @@
               this.fullTreeNodes = report.steps;
               this.content.console = report.console;
               this.content.error = report.error;
-              let successCount = (report.total - report.error - report.errorCode);
-              if (successCount >= report.unExecute) {
-                // 测试用例的集合报告中如果含有未执行的步骤，则成功数量统计要把未执行的数量给去掉
-                successCount = successCount - report.unExecute;
-              }
+              let successCount = (report.total - report.error - report.errorCode - report.unExecute);
               this.content.success = successCount;
               this.totalTime = report.totalTime;
             }
@@ -460,10 +456,6 @@
                 this.content.console = report.console;
                 this.content.error = report.error;
                 let successCount = (report.total - report.error - report.errorCode - report.unExecute);
-                if (successCount >= report.unExecute) {
-                  // 测试用例的集合报告中如果含有未执行的步骤，则成功数量统计要把未执行的数量给去掉
-                  successCount = successCount - report.unExecute;
-                }
                 this.content.success = successCount;
                 this.totalTime = report.totalTime;
               }
