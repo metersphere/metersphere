@@ -14,7 +14,7 @@
             v-model="form.name"
             size="small"
             class="ms-case-input"
-            maxlength="225"
+            maxlength="255"
             show-word-limit
             :disabled="readOnly"/>
         </el-form-item>
@@ -130,6 +130,10 @@ export default {
           isValidate = false;
         }
       });
+      return isValidate;
+    },
+    validateCustomForm() {
+      let isValidate = true;
       this.$refs['customFieldForm'].validate((valid) => {
         if (!valid) {
           isValidate = false;
