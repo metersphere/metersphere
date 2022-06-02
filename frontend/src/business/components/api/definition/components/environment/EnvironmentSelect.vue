@@ -60,8 +60,8 @@
                 }
               }
               if (!hasEnvironment) {
-                this.currentData.environmentId = '';
-                this.currentData.environment = undefined;
+                this.currentData.environmentId =  this.$store.state.useEnvironment;
+                this.currentData.environment =  this.$store.state.useEnvironment;
               }
             });
           } else {
