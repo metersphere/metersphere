@@ -7,11 +7,10 @@ export function uploadMarkDownImg(file, callback) {
     id: getUUID().substring(0, 8)
   };
   file.prefix = param.id;
-  // 带括号和空格，可能无法展示
-  param.fileName = file.name.replace("(", "").replace(")", "").replace(" ", "");
+  param.fileName = file.name.substring(file.name.lastIndexOf('.'));
   return fileUpload('/resource/md/upload', file, null, param, (response) => {
     if (callback) {
-      callback(response, param);
+      callback(response.data, param);
     }
   });
 }

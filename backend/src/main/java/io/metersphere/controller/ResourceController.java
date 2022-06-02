@@ -16,8 +16,8 @@ public class ResourceController {
     @Resource
     ResourceService resourceService;
     @PostMapping(value = "/md/upload", consumes = {"multipart/form-data"})
-    public void upload(@RequestPart(value = "request") MdUploadRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
-        resourceService.mdUpload(request, file);
+    public String upload(@RequestPart(value = "request") MdUploadRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        return resourceService.mdUpload(request, file);
     }
 
     @GetMapping(value = "/md/get")

@@ -29,8 +29,10 @@ public class ResourceService {
     @Resource
     private RestTemplate restTemplate;
 
-    public void mdUpload(MdUploadRequest request, MultipartFile file) {
-        FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, request.getId() + "_" + request.getFileName());
+    public String mdUpload(MdUploadRequest request, MultipartFile file) {
+        String fileName = request.getId() + request.getFileName().substring(request.getFileName().lastIndexOf("."));
+        FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, fileName);
+        return fileName;
     }
 
     public ResponseEntity<FileSystemResource> getMdImage(String name) {
