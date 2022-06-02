@@ -193,9 +193,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
                 AtomicBoolean kvIsEmpty = new AtomicBoolean(true);
                 this.body.getKvs().forEach(files -> {
-                    if (StringUtils.isNotEmpty(files.getName()) && "file".equals(files.getType()) && CollectionUtils.isNotEmpty(files.getFiles())) {
-                        sampler.setDoBrowserCompatibleMultipart(true);
-                    }
                     if (StringUtils.isNotEmpty(files.getName())) {
                         kvIsEmpty.set(false);
                     }
