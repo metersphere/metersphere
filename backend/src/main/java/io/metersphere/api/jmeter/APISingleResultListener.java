@@ -39,6 +39,7 @@ public class APISingleResultListener implements MsExecListener {
         // dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
         // JMeterBase.resultFormatting(results, dto);
         // CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
+        this.clearLoops(results);
         queues.addAll(results);
     }
 
@@ -110,6 +111,15 @@ public class APISingleResultListener implements MsExecListener {
             });
             results.clear();
             results.addAll(list);
+        }
+    }
+
+    private void clearLoops(List<SampleResult> results) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(results)) {
+            results = results.stream().filter(sampleResult ->
+                    StringUtils.isNotEmpty(sampleResult.getSampleLabel())
+                            && !sampleResult.getSampleLabel().startsWith("MS_CLEAR_LOOPS_VAR_"))
+                    .collect(Collectors.toList());
         }
     }
 }
