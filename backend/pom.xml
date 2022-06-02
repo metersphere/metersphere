@@ -15,7 +15,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <shiro.version>1.8.0</shiro.version>
+        <shiro.version>1.9.0</shiro.version>
         <java.version>11</java.version>
         <flyway.version>7.15.0</flyway.version>
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
