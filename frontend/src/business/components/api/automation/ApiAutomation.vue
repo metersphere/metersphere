@@ -219,12 +219,12 @@ export default {
           let scenarioId = selectParamArr[1];
           //查找单条数据，跳转修改页面
           let url = "/api/automation/list/" + 1 + "/" + 1;
-          this.$post(url, {id: scenarioId}, response => {
+          this.$post(url, {id: scenarioId}, async response => {
             let data = response.data;
             if (data != null) {
               //如果树未加载
-              if (this.moduleOptions && JSON.stringify(this.moduleOptions) === '{}') {
-                this.$refs.nodeTree.list();
+              if (this.moduleOptions && this.moduleOptions.length === 0) {
+                 await this.$refs.nodeTree.list();
               }
               if (data.listObject && data.listObject.length > 0) {
                 let row = data.listObject[0];
