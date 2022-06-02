@@ -219,7 +219,14 @@ export default {
       listenGoBack(this.handleClose);
       if (row) {
         this.title = this.$t('project.edit');
-        row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {};
+        row.issueConfigObj = row.issueConfig ? JSON.parse(row.issueConfig) : {jiraIssueTypeId: null, jiraStoryTypeId: null};
+        // 兼容性处理
+        if (!row.issueConfigObj.jiraIssueTypeId) {
+          row.issueConfigObj.jiraIssueTypeId = null;
+        }
+        if (!row.issueConfigObj.jiraStoryTypeId) {
+          row.issueConfigObj.jiraStoryTypeId = null;
+        }
         this.form = Object.assign({}, row);
         this.issueTemplateId = row.issueTemplateId;
       } else {
