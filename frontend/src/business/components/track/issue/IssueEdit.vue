@@ -41,7 +41,6 @@ export default {
     },
     save() {
       this.$refs.issueEditDetail.save();
-      this.$refs.issueEditDetail.resetForm();
     },
     refresh(data) {
       this.$emit('refresh', data);
