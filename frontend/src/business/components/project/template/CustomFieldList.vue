@@ -201,9 +201,6 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-        if (this.$refs.table) {
-          this.$refs.table.reloadTable();
-        }
       });
     },
     handleEdit(data) {
