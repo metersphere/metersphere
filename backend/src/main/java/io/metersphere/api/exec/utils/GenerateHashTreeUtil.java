@@ -142,16 +142,15 @@ public class GenerateHashTreeUtil {
 
             group.setHashTree(scenarios);
             testPlan.getHashTree().add(group);
-
+            ParameterConfig config = new ParameterConfig();
+            config.setScenarioId(item.getId());
+            config.setReportType(runRequest.getReportType());
+            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
             LoggerUtil.info("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本JMX成功");
         } catch (Exception ex) {
             remakeException(runRequest);
             LoggerUtil.error("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本失败", ex);
         }
-        ParameterConfig config = new ParameterConfig();
-        config.setScenarioId(item.getId());
-        config.setReportType(runRequest.getReportType());
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
         return jmeterHashTree;
     }
 
