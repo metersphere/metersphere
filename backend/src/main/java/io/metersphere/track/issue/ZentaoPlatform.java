@@ -35,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -225,7 +226,33 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         setUserConfig();
         MultiValueMap<String, Object> param = buildUpdateParam(request);
         handleIssueUpdate(request);
+        this.handleZentaoBugStatus(param);
         zentaoClient.updateIssue(request.getPlatformId(), param);
+    }
+
+    private void handleZentaoBugStatus(MultiValueMap<String, Object> param) {
+        if (!param.containsKey("status")) {
+            return;
+        }
+        List<Object> status = param.get("status");
+        if (CollectionUtils.isEmpty(status)) {
+            return;
+        }
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String str = (String) status.get(0);
+            if (StringUtils.equals(str, "resolved")) {
+                param.add("resolvedDate", format.format(new Date()));
+            } else if (StringUtils.equals(str, "closed")) {
+                param.add("closedDate", format.format(new Date()));
+                if (!param.containsKey("resolution")) {
+                    // 解决方案默认为已解决
+                    param.add("resolution", "fixed");
+                }
+            }
+        } catch (Exception e) {
+            //
+        }
     }
 
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
