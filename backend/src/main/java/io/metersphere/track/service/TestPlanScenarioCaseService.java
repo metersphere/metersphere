@@ -98,15 +98,15 @@ public class TestPlanScenarioCaseService {
 
         apiTestCases.forEach(item -> {
             Project project = projectMap.get(item.getProjectId());
-            if(project != null){
+            if (project != null) {
                 ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
                 boolean custom = config.getCaseCustomNum();
-                if(custom){
+                if (custom) {
                     item.setCustomNum(item.getCustomNum());
-                }else {
+                } else {
                     item.setCustomNum(item.getNum().toString());
                 }
-            }else {
+            } else {
                 item.setCustomNum(item.getNum().toString());
             }
         });
@@ -450,7 +450,7 @@ public class TestPlanScenarioCaseService {
         calculatePlanReport(report, planReportCaseDTOS);
     }
 
-    public void calculatePlanReportByScenarioList(List<TestPlanFailureScenarioDTO> scenarioList,TestPlanSimpleReportDTO report){
+    public void calculatePlanReportByScenarioList(List<TestPlanFailureScenarioDTO> scenarioList, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = new ArrayList<>();
         for (TestPlanFailureScenarioDTO scenario : scenarioList) {
             PlanReportCaseDTO dto = new PlanReportCaseDTO();
@@ -496,7 +496,7 @@ public class TestPlanScenarioCaseService {
     private void calculateScenarioResultDTO(PlanReportCaseDTO item,
                                             TestPlanScenarioStepCountDTO stepCount) {
         if (StringUtils.isNotBlank(item.getReportId())) {
-            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId(),false);
+            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId(), false);
             if (apiScenarioReportResult != null) {
                 String content = apiScenarioReportResult.getContent();
                 if (StringUtils.isNotBlank(content)) {
@@ -529,9 +529,10 @@ public class TestPlanScenarioCaseService {
     }
 
     public List<TestPlanFailureScenarioDTO> getAllCases(Map<String, String> idMap) {
-        List<TestPlanFailureScenarioDTO> apiTestCases =
-                extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
-
+        if (MapUtils.isEmpty(idMap)) {
+            return new ArrayList<>();
+        }
+        List<TestPlanFailureScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.getFailureListByIds(idMap.keySet(), null);
         String defaultStatus = "Fail";
         Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
         Map<String, String> savedReportMap = new HashMap<>(idMap);

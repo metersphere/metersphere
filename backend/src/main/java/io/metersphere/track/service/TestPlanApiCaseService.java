@@ -429,7 +429,7 @@ public class TestPlanApiCaseService {
     }
 
     public List<TestPlanFailureApiDTO> getByApiExecReportIds(Map<String, String> testPlanApiCaseReportMap) {
-        if (testPlanApiCaseReportMap.isEmpty()) {
+        if (MapUtils.isEmpty(testPlanApiCaseReportMap)) {
             return new ArrayList<>();
         }
         String defaultStatus = "error";
