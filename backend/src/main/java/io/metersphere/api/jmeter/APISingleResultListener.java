@@ -11,12 +11,14 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.MsExecListener;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class APISingleResultListener implements MsExecListener {
     private ApiExecutionQueueService apiExecutionQueueService;
@@ -38,6 +40,7 @@ public class APISingleResultListener implements MsExecListener {
         // dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
         // JMeterBase.resultFormatting(results, dto);
         // CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
+        this.clearLoops(results);
         queues.addAll(results);
     }
 
@@ -75,6 +78,15 @@ public class APISingleResultListener implements MsExecListener {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
             }
             queues.clear();
+        }
+    }
+
+    private void clearLoops(List<SampleResult> results) {
+        if (CollectionUtils.isNotEmpty(results)) {
+            results = results.stream().filter(sampleResult ->
+                    StringUtils.isNotEmpty(sampleResult.getSampleLabel())
+                            && !sampleResult.getSampleLabel().startsWith("MS_CLEAR_LOOPS_VAR_"))
+                    .collect(Collectors.toList());
         }
     }
 }

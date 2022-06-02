@@ -233,6 +233,17 @@ public class MsLoopController extends MsTestElement {
         return script;
     }
 
+    private void addPreProc(HashTree hashTree) {
+        JSR223Sampler sampler = new JSR223Sampler();
+        sampler.setName("MS_CLEAR_LOOPS_VAR_" + ms_current_timer);
+        sampler.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
+        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+        sampler.setProperty("scriptLanguage", "beanshell");
+        ScriptFilter.verify("beanshell", this.getName(), script());
+        sampler.setProperty("script", "vars.put(\"" + ms_current_timer + "\", null);");
+        hashTree.add(sampler);
+    }
+
     private HashTree controller(HashTree tree) {
         if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
             RunTime runTime = new RunTime();
@@ -249,6 +260,8 @@ public class MsLoopController extends MsTestElement {
             String ifCondition = "${__jexl3(" + condition + ")}";
             String whileCondition = "${__jexl3(" + condition + " && \"${" + ms_current_timer + "}\" !=\"stop\")}";
             HashTree ifHashTree = tree.add(ifController(ifCondition));
+            addPreProc(ifHashTree);
+
             HashTree hashTree = ifHashTree.add(initWhileController(whileCondition));
             // 添加超时处理，防止死循环
             JSR223PreProcessor jsr223PreProcessor = new JSR223PreProcessor();
