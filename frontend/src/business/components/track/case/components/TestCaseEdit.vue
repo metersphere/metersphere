@@ -1001,7 +1001,11 @@ export default {
           return false;
         }
       });
-      let customValidate = this.$refs.testCaseBaseInfo.validateForm();
+      let baseInfoValidate = this.$refs.testCaseBaseInfo.validateForm();
+      if (!baseInfoValidate) {
+        return false;
+      }
+      let customValidate = this.$refs.testCaseBaseInfo.validateCustomForm();
       if (!customValidate) {
         let customFieldFormFields = this.$refs.testCaseBaseInfo.getCustomFields();
         for (let i = 0; i < customFieldFormFields.length; i++) {
