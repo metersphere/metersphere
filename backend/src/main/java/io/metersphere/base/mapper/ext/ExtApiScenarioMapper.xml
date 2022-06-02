@@ -284,7 +284,7 @@
                                     #{value}
                                 </foreach>
                             </when>
-                            <when test="key=='creator'">
+                            <when test="key=='creator' or key=='creator_name'">
                                 and api_scenario.create_user in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
