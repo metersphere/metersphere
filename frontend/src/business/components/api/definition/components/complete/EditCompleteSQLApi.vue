@@ -170,6 +170,10 @@ export default {
     if (hasLicense()) {
       this.getVersionHistory();
     }
+
+    if(!this.request.environmentId){
+      this.request.environmentId =  this.$store.state.useEnvironment;
+    }
   },
   methods: {
     openHis() {

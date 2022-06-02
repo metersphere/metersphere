@@ -290,8 +290,14 @@ export default {
   created() {
     // 深度复制
     this.api = JSON.parse(JSON.stringify(this.apiData));
+    if(!this.api.environmentId){
+      this.api.environmentId =  this.$store.state.useEnvironment;
+    }
     this.api.protocol = this.currentProtocol;
     this.currentRequest = this.api.request;
+    if(!this.currentRequest.environmentId){
+      this.currentRequest.environmentId =  this.$store.state.useEnvironment;
+    }
     this.runLoading = false;
     this.getEnvironments();
     this.getResult();
