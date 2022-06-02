@@ -164,9 +164,9 @@ export default {
   methods: {
     imgAdd(pos, file) {
       this.result.loading = true;
-      uploadMarkDownImg(file, (response, param) => {
+      uploadMarkDownImg(file, (data) => {
         this.$success(this.$t('commons.save_success'));
-        let url = '/resource/md/get?fileName=' + param.id + '_' + encodeURIComponent(param.fileName);
+        let url = '/resource/md/get?fileName=' + data;
         this.$refs.md.$img2Url(pos, url);
         this.result.loading = false;
       });
