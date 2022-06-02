@@ -402,6 +402,7 @@ public class ShareInfoService {
                     }
                 }
             }
+            apiInfoDTO.setRemark(apiModel.getRemark());
         }
         if (!previewJsonArray.isEmpty()) {
             if(previewJsonArray.size() == 1){

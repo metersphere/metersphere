@@ -67,6 +67,8 @@
     <!--响应状态码-->
     <api-info-collapse :is-text="true" :string-data="getName(apiInfo.responseCode)"
                        :title="$t('api_test.definition.document.response_code')"/>
+    <!--  备注  -->
+    <api-remark-show :data="apiInfo.remark"></api-remark-show>
     <el-divider></el-divider>
   </div>
 </template>
@@ -76,6 +78,7 @@ import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/Json
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
+import ApiRemarkShow from "@/business/components/api/definition/components/document/components/ApiRemarkShow";
 import Api from "@/business/components/api/router";
 import {generateApiDocumentShareInfo} from "@/network/share";
 import ApiInfoCollapse from "@/business/components/api/definition/components/document/components/ApiInfoCollapse";
@@ -90,7 +93,7 @@ export default {
   components: {
     Api,
     MsJsonCodeEdit,
-    ApiStatus, MsCodeEdit, ApiInfoCollapse, ApiRequestInfo, ApiResponseInfo,
+    ApiStatus, MsCodeEdit, ApiInfoCollapse, ApiRequestInfo, ApiResponseInfo, ApiRemarkShow,
     "ApiDocumentBatchShare": apiDocumentBatchShare.default
   },
   data() {

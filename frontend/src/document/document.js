@@ -13,6 +13,8 @@ import JSONPathPicker from 'vue-jsonpath-picker';
 Vue.use(JsonSchemaEditor);
 import VuePapaParse from 'vue-papa-parse'
 Vue.use(VuePapaParse)
+import mavonEditor from 'mavon-editor'
+Vue.use(mavonEditor)
 
 Vue.use(ElementUI, {
   i18n: (key, value) => i18n.t(key, value)

@@ -46,4 +46,5 @@ public class ApiDocumentInfoDTO {
     private String refId;
     private String versionId;
 
+    private String remark;
 }
