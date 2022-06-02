@@ -182,20 +182,23 @@
             return;
           }
         }
-        this.result = this.$get(url, response => {
-          if (response.data != undefined && response.data != null) {
-            this.data = response.data;
-            this.data.forEach(node => {
-              node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name
-              buildTree(node, {path: ''});
-            });
-            this.$emit('setModuleOptions', this.data);
-            this.$emit('setNodeTree', this.data);
-            if (this.$refs.nodeTree) {
-              this.$refs.nodeTree.filter(this.condition.filterText);
+        return new Promise((resolve) => {
+          this.result = this.$get(url, response => {
+            if (response.data != undefined && response.data != null) {
+              this.data = response.data;
+              this.data.forEach(node => {
+                node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name
+                buildTree(node, {path: ''});
+              });
+              this.$emit('setModuleOptions', this.data);
+              this.$emit('setNodeTree', this.data);
+              if (this.$refs.nodeTree) {
+                this.$refs.nodeTree.filter(this.condition.filterText);
+              }
             }
-          }
-        });
+          });
+          resolve();
+        })
       },
       edit(param) {
         param.projectId = this.projectId;
