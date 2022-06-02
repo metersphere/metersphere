@@ -87,7 +87,7 @@ public class MsDubboSampler extends MsTestElement {
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
-        }else if(config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())){
+        } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
         if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
@@ -112,9 +112,9 @@ public class MsDubboSampler extends MsTestElement {
         //处理全局前后置脚本(步骤内)
         String environmentId = this.getEnvironmentId();
         if (environmentId == null) {
-            if(StringUtils.isEmpty(this.useEnvironment) && envConfig != null){
+            if (StringUtils.isEmpty(this.useEnvironment) && envConfig != null) {
                 environmentId = envConfig.getApiEnvironmentid();
-            }else {
+            } else {
                 environmentId = this.useEnvironment;
             }
         }
@@ -215,7 +215,7 @@ public class MsDubboSampler extends MsTestElement {
 
     private ConfigTestElement configCenter(MsConfigCenter configCenter) {
         ConfigTestElement configTestElement = new ConfigTestElement();
-        if (configCenter != null && configCenter.getProtocol() != null && configCenter.getUsername() != null && configCenter.getPassword() != null) {
+        if (configCenter != null && StringUtils.isNotEmpty(configCenter.getAddress()) && StringUtils.isNotEmpty(configCenter.getProtocol()) && StringUtils.isNotEmpty(configCenter.getUsername()) && StringUtils.isNotEmpty(configCenter.getPassword())) {
             Constants.setConfigCenterProtocol(configCenter.getProtocol(), configTestElement);
             Constants.setConfigCenterGroup(configCenter.getGroup(), configTestElement);
             Constants.setConfigCenterNamespace(configCenter.getNamespace(), configTestElement);
