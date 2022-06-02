@@ -111,6 +111,9 @@ export default {
     } else {
       this.request = createComponent("JDBCSampler");
     }
+    if(!this.request.environmentId){
+      this.request.environmentId =  this.$store.state.useEnvironment;
+    }
   },
   watch: {
     debugResultId() {
