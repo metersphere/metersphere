@@ -7,7 +7,7 @@
         (select t.id,if(t.scenario_id like "[\"%\"]", t.name,t.scenario_name) as name ,'SCENARIO' as
         executionModule,t.report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as
         executionTime, t.trigger_mode as triggerMode ,t.status as executionStatus
-        from api_scenario_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on
+        from api_scenario_report t inner join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on
         t.actuator = t2.id
         where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type
         !='Marge' and t.project_id in
@@ -28,7 +28,7 @@
         (select t.id,t.name,'API' as executionModule, t.report_type, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as
         executor,t.create_time as executionTime, ifnull(t.trigger_mode,'MANUAL') as triggerMode
         ,ifnull(t.status,'Saved') as executionStatus
-        from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on
+        from api_definition_exec_result t inner join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on
         t.actuator = t2.id
         where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.project_id in
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
@@ -50,7 +50,7 @@
         (select t.id,t.name,'PERFORMANCE' as executionModule,'PERFORMANCE' as report_type, ifnull(t2.name,'LOCAL') as
         actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.`status` as
         executionStatus
-        from load_test_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on
+        from load_test_report t inner join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on
         t.test_resource_pool_id = t2.id
         where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.project_id in
         <foreach collection="request.projects" item="id" separator="," open="(" close=")">
