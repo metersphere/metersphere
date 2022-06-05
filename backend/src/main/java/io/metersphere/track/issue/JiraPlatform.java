@@ -74,6 +74,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         String status = getStatus(fields);
 
         String description = dealWithDescription(fields.getString("description"), fields.getJSONArray("attachment"));
+        fields.put("description", description);
 
         JSONObject assignee = (JSONObject) fields.get("assignee");
         issue.setTitle(fields.getString("summary"));
@@ -99,7 +100,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 JSONObject attachment = attachments.getJSONObject(i);
                 String filename = attachment.getString("filename");
                 String content = attachment.getString("content");
-                if (StringUtils.equals(attachment.getString("mimeType"), "image/jpeg")) {
+                if (StringUtils.contains(attachment.getString("mimeType"), "image")) {
                     String contentUrl = "![" + filename + "](" + content + ")";
                     fileContentMap.put(filename, contentUrl);
                 } else {
@@ -116,6 +117,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 List<String> keys = fileContentMap.keySet().stream().filter(key -> splitStr.contains(key)).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(keys)) {
                     description = description.replace(splitStr, fileContentMap.get(keys.get(0)));
+                    fileContentMap.remove(keys.get(0));
                 } else {
                     if (splitStr.contains("MS附件：")) {
                         // 解析标签内容
@@ -129,6 +131,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
             }
         }
 
+        for (String key: fileContentMap.keySet()) {
+            // 同步jira上传的附件
+            description += "\n" + fileContentMap.get(key);
+        }
         return description;
     }
 
@@ -214,15 +220,14 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     private List<File> getImageFiles(IssuesUpdateRequest issuesRequest) {
-        List<File> files = getImageFiles(issuesRequest.getDescription());
+        List<File> files = new ArrayList<>();
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             if (StringUtils.isNotBlank(fieldName)) {
                 if (item.getValue() != null) {
                     if (StringUtils.isNotBlank(item.getType())) {
-                        if (StringUtils.equalsAny(item.getType(),  "richText")
-                                && !item.getId().equals("description")) {
+                        if (StringUtils.equalsAny(item.getType(),  "richText")) {
                             files.addAll(getImageFiles(item.getValue().toString()));
                         }
                     }
