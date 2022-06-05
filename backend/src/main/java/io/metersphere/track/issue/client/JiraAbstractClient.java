@@ -243,12 +243,24 @@ public abstract class JiraAbstractClient extends BaseClient {
     }
 
     public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey, String issueType) {
+        return getProjectIssues(startAt, maxResults, projectKey, issueType, null);
+    }
+
+    public JiraIssueListResponse getProjectIssues(int startAt, int maxResults, String projectKey, String issueType, String fields) {
         ResponseEntity<String> responseEntity;
-        responseEntity = restTemplate.exchange(getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}",
+        String url = getBaseUrl() + "/search?startAt={1}&maxResults={2}&jql=project={3}+AND+issuetype={4}";
+        if (StringUtils.isNotBlank(fields)) {
+            url = url + "&fields=" + fields;
+        }
+        responseEntity = restTemplate.exchange(url,
                 HttpMethod.GET, getAuthHttpEntity(), String.class, startAt, maxResults, projectKey, issueType);
         return  (JiraIssueListResponse)getResultForObject(JiraIssueListResponse.class, responseEntity);
     }
 
+    public JiraIssueListResponse getProjectIssuesAttachment(int startAt, int maxResults, String projectKey, String issueType) {
+        return getProjectIssues(startAt, maxResults, projectKey, issueType, "attachment");
+
+    }
     public void setTransitions(String jiraKey, JiraTransitionsResponse.Transitions transitions) {
         LogUtil.info("setTransitions: " + transitions);
         JSONObject jsonObject = new JSONObject();
