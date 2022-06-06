@@ -60,9 +60,9 @@
             :on-exceed="handleExceed"
             multiple
             :limit="8"
-            :disabled="readOnly"
+            :disabled="readOnly && !isTestPlanEdit"
             :file-list="fileList">
-            <el-button icon="el-icon-plus" :disabled="readOnly" size="mini"></el-button>
+            <el-button icon="el-icon-plus" :disabled="readOnly && !isTestPlanEdit" size="mini"></el-button>
             <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
           </el-upload>
         </el-col>
