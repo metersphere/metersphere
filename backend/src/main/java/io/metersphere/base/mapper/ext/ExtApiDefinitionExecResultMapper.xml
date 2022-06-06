@@ -32,6 +32,10 @@
         WHERE testCase.project_id = #{projectId})
     </select>
 
+    <select id="selectDistinctStatusByReportId" resultType="java.lang.String">
+        SELECT DISTINCT status FROM api_definition_exec_result WHERE integrated_report_id = #{0}
+    </select>
+
     <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber" resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
         SELECT * FROM (
             -- api_test_case 只查找测试计划执行的结果
