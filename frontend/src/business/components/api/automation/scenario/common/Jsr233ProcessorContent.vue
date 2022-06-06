@@ -218,12 +218,9 @@ export default {
       }
     },
     handleCodeTemplate(code) {
-      if (!this.jsr223ProcessorData.script) {
-        this.jsr223ProcessorData.script = code;
-      } else {
-        this.jsr223ProcessorData.script = this.jsr223ProcessorData.script + '\n' + code;
+      if (this.$refs.codeEdit) {
+        this.$refs.codeEdit.insert(code);
       }
-      this.reload();
     },
   }
 }
