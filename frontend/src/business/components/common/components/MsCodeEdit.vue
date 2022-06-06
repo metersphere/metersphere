@@ -1,9 +1,9 @@
 <template>
-    <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height"/>
+    <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height" ref="msEditor"/>
 </template>
 
 <script>
-  import {formatHtml, formatJson, formatXml} from "../../../../common/js/format-utils";
+  import {formatJson, formatXml} from "../../../../common/js/format-utils";
   import toDiffableHtml from 'diffable-html';
 
     export default {
@@ -70,6 +70,11 @@
         }
       },
       methods: {
+        insert(code) {
+          if (this.$refs.msEditor.editor) {
+            this.$refs.msEditor.editor.insert(code);
+          }
+        },
         editorInit: function (editor) {
           require('brace/ext/language_tools') //language extension prerequsite...
           this.modes.forEach(mode => {
