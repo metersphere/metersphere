@@ -128,4 +128,8 @@
         LEFT JOIN project t2 ON tt.project_id = t2.id
         order by tt.oper_time desc
     </select>
+
+    <select id="isNewInstallation" resultType="boolean">
+       SELECT count(1) = 0 from operating_log limit 1
+    </select>
 </mapper>
