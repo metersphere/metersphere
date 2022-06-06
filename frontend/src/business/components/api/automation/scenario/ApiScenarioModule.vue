@@ -214,12 +214,18 @@
       add(param) {
         param.projectId = this.projectId;
         param.protocol = this.condition.protocol;
-        this.$post("/api/automation/module/add", param, () => {
-          this.$success(this.$t('commons.save_success'));
+        if (param && param.level >= 9) {
           this.list();
-        }, (error) => {
-          this.list();
-        });
+          this.$error(this.$t('commons.warning_module_add'));
+          return;
+        } else {
+          this.$post("/api/automation/module/add", param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.list();
+          }, (error) => {
+            this.list();
+          });
+        }
 
       },
       remove(nodeIds) {
