@@ -732,8 +732,8 @@ export default {
           }
         }
       }
-
-      if (nodeIds && nodeIds.length > 0) {
+      // todo 优化参数传递方式
+      if (nodeIds && Array.isArray(nodeIds) && nodeIds.length > 0) {
         this.condition.nodeIds = nodeIds;
         this.condition.workspaceId = getCurrentWorkspaceId();
       }
