@@ -210,12 +210,9 @@ export default {
       }
     },
     handleCodeTemplate(code) {
-      if (!this.form.script) {
-        this.form.script = code;
-      } else {
-        this.form.script = this.form.script + '\n' + code;
+      if (this.$refs.codeEdit) {
+        this.$refs.codeEdit.insert(code);
       }
-      this.reloadCodeEdit();
     },
     reload() {
       this.isFormAlive = false;
