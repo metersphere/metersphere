@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
-          <el-form class="tcp" :model="request" :inline="true" :rules="rules" ref="request" :disabled="isReadOnly">
+          <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly">
             <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
               <!--test-->
               <el-tab-pane name="parameters">
@@ -49,76 +49,82 @@
               </el-tab-pane>
 
               <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="other" class="other-config">
-                <el-row :gutter="20">
-                  <el-col :span="8">
-                    <el-form-item label="TCPClient" prop="classname">
+                <el-row style="margin: 0px 10px;">
+                  <el-col :span="7">
+                    <el-form-item label="TCPClient" prop="classname" label-width="120px">
                       <el-select v-model="request.classname" style="width: 100%" size="small">
                         <el-option v-for="c in classes" :key="c" :label="c" :value="c"/>
                       </el-select>
                     </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
-                      <el-input-number v-model="request.ctimeout" controls-position="right" :min="0" size="small"/>
+                    <el-form-item :label="$t('api_test.request.tcp.username')" prop="username" label-width="120px">
+                      <el-input v-model="request.username" maxlength="100" show-word-limit size="small"/>
                     </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
-                      <el-input-number v-model="request.timeout" controls-position="right" :min="0" size="small"/>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="20">
-                  <el-col :span="12">
-                    <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
-                      <el-input v-model="request.soLinger" size="small"/>
-                    </el-form-item>
-                  </el-col>
-
-                  <el-col :span="12">
-                    <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
+                    <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte" label-width="120px">
                       <el-input v-model="request.eolByte" size="small"/>
                     </el-form-item>
                   </el-col>
-                </el-row>
-                <el-row :gutter="20">
-                  <el-col :span="12">
-                    <el-form-item :label="$t('api_test.request.tcp.username')" prop="username">
-                      <el-input v-model="request.username" maxlength="100" show-word-limit size="small"/>
+                  <el-col :span="6" label-width="80px" >
+                    <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger" label-width="120px">
+                      <el-input v-model="request.soLinger" size="small"/>
                     </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item :label="$t('api_test.request.tcp.password')" prop="password">
+                    <el-form-item :label="$t('api_test.request.tcp.password')" prop="password" label-width="120px">
                       <el-input v-model="request.password" maxlength="30" show-word-limit show-password
                                 autocomplete="new-password" size="small"/>
                     </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="10" style="margin-left: 30px">
-                  <el-col :span="6">
-                    <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
-                      <el-checkbox v-model="request.reUseConnection"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="6">
-                    <el-form-item :label="$t('api_test.request.tcp.close_connection')">
-                      <el-checkbox v-model="request.closeConnection"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="6">
-                    <el-form-item :label="$t('api_test.request.tcp.no_delay')">
-                      <el-checkbox v-model="request.nodelay"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="6">
-                    <el-form-item label="Connect encoding">
-                      <el-select v-model="request.connectEncoding" style="width: 100px" size="small">
+                    <el-form-item label="Encoding" label-width="120px">
+                      <el-select v-model="request.connectEncoding" size="small">
                         <el-option v-for="item in connectEncodingArr" :key="item.key" :label="item.value"
                                    :value="item.key"/>
                       </el-select>
                     </el-form-item>
                   </el-col>
+                  <el-col :span="5">
+                    <el-form-item :label="$t('api_test.request.tcp.close_connection')" label-width="140px">
+                      <el-checkbox v-model="request.closeConnection"/>
+                    </el-form-item>
+                    <el-form-item :label="$t('api_test.request.tcp.no_delay')" label-width="140px">
+                      <el-checkbox v-model="request.nodelay"/>
+                    </el-form-item>
+                    <el-form-item :label="$t('api_test.request.tcp.re_use_connection')" label-width="140px">
+                      <el-checkbox v-model="request.reUseConnection"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout" label-width="80px">
+                      <el-input-number v-model="request.ctimeout" controls-position="right" :min="0" size="small"/>
+                    </el-form-item>
+                    <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout" label-width="80px">
+                      <el-input-number v-model="request.timeout" controls-position="right" :min="0" size="small"/>
+                    </el-form-item>
+                  </el-col>
                 </el-row>
+
+<!--                  <el-col :span="12">-->
+
+<!--                  </el-col>-->
+<!--                </el-row>-->
+<!--                <el-row :gutter="20">-->
+<!--                  <el-col :span="12">-->
+
+<!--                  </el-col>-->
+<!--                  <el-col :span="12">-->
+
+<!--                  </el-col>-->
+<!--                </el-row>-->
+<!--                <el-row :gutter="10" style="margin-left: 30px">-->
+<!--                  <el-col :span="6">-->
+
+<!--                  </el-col>-->
+<!--                  <el-col :span="6">-->
+
+<!--                  </el-col>-->
+<!--                  <el-col :span="6">-->
+
+<!--                  </el-col>-->
+<!--                  <el-col :span="6">-->
+
+<!--                  </el-col>-->
+<!--                </el-row>-->
               </el-tab-pane>
               <!-- 脚本步骤/断言步骤 -->
               <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
@@ -584,7 +590,7 @@ export default {
 }
 
 .other-config {
-  padding: 15px;
+  padding: 15px 0px;
 }
 
 </style>
