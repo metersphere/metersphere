@@ -518,11 +518,11 @@
             </if>
 
             <if test="request.statusIsNot != null">
-                and (test_case.status is null or test_case.status != #{request.statusIsNot})
+                and test_case.status != #{request.statusIsNot}
             </if>
 
             <if test="request.notEqStatus != null">
-                and (test_case.status is null or test_case.status != #{request.notEqStatus})
+                and test_case.status != #{request.notEqStatus}
             </if>
             <if test="request.casePublic != null and request.casePublic == true">
                 and test_case.case_public = true
@@ -579,11 +579,11 @@
             </if>
 
             <if test="request.statusIsNot != null">
-                and (test_case.status is null or test_case.status != #{request.statusIsNot})
+                and test_case.status != #{request.statusIsNot}
             </if>
 
             <if test="request.notEqStatus != null">
-                and (test_case.status is null or test_case.status != #{request.notEqStatus})
+                and test_case.status != #{request.notEqStatus}
             </if>
             <if test="request.name != null">
                 and (test_case.name like CONCAT('%', #{request.name},'%')
@@ -633,7 +633,7 @@
         SELECT test_case.priority as groupField, count(DISTINCT ref_id) AS countNumber
         FROM test_case
         WHERE project_id = #{projectId}
-          AND (test_case.status IS NULL OR test_case.status != 'Trash')
+          AND  test_case.status != 'Trash'
           and latest = true
         GROUP BY test_case.priority
     </select>
@@ -644,7 +644,7 @@
     </select>
     <select id="countStatus" resultType="io.metersphere.track.response.TrackCountResult">
         SELECT review_status AS groupField,count(id) AS countNumber FROM test_case
-        WHERE project_id = #{projectId} and (test_case.status != 'Trash' or test_case.status is null) and latest = 1
+        WHERE project_id = #{projectId} and test_case.status != 'Trash' and latest = 1
         GROUP BY test_case.review_status
     </select>
 
@@ -845,7 +845,7 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-        and (test_case.status != 'Trash' or test_case.status is NULL);
+        and test_case.status != 'Trash';
     </select>
     <select id="countByIds" resultType="java.lang.Integer">
         select count(id)
@@ -854,7 +854,7 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-        and (test_case.status != 'Trash' or test_case.status is NULL);
+        and test_case.status != 'Trash';
     </select>
 
     <update id="deleteToGc">
@@ -863,7 +863,24 @@
             status         = 'Trash',
             delete_time    = #{request.deleteTime},
             delete_user_id = #{request.deleteUserId}
-        where ref_id = (select a.ref_id from (select ref_id from test_case where id = #{request.id}) a )
+        where ref_id in (
+            select a.ref_id from (
+                select ref_id from test_case
+
+                <where>
+                    <if test="request.id != null and request.id != ''">
+                        id = #{request.id}
+                    </if>
+                    <if test="request.ids != null and request.ids.size() != 0">
+                        and id in
+                        <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                            #{id}
+                        </foreach>
+                    </if>
+                </where>
+
+                ) a
+            )
     </update>
 
     <update id="deletePublic">
@@ -894,7 +911,7 @@
         update test_case
         set
         original_status = 'Underway'
-        where (original_status IS NULL OR original_status = 'Trash') AND id in
+        where (original_status = '' OR original_status = 'Trash') AND id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
@@ -924,7 +941,7 @@
             from project
             where workspace_id = #{workSpaceId})
           and case_public = true
-          and (test_case.status != 'Trash' or test_case.status is NULL)
+          and test_case.status != 'Trash'
     </select>
 
     <select id="trashCount" resultType="java.lang.Long">
