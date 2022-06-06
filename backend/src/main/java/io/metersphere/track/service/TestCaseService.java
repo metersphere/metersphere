@@ -232,11 +232,34 @@ public class TestCaseService {
         updateRequest.setProjectId(request.getProjectId());
         updateRequest.setTestCaseId(request.getId());
         Project project = projectService.getProjectById(request.getProjectId());
-        updateRequest.setWorkspaceId(project.getWorkspaceId());
-        List<AbstractIssuePlatform> platformList = getAddPlatforms(updateRequest);
-        platformList.forEach(platform -> {
-            platform.updateDemandHyperLink(request, project, type);
-        });
+        if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
+            updateRequest.setWorkspaceId(project.getWorkspaceId());
+            List<AbstractIssuePlatform> platformList = getAddPlatforms(updateRequest);
+            platformList.forEach(platform -> {
+                platform.updateDemandHyperLink(request, project, type);
+            });
+        }
+    }
+
+    public void addDemandHyperLinkBatch(List<String> testcaseIds) {
+        if (CollectionUtils.isEmpty(testcaseIds)) {
+            return;
+        }
+        TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(testcaseIds.get(0));
+        // 同步删除用例与需求的关联关系
+        Project project = projectService.getProjectById(testCase.getProjectId());
+
+        // AzureDevops 才处理
+        if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
+            testcaseIds.forEach(id -> {
+                TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testcaseIds.get(0));
+                if (testCaseWithBLOBs != null) {
+                    EditTestCaseRequest request = new EditTestCaseRequest();
+                    BeanUtils.copyBean(request, testCaseWithBLOBs);
+                    addDemandHyperLink(request, "delete");
+                }
+            });
+        }
     }
 
     private List<AbstractIssuePlatform> getAddPlatforms(IssuesRequest request) {
@@ -612,7 +635,25 @@ public class TestCaseService {
             addDemandHyperLink(request, "delete");
         }
 
-        return extTestCaseMapper.deleteToGc(testCase);
+        DeleteTestCaseRequest request = new DeleteTestCaseRequest();
+        BeanUtils.copyBean(request, testCase);
+        return extTestCaseMapper.deleteToGc(request);
+    }
+
+    public int deleteToGcBatch(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return 0;
+        }
+        TestCase testCase = new TestCase();
+        testCase.setDeleteUserId(SessionUtils.getUserId());
+        testCase.setDeleteTime(System.currentTimeMillis());
+
+        addDemandHyperLinkBatch(ids);
+
+        DeleteTestCaseRequest request = new DeleteTestCaseRequest();
+        BeanUtils.copyBean(request, testCase);
+        request.setIds(ids);
+        return extTestCaseMapper.deleteToGc(request);
     }
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
@@ -678,11 +719,6 @@ public class TestCaseService {
 
     public void setDefaultOrder(QueryTestCaseRequest request) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orders.add(order);
         orders.forEach(i -> i.setPrefix("test_case"));
         request.setOrders(orders);
     }
@@ -1058,7 +1094,7 @@ public class TestCaseService {
                     num++;
                     testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                     testCase.setStatus(TestCaseReviewStatus.Prepare.name());
-                    testCase.setOrder(new Long(testCases.size() - (num - beforeInsertId)) * ServiceUtils.ORDER_STEP);
+                    testCase.setOrder(Long.valueOf(testCases.size() - (num - beforeInsertId)) * ServiceUtils.ORDER_STEP);
                     testCase.setRefId(testCase.getId());
                     testCase.setVersionId(request.getVersionId());
                     testCase.setLatest(true);
@@ -1131,11 +1167,9 @@ public class TestCaseService {
 
         try {
             if (!testCases.isEmpty()) {
-                AtomicInteger sort = new AtomicInteger();
                 testCases.forEach(testcase -> {
                     testcase.setUpdateTime(System.currentTimeMillis());
                     testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                    testcase.setSort(sort.getAndIncrement());
                     TestCase dbCase = request.isUseCustomId() ? customIdMap.get(testcase.getCustomNum()) : customIdMap.get(testcase.getNum());
                     testcase.setId(dbCase.getId());
                     testcase.setRefId(dbCase.getRefId());
@@ -2218,14 +2252,6 @@ public class TestCaseService {
                 }
             }
             extTestCaseMapper.reduction(request.getIds());
-        }
-    }
-
-    public void deleteToGcBatch(List<String> ids) {
-        if (CollectionUtils.isNotEmpty(ids)) {
-            for (String id : ids) {
-                this.deleteTestCaseToGc(id);
-            }
         }
     }
 
