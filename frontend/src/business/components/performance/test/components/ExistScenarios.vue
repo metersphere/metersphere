@@ -166,8 +166,8 @@ export default {
         this.$emit('fileChange', this.scenarios);
         this.$success(this.$t('test_track.case.import.success'));
         this.loadApiAutomationVisible = false;
+        this.selectIds.clear();
       });
-      this.selectIds.clear();
     },
     search() {
       this.getProjectScenarios();
