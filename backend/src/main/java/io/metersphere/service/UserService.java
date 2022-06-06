@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtProjectMapper;
-import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
-import io.metersphere.base.mapper.ext.ExtUserMapper;
-import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -94,7 +91,7 @@ public class UserService {
     @Resource
     private ExtWorkspaceMapper extWorkspaceMapper;
     @Resource
-    private OperatingLogMapper operatingLogMapper;
+    private ExtOperatingLogMapper extOperatingLogMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -1356,7 +1353,7 @@ public class UserService {
 
     public boolean checkWhetherChangePasswordOrNot(LoginRequest request) {
         // 首次登录需要提示
-        if (operatingLogMapper.countByExample(new OperatingLogExample()) == 0) {
+        if (extOperatingLogMapper.isNewInstallation()) {
             return true;
         }
 

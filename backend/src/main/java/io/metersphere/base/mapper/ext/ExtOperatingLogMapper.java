@@ -14,5 +14,5 @@ public interface ExtOperatingLogMapper {
 
     List<OperatingLogDTO> findBySourceIdEnv(@Param("request") OperatingLogRequest request);
 
-
+    boolean isNewInstallation();
 }
