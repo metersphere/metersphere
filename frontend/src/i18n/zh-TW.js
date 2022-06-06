@@ -63,6 +63,7 @@ export default {
     send_success: '發送成功',
     delete_success: '刪除成功',
     copy_success: '復製成功',
+    warning_module_add: "模塊樹深度最大為8層",
     modify_success: '修改成功',
     delete_cancel: '已取消刪除',
     option_cannot_spread_pages: '這個操作不支持跨頁，是否繼續？',
