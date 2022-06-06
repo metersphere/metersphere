@@ -116,7 +116,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '2', label: 'commons.name'},
     {id: 'versionId', key: 'b', label: 'commons.version'},
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
-    {id: 'type', key: '4', label: 'test_track.case.type'},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
     {id: 'projectName', key: '6', label: 'test_track.review.review_project'},
     {id: 'reviewerName', key: '7', label: 'test_track.review.reviewer'},
