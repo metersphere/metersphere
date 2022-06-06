@@ -136,6 +136,8 @@ public class ApiDefinitionService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private EsbApiParamsMapper esbApiParamsMapper;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -1109,7 +1111,9 @@ public class ApiDefinitionService {
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) &&
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                     request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
+            String reportName = this.getReportNameByTestId(testId);
             ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
+            result.setName(reportName);
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());
             apiDefinitionExecResultMapper.insert(result);
@@ -1122,6 +1126,20 @@ public class ApiDefinitionService {
             apiTestCaseMapper.updateByPrimaryKeySelective(record);
         }
         return apiExecuteService.debug(request, bodyFiles);
+    }
+
+    private String getReportNameByTestId(String testId) {
+        String testName = extApiDefinitionMapper.selectNameById(testId);
+        if(StringUtils.isEmpty(testName)){
+            testName = extApiTestCaseMapper.selectNameById(testId);
+            if(StringUtils.isEmpty(testName)){
+                String resourceID = extTestPlanApiCaseMapper.getApiTestCaseIdById(testId);
+                if(StringUtils.isNotEmpty(resourceID)){
+                    testName = extApiTestCaseMapper.selectNameById(resourceID);
+                }
+            }
+        }
+        return testName;
     }
 
     /**
