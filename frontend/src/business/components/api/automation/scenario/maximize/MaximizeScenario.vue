@@ -75,6 +75,7 @@
                    :data="scenarioDefinition"
                    :default-expanded-keys="expandedNode"
                    :expand-on-click-node="false"
+                   draggable
                    highlight-current
                    :show-checkbox="isBatchProcess"
                    @node-expand="nodeExpand"
@@ -716,10 +717,20 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
+      if (draggingNode.data.type === 'Assertions' || dropNode.data.type === 'Assertions') {
+        return false;
+      }
+      // 增加插件权限控制
       if (dropType != "inner") {
-        return true;
+        if (draggingNode.data.disabled && draggingNode.parent && draggingNode.parent.data && draggingNode.parent.data.disabled) {
+          return false;
+        }
+        if (draggingNode && dropNode && draggingNode.level >= dropNode.level) {
+          return true;
+        }
+        return false;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) !== -1)) {
         return true;
       }
       return false;
@@ -727,6 +738,8 @@ export default {
     allowDrag(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
         this.sort();
+        this.forceRerender();
+        this.cancelBatchProcessing();
       }
     },
     nodeExpand(data) {
