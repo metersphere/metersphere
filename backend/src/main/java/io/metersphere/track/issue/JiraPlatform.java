@@ -433,6 +433,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
 
+        Set<String> attachmentNames = new HashSet<>();
         // 更新附件
         JiraIssue jiraIssue = jiraClientV2.getIssues(request.getPlatformId());
         JSONObject fields = jiraIssue.getFields();
@@ -442,6 +443,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             for (int i = 0; i < attachments.size(); i++) {
                 JSONObject attachment = attachments.getJSONObject(i);
                 String filename = attachment.getString("filename");
+                attachmentNames.add(filename);
                 if (!request.getDescription().contains(filename)) {
                     String fileId = attachment.getString("id");
                     jiraClientV2.deleteAttachment(fileId);
@@ -450,7 +452,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         }
 
         // 上传新附件
-        imageFiles.forEach(img -> jiraClientV2.uploadAttachment(request.getPlatformId(), img));
+        imageFiles.forEach(img -> {
+            if (!attachmentNames.contains(img.getName())) {
+                // 旧附件没有才上传新附件
+                jiraClientV2.uploadAttachment(request.getPlatformId(), img);
+            }
+        });
 
         if (request.getTransitions() != null) {
             try {
