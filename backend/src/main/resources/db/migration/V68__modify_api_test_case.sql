@@ -25,3 +25,7 @@ INNER JOIN (
 	SET tt.last_result_id = tc.result_id
 WHERE
 	tt.id = tc.id;
+
+-- 场景批量复制
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_API_SCENARIO:READ+BATCH_COPY', 'PROJECT_API_SCENARIO');
