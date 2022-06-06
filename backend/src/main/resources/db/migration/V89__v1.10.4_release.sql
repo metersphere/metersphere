@@ -21,3 +21,8 @@ ALTER TABLE issues ADD platform_status varchar(50) NULL COMMENT '第三方平台
 -- 定时同步缺陷
 INSERT INTO schedule (id,`key`,`type`,value,`group`,job,enable,resource_id,user_id,workspace_id,create_time,update_time,project_id,name)
 VALUES ('7a23d4db-9909-438d-9e36-58e432c8c4ae','ISSUE_SYNC','CRON','0 0 3 * * ?','ISSUE_SYNC','io.metersphere.job.sechedule.IssueSyncJob',1,'system','admin','system',unix_timestamp() * 1000,unix_timestamp() * 1000,'system','ISSUE_SYNC');
+
+
+-- 批量创建性能测试
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH', 'PROJECT_API_SCENARIO');
