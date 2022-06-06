@@ -204,7 +204,11 @@ export default {
           getApiReport(row.id, (data) => {
             if (data && data.content) {
               this.showResponse = true;
-              this.response = JSON.parse(data.content);
+              try {
+                this.response = JSON.parse(data.content);
+              } catch (e) {
+                this.response = {};
+              }
             }
           });
         }
