@@ -5,14 +5,14 @@ public enum ExecuteResult {
     errorReportResult,
 
     //接口执行状态(兼容旧数据)
-    success,error,
+    success, error, STOP,
 
     //未执行状态
     unexecute,
 
     //场景执行状态(兼容旧数据)
-    Success,Error,
+    Success, Error,
 
     //测试计划执行状态(兼容旧数据)
-    PREPARE,RUNNING,SUCCESS,FAILD
+    PREPARE, RUNNING, SUCCESS, FAILD
 }

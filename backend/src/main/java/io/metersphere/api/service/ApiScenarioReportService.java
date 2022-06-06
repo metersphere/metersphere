@@ -12,6 +12,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.FixedCapacityUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.commons.constants.*;
@@ -82,6 +83,8 @@ public class ApiScenarioReportService {
     private ApiScenarioReportStructureMapper apiScenarioReportStructureMapper;
     @Resource
     private ApiDefinitionExecResultMapper definitionExecResultMapper;
+    @Resource
+    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private UiReportServiceProxy uiReportServiceProxy;
     @Resource
@@ -352,43 +355,53 @@ public class ApiScenarioReportService {
         return report;
     }
 
+    private String getIntegrationReportStatus(List<String> reportStatus) {
+        boolean hasError = false, hasErrorReport = false, hasUnExecute = false, hasOtherStatus = false, hasStop = false;
+
+        if (CollectionUtils.isEmpty(reportStatus)) {
+            //查不到任何结果，按照未执行来处理
+            hasUnExecute = true;
+        }else {
+            for (String status : reportStatus) {
+                if (StringUtils.equalsIgnoreCase(status, ExecuteResult.Error.name())) {
+                    hasError = true;
+                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
+                    hasErrorReport = true;
+                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.STOP.name())) {
+                    hasStop = true;
+                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.unexecute.name())) {
+                    hasUnExecute = true;
+                } else {
+                    hasOtherStatus = true;
+                }
+            }
+            if (hasError || hasErrorReport || hasOtherStatus) {
+                //根据状态优先级判定，只要存在失败/误报/其他待定状态 的数据， 则未执行和停止都为false （优先级最低）
+                hasUnExecute = false;
+                hasStop = false;
+            }
+        }
+
+        return hasError ? ScenarioStatus.Error.name() :
+                hasErrorReport ? ExecuteResult.errorReportResult.name() :
+                        hasStop ? ExecuteResult.STOP.name() :
+                                hasUnExecute ? ExecuteResult.unexecute.name() : ScenarioStatus.Success.name();
+    }
+
     public void margeReport(String reportId, String runMode, String console) {
         // 更新场景状态
+        List<String> statusList = null;
         if (StringUtils.equalsIgnoreCase(runMode, ApiRunMode.DEFINITION.name())) {
             ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportId);
-            ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
-            execResultExample.createCriteria().andIntegratedReportIdEqualTo(reportId).andStatusEqualTo("Error");
-            long size = definitionExecResultMapper.countByExample(execResultExample);
-            result.setStatus(size > 0 ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name());
+            statusList = extApiDefinitionExecResultMapper.selectDistinctStatusByReportId(reportId);
+            result.setStatus(this.getIntegrationReportStatus(statusList));
             result.setEndTime(System.currentTimeMillis());
             definitionExecResultMapper.updateByPrimaryKeySelective(result);
         } else {
             ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
             if (report != null) {
-                List<String> statusList = extApiScenarioReportResultMapper.selectDistinctStatusByReportId(reportId);
-                boolean hasError = false, hasErrorReport = false, hasUnExecute = false, hasOtherStatus = false;
-                for (String status : statusList) {
-                    if (StringUtils.equalsIgnoreCase(status, ExecuteResult.Error.name())) {
-                        hasError = true;
-                    } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
-                        hasErrorReport = true;
-                    } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.unexecute.name())) {
-                        hasUnExecute = true;
-                    } else {
-                        hasOtherStatus = true;
-                    }
-                }
-
-                if (hasUnExecute && (hasError || hasErrorReport || hasOtherStatus)) {
-                    //只有全部状态都是未执行时，集合报告的状态才可以是未执行
-                    hasUnExecute = false;
-                }else if(CollectionUtils.isEmpty(statusList)){
-                    //查不到任何结果也按照未执行来处理
-                    hasUnExecute = true;
-                }
-                report.setStatus(hasError ? ScenarioStatus.Error.name() :
-                        hasErrorReport ? ExecuteResult.errorReportResult.name() :
-                        hasUnExecute ? ExecuteResult.unexecute.name() : ScenarioStatus.Success.name());
+                statusList = extApiScenarioReportResultMapper.selectDistinctStatusByReportId(reportId);
+                report.setStatus(this.getIntegrationReportStatus(statusList));
                 report.setEndTime(System.currentTimeMillis());
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
@@ -882,7 +895,7 @@ public class ApiScenarioReportService {
         } else if (errorReportResultSize > 0) {
             status = ExecuteResult.errorReportResult.name();
         } else {
-            status = requestResults.isEmpty() ? ScenarioStatus.Error.name() : ScenarioStatus.Success.name();
+            status = requestResults.isEmpty() ? ExecuteResult.unexecute.name() : ScenarioStatus.Success.name();
         }
 
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
