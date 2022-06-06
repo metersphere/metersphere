@@ -80,18 +80,6 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="type"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :filters="typeFilters"
-          min-width="120px"
-          :label="$t('test_track.case.type')">
-          <template v-slot:default="scope">
-            <type-table-item :value="scope.row.type"/>
-          </template>
-        </ms-table-column>
-
-        <ms-table-column
           prop="maintainerName"
           :field="item"
           :fields-width="fieldsWidth"
