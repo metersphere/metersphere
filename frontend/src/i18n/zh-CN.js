@@ -60,6 +60,7 @@ export default {
     save_as: '另存为',
     update: '更新',
     save_success: '保存成功',
+    warning_module_add: "模块树深度最大为8层",
     send_success: '发送成功',
     delete_success: '删除成功',
     copy_success: '复制成功',
