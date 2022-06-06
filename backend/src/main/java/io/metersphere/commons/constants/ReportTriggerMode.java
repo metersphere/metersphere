@@ -4,6 +4,7 @@ public enum ReportTriggerMode {
     MANUAL,
     SCHEDULE,
     API,
+    JENKINS_RUN_TEST_PLAN,
     /**
      * 性能测试用例执行触发报告
      */
