@@ -221,6 +221,10 @@ public class ApiScenarioReportService {
         if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
             return report;
         }
+        if(StringUtils.equalsAnyIgnoreCase(report.getTriggerMode(),ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())){
+            //jenkins运行测试计划时执行的场景，触发方式改回API
+            report.setTriggerMode(ReportTriggerMode.API.name());
+        }
         if (runMode.equals("CASE")) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }

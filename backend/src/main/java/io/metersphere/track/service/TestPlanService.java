@@ -1020,7 +1020,7 @@ public class TestPlanService {
             scenarioRequest.setReportId(scenarioReportID);
             scenarioRequest.setProjectId(projectID);
             if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
+                scenarioRequest.setTriggerMode(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name());
                 scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
             } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
                 scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
