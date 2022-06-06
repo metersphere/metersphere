@@ -1998,6 +1998,7 @@ export default {
     },
     unFullScreen() {
       this.drawer = false;
+      this.reloadTree = getUUID();
     },
     close(name) {
       this.drawer = false;
