@@ -508,7 +508,7 @@ export default {
         if (tab.name === targetName) {
           this.diff(tab);
           if (tab && this.isSave) {
-            message += tab.currentScenario.name + "，";
+            message += tab.currentScenario.name ? tab.currentScenario.name : this.$t('api_test.automation.add_scenario') + "，";
           }
         }
       })
