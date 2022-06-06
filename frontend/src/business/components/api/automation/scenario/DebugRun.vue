@@ -26,7 +26,6 @@ export default {
     return {
       result: {},
       loading: false,
-      runId: "",
       reqNumber: 0,
     }
   },
@@ -87,7 +86,10 @@ export default {
         url = '/ui/automation/run/debug';
       }
       saveScenario(url, reqObj, this.runData.hashTree, this, (response) => {
-        this.runId = response.data;
+        if(response.data !== "SUCCESS"){
+          this.$error(response.data ? response.data : this.$t('commons.run_fail'));
+          this.$emit('errorRefresh');
+        }
       });
     },
   }
