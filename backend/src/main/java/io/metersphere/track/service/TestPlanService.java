@@ -373,16 +373,19 @@ public class TestPlanService {
             testPlan.setPassed(0);
             testPlan.setTotal(0);
 
-            List<String> functionalExecResults = extTestPlanTestCaseMapper.getExecResultByPlanId(testPlan.getId());
-            functionalExecResults.forEach(item -> {
-                if (!StringUtils.equals(item, TestPlanTestCaseStatus.Prepare.name())
-                        && !StringUtils.equals(item, TestPlanTestCaseStatus.Underway.name())) {
-                    testPlan.setTested(testPlan.getTested() + 1);
-                    if (StringUtils.equals(item, TestPlanTestCaseStatus.Pass.name())) {
-                        testPlan.setPassed(testPlan.getPassed() + 1);
+            List<CountMapDTO> statusCountMap = extTestPlanTestCaseMapper.getExecResultMapByPlanId(testPlan.getId());
+            Integer functionalExecTotal = 0;
+
+            for (CountMapDTO item : statusCountMap) {
+                functionalExecTotal++;
+                if (!StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Prepare.name())
+                        && !StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Underway.name())) {
+                    testPlan.setTested(testPlan.getTested() + item.getValue());
+                    if (StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Pass.name())) {
+                        testPlan.setPassed(testPlan.getPassed() + item.getValue());
                     }
                 }
-            });
+            }
 
             List<String> apiExecResults = testPlanApiCaseService.getExecResultByPlanId(testPlan.getId());
             apiExecResults.forEach(item -> {
@@ -414,7 +417,7 @@ public class TestPlanService {
                 }
             });
 
-            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size() + loadResults.size());
+            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecTotal + loadResults.size());
 
             testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTotal()));
             testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));

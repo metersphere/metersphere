@@ -7,13 +7,14 @@
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="executor" jdbcType="VARCHAR" property="executor" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="issues_count" jdbcType="INTEGER" property="issuesCount" />
     <result column="order" jdbcType="BIGINT" property="order" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="is_del" jdbcType="BIT" property="isDel" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     <result column="results" jdbcType="LONGVARCHAR" property="results" />
@@ -79,8 +80,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, plan_id, case_id, report_id, executor, `status`, remark, create_time, update_time,
-    create_user, issues_count, `order`
+    id, plan_id, case_id, report_id, executor, remark, create_time, update_time, create_user, 
+    issues_count, `order`, `status`, is_del
   </sql>
   <sql id="Blob_Column_List">
     results, issues, actual_result
@@ -116,7 +117,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select
+    select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -134,18 +135,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
-    insert into test_plan_test_case (id, plan_id, case_id,
-      report_id, executor, `status`,
-      remark, create_time, update_time,
-      create_user, issues_count, `order`,
-      results, issues, actual_result
-      )
-    values (#{id,jdbcType=VARCHAR}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR},
-      #{reportId,jdbcType=VARCHAR}, #{executor,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-      #{createUser,jdbcType=VARCHAR}, #{issuesCount,jdbcType=INTEGER}, #{order,jdbcType=BIGINT},
-      #{results,jdbcType=LONGVARCHAR}, #{issues,jdbcType=LONGVARCHAR}, #{actualResult,jdbcType=LONGVARCHAR}
-      )
+    insert into test_plan_test_case (id, plan_id, case_id, 
+      report_id, executor, remark, 
+      create_time, update_time, create_user, 
+      issues_count, `order`, `status`, 
+      is_del, results, issues, 
+      actual_result)
+    values (#{id,jdbcType=VARCHAR}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
+      #{reportId,jdbcType=VARCHAR}, #{executor,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{issuesCount,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=BIT}, #{results,jdbcType=LONGVARCHAR}, #{issues,jdbcType=LONGVARCHAR}, 
+      #{actualResult,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     insert into test_plan_test_case
@@ -165,9 +166,6 @@
       <if test="executor != null">
         executor,
       </if>
-      <if test="status != null">
-        `status`,
-      </if>
       <if test="remark != null">
         remark,
       </if>
@@ -185,6 +183,12 @@
       </if>
       <if test="order != null">
         `order`,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="isDel != null">
+        is_del,
       </if>
       <if test="results != null">
         results,
@@ -212,9 +216,6 @@
       <if test="executor != null">
         #{executor,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
       </if>
@@ -232,6 +233,12 @@
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        #{isDel,jdbcType=BIT},
       </if>
       <if test="results != null">
         #{results,jdbcType=LONGVARCHAR},
@@ -268,9 +275,6 @@
       <if test="record.executor != null">
         executor = #{record.executor,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=VARCHAR},
       </if>
@@ -288,6 +292,12 @@
       </if>
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDel != null">
+        is_del = #{record.isDel,jdbcType=BIT},
       </if>
       <if test="record.results != null">
         results = #{record.results,jdbcType=LONGVARCHAR},
@@ -310,13 +320,14 @@
       case_id = #{record.caseId,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       executor = #{record.executor,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       issues_count = #{record.issuesCount,jdbcType=INTEGER},
       `order` = #{record.order,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      is_del = #{record.isDel,jdbcType=BIT},
       results = #{record.results,jdbcType=LONGVARCHAR},
       issues = #{record.issues,jdbcType=LONGVARCHAR},
       actual_result = #{record.actualResult,jdbcType=LONGVARCHAR}
@@ -331,13 +342,14 @@
       case_id = #{record.caseId,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       executor = #{record.executor,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       issues_count = #{record.issuesCount,jdbcType=INTEGER},
-      `order` = #{record.order,jdbcType=BIGINT}
+      `order` = #{record.order,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      is_del = #{record.isDel,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -357,9 +369,6 @@
       <if test="executor != null">
         executor = #{executor,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=VARCHAR},
       </if>
@@ -377,6 +386,12 @@
       </if>
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        is_del = #{isDel,jdbcType=BIT},
       </if>
       <if test="results != null">
         results = #{results,jdbcType=LONGVARCHAR},
@@ -396,13 +411,14 @@
       case_id = #{caseId,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
       executor = #{executor,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       issues_count = #{issuesCount,jdbcType=INTEGER},
       `order` = #{order,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=BIT},
       results = #{results,jdbcType=LONGVARCHAR},
       issues = #{issues,jdbcType=LONGVARCHAR},
       actual_result = #{actualResult,jdbcType=LONGVARCHAR}
@@ -414,13 +430,14 @@
       case_id = #{caseId,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
       executor = #{executor,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       issues_count = #{issuesCount,jdbcType=INTEGER},
-      `order` = #{order,jdbcType=BIGINT}
+      `order` = #{order,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

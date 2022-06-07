@@ -334,9 +334,8 @@
     </select>
     <select id="testPlanTestCaseCount" resultType="io.metersphere.api.dto.definition.ParamsDTO">
         select t.plan_id as id, COUNT(*) as value from test_plan_test_case t
-        inner join test_case on t.case_id = test_case.id
         <where>
-            (test_case.status != 'Trash' or test_case.status is null )
+            t.is_del = 0
             <if test="planIds != null and planIds.size() > 0">
                 and t.plan_id IN
                 <foreach collection="planIds" item="id" separator="," open="(" close=")">
