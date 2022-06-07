@@ -119,11 +119,17 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="80px"
+          :show-overflow-tooltip = false
           :label="$t('commons.tag')">
           <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=100" :content="itemName"
-                    style="margin-left: 0px; margin-right: 2px"/>
+            <el-tooltip class="item" effect="dark" placement="top">
+              <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+              <div class="oneLine">
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                        :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=100" :content="itemName"
+                        style="margin-left: 0px; margin-right: 2px"/>
+              </div>
+            </el-tooltip>
             <span/>
           </template>
         </ms-table-column>
@@ -952,6 +958,17 @@ export default {
           }
         });
       }
+    },
+    getTagToolTips(tags){
+      try{
+        let showTips = "";
+        tags.forEach( item => {
+          showTips += item + ",";
+        })
+        return showTips;
+      }catch (e){
+        return "";
+      }
     }
   },
 };
@@ -996,8 +1013,10 @@ export default {
   padding-right: 100%;
 }
 
-/* /deep/ .el-table__fixed-body-wrapper {
-  top: 60px !important;
-} */
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 
 </style>
