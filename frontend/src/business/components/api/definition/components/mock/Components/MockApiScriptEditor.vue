@@ -269,12 +269,9 @@ export default {
       }
     },
     handleCodeTemplate(code) {
-      if (!this.jsr223Processor.script) {
-        this.jsr223Processor.script = code;
-      } else {
-        this.jsr223Processor.script = this.jsr223Processor.script + '\n' + code;
+      if (this.$refs.codeEdit) {
+        this.$refs.codeEdit.insert(code);
       }
-      this.reload();
     },
   }
 }
