@@ -732,6 +732,8 @@ export default {
           }
           this.form.id = response.data.id;
           this.currentTestCaseInfo.id = response.data.id;
+          this.form.refId = response.data.refId;
+          this.currentTestCaseInfo.refId = response.data.refId;
           if (this.currentTestCaseInfo.isCopy) {
             this.currentTestCaseInfo.isCopy = null;
           }
