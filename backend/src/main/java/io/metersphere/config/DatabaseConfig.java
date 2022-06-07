@@ -3,10 +3,7 @@ package io.metersphere.config;
 import com.fit2cloud.quartz.anno.QuartzDataSource;
 import com.github.pagehelper.PageInterceptor;
 import com.zaxxer.hikari.HikariDataSource;
-import io.metersphere.base.domain.ApiTestReportDetail;
-import io.metersphere.base.domain.AuthSource;
-import io.metersphere.base.domain.FileContent;
-import io.metersphere.base.domain.TestResource;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.utils.CompressUtils;
 import io.metersphere.commons.utils.MybatisInterceptorConfig;
 import io.metersphere.interceptor.MybatisInterceptor;
@@ -54,6 +51,7 @@ public class DatabaseConfig {
         configList.add(new MybatisInterceptorConfig(ApiTestReportDetail.class, "content", CompressUtils.class, "compress", "decompress"));
         configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration"));
         configList.add(new MybatisInterceptorConfig(AuthSource.class, "configuration"));
+        configList.add(new MybatisInterceptorConfig(LoadTestReportLog.class, "content", CompressUtils.class, "zipString", "unzipString"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
     }
