@@ -728,42 +728,46 @@ public class ApiAutomationService {
         Boolean enable = request.getEnvironmentEnable();
         String scenarioDefinition = request.getDefinition();
         JSONObject element = JSON.parseObject(scenarioDefinition, Feature.DisableSpecialKeyDetect);
-        Map<String, String> environmentMap = new HashMap<>();
-        if (BooleanUtils.isFalse(enable)) {
-            String envType = request.getEnvironmentType();
-            String envGroupId = request.getEnvironmentGroupId();
-            if (StringUtils.equals(envType, EnvironmentType.GROUP.name())) {
-                environmentMap = environmentGroupProjectService.getEnvMap(envGroupId);
-            } else if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
-                environmentMap = request.getEnvironmentMap();
-            }
-        } else {
-            String scenarioId = request.getId();
-            ApiScenarioDTO scenario = getNewApiScenario(scenarioId);
-            if (scenario != null) {
-                String referenced = element.getString("referenced");
-                if (StringUtils.equalsIgnoreCase("REF", referenced)) {
-                    JSONObject source = JSON.parseObject(scenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
-                    element = jsonMerge(source, element);
+        try {
+            Map<String, String> environmentMap = new HashMap<>();
+            if (BooleanUtils.isFalse(enable)) {
+                String envType = request.getEnvironmentType();
+                String envGroupId = request.getEnvironmentGroupId();
+                if (StringUtils.equals(envType, EnvironmentType.GROUP.name())) {
+                    environmentMap = environmentGroupProjectService.getEnvMap(envGroupId);
+                } else if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
+                    environmentMap = request.getEnvironmentMap();
                 }
-                element.put("referenced", referenced);
-                String environmentType = scenario.getEnvironmentType();
-                String environmentGroupId = scenario.getEnvironmentGroupId();
-                String environmentJson = scenario.getEnvironmentJson();
-                if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
-                    environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
-                } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
-                    environmentMap = JSON.parseObject(environmentJson, Map.class);
+            } else {
+                String scenarioId = request.getId();
+                ApiScenarioDTO scenario = getNewApiScenario(scenarioId);
+                if (scenario != null) {
+                    String referenced = element.getString("referenced");
+                    if (StringUtils.equalsIgnoreCase("REF", referenced)) {
+                        JSONObject source = JSON.parseObject(scenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
+                        element = jsonMerge(source, element);
+                    }
+                    element.put("referenced", referenced);
+                    String environmentType = scenario.getEnvironmentType();
+                    String environmentGroupId = scenario.getEnvironmentGroupId();
+                    String environmentJson = scenario.getEnvironmentJson();
+                    if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                        environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                    } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                        environmentMap = JSON.parseObject(environmentJson, Map.class);
+                    }
                 }
             }
-        }
 
-        ParameterConfig config = new ParameterConfig();
-        apiScenarioEnvService.setEnvConfig(environmentMap, config);
-        if (config.getConfig() != null && !config.getConfig().isEmpty()) {
-            ElementUtil.dataSetDomain(element.getJSONArray("hashTree"), config);
+            ParameterConfig config = new ParameterConfig();
+            apiScenarioEnvService.setEnvConfig(environmentMap, config);
+            if (config.getConfig() != null && !config.getConfig().isEmpty()) {
+                ElementUtil.dataSetDomain(element.getJSONArray("hashTree"), config);
+            }
+            return JSON.toJSONString(element);
+        } catch (Exception e) {
+            return scenarioDefinition;
         }
-        return JSON.toJSONString(element);
     }
 
 
@@ -813,7 +817,7 @@ public class ApiAutomationService {
         config.setOperating(true);
         config.getExcludeScenarioIds().add(apiScenario.getId());
         try {
-            MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class,Feature.DisableSpecialKeyDetect);
+            MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class, Feature.DisableSpecialKeyDetect);
             if (scenario == null) {
                 return null;
             }
@@ -823,7 +827,7 @@ public class ApiAutomationService {
             String environmentJson = apiScenario.getEnvironmentJson();
             String environmentGroupId = apiScenario.getEnvironmentGroupId();
             if (StringUtils.equals(environmentType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(environmentJson)) {
-                scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class,Feature.DisableSpecialKeyDetect));
+                scenario.setEnvironmentMap(JSON.parseObject(environmentJson, Map.class, Feature.DisableSpecialKeyDetect));
             } else if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
                 Map<String, String> envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                 scenario.setEnvironmentMap(envMap);
