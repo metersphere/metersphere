@@ -184,7 +184,7 @@ export default {
         hashTree.forEach(item => {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
-            if (item.command === item.name) {
+            if (item.type && item.type === "MsUiCommand" && item.command === item.name) {
               item.name = this.$t("ui." + item.name);
             }
             let name = item.name ? item.name : this.getType(item.type);
