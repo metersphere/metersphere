@@ -297,6 +297,7 @@ public class ElementUtil {
         this.add("DNSCacheManager");
         this.add("DebugSampler");
         this.add("AuthManager");
+        this.add("AbstractSampler");
     }};
 
     private static void formatSampler(JSONObject element) {
