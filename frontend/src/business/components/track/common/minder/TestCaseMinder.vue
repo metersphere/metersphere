@@ -242,7 +242,7 @@ name: "TestCaseMinder",
         this.extraNodeChanged = [];
         this.$emit('refresh');
         this.setIsChange(false);
-        if (callback) {
+        if (callback && callback instanceof Function) {
           callback();
         }
       });
