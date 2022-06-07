@@ -225,11 +225,11 @@
               script += "if value == \"" + value + "\" :\n";
               break;
             case "contains":
-              script += "if value.find(\"" + value + "\") != -1:\n";
+              script += "if value.find(\"" + value + "\") == -1:\n";
               msg = "value " + operator + " " + value + ": false;";
               break;
             case "not contains":
-              script += "if value.find(\"" + value + "\") == -1:\n";
+              script += "if value.find(\"" + value + "\") != -1:\n";
               msg = "value " + operator + " " + ": false;";
               break;
             case ">":
