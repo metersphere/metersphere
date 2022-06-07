@@ -95,7 +95,6 @@
             </include>
         </if>
     </sql>
-
     <select id="list" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
         select test_case_review_test_case.id as id, test_case_review_test_case.reviewer,
         test_case_review_test_case.update_time, test_case_review_test_case.review_id as reviewId,
@@ -172,6 +171,7 @@
                 <property name="versionTable" value="test_case"/>
             </include>
             <include refid="filter"/>
+            and test_case_review_test_case.is_del = 0
         </where>
     </sql>
     <sql id="filter">
@@ -417,14 +417,6 @@
         and project.workspace_id = #{workspaceId}
         and test_case_review.project_id = #{projectId}
     </select>
-    <select id="listTestCaseByProjectIds" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
-        select distinct * from test_case_review_test_case, test_case
-        where test_case_review_test_case.case_id = test_case.id
-        and test_case.project_id in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
-    </select>
     <select id="listForMinder" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
         select tcrtc.id as id,
         tcrtc.review_id as reviewId,
@@ -465,6 +457,12 @@
             and `order` &lt; #{baseOrder}
         </if>
         order by `order` desc limit 1;
+    </select>
+    <select id="getStatusMapByReviewId" resultType="io.metersphere.track.dto.CountMapDTO">
+        select status as `key`, count(*) as `value`
+        from test_case_review_test_case
+        where review_id = #{reviewId} and is_del = 0
+        group by status
     </select>
 
     <sql id="queryVersionCondition">

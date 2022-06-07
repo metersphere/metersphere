@@ -15,8 +15,6 @@ public class TestPlanTestCase implements Serializable {
 
     private String executor;
 
-    private String status;
-
     private String remark;
 
     private Long createTime;
@@ -28,6 +26,10 @@ public class TestPlanTestCase implements Serializable {
     private Integer issuesCount;
 
     private Long order;
+
+    private String status;
+
+    private Boolean isDel;
 
     private static final long serialVersionUID = 1L;
 }
