@@ -1069,7 +1069,11 @@ public class ApiDefinitionService {
             apiTestCase.setCreateTime(System.currentTimeMillis());
             apiTestCase.setUpdateTime(System.currentTimeMillis());
             apiTestCase.setCreateUserId(SessionUtils.getUserId());
-            apiTestCase.setProjectId(SessionUtils.getCurrentProjectId());
+            if (StringUtils.isEmpty(apiTestImportRequest.getProjectId())) {
+                apiTestCase.setProjectId(SessionUtils.getCurrentProjectId());
+            } else {
+                apiTestCase.setProjectId(apiTestImportRequest.getProjectId());
+            }
             apiTestCase.setOrder(getImportNextCaseOrder(apiTestImportRequest.getProjectId()));
             apiTestCaseMapper.insert(apiTestCase);
         } else if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
