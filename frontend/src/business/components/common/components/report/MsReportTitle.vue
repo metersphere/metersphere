@@ -3,7 +3,7 @@
     <div class="report-left">
       <div class="title">
         【{{ type }}】- {{ title }}
-        <span v-if="report.endTime || report.createTime">
+        <span v-if="report && (report.endTime || report.createTime)">
           <span style="margin-left: 10px">{{ $t('report.test_start_time') }}：</span>
           <span class="time"> {{ report.createTime | timestampFormatDate }}</span>
           <span style="margin-left: 10px">{{ $t('report.test_end_time') }}：</span>

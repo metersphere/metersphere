@@ -174,7 +174,7 @@ name: "TestCaseMinder",
 
         if (handleMinderIssueDelete(even.commandName))  return; // 删除缺陷不算有编辑脑图信息
 
-        if (['priority', 'resource', 'removenode', 'appendchildnode', 'appendparentnode', 'appendsiblingnode'].indexOf(even.commandName) > -1) {
+        if (['priority', 'resource', 'removenode', 'appendchildnode', 'appendparentnode', 'appendsiblingnode', 'paste'].indexOf(even.commandName) > -1) {
           // 这些情况则脑图有改变
           this.setIsChange(true);
         }
