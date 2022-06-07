@@ -38,7 +38,7 @@
           <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
           <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{ $t('commons.failure_continues') }}</el-checkbox>
           <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
-                       :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"  @setEnvGroup="setEnvGroup"
                        :environment-type.sync="envType" :group-id="envGroupId"
                        @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right" :has-option-group="true"
                        :result="envResult"/>
@@ -892,6 +892,11 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
+      this.$emit("setProjectEnvMap",projectEnvMap);
+    },
+    setEnvGroup(id) {
+      this.envGroupId = id;
+      this.$emit("setEnvGroup",id);
     },
     refReload(data, node) {
       this.selectedTreeNode = data;
