@@ -184,6 +184,9 @@ export default {
         hashTree.forEach(item => {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
+            if (item.command === item.name) {
+              item.name = this.$t("ui." + item.name);
+            }
             let name = item.name ? item.name : this.getType(item.type);
             let id = item.type === 'JSR223Processor' || !item.id ? item.resourceId : item.id
             let obj = {
@@ -311,7 +314,8 @@ export default {
 
           this.content.success = (this.content.total - this.content.error - this.content.errorCode - this.content.unExecute);
           this.totalTime = this.content.totalTime;
-          this.fullTreeNodes = this.content.steps;
+          this.resetLabel(this.content.steps);
+          this.fullTreeNodes = this.content.steps
           this.recursiveSorting(this.fullTreeNodes);
           this.reload();
         }
@@ -402,6 +406,27 @@ export default {
         }
       }
     },
+    /**
+     *
+     * @param hashTree
+     */
+    resetLabel(hashTree) {
+      if (!hashTree || !hashTree.length) {
+        return;
+      }
+      for (let i = 0; i < hashTree.length; i++) {
+        if (hashTree[i].type && hashTree[i].type === 'MsUiCommand') {
+          let label = this.$t("ui." + hashTree[i].label) ? this.$t("ui." + hashTree[i].label) : hashTree[i].label;
+          if (label.indexOf("ui") == -1) {
+            hashTree[i].label = label;
+          }
+        } else if (hashTree[i].type && hashTree[i].type === 'UiScenario') {
+          if (hashTree[i].children) {
+            this.resetLabel(hashTree[i].children);
+          }
+        }
+      }
+    }
   },
   computed: {
     projectId() {
