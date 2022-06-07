@@ -737,9 +737,10 @@ export default {
     },
     allowDrag(draggingNode, dropNode, dropType) {
       if (dropNode && draggingNode && dropType) {
-        this.sort();
+        this.$emit("sort");
         this.forceRerender();
         this.cancelBatchProcessing();
+
       }
     },
     nodeExpand(data) {
