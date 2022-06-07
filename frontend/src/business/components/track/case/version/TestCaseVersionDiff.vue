@@ -28,7 +28,7 @@
               <el-form-item :label="$t('test_track.case.module')" :label-width="oldData.formLabelWidth" prop="module" v-if="!isPublic">
                 <ms-select-tree :disabled="oldData.readOnly" :data="treeNodes" :defaultKey="oldData.module"
                                 :obj="moduleObj"
-                                @getValue="setModule" clearable checkStrictly size="small"/>
+                                clearable checkStrictly size="small"/>
               </el-form-item>
             </el-col>
 
@@ -134,7 +134,7 @@
               <el-form-item :label="$t('test_track.case.module')" :label-width="newData.formLabelWidth" prop="module" v-if="!isPublic">
                 <ms-select-tree :disabled="newData.readOnly" :data="treeNodes" :defaultKey="newData.module"
                                 :obj="moduleObj"
-                                @getValue="setModule" clearable checkStrictly size="small"/>
+                                 clearable checkStrictly size="small"/>
               </el-form-item>
             </el-col>
 
