@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.performance.base.ChartsData;
 import io.metersphere.service.ProjectService;
+import io.metersphere.track.dto.CountMapDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.response.BugStatustics;
 import io.metersphere.track.response.TestPlanBugCount;
@@ -168,16 +169,16 @@ public class TrackService {
         testPlan.setPassed(0);
         testPlan.setTotal(0);
 
-        List<String> functionalExecResults = extTestPlanTestCaseMapper.getExecResultByPlanId(planId);
-        functionalExecResults.forEach(item -> {
-            if (!StringUtils.equals(item, TestPlanTestCaseStatus.Prepare.name())
-                    && !StringUtils.equals(item, TestPlanTestCaseStatus.Underway.name())) {
-                testPlan.setTested(testPlan.getTested() + 1);
-                if (StringUtils.equals(item, TestPlanTestCaseStatus.Pass.name())) {
-                    testPlan.setPassed(testPlan.getPassed() + 1);
+        List<CountMapDTO> statusCountMap = extTestPlanTestCaseMapper.getExecResultMapByPlanId(testPlan.getId());
+        for (CountMapDTO item : statusCountMap) {
+            if (!StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Prepare.name())
+                    && !StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Underway.name())) {
+                testPlan.setTested(testPlan.getTested() + item.getValue());
+                if (StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Pass.name())) {
+                    testPlan.setPassed(testPlan.getPassed() + item.getValue());
                 }
             }
-        });
+        }
 
         List<String> apiExecResults = testPlanApiCaseService.getExecResultByPlanId(planId);
         apiExecResults.forEach(item -> {

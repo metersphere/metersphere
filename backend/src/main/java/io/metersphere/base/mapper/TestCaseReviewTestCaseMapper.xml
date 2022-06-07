@@ -5,13 +5,14 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="review_id" jdbcType="VARCHAR" property="reviewId" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="result" jdbcType="VARCHAR" property="result" />
     <result column="reviewer" jdbcType="VARCHAR" property="reviewer" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="order" jdbcType="BIGINT" property="order" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="is_del" jdbcType="BIT" property="isDel" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, review_id, case_id, `status`, `result`, reviewer, create_time, update_time, create_user,
-    `order`
+    id, review_id, case_id, `result`, reviewer, create_time, update_time, create_user, 
+    `order`, `status`, is_del
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseReviewTestCaseExample" resultMap="BaseResultMap">
     select
@@ -90,7 +91,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
+    select 
     <include refid="Base_Column_List" />
     from test_case_review_test_case
     where id = #{id,jdbcType=VARCHAR}
@@ -106,14 +107,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReviewTestCase">
-    insert into test_case_review_test_case (id, review_id, case_id,
-      `status`, `result`, reviewer,
-      create_time, update_time, create_user,
-      `order`)
-    values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR},
-      #{status,jdbcType=VARCHAR}, #{result,jdbcType=VARCHAR}, #{reviewer,jdbcType=VARCHAR},
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR},
-      #{order,jdbcType=BIGINT})
+    insert into test_case_review_test_case (id, review_id, case_id, 
+      `result`, reviewer, create_time, 
+      update_time, create_user, `order`, 
+      `status`, is_del)
+    values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
+      #{result,jdbcType=VARCHAR}, #{reviewer,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
+      #{status,jdbcType=VARCHAR}, #{isDel,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReviewTestCase">
     insert into test_case_review_test_case
@@ -126,9 +127,6 @@
       </if>
       <if test="caseId != null">
         case_id,
-      </if>
-      <if test="status != null">
-        `status`,
       </if>
       <if test="result != null">
         `result`,
@@ -148,6 +146,12 @@
       <if test="order != null">
         `order`,
       </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="isDel != null">
+        is_del,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -158,9 +162,6 @@
       </if>
       <if test="caseId != null">
         #{caseId,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
       </if>
       <if test="result != null">
         #{result,jdbcType=VARCHAR},
@@ -179,6 +180,12 @@
       </if>
       <if test="order != null">
         #{order,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        #{isDel,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -200,9 +207,6 @@
       <if test="record.caseId != null">
         case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
       <if test="record.result != null">
         `result` = #{record.result,jdbcType=VARCHAR},
       </if>
@@ -221,6 +225,12 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDel != null">
+        is_del = #{record.isDel,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -231,13 +241,14 @@
     set id = #{record.id,jdbcType=VARCHAR},
       review_id = #{record.reviewId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
       `result` = #{record.result,jdbcType=VARCHAR},
       reviewer = #{record.reviewer,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      `order` = #{record.order,jdbcType=BIGINT}
+      `order` = #{record.order,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      is_del = #{record.isDel,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -250,9 +261,6 @@
       </if>
       <if test="caseId != null">
         case_id = #{caseId,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
       </if>
       <if test="result != null">
         `result` = #{result,jdbcType=VARCHAR},
@@ -272,6 +280,12 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        is_del = #{isDel,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -279,13 +293,14 @@
     update test_case_review_test_case
     set review_id = #{reviewId,jdbcType=VARCHAR},
       case_id = #{caseId,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
       `result` = #{result,jdbcType=VARCHAR},
       reviewer = #{reviewer,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      `order` = #{order,jdbcType=BIGINT}
+      `order` = #{order,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
