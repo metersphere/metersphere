@@ -62,7 +62,7 @@ public class MsTCPSampler extends MsTestElement {
     private String clazzName = MsTCPSampler.class.getCanonicalName();
 
     @JSONField(ordinal = 21)
-    private String classname = "";
+    private String classname = "TCPClientImpl";
     @JSONField(ordinal = 22)
     private String server = "";
     @JSONField(ordinal = 23)
