@@ -336,6 +336,7 @@
             @setCookieShare="setCookieShare"
             @setSampleError="setSampleError"
             @stop="stop"
+            @sort="sort"
             @openScenario="openScenario"
             @runScenario="runDebug"
             @stopScenario="stop"
