@@ -99,7 +99,7 @@
           <!-- 请求参数 -->
           <div>
             <ms-form-divider :title="$t('api_test.definition.request.req_param')"/>
-            <ms-api-request-form :showScript="false" :request="request" :headers="request.headers"
+            <ms-api-request-form :showScript="false" :request="oldRequest" :headers="oldRequest.headers"
                                  :isShowEnable="isShowEnable"/>
           </div>
 
@@ -107,7 +107,7 @@
 
         <!-- 响应内容-->
         <ms-form-divider :title="$t('api_test.definition.request.res_param')"/>
-        <ms-response-text :response="response"/>
+        <ms-response-text :response="oldResponse"/>
 
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
         <api-info-container>
@@ -219,7 +219,7 @@
           <!-- 请求参数 -->
           <div>
             <ms-form-divider :title="$t('api_test.definition.request.req_param')"/>
-            <ms-api-request-form :showScript="false" :request="oldRequest" :headers="oldRequest.headers"
+            <ms-api-request-form :showScript="false" :request="request" :headers="request.headers"
                                  :isShowEnable="isShowEnable"/>
           </div>
 
@@ -227,7 +227,7 @@
 
         <!-- 响应内容-->
         <ms-form-divider :title="$t('api_test.definition.request.res_param')"/>
-        <ms-response-text :response="oldResponse"/>
+        <ms-response-text :response="response"/>
 
         <!-- 其他信息-->
         <ms-form-divider :title="$t('test_track.case.other_info')"/>
