@@ -19,6 +19,25 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'multipleInput',text: 'workspace.custom_filed.multipleInput'}
 ];
 
+export function CUSTOM_FIELD_TYPE_FILTERS(_this) {
+  return [
+    {value: 'input', text: _this.$t('workspace.custom_filed.input')},
+    {value: 'textarea', text: _this.$t('workspace.custom_filed.textarea')},
+    {value: 'select', text: _this.$t('workspace.custom_filed.select')},
+    {value: 'multipleSelect', text: _this.$t('workspace.custom_filed.multipleSelect')},
+    {value: 'radio', text: _this.$t('workspace.custom_filed.radio')},
+    {value: 'checkbox', text: _this.$t('workspace.custom_filed.checkbox')},
+    {value: 'member', text: _this.$t('workspace.custom_filed.member')},
+    {value: 'multipleMember', text: _this.$t('workspace.custom_filed.multipleMember')},
+    {value: 'date', text: _this.$t('workspace.custom_filed.date')},
+    {value: 'datetime', text: _this.$t('workspace.custom_filed.datetime')},
+    {value: 'richText', text: _this.$t('workspace.custom_filed.richText')},
+    {value: 'int', text: _this.$t('workspace.custom_filed.int')},
+    {value: 'float', text: _this.$t('workspace.custom_filed.float')},
+    {value: 'multipleInput', text: _this.$t('workspace.custom_filed.multipleInput')}
+  ];
+}
+
 export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
   {value: 'id', text: 'id'},
   {value: 'name', text: 'name'},
