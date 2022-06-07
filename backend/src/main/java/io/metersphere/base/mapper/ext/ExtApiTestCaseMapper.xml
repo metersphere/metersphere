@@ -454,15 +454,13 @@
                     <if test="key=='status' and values.size == 0">
                         and (t1.status is null or t1.status != 'Trash')
                     </if>
-
-
           </if>
             </foreach>
         </if>
         <if test="request.filters == null || request.filters.size() == 0 ">
             and (t1.status is null or t1.status != 'Trash')
         </if>
-        <if test="request.toBeUpdated !=null">
+        <if test="request.toBeUpdated !=null and request.toBeUpdated == true">
             and (t1.to_be_updated = #{request.toBeUpdated} or t3.status = 'error')
         </if>
         <include refid="queryVersionCondition">
