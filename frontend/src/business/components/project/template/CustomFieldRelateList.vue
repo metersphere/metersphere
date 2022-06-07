@@ -8,7 +8,7 @@
     ref="msEditDialog">
 
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initTableData"
+        <ms-table-header :condition.sync="condition" @search="search"
                          :show-create="false"/>
       </template>
 
@@ -100,7 +100,11 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {CUSTOM_FIELD_TYPE_OPTION, FIELD_TYPE_MAP, SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import {
+  CUSTOM_FIELD_TYPE_FILTERS,
+  FIELD_TYPE_MAP,
+  SYSTEM_FIELD_NAME_MAP
+} from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 
@@ -131,7 +135,7 @@ export default {
       return CUSTOM_FIELD_LIST;
     },
     fieldFilters() {
-      return CUSTOM_FIELD_TYPE_OPTION;
+      return CUSTOM_FIELD_TYPE_FILTERS(this);
     },
     fieldTypeMap() {
       return FIELD_TYPE_MAP;
@@ -141,6 +145,12 @@ export default {
     }
   },
   methods: {
+    search() {
+      if (!(this.condition.name.trim())) {
+        this.currentPage = 1;
+      }
+      this.initTableData();
+    },
     initTableData() {
       this.condition.projectId = getCurrentProjectID();
       this.condition.templateId = this.templateId;
