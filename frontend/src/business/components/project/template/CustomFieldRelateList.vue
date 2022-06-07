@@ -175,7 +175,9 @@ export default {
       this.visible = true;
     },
     save() {
-      this.$emit('save', this.$refs.table.selectIds);
+      if (this.$refs.table.selectIds.length > 0) {
+         this.$emit('save', this.$refs.table.selectIds);
+      }
       this.visible = false;
     },
   }
