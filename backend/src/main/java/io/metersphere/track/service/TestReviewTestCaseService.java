@@ -107,6 +107,21 @@ public class TestReviewTestCaseService {
         return testCaseReviewTestCaseMapper.deleteByPrimaryKey(request.getId());
     }
 
+    public int deleteToGc(List<String> caseIds) {
+        return updateIsDel(caseIds, true);
+    }
+
+    private int updateIsDel(List<String> caseIds, Boolean isDel) {
+        if (CollectionUtils.isEmpty(caseIds)) {
+            return 0;
+        }
+        TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
+        example.createCriteria().andCaseIdIn(caseIds);
+        TestCaseReviewTestCase record = new TestCaseReviewTestCase();
+        record.setIsDel(isDel);
+        return testCaseReviewTestCaseMapper.updateByExampleSelective(record, example);
+    }
+
     private void checkReviewer(String reviewId) {
         List<String> userIds = testCaseReviewService.getTestCaseReviewerIds(reviewId);
         String currentId = SessionUtils.getUser().getId();
@@ -367,5 +382,9 @@ public class TestReviewTestCaseService {
                 extTestReviewCaseMapper::getPreOrder,
                 extTestReviewCaseMapper::getLastOrder,
                 testCaseReviewTestCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public int reduction(List<String> ids) {
+        return updateIsDel(ids, false);
     }
 }

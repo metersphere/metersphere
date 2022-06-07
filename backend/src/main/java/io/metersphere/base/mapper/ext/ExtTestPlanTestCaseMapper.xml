@@ -240,22 +240,19 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
-        test_case.type,test_case.test_id as testId,test_case.node_id, test_case.tags, test_case.maintainer,
+        test_case.type, test_case.test_id as testId,test_case.node_id, test_case.tags, test_case.maintainer,
         test_case.custom_fields,
-        test_case.node_path, test_case.method, if(pa.type_value = 'false', cast(test_case.num as char),
-        test_case.custom_num) as customNum, test_plan_test_case.executor, test_plan_test_case.status,
+        test_case.node_path, test_case.method,
+        test_case.num, test_case.custom_num,
+        test_case.project_id,
+        test_plan_test_case.executor, test_plan_test_case.status,
         test_plan_test_case.actual_result,
-        test_plan_test_case.update_time, test_plan_test_case.create_time,test_case_node.name as model, project.name as
-        projectName, test_plan_test_case.issues_count as issuesCount,
-        test_plan_test_case.plan_id as planId,test_case.version_id as versionId,
-        project_version.name as versionName
+        test_plan_test_case.update_time, test_plan_test_case.create_time,
+        test_plan_test_case.issues_count as issuesCount,
+        test_plan_test_case.plan_id as planId,
+        test_case.version_id as versionId
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
-        left join test_case_node on test_case_node.id = test_case.node_id
-        inner join project on project.id = test_case.project_id
-        inner join project_application pa on pa.project_id = project.id and pa.type = 'CASE_CUSTOM_NUM'
-        left join project_version on project_version.id = test_case.version_id and project.id =
-        project_version.project_id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -531,8 +528,6 @@
         </if>
 
     </update>
-
-
     <delete id="deleteByTestCaseID" parameterType="java.lang.String">
         delete
         from test_plan_api_case
@@ -571,6 +566,12 @@
         from test_plan_test_case tptc
         join test_case tc on tptc.case_id = tc.id
         where tptc.plan_id = #{planId}
+    </select>
+    <select id="getExecResultMapByPlanId" resultType="io.metersphere.track.dto.CountMapDTO">
+        select status as `key`, count(*) as `value`
+        from test_plan_test_case
+        where plan_id = #{planId} and is_del = 0
+        group by status
     </select>
 
     <sql id="queryVersionCondition">

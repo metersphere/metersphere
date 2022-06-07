@@ -454,76 +454,6 @@ public class TestPlanTestCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andStatusIsNull() {
-            addCriterion("`status` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusIsNotNull() {
-            addCriterion("`status` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusEqualTo(String value) {
-            addCriterion("`status` =", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusNotEqualTo(String value) {
-            addCriterion("`status` <>", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusGreaterThan(String value) {
-            addCriterion("`status` >", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusGreaterThanOrEqualTo(String value) {
-            addCriterion("`status` >=", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusLessThan(String value) {
-            addCriterion("`status` <", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusLessThanOrEqualTo(String value) {
-            addCriterion("`status` <=", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusLike(String value) {
-            addCriterion("`status` like", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusNotLike(String value) {
-            addCriterion("`status` not like", value, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusIn(List<String> values) {
-            addCriterion("`status` in", values, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusNotIn(List<String> values) {
-            addCriterion("`status` not in", values, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusBetween(String value1, String value2) {
-            addCriterion("`status` between", value1, value2, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusNotBetween(String value1, String value2) {
-            addCriterion("`status` not between", value1, value2, "status");
-            return (Criteria) this;
-        }
-
         public Criteria andRemarkIsNull() {
             addCriterion("remark is null");
             return (Criteria) this;
@@ -901,6 +831,136 @@ public class TestPlanTestCaseExample {
 
         public Criteria andOrderNotBetween(Long value1, Long value2) {
             addCriterion("`order` not between", value1, value2, "order");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNull() {
+            addCriterion("`status` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNotNull() {
+            addCriterion("`status` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusEqualTo(String value) {
+            addCriterion("`status` =", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotEqualTo(String value) {
+            addCriterion("`status` <>", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThan(String value) {
+            addCriterion("`status` >", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("`status` >=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThan(String value) {
+            addCriterion("`status` <", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThanOrEqualTo(String value) {
+            addCriterion("`status` <=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLike(String value) {
+            addCriterion("`status` like", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotLike(String value) {
+            addCriterion("`status` not like", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIn(List<String> values) {
+            addCriterion("`status` in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotIn(List<String> values) {
+            addCriterion("`status` not in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusBetween(String value1, String value2) {
+            addCriterion("`status` between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotBetween(String value1, String value2) {
+            addCriterion("`status` not between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelIsNull() {
+            addCriterion("is_del is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelIsNotNull() {
+            addCriterion("is_del is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelEqualTo(Boolean value) {
+            addCriterion("is_del =", value, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelNotEqualTo(Boolean value) {
+            addCriterion("is_del <>", value, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelGreaterThan(Boolean value) {
+            addCriterion("is_del >", value, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_del >=", value, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelLessThan(Boolean value) {
+            addCriterion("is_del <", value, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_del <=", value, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelIn(List<Boolean> values) {
+            addCriterion("is_del in", values, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelNotIn(List<Boolean> values) {
+            addCriterion("is_del not in", values, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_del between", value1, value2, "isDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsDelNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_del not between", value1, value2, "isDel");
             return (Criteria) this;
         }
     }

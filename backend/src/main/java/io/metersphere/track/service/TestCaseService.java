@@ -163,6 +163,12 @@ public class TestCaseService {
     @Lazy
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Lazy
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
+    @Lazy
+    @Resource
+    private TestReviewTestCaseService testReviewTestCaseService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
     private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
@@ -627,6 +633,8 @@ public class TestCaseService {
 
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
+        testPlanTestCaseService.deleteToGc(Arrays.asList(testCaseId));
+        testReviewTestCaseService.deleteToGc(Arrays.asList(testCaseId));
         return extTestCaseMapper.deleteToGc(request);
     }
 
@@ -643,6 +651,8 @@ public class TestCaseService {
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
         request.setIds(ids);
+        testPlanTestCaseService.deleteToGc(ids);
+        testReviewTestCaseService.deleteToGc(ids);
         return extTestCaseMapper.deleteToGc(request);
     }
 
@@ -2202,12 +2212,11 @@ public class TestCaseService {
     }
 
     public void reduction(TestCaseBatchRequest request) {
-        TestCaseExample example = this.getBatchExample(request);
         if (CollectionUtils.isNotEmpty(request.getIds())) {
             extTestCaseMapper.checkOriginalStatusByIds(request.getIds());
 
             //检查原来模块是否还在
-            example = new TestCaseExample();
+            TestCaseExample example = new TestCaseExample();
             // 关联版本之后，必须查询每一个数据的所有版本，依次还原
             example.createCriteria().andIdIn(request.getIds());
             List<TestCase> reductionCaseList = testCaseMapper.selectByExample(example);
@@ -2236,6 +2245,8 @@ public class TestCaseService {
                 }
             }
             extTestCaseMapper.reduction(request.getIds());
+            testPlanTestCaseService.reduction(request.getIds());
+            testReviewTestCaseService.reduction(request.getIds());
         }
     }
 

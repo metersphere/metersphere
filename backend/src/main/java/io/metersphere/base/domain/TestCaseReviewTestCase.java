@@ -11,8 +11,6 @@ public class TestCaseReviewTestCase implements Serializable {
 
     private String caseId;
 
-    private String status;
-
     private String result;
 
     private String reviewer;
@@ -24,6 +22,10 @@ public class TestCaseReviewTestCase implements Serializable {
     private String createUser;
 
     private Long order;
+
+    private String status;
+
+    private Boolean isDel;
 
     private static final long serialVersionUID = 1L;
 }
