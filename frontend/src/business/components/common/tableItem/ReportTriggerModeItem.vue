@@ -5,6 +5,7 @@
     <span v-if="triggerMode === 'TEST_PLAN_SCHEDULE'">{{$t('commons.trigger_mode.test_plan_schedule')}}</span>
     <span v-if="triggerMode === 'TEST_PLAN_API'">{{$t('commons.trigger_mode.test_plan_api')}}</span>
     <span v-if="triggerMode === 'API'">{{$t('commons.trigger_mode.api')}}</span>
+    <span v-if="triggerMode === 'JENKINS_RUN_TEST_PLAN'">{{$t('commons.trigger_mode.api')}}</span>
     <span v-if="triggerMode === 'BATCH'">{{$t('api_test.automation.batch_execute')}}</span>
   </span>
 
