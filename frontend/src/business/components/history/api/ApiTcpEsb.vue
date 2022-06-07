@@ -57,14 +57,12 @@
 import MsJsonCodeEdit from "./json-view/ComparedEditor";
 import MsApiKeyValueDetail from "./common/ApiKeyValueDetail";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
-import EsbTable from "@/business/components/xpack/apidefinition/EsbTable";
-
 const jsondiffpatch = require('jsondiffpatch');
 const formattersHtml = jsondiffpatch.formatters.html;
 
 export default {
   name: "MsApiTcpParameters",
-  components: {MsJsonCodeEdit, MsApiKeyValueDetail , MsCodeEdit , EsbTable},
+  components: {MsJsonCodeEdit, MsApiKeyValueDetail, MsCodeEdit},
   props: {
     request: {},
     basisData: {},
