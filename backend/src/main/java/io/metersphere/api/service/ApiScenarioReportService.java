@@ -33,6 +33,7 @@ import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -162,6 +163,7 @@ public class ApiScenarioReportService {
     }
 
     public List<APIScenarioReportResult> list(QueryAPIReportRequest request) {
+        request = this.initRequest(request);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<APIScenarioReportResult> list = extApiScenarioReportMapper.list(request);
         List<String> userIds = list.stream().map(APIScenarioReportResult::getUserId)
@@ -175,7 +177,20 @@ public class ApiScenarioReportService {
         return list;
     }
 
+    public QueryAPIReportRequest initRequest(QueryAPIReportRequest request){
+        if(request != null){
+            //初始化triggerMode的查询条件： 如果查询API的话，增加 JENKINS_RUN_TEST_PLAN(jenkins调用测试计划时执行的场景) 查询条件
+            if(MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode")
+                    && CollectionUtils.isNotEmpty(request.getFilters().get("trigger_mode"))
+                    && request.getFilters().get("trigger_mode").contains("API") && !request.getFilters().get("trigger_mode").contains(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())){
+                request.getFilters().get("trigger_mode").add(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name());
+            }
+        }
+        return request;
+    }
+
     public List<String> idList(QueryAPIReportRequest request) {
+        request = this.initRequest(request);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiScenarioReportMapper.idList(request);
     }
@@ -223,10 +238,6 @@ public class ApiScenarioReportService {
         }
         if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
             return report;
-        }
-        if(StringUtils.equalsAnyIgnoreCase(report.getTriggerMode(),ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())){
-            //jenkins运行测试计划时执行的场景，触发方式改回API
-            report.setTriggerMode(ReportTriggerMode.API.name());
         }
         if (runMode.equals("CASE")) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
