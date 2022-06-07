@@ -271,6 +271,9 @@ export default {
   },
   created() {
     this.currentProjectId = getCurrentProjectID();
+    if (!this.request.classname) {
+      this.request.classname = "TCPClientImpl";
+    }
     if (!this.request.parameters) {
       this.$set(this.request, 'parameters', []);
       this.request.parameters = [];

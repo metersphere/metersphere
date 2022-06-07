@@ -294,7 +294,11 @@ public class MsTCPSampler extends MsTestElement {
         ElementUtil.setBaseParams(tcpSampler, this.getParent(), config, this.getId(), this.getIndex());
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
-        tcpSampler.setClassname(this.getClassname());
+        if(StringUtils.isEmpty(this.getClassname())){
+            tcpSampler.setClassname("TCPClientImpl");
+        }else{
+            tcpSampler.setClassname(this.getClassname());
+        }
         tcpSampler.setServer(this.getServer());
         tcpSampler.setPort(this.getPort());
         tcpSampler.setConnectTimeout(this.getCtimeout());
