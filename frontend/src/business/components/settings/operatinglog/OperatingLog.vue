@@ -264,7 +264,7 @@ export default {
       },
       getMember(url) {
         if (!url) {
-          url = '/usr/list';
+          url = '/user/list';
         }
         this.result = this.$get(url, response => {
           this.userList = response.data;
