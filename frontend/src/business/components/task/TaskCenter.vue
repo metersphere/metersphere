@@ -48,14 +48,16 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init"
+                             :disabled="isDebugHistory">
                     <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item :label="$t('commons.status')" prop="status">
-                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init"
+                             :disabled="isDebugHistory">
                     <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
                   </el-select>
                 </el-form-item>
@@ -65,7 +67,7 @@
               <el-col :span="12">
                 <el-form-item :label="$t('commons.executor')" prop="status">
                   <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
-                             style="margin-right: 10px" @change="init">
+                             style="margin-right: 10px" @change="init" :disabled="isDebugHistory">
                     <el-option
                       v-for="item in maintainerOptions"
                       :key="item.id"
@@ -76,7 +78,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" class="ms-task-stop" @click="stop(null)">
+                <el-button size="small" class="ms-task-stop" @click="stop(null)" :disabled="isDebugHistory">
                   {{ $t('report.stop_btn_all') }}
                 </el-button>
               </el-col>
@@ -213,6 +215,7 @@ export default {
       reportId: "",
       executionModule: "",
       reportType: "",
+      isDebugHistory: false
     };
   },
   props: {
@@ -436,6 +439,8 @@ export default {
     openHistory(id) {
       this.initCaseHistory(id);
       this.taskVisible = true;
+      this.isDebugHistory = true;
+      this.condition.triggerMode = "MANUAL";
       this.showType = "CASE";
     },
     openScenarioHistory(id) {
@@ -443,6 +448,8 @@ export default {
         this.taskData = response.data;
       });
       this.showType = "SCENARIO";
+      this.isDebugHistory = true;
+      this.condition.triggerMode = "MANUAL";
       this.taskVisible = true;
     }
   }
