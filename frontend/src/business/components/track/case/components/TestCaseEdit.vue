@@ -16,6 +16,7 @@
               :custom-field-form="customFieldForm"
               :custom-field-rules="customFieldRules"
               :test-case-template="testCaseTemplate"
+              :default-open="richTextDefaultOpen"
               ref="testCaseBaseInfo"
             />
           </ms-aside-container>
@@ -70,17 +71,34 @@
               </div>
               <ms-form-divider :title="$t('test_track.case.step_info')"/>
 
-              <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth"
-                                   :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+              <form-rich-text-item :disabled="readOnly"
+                                   :label-width="formLabelWidth"
+                                   :title="$t('test_track.case.prerequisite')"
+                                   :data="form"
+                                   :default-open="richTextDefaultOpen"
+                                   prop="prerequisite"/>
 
               <step-change-item :label-width="formLabelWidth" :form="form"/>
-              <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
-                                   :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-              <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"
-                                   :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+              <form-rich-text-item  v-if="form.stepModel === 'TEXT'"
+                                    prop="stepDescription"
+                                    :disabled="readOnly"
+                                    :label-width="formLabelWidth"
+                                    :title="$t('test_track.case.step_desc')"
+                                    :data="form"
+                                    :default-open="richTextDefaultOpen"/>
 
-              <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel"
-                                   :form="form" :read-only="readOnly"/>
+              <form-rich-text-item  v-if="form.stepModel === 'TEXT'"
+                                    prop="expectedResult"
+                                    :disabled="readOnly"
+                                    :label-width="formLabelWidth"
+                                    :title="$t('test_track.case.expected_results')"
+                                    :data="form"
+                                    :default-open="richTextDefaultOpen"/>
+
+              <test-case-step-item v-if="form.stepModel === 'STEP' || !form.stepModel"
+                                   :label-width="formLabelWidth"
+                                   :form="form"
+                                   :read-only="readOnly"/>
 
               <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
@@ -91,6 +109,7 @@
                                          @openComment="openComment"
                                          :is-click-attachment-tab.sync="isClickAttachmentTab"
                                          :version-enable="versionEnable"
+                                         :default-open="richTextDefaultOpen"
                                          ref="otherInfo"/>
               <test-case-comment :case-id="form.id"
                                  @getComments="getComments" ref="testCaseComment"/>
@@ -314,6 +333,9 @@ export default {
     },
     isCustomNum() {
       return this.$store.state.currentProjectIsCustomNum;
+    },
+    richTextDefaultOpen() {
+      return this.type === 'edit' ? 'preview' : 'edit';
     },
     readOnly() {
       const {rowClickHasPermission} = this.currentTestCaseInfo;

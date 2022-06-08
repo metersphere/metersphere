@@ -6,7 +6,13 @@
         <el-col :span="24">
           <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                         :label-width="formLabelWidth">
-            <custom-filed-component :data="item" :form="form" prop="defaultValue" :disabled="(item.type !== 'richText' && isPublic) || disabled"/>
+            <custom-filed-component
+              :data="item"
+              :form="form"
+              prop="defaultValue"
+              :disabled="(item.type !== 'richText' && isPublic) || disabled"
+              :default-open="defaultOpen"
+            />
           </el-form-item>
         </el-col>
       </span>
@@ -42,7 +48,13 @@ export default {
       default() {
         return false;
       }
-    }
+    },
+    defaultOpen: {
+      type: String,
+      default() {
+        return 'preview';
+      }
+    },
   },
   computed: {
     customFieldRowNums() {
