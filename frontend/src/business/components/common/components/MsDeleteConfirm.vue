@@ -61,7 +61,7 @@
           this.record = record;
         },
         confirm() {
-          if (this.value.trim() != 'DELETE-' + this.record.name) {
+          if (this.value.trim() !== ('DELETE-' + this.record.name).trim()) {
             this.$warning(this.$t('commons.incorrect_input'));
             return;
           }
@@ -89,6 +89,7 @@
   .delete-tip {
     font-style: italic;
     font-weight: bold;
+    white-space: pre-wrap;
   }
 
   .tip {
