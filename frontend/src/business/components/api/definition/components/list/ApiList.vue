@@ -965,7 +965,7 @@ export default {
         tags.forEach( item => {
           showTips += item + ",";
         })
-        return showTips;
+        return showTips.substr(0, showTips.length - 1);
       }catch (e){
         return "";
       }
