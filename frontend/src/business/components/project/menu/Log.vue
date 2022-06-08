@@ -225,7 +225,7 @@ export default {
       this.$set(this.condition, "operUser", item.id);
     },
     getMember() {
-      this.result = this.$get('/user/list/', response => {
+      this.result = this.$get('/user/ws/current/member/list', response => {
         this.userList = response.data;
       });
     },

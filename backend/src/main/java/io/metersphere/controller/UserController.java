@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -18,6 +19,8 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +98,12 @@ public class UserController {
     }
 
     @GetMapping("/list")
+    @RequiresPermissions(value = {
+            PermissionConstants.SYSTEM_WORKSPACE_READ_CREATE,
+            PermissionConstants.SYSTEM_GROUP_READ_CREATE,
+            PermissionConstants.WORKSPACE_USER_READ_CREATE,
+            PermissionConstants.SYSTEM_OPERATING_LOG_READ,
+    }, logical = Logical.OR)
     public List<User> getUserList() {
         return userService.getUserList();
     }
