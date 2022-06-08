@@ -358,6 +358,7 @@ public class TestCaseReviewService {
                 caseReview.setUpdateTime(System.currentTimeMillis());
                 caseReview.setReviewId(request.getReviewId());
                 caseReview.setStatus(TestCaseReviewStatus.Prepare.name());
+                caseReview.setIsDel(false);
                 caseReview.setOrder(nextOrder);
                 batchMapper.insert(caseReview);
                 nextOrder += ServiceUtils.ORDER_STEP;
