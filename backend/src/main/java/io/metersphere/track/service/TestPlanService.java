@@ -1049,7 +1049,7 @@ public class TestPlanService {
     }
 
     private Map<String, String> parseMsExecREsponseDTOToTestIdReportMap(List<MsExecResponseDTO> dtoList) {
-        Map<String, String> returnMap = new HashMap<>();
+        Map<String, String> returnMap = new LinkedHashMap<>();
         if (CollectionUtils.isNotEmpty(dtoList)) {
             dtoList.forEach(item -> {
                 if (StringUtils.isNotEmpty(item.getTestId()) && StringUtils.isNotEmpty(item.getReportId())) {
@@ -1704,7 +1704,6 @@ public class TestPlanService {
         } else {
             return null;
         }
-
     }
 
     public TestPlanSimpleReportDTO buildPlanReport(String planId, boolean saveResponse) {
