@@ -1454,7 +1454,7 @@ public class TestCaseService {
         QueryTestCaseRequest condition = request.getCondition();
         List<OrderRequest> orderList = new ArrayList<>();
         if (condition != null) {
-            orderList = ServiceUtils.getDefaultSortOrder(request.getOrders());
+            orderList = ServiceUtils.getDefaultSortOrder(condition.getOrders());
         }
         OrderRequest order = new OrderRequest();
         order.setName("sort");
