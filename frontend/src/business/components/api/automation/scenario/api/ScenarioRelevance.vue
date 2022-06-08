@@ -169,6 +169,7 @@ export default {
         }
         this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
           if (response.data) {
+            this.currentScenarioIds = [];
             this.createScenarioDefinition(scenarios, response.data, referenced);
             this.$emit('save', scenarios);
             this.$refs.baseRelevance.close();
