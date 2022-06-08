@@ -560,6 +560,7 @@ public class TestPlanService {
             testPlanTestCase.setUpdateTime(System.currentTimeMillis());
             testPlanTestCase.setPlanId(request.getPlanId());
             testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
+            testPlanTestCase.setIsDel(false);
             testPlanTestCase.setOrder(nextOrder);
             nextOrder += ServiceUtils.ORDER_STEP;
             batchMapper.insert(testPlanTestCase);
@@ -1194,6 +1195,7 @@ public class TestPlanService {
                     testPlanTestCase.setCreateUser(SessionUtils.getUserId());
                     testPlanTestCase.setRemark(testCase.getRemark());
                     testPlanTestCase.setOrder(nextTestCaseOrder);
+                    testPlanTestCase.setIsDel(false);
                     nextTestCaseOrder += 5000;
                     testCaseMapper.insert(testPlanTestCase);
                 }
