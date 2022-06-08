@@ -208,7 +208,7 @@ public class TestResultService {
                     }
                 }
             }
-        } else if (StringUtils.equals(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
+        } else if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             ApiDefinitionExecResult record = new ApiDefinitionExecResult();
             record.setId(dto.getReportId());
             record.setStatus("STOP");
