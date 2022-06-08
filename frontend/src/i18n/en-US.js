@@ -2406,7 +2406,15 @@ export default {
       save_before_open_comment: "Please save issue before comment",
       delete_tip: "Confirm Delete Issue：",
       check_id_exist: "Check",
-      save_project_first: "Please save the project first"
+      save_project_first: "Please save the project first",
+      tapd_status_new: "New",
+      tapd_status_in_progress: "Acceptance/Processing",
+      tapd_status_reopened: "Opened",
+      tapd_status_rejected: "Refused",
+      tapd_status_verified: "Authenticated",
+      tapd_status_closed: "Closed",
+      tapd_status_resolved: "Resolved",
+      please_choose_platform_status: "Please select platform status",
     },
     report: {
       name: "Test Plan Report",
