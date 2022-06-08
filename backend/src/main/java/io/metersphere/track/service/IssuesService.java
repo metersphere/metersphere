@@ -29,6 +29,7 @@ import io.metersphere.track.issue.domain.jira.JiraIssueType;
 import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
+import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -197,12 +198,13 @@ public class IssuesService {
         boolean tapd = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Tapd.toString());
         boolean jira = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Jira.toString());
         boolean zentao = isIntegratedPlatform(workspaceId, IssuesManagePlatform.Zentao.toString());
+        boolean azure = isIntegratedPlatform(workspaceId, IssuesManagePlatform.AzureDevops.toString());
 
         List<String> platforms = new ArrayList<>();
         if (tapd) {
             // 是否关联了项目
             String tapdId = project.getTapdId();
-            if (StringUtils.isNotBlank(tapdId)) {
+            if (StringUtils.isNotBlank(tapdId) && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Tapd.toString())) {
                 platforms.add(IssuesManagePlatform.Tapd.name());
             }
 
@@ -210,17 +212,25 @@ public class IssuesService {
 
         if (jira) {
             String jiraKey = project.getJiraKey();
-            if (StringUtils.isNotBlank(jiraKey)) {
+            if (StringUtils.isNotBlank(jiraKey) && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Jira.toString())) {
                 platforms.add(IssuesManagePlatform.Jira.name());
             }
         }
 
         if (zentao) {
             String zentaoId = project.getZentaoId();
-            if (StringUtils.isNotBlank(zentaoId)) {
+            if (StringUtils.isNotBlank(zentaoId) && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.Zentao.toString())) {
                 platforms.add(IssuesManagePlatform.Zentao.name());
             }
         }
+
+        if (azure) {
+            String azureDevopsId = project.getAzureDevopsId();
+            if (StringUtils.isNotBlank(azureDevopsId) && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.toString())) {
+                platforms.add(IssuesManagePlatform.AzureDevops.name());
+            }
+        }
+
         return platforms;
     }
 
@@ -756,14 +766,31 @@ public class IssuesService {
         return extIssuesMapper.getIssues(request);
     }
 
-    public List<JiraTransitionsResponse.Transitions> getJiraTransitions(JiraIssueTypeRequest request) {
-        IssuesRequest issuesRequest = getDefaultIssueRequest(request.getProjectId(), request.getWorkspaceId());
-        JiraPlatform platform = (JiraPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Jira.toString(), issuesRequest);
-        try {
-            return platform.getTransitions(request.getJiraKey());
-        } catch (Exception e) {
-            LogUtil.error(e);
+    public List<PlatformStatusDTO> getPlatformTransitions(PlatformIssueTypeRequest request) {
+        List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
+
+        if (!StringUtils.isBlank(request.getPlatformKey())) {
+            Project project = projectService.getProjectById(request.getProjectId());
+            List<String> platforms = getPlatforms(project);
+            if (CollectionUtils.isEmpty(platforms)) {
+                return platformStatusDTOS;
+            }
+
+            IssuesRequest issuesRequest = getDefaultIssueRequest(request.getProjectId(), request.getWorkspaceId());
+            Map<String, AbstractIssuePlatform> platformMap = IssueFactory.createPlatformsForMap(platforms, issuesRequest);
+            try {
+                if (platformMap.size() > 1) {
+                    MSException.throwException(Translator.get("project_reference_multiple_plateform"));
+                }
+                Optional<AbstractIssuePlatform> platformOptional = platformMap.values().stream().findFirst();
+                if (platformOptional.isPresent()) {
+                    platformStatusDTOS = platformOptional.get().getTransitions(request.getPlatformKey());
+                }
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
         }
-        return new ArrayList<>();
+
+        return platformStatusDTOS;
     }
 }

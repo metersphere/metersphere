@@ -10,10 +10,12 @@ import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
+import io.metersphere.commons.constants.ZentaoIssuePlatformStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
+import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.client.ZentaoClient;
 import io.metersphere.track.issue.client.ZentaoGetClient;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -228,6 +230,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         setUserConfig();
         MultiValueMap<String, Object> param = buildUpdateParam(request);
+        if (request.getTransitions() != null) {
+            request.setPlatformStatus(request.getTransitions().getValue());
+        }
         handleIssueUpdate(request);
         this.handleZentaoBugStatus(param);
         zentaoClient.updateIssue(request.getPlatformId(), param);
@@ -267,6 +272,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
+        if (issuesRequest.getTransitions() != null) {
+            paramMap.add("status", issuesRequest.getTransitions().getValue());
+        }
 
         addCustomFields(issuesRequest, paramMap);
 
@@ -523,5 +531,18 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     @Override
     public Boolean checkProjectExist(String relateId) {
         return zentaoClient.checkProjectExist(relateId);
+    }
+
+    @Override
+    public List<PlatformStatusDTO> getTransitions(String issueKey) {
+        List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
+        for (ZentaoIssuePlatformStatus status : ZentaoIssuePlatformStatus.values()) {
+            PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
+            platformStatusDTO.setValue(status.name());
+            platformStatusDTO.setLable(status.getName());
+
+            platformStatusDTOS.add(platformStatusDTO);
+        }
+        return platformStatusDTOS;
     }
 }
