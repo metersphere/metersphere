@@ -149,7 +149,7 @@ export default {
             res.data.typeValue = quantity+this.$t('commons.date_unit.day');
           }else
           if(unit==='M'){
-            res.data.typeValue = quantity+this.$t('commons.date_unit.month');
+            res.data.typeValue = quantity+this.$t('commons.workspace_unit')+this.$t('commons.date_unit.month');
           }else
           if(unit==='Y'){
             res.data.typeValue = quantity+this.$t('commons.date_unit.year');
