@@ -2,7 +2,12 @@
   <el-tabs class="other-info-tabs" v-loading="result.loading" v-model="tabActiveName">
     <el-tab-pane :label="$t('commons.remark')" name="remark">
       <el-row>
-        <form-rich-text-item class="remark-item" :disabled="readOnly" :data="form" prop="remark"/>
+        <form-rich-text-item
+          class="remark-item"
+          :disabled="readOnly"
+          :data="form"
+          :default-open="defaultOpen"
+          prop="remark"/>
       </el-row>
     </el-tab-pane>
     <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
@@ -134,7 +139,10 @@ export default {
     ReviewCommentItem,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText
   },
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit', 'type', 'comments', 'isClickAttachmentTab'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit',
+    'type', 'comments', 'isClickAttachmentTab',
+    'defaultOpen'
+  ],
   data() {
     return {
       result: {},

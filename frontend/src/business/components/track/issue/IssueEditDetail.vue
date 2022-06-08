@@ -29,7 +29,11 @@
 
         <!-- 自定义字段 -->
         <el-form :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm" class="case-form">
-          <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="issueTemplate"/>
+          <custom-filed-form-item
+            :form="customFieldForm"
+            :default-open="richTextDefaultOpen"
+            :form-label-width="formLabelWidth"
+            :issue-template="issueTemplate"/>
         </el-form>
 
         <el-row v-if="jiraTransitions">
@@ -45,7 +49,12 @@
           </el-col>
         </el-row>
 
-        <form-rich-text-item v-if="!enableThirdPartTemplate" :title="$t('custom_field.issue_content')" :data="form" prop="description"/>
+        <form-rich-text-item
+          v-if="!enableThirdPartTemplate"
+          :title="$t('custom_field.issue_content')"
+          :data="form"
+          :default-open="richTextDefaultOpen"
+          prop="description"/>
 
         <el-row v-if="!enableThirdPartTemplate" class="custom-field-row">
           <el-col :span="8" v-if="hasTapdId">
@@ -231,7 +240,8 @@ export default {
         subfield: false, // 单双栏模式
         preview: false, // 预览
       },
-      comments: []
+      comments: [],
+      richTextDefaultOpen: 'preview'
     };
   },
   props: {
@@ -278,6 +288,7 @@ export default {
     open(data, type) {
       this.result.loading = true;
       this.type = type;
+      this.richTextDefaultOpen = this.type === 'edit' ? 'preview' : 'edit';
       this.$nextTick(() => {
         getIssuePartTemplateWithProject((template, project) => {
           this.currentProject = project;
