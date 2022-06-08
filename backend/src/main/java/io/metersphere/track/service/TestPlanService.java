@@ -1147,6 +1147,9 @@ public class TestPlanService {
         // 覆盖原内容
         targetPlan.setId(targetPlanId);
         targetPlan.setName(testPlan.getName() + "_" + UUID.randomUUID().toString().substring(0, 5) + "_COPY");
+        if (targetPlan.getName().length() > 128) {
+            targetPlan.setName(testPlan.getName().substring(0, 116) + "_" + UUID.randomUUID().toString().substring(0, 5) + "_COPY");
+        }
         targetPlan.setStatus(TestPlanStatus.Prepare.name());
         targetPlan.setCreator(SessionUtils.getUserId());
         targetPlan.setCreateTime(System.currentTimeMillis());
