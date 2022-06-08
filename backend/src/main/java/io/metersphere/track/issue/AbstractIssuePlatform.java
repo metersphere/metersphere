@@ -17,6 +17,7 @@ import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.*;
+import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.domain.ProjectIssueConfig;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -589,5 +590,13 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         // 添加方法体逻辑可重写改方法
     }
 
+    /**
+     * 获取第三方平台的状态集合
+     * @param issueKey
+     * @return
+     */
+    public List<PlatformStatusDTO> getTransitions(String issueKey) {
+        return null;
+    }
 
 }

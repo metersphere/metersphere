@@ -2407,7 +2407,15 @@ export default {
       save_before_open_comment: "请先保存缺陷再添加评论",
       delete_tip: "确认删除缺陷：",
       check_id_exist: "检查",
-      save_project_first: "请先保存项目"
+      save_project_first: "请先保存项目",
+      tapd_status_new: "新",
+      tapd_status_in_progress: "接受/处理",
+      tapd_status_reopened: "重新打开",
+      tapd_status_rejected: "已拒绝",
+      tapd_status_verified: "已验证",
+      tapd_status_closed: "已关闭",
+      tapd_status_resolved: "已解决",
+      please_choose_platform_status: "请选择平台状态",
     },
     report: {
       name: "测试计划报告",
