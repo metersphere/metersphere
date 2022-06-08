@@ -950,7 +950,9 @@ export default {
           this.currentProjectId = getCurrentProjectID();
         }
         this.versionData = response.data;
-        this.$refs.versionHistory.loading = false;
+        if (this.$refs.versionHistory) {
+          this.$refs.versionHistory.loading = false;
+        }
       });
     },
     setSpecialPropForCompare: function (that) {
