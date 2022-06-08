@@ -1437,11 +1437,23 @@ export default {
       this.reportId = this.debugReportId;
     },
     runDebug(runScenario) {
-      if(this.debugLoading){
+      if (this.debugLoading) {
         return;
       }
       this.debugLoading = true;
       if (this.scenarioDefinition.length < 1) {
+        this.debugLoading = false;
+        return;
+      }
+      let enableArray;
+      for (let i = 0; i < this.scenarioDefinition.length; i++) {
+        if (this.scenarioDefinition[i].enable) {
+          enableArray = this.scenarioDefinition[i];
+          break;
+        }
+      }
+      if (!enableArray) {
+        this.$warning(this.$t('api_test.definition.request.debug_warning'));
         this.debugLoading = false;
         return;
       }
