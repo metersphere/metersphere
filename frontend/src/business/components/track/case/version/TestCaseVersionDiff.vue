@@ -322,7 +322,7 @@ export default {
     this.open("oldData");
     this.open("newData");
     this.$nextTick(function () {
-      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)*1000)
+      setTimeout(this.getDiff,(this.$refs.old.$children.length+1)*1500)
     })
   },
   methods: {
