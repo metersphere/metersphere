@@ -50,6 +50,7 @@
                class="case-form">
         <custom-filed-form-row :form="customFieldForm"
                                :disabled="readOnly"
+                               :default-open="defaultOpen"
                                :issue-template="testCaseTemplate"/>
       </el-form>
 
@@ -112,6 +113,7 @@ export default {
     customFieldForm: Object,
     customFieldRules: Object,
     testCaseTemplate: Object,
+    defaultOpen: String
   },
   computed: {
     isCustomNum() {

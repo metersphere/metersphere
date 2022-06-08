@@ -99,6 +99,7 @@
     <ms-mark-down-text v-else-if="data.type === 'richText'"
                        :prop="prop"
                        @change="handleChange"
+                       :default-open="defaultOpen"
                        :data="data" :disabled="disabled"/>
 
     <el-input class="custom-with"
@@ -124,7 +125,8 @@ export default {
     'data',
     'prop',
     'form',
-    'disabled'
+    'disabled',
+    'defaultOpen'
   ],
   data() {
     return {
