@@ -38,6 +38,7 @@ public class PermissionConstants {
     public static final String SYSTEM_AUTH_READ = "SYSTEM_AUTH:READ";
     public static final String SYSTEM_AUTH_READ_EDIT = "SYSTEM_AUTH:READ+EDIT";
 
+    public static final String SYSTEM_OPERATING_LOG_READ = "SYSTEM_OPERATING_LOG:READ";
 
     public static final String WORKSPACE_SERVICE_READ = "WORKSPACE_SERVICE:READ";
     public static final String WORKSPACE_SERVICE_READ_EDIT = "WORKSPACE_SERVICE:READ+EDIT";
@@ -60,6 +61,7 @@ public class PermissionConstants {
     public static final String WORKSPACE_PROJECT_ENVIRONMENT_READ_IMPORT = "WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT";
     public static final String WORKSPACE_PROJECT_ENVIRONMENT_READ_EXPORT = "WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT";
 
+    public static final String WORKSPACE_OPERATING_LOG_READ = "WORKSPACE_OPERATING_LOG:READ";
 
     public static final String PROJECT_USER_READ = "PROJECT_USER:READ";
     public static final String PROJECT_USER_READ_CREATE = "PROJECT_USER:READ+CREATE";
@@ -84,6 +86,8 @@ public class PermissionConstants {
     public static final String PROJECT_ENVIRONMENT_READ_COPY = "PROJECT_ENVIRONMENT:READ+COPY";
     public static final String PROJECT_ENVIRONMENT_READ_IMPORT = "PROJECT_ENVIRONMENT:READ+IMPORT";
     public static final String PROJECT_ENVIRONMENT_READ_EXPORT = "PROJECT_ENVIRONMENT:READ+EXPORT";
+
+    public static final String PROJECT_OPERATING_LOG_READ = "PROJECT_OPERATING_LOG:READ";
 
     public static final String PROJECT_TRACK_CASE_READ = "PROJECT_TRACK_CASE:READ";
     public static final String PROJECT_TRACK_CASE_READ_CREATE = "PROJECT_TRACK_CASE:READ+CREATE";
