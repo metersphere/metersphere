@@ -39,15 +39,17 @@
         <slot name="button" v-if="showVersion"></slot>
 
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="(data.disabled && !data.root) || !showVersion"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini"
+                     :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"/>
         </el-tooltip>
 
         <el-button v-if="showVersion && showCopy" size="mini" icon="el-icon-copy-document" circle @click="copyRow"
                    style="padding: 5px"
-                   :disabled="(data.disabled && !data.root) || !showVersion "/>
+                   :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"/>
 
-        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle @click="remove"
-                   :disabled="(data.disabled && !data.root) || !showVersion "/>
+        <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle
+                   @click="remove"
+                   :disabled="(data.disabled && !data.root) || !showVersion || isDeleted"/>
 
         <step-extend-btns style="display: contents"
                           :data="data"
@@ -154,14 +156,18 @@ export default {
     environmentType: String,
     environmentGroupId: String,
     envMap: Map,
-    showEnable : {
+    showEnable: {
       type: Boolean,
-      default : true
+      default: true
     },
-    showCopy : {
+    showCopy: {
       type: Boolean,
-      default : true
+      default: true
     },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
     '$store.state.selectStep': function () {
@@ -198,7 +204,7 @@ export default {
       if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
         return (!this.innerStep || this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
       }
-      return (this.showBtn && (!this.data.disabled || this.data.root) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
+      return (this.showBtn && (!this.data.disabled || this.data.root || this.isDeleted) && this.showVersion && this.stepFilter.get('ALlSamplerStep').indexOf(this.data.type) === -1);
     },
   },
   methods: {

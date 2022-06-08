@@ -11,6 +11,7 @@
     :is-disabled="true"
     :is-max="isMax"
     :show-btn="showBtn"
+    :is-deleted="scenario.referenced==='REF' && ! isShowNum"
     :show-version="showVersion"
     color="#606266"
     background-color="#F4F4F5"
