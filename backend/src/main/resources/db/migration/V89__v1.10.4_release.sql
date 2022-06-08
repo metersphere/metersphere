@@ -26,3 +26,6 @@ VALUES ('7a23d4db-9909-438d-9e36-58e432c8c4ae','ISSUE_SYNC','CRON','0 0 3 * * ?'
 -- 批量创建性能测试
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH', 'PROJECT_API_SCENARIO');
+-- 场景批量复制
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_API_SCENARIO:READ+BATCH_COPY', 'PROJECT_API_SCENARIO');
