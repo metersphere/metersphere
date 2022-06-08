@@ -181,17 +181,9 @@ export default {
           this.getWorkSpaceList();
           this.getMember();
           break;
-        case "organization":
-          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-          this.getMember();
-          break;
         case "workspace":
           this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-          this.getMember();
-          break;
-        case "project":
-          this.getProject();
-          this.getMember();
+          this.getMember('/user/ws/current/member/list');
           break;
       }
     },
@@ -202,17 +194,9 @@ export default {
             this.getWorkSpaceList();
             this.getMember();
             break;
-          case "organization":
-            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-            this.getMember();
-            break;
           case "workspace":
             this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-            this.getMember();
-            break;
-          case "project":
-            this.getProject();
-            this.getMember();
+            this.getMember('/user/ws/current/member/list');
             break;
         }
       },
@@ -278,8 +262,11 @@ export default {
       handleSelect(item) {
         this.$set(this.condition, "operUser", item.id);
       },
-      getMember() {
-        this.result = this.$get('/user/list/', response => {
+      getMember(url) {
+        if (!url) {
+          url = '/usr/list';
+        }
+        this.result = this.$get(url, response => {
           this.userList = response.data;
         });
       },

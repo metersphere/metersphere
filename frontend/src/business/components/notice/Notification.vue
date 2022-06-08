@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     getUserList() {
-      this.$get('/user/list', response => {
+      this.$get('/user/ws/current/member/list', response => {
         this.userList = response.data;
         this.userMap = this.userList.reduce((r, c) => {
           r[c.id] = c;
