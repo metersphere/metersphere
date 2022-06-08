@@ -15,6 +15,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.DemandDTO;
+import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.client.TapdClient;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.tapd.TapdBug;
@@ -97,6 +98,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         issuesRequest.setPlatformStatus(statusMap.get(bug.getStatus()));
 
         issuesRequest.setPlatformId(bug.getId());
+        issuesRequest.setPlatformStatus(bug.getStatus());
         issuesRequest.setId(UUID.randomUUID().toString());
 
         // 插入缺陷表
@@ -141,6 +143,9 @@ public class TapdPlatform extends AbstractIssuePlatform {
         paramMap.add("workspace_id", tapdId);
         paramMap.add("description", msDescription2Tapd(issuesRequest.getDescription()));
         paramMap.add("current_owner", usersStr);
+        if (issuesRequest.getTransitions() != null) {
+            paramMap.add("status", issuesRequest.getTransitions().getValue());
+        }
 
         addCustomFields(issuesRequest, paramMap);
 
@@ -238,7 +243,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         }
         TapdBug bugObj = JSONObject.parseObject(bug.toJSONString(), TapdBug.class);
         BeanUtils.copyBean(issue, bugObj);
-        issue.setPlatformStatus(statusMap.get(bugObj.getStatus()));
+        issue.setPlatformStatus(bugObj.getStatus());
         issue.setDescription(htmlDesc2MsDesc(issue.getDescription()));
         issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
         issue.setPlatform(key);
@@ -277,5 +282,22 @@ public class TapdPlatform extends AbstractIssuePlatform {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public List<PlatformStatusDTO> getTransitions(String issueKey) {
+        List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
+        Project project = projectService.getProjectById(this.projectId);
+
+        // 获取缺陷状态数据
+        Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
+        for (String key : statusMap.keySet()) {
+            PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
+            platformStatusDTO.setValue(key);
+            platformStatusDTO.setLable(statusMap.get(key));
+            platformStatusDTOS.add(platformStatusDTO);
+        }
+
+        return platformStatusDTOS;
     }
 }

@@ -2400,7 +2400,15 @@ export default {
       save_before_open_comment: "請先保存缺陷再添加評論",
       delete_tip: "確認刪除缺陷：",
       check_id_exist: "檢查",
-      save_project_first: "請先保存項目"
+      save_project_first: "請先保存項目",
+      tapd_status_new: "新",
+      tapd_status_in_progress: "接受/處理",
+      tapd_status_reopened: "重新打開",
+      tapd_status_rejected: "已拒絕",
+      tapd_status_verified: "已驗證",
+      tapd_status_closed: "已關閉",
+      tapd_status_resolved: "已解決",
+      please_choose_platform_status: "請選擇平臺狀態",
     },
     report: {
       name: "測試計劃報告",
