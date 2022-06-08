@@ -377,7 +377,7 @@ public class TestPlanService {
             Integer functionalExecTotal = 0;
 
             for (CountMapDTO item : statusCountMap) {
-                functionalExecTotal++;
+                functionalExecTotal += functionalExecTotal + item.getValue();
                 if (!StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Prepare.name())
                         && !StringUtils.equals(item.getKey(), TestPlanTestCaseStatus.Underway.name())) {
                     testPlan.setTested(testPlan.getTested() + item.getValue());
