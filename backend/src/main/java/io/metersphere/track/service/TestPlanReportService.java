@@ -294,6 +294,9 @@ public class TestPlanReportService {
         testPlanReport.setUpdateTime(System.currentTimeMillis());
         try {
             testPlanReport.setName(testPlan.getName() + "-" + DateUtils.getTimeString(new Date()));
+            if (testPlanReport.getName().length() > 128) {
+                testPlanReport.setName(testPlan.getName().substring(0, 106) + "-" + DateUtils.getTimeString(new Date()));
+            }
         } catch (Exception ignored) {
         }
 
