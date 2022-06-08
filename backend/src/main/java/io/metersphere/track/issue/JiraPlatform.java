@@ -18,6 +18,7 @@ import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.service.CustomFieldService;
 import io.metersphere.track.dto.DemandDTO;
+import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ProjectIssueConfig;
@@ -462,7 +463,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         if (request.getTransitions() != null) {
             try {
-                jiraClientV2.setTransitions(request.getPlatformId(), request.getTransitions());
+                List<JiraTransitionsResponse.Transitions> transitions = jiraClientV2.getTransitions(request.getPlatformId());
+                transitions.forEach(transition -> {
+                    if (Objects.equals(request.getPlatformStatus(), transition.getTo().getName())) {
+                        jiraClientV2.setTransitions(request.getPlatformId(), transition);
+                    }
+                });
             } catch (Exception e) {
                 LogUtil.error(e);
             }
@@ -555,8 +561,19 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return setUserConfig(getUserPlatInfo(this.workspaceId));
     }
 
-    public List<JiraTransitionsResponse.Transitions> getTransitions(String issueKey) {
-        return jiraClientV2.getTransitions(issueKey);
+    @Override
+    public List<PlatformStatusDTO> getTransitions(String issueKey) {
+        List<PlatformStatusDTO> platformStatusDTOS = new ArrayList<>();
+        List<JiraTransitionsResponse.Transitions> transitions = jiraClientV2.getTransitions(issueKey);
+        if (CollectionUtils.isNotEmpty(transitions)) {
+            transitions.forEach(item -> {
+                PlatformStatusDTO platformStatusDTO = new PlatformStatusDTO();
+                platformStatusDTO.setLable(item.getTo().getName());
+                platformStatusDTO.setValue(item.getTo().getName());
+                platformStatusDTOS.add(platformStatusDTO);
+            });
+        }
+        return platformStatusDTOS;
     }
 
     public IssueTemplateDao getThirdPartTemplate() {
