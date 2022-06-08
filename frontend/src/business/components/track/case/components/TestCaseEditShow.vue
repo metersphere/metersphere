@@ -98,28 +98,6 @@
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                      :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
-
-          <el-row style="margin-top: 10px" v-if="type!=='add'">
-            <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
-              <el-button icon="el-icon-plus" type="mini" @click="openComment" :disabled="readOnly"></el-button>
-            </el-col>
-          </el-row>
-          <el-row v-if="type!=='add'">
-            <el-col :span="20" :offset="1">
-
-              <review-comment-item v-for="(comment,index) in comments"
-                                   :key="index"
-                                   :comment="comment"
-                                   @refresh="getComments" :disabled="readOnly" api-url="/test/case"/>
-              <div v-if="comments.length === 0" style="text-align: center">
-                <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
-                      <span style="font-size: 15px; color: #8a8b8d;">
-                        {{ $t('test_track.comment.no_comment') }}
-                      </span>
-                </i>
-              </div>
-            </el-col>
-          </el-row>
           <test-case-comment :case-id="form.id"
                              @getComments="getComments" ref="testCaseComment"/>
 
