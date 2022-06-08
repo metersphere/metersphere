@@ -125,7 +125,7 @@ export default {
       });
     },
     getWorkspace(resolve) {
-      this.$get("workspace/list/", res => {
+      this.$get("workspace/list", res => {
         let data = res.data ? res.data : [];
         data.forEach(d => d.leaf = true);
         resolve(data);

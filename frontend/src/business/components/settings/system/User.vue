@@ -420,11 +420,6 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    getWsList() {
-      this.$get("/workspace/list", response => {
-        this.$set(this.form, "wsList", response.data);
-      })
-    },
     importUserDialogOpen(){
       this.$refs.userImportDialog.open();
     },
