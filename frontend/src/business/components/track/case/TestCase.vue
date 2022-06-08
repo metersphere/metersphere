@@ -393,6 +393,9 @@ export default {
           this.activeDom = this.tmpActiveDom;
           this.tmpActiveDom = null;
         });
+      } else {
+        this.activeDom = this.tmpActiveDom;
+        this.tmpActiveDom = null;
       }
 
       this.$store.commit('setIsTestCaseMinderChanged', false);
