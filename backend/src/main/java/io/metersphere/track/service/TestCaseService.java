@@ -1703,6 +1703,9 @@ public class TestCaseService {
                 String id = UUID.randomUUID().toString();
                 batchCopy.setId(id);
                 batchCopy.setName(ServiceUtils.getCopyName(batchCopy.getName()));
+                if (batchCopy.getName().length() > 255) {
+                    batchCopy.setName(batchCopy.getName().substring(0, 250) + batchCopy.getName().substring(batchCopy.getName().length() - 5));
+                }
                 batchCopy.setCreateTime(System.currentTimeMillis());
                 batchCopy.setUpdateTime(System.currentTimeMillis());
                 batchCopy.setCreateUser(SessionUtils.getUserId());
@@ -2572,6 +2575,9 @@ public class TestCaseService {
                 String oldTestCaseId = testCase.getId();
                 testCase.setId(id);
                 testCase.setName(ServiceUtils.getCopyName(testCase.getName()));
+                if (testCase.getName().length() > 255) {
+                    testCase.setName(testCase.getName().substring(0, 250) + testCase.getName().substring(testCase.getName().length() - 5));
+                }
                 testCase.setNodeId(request.getNodeId());
                 testCase.setNodePath(request.getNodePath());
                 testCase.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
