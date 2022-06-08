@@ -118,6 +118,16 @@ export const ISSUE_STATUS_MAP = {
   'created':i18n.t('test_track.issue.status_new')
 }
 
+export const TAPD_ISSUE_STATUS_MAP = {
+  'new': i18n.t('test_track.issue.tapd_status_new'),
+  'in_progress': i18n.t('test_track.issue.tapd_status_in_progress'),
+  'reopened': i18n.t('test_track.issue.tapd_status_reopened'),
+  'rejected': i18n.t('test_track.issue.tapd_status_rejected'),
+  'verified': i18n.t('test_track.issue.tapd_status_verified'),
+  'closed':i18n.t('test_track.issue.tapd_status_closed'),
+  'resolved':i18n.t('test_track.issue.tapd_status_resolved')
+}
+
 export function API_SCENARIO_FILTERS () {
   return {
     STATUS_FILTERS: [

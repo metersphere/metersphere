@@ -164,9 +164,9 @@ export function getJiraIssueType(param, callback) {
   return basePost('/issues/jira/issuetype', param, callback);
 }
 
-export function getJiraTransitions(jiraKey, callback) {
-  return basePost('/issues/jira/transitions', {
-    jiraKey,
+export function getPlatformTransitions(platformKey, callback) {
+  return basePost('/issues/platform/transitions', {
+    platformKey,
     projectId: getCurrentProjectID(),
     workspaceId: getCurrentWorkspaceId()
   }, callback);

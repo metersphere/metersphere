@@ -32,14 +32,14 @@
           <custom-filed-form-item :form="customFieldForm" :form-label-width="formLabelWidth" :issue-template="issueTemplate"/>
         </el-form>
 
-        <el-row v-if="jiraTransitions">
+        <el-row v-if="platformTransitions">
           <el-col :span="8">
             <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.platform_status')"
                           prop="platformStatus">
               <el-select v-model="form.platformStatus" filterable
-                         :placeholder="$t('test_track.issue.please_choose_current_owner')">
-                <el-option v-for="(transition, index) in jiraTransitions" :key="index" :label="transition.to.name"
-                           :value="transition.to.name"/>
+                         :placeholder="$t('test_track.issue.please_choose_platform_status')">
+                <el-option v-for="(transition, index) in platformTransitions" :key="index" :label="transition.lable"
+                           :value="transition.value"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -131,7 +131,7 @@ import CustomFiledComponent from "@/business/components/project/template/CustomF
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId,} from "@/common/js/utils";
-import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getJiraTransitions} from "@/network/Issue";
+import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getPlatformTransitions} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 import IssueComment from "@/business/components/track/issue/IssueComment";
@@ -194,7 +194,7 @@ export default {
       Builds: [],
       hasTapdId: false,
       hasZentaoId: false,
-      jiraTransitions: null,
+      platformTransitions: null,
       currentProject: null,
       toolbars: {
         bold: false, // 粗体
@@ -316,7 +316,16 @@ export default {
     },
     getThirdPartyInfo() {
       let platform = this.issueTemplate.platform;
-      this.jiraTransitions = null;
+
+      this.platformTransitions = null;
+      if (this.form.platformId) {
+        getPlatformTransitions(this.form.platformId, (data) => {
+          if (data.length > 0) {
+            this.platformTransitions = data;
+          }
+        });
+      }
+
       if (platform === 'Zentao') {
         this.hasZentaoId = true;
         this.result = this.$post("/issues/zentao/builds", {
@@ -340,10 +349,6 @@ export default {
           workspaceId: getCurrentWorkspaceId()
         }, (response) => {
           this.tapdUsers = response.data;
-        });
-      } else if (JIRA === platform && this.form.id) {
-        getJiraTransitions(this.form.platformId, (data) => {
-          this.jiraTransitions = data;
         });
       }
     },
@@ -406,9 +411,9 @@ export default {
       Object.assign(param, this.form);
       param.projectId = this.projectId;
       param.workspaceId = getCurrentWorkspaceId();
-      if (this.jiraTransitions) {
-        this.jiraTransitions.forEach(item => {
-          if (item.to.name === this.form.platformStatus) {
+      if (this.platformTransitions) {
+        this.platformTransitions.forEach(item => {
+          if (item.value === this.form.platformStatus) {
             param.transitions = item;
           }
         });
