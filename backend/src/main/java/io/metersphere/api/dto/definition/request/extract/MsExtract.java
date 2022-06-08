@@ -37,7 +37,7 @@ public class MsExtract extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (!this.isEnable()) {
             return;
         }
         addRequestExtractors(tree, config);
