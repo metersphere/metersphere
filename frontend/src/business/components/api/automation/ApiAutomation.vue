@@ -107,6 +107,7 @@
 
 import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, getUUID, hasPermission} from "@/common/js/utils";
 import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
+import {buildTree} from "@/business/components/api/definition/model/NodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -212,34 +213,46 @@ export default {
     exportJmx() {
       this.$refs.apiScenarioList.exportJmx();
     },
-    checkRedirectEditPage(redirectParam) {
-      if (redirectParam != null) {
-        let selectParamArr = redirectParam.split("edit:");
-        if (selectParamArr.length == 2) {
-          let scenarioId = selectParamArr[1];
-          //查找单条数据，跳转修改页面
-          let url = "/api/automation/list/" + 1 + "/" + 1;
-          this.$post(url, {id: scenarioId}, async response => {
-            let data = response.data;
-            if (data != null) {
-              //如果树未加载
-              if (this.moduleOptions && this.moduleOptions.length === 0) {
-                 await this.$refs.nodeTree.list();
-              }
-              if (data.listObject && data.listObject.length > 0) {
-                let row = data.listObject[0];
-                if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
-                  if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-                    && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
-                    row.tags = JSON.parse(row.tags);
-                  }
-                }
-                this.editScenario(row);
-              }
-            }
-          });
-        }
+    checkRedirectEditPage(params) {
+      if (!params) {
+        return;
       }
+      let paramArr = params.split("edit:");
+      if (paramArr.length !== 2) {
+        return;
+      }
+      let scenarioId = paramArr[1];
+      //查找单条数据，跳转修改页面
+      this.$post("/api/automation/list/1/1", {id: scenarioId}, response => {
+        let data = response.data;
+        if (data && data.listObject && data.listObject.length > 0) {
+          let row = data.listObject[0];
+          let checks = ["array", "object"];
+          if (row && row.tags && (checks.indexOf(Object.prototype.toString.call(row.tags)
+            .match(/\[object (\w+)\]/)[1].toLowerCase()) !== -1)) {
+            row.tags = JSON.parse(row.tags);
+          }
+          //如果树未加载
+          if (this.moduleOptions && this.moduleOptions.length === 0) {
+            let projectId = data.projectId ? data.projectId : this.projectId;
+            this.initModules(row, projectId);
+          } else {
+            this.editScenario(row);
+          }
+        }
+      });
+    },
+    initModules(row, projectId) {
+      this.$get("/api/automation/module/list/" + projectId, response => {
+        if (response.data) {
+          response.data.forEach(node => {
+            node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name
+            buildTree(node, {path: ''});
+          });
+          this.moduleOptions = response.data;
+        }
+        this.editScenario(row);
+      });
     },
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
@@ -609,7 +622,7 @@ export default {
       }
     },
     editScenario(row) {
-      if(!row) {
+      if (!row) {
         this.activeName === 'default'
         this.$error("跳转的应场景已经删除！");
         return;
