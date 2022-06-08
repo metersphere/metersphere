@@ -955,11 +955,11 @@ public class TestPlanReportService {
     }
 
     public TestPlanExecuteReportDTO genTestPlanExecuteReportDTOByTestPlanReportContent(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
-        Map<String, String> testPlanApiCaseIdAndReportIdMap = new HashMap<>();
-        Map<String, String> testPlanScenarioIdAndReportIdMap = new HashMap<>();
-        Map<String, String> testPlanLoadCaseIdAndReportIdMap = new HashMap<>();
-        Map<String,TestPlanFailureApiDTO> apiCaseInfoDTOMap = new HashMap<>();
-        Map<String,TestPlanFailureScenarioDTO> scenarioInfoDTOMap = new HashMap<>();
+        Map<String, String> testPlanApiCaseIdAndReportIdMap = new LinkedHashMap<>();
+        Map<String, String> testPlanScenarioIdAndReportIdMap = new LinkedHashMap<>();
+        Map<String, String> testPlanLoadCaseIdAndReportIdMap = new LinkedHashMap<>();
+        Map<String,TestPlanFailureApiDTO> apiCaseInfoDTOMap = new LinkedHashMap<>();
+        Map<String,TestPlanFailureScenarioDTO> scenarioInfoDTOMap = new LinkedHashMap<>();
 
         if (testPlanReportContentWithBLOBs != null) {
             if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct())) {
