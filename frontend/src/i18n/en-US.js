@@ -1255,6 +1255,7 @@ export default {
         batch_copy_end: "Batch Copy Over",
         delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
+        debug_warning: "No steps to turn on",
         assertions_rule: "Assertion rule",
         scenario_assertions: "Scenario assertion rule",
         pre_operation: "Pre operation",
