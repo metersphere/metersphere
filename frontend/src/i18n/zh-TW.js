@@ -1267,6 +1267,7 @@ export default {
         batch_copy_end: "批量復製完成",
         delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
+        debug_warning: "沒有開啟的步驟",
         assertions_rule: "斷言規則",
         scenario_assertions: "場景斷言",
         pre_operation: "前置操作",
