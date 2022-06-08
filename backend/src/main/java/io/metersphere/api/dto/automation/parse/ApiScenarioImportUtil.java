@@ -6,6 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
@@ -141,15 +143,22 @@ public class ApiScenarioImportUtil {
             if(MapUtils.isEmpty(definitionMap)){
                 return null;
             }else {
+                return definitionMap.get(object.getString("path") + object.getString("method") + object.getString("protocol"));
+            }
+        } else {
+            if(MapUtils.isEmpty(definitionMap)){
+                definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"),apiDefinition);
+                return apiDefinition;
+            }else {
                 ApiDefinition apiDefinition1 = definitionMap.get(object.getString("path") + object.getString("method") + object.getString("protocol"));
-                if(apiDefinition1!=null){
+                if (apiDefinition1 == null) {
+                    definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"),apiDefinition);
+                    return apiDefinition;
+                } else {
                     return apiDefinition1;
-                }else{
-                    return null;
                 }
             }
         }
-        return apiDefinition;
     }
 
     public static void checkCase(int i,JSONObject object, String versionId, String projectId, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper,Map<String,ApiDefinition>definitionMap) {
@@ -162,7 +171,20 @@ public class ApiScenarioImportUtil {
             ApiDefinition apiDefinition = getApiDefinitionResult(object,apiDefinitionService,definitionMap,userRelatedProjectIds);
             if(apiDefinition!=null){
                 if(MapUtils.isNotEmpty(definitionMap)||definitionMap.size()==0){
-                    structureCaseByJson(i,object,testCaseService, apiDefinition,apiTestCaseMapper);
+                    ApiTestCaseRequest request = new ApiTestCaseRequest();
+                    request.setApiDefinitionId(apiDefinition.getId());
+                    request.setName(object.getString("name"));
+                    List<ApiTestCaseDTO> apiTestCaseDTOS = testCaseService.listSimple(request);
+                    if (apiTestCaseDTOS ==null || apiTestCaseDTOS.isEmpty()) {
+                        structureCaseByJson(i,object,testCaseService, apiDefinition,apiTestCaseMapper);
+                    } else {
+                        ApiTestCaseDTO apiTestCase = apiTestCaseDTOS.get(0);
+                        object.put("id", apiTestCase.getId());
+                        object.put("resourceId", apiTestCase.getId());
+                        object.put("projectId", projectId);
+                        object.put("useEnvironment","");
+                        object.put("environmentId","");
+                    }
                 }
             }else{
                 ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(i,apiDefinitionService, object, versionId, projectId, apiDefinitionMapper,definitionMap);
