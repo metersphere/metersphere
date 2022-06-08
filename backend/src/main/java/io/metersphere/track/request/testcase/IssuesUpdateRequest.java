@@ -1,7 +1,7 @@
 package io.metersphere.track.request.testcase;
 
 import io.metersphere.base.domain.IssuesWithBLOBs;
-import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
+import io.metersphere.track.dto.PlatformStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,5 +36,5 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      */
     private String devopsFields;
 
-    private JiraTransitionsResponse.Transitions transitions;
+    private PlatformStatusDTO transitions;
 }

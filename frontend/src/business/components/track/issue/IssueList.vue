@@ -73,6 +73,7 @@
                   prop="platformStatus">
             <template v-slot="scope">
               <span v-if="scope.row.platform ==='Zentao'">{{ scope.row.platformStatus ? issueStatusMap[scope.row.platformStatus] : '--'}}</span>
+              <span v-else-if="scope.row.platform ==='Tapd'">{{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--'}}</span>
               <span v-else>{{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}</span>
             </template>
           </ms-table-column>
@@ -163,7 +164,8 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {
   ISSUE_PLATFORM_OPTION,
   ISSUE_STATUS_MAP,
-  SYSTEM_FIELD_NAME_MAP
+  SYSTEM_FIELD_NAME_MAP,
+  TAPD_ISSUE_STATUS_MAP
 } from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
@@ -244,6 +246,9 @@ export default {
     },
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
+    },
+    tapdIssueStatusMap() {
+      return TAPD_ISSUE_STATUS_MAP;
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
