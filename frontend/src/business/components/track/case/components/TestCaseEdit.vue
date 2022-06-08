@@ -980,11 +980,10 @@ export default {
             that.oldData = data[1].data.data;
             that.newData.createTime = row.createTime;
             that.oldData.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === that.oldData.versionId)[0].createTime;
-            let testCase = that.versionData.filter(v => v.versionId === this.currentTestCaseInfo.versionId)[0];
             that.newData.versionName = that.versionData.filter(v => v.id === that.newData.id)[0].versionName;
             that.oldData.versionName = that.versionData.filter(v => v.id === that.oldData.id)[0].versionName;
             that.newData.userName = response.data.createName
-            that.oldData.userName = testCase.createName
+            that.oldData.userName = that.versionData.filter(v => v.id === that.oldData.id)[0].createName
             this.setSpecialPropForCompare(that);
             that.dialogVisible = true;
           }
