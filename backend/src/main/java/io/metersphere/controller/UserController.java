@@ -39,6 +39,7 @@ public class UserController {
 
     @PostMapping("/special/add")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_CREATE)
     public UserDTO insertUser(@RequestBody UserRequest user) {
         return userService.insert(user);
     }
@@ -56,6 +57,7 @@ public class UserController {
 
     @GetMapping("/special/delete/{userId}")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public void deleteUser(@PathVariable(value = "userId") String userId) {
         userService.deleteUser(userId);
         // 剔除在线用户
@@ -64,12 +66,14 @@ public class UserController {
 
     @PostMapping("/special/update")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user)", content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT)
     public void updateUser(@RequestBody UserRequest user) {
         userService.updateUserRole(user);
     }
 
     @PostMapping("/special/update_status")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT)
     public void updateStatus(@RequestBody User user) {
         userService.updateUser(user);
     }
@@ -240,6 +244,7 @@ public class UserController {
     /*管理员修改用户密码*/
     @PostMapping("/special/password")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = UserService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT_PASSWORD)
     public int updateUserPassword(@RequestBody EditPassWordRequest request) {
         return userService.updateUserPassword(request);
     }
