@@ -6,6 +6,7 @@
       @active="active"
       :is-show-name-input="!isDeletedOrRef"
       :data="request"
+      :is-deleted="request.referenced==='REF' && !isShowNum"
       :draggable="draggable"
       :color="displayColor.color"
       :background-color="displayColor.backgroundColor"
@@ -256,12 +257,13 @@ export default {
     if (this.request.hashTree) {
       this.setOwnEnvironment(this.request.hashTree);
     }
+    if (this.request.id && this.request.referenced === 'REF') {
+      this.request.disabled = true;
+    }
     if (this.request.num) {
       this.isShowNum = true;
       this.request.root = true;
-      if (this.request.id && this.request.referenced === 'REF') {
-        this.request.disabled = true;
-      }
+
     } else {
       this.isShowNum = false;
     }
