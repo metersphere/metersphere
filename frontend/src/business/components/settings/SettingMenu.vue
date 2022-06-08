@@ -72,6 +72,11 @@ export default {
               this.systems.splice(this.systems.indexOf(item), 1);
             }
           });
+          this.workspaces.forEach(item => {
+            if (item.valid === true) {
+              this.workspaces.splice(this.workspaces.indexOf(item), 1);
+            }
+          });
         }
       });
     }
