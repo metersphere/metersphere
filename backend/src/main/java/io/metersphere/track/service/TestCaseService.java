@@ -239,13 +239,19 @@ public class TestCaseService {
         }
     }
 
-    public void addDemandHyperLinkBatch(List<String> testcaseIds) {
+    public void addDemandHyperLinkBatch(List<String> testcaseIds, String projectId) {
         if (CollectionUtils.isEmpty(testcaseIds)) {
             return;
         }
-        TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(testcaseIds.get(0));
-        // 同步删除用例与需求的关联关系
-        Project project = projectService.getProjectById(testCase.getProjectId());
+
+        Project project;
+        if (StringUtils.isNotBlank(projectId)) {
+            project = projectService.getProjectById(projectId);
+        } else {
+            TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(testcaseIds.get(0));
+            // 同步删除用例与需求的关联关系
+            project = projectService.getProjectById(testCase.getProjectId());
+        }
 
         // AzureDevops 才处理
         if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
@@ -639,6 +645,10 @@ public class TestCaseService {
     }
 
     public int deleteToGcBatch(List<String> ids) {
+        return deleteToGcBatch(ids, null);
+    }
+
+    public int deleteToGcBatch(List<String> ids, String projectId) {
         if (CollectionUtils.isEmpty(ids)) {
             return 0;
         }
@@ -646,7 +656,7 @@ public class TestCaseService {
         testCase.setDeleteUserId(SessionUtils.getUserId());
         testCase.setDeleteTime(System.currentTimeMillis());
 
-        addDemandHyperLinkBatch(ids);
+        addDemandHyperLinkBatch(ids, projectId);
 
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
         BeanUtils.copyBean(request, testCase);
@@ -1943,7 +1953,7 @@ public class TestCaseService {
 
     public void minderEdit(TestCaseMinderEditRequest request) {
 
-        deleteToGcBatch(request.getIds());
+        deleteToGcBatch(request.getIds(), request.getProjectId());
 
         testCaseNodeService.minderEdit(request);
 
