@@ -103,6 +103,9 @@ name: "TestPlanMinder",
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
+    },
+    treeNodes() {
+      this.$refs.minder.initData();
     }
   },
   methods: {
