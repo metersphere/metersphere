@@ -631,7 +631,7 @@ export default {
         }
       });
       if (message !== "") {
-        this.$alert(this.$t('commons.api') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
+        this.$alert(this.$t('commons.api') + " [ " + message + " ] " + this.$t('commons.confirm_info'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           callback: (action) => {
