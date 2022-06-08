@@ -340,7 +340,7 @@ export function appendNextPageNode(parent) {
     }
   }
   let minderPageInfo = minderPageInfoMap.get(parent.data.id === 'root' ? '' : parent.data.id);
-  let total = minderPageInfo.total;
+  let total = minderPageInfo ? minderPageInfo.total : 0;
   if (total > caseNum) {
     let nexPageNode = {
       text: '...',
