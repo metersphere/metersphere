@@ -72,7 +72,7 @@ export default {
   methods: {
     getCurrentWorkspaceId,
     initMenuData() {
-      this.$get("/workspace/list/userworkspace/" + encodeURIComponent(this.currentUserId), response => {
+      this.$get("/workspace/list/userworkspace", response => {
         this.workspaceList = response.data;
         this.wsListCopy = response.data;
         let workspace = response.data.filter(r => r.id === getCurrentWorkspaceId());

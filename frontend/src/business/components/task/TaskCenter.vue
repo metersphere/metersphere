@@ -270,7 +270,7 @@ export default {
       });
     },
     getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.$get('/user/project/member/list', response => {
         this.maintainerOptions = response.data;
         this.condition.executor = getCurrentUser().id;
       });
