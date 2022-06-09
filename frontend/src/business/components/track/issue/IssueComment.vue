@@ -4,7 +4,7 @@
     <div v-loading="result.loading">
       <div class="editors_div_style">
         <div id="editorsDiv">
-          <ms-mark-down-text prop="description" :data="from" :toolbars="toolbars"/>
+          <ms-mark-down-text default-open="edit" prop="description" :data="from" :toolbars="toolbars" custom-min-height="220"/>
         </div>
       </div>
       <div>
