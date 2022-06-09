@@ -375,9 +375,6 @@ export default {
           if (callback && typeof callback === "function") {
             callback();
           }
-          setTimeout(() => {
-            this.$refs.table.reloadTable()
-          }, 200);
         });
         this.getNexPageData();
       }
