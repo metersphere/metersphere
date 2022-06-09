@@ -77,6 +77,8 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -1604,6 +1606,8 @@ public class TestCaseService {
                             if(StringUtils.isEmpty(stepItem)){
                                 stepItem = "";
                             }
+                            //正则去空格、回车、换行符、制表符
+                            stepItem = stepItem.replaceAll("\\s*|\t|\r|\n", "");
                             step.append(num + "." + stepItem + "\n");
                             String resultItem = jsonArray.getJSONObject(j).getString("result");
                             if(StringUtils.isEmpty(resultItem)){
@@ -2748,4 +2752,5 @@ public class TestCaseService {
         List<TestCaseDTO> testCaseDTOS = publicListTestCase(request);
         return testCaseNodeService.getNodeByTestCases(testCaseDTOS);
     }
+
 }
