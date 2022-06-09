@@ -44,7 +44,8 @@
               right-content="CASE"
             >
               <template v-slot:version>
-                <version-select v-xpack :project-id="projectId" :version-id="trashVersion" @changeVersion="changeVersion"/>
+                <version-select v-xpack :project-id="projectId" :version-id="trashVersion"
+                                @changeVersion="changeVersion"/>
               </template>
               <!-- 列表集合 -->
               <ms-api-list
@@ -422,8 +423,8 @@ export default {
     let workspaceId = this.$route.params.workspaceId;
     if (workspaceId) {
       sessionStorage.setItem(WORKSPACE_ID, workspaceId);
-    }else {
-      if(this.$route.query.workspaceId){
+    } else {
+      if (this.$route.query.workspaceId) {
         workspaceId = this.$route.query.workspaceId;
         sessionStorage.setItem(WORKSPACE_ID, workspaceId);
       }
@@ -431,7 +432,7 @@ export default {
     let projectId = this.$route.params.projectId;
     if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
-    }else {
+    } else {
       if (this.$route.query.projectId) {
         projectId = this.$route.query.projectId;
         sessionStorage.setItem(PROJECT_ID, this.$route.query.projectId);
@@ -496,7 +497,7 @@ export default {
     },
     addTab(tab) {
       if (tab.name === 'add') {
-        this.result = this.$get('/project_application/get/config/' + this.projectId +"/API_QUICK_MENU", res => {
+        this.result = this.$get('/project_application/get/config/' + this.projectId + "/API_QUICK_MENU", res => {
           let projectData = res.data;
           if (projectData && projectData.apiQuickMenu === 'api') {
             this.handleTabAdd("ADD");
@@ -692,22 +693,43 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-      if (targetName === undefined || targetName === null) {
-        targetName = this.$t('api_test.definition.request.title');
-      }
+
       let newTabName = getUUID();
-      this.apiTabs.push({
-        title: targetName,
-        name: newTabName,
-        closable: true,
-        type: action,
-        api: api,
-        isCopy: api ? api.isCopy : false
-      });
+      let addNewTab = true;
+      if (action === 'SCHEDULE') {
+        //定时同步页面不需要重复新建
+        this.apiTabs.forEach(tab => {
+          if (tab.title === targetName) {
+            addNewTab = false;
+            newTabName = tab.name;
+          }
+        });
+      }
+      if (addNewTab) {
+        if (targetName === undefined || targetName === null) {
+          targetName = this.$t('api_test.definition.request.title');
+        }
+        this.apiTabs.push({
+          title: targetName,
+          name: newTabName,
+          closable: true,
+          type: action,
+          api: api,
+          isCopy: api ? api.isCopy : false
+        });
+      }
       if (action === "ADD") {
         this.activeTab = "api";
       }
-      this.apiDefaultTab = newTabName;
+      this.$nextTick(() => {
+        this.apiDefaultTab = newTabName;
+        if(!addNewTab && action === "SCHEDULE") {
+          //定时任务tab不用重新开启，但是需要更新数据
+          if(this.$refs.apiSchedules){
+            this.$refs.apiSchedules.searchTaskList();
+          }
+        }
+      });
     },
     debug(id) {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
