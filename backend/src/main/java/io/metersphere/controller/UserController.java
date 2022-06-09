@@ -45,6 +45,7 @@ public class UserController {
     }
 
     @PostMapping("/special/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody io.metersphere.controller.request.UserRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
@@ -79,12 +80,14 @@ public class UserController {
     }
 
     @PostMapping("/special/ws/member/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ)
     public Pager<List<User>> getMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
     }
 
     @PostMapping("/special/ws/member/list/all")
+    @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ)
     public List<User> getMemberListByAdmin(@RequestBody QueryMemberRequest request) {
         return userService.getMemberList(request);
     }
@@ -144,19 +147,23 @@ public class UserController {
      * 获取工作空间成员用户
      */
     @PostMapping("/ws/member/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_USER_READ)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
     }
 
     @PostMapping("/project/member/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
     public Pager<List<User>> getProjectMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
     }
 
-    @PostMapping("/project/member/list")
-    public List<User> getProjectMemberListAll(@RequestBody QueryMemberRequest request) {
+    @GetMapping("/project/member/list")
+    public List<User> getProjectMemberListAll() {
+        QueryMemberRequest request = new QueryMemberRequest();
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return userService.getProjectMemberList(request);
     }
 
@@ -169,6 +176,7 @@ public class UserController {
      * 获取工作空间成员用户 不分页
      */
     @PostMapping("/ws/member/list/all")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
         return userService.getMemberList(request);
     }
@@ -223,15 +231,6 @@ public class UserController {
         userService.deleteProjectMember(projectId, userId);
     }
 
-
-    /**
-     * ws 下所有相关人员
-     */
-    @GetMapping("/ws/member/list/{workspaceId}")
-    public List<User> getWsMemberList(@PathVariable String workspaceId) {
-        return userService.getWsAllMember(workspaceId);
-    }
-
     /*
      * 修改当前用户密码
      * */
@@ -247,11 +246,6 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT_PASSWORD)
     public int updateUserPassword(@RequestBody EditPassWordRequest request) {
         return userService.updateUserPassword(request);
-    }
-
-    @PostMapping("/project/member/tester/list")
-    public List<User> getProjectMember(@RequestBody QueryMemberRequest request) {
-        return userService.getProjectMember(request);
     }
 
     @GetMapping("/search/{condition}")

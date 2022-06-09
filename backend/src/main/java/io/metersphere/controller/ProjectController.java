@@ -18,6 +18,7 @@ import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ProjectService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +39,7 @@ public class ProjectController {
     private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @GetMapping("/listAll")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public List<ProjectDTO> listAll() {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ProjectRequest request = new ProjectRequest();
@@ -47,7 +49,8 @@ public class ProjectController {
 
     /*jenkins项目列表*/
     @GetMapping("/listAll/{workspaceId}")
-    public List<ProjectDTO> jlistAll(@PathVariable String workspaceId) {
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
+    public List<ProjectDTO> listAll(@PathVariable String workspaceId) {
         ProjectRequest request = new ProjectRequest();
         request.setWorkspaceId(workspaceId);
         return projectService.getProjectList(request);
@@ -83,6 +86,7 @@ public class ProjectController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, projectService.getProjectList(request));
@@ -109,7 +113,7 @@ public class ProjectController {
 
     @PostMapping("/update")
     @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = ProjectService.class)
-    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT, PermissionConstants.PROJECT_MANAGER_READ_EDIT}, logical = Logical.OR)
     public void updateProject(@RequestBody AddProjectRequest Project) {
         projectService.updateProject(Project);
     }

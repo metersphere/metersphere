@@ -1182,14 +1182,6 @@ public class UserService {
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
-    public List<User> getProjectMember(QueryMemberRequest request) {
-        String projectId = request.getProjectId();
-        if (StringUtils.isBlank(projectId)) {
-            return new ArrayList<>();
-        }
-        return extUserGroupMapper.getProjectMemberList(request);
-    }
-
     public List<User> getWsAllMember(String workspaceId) {
         List<String> sourceIds = new ArrayList<>();
         ProjectExample projectExample = new ProjectExample();
