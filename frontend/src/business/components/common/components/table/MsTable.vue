@@ -291,6 +291,7 @@ export default {
       // 不知为何，勾选选择框也会进到这里，但是这种情况 newVar === oldVar
       if (newVar !== oldVar) {
         this.$nextTick(() => {
+          this.setDefaultOrders();
           this.clear();
           this.doLayout();
           this.checkTableRowIsSelect();
