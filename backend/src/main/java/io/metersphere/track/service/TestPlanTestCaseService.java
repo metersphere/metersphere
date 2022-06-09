@@ -86,33 +86,41 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
-        if (CollectionUtils.isEmpty(list)) {
-            return list;
-        }
-        Project project = projectService.getProjectById(list.get(0).getProjectId());
+        List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
+        orders = ServiceUtils.replaceCustomNumOrder(request.getIsCustomNum(), orders);
+        request.setOrders(orders);
 
-        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(project.getId(), "CASE_CUSTOM_NUM");
-        list.forEach(item -> {
-            // 设置项目名称
-            item.setProjectName(project.getName());
-            if (StringUtils.equals(projectApplication.getTypeValue(), "false")) {
-                // 如果配置是不启用自定义字段，则设置为 num
-                item.setCustomNum(item.getNum().toString());
-            }
-        });
-        // 设置版本信息
-        ServiceUtils.buildVersionInfo(list);
-        QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-        queryMemberRequest.setProjectId(request.getProjectId());
-        Map<String, String> userMap = userService.getProjectMemberList(queryMemberRequest)
-                .stream().collect(Collectors.toMap(User::getId, User::getName));
-        list.forEach(item -> {
-            item.setExecutorName(userMap.get(item.getExecutor()));
-            item.setMaintainerName(userMap.get(item.getMaintainer()));
-        });
+        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
+        if (CollectionUtils.isNotEmpty(list)) {
+            list.forEach(item -> {
+                // 设置项目名称
+                item.setProjectName(request.getProjectName());
+                if (!request.getIsCustomNum()) {
+                    // 如果配置是不启用自定义字段，则设置为 num
+                    item.setCustomNum(item.getNum().toString());
+                }
+            });
+
+            // 设置版本信息
+            ServiceUtils.buildVersionInfo(list);
+            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
+            queryMemberRequest.setProjectId(request.getProjectId());
+            Map<String, String> userMap = userService.getProjectMemberList(queryMemberRequest)
+                    .stream().collect(Collectors.toMap(User::getId, User::getName));
+            list.forEach(item -> {
+                item.setExecutorName(userMap.get(item.getExecutor()));
+                item.setMaintainerName(userMap.get(item.getMaintainer()));
+            });
+        }
         return list;
+    }
+
+    public QueryTestPlanCaseRequest wrapQueryTestPlanCaseRequest(QueryTestPlanCaseRequest request) {
+        Project project = projectService.getProjectById(request.getProjectId());
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        request.setIsCustomNum(StringUtils.equals(projectApplication.getTypeValue(), "false") ? false : true);
+        request.setProjectName(project.getName());
+        return request;
     }
 
     public List<TestPlanCaseDTO> listByPlanId(QueryTestPlanCaseRequest request) {
