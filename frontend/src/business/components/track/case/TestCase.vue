@@ -681,6 +681,9 @@ export default {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
+      if (this.activeDom === 'right') {
+        this.updateActiveDom('left');
+      }
       this.$refs.nodeTree.list();
       this.setTable(data);
     },
