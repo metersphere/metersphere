@@ -20,7 +20,7 @@
             <el-row>
               <el-col :span="8">
                 <el-tooltip placement="top" :content="currentScenario.name">
-                  <span style="margin-left: 10px">{{ currentScenario.name }}</span>
+                  <span class="ms-max-scenario-name-width">{{ currentScenario.name }}</span>
                 </el-tooltip>
               </el-col>
               <el-col :span="8">
@@ -1324,5 +1324,16 @@ export default {
 .ms-batch-btn:hover {
   cursor: pointer;
   color: #6D317C;
+}
+.ms-max-scenario-name-width {
+  font-size: 12px;
+  display: inline-block;
+  margin: 0 0px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 120px;
 }
 </style>
