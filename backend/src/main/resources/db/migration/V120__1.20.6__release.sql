@@ -29,3 +29,9 @@ SET test_case_review_test_case.is_del = 1;
 -- 日志记录表添加索引
 ALTER TABLE `operating_log`
     ADD INDEX oper_project_id (`project_id`);
+ALTER TABLE `operating_log`
+    ADD INDEX operating_log_oper_user_index(oper_user);
+ALTER TABLE `operating_log`
+    ADD INDEX operating_log_oper_time_index(oper_time);
+
+
