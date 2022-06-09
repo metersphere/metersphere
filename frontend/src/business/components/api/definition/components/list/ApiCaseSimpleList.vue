@@ -10,6 +10,7 @@
         @search="search">
       </ms-search>
       <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small"
+                 v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']"
                  @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}
       </el-button>
       <ms-table
@@ -825,7 +826,7 @@ export default {
         }
         selectApi.url = request.path;
         this.$refs.caseList.runTestCase(selectApi, testCase.id);
-        let obj = {id:testCase.id};
+        let obj = {id: testCase.id};
         this.$post('/api/testcase/updateExecuteInfo', obj);
       });
     },
@@ -871,9 +872,9 @@ export default {
         let uuid = getUUID();
         let apiCaseRequest = JSON.parse(data.request);
         apiCaseRequest.id = uuid;
-        if(apiCaseRequest.type === "TCPSampler"){
+        if (apiCaseRequest.type === "TCPSampler") {
           apiCaseRequest.method = "TCP";
-        }else if(apiCaseRequest.type === "JDBCSampler"){
+        } else if (apiCaseRequest.type === "JDBCSampler") {
           apiCaseRequest.method = "SQL";
         }
         let obj = {
