@@ -3,6 +3,7 @@ import {getCurrentProjectID} from "../../../../../common/js/utils";
 import {success, warning} from "../../../../../common/js/message";
 import {deleteIssueRelate} from "@/network/Issue";
 import {minderPageInfoMap} from "@/network/testCase";
+import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -415,6 +416,8 @@ function expandNode(node) {
   node.expand();
   node.renderTree();
   window.minder.layout(60);
+  // 手动修改优先级的设置，避免展开时优先级显示不正确
+  setPriorityView(true, 'P');
 }
 
 
