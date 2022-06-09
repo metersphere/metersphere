@@ -258,11 +258,8 @@
             order by
             <foreach collection="request.orders" separator="," item="order">
                 <choose>
-                    <when test="order.name == 'custom_num'">
-                        customNum ${order.type}
-                    </when>
-                    <when test="order.name == 'name'">
-                        test_case.name ${order.type}
+                    <when test="order.name == 'custom_num' || order.name == 'num' || order.name == 'name'">
+                        test_case.${order.name} ${order.type}
                     </when>
                     <otherwise>
                         test_plan_test_case.${order.name} ${order.type}

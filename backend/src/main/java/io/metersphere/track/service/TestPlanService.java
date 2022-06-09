@@ -696,6 +696,8 @@ public class TestPlanService {
     public List<TestPlanCaseDTO> listTestCaseByPlanId(String planId) {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
+        request.setProjectId(testPlanMapper.selectByPrimaryKey(planId).getProjectId());
+        testPlanTestCaseService.wrapQueryTestPlanCaseRequest(request);
         return testPlanTestCaseService.list(request);
     }
 
