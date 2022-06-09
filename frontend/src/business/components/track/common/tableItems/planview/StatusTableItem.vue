@@ -10,6 +10,8 @@
       <ms-tag v-else-if="value == 'Blocking'" type="warning" :content="$t('test_track.plan_view.blocking')"/>
       <ms-tag v-else-if="value == 'Skip'" type="info" :content="$t('test_track.plan_view.skip')"/>
       <ms-tag v-else-if="value == 'ErrorReportResult'" type="warning" style="background-color: #F6972A; border-color: #F6972A" :content="$t('error_report_library.option.name')"/>
+      <ms-tag v-else-if="value == 'ApiCaseStop'" type="info" :content="$t('api_test.home_page.detail_card.unexecute')"/>
+      <ms-tag v-else-if="value == 'ApiCasePrepare'" type="info" :content="$t('api_test.home_page.detail_card.unexecute')"/>
       <ms-tag v-else type="info" :content="value"/>
     </span>
 </template>
