@@ -1,5 +1,5 @@
 import i18n from "@/i18n/i18n";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "../../../../../common/js/utils";
 import {success, warning} from "../../../../../common/js/message";
 import {deleteIssueRelate} from "@/network/Issue";
 import {minderPageInfoMap} from "@/network/testCase";
@@ -595,7 +595,12 @@ export function handleMinderIssueDelete(commandName, isPlan) {
         if (data.type === 'issue') {
           let caseResourceId = node.parent.data.id;
           let p = new Promise((resolve) => {
-            deleteIssueRelate({id: data.id, caseResourceId, isPlanEdit: isPlan}, () => {
+            deleteIssueRelate({
+              id: data.id,
+              caseResourceId,
+              isPlanEdit: isPlan,
+              workspaceId: getCurrentWorkspaceId()
+            }, () => {
               resolve();
             });
           });
