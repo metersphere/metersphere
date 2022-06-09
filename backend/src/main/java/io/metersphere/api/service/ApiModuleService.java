@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -24,6 +25,7 @@ import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -126,16 +128,17 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
-        Map<String,Integer> returnMap = new HashMap<>();
-        for (Map<String, Object> map: moduleCountList){
+        Map<String, Integer> returnMap = new HashMap<>();
+        for (Map<String, Object> map : moduleCountList) {
             Object moduleIdObj = map.get("moduleId");
             Object countNumObj = map.get("countNum");
-            if(moduleIdObj!= null && countNumObj != null){
+            if (moduleIdObj != null && countNumObj != null) {
                 String moduleId = String.valueOf(moduleIdObj);
                 try {
                     Integer countNumInteger = new Integer(String.valueOf(countNumObj));
-                    returnMap.put(moduleId,countNumInteger);
-                }catch (Exception e){
+                    returnMap.put(moduleId, countNumInteger);
+                } catch (Exception e) {
+                    LogUtil.error("method parseModuleCountList has error:", e);
                 }
             }
         }
@@ -303,7 +306,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (StringUtils.isNotBlank(node.getId())) {
             criteria.andIdNotEqualTo(node.getId());
         }
-        if(StringUtils.isNotEmpty(node.getProtocol())){
+        if (StringUtils.isNotEmpty(node.getProtocol())) {
             criteria.andProtocolEqualTo(node.getProtocol());
         }
         return apiModuleMapper.selectByExample(example);
@@ -520,10 +523,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     public long countById(String nodeId) {
         ApiModuleExample example = new ApiModuleExample();
         example.createCriteria().andIdEqualTo(nodeId);
-        return  apiModuleMapper.countByExample(example);
+        return apiModuleMapper.countByExample(example);
     }
 
-    public ApiModule getDefaultNode(String projectId,String protocol) {
+    public ApiModule getDefaultNode(String projectId, String protocol) {
         ApiModuleExample example = new ApiModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
@@ -540,12 +543,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             record.setCreateUser(SessionUtils.getUserId());
             apiModuleMapper.insert(record);
             return record;
-        }else {
+        } else {
             return list.get(0);
         }
     }
 
-    public ApiModule getDefaultNodeUnCreateNew(String projectId,String protocol) {
+    public ApiModule getDefaultNodeUnCreateNew(String projectId, String protocol) {
         ApiModuleExample example = new ApiModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("未规划接口").andParentIdIsNull();
         List<ApiModule> list = apiModuleMapper.selectByExample(example);
@@ -564,5 +567,36 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public String getModuleNameById(String moduleId) {
         return extApiModuleMapper.getNameById(moduleId);
+    }
+
+    /**
+     * 返回数据库中存在的id
+     *
+     * @param protocalModuleIdMap <protocol , List<moduleId>>
+     * @return
+     */
+    public Map<String, List<String>> checkModuleIds(Map<String, List<String>> protocalModuleIdMap) {
+        Map<String, List<String>> returnMap = new HashMap<>();
+        if (MapUtils.isNotEmpty(protocalModuleIdMap)) {
+            ApiModuleExample example = new ApiModuleExample();
+            for (Map.Entry<String, List<String>> entry : protocalModuleIdMap.entrySet()) {
+                String protocol = entry.getKey();
+                List<String> moduleIds = entry.getValue();
+                if (CollectionUtils.isNotEmpty(moduleIds)) {
+                    example.clear();
+                    example.createCriteria().andIdIn(moduleIds).andProtocolEqualTo(protocol);
+                    List<ApiModule> moduleList = apiModuleMapper.selectByExample(example);
+                    if (CollectionUtils.isNotEmpty(moduleList)) {
+                        List<String> idLIst = new ArrayList<>();
+                        moduleList.forEach(module -> {
+                            idLIst.add(module.getId());
+                        });
+                        returnMap.put(protocol, idLIst);
+                    }
+
+                }
+            }
+        }
+        return returnMap;
     }
 }
