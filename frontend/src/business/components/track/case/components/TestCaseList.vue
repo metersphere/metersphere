@@ -1156,7 +1156,7 @@ export default {
       }
     },
     getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.$get('/user/project/member/list', response => {
         this.valueArr.maintainer = response.data;
       });
     },

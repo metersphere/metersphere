@@ -305,7 +305,7 @@ export default {
       this.initTableData();
     },
     getWorkSpaceList() {
-      this.$get("/workspace/list/userworkspace/" + encodeURIComponent(getCurrentUserId()), response => {
+      this.$get("/workspace/list/userworkspace", response => {
         let workspaceList = response.data;
         let workspaceIds = [];
         if (workspaceList) {

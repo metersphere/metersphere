@@ -1,12 +1,12 @@
 import {getCurrentProjectID} from "@/common/js/utils";
-import {post} from "@/common/js/ajax";
+import {get} from "@/common/js/ajax";
 import axios from "axios";
 import {ORGANIZATION_ID, PROJECT_ID, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
 import {baseGet} from "@/network/base-network";
 
 export function getProjectMember(callBack) {
   return new Promise((resolve) => {
-    post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+    get('/user/project/member/list', response => {
       if (callBack) {
         callBack(response.data);
       }

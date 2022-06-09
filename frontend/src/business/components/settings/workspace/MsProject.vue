@@ -306,8 +306,8 @@ export default {
         name: '',
         projectId: row.id
       };
-      this.result = this.$post("/user/project/member/list", param, res => {
-        this.memberLineData = res.data;
+      this.result = this.$post("/user/project/member/list/1/100000", param, res => {
+        this.memberLineData = res.data.listObject;
         let arr = this.memberLineData.filter(item => item.id === getCurrentUserId());
         if (arr.length > 0) {
           window.sessionStorage.setItem(PROJECT_ID, row.id);
@@ -321,7 +321,7 @@ export default {
       });
     },
     getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.$get('/user/project/member/list', response => {
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
         });
