@@ -7,6 +7,7 @@
         v-loading="result.loading"
         @nodeSelectEvent="nodeChange"
         :tree-nodes="treeNodes"
+        :default-expand-all="true"
         ref="nodeTree"/>
     </template>
     <template v-slot:main>
