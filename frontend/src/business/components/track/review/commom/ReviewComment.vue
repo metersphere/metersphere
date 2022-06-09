@@ -179,4 +179,8 @@ export default {
 .review-mavon-editor {
   position: initial;
 }
+
+/deep/ .v-note-wrapper {
+  position: initial;
+}
 </style>
