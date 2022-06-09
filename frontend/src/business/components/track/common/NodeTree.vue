@@ -8,6 +8,7 @@
       class="filter-tree node-tree"
       :data="extendTreeNodes"
       :default-expanded-keys="expandedNode"
+      :default-expand-all="defaultExpandAll"
       node-key="id"
       @node-drag-end="handleDragEnd"
       @node-expand="nodeExpand"
@@ -139,6 +140,12 @@ export default {
       type: Number,
       default() {
         return 50;
+      }
+    },
+    defaultExpandAll: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
     updatePermission: Array,
