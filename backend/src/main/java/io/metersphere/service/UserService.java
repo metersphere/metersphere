@@ -668,6 +668,12 @@ public class UserService {
             if (workspaces.size() > 0) {
                 String wsId = workspaces.get(0).getSourceId();
                 switchUserResource("workspace", wsId);
+            } else {
+                // 用户登录之后没有项目和工作空间的权限就把值清空
+                user.setLastWorkspaceId("");
+                user.setLastProjectId("");
+                updateUser(user);
+                SessionUtils.putUser(SessionUser.fromUser(user));
             }
         } else {
             UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))

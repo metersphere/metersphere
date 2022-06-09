@@ -39,7 +39,6 @@ public class ProjectController {
     private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @GetMapping("/listAll")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public List<ProjectDTO> listAll() {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ProjectRequest request = new ProjectRequest();
