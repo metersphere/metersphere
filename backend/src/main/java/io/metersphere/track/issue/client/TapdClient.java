@@ -81,7 +81,7 @@ public class TapdClient extends BaseClient {
     }
 
     public JSONArray getDemands(String projectId) {
-        String url = getBaseUrl() + "/stories?workspace_id={1}&limit=200";
+        String url = getBaseUrl() + "/stories?workspace_id={1}&limit=200&fields=id,name";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
         return JSONArray.parseObject(response.getBody()).getJSONArray("data");
     }
