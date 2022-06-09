@@ -234,7 +234,7 @@ export default {
       });
     },
     setReviewerOptions() {
-      this.result = this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
+      this.result = this.$get('/user/project/member/list', response => {
         this.reviewerOptions = response.data;
       });
     },

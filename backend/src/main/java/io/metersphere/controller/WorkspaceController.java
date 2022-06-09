@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
@@ -15,6 +16,7 @@ import io.metersphere.dto.WorkspaceResource;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -63,21 +65,16 @@ public class WorkspaceController {
         workspaceService.deleteWorkspace(workspaceId);
     }
 
-    @PostMapping("list/{goPage}/{pageSize}")
-    public Pager<List<Workspace>> getWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody WorkspaceRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, workspaceService.getWorkspaceList(request));
-    }
-
     @PostMapping("list/all/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ)
     public Pager<List<WorkspaceDTO>> getAllWorkspaceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody WorkspaceRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, workspaceService.getAllWorkspaceList(request));
     }
 
-    @GetMapping("/list/userworkspace/{userId}")
-    public List<Workspace> getWorkspaceListByUserId(@PathVariable String userId) {
-        return workspaceService.getWorkspaceListByUserId(userId);
+    @GetMapping("/list/userworkspace")
+    public List<Workspace> getWorkspaceListByUserId() {
+        return workspaceService.getWorkspaceListByUserId(SessionUtils.getUserId());
     }
 
     @PostMapping("/member/update")

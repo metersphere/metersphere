@@ -311,7 +311,7 @@ export default {
       this.page.result = getIssues(this.page);
     },
     getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.$get('/user/project/member/list', response => {
         this.creatorFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
         });
