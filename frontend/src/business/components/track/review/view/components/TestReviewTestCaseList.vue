@@ -372,7 +372,7 @@ export default {
           this.total = data.itemCount;
           this.tableData = data.listObject;
           this.getPreData();
-          if (callback && typeof callback === "function") {
+          if (callback && callback instanceof Function) {
             callback();
           }
           setTimeout(() => {
