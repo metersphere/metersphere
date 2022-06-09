@@ -1604,6 +1604,8 @@ public class TestCaseService {
                             if(StringUtils.isEmpty(stepItem)){
                                 stepItem = "";
                             }
+                            //正则去空格、回车、换行符、制表符
+                            stepItem = stepItem.replaceAll("\\s*|\t|\r|\n", "");
                             step.append(num + "." + stepItem + "\n");
                             String resultItem = jsonArray.getJSONObject(j).getString("result");
                             if(StringUtils.isEmpty(resultItem)){
@@ -2748,4 +2750,5 @@ public class TestCaseService {
         List<TestCaseDTO> testCaseDTOS = publicListTestCase(request);
         return testCaseNodeService.getNodeByTestCases(testCaseDTOS);
     }
+
 }
