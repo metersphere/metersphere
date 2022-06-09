@@ -335,6 +335,9 @@ export default {
         this.clear();
       });
     },
+    searchTaskList(){
+      this.$refs.taskList.search();
+    },
     intervalValidate() {
       if (this.getIntervalTime() < 1 * 60 * 1000) {
         return false;
