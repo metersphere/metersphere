@@ -143,6 +143,10 @@ public class ApiDefinitionService {
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
 
+    @Lazy
+    @Resource
+    private ApiModuleService apiModuleService;
+
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
 
@@ -1242,11 +1246,11 @@ public class ApiDefinitionService {
 
     private String getReportNameByTestId(String testId) {
         String testName = extApiDefinitionMapper.selectNameById(testId);
-        if(StringUtils.isEmpty(testName)){
+        if (StringUtils.isEmpty(testName)) {
             testName = extApiTestCaseMapper.selectNameById(testId);
-            if(StringUtils.isEmpty(testName)){
+            if (StringUtils.isEmpty(testName)) {
                 String resourceID = extTestPlanApiCaseMapper.getApiTestCaseIdById(testId);
-                if(StringUtils.isNotEmpty(resourceID)){
+                if (StringUtils.isNotEmpty(resourceID)) {
                     testName = extApiTestCaseMapper.selectNameById(resourceID);
                 }
             }
@@ -1381,6 +1385,7 @@ public class ApiDefinitionService {
         currentApiCaseOrder.remove();
         currentApiOrder.remove();
         List<ApiDefinitionWithBLOBs> data = apiImport.getData();
+        data = this.initApiModuleId(data);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
         ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
@@ -1448,6 +1453,36 @@ public class ApiDefinitionService {
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    /**
+     * 初始化apiModuleId，如果apiModuleId不存在则赋默认的moduleId
+     *
+     * @param apiDefinitionList
+     * @return
+     */
+    private List<ApiDefinitionWithBLOBs> initApiModuleId(List<ApiDefinitionWithBLOBs> apiDefinitionList) {
+        Map<String, List<String>> protocalModuleIdMap = new HashMap<>();
+        apiDefinitionList.forEach(apiDefinition -> {
+            if (protocalModuleIdMap.containsKey(apiDefinition.getProtocol()) && !protocalModuleIdMap.get(apiDefinition.getProtocol()).contains(apiDefinition.getModuleId())) {
+                protocalModuleIdMap.get(apiDefinition.getProtocol()).add(apiDefinition.getModuleId());
+            } else {
+                protocalModuleIdMap.put(apiDefinition.getProtocol(), new ArrayList<>() {{
+                    this.add(apiDefinition.getModuleId());
+                }});
+            }
+        });
+        Map<String, List<String>> rightfulModuleIdMap = apiModuleService.checkModuleIds(protocalModuleIdMap);
+        for (ApiDefinitionWithBLOBs apiBlobs : apiDefinitionList) {
+            if (!rightfulModuleIdMap.containsKey(apiBlobs.getProtocol()) || !rightfulModuleIdMap.get(apiBlobs.getProtocol()).contains(apiBlobs.getModuleId())) {
+                ApiModule defaultModule = apiModuleService.getDefaultNode(apiBlobs.getProjectId(), apiBlobs.getProtocol());
+                if (defaultModule != null) {
+                    apiBlobs.setModuleId(defaultModule.getId());
+                    apiBlobs.setModulePath(defaultModule.getName());
+                }
+            }
+        }
+        return apiDefinitionList;
     }
 
 
