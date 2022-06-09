@@ -54,6 +54,24 @@ public class ServiceUtils {
         return getDefaultOrderByField(prefix, orders, field);
     }
 
+    /**
+     * 根据当前项目设置是否启用自定义ID
+     * 设置按照哪个字段排序
+     * @param isCustomNum
+     * @param orders
+     * @return
+     */
+    public static List<OrderRequest> replaceCustomNumOrder(Boolean isCustomNum, List<OrderRequest> orders) {
+        orders.forEach(item -> {
+            if (isCustomNum && StringUtils.equals(item.getName(), "num")) {
+                item.setName("custom_num");
+            } else if (StringUtils.equals(item.getName(), "custom_num")) {
+                item.setName("num");
+            }
+        });
+        return orders;
+    }
+
     private static List<OrderRequest> getDefaultOrderByField(String prefix, List<OrderRequest> orders, String field) {
         if (orders == null || orders.size() < 1) {
             OrderRequest orderRequest = new OrderRequest();

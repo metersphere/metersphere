@@ -35,5 +35,9 @@ public class QueryTestPlanCaseRequest extends BaseQueryRequest {
 
     private String id;
 
+    private Boolean isCustomNum = false;
+
+    private String projectName;
+
     private Map<String, Object> combine;
 }
