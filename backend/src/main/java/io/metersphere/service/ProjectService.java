@@ -1,10 +1,11 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
-import io.metersphere.api.service.*;
+import io.metersphere.api.service.APITestService;
+import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiTestDelService;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -217,16 +218,6 @@ public class ProjectService {
         projectApplication.setType(ProjectApplicationType.CASE_CUSTOM_NUM.toString());
         projectApplication.setTypeValue(Boolean.FALSE.toString());
         projectApplicationMapper.insert(projectApplication);
-        //xpack的项目都有同步设置规则
-        ProjectApplicationSyncService projectApplicationSyncService = CommonBeanFactory.getBean(ProjectApplicationSyncService.class);
-        if (projectApplicationSyncService != null) {
-            try {
-                projectApplication = projectApplicationSyncService.initProjectApplicationAboutWorkstation(projectApplication);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            projectApplicationMapper.insert(projectApplication);
-        }
     }
 
     public void checkThirdProjectExist(Project project) {
@@ -779,10 +770,6 @@ public class ProjectService {
 
     public List<String> getProjectIds() {
         return extProjectMapper.getProjectIds();
-    }
-
-    public List<Project> getProjectForCustomField(String workspaceId) {
-        return extProjectMapper.getProjectForCustomField(workspaceId);
     }
 
     public Map<String, Project> queryNameByIds(List<String> ids) {
