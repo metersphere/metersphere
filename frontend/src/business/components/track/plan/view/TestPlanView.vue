@@ -88,6 +88,12 @@ export default {
     }
   },
   watch: {
+    '$route.query.projectId'() {
+      let projectId = this.$route.query.projectId;
+      if (projectId && projectId !== getCurrentProjectID()) {
+        sessionStorage.setItem(PROJECT_ID, projectId);
+      }
+    },
     '$route.params.planId'() {
       this.genRedirectParam();
       this.getTestPlans();
