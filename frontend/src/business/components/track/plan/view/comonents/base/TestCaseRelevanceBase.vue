@@ -28,7 +28,7 @@
       <select-menu
         :data="projects"
         v-if="multipleProject"
-        width="160px"
+        width="64.5%"
         :current-data="currentProject"
         :title="$t('test_track.switch_project')"
         @dataChange="changeProject"/>
