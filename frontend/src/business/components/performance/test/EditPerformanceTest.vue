@@ -106,6 +106,7 @@ import MsChangeHistory from "../../history/ChangeHistory";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import DiffVersion from "@/business/components/performance/test/DiffVersion";
+import {PROJECT_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -179,6 +180,10 @@ export default {
 
   },
   created() {
+    let projectId = this.$route.query.projectId;
+    if (projectId && projectId !== getCurrentProjectID()) {
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }
     this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
     this.getTest(this.$route.params.testId);
     if (hasLicense()) {

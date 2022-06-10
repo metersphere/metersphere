@@ -35,6 +35,7 @@ import TestReviewRelevance from "./components/TestReviewRelevance";
 import MsTestPlanHeaderBar from "@/business/components/track/plan/view/comonents/head/TestPlanHeaderBar";
 import TestReviewFunction from "@/business/components/track/review/view/components/TestReviewFunction";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
   name: "TestCaseReviewView",
@@ -76,6 +77,10 @@ export default {
     }
   },
   created() {
+    let projectId = this.$route.query.projectId;
+    if (projectId) {
+      sessionStorage.setItem(PROJECT_ID, projectId);
+    }
     this.$EventBus.$on('projectChange', () => {
       if (this.$route.name === 'testCaseReviewView') {
         this.$router.push('/track/review/all');

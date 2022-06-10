@@ -735,10 +735,6 @@ export default {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
     },
     init() {
-      let routeTestCase = this.$route.params.apiDefinition;
-      if (routeTestCase) {
-        this.editApi(routeTestCase);
-      }
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
       if (dataRange) {
