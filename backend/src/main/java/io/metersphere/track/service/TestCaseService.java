@@ -1564,12 +1564,12 @@ public class TestCaseService {
                         for (int j = 0; j < jsonArray.size(); j++) {
                             int num = j + 1;
                             String stepItem = jsonArray.getJSONObject(j).getString("desc");
-                            if(StringUtils.isEmpty(stepItem)){
+                            if (StringUtils.isEmpty(stepItem)) {
                                 stepItem = "";
                             }
                             step.append(num + "." + stepItem + "\n");
                             String resultItem = jsonArray.getJSONObject(j).getString("result");
-                            if(StringUtils.isEmpty(resultItem)){
+                            if (StringUtils.isEmpty(resultItem)) {
                                 resultItem = "";
                             }
                             result.append(num + "." + resultItem + "\n");
@@ -1668,10 +1668,16 @@ public class TestCaseService {
                     customField.setValue(request.getCustomField().getValue());
                     fields.add(request.getCustomField());
                 }
-                if (StringUtils.equals(request.getCustomField().getName(), "用例等级")) {
+                // 自定义字段
+                testCase.setCustomFields(JSONObject.toJSONString(fields));
+
+                if (StringUtils.equals(request.getCustomField().getName(), CaseCustomFields.PRIORITY.getValue())) {
                     testCase.setPriority((String) request.getCustomField().getValue());
                 }
-                testCase.setCustomFields(JSONObject.toJSONString(fields));
+
+                if (StringUtils.equals(request.getCustomField().getName(), CaseCustomFields.MAINTAINER.getValue())) {
+                    testCase.setMaintainer((String) request.getCustomField().getValue());
+                }
                 testCase.setUpdateTime(System.currentTimeMillis());
                 TestCaseExample example = new TestCaseExample();
                 example.createCriteria().andIdEqualTo(testCase.getId());
