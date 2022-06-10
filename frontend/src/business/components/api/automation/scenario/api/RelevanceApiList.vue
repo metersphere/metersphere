@@ -114,6 +114,7 @@ export default {
       this.initTable();
     },
     projectId() {
+      this.condition.versionId = null;
       this.initTable();
     },
     currentVersion() {
