@@ -1594,7 +1594,9 @@ export default {
                 this.$store.state.pluginFiles = [];
                 if (response.data) {
                   this.currentScenario.id = response.data.id;
-                  this.currentScenario.refId = response.data.refId;
+                  if (!this.currentScenario.refId && response.data.refId) {
+                    this.currentScenario.refId = response.data.refId;
+                  }
                 }
                 // 保存成功后刷新历史版本
                 this.getVersionHistory();
@@ -2186,6 +2188,8 @@ export default {
     compare(row) {
       this.scenarioRefId = this.currentScenario.refId;
       this.dffScenarioId = row.id;
+      console.log(this.scenarioRefId)
+      console.log(row.id)
       this.newCreateTime = row.createTime
       this.oldUserName = this.currentScenario.userName
       this.oldCreateTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === this.currentScenario.versionId)[0].createTime;
