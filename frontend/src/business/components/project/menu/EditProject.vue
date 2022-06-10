@@ -237,7 +237,7 @@ export default {
       }
       this.platformOptions = [];
       this.platformOptions.push(...ISSUE_PLATFORM_OPTION);
-      this.result = this.$get("/service/integration/all/" + getCurrentUser().lastWorkspaceId, response => {
+      this.result = this.$get("/service/integration/all", response => {
         let data = response.data;
         let platforms = data.map(d => d.platform);
         this.filterPlatformOptions(platforms, TAPD);
