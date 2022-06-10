@@ -57,8 +57,9 @@ export default {
       }
       param.id = this.caseId;
       param.type = 'TEST_CASE';
+      param.condition = this.page.condition;
 
-      vueObj.result = this.$post('/relationship/edge/save/batch', param, () => {
+      vueObj.result = this.$post('/test/case/relationship/add', param, () => {
         vueObj.isSaving = false;
         this.$success(this.$t('commons.save_success'));
         vueObj.$refs.baseRelevance.close();
