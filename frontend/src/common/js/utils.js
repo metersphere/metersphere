@@ -34,16 +34,12 @@ export function hasPermission(permission) {
   // todo 权限验证
   let currentProjectPermissions = user.userGroups.filter(ug => ug.group && ug.group.type === 'PROJECT')
     .filter(ug => ug.sourceId === getCurrentProjectID())
-    .map(ug => ug.userGroupPermissions)
-    .reduce((total, current) => {
-      return total.concat(current);
-    }, [])
+    .flatMap(ug => ug.userGroupPermissions)
     .map(g => g.permissionId)
     .reduce((total, current) => {
       total.add(current);
       return total;
     }, new Set);
-
   for (const p of currentProjectPermissions) {
     if (p === permission) {
       return true;
@@ -52,10 +48,7 @@ export function hasPermission(permission) {
 
   let currentWorkspacePermissions = user.userGroups.filter(ug => ug.group && ug.group.type === 'WORKSPACE')
     .filter(ug => ug.sourceId === getCurrentWorkspaceId())
-    .map(ug => ug.userGroupPermissions)
-    .reduce((total, current) => {
-      return total.concat(current);
-    }, [])
+    .flatMap(ug => ug.userGroupPermissions)
     .map(g => g.permissionId)
     .reduce((total, current) => {
       total.add(current);
@@ -70,10 +63,7 @@ export function hasPermission(permission) {
 
   let systemPermissions = user.userGroups.filter(gp => gp.group && gp.group.type === 'SYSTEM')
     .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')
-    .map(ug => ug.userGroupPermissions)
-    .reduce((total, current) => {
-      return total.concat(current);
-    }, [])
+    .flatMap(ug => ug.userGroupPermissions)
     .map(g => g.permissionId)
     .reduce((total, current) => {
       total.add(current);
