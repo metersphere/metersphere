@@ -263,25 +263,37 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         msResponse.getBody().setType(getResponseBodyType(operation));
         // todo 状态码要调整？
         msResponse.setStatusCode(new ArrayList<>());
+        Response response = null;
+        String responseCode = null;
         if (responses != null && responses.size() > 0) {
-            responses.forEach((responseCode, response) -> {
-                if(StringUtils.isNotBlank(response.getDescription())){
-                    msResponse.getStatusCode().add(new KeyValue(responseCode, response.getDescription()));
-                }else{
-                    msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
-                }
-                if (responseCode.equals("200")&&response.getResponseSchema()!=null) {
-                    parseResponseBody(response.getResponseSchema(),msResponse.getBody());
-                    msResponse.getBody().setFormat("JSON-SCHEMA");
-                } else {
-                    String body = parseSchema(response.getResponseSchema());
-                    if (StringUtils.isNotBlank(body)) {
-                        msResponse.getBody().setRaw(body);
-                    }
-                }
-                parseResponseHeader(response, msResponse.getHeaders());
-            });
+            for (Map.Entry<String, Response> entry : responses.entrySet()) {
+                response = entry.getValue();
+                responseCode = entry.getKey();
+                break;
+            }
         }
+        if ( response!=null && responseCode!=null) {
+            if(StringUtils.isNotBlank(response.getDescription())){
+                msResponse.getStatusCode().add(new KeyValue(responseCode, response.getDescription()));
+            }else{
+                msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
+            }
+            if (responseCode.equals("200")&&response.getResponseSchema()!=null) {
+                parseResponseBody(response.getResponseSchema(),msResponse.getBody());
+                msResponse.getBody().setFormat("JSON-SCHEMA");
+                String body = parseSchema(response.getResponseSchema());
+                if (StringUtils.isNotBlank(body)) {
+                    msResponse.getBody().setRaw(body);
+                }
+            } else {
+                String body = parseSchema(response.getResponseSchema());
+                if (StringUtils.isNotBlank(body)) {
+                    msResponse.getBody().setRaw(body);
+                }
+            }
+            parseResponseHeader(response, msResponse.getHeaders());
+        }
+
         return msResponse;
     }
 
