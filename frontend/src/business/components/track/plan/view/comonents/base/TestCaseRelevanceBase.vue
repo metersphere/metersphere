@@ -116,6 +116,7 @@ export default {
 
     open() {
       this.getProject();
+      this.selectCounts = null;
       this.$refs.relevanceDialog.open();
     },
 
