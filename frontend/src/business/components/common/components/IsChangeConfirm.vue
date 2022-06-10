@@ -27,7 +27,20 @@ export default {
       }
     }
   },
-  props: ['title','tip', 'versionEnable'],
+  props: {
+    title: {
+      type: String,
+      default() {
+        return this.$t('test_track.case.minder_save_confirm_title');
+      }
+    },
+    tip: {
+      type: String,
+      default() {
+        return this.$t('test_track.case.minder_save_confirm_tip');
+      }
+    }
+  },
   methods: {
     open(item, temWorkspaceId) {
       this.visible = true;

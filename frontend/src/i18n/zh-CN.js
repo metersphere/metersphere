@@ -2025,6 +2025,11 @@ export default {
       minder_not_module_tip: "模块{0}，不能创建在非模块节点下",
       minder_all_module_tip: "全部用例为虚拟模块，请在其他模块创建用例",
       minder_issue_delete_tip: "取消缺陷关联成功",
+
+      minder_save_confirm_title: '请保存脑图',
+      minder_save_confirm_tip: '脑图未保存，确认保存脑图吗？',
+      minder_import_save_confirm_tip: '导入成功后会刷新脑图，确认保存脑图吗？',
+
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
