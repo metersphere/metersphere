@@ -177,6 +177,7 @@ export default {
       this.search();
     },
     projectId() {
+      this.condition.versionId = null;
       this.search();
     },
   },
