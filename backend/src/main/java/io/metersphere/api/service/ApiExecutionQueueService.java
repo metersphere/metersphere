@@ -174,7 +174,7 @@ public class ApiExecutionQueueService {
         if (StringUtils.contains(dto.getRunMode(), ApiRunMode.SCENARIO.name())) {
             if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
-                example.createCriteria().andReportIdEqualTo(dto.getReportId()).andStatusEqualTo(ExecuteResult.Error.name());
+                example.createCriteria().andReportIdEqualTo(dto.getReportId()).andStatusEqualTo(ExecuteResult.SCENARIO_ERROR.toString());
                 long error = apiScenarioReportResultMapper.countByExample(example);
                 isError = error > 0;
             } else {

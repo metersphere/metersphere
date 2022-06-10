@@ -147,12 +147,12 @@ public class ErrorReportLibraryUtil {
             if(MapUtils.isNotEmpty(errorReportAssertionMap)){
                 if (MapUtils.isNotEmpty(errorAssertionMap)) {
                     if(higherThanError){
-                        result.requestStatus = ExecuteResult.errorReportResult.name();
+                        result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
                     }
                 }else if(higherThanSuccess){
-                    result.requestStatus = ExecuteResult.errorReportResult.name();
+                    result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
                 }else if(MapUtils.isEmpty(successAssertionMap)){
-                    result.requestStatus = ExecuteResult.errorReportResult.name();
+                    result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
                 }
             }
         }
