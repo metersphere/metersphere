@@ -96,7 +96,7 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
 import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
-import {getIntegrationService} from "@/network/organization";
+import {getIntegrationService} from "@/network/workspace";
 import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
 import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
 import {logout} from "@/network/user";

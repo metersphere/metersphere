@@ -39,7 +39,7 @@
   import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
   import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
   import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
-  import {getIntegrationService} from "@/network/organization";
+  import {getIntegrationService} from "@/network/workspace";
   import { TokenKey } from "@/common/js/constants";
 
   export default {

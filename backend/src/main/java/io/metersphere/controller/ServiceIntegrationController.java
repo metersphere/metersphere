@@ -3,6 +3,7 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.IntegrationService;
@@ -35,9 +36,9 @@ public class ServiceIntegrationController {
         integrationService.delete(request);
     }
 
-    @GetMapping("/all/{workspaceId}")
-    public List<ServiceIntegration> getAll(@PathVariable String workspaceId) {
-        return integrationService.getAll(workspaceId);
+    @GetMapping("/all")
+    public List<ServiceIntegration> getAll() {
+        return integrationService.getAll(SessionUtils.getCurrentWorkspaceId());
     }
 
 }
