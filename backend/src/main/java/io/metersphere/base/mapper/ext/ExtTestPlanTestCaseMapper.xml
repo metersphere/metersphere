@@ -380,8 +380,8 @@
         select test_case.remark,
                test_plan_test_case.id as id,
                test_plan_test_case.*,
-               if(pa.type_value = 'false', cast(test_case.num as char), test_case.custom_num) as customNum,
                test_case.*,
+               if(pa.type_value = 'false', cast(test_case.num as char), test_case.custom_num) as customNum,
                test_case_node.name    as model,
                project.name           as projectName
         from test_plan_test_case
