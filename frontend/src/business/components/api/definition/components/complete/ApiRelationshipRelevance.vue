@@ -81,6 +81,7 @@
     },
     methods: {
       open() {
+        this.condition = {};
         this.$refs.baseRelevance.open();
         this.initTable();
         if (this.$refs.nodeTree) {
@@ -138,8 +139,9 @@
         }
         param.id = this.apiDefinitionId;
         param.type = 'API';
+        param.condition = this.condition;
 
-        this.result = this.$post('/relationship/edge/save/batch', param, () => {
+        this.result = this.$post('/api/definition/relationship/add', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.$refs.baseRelevance.close();
           this.$emit('refresh');

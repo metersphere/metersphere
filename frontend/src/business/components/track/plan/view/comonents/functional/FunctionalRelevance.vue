@@ -193,6 +193,7 @@ export default {
   },
   methods: {
     open() {
+      this.page.condition = {};
       this.isSaving = false;
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
