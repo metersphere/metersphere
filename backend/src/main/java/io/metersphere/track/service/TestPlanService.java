@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
@@ -41,7 +40,10 @@ import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.track.request.testplan.*;
+import io.metersphere.track.request.testplan.AddTestPlanRequest;
+import io.metersphere.track.request.testplan.LoadCaseReportRequest;
+import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
@@ -71,7 +73,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -179,6 +180,8 @@ public class TestPlanService {
     private ProjectService projectService;
     @Resource
     private TestPlanExecutionQueueService testPlanExecutionQueueService;
+    @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1409,10 +1412,16 @@ public class TestPlanService {
 
     public void buildApiResponse(List<TestPlanFailureApiDTO> cases) {
         if (!CollectionUtils.isEmpty(cases)) {
+            List<String> reportIds = cases.stream().map(TestPlanFailureApiDTO::getReportId).collect(Collectors.toList());
+            ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+            example.createCriteria().andIdIn(reportIds);
+            List<ApiDefinitionExecResult> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
+            // 格式化数据结果
+            Map<String, ApiDefinitionExecResult> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
             cases.forEach(item -> {
-                APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
-                if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                    item.setResponse(dbResult.getContent());
+                if (resultMap.get(item.getReportId()) != null &&
+                        StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
+                    item.setResponse(resultMap.get(item.getReportId()).getContent());
                 }
             });
         }
