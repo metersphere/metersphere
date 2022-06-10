@@ -186,6 +186,7 @@ export default {
       this.$refs.baseRelevance.open();
     },
     setProject(projectId) {
+      this.condition.versionId = null;
       this.projectId = projectId;
       this.condition.projectId = this.projectId;
       this.getProjectNode();

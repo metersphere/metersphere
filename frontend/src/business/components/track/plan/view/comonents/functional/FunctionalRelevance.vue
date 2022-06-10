@@ -185,6 +185,7 @@ export default {
     },
     projectId() {
       this.page.condition.projectId = this.projectId;
+      this.page.condition.versionId = null;
       this.getProjectNode();
       this.getTestCases();
       this.getCustomNum();
