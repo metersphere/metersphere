@@ -1594,7 +1594,9 @@ export default {
                 this.$store.state.pluginFiles = [];
                 if (response.data) {
                   this.currentScenario.id = response.data.id;
-                  this.currentScenario.refId = response.data.refId;
+                  if (!this.currentScenario.refId && response.data.refId) {
+                    this.currentScenario.refId = response.data.refId;
+                  }
                 }
                 // 保存成功后刷新历史版本
                 this.getVersionHistory();
