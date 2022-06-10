@@ -24,13 +24,13 @@ public class ResponseUtil {
 
         if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             Map<String, String> expandMap = new HashMap<>();
-            expandMap.put(ExecuteResult.errorReportResult.name(), errorCodeDTO.getErrorCodeStr());
-            if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.errorReportResult.name())) {
-                expandMap.put("status", ExecuteResult.errorReportResult.name());
+            expandMap.put(ExecuteResult.ERROR_REPORT_RESULT.toString(), errorCodeDTO.getErrorCodeStr());
+            if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
+                expandMap.put("status", ExecuteResult.ERROR_REPORT_RESULT.toString());
             }
             expandDTO.setAttachInfoMap(expandMap);
         }
-        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.errorReportResult.name())) {
+        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
             expandDTO.setStatus(errorCodeDTO.getRequestStatus());
         }
         return expandDTO;

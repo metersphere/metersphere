@@ -1617,7 +1617,7 @@ public class TestPlanService {
             for (TestPlanFailureScenarioDTO scenario : scenarios) {
                 if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "Fail", "Error")) {
                     failureScenarios.add(scenario);
-                } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.errorReportResult.name())) {
+                } else if (StringUtils.equalsIgnoreCase(scenario.getLastResult(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                     errorReportScenarios.add(scenario);
                 } else if (StringUtils.equalsAnyIgnoreCase(scenario.getLastResult(), "stop", "unexecute")) {
                     unExecuteScenarios.add(scenario);
@@ -1643,7 +1643,7 @@ public class TestPlanService {
             for (TestPlanFailureApiDTO apiDTO : apiAllCases) {
                 if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), "error")) {
                     apiFailureCases.add(apiDTO);
-                } else if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), ExecuteResult.errorReportResult.name())) {
+                } else if (StringUtils.equalsIgnoreCase(apiDTO.getExecResult(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                     apiErrorReportCases.add(apiDTO);
                 } else if (StringUtils.equalsAnyIgnoreCase(apiDTO.getExecResult(), "stop", "unexecute")) {
                     apiUnExecuteCases.add(apiDTO);

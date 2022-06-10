@@ -456,7 +456,7 @@ public class TestPlanApiCaseService {
     }
 
     public List<TestPlanFailureApiDTO> getErrorReportCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ExecuteResult.errorReportResult.name());
+        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ExecuteResult.ERROR_REPORT_RESULT.toString());
         return buildCases(apiTestCases);
     }
 
