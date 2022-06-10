@@ -951,7 +951,6 @@ export default {
 
 .ms-api-button {
   position: absolute;
-  top: 86px;
   right: 10px;
   padding: 0;
   background: 0 0;
