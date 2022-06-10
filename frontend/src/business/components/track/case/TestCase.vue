@@ -18,6 +18,7 @@
         :total='total'
         :public-total="publicTotal"
         ref="nodeTree"
+        @importChangeConfirm="importChangeConfirm"
       />
     </ms-aside-container>
 
@@ -187,8 +188,6 @@
       </el-tabs>
 
       <is-change-confirm
-        :title="'请保存脑图'"
-        :tip="'脑图未保存，确认保存脑图吗？'"
         @confirm="changeConfirm"
         ref="isChangeConfirm"/>
     </ms-main-container>
@@ -384,6 +383,16 @@ export default {
     },
     updateActiveDom(activeDom) {
       openMinderConfirm(this, activeDom);
+    },
+    importChangeConfirm(isSave) {
+      this.$store.commit('setIsTestCaseMinderChanged', false);
+      if (isSave) {
+        this.$refs.minder.save(() => {
+          this.$refs.nodeTree.handleImport();
+        });
+      } else {
+        this.$refs.nodeTree.handleImport();
+      }
     },
     changeConfirm(isSave, temWorkspaceId) {
       if (isSave) {
@@ -680,6 +689,9 @@ export default {
     refreshAll(data) {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
+      }
+      if (this.$refs.minder) {
+        this.$refs.minder.initData();
       }
       this.$refs.nodeTree.list();
       this.setTable(data);
