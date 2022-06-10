@@ -222,6 +222,7 @@ import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMi
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
+import {PROJECT_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -264,17 +265,22 @@ export default {
       versionEnable: false,
       isAsideHidden: true,
       showPublicNode: false,
-      publicTreeNodes: []
+      publicTreeNodes: [],
+      ignoreTreeNodes:false,
     };
+  },
+  created() {
+    let projectId = this.$route.query.projectId;
+    if (projectId) {
+      this.ignoreTreeNodes = true;
+      if (projectId !== getCurrentProjectID() && projectId !== 'all') {
+        sessionStorage.setItem(PROJECT_ID, projectId);
+      }
+    }
   },
   mounted() {
     this.getProject();
-    let routeTestCase = this.$route.params.testCase;
-    if (routeTestCase && routeTestCase.add === true) {
-      this.addTab({name: 'add'});
-    } else {
-      this.init(this.$route);
-    }
+    this.init(this.$route);
     this.checkVersionEnable();
   },
   beforeRouteLeave(to, from, next) {
@@ -565,14 +571,11 @@ export default {
       if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
         this.testCaseReadOnly = false;
         let caseId = this.$route.params.caseId;
-        let routeTestCase = this.$route.params.testCase;
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-        if (routeTestCase) {
-          this.editTestCase(routeTestCase);
-        } else if (caseId) {
+        if (caseId) {
           this.$get('test/case/get/' + caseId, response => {
             let testCase = response.data;
             this.editTestCase(testCase);
@@ -608,10 +611,12 @@ export default {
       if (!index) {
         this.type = "edit";
         this.testCaseReadOnly = false;
-        if (testCase.label !== "redirect") {
-          if (this.treeNodes.length < 1) {
-            this.$warning(this.$t('test_track.case.create_module_first'));
-            return;
+        if (!this.ignoreTreeNodes) {
+          if (testCase.label !== "redirect") {
+            if (this.treeNodes.length < 1) {
+              this.$warning(this.$t('test_track.case.create_module_first'));
+              return;
+            }
           }
         }
         let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
