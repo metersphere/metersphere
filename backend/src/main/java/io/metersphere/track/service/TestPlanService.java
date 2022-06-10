@@ -1415,9 +1415,9 @@ public class TestPlanService {
             List<String> reportIds = cases.stream().map(TestPlanFailureApiDTO::getReportId).collect(Collectors.toList());
             ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
             example.createCriteria().andIdIn(reportIds);
-            List<ApiDefinitionExecResult> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
+            List<ApiDefinitionExecResultWithBLOBs> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
             // 格式化数据结果
-            Map<String, ApiDefinitionExecResult> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
+            Map<String, ApiDefinitionExecResultWithBLOBs> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
             cases.forEach(item -> {
                 if (resultMap.get(item.getReportId()) != null &&
                         StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
