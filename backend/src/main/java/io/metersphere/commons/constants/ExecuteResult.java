@@ -2,17 +2,26 @@ package io.metersphere.commons.constants;
 
 public enum ExecuteResult {
     //误报状态
-    errorReportResult,
-
+    ERROR_REPORT_RESULT("errorReportResult"),
+    //停止状态
+    STOP("STOP"),
     //接口执行状态(兼容旧数据)
-    success, error, STOP,
-
+    API_SUCCESS("success"), API_ERROR("error"),
     //未执行状态
-    unexecute,
-
+    UN_EXECUTE("unexecute"),
     //场景执行状态(兼容旧数据)
-    Success, Error,
-
+    SCENARIO_SUCCESS("Success"), SCENARIO_ERROR("Error"),
     //测试计划执行状态(兼容旧数据)
-    PREPARE, RUNNING, SUCCESS, FAILD
+    TEST_PLAN_PREPARE("PREPARE"), TEST_PLAN_RUNNING("RUNNING");
+    private String value;
+
+    ExecuteResult(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
+    }
+
 }

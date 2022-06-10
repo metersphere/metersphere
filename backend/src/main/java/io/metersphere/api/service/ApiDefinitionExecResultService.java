@@ -442,7 +442,7 @@ public class ApiDefinitionExecResultService {
             saveResult.setId(reportId);
             //对响应内容进行进一步解析。如果有附加信息（比如误报库信息），则根据附加信息内的数据进行其他判读
             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(item);
-            String status = item.isSuccess() ? ExecuteResult.success.name() : ExecuteResult.error.name();
+            String status = item.isSuccess() ? ExecuteResult.API_SUCCESS.toString() : ExecuteResult.API_ERROR.toString();
             if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
                 if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
                     status = expandDTO.getStatus();

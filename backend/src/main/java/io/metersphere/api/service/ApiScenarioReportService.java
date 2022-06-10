@@ -374,13 +374,13 @@ public class ApiScenarioReportService {
             hasUnExecute = true;
         }else {
             for (String status : reportStatus) {
-                if (StringUtils.equalsIgnoreCase(status, ExecuteResult.Error.name())) {
+                if (StringUtils.equalsIgnoreCase(status, ExecuteResult.SCENARIO_ERROR.toString())) {
                     hasError = true;
-                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
+                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                     hasErrorReport = true;
-                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.STOP.name())) {
+                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.STOP.toString())) {
                     hasStop = true;
-                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.unexecute.name())) {
+                } else if (StringUtils.equalsIgnoreCase(status, ExecuteResult.UN_EXECUTE.toString())) {
                     hasUnExecute = true;
                 } else {
                     hasOtherStatus = true;
@@ -394,9 +394,9 @@ public class ApiScenarioReportService {
         }
 
         return hasError ? ScenarioStatus.Error.name() :
-                hasErrorReport ? ExecuteResult.errorReportResult.name() :
-                        hasStop ? ExecuteResult.STOP.name() :
-                                hasUnExecute ? ExecuteResult.unexecute.name() : ScenarioStatus.Success.name();
+                hasErrorReport ? ExecuteResult.ERROR_REPORT_RESULT.toString() :
+                        hasStop ? ExecuteResult.STOP.toString() :
+                                hasUnExecute ? ExecuteResult.UN_EXECUTE.toString() : ScenarioStatus.Success.name();
     }
 
     public void margeReport(String reportId, String runMode, String console) {
@@ -441,7 +441,7 @@ public class ApiScenarioReportService {
             scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
         if (scenario != null) {
-            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
+            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                 scenario.setLastResult(status);
             } else {
                 scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
@@ -482,7 +482,7 @@ public class ApiScenarioReportService {
             scenario = uiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
         if (scenario != null) {
-            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.errorReportResult.name())) {
+            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                 scenario.setLastResult(status);
             } else {
                 scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
@@ -896,7 +896,7 @@ public class ApiScenarioReportService {
         for (ApiScenarioReportResult result : requestResults) {
             if (StringUtils.equalsIgnoreCase(result.getStatus(), ScenarioStatus.Error.name())) {
                 errorSize++;
-            } else if (StringUtils.equalsIgnoreCase(result.getStatus(), ExecuteResult.errorReportResult.name())) {
+            } else if (StringUtils.equalsIgnoreCase(result.getStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                 errorReportResultSize++;
             }
         }
@@ -904,9 +904,9 @@ public class ApiScenarioReportService {
         if (errorSize > 0) {
             status = ScenarioStatus.Error.name();
         } else if (errorReportResultSize > 0) {
-            status = ExecuteResult.errorReportResult.name();
+            status = ExecuteResult.ERROR_REPORT_RESULT.toString();
         } else {
-            status = requestResults.isEmpty() ? ExecuteResult.unexecute.name() : ScenarioStatus.Success.name();
+            status = requestResults.isEmpty() ? ExecuteResult.UN_EXECUTE.toString() : ScenarioStatus.Success.name();
         }
 
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {

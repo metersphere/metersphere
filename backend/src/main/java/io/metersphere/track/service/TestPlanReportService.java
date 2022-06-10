@@ -441,7 +441,7 @@ public class TestPlanReportService {
         }
         if (testPlanReport != null) {
             boolean isSendMessage = false;
-            if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),ExecuteResult.RUNNING.name())){
+            if(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(),ExecuteResult.TEST_PLAN_RUNNING.toString())){
                 isSendMessage = true;
             }
             //初始化测试计划包含组件信息
@@ -689,7 +689,7 @@ public class TestPlanReportService {
                 if (sendMessage && testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
                         ReportTriggerMode.MANUAL.name(),
                         ReportTriggerMode.API.name(),
-                        ReportTriggerMode.SCHEDULE.name()) && !StringUtils.equalsIgnoreCase(report.getStatus(), ExecuteResult.RUNNING.name())
+                        ReportTriggerMode.SCHEDULE.name()) && !StringUtils.equalsIgnoreCase(report.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())
                 ) {
                     //发送通知
                     testPlanMessageService.sendMessage(testPlan, report, testPlan.getProjectId());

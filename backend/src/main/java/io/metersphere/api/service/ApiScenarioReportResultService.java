@@ -122,11 +122,11 @@ public class ApiScenarioReportResultService {
         ApiScenarioReportResultWithBLOBs report = newScenarioReportResult(reportId, resourceId);
         report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
         report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
-        String status = result.getError() == 0 ? ExecuteResult.Success.name() : ExecuteResult.Error.name();
+        String status = result.getError() == 0 ? ExecuteResult.SCENARIO_SUCCESS.toString() : ExecuteResult.SCENARIO_ERROR.toString();
         if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
             report.setErrorCode(errorCodeDTO.getErrorCodeStr());
         }
-        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.errorReportResult.name())) {
+        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
             status = errorCodeDTO.getRequestStatus();
         }
         report.setStatus(status);
