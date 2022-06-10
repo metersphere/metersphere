@@ -478,7 +478,7 @@ public class TestPlanScenarioCaseService {
         List<TestCaseReportStatusResultDTO> stepResult = new ArrayList<>();
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Failure.name(), stepCount.getScenarioStepError(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Pass.name(), stepCount.getScenarioStepSuccess(), stepResult);
-        getScenarioCaseReportStatusResultDTO(ExecuteResult.errorReportResult.name(), stepCount.getScenarioStepErrorReport(), stepResult);
+        getScenarioCaseReportStatusResultDTO(ExecuteResult.ERROR_REPORT_RESULT.toString(), stepCount.getScenarioStepErrorReport(), stepResult);
         getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Underway.name(),
                 stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() - stepCount.getScenarioStepErrorReport() + underwayStepsCounts, stepResult);
         apiResult.setApiScenarioData(statusResult);
@@ -604,7 +604,7 @@ public class TestPlanScenarioCaseService {
 
     public List<TestPlanFailureScenarioDTO> getErrorReportCases(String planId) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
-                extTestPlanScenarioCaseMapper.getFailureList(planId, ExecuteResult.errorReportResult.name());
+                extTestPlanScenarioCaseMapper.getFailureList(planId, ExecuteResult.ERROR_REPORT_RESULT.toString());
         return buildCases(apiTestCases);
     }
 

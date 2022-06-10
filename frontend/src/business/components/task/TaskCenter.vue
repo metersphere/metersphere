@@ -125,7 +125,7 @@
                   </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'unexecute'"
                         class="ms-task-stopped">
-                      unexecute
+                      Unexecuted
                   </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'"
                         class="ms-task-error-report-status">
@@ -205,7 +205,7 @@ export default {
         {id: 'success', label: 'Success'},
         {id: 'waiting', label: 'Waiting'},
         {id: 'fail', label: 'Fail'},
-        {id: 'unexecute', label: 'unexecute'},
+        {id: 'unexecute', label: 'Unexecuted'},
         {id: 'stop', label: 'Stopped'}
       ],
       condition: {triggerMode: "", executionStatus: ""},
