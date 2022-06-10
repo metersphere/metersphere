@@ -122,6 +122,11 @@ public class TestCaseController {
         return testCaseService.getRelationshipCase(id, relationshipType);
     }
 
+    @PostMapping("/relationship/add")
+    public void saveRelationshipBatch(@RequestBody TestCaseRelationshipEdgeRequest request) {
+        testCaseService.saveRelationshipBatch(request);
+    }
+
     @GetMapping("/relationship/case/count/{id}")
     public int getRelationshipCase(@PathVariable("id") String id) {
         return testCaseService.getRelationshipCount(id);

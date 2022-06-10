@@ -2321,4 +2321,21 @@ public class ApiDefinitionService {
         }
     }
 
+    public void saveRelationshipBatch(ApiDefinitionRelationshipEdgeRequest request) {
+        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+        request.getCondition().setNotInIds(relationshipIds);
+        request.getCondition().setId(null);
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        List<String> ids = request.getIds();
+        ids.remove(request.getId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            if (CollectionUtils.isNotEmpty(request.getTargetIds())) {
+                request.setTargetIds(ids);
+            } else if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
+                request.setSourceIds(ids);
+            }
+            relationshipEdgeService.saveBatch(request);
+        }
+    }
 }

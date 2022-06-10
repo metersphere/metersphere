@@ -17,7 +17,6 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.api.service.EsbImportService;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -331,6 +330,11 @@ public class ApiDefinitionController {
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.getRelationshipRelateList(request, goPage, pageSize);
+    }
+
+    @PostMapping("/relationship/add")
+    public void saveRelationshipBatch(@RequestBody ApiDefinitionRelationshipEdgeRequest request) {
+        apiDefinitionService.saveRelationshipBatch(request);
     }
 
     @GetMapping("/follow/{definitionId}")

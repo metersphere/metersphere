@@ -2751,4 +2751,20 @@ public class TestCaseService {
         return testCaseNodeService.getNodeByTestCases(testCaseDTOS);
     }
 
+    public void saveRelationshipBatch(TestCaseRelationshipEdgeRequest request) {
+        List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
+        request.getCondition().setNotInIds(relationshipIds);
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        List<String> ids = request.getIds();
+        ids.remove(request.getId());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            if (CollectionUtils.isNotEmpty(request.getTargetIds())) {
+                request.setTargetIds(ids);
+            } else if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
+                request.setSourceIds(ids);
+            }
+            relationshipEdgeService.saveBatch(request);
+        }
+    }
 }
