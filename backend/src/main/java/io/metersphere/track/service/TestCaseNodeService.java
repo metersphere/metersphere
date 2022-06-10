@@ -148,8 +148,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId, QueryTestCaseRequest request) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setProjectId(projectId);
