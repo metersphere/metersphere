@@ -368,9 +368,12 @@ export default {
     },
     handleNext() {
       if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
+        // 最后一条不处理
         return;
       } else if (this.index === this.testCases.length - 1) {
+        // 到本页最后一条数据，则翻页
         this.$emit('nextPage');
+        this.index = 0;
         return;
       }
       this.index++;
@@ -381,6 +384,7 @@ export default {
         return;
       } else if (this.index === 0) {
         this.$emit('prePage');
+        this.index = this.pageSize - 1;
         return;
       }
       this.index--;

@@ -154,7 +154,7 @@ export default {
     },
 
     getWorkSpaceList() {
-      this.$get("/workspace/list/userworkspace/" + encodeURIComponent(getCurrentUserId()), response => {
+      this.$get("/workspace/list/userworkspace", response => {
         this.workspaceList = response.data;
       });
     },

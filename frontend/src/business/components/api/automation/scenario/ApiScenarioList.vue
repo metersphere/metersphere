@@ -828,7 +828,7 @@ export default {
 
     },
     getPrincipalOptions(option) {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.$get('/user/project/member/list', response => {
         option.push(...response.data);
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};

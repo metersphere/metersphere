@@ -140,7 +140,7 @@ export default {
         userIds: {required: true, message: this.$t('member.please_choose_member'), trigger: 'blur'},
         sourceIds: {required: true, message: this.$t('group.select_belong_source'), trigger: 'blur'}
       }
-    }
+    };
   },
   computed: {
     typeLabel() {
@@ -167,10 +167,12 @@ export default {
           this.total = itemCount;
           this.memberData = listObject;
         }
-      })
-      this.$get("/project/get/" + getCurrentProjectID(), res => {
-        this.currentProject = res.data;
       });
+      if (getCurrentProjectID()) {
+        this.$get("/project/get/" + getCurrentProjectID(), res => {
+          this.currentProject = res.data;
+        });
+      }
     },
     open(group, initUserGroupUrl, initUserUrl) {
       this.initUserGroupUrl = initUserGroupUrl ? initUserGroupUrl : "/user/group/user/";
@@ -206,7 +208,7 @@ export default {
         let sourceIds = data.map(d => d.id);
         this.$set(this.form, 'userIds', userIds);
         this.$set(this.form, 'sourceIds', sourceIds);
-      })
+      });
     },
     editMember() {
       this.form.groupId = this.group.id;
@@ -220,12 +222,12 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     getUser() {
       this.memberResult = this.$get(this.initUserUrl, response => {
         this.users = response.data;
-      })
+      });
     },
     removeMember(row) {
       this.$confirm(this.$t('member.remove_member').toString(), '', {
@@ -251,7 +253,7 @@ export default {
       this.groupSource = [];
       this.sourceResult = this.$get('/user/group/source/' + row.id + "/" + this.group.id, res => {
         this.groupSource = res.data;
-      })
+      });
     },
     addMember() {
       if (this.submitType === 'ADD') {
@@ -272,7 +274,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     getResource() {
       this.memberResult = this.$get('/workspace/list/resource/' + this.group.id + "/" + this.group.type, res => {
@@ -280,7 +282,7 @@ export default {
         if (data) {
           this._setResource(this.group.type, data);
         }
-      })
+      });
     },
     _setResource(type, data) {
       switch (type) {
@@ -307,13 +309,14 @@ export default {
       this.userSelectDisable = false;
     }
   }
-}
+};
 </script>
 
 <style scoped>
 .member_select, .other_source_select {
   display: block;
 }
+
 .group-member >>> .el-dialog__body {
   padding-top: 0;
 }

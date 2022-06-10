@@ -249,7 +249,7 @@ export default {
     },
 
     initUserList() {
-      this.result = this.$post('/user/project/member/list', {projectId: getCurrentProjectID()}, response => {
+      this.result = this.$get('/user/project/member/list', response => {
         this.scheduleReceiverOptions = response.data;
       });
     },
@@ -327,6 +327,9 @@ export default {
         this.$refs.taskList.search();
         this.clear();
       });
+    },
+    searchTaskList(){
+      this.$refs.taskList.search();
     },
     intervalValidate() {
       if (this.getIntervalTime() < 1 * 60 * 1000) {

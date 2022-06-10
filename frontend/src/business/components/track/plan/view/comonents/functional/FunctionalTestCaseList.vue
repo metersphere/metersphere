@@ -742,7 +742,7 @@ export default {
       this.$refs.batchEdit.open(this.condition.selectAll ? this.total : this.$refs.table.selectRows.size);
     },
     getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+      this.$get('/user/project/member/list', response => {
         this.valueArr.executor = response.data;
         this.executorFilters = response.data.map(u => {
           return {text: u.name, value: u.id};

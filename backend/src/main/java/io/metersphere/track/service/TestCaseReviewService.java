@@ -485,7 +485,7 @@ public class TestCaseReviewService {
     private String getReviewName(List<String> userIds, String projectId) {
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setProjectId(projectId);
-        Map<String, String> userMap = userService.getProjectMember(queryMemberRequest)
+        Map<String, String> userMap = userService.getProjectMemberList(queryMemberRequest)
                 .stream().collect(Collectors.toMap(User::getId, User::getName));
         StringBuilder stringBuilder = new StringBuilder();
         String name = "";
