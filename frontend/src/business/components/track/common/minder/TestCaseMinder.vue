@@ -136,6 +136,9 @@ name: "TestCaseMinder",
     }
   },
   methods: {
+    initData() {
+      this.$refs.minder.initData();
+    },
     getMinderTreeExtraNodeCount() {
       return getMinderTreeExtraNodeCount;
     },
