@@ -8,10 +8,7 @@ import io.metersphere.api.service.*;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtProjectMapper;
-import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
-import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
-import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -113,6 +110,10 @@ public class ProjectService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private ProjectVersionMapper projectVersionMapper;
+    @Resource
+    ExtModuleNodeMapper extModuleNodeMapper;
+    @Resource
+    ApiModuleMapper apiModuleMapper;
 
     public Project addProject(AddProjectRequest project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -175,6 +176,8 @@ public class ProjectService {
         addProjectVersion(project);
         // 初始化项目应用管理
         initProjectApplication(project.getId());
+        // 初始化项目默认节点
+        initProjectDefaultNode(project.getId());
         return project;
     }
 
@@ -226,6 +229,36 @@ public class ProjectService {
                 e.printStackTrace();
             }
             projectApplicationMapper.insert(projectApplication);
+        }
+    }
+
+    private void initProjectDefaultNode(String projectId) {
+        ModuleNode record = new ModuleNode();
+        record.setId(UUID.randomUUID().toString());
+        record.setCreateUser(SessionUtils.getUserId());
+        record.setPos(1.0);
+        record.setLevel(1);
+        record.setCreateTime(System.currentTimeMillis());
+        record.setUpdateTime(System.currentTimeMillis());
+        record.setProjectId(projectId);
+        //每个新项目的默认测试用例节点, 接口场景节点, UI自动化场景, 接口节点{HTTP, DUBBO, SQL, TCP}
+        record.setName(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getNodeName());
+        extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getTableName(), record);
+        record.setId(UUID.randomUUID().toString());
+        record.setName(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getNodeName());
+        extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.API_SCENARIO_DEFAULT_NODE.getTableName(), record);
+        record.setId(UUID.randomUUID().toString());
+        record.setName(ProjectModuleDefaultNodeEnum.UI_SCENARIO_DEFAULT_NODE.getNodeName());
+        extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.UI_SCENARIO_DEFAULT_NODE.getTableName(), record);
+
+        ApiModule apiRecord = new ApiModule();
+        BeanUtils.copyBean(apiRecord, record);
+        apiRecord.setName(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName());
+        String[] protocols = {"HTTP", "DUBBO", "SQL", "TCP"};
+        for (String protocol : protocols) {
+            apiRecord.setProtocol(protocol);
+            apiRecord.setId(UUID.randomUUID().toString());
+            apiModuleMapper.insert(apiRecord);
         }
     }
 
