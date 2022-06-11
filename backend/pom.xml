@@ -115,7 +115,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>
-            <version>3.17.0</version>
+            <version>3.17.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.session</groupId>
