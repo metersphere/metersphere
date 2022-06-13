@@ -3,6 +3,7 @@ package io.metersphere.commons.utils;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectVersion;
 import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
@@ -132,6 +133,21 @@ public class ServiceUtils {
         userMap.forEach((k, v) -> {
             nameMap.put(k, v.getName());
         });
+        return nameMap;
+    }
+
+    public static Map<String, String> getWorkspaceNameByProjectIds(List<String> projectIds) {
+        ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
+        HashMap<String, String> nameMap = new HashMap<>();
+
+        if (!CollectionUtils.isEmpty(projectIds)) {
+            Map<String, Workspace> workspaceMap = projectService.getWorkspaceNameByProjectIds(projectIds);
+            workspaceMap.forEach((k, v) -> {
+                nameMap.put(k, v.getName());
+            });
+            return nameMap;
+        }
+
         return nameMap;
     }
 
