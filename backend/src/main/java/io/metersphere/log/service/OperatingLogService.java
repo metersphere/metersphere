@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.OperatingLogMapper;
 import io.metersphere.base.mapper.OperatingLogResourceMapper;
 import io.metersphere.base.mapper.ext.ExtOperatingLogMapper;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -23,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -68,7 +71,17 @@ public class OperatingLogService {
             request.setStartTime(request.getTimes().get(0));
             request.setEndTime(request.getTimes().get(1));
         }
-        return extOperatingLogMapper.list(request);
+        List<OperatingLogDTO> list = extOperatingLogMapper.list(request);
+        List<String> userIds = list.stream().map(OperatingLogDTO::getOperUser).collect(Collectors.toList());
+        List<String> projectIds = list.stream().map(OperatingLogDTO::getProjectId).collect(Collectors.toList());
+
+        Map<String, String> userNameMap = ServiceUtils.getUserNameMap(userIds);
+        Map<String, String> workspaceNameMap = ServiceUtils.getWorkspaceNameByProjectIds(projectIds);
+        for (OperatingLogDTO dto : list) {
+            dto.setUserName(userNameMap.getOrDefault(dto.getOperUser(), ""));
+            dto.setWorkspaceName(workspaceNameMap.getOrDefault(dto.getProjectId(), ""));
+        }
+        return list;
     }
 
     public OperatingLogDTO get(String id) {
