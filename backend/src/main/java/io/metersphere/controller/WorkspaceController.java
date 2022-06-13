@@ -37,6 +37,7 @@ public class WorkspaceController {
             PermissionConstants.SYSTEM_GROUP_READ_EDIT,
             PermissionConstants.SYSTEM_USER_READ_CREATE,
             PermissionConstants.SYSTEM_USER_READ_EDIT,
+            PermissionConstants.SYSTEM_WORKSPACE_READ
     }, logical = Logical.OR)
     public List<Workspace> getWorkspaceList() {
         return workspaceService.getWorkspaceList(new WorkspaceRequest());

@@ -301,7 +301,7 @@ export default {
       },
     reset() {
       let projectIds = this.condition.projectIds;
-      this.condition = {projectIds: projectIds};
+      this.condition = {projectIds: projectIds, times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()]};
       this.initTableData();
     },
     getWorkSpaceList() {
