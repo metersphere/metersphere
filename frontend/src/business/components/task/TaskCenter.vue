@@ -129,7 +129,7 @@
                   </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'"
                         class="ms-task-error-report-status">
-                      {{ $t('error_report_library.option.name') }}
+                      FakeError
                   </span>
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'running'"
                         class="ms-task-running">
@@ -196,17 +196,17 @@ export default {
       ],
       runStatus: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
-        {id: 'saved', label: 'Saved'},
         {id: 'starting', label: 'Starting'},
         {id: 'running', label: 'Running'},
         {id: 'reporting', label: 'Reporting'},
         {id: 'completed', label: 'Completed'},
-        {id: 'error', label: 'Error'},
         {id: 'success', label: 'Success'},
         {id: 'waiting', label: 'Waiting'},
+        {id: "errorReportResult", label: 'FakeError'},
+        {id: 'unexecute', label: 'NotExecute'},
+        {id: 'stop', label: 'Stopped'},
+        {id: 'error', label: 'Error'},
         {id: 'fail', label: 'Fail'},
-        {id: 'unexecute', label: 'Unexecuted'},
-        {id: 'stop', label: 'Stopped'}
       ],
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
