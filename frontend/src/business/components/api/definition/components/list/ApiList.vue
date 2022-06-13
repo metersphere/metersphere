@@ -119,7 +119,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="80px"
-          :show-overflow-tooltip = false
+          :show-overflow-tooltip=false
           :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <el-tooltip class="item" effect="dark" placement="top">
@@ -437,7 +437,7 @@ export default {
       selectDataCounts: 0,
       projectName: "",
       versionEnable: false,
-      isFirstInitTable:true,
+      isFirstInitTable: true,
     };
   },
   props: {
@@ -644,9 +644,9 @@ export default {
         });
       }
       if (this.needRefreshModule()) {
-        if(this.isFirstInitTable){
+        if (this.isFirstInitTable) {
           this.isFirstInitTable = false;
-        }else {
+        } else {
           this.$emit("refreshTree");
         }
       }
@@ -878,12 +878,10 @@ export default {
     getSelectDataRange() {
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
-      if (dataType === 'api') {
-        this.selectDataRange = dataRange;
-      } else {
-        this.selectDataRange = 'all';
-      }
-      if (this.selectDataRange != null) {
+      this.selectDataRange = dataType === 'api' ? dataRange : "all";
+      if (this.selectDataRange &&
+        Object.prototype.toString.call(this.selectDataRange).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+        && this.selectDataRange.indexOf(":") !== -1) {
         let selectParamArr = this.selectDataRange.split(":");
         if (selectParamArr.length === 2) {
           if (selectParamArr[0] === "apiList") {
@@ -950,14 +948,14 @@ export default {
         });
       }
     },
-    getTagToolTips(tags){
-      try{
+    getTagToolTips(tags) {
+      try {
         let showTips = "";
-        tags.forEach( item => {
+        tags.forEach(item => {
           showTips += item + ",";
         })
         return showTips.substr(0, showTips.length - 1);
-      }catch (e){
+      } catch (e) {
         return "";
       }
     }
