@@ -2,8 +2,10 @@
   <div v-loading="loading">
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="500" size="small" show-word-limit
-                  :placeholder="$t('api_test.request.extract.json_path_expression')"/>
+        <el-tooltip :disabled="showTip" placement="top" :content="jsonPath.expression">
+          <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="500" size="small" show-word-limit
+                    :placeholder="$t('api_test.request.extract.json_path_expression')"/>
+        </el-tooltip>
       </el-col>
       <el-col>
         <el-select :disabled="isReadOnly" v-model="jsonPath.option" class="ms-col-type" size="small"
@@ -37,89 +39,91 @@
 </template>
 
 <script>
-  import {JSONPath} from "../../model/ApiTestModel";
+import {JSONPath} from "../../model/ApiTestModel";
 
-  export default {
-    name: "MsApiAssertionJsonPath",
+export default {
+  name: "MsApiAssertionJsonPath",
 
-    props: {
-      jsonPath: {
-        default: () => {
-          return new JSONPath();
-        }
-      },
-      edit: {
-        type: Boolean,
-        default: false
-      },
-      index: Number,
-      list: Array,
-      callback: Function,
-      isReadOnly: {
-        type: Boolean,
-        default: false
+  props: {
+    jsonPath: {
+      default: () => {
+        return new JSONPath();
       }
     },
-
-    created() {
-      if (!this.jsonPath.option) {
-        this.jsonPath.option = "REGEX";
-      }
+    edit: {
+      type: Boolean,
+      default: false
     },
+    index: Number,
+    list: Array,
+    callback: Function,
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-    data() {
-      return {
-        loading: false
-      }
+  created() {
+    if (!this.jsonPath.option) {
+      this.jsonPath.option = "REGEX";
+    }
+  },
+
+  data() {
+    return {
+      loading: false,
+      showTip: true,
+    }
+  },
+
+  watch: {
+    'jsonPath.expect'() {
+      this.setJSONPathDescription();
     },
+    'jsonPath.expression'() {
+      this.setJSONPathDescription();
+    }
+  },
 
-    watch: {
-      'jsonPath.expect'() {
-        this.setJSONPathDescription();
-      },
-      'jsonPath.expression'() {
-        this.setJSONPathDescription();
-      }
+  methods: {
+    add: function () {
+      this.list.push(this.getJSONPath());
+      this.callback();
     },
-
-    methods: {
-      add: function () {
-        this.list.push(this.getJSONPath());
-        this.callback();
-      },
-      remove: function () {
-        this.list.splice(this.index, 1);
-      },
-      getJSONPath() {
-        let jsonPath = new JSONPath(this.jsonPath);
-        jsonPath.enable = true;
-        jsonPath.description = jsonPath.expression + " expect: " + (jsonPath.expect ? jsonPath.expect : '');
-        return jsonPath;
-      },
-      reload() {
-        this.loading = true
-        this.$nextTick(() => {
-          this.loading = false
-        })
-      },
-      setJSONPathDescription() {
-        this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
-      }
+    remove: function () {
+      this.list.splice(this.index, 1);
+    },
+    getJSONPath() {
+      let jsonPath = new JSONPath(this.jsonPath);
+      jsonPath.enable = true;
+      jsonPath.description = jsonPath.expression + " expect: " + (jsonPath.expect ? jsonPath.expect : '');
+      return jsonPath;
+    },
+    reload() {
+      this.loading = true
+      this.$nextTick(() => {
+        this.loading = false
+      })
+    },
+    setJSONPathDescription() {
+      this.showTip = this.jsonPath.expression.length < 50;
+      this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
     }
   }
+}
 </script>
 
 <style scoped>
-  .assertion-select {
-    width: 250px;
-  }
+.assertion-select {
+  width: 250px;
+}
 
-  .assertion-item {
-    width: 100%;
-  }
+.assertion-item {
+  width: 100%;
+}
 
-  .assertion-btn {
-    text-align: center;
-    width: 80px;
-  }
+.assertion-btn {
+  text-align: center;
+  width: 80px;
+}
 </style>
