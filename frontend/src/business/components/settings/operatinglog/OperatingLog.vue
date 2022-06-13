@@ -43,7 +43,7 @@
 
               <el-col :span="8" v-if="isSystem">
                 <el-form-item :label="$t('commons.workspace')" prop="workspace">
-                  <el-select size="small" v-model="condition.workspaceId" @change="initTableData" clearable
+                  <el-select size="small" v-model="condition.workspaceId" @change="initTableData" clearable filterable
                              style="width: 100%">
                     <el-option v-for="o in workspaceList" :key="o.id" :label="$t(o.label)" :value="o.id"/>
                   </el-select>
@@ -301,7 +301,7 @@ export default {
       },
     reset() {
       let projectIds = this.condition.projectIds;
-      this.condition = {projectIds: projectIds};
+      this.condition = {projectIds: projectIds, times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()]};
       this.initTableData();
     },
     getWorkSpaceList() {

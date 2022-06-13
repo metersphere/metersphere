@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.Workspace;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
 import org.apache.ibatis.annotations.MapKey;
@@ -29,6 +30,9 @@ public interface ExtProjectMapper {
 
     @MapKey("id")
     Map<String, Project> queryNameByIds(@Param("ids") List<String> ids);
+
+    @MapKey("id")
+    Map<String, Workspace> queryWorkNameByProjectIds(@Param("ids") List<String> ids);
 
     Project selectProjectByResourceId(@Param("resourceId") String resourceId);
 
