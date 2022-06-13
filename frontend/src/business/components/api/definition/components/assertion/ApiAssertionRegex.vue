@@ -10,8 +10,10 @@
         </el-select>
       </el-col>
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="regex.expression" size="small" show-word-limit
+        <el-tooltip :disabled="showTip" placement="top" :content="regex.expression">
+          <el-input :disabled="isReadOnly" v-model="regex.expression" size="small" show-word-limit
                   :placeholder="$t('api_test.request.assertions.expression')"/>
+        </el-tooltip>
       </el-col>
       <el-col class="assertion-checkbox">
         <el-checkbox v-model="regex.assumeSuccess" :disabled="isReadOnly">
@@ -61,6 +63,7 @@ export default {
   data() {
     return {
       subjects: ASSERTION_REGEX_SUBJECT,
+      showTip: true,
     }
   },
 
@@ -88,6 +91,7 @@ export default {
       return regex;
     },
     setRegexDescription() {
+      this.showTip = this.regex.description.length < 80;
       this.regex.description = this.regex.subject + " has: " + this.regex.expression;
     }
   }
