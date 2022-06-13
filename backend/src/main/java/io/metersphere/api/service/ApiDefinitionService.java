@@ -1210,6 +1210,11 @@ public class ApiDefinitionService {
         //通过platform，获取对应的导入解析类型。
         ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            if (!UrlTestUtils.testUrlWithTimeOut(request.getSwaggerUrl(), 30000)) {
+                MSException.throwException(Translator.get("connection_timeout"));
+            }
+        }
         try {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
             if (apiImport.getMocks() == null) {
