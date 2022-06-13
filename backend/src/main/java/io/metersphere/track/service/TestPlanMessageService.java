@@ -3,11 +3,13 @@ package io.metersphere.track.service;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.base.domain.TestPlanReport;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.ReportTriggerMode;
-import io.metersphere.commons.constants.TestPlanReportStatus;
+import io.metersphere.base.domain.TestPlanReportContentWithBLOBs;
+import io.metersphere.base.domain.TestPlanWithBLOBs;
+import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
@@ -36,11 +38,44 @@ public class TestPlanMessageService {
     private ProjectService projectService;
     @Lazy
     @Resource
-    private  TestPlanService testPlanService;
+    private TestPlanService testPlanService;
     @Resource
     private UserService userService;
     @Resource
     private ShareInfoService shareInfoService;
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Lazy
+    @Resource
+    private TestPlanReportService testPlanReportService;
+
+
+    @Async
+    public void checkTestPlanStatusAndSendMessage(TestPlanReport report, TestPlanReportContentWithBLOBs testPlanReportContent, boolean sendMessage) {
+        if (testPlanReportContent != null) {
+            report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
+        }
+        if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting()) {
+            //更新TestPlan状态为完成
+            TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
+            if (testPlan != null && !StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
+                testPlan.setStatus(TestPlanStatus.Completed.name());
+                testPlanService.editTestPlan(testPlan);
+            }
+            try {
+                if (sendMessage && testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
+                        ReportTriggerMode.MANUAL.name(),
+                        ReportTriggerMode.API.name(),
+                        ReportTriggerMode.SCHEDULE.name()) && !StringUtils.equalsIgnoreCase(report.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())
+                ) {
+                    //发送通知
+                    this.sendMessage(testPlan, report, testPlan.getProjectId());
+                }
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        }
+    }
 
     @Async
     public void sendMessage(TestPlan testPlan, TestPlanReport testPlanReport, String projectId) {
