@@ -19,6 +19,7 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
@@ -78,8 +79,13 @@ public class TestPlanApiCaseService {
     }
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
+        List<OrderRequest> orderRequests = new ArrayList<>();
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setName("num");
+        orderRequest.setType("desc");
+        orderRequests.add(orderRequest);
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
+        request.setOrders(orderRequests);
         List<TestPlanApiCaseDTO> apiTestCases = extTestPlanApiCaseMapper.list(request);
         ServiceUtils.buildVersionInfo(apiTestCases);
         if (CollectionUtils.isEmpty(apiTestCases)) {
