@@ -23,6 +23,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectConfig;
@@ -77,7 +78,12 @@ public class TestPlanScenarioCaseService {
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
+        List<OrderRequest> orderRequests = new ArrayList<>();
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setName("num");
+        orderRequest.setType("desc");
+        orderRequests.add(orderRequest);
+        request.setOrders(orderRequests);
         List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
