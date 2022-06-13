@@ -114,6 +114,7 @@ export default {
     _parseRequestObj(data) {
       let requestHeaders = new Map();
       let requestArguments = new Map();
+      let requestRest = new Map();
       let requestMethod = "";
       let requestBody = "";
       let requestPath = "";
@@ -122,12 +123,20 @@ export default {
       requestPath = request.path;
       requestMethod = request.method;
       let headers = request.headers;
+      let rest = request.rest;
+      if (rest && rest.length > 0) {
+        rest.forEach(r => {
+          if (r.enable) {
+            requestRest.set(r.name, r.value);
+          }
+        })
+      }
       if (headers && headers.length > 0) {
         headers.forEach(header => {
           if (header.name) {
             requestHeaders.set(header.name, header.value);
           }
-        })
+        });
       }
       let args = request.arguments;
       if (args && args.length) {
@@ -141,7 +150,7 @@ export default {
       if (body.json) {
         requestBody = body.raw;
       }
-      return {requestPath, requestHeaders, requestMethod, requestBody, requestArguments}
+      return {requestPath, requestHeaders, requestMethod, requestBody, requestArguments, requestRest}
     },
     apiClose() {
 

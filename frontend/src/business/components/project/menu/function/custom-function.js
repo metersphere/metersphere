@@ -26,9 +26,10 @@ export function getCodeTemplate(language, requestObj) {
 
 function groovyCode(requestObj) {
   let {requestHeaders = new Map(), requestBody = "", requestPath = "",
-    requestMethod = "", host = "", protocol = "", requestArguments = new Map()} = requestObj;
+    requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map()} = requestObj;
   let requestUrl = "";
   requestPath = getRequestPath(requestArguments, requestPath);
+  requestPath = replaceRestParams(requestPath, requestRest);
   if (protocol && host && requestPath) {
     requestUrl = protocol + "://" + host + requestPath;
   }
@@ -40,7 +41,7 @@ function groovyCode(requestObj) {
 
 function pythonCode(requestObj) {
   let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
-    requestMethod = "", host = "", protocol = "http", requestArguments = new Map()} = requestObj;
+    requestMethod = "", host = "", protocol = "http", requestArguments = new Map(), requestRest = new Map()} = requestObj;
   let connType = "HTTPConnection";
   if (protocol === 'https') {
     connType = "HTTPSConnection";
@@ -48,6 +49,7 @@ function pythonCode(requestObj) {
   let headers = getHeaders(requestHeaders);
   requestBody = requestBody ? JSON.stringify(requestBody) : "{}";
   requestPath = getRequestPath(requestArguments, requestPath);
+  requestPath = replaceRestParams(requestPath, requestRest);
   let obj = {requestBody, headers, host, requestPath, requestMethod, connType};
   return _pythonCodeTemplate(obj);
 }
@@ -142,7 +144,8 @@ log.info(conn.content.text)
 
 function _beanshellTemplate(obj) {
   let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
-    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = ""} = obj;
+    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = "", requestRest = new Map()} = obj;
+  requestPath = replaceRestParams(requestPath, requestRest);
   let uri = `new URIBuilder()
                 .setScheme("${protocol}")
                 .setHost("${domain}")
@@ -211,8 +214,9 @@ if (response.getStatusLine().getStatusCode() == 200) {
 
 function _jsTemplate(obj) {
   let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
-    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = ""} = obj;
+    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = "", requestRest = new Map()} = obj;
   let url = "";
+  requestPath = replaceRestParams(requestPath, requestRest);
   if (protocol && domain && port) {
     url = protocol + "://" + domain + ":" + port + requestPath;
   }
@@ -250,4 +254,26 @@ while((lines = reader.readLine()) !== null) {
 }
 log.info(res);
   `;
+}
+
+function replaceRestParams(path, restMap) {
+  if (!path) {
+    return path;
+  }
+  let arr = path.match(/{([\w]+)}/g);
+  if (Array.isArray(arr) && arr.length > 0) {
+    arr = Array.from(new Set(arr));
+    for (let str of arr) {
+      try {
+        let temp = str.substr(1);
+        let param = temp.substring(0, temp.length - 1);
+        if (str && restMap.has(param)) {
+          path = path.replace(new RegExp(str, 'g'), restMap.get(param));
+        }
+      } catch (e) {
+        // nothing
+      }
+    }
+  }
+  return path;
 }
