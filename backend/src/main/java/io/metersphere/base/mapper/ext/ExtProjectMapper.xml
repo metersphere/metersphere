@@ -280,6 +280,15 @@
         </foreach>
     </select>
 
+    <select id="queryWorkspaceNameByProjectIds" resultType="io.metersphere.base.domain.Workspace">
+        SELECT project.id, workspace.name
+        FROM project inner join workspace on project.workspace_id = workspace.id
+        WHERE project.id IN
+        <foreach collection="ids" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 
     <insert id="setDefaultMessageTask">
         INSERT INTO message_task (id, type, event, user_id, task_type, webhook, identification, is_set, project_id,
@@ -392,6 +401,7 @@
         '4a890e41-e755-44fc-b734-d6a0ca25a65c', 0, #{projectId}, NULL, 1629790487682,
         NULL)
     </insert>
+
 
     <select id="getProjectForCustomField" resultType="io.metersphere.base.domain.Project">
         select id, platform, third_part_template from project where workspace_id = #{workspaceId}
