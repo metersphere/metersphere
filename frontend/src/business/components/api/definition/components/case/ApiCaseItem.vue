@@ -182,8 +182,8 @@
 </template>
 
 <script>
-import {_getBodyUploadFiles, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
-import {API_STATUS, PRIORITY} from "../../model/JsonData";
+import {_getBodyUploadFiles, getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {API_METHOD_COLOUR, API_STATUS, PRIORITY} from "../../model/JsonData";
 import MsTag from "../../../../common/components/MsTag";
 import MsTipButton from "../../../../common/components/MsTipButton";
 import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
@@ -197,15 +197,14 @@ import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag
 import MsRequestResultTail from "../response/RequestResultTail";
 import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+import MsChangeHistory from "../../../../history/ChangeHistory";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import ApiCaseHeader from "./ApiCaseHeader";
+import {mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
-import {API_METHOD_COLOUR} from "../../model/JsonData";
-import MsChangeHistory from "../../../../history/ChangeHistory";
-import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
-import {hasPermission} from '@/common/js/utils';
-import ApiCaseHeader from "./ApiCaseHeader";
 
 export default {
   name: "ApiCaseItem",
@@ -312,12 +311,11 @@ export default {
       this.isXpack = true;
     }
     if (this.apiCase.request && this.apiCase.request.hashTree && this.apiCase.request.hashTree.length > 0) {
-      this.apiCase.request.hashTree.forEach(item => {
-        if (item.type === 'Assertions') {
-          item.document.nodeType = 'Case';
-          item.document.apiDefinitionId = this.apiCase.apiDefinitionId;
-        }
-      })
+      let index = this.apiCase.request.hashTree.findIndex(item => item.type === 'Assertions');
+      if (index !== -1) {
+        this.apiCase.request.hashTree[index].document.nodeType = 'Case';
+        this.apiCase.request.hashTree[index].document.apiDefinitionId = this.apiCase.apiDefinitionId;
+      }
     }
     this.readonly = !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE');
     if (this.apiCase && this.apiCase.id) {
@@ -431,11 +429,12 @@ export default {
       });
     },
     singleRun(data) {
-      let methods =["SQL","DUBBO","dubbo://","TCP" ];
+      let methods = ["SQL", "DUBBO", "dubbo://", "TCP"];
       if (data.apiMethod && methods.indexOf(data.apiMethod) === -1 && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
+      mergeRequestDocumentData(data.request);
       if (data.apiMethod !== "SQL" && data.apiMethod !== "DUBBO" && data.apiMethod !== "dubbo://" && data.apiMethod !== "TCP") {
         data.request.useEnvironment = this.environment;
       } else {
@@ -614,6 +613,7 @@ export default {
       if (this.validate(row)) {
         return;
       }
+      mergeRequestDocumentData(this.apiCase.request);
       this.compare = [];
       if (this.compare.indexOf(row.id) === -1) {
         this.compare.push(row.id);

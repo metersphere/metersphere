@@ -81,13 +81,13 @@
     </div>
 
     <div v-if="showMock && (currentProtocol === 'HTTP' || currentProtocol === 'TCP')">
-      <mock-tab :base-mock-config-data="baseMockConfigData" @redirectToTest="redirectToTest" :version-name="currentApi.versionName"
+      <mock-tab :base-mock-config-data="baseMockConfigData" @redirectToTest="redirectToTest"
+                :version-name="currentApi.versionName"
                 :is-tcp="currentProtocol === 'TCP'"/>
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
       <api-case-simple-list
-        class="api-case-simple-list"
         :apiDefinitionId="currentApi.id"
         :apiDefinition="currentApi"
         :current-version="currentApi.versionId"
@@ -283,7 +283,7 @@ export default {
       this.beforeChangeTab();
       this.refreshButtonActiveClass(tabType);
     },
-    beforeChangeTab(){
+    beforeChangeTab() {
       //关闭接口用例弹窗
       this.$refs.caseList.close();
     },
@@ -295,9 +295,9 @@ export default {
           if (param.params) {
             requestParam = param.params;
           }
-          this.$refs.httpTestPage.setRequestParam(requestParam,true);
+          this.$refs.httpTestPage.setRequestParam(requestParam, true);
         } else if (this.currentProtocol === "TCP" && this.$refs.tcpTestPage) {
-          this.$refs.tcpTestPage.setRequestParam(param,true);
+          this.$refs.tcpTestPage.setRequestParam(param, true);
         }
       });
     },
@@ -403,11 +403,6 @@ export default {
 
 .item {
   border: solid 1px var(--primary_color);
-}
-
-
-.api-case-simple-list >>> .el-table {
-  height: calc(100vh - 262px) !important;
 }
 
 /deep/ .ms-opt-btn {

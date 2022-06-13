@@ -33,6 +33,7 @@
         operator-width="190px"
         @refresh="initTable"
         ref="caseTable"
+        class="api-case-simple-list"
       >
         <ms-table-column
           prop="deleteTime"
@@ -1351,4 +1352,9 @@ export default {
 
 .ms-unexecute {
 }
+
+.api-case-simple-list >>> .el-table {
+  height: calc(100vh - 262px) !important;
+}
+
 </style>
