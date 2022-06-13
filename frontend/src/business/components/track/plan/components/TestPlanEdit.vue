@@ -221,8 +221,22 @@ export default {
         this.form.tags = [];
       }
       listenGoBack(this.close);
+      this.setEmptyStage();
       this.dialogFormVisible = true;
       this.reload();
+    },
+    setEmptyStage() {
+      // 如果测试阶段选项中没有当前值，则置空
+      let hasOptions = false;
+      this.stageOption.forEach(item => {
+        if (item.value === this.form.stage) {
+          hasOptions = true;
+          return;
+        }
+      });
+      if (!hasOptions) {
+        this.form.stage = '';
+      }
     },
     testPlanInfo() {
       this.$refs['planFrom'].validate((valid) => {
