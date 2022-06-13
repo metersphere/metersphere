@@ -129,7 +129,11 @@ export default {
   },
   methods: {
     remove() {
-      this.assertions.document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+      this.assertions.document = {
+        type: "JSON",
+        data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []},
+        enable: true
+      };
     },
     reload() {
       this.loading = true

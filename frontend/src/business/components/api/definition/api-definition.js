@@ -125,7 +125,7 @@ export function hisDataProcessing(array, request) {
     }
   }
   assertionsIndex.forEach(item => {
-    const rmIndex = request.hashTree.findIndex((d) => d.id === item.id&&d.resourceId===item.resourceId);
+    const rmIndex = request.hashTree.findIndex((d) => d.id === item.id && d.resourceId === item.resourceId);
     request.hashTree.splice(rmIndex, 1);
   })
 
@@ -157,3 +157,36 @@ export function stepCompute(array, request) {
   request.ruleSize = ruleSize;
 
 }
+
+export function mergeDocumentData(originalData, childMap) {
+  originalData.forEach(item => {
+    if (childMap && childMap.has(item.id)) {
+      let sourceData = JSON.parse(JSON.stringify(item.children));
+      item.children = JSON.parse(JSON.stringify(childMap.get(item.id)));
+      item.children.forEach(target => {
+        let index = sourceData.findIndex(source => source.id === target.id);
+        if (index !== -1) {
+          target.children = sourceData[index].children
+        }
+      })
+      if (item.children && item.children.length > 0) {
+        mergeDocumentData(item.children, childMap);
+      }
+    }
+
+  })
+}
+
+export function mergeRequestDocumentData(request) {
+  if (request && request.hashTree && request.hashTree.length > 0) {
+    let index = request.hashTree.findIndex(item => item.type === 'Assertions');
+    if (index !== -1) {
+      if (request.hashTree[index].document.originalData && request.hashTree[index].document.tableData.size && request.hashTree[index].document.tableData.size !== 0) {
+        mergeDocumentData(request.hashTree[index].document.originalData, request.hashTree[index].document.tableData);
+        request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
+      }
+    }
+  }
+
+}
+

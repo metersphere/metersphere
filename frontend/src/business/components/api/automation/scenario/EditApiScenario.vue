@@ -402,7 +402,7 @@ import {
 } from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
-import {hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -1019,6 +1019,7 @@ export default {
       this.debug = false;
       this.saved = true;
       this.executeType = "Saved";
+      this.mergeScenario(this.scenarioDefinition);
       this.validatePluginData(this.scenarioDefinition);
       if (this.pluginDelStep) {
         this.$error("场景包含插件步骤，对应场景已经删除不能执行！");
@@ -1436,7 +1437,16 @@ export default {
     run() {
       this.reportId = this.debugReportId;
     },
+    mergeScenario(data) {
+      data.forEach(item => {
+        mergeRequestDocumentData(item);
+        if (item.hashTree && item.hashTree > 0) {
+          this.mergeScenario(item.hashTree);
+        }
+      })
+    },
     runDebug(runScenario) {
+      this.mergeScenario(this.scenarioDefinition);
       if (this.debugLoading) {
         return;
       }
@@ -1457,6 +1467,7 @@ export default {
         this.debugLoading = false;
         return;
       }
+
       this.stopDebug = "";
       this.clearDebug();
       this.validatePluginData(this.scenarioDefinition);
@@ -1569,6 +1580,7 @@ export default {
       }
     },
     editScenario() {
+      this.mergeScenario(this.scenarioDefinition);
       if (!document.getElementById("inputDelay")) {
         return;
       }

@@ -61,7 +61,8 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers" :response="responseData"
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="api.request.headers"
+                             :response="responseData"
                              v-if="loadRequest"
                              :request="api.request" ref="apiRequestForm"/>
         <!--返回结果-->
@@ -98,6 +99,7 @@ import MsRun from "../Run";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 export default {
   name: "RunTestHTTPPage",
@@ -119,7 +121,7 @@ export default {
       createCase: "",
       currentRequest: {},
       refreshSign: "",
-      loadCaseConfirmButton:this.$t("commons.confirm"),
+      loadCaseConfirmButton: this.$t("commons.confirm"),
       responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
       reqOptions: REQ_METHOD,
       rules: {
@@ -201,6 +203,7 @@ export default {
       })
     },
     handleCommand(e) {
+      mergeRequestDocumentData(this.api.request);
       switch (e) {
         case "load_case":
           return this.loadCase();
