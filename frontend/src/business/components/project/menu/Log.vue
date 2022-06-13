@@ -257,7 +257,7 @@ export default {
     },
     reset() {
       let projectIds = this.condition.projectIds;
-      this.condition = {projectIds: projectIds, projectId: getCurrentProjectID()};
+      this.condition = {projectIds: projectIds, projectId: getCurrentProjectID(), times: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date().getTime()]};
       this.initTableData();
     },
     initProject(url) {
