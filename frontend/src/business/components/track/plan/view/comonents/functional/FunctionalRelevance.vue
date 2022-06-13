@@ -235,6 +235,8 @@ export default {
       this.save(param, this);
     },
     nodeChange(node, nodeIds, nodeNames) {
+      this.page.condition.selectAll = false;
+      this.$refs.table.condition.selectAll = false;
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
     },
