@@ -9,6 +9,7 @@
           v-model="form.userIds"
           multiple
           filterable
+          @visible-change="visibleChange"
           :filter-method="userFilter"
           :popper-append-to-body="false"
           class="member_select"
@@ -89,6 +90,11 @@ export default {
     }
   },
   methods: {
+    visibleChange(val) {
+      if (!val) {
+        this.userFilter(null);
+      }
+    },
     submitForm() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
