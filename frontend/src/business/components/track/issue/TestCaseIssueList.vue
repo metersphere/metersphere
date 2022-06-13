@@ -91,6 +91,10 @@ export default {
       this.tableData.splice(index, 1);
       this.deleteIds.add(item.id);
     },
+    clear() {
+      this.addIds.clear();
+      this.deleteIds.clear();
+    },
     initTableData() {
       this.tableData = [];
       let condition = {
