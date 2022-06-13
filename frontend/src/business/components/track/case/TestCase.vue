@@ -431,7 +431,7 @@ export default {
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
       if (redirectIDParam != null) {
-        if (this.redirectFlag == "none") {
+        if (this.redirectFlag === "none") {
           this.activeName = "default";
           this.redirectFlag = "redirected";
         }
@@ -611,13 +611,9 @@ export default {
       if (!index) {
         this.type = "edit";
         this.testCaseReadOnly = false;
-        if (!this.ignoreTreeNodes) {
-          if (testCase.label !== "redirect") {
-            if (this.treeNodes.length < 1) {
-              this.$warning(this.$t('test_track.case.create_module_first'));
-              return;
-            }
-          }
+        if (!this.ignoreTreeNodes && testCase.label !== "redirect" && this.treeNodes.length < 1) {
+          this.$warning(this.$t('test_track.case.create_module_first'));
+          return;
         }
         let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
         this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
@@ -632,11 +628,9 @@ export default {
       if (!index) {
         this.type = "edit";
         this.testCaseReadOnly = false;
-        if (testCase.label !== "redirect") {
-          if (this.treeNodes.length < 1) {
-            this.$warning(this.$t('test_track.case.create_module_first'));
-            return;
-          }
+        if (testCase.label !== "redirect" && this.treeNodes.length < 1) {
+          this.$warning(this.$t('test_track.case.create_module_first'));
+          return;
         }
         let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
         this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
