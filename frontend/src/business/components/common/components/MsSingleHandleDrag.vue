@@ -18,12 +18,12 @@
         <el-input size="mini" type="text"
                   class="text-item"
                   :placeholder="$t('custom_field.field_text')"
-                  v-if="editIndex === idx && isKv"
+                  v-if="editIndex === idx"
                   @blur="handleTextEdit(element)"
                   v-model="element.text"/>
-        <span class="text-item" v-else-if="isKv">
+        <span class="text-item" v-else>
           <span v-if="element.system">
-             ({{$t(element.text)}})
+             {{$t(element.text)}}
           </span>
           <span v-else>
              {{element.text}}
@@ -33,10 +33,10 @@
         <el-input size="mini" type="value"
                   class="text-item"
                   :placeholder="$t('custom_field.field_value')"
-                  v-if="editIndex === idx"
+                  v-if="editIndex === idx && isKv"
                   @blur="handleValueEdit(element)"
                   v-model="element.value"/>
-        <span class="text-item" v-else>
+        <span class="text-item" v-else-if="isKv">
           <span v-if="element.system">
              {{$t(element.text)}}
           </span>
@@ -59,6 +59,7 @@
 <script>
 import draggable from "vuedraggable";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import {getUUID} from "@/common/js/utils";
 export default {
   name: "MsSingleHandleDrag",
   components: {
@@ -111,24 +112,23 @@ export default {
 
   },
   methods: {
-    add: function() {
+    add() {
       let item = {
-        text: "",
-        value: ""
+        text: '',
+        value: ''
       };
+      if (!this.isKv) {
+        item.value = getUUID().substring(0, 8);
+      }
       this.data.push(item);
       this.editIndex = this.data.length - 1;
     },
-    handleTextEdit(element) {
+    handleTextEdit() {
       if (!this.isKv) {
-        element.text = element.value;
         this.editIndex = -1;
       }
     },
     handleValueEdit(element) {
-      if (!this.isKv) {
-        element.text = element.value;
-      }
       if (element.value && element.text) {
         this.editIndex = -1;
       }
