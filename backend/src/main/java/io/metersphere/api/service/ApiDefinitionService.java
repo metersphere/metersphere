@@ -654,10 +654,10 @@ public class ApiDefinitionService {
             List<String> ids = new ArrayList<>();
             ids.add(request.getId());
             Boolean toBeUpdated = null;
-            if(request.getToBeUpdated()!=null) {
+            if (request.getToBeUpdated() != null) {
                 toBeUpdated = request.getToBeUpdated();
             }
-            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol(),toBeUpdated);
+            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol(), toBeUpdated);
         }
         //
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
@@ -993,7 +993,7 @@ public class ApiDefinitionService {
         }
     }
 
-    private Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi,ApiDefinitionWithBLOBs apiDefinition)  {
+    private Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
 
         ApiDefinition exApi;
         ApiDefinition api;
@@ -1011,7 +1011,7 @@ public class ApiDefinitionService {
 
         //Compare the basic information of the API. If it contains the comparison that needs to be done for the synchronization information,
         // put the data into the to-be-synchronized
-        if (!StringUtils.equals(exApiString,apiString)) {
+        if (!StringUtils.equals(exApiString, apiString)) {
             if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
                 apiDefinition.setToBeUpdated(true);
                 return true;
@@ -1029,15 +1029,15 @@ public class ApiDefinitionService {
             return true;
         }
 
-        if (!StringUtils.equals(existApi.getRemark(),apiDefinition.getRemark())) {
+        if (!StringUtils.equals(existApi.getRemark(), apiDefinition.getRemark())) {
             return true;
         }
 
-        if (!StringUtils.equals(existApi.getDescription(),apiDefinition.getDescription())) {
+        if (!StringUtils.equals(existApi.getDescription(), apiDefinition.getDescription())) {
             return true;
         }
 
-        if (!StringUtils.equals(existApi.getResponse(),apiDefinition.getResponse())) {
+        if (!StringUtils.equals(existApi.getResponse(), apiDefinition.getResponse())) {
             return true;
         }
 
@@ -1053,22 +1053,22 @@ public class ApiDefinitionService {
         if (exApiRequest == null || apiRequest == null) {
             return false;
         }
-        if (!StringUtils.equals(exApiRequest.get("headers").toString(),apiRequest.get("headers").toString())){
+        if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
             apiDefinition.setToBeUpdated(true);
             return true;
         }
 
-        if (!StringUtils.equals(exApiRequest.get("arguments").toString(),apiRequest.get("arguments").toString())){
+        if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
             apiDefinition.setToBeUpdated(true);
             return true;
         }
 
-        if (!StringUtils.equals(exApiRequest.get("rest").toString(),apiRequest.get("rest").toString())){
+        if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
             apiDefinition.setToBeUpdated(true);
             return true;
         }
 
-        if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())){
+        if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
             apiDefinition.setToBeUpdated(true);
             return true;
         }
@@ -1318,6 +1318,11 @@ public class ApiDefinitionService {
         //通过platform，获取对应的导入解析类型。
         ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            if (!UrlTestUtils.testUrlWithTimeOut(request.getSwaggerUrl(), 30000)) {
+                MSException.throwException(Translator.get("connection_timeout"));
+            }
+        }
         try {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
             if (apiImport.getMocks() == null) {
