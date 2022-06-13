@@ -289,6 +289,9 @@ export default {
       this.result.loading = true;
       this.type = type;
       this.richTextDefaultOpen = this.type === 'edit' ? 'preview' : 'edit';
+      if (this.$refs.testCaseIssueList) {
+        this.$refs.testCaseIssueList.clear();
+      }
       this.$nextTick(() => {
         getIssuePartTemplateWithProject((template, project) => {
           this.currentProject = project;
