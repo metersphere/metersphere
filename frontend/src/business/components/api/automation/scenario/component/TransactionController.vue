@@ -69,12 +69,7 @@ export default {
     },
   },
   created() {
-    if (!this.controller.generateParentSample) {
-      this.controller.generateParentSample = true;
-    }
-    if (!this.controller.includeTimers) {
-      this.controller.includeTimers = true;
-    }
+
   },
   data() {
     return {
