@@ -202,7 +202,7 @@ export default {
       let uuid = getUUID();
       switch (pageType) {
         case "api":
-          this.$router.push('/api/definition/' + uuid + '?resourceId=' + param)
+          this.$emit('redirectPage', 'api', 'api', 'edit:' + param);
           break;
         case "apiCase":
           this.$emit('redirectPage', 'api', 'apiTestCase', 'singleList:' + param);
@@ -215,13 +215,13 @@ export default {
       }
     },
   },
-    created() {
-      this.search();
-    },
-    activated() {
-      this.search();
-    }
+  created() {
+    this.search();
+  },
+  activated() {
+    this.search();
   }
+}
 </script>
 
 <style scoped>

@@ -723,9 +723,9 @@ export default {
       }
       this.$nextTick(() => {
         this.apiDefaultTab = newTabName;
-        if(!addNewTab && action === "SCHEDULE") {
+        if (!addNewTab && action === "SCHEDULE") {
           //定时任务tab不用重新开启，但是需要更新数据
-          if(this.$refs.apiSchedules){
+          if (this.$refs.apiSchedules) {
             this.$refs.apiSchedules.searchTaskList();
           }
         }
