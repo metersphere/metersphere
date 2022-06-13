@@ -241,7 +241,7 @@ public class ProjectService {
         record.setCreateTime(System.currentTimeMillis());
         record.setUpdateTime(System.currentTimeMillis());
         record.setProjectId(projectId);
-        //每个新项目的默认测试用例节点, 接口场景节点, UI自动化场景, 接口节点{HTTP, DUBBO, SQL, TCP}
+        //每个新项目的默认测试用例节点, 接口场景节点, UI自动化场景, UI元素库, 接口节点{HTTP, DUBBO, SQL, TCP}
         record.setName(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getNodeName());
         extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getTableName(), record);
         record.setId(UUID.randomUUID().toString());
@@ -250,6 +250,9 @@ public class ProjectService {
         record.setId(UUID.randomUUID().toString());
         record.setName(ProjectModuleDefaultNodeEnum.UI_SCENARIO_DEFAULT_NODE.getNodeName());
         extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.UI_SCENARIO_DEFAULT_NODE.getTableName(), record);
+        record.setId(UUID.randomUUID().toString());
+        record.setName(ProjectModuleDefaultNodeEnum.UI_ELEMENT_DEFAULT_NODE.getNodeName());
+        extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.UI_ELEMENT_DEFAULT_NODE.getTableName(), record);
 
         ApiModule apiRecord = new ApiModule();
         BeanUtils.copyBean(apiRecord, record);

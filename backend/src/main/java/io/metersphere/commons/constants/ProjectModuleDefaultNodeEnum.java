@@ -19,9 +19,13 @@ public enum ProjectModuleDefaultNodeEnum {
      */
     API_SCENARIO_DEFAULT_NODE("未规划场景", "api_scenario_module"),
     /**
-     * 接口场景默认节点
+     * UI自动化默认节点
      */
-    UI_SCENARIO_DEFAULT_NODE("未规划场景", "ui_scenario_module");
+    UI_SCENARIO_DEFAULT_NODE("未规划场景", "ui_scenario_module"),
+    /**
+     * UI元素库默认节点
+     */
+    UI_ELEMENT_DEFAULT_NODE("未规划元素", "ui_element_module");
 
     private String nodeName;
     private String tableName;
