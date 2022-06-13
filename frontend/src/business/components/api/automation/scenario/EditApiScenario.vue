@@ -402,7 +402,7 @@ import {
 } from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
-import {hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -756,7 +756,7 @@ export default {
         if (item && map.has(item.resourceId)) {
           item.domain = map.get(item.resourceId);
           item.resourceId = getUUID();
-        }else{
+        } else {
           item.domain = "";
         }
         if (item && item.hashTree && item.hashTree.length > 0) {
@@ -823,7 +823,7 @@ export default {
       if (this.reportId) {
         try {
           if (this.messageWebSocket) {
-           this.messageWebSocket.close();
+            this.messageWebSocket.close();
           }
           this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
           this.clearDebug();
@@ -836,7 +836,7 @@ export default {
         let url = "/api/automation/stop/" + this.reportId;
         this.$get(url, response => {
           this.debugLoading = false;
-        },error =>{
+        }, error => {
           this.debugLoading = false;
         });
       }
@@ -991,7 +991,7 @@ export default {
     },
     onDebugMessage(e) {
       // 确认连接建立成功，开始执行
-      if(e && e.data === "CONN_SUCCEEDED"){
+      if (e && e.data === "CONN_SUCCEEDED") {
         this.run();
       }
       if (e.data && e.data.startsWith("result_")) {
@@ -1019,6 +1019,7 @@ export default {
       this.debug = false;
       this.saved = true;
       this.executeType = "Saved";
+      this.mergeScenario(this.scenarioDefinition);
       this.validatePluginData(this.scenarioDefinition);
       if (this.pluginDelStep) {
         this.$error("场景包含插件步骤，对应场景已经删除不能执行！");
@@ -1196,7 +1197,7 @@ export default {
       } else {
         this.operatingElements = [];
       }
-      if ((!this.operatingElements && this.stepFilter)|| this.stepFilter.get("SpecialSteps").indexOf(data.type) !== -1) {
+      if ((!this.operatingElements && this.stepFilter) || this.stepFilter.get("SpecialSteps").indexOf(data.type) !== -1) {
         this.operatingElements = this.stepFilter.get("ALL");
       }
       this.selectedTreeNode = data;
@@ -1266,14 +1267,14 @@ export default {
     addCustomizeApi(request) {
       this.customizeVisible = false;
       request.enable === undefined ? request.enable = true : request.enable;
-      if(this.selectedTreeNode !== undefined){
-        if(this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1){
-          this.scenarioDefinition.splice(this.selectedTreeNode.index,0,request);
+      if (this.selectedTreeNode !== undefined) {
+        if (this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1) {
+          this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, request);
           this.$store.state.forceRerenderIndex = getUUID();
-        }else{
-          this.selectedTreeNode.hashTree.push(request) ;
+        } else {
+          this.selectedTreeNode.hashTree.push(request);
         }
-      }else{
+      } else {
         this.scenarioDefinition.push(request);
       }
       this.customizeRequest = {};
@@ -1294,14 +1295,14 @@ export default {
           this.resetResourceId(item.hashTree);
           item.enable === undefined ? item.enable = true : item.enable;
           item.variableEnable = item.variableEnable === undefined ? true : item.variableEnable;
-          if(this.selectedTreeNode !== undefined){
-            if(this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1){
-              this.scenarioDefinition.splice(this.selectedTreeNode.index,0,item);
+          if (this.selectedTreeNode !== undefined) {
+            if (this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1) {
+              this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, item);
               this.$store.state.forceRerenderIndex = getUUID();
-            }else{
-              this.selectedTreeNode.hashTree.push(item) ;
+            } else {
+              this.selectedTreeNode.hashTree.push(item);
             }
-          }else{
+          } else {
             this.scenarioDefinition.push(item);
           }
         })
@@ -1346,14 +1347,14 @@ export default {
       if (referenced === 'REF' && request.hashTree) {
         this.recursiveSorting(request.hashTree);
       }
-      if(this.selectedTreeNode !== undefined){
-        if(this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1){
-          this.scenarioDefinition.splice(this.selectedTreeNode.index,0,request);
+      if (this.selectedTreeNode !== undefined) {
+        if (this.stepFilter.get("SpecialSteps").indexOf(this.selectedTreeNode.type) !== -1) {
+          this.scenarioDefinition.splice(this.selectedTreeNode.index, 0, request);
           this.$store.state.forceRerenderIndex = getUUID();
-        }else{
-          this.selectedTreeNode.hashTree.push(request) ;
+        } else {
+          this.selectedTreeNode.hashTree.push(request);
         }
-      }else{
+      } else {
         this.scenarioDefinition.push(request);
       }
     },
@@ -1436,7 +1437,16 @@ export default {
     run() {
       this.reportId = this.debugReportId;
     },
+    mergeScenario(data) {
+      data.forEach(item => {
+        mergeRequestDocumentData(item);
+        if (item.hashTree && item.hashTree > 0) {
+          this.mergeScenario(item.hashTree);
+        }
+      })
+    },
     runDebug(runScenario) {
+      this.mergeScenario(this.scenarioDefinition);
       if (this.debugLoading) {
         return;
       }
@@ -1457,6 +1467,7 @@ export default {
         this.debugLoading = false;
         return;
       }
+
       this.stopDebug = "";
       this.clearDebug();
       this.validatePluginData(this.scenarioDefinition);
@@ -1508,7 +1519,7 @@ export default {
           this.pluginDelStep = false;
           // 建立消息链接
           this.initMessageSocket();
-        }else{
+        } else {
           this.debugLoading = false;
         }
       })
@@ -1569,6 +1580,7 @@ export default {
       }
     },
     editScenario() {
+      this.mergeScenario(this.scenarioDefinition);
       if (!document.getElementById("inputDelay")) {
         return;
       }
@@ -1898,15 +1910,15 @@ export default {
       this.setDomain(true);
       this.setStep(this.scenarioDefinition);
     },
-    setStep(stepArray){
+    setStep(stepArray) {
       for (let i in stepArray) {
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
-        if(typeArray.indexOf(stepArray[i].type) !== -1) {
-          if(stepArray[i].customizeReq  ){
-            if(stepArray[i].isRefEnvironment){
+        if (typeArray.indexOf(stepArray[i].type) !== -1) {
+          if (stepArray[i].customizeReq) {
+            if (stepArray[i].isRefEnvironment) {
               this.setStepEnv(stepArray[i]);
             }
-          }else {
+          } else {
             this.setStepEnv(stepArray[i]);
           }
         }
@@ -1934,7 +1946,7 @@ export default {
           envId = request.refEevMap.get(projectId);
         }
       }
-      if(envId === request.originalEnvironmentId && request.originalDataSourceId) {
+      if (envId === request.originalEnvironmentId && request.originalDataSourceId) {
         request.dataSourceId = request.originalDataSourceId;
       }
       let targetDataSourceName = "";
@@ -1954,9 +1966,9 @@ export default {
           currentEnvironment = environment;
         }
       });
-     this.initDataSource(envId, currentEnvironment, targetDataSourceName,request);
+      this.initDataSource(envId, currentEnvironment, targetDataSourceName, request);
     },
-    initDataSource(envId, currentEnvironment, targetDataSourceName,request) {
+    initDataSource(envId, currentEnvironment, targetDataSourceName, request) {
       this.databaseConfigsOptions = [];
       if (envId) {
         request.environmentId = envId;

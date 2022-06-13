@@ -21,13 +21,18 @@
       @cell-mouse-leave="editLeave"
       row-key="id"
       border
-      default-expand-all
+      lazy
+      :load="loadChild"
       :height="300"
-      v-loading="loading">
+      v-loading="loading"
+      ref="table">
 
       <el-table-column prop="name" :label="$t('api_test.definition.request.esb_table.name')" width="230">
         <template slot-scope="scope">
-          <el-input v-if="(scope.row.status && scope.column.fixed && scope.row.id!=='root') || (scope.row.type !=='object' && !scope.row.name)" v-model="scope.row.name" style="width: 140px" size="mini" :placeholder="$t('api_test.definition.request.esb_table.name')"/>
+          <el-input
+            v-if="(scope.row.status && scope.column.fixed && scope.row.id!=='root') || (scope.row.type !=='object' && !scope.row.name)"
+            v-model="scope.row.name" style="width: 140px" size="mini"
+            :placeholder="$t('api_test.definition.request.esb_table.name')"/>
           <span v-else>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
@@ -35,7 +40,8 @@
       <el-table-column prop="include" width="78" :label="$t('api_test.request.assertions.must_contain')"
                        :scoped-slot="renderHeader">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange" :disabled="checked || scope.row.type==='array'"/>
+          <el-checkbox v-model="scope.row.include" @change="handleCheckOneChange"
+                       :disabled="checked || scope.row.type==='array'"/>
         </template>
       </el-table-column>
 
@@ -48,7 +54,8 @@
 
       <el-table-column prop="type" :label="$t('api_test.definition.request.esb_table.type')" width="120">
         <template slot-scope="scope">
-          <el-select v-model="scope.row.type" :placeholder="$t('commons.please_select')" size="mini" @change="changeType(scope.row)" :disabled="checked">
+          <el-select v-model="scope.row.type" :placeholder="$t('commons.please_select')" size="mini"
+                     @change="changeType(scope.row)" :disabled="checked">
             <el-option v-for="item in typeSelectOptions " :key="item.value" :label="item.label" :value="item.value"/>
           </el-select>
         </template>
@@ -93,7 +100,8 @@
                          :disabled="(scope.row.type !=='object' && scope.row.type !=='array')  || checked"/>
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
-              <el-button icon="el-icon-delete" type="primary" circle size="mini" style="margin-left: 10px" @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'"/>
+              <el-button icon="el-icon-delete" type="primary" circle size="mini" style="margin-left: 10px"
+                         @click="remove(scope.row)" :disabled="checked || scope.row.id==='root'"/>
             </el-tooltip>
           </span>
         </template>
@@ -149,8 +157,11 @@ export default {
       ],
       checked: false,
       tableData: Array,
+      originalData: Array,
+      mapData: new Map(),
     }
   },
+
   created() {
     if (this.document.type === "JSON") {
       this.checked = this.document.data.jsonFollowAPI && this.document.data.jsonFollowAPI !== "false" ? true : false;
@@ -167,7 +178,7 @@ export default {
         this.checked = this.document.data.xmlFollowAPI && this.document.data.xmlFollowAPI !== "false" ? true : false;
       }
       this.changeData();
-    }
+    },
   },
   methods: {
     removeDoc() {
@@ -177,12 +188,59 @@ export default {
       this.checked = false;
       this.document.data.jsonFollowAPI = "";
       this.document.data.xmlFollowAPI = "";
-      this.tableData = data;
+      //处理第一层级数据children为null
+      this.tableDataList(data);
       if (this.document.type === "JSON") {
-        this.document.data.json = this.tableData;
+        this.document.data.json = this.originalData;
       } else if (this.document.type === "XML") {
         this.document.data.xml = this.tableData;
       }
+    },
+    tableDataList(data) {
+      this.$set(this.document, 'originalData', data);
+      this.$set(this.document, 'tableData', this.mapData);
+      this.originalData = data;
+      this.tableData = JSON.parse(JSON.stringify(data)).map(item => {
+        // hasChildren 表示需要展示一个箭头图标
+        item.hasChildren = item.children && item.children.length > 0
+        item.idList = [item.id];
+        item.children = [];
+        return item;
+      });
+    },
+    loadChild(tree, treeNode, resolve) {
+      // 层级关系备份
+      const idCopy = JSON.parse(JSON.stringify(tree.idList))
+
+      // 查找下一层数据
+      let resolveArr;
+      if (tree.children.length === 0) {
+        resolveArr = this.originalData;
+        //找到最后一层children
+        const tarItem = resolveArr.find(item => item.id === tree.idList.shift())
+        tarItem.loadedChildren = true
+        resolveArr = tarItem.children
+      } else {
+        resolveArr = tree;
+        resolveArr = tree.children;
+      }
+
+      // 处理下一层数据的属性
+      resolveArr = JSON.parse(JSON.stringify(resolveArr))
+      resolveArr.forEach(item => {
+        item.hasChildren = item.children && item.children.length > 0
+        item.children = [];
+        // 此处深拷贝，以防各个item的idList混乱
+        item.idList = JSON.parse(JSON.stringify(idCopy));
+        item.parentId = item.idList[item.idList.length - 1];
+        item.idList.push(item.id);
+      })
+
+      // 标识已经加载子节点
+      tree.loadedChildren = true
+      // 渲染子节点
+      resolve(resolveArr);
+      this.mapData.set(tree.id, resolveArr);
     },
     checkedAPI() {
       this.document.data.jsonFollowAPI = "";
@@ -212,7 +270,7 @@ export default {
       let url = "/api/definition/getDocument/" + (id ? id : this.apiId) + "/" + this.document.type;
       this.$get(url, response => {
         if (response.data) {
-          this.tableData = response.data;
+          this.tableDataList(response.data);
         }
       });
     },
@@ -239,8 +297,9 @@ export default {
           if (this.document.data.jsonFollowAPI) {
             this.getDocument();
           } else {
-            this.tableData = this.document.data.json;
+            this.tableDataList(this.document.data.json);
           }
+
         } else if (this.document.type === "XML") {
           this.document.data.xmlFollowAPI = this.checked ? this.apiId : "";
           if (this.document.data.xmlFollowAPI) {
@@ -250,13 +309,6 @@ export default {
           }
         }
         this.reload();
-      }
-      if (this.tableData && this.tableData.length > 0) {
-        this.tableData.forEach(row => {
-          if (row.name == null || row.name === "") {
-            this.remove(row);
-          }
-        })
       }
     },
     objectSpanMethod({row, column, rowIndex, columnIndex}) {
@@ -268,7 +320,30 @@ export default {
       }
     },
     changeType(row) {
-      row.children = [];
+      if (this.mapData && this.mapData.has(row.id)) {
+        this.clearChild(this.mapData.get(row.id))
+        row.hasChildren = false;
+        row.idList = [row.parentId, row.id];
+      }
+      this.changeChild(this.originalData, row);
+    },
+    clearChild(data) {
+      data.forEach(item => {
+        this.remove(item)
+      })
+      if (data && data.length > 0) {
+        this.clearChild(data);
+      }
+    },
+    changeChild(data, row) {
+      data.forEach(item => {
+        if (item.id === row.id) {
+          item.children = [];
+          row.hasChildren = false;
+        } else {
+          this.changeChild(item.children, row)
+        }
+      })
     },
     getValue(key) {
       let value = "";
@@ -308,6 +383,7 @@ export default {
       )
     },
     renderHeaderArray(h, {column}) {
+
       return h(
         'span', [
           h('el-checkbox', {
@@ -358,19 +434,21 @@ export default {
       if (this.checked) {
         return;
       }
-      this.tableData.forEach(item => {
+      this.originalData.forEach(item => {
         item.typeVerification = val;
         this.childrenChecked(item.children, 2, val);
       })
+      this.tableDataList(this.originalData)
     },
     handleArray(val) {
       if (this.checked) {
         return;
       }
-      this.tableData.forEach(item => {
+      this.originalData.forEach(item => {
         item.arrayVerification = val;
         this.childrenChecked(item.children, 3, val);
       })
+      this.tableDataList(this.originalData)
     },
     handleCheckOneChange(val) {
     },
@@ -381,15 +459,44 @@ export default {
       this.removeTableRow(row);
     },
     addRow(row) {
+      if (!row.idList && row.idList.length === 0) {
+        row.idList.push(row.id);
+      }
       //首先保存当前行内容
       if (row.type !== "array") {
         row.type = "object";
       }
       let newRow = this.getNewRow();
-      row.children.push(newRow);
+      newRow.idList = [row.id, newRow.id];
+      newRow.parentId = row.id;
+      if (this.mapData.has(row.id) && this.mapData.get(row.id).length > 0) {
+        this.mapData.get(row.id).push(newRow);
+      } else {
+        this.getChild(this.originalData, row);
+        row.children.push(newRow);
+        row.hasChildren = true;
+        if (row.parentId) {
+          let brotherRow = this.getNewRow();
+          brotherRow.idList = [row.parentId, brotherRow.id];
+          brotherRow.parentId = row.parentId;
+          this.mapData.get(row.parentId).push(brotherRow);
+          this.remove(brotherRow)
+        }
+      }
     },
+    getChild(data, row) {
+      data.forEach(item => {
+        if (item.id === row.id) {
+          row.children = item.children
+        } else {
+          this.getChild(item.children, row)
+        }
+      })
+    },
+
     verSet(arr, row) {
       // 第三条
+      arr = this.mapData.get(row.idList[row.idList.length - 2]);
       if (row.groupId) {
         const index = arr.findIndex(d => d.id === row.groupId);
         if (index !== -1) {
@@ -398,7 +505,7 @@ export default {
       } else if (row.rowspan > 0) {
         const index = arr.findIndex(d => d.id === row.id);
         if (index !== -1) {
-          arr[index].rowspan = arr[index].rowspan + 1;
+          arr[index].rowspan = arr[index].rowspan + 1;//
         }
       } else {
         row.rowspan = 2;
@@ -410,6 +517,7 @@ export default {
           newRow.id = getUUID();
           newRow.groupId = !row.groupId ? row.id : row.groupId;
           newRow.rowspan = 0;
+          newRow.idList.splice(row.idList.length - 1, 0, newRow.id);
           if (row.type !== "object" || row.type !== "array") {
             newRow.children = [];
           }
@@ -419,9 +527,6 @@ export default {
           } else {
             arr.push(newRow);
           }
-        }
-        if (item.children && item.children.length > 0) {
-          this.verSet(item.children, row);
         }
       })
     },
@@ -508,15 +613,11 @@ export default {
       } else {
         row.rowspan = 1;
       }
-      arr.forEach(item => {
-        if (item.children && item.children.length > 0) {
-          this.removeVerSet(item.children, row);
-        }
-      })
+
     },
     removeTableRow(row) {
-      this.removeVerSet(this.tableData, row);
-      this.removeFromDataStruct(this.tableData, row);
+      this.removeVerSet(this.mapData.get(row.parentId), row);
+      this.removeFromDataStruct(this.mapData.get(row.parentId), row);
     },
     removeFromDataStruct(dataStruct, row) {
       if (dataStruct == null || dataStruct.length === 0) {
@@ -525,12 +626,6 @@ export default {
       let rowIndex = dataStruct.indexOf(row);
       if (rowIndex >= 0) {
         dataStruct.splice(rowIndex, 1);
-      } else {
-        dataStruct.forEach(itemData => {
-          if (itemData.children != null && itemData.children.length > 0) {
-            this.removeFromDataStruct(itemData.children, row);
-          }
-        });
       }
     },
   }

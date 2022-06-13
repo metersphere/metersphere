@@ -23,7 +23,10 @@
                          @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
+                <el-dropdown-item command="save_as">{{
+                    $t('api_test.definition.request.save_as_case')
+                  }}
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
@@ -41,18 +44,22 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :definition-test="true"  :headers="request.headers" :request="request" :response="responseData" ref="apiRequestForm"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true" :headers="request.headers" :request="request"
+                             :response="responseData" ref="apiRequestForm"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <ms-request-result-tail v-if="!loading" :response="responseData" ref="debugResult"/>
         <!-- 执行组件 -->
-        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
+        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
+                ref="runTest"/>
       </div>
     </el-card>
 
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{ $t('commons.save') }}</el-button>
+      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')">
+        {{ $t('commons.save') }}
+      </el-button>
     </div>
     <!-- 加载用例 -->
     <ms-api-case-list :currentApi="debugForm" @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
@@ -72,6 +79,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import {KeyValue} from "../../model/ApiTestModel";
 import MsApiCaseList from "../case/ApiCaseList";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 export default {
   name: "ApiConfig",
@@ -157,6 +165,7 @@ export default {
       this.$refs.apiRequestForm.generate();
     },
     handleCommand(e) {
+      mergeRequestDocumentData(this.request);
       if (e === "save_as") {
         this.saveAs();
       } else if (e === 'save_as_api') {
@@ -198,7 +207,7 @@ export default {
       this.responseData = data;
       this.loading = false;
       this.isStop = false;
-      if(this.$refs.debugResult) {
+      if (this.$refs.debugResult) {
         this.$refs.debugResult.reload();
       }
     },

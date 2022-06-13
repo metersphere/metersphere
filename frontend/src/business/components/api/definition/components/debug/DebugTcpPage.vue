@@ -8,7 +8,7 @@
           <el-input v-model="request.server" maxlength="300" show-word-limit size="small"/>
         </el-form-item>
         <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
-          <el-input v-model="request.port"  size="small"/>
+          <el-input v-model="request.port" size="small"/>
         </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" @click="stop" v-if="isStop">
@@ -35,13 +35,17 @@
         <ms-tcp-format-parameters :request="request" @callback="runDebug" ref="requestForm"/>
         <!-- TCP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
+        <ms-request-result-tail v-if="!loading" :response="responseData" :currentProtocol="currentProtocol"
+                                ref="debugResult"/>
       </div>
       <!-- 执行组件 -->
-      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
+      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh"
+              ref="runTest"/>
     </el-card>
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{ $t('commons.save') }}</el-button>
+      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')">
+        {{ $t('commons.save') }}
+      </el-button>
     </div>
     <!-- 加载用例 -->
     <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
@@ -63,6 +67,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsTcpFormatParameters from "@/business/components/api/definition/components/request/tcp/TcpFormatParameters";
 import MsApiCaseList from "../case/ApiCaseList";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 export default {
   name: "ApiConfig",
@@ -126,6 +131,7 @@ export default {
   },
   methods: {
     handleCommand(e) {
+      mergeRequestDocumentData(this.request);
       if (e === "save_as") {
         this.saveAs();
       } else if (e === 'save_as_api') {

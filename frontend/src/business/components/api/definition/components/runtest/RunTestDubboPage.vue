@@ -61,6 +61,7 @@ import MsRun from "../Run";
 import MsBasisParameters from "../request/dubbo/BasisParameters";
 import {REQ_METHOD} from "../../model/JsonData";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 export default {
   name: "RunTestDubboPage",
@@ -100,6 +101,7 @@ export default {
   props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
   methods: {
     handleCommand(e) {
+      mergeRequestDocumentData(this.request);
       switch (e) {
         case "load_case":
           return this.loadCase();

@@ -12,7 +12,6 @@ import {
   HTTPsamplerFiles,
   HTTPSamplerProxy,
   IfController as JMXIfController,
-  TransactionController as JMXTransactionController,
   JDBCDataSource,
   JDBCSampler,
   JSONPathAssertion,
@@ -782,7 +781,7 @@ export class Assertions extends BaseConfig {
     this.xpath2 = [];
     this.duration = undefined;
     this.enable = true;
-    this.document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+    this.document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}, enable: true};
     this.set(options);
     this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
   }
@@ -1131,7 +1130,7 @@ export class TransactionController extends Controller {
     this.type = "TransactionController";
     this.name;
     this.hashTree = [];
-    this.generateParentSample =true;
+    this.generateParentSample = true;
     this.includeTimers = true;
 
     this.set(options);
