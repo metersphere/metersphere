@@ -825,6 +825,13 @@ public class ProjectService {
         return extProjectMapper.queryNameByIds(ids);
     }
 
+    public Map<String, Workspace> getWorkspaceNameByProjectIds(List<String> projectIds) {
+        if (projectIds.isEmpty()) {
+            return new HashMap<>(0);
+        }
+        return extProjectMapper.queryWorkspaceNameByProjectIds(projectIds);
+    }
+
     public void openMockTcp(Project project) {
         if (project == null) {
             MSException.throwException("Project not found!");

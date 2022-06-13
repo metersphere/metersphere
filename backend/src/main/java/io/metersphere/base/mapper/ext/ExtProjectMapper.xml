@@ -396,4 +396,13 @@
     <select id="getProjectForCustomField" resultType="io.metersphere.base.domain.Project">
         select id, platform, third_part_template from project where workspace_id = #{workspaceId}
     </select>
+    <select id="queryWorkspaceNameByProjectIds" resultType="io.metersphere.base.domain.Workspace">
+        SELECT project.id, workspace.name
+        FROM project inner join workspace on project.workspace_id = workspace.id
+        WHERE project.id IN
+        <foreach collection="ids" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
