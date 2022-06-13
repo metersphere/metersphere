@@ -133,15 +133,10 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
     }
 
     public List<ModuleNodeDTO> getNodeTreeByProjectIdWithCount(String projectId, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc, String defaultName) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId, defaultName);
-
         List<ModuleNodeDTO> moduleNodes = extModuleNodeMapper.getNodeTreeByProjectId(tableName, projectId);
-
         if (getModuleCountFunc != null) {
             buildNodeCount(projectId, moduleNodes, getModuleCountFunc);
         }
-
         return getNodeTrees(moduleNodes);
     }
 
