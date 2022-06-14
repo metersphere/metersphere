@@ -3,7 +3,7 @@
     <el-row class="row" :gutter="20">
       <el-col :span="8" class="ms-col-name">
         <div :style="{marginLeft:`${10*deep}px`}" class="ms-col-name-c"/>
-        <span v-if="pickValue.type==='object'" :class="hidden ? 'el-icon-caret-left ms-transform':
+        <span v-if="pickValue.type==='object' || pickValue.type ==='array'" :class="hidden ? 'el-icon-caret-left ms-transform':
             'el-icon-caret-bottom'" @click="hidden = !hidden"/>
         <span v-else style="width:10px;display:inline-block"></span>
         <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
@@ -52,7 +52,7 @@
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
-    <template v-if="isArray && reloadItemOver">
+    <template v-if="!hidden && isArray && reloadItemOver">
       <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index"
                           :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
