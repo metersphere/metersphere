@@ -36,9 +36,9 @@
         return status.toLowerCase();
       },
       showStatus(status) {
-        return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
+        return status === "unexecute"? "NotExecute":
+          status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
       }
-
     }
   }
 </script>
