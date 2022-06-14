@@ -111,34 +111,8 @@
                   <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
                 </el-col>
                 <el-col :span="4">
-                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'"
-                        class="ms-task-error">
-                     Error
-                  </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'"
-                        class="ms-task-success">
-                       Success
-                  </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'"
-                        class="ms-task-stopped">
-                      Stopped
-                  </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'unexecute'"
-                        class="ms-task-stopped">
-                      Unexecuted
-                  </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'errorreportresult'"
-                        class="ms-task-error-report-status">
-                      FakeError
-                  </span>
-                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'running'"
-                        class="ms-task-running">
-                      Running
-                  </span>
-                  <span v-else>
-                      {{
-                      item.executionStatus ? item.executionStatus.toLowerCase()[0].toUpperCase() + item.executionStatus.toLowerCase().substr(1) : item.executionStatus
-                    }}
+                  <span :class="showClass(item.executionStatus.toLowerCase())">
+                     {{ showStatus(item.executionStatus.toLowerCase()) }}
                   </span>
                 </el-col>
               </el-row>
@@ -244,6 +218,22 @@ export default {
     }
   },
   methods: {
+    showStatus(status) {
+      status = status.toLowerCase();
+      switch (status) {
+        case "unexecute":
+          return "NotExecute";
+        case "errorreportresult":
+          return "FakeError";
+        case "stop":
+          return "Stopped";
+        default:
+          return status.toLowerCase()[0].toUpperCase() + status.toLowerCase().substr(1);
+      }
+    },
+    showClass(status) {
+      return "ms-task-" + status;
+    },
     nextData() {
       this.loading = true;
       this.init();
@@ -260,9 +250,9 @@ export default {
         let request = {type: row.executionModule, reportId: row.id};
         array = [request];
       } else {
-        array.push({type: 'API', projectId: getCurrentProjectID(),userId:getCurrentUser().id});
-        array.push({type: 'SCENARIO', projectId: getCurrentProjectID(),userId:getCurrentUser().id});
-        array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID(),userId:getCurrentUser().id});
+        array.push({type: 'API', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
+        array.push({type: 'SCENARIO', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
+        array.push({type: 'PERFORMANCE', projectId: getCurrentProjectID(), userId: getCurrentUser().id});
       }
       this.$post('/api/automation/stop/batch', array, response => {
         this.$success(this.$t('report.test_stop_success'));
@@ -554,7 +544,7 @@ export default {
   color: #F56C6C;
 }
 
-.ms-task-error-report-status {
+.ms-task-errorreportresult {
   color: #F6972A;
 }
 
@@ -564,11 +554,15 @@ export default {
   margin-right: 20px;
 }
 
+.ms-task-unexecute {
+  color: #909399;
+}
+
 .ms-task-success {
   color: #67C23A;
 }
 
-.ms-task-stopped {
+.ms-task-stop {
   color: #909399;
 }
 
