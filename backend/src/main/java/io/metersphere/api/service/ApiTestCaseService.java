@@ -539,13 +539,8 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(request.getSelectIds())) {
             return;
         }
-        // 尽量保持与用例顺序一致
         Collections.reverse(request.getSelectIds());
-
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
-        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
-        relevance(apiTestCases, request);
+        relevance(request.getSelectIds(), request);
     }
 
     public void relevanceByApiByReview(ApiCaseRelevanceRequest request) {
@@ -567,24 +562,22 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andIdIn(ids);
-        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
-        relevance(apiTestCases, request);
+        Collections.reverse(ids);
+        relevance(ids, request);
     }
 
-    private void relevance(List<ApiTestCase> apiTestCases, ApiCaseRelevanceRequest request) {
+    private void relevance(List<String> relevanceIds, ApiCaseRelevanceRequest request) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 
         ExtTestPlanApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
         TestPlanApiCaseMapper batchBaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanApiCaseMapper::getLastOrder);
 
-        for (ApiTestCase apiTestCase : apiTestCases) {
+        for (String id : relevanceIds) {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(UUID.randomUUID().toString());
             testPlanApiCase.setCreateUser(SessionUtils.getUserId());
-            testPlanApiCase.setApiCaseId(apiTestCase.getId());
+            testPlanApiCase.setApiCaseId(id);
             testPlanApiCase.setTestPlanId(request.getPlanId());
             testPlanApiCase.setEnvironmentId(request.getEnvironmentId());
             testPlanApiCase.setCreateTime(System.currentTimeMillis());
