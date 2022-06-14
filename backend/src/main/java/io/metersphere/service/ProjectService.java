@@ -578,7 +578,7 @@ public class ProjectService {
                     .andTypeValueEqualTo(String.valueOf(project.getMockTcpPort()))
                     .andProjectIdNotEqualTo(projectId);
             if (projectApplicationMapper.countByExample(example) > 0) {
-                MSException.throwException("TCP Port is not unique！");
+                MSException.throwException(Translator.get("tcp_mock_not_unique"));
             }
         }
     }
@@ -971,7 +971,7 @@ public class ProjectService {
             }
         }
         if (returnPort == 0) {
-            MSException.throwException("无可用TCP端口");
+            MSException.throwException(Translator.get("no_tcp_mock_port"));
         }
         return String.valueOf(returnPort);
     }
