@@ -700,6 +700,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 value = CustomFieldType.TEXTAREA.getValue();
             } else if (customType.contains("labels")) {
                 value = CustomFieldType.MULTIPLE_INPUT.getValue();
+            } else if (customType.contains("multiversion")) {
+                value = CustomFieldType.MULTIPLE_SELECT.getValue();
+            } else if (customType.contains("version")) {
+                value = CustomFieldType.SELECT.getValue();
             }
         } else {
             // 系统字段
