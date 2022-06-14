@@ -110,6 +110,8 @@ export default {
       let requestRest = new Map();
       let requestMethod = "";
       let requestBody = "";
+      let requestBodyKvs = new Map();
+      let bodyType = "";
       let requestPath = "";
       let request = JSON.parse(data.request);
       // 拼接发送请求需要的参数
@@ -142,8 +144,16 @@ export default {
       let body = request.body;
       if (body.json) {
         requestBody = body.raw;
+        bodyType = "json";
+      } else if (body.kvs) {
+        bodyType = "kvs";
+        body.kvs.forEach(arg => {
+          if (arg.name) {
+            requestBodyKvs.set(arg.name, arg.value);
+          }
+        })
       }
-      return {requestPath, requestHeaders, requestMethod, requestBody, requestArguments, requestRest}
+      return {requestPath, requestHeaders, requestMethod, requestBody, requestBodyKvs, bodyType, requestArguments, requestRest}
     },
     apiClose() {
 
