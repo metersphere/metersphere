@@ -46,7 +46,7 @@ export default {
   components: {MsSearchBar, TemplateComponent, ModuleTrashButton, ApiImport, MsAddBasisApi},
   data() {
     return {
-      operators: [
+      httpOperators: [
         {
           label: this.$t('api_test.definition.request.title'),
           callback: this.addApi,
@@ -97,8 +97,51 @@ export default {
               }
             }
           ]
-        }
-      ]
+        },
+      ],
+      operators: [],
+      otherOperators: [
+        {
+          label: this.$t('api_test.definition.request.title'),
+          callback: this.addApi,
+          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_API']
+        },
+        {
+          label: this.$t('api_test.definition.request.fast_debug'),
+          callback: () => {
+            this.$emit('debug');
+          },
+          permissions: ['PROJECT_API_DEFINITION:READ+DEBUG']
+        },
+        {
+          label: this.$t('api_test.api_import.timing_synchronization'),
+          callback: () => {
+            this.$emit('schedule');
+          },
+          permissions: ['PROJECT_API_DEFINITION:READ+TIMING_SYNC']
+        },
+        {
+          label: this.$t('api_test.api_import.label'),
+          callback: this.handleImport,
+          permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
+        },
+        {
+          label: this.$t('report.export'),
+          children: [
+            {
+              label: this.$t('report.export_to_ms_format'),
+              permissions: ['PROJECT_API_DEFINITION:READ+EXPORT_API'],
+              callback: () => {
+                if (!this.projectId) {
+                  this.$warning(this.$t('commons.check_project_tip'));
+                  return;
+                }
+                this.$emit('exportAPI', 'MS');
+              }
+            }
+          ]
+        },
+      ],
     };
   },
   props: {
@@ -134,6 +177,18 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+  },
+  watch: {
+    'condition.protocol'() {
+      if (this.condition.protocol === 'HTTP') {
+        this.operators = this.httpOperators;
+      } else {
+        this.operators = this.otherOperators;
+      }
+    }
+  },
+  created() {
+    this.operators = this.httpOperators;
   },
   methods: {
     handleImport() {
