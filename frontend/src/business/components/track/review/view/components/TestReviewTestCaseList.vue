@@ -182,8 +182,12 @@ import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {
   _handleSelectAll,
-  buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField,
-  getSelectDataCounts, getTableHeaderWithCustomFields,
+  buildBatchParam,
+  deepClone,
+  getCustomTableWidth,
+  getLastTableSortField,
+  getSelectDataCounts,
+  getTableHeaderWithCustomFields,
   initCondition,
   toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -193,7 +197,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import {editTestReviewTestCaseOrder, getTestPlanTestCase, getTestReviewTestCase} from "@/network/testCase";
+import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/network/testCase";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 
 export default {
@@ -224,6 +228,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      totalCount: 0,
       enableOrderDrag: true,
       selectRows: new Set(),
       testReview: {},
@@ -369,7 +374,13 @@ export default {
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = getTestReviewTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
+          if (this.totalCount === 0) {
+            this.totalCount = data.itemCount;
+          }
           this.total = data.itemCount;
+          if (this.total !== this.totalCount) {
+            this.currentPage = 1
+          }
           this.tableData = data.listObject;
           this.getPreData();
           if (callback && callback instanceof Function) {
