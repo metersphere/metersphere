@@ -34,6 +34,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -372,12 +373,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         while (matcher.find()) {
             try {
                 String path = matcher.group(2);
-                if (path.contains("/resource/md/get/")) { // 兼容旧数据
-                    String name = path.substring(path.indexOf("/resource/md/get/") + 17);
-                    files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));
-                } else if (path.contains("/resource/md/get")) { // 新数据走这里
-                    String name = path.substring(path.indexOf("/resource/md/get") + 26);
-                    files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + URLDecoder.decode(name, "UTF-8")));
+                if (!path.contains("/resource/md/get/url")) {
+                    if (path.contains("/resource/md/get/")) { // 兼容旧数据
+                        String name = path.substring(path.indexOf("/resource/md/get/") + 17);
+                        files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));
+                    } else if (path.contains("/resource/md/get")) { // 新数据走这里
+                        String name = path.substring(path.indexOf("/resource/md/get") + 26);
+                        files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + URLDecoder.decode(name, "UTF-8")));
+                    }
                 }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
@@ -596,6 +599,11 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
      * @return
      */
     public List<PlatformStatusDTO> getTransitions(String issueKey) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
         return null;
     }
 

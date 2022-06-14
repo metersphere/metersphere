@@ -273,4 +273,9 @@ public abstract class JiraAbstractClient extends BaseClient {
             MSException.throwException(e.getMessage());
         }
     }
+
+    public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
+        LogUtil.info("jira proxyForGet: " + url);
+        return restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), responseEntityClazz);
+    }
 }

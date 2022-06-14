@@ -10,6 +10,7 @@ import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -105,4 +106,11 @@ public interface IssuesPlatform {
      * @param type    add or edit
      */
     void updateDemandHyperLink(EditTestCaseRequest request, Project project, String type);
+
+    /**
+     * Get请求的代理
+     * @param url
+     * @return
+     */
+    ResponseEntity proxyForGet(String url, Class responseEntityClazz);
 }

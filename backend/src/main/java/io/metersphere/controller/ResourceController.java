@@ -26,8 +26,8 @@ public class ResourceController {
     }
 
     @GetMapping(value = "/md/get/url")
-    public ResponseEntity<byte[]> getFileByUrl(@RequestParam ("url") String url) {
-        return resourceService.getMdImageByUrl(url);
+    public ResponseEntity<byte[]> getFileByUrl(@RequestParam ("url") String url, @RequestParam (value = "platform", required = false) String platform) {
+        return resourceService.getMdImageByUrl(url, platform);
     }
 
     @GetMapping(value = "/ui/get")
