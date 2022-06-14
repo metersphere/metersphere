@@ -530,7 +530,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public Boolean checkProjectExist(String relateId) {
-        return zentaoClient.checkProjectExist(relateId);
+        ZentaoConfig zentaoConfig = getConfig();
+        return zentaoClient.checkProjectExist(relateId, zentaoConfig.getRequest());
     }
 
     @Override
