@@ -138,19 +138,11 @@ export default {
   },
   methods: {
     initSessionTimer() {
-      this.$get('/system/timeout')
-        .then(response => {
-          let timeout = response.data.data;
-          this.initTimer(timeout);
-          window.addEventListener('click', () => {
-            this.currentTime(timeout);
-          });
-        })
-        .catch(() => {
-        });
+      let timeout = 1800;
+      this.initTimer(timeout);
     },
     initTimer(timeout) {
-      setTimeout(() => {
+      setInterval(() => {
         this.$get("/isLogin")
           .then(response => {
             if (!response.data.success) {
@@ -160,16 +152,7 @@ export default {
           .catch(() => {
             window.location.href = "/login";
           });
-      }, 1000 * (timeout + 10));
-    },
-    currentTime(timeout) { // 超时退出
-      if (timer) {
-        window.clearTimeout(timer);
-        timer = null;
-      }
-      timer = window.setTimeout(() => {
-        this.$refs.headerUser.logout();
-      }, 1000 * timeout);
+      }, timeout * 1000);
     },
     reload() {
       // 先隐藏
