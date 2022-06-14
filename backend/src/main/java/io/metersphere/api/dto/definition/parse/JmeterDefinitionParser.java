@@ -638,6 +638,9 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             });
         }
         elementNode.setAttachmentArgs(attachmentArgs);
+        if(StringUtils.isEmpty(elementNode.getMethod())){
+            elementNode.setMethod(elementNode.getProtocol());
+        }
     }
 
     private void convertHttpSampler(MsHTTPSamplerProxy samplerProxy, Object key) {
