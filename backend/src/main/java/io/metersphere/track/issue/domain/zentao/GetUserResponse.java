@@ -49,6 +49,6 @@ public class GetUserResponse {
 //        private boolean admin;
 //        private boolean modifyPassword;
 //        private String company;
-//        private String token;
+        private String token;
     }
 }

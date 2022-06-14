@@ -33,6 +33,38 @@ public abstract class ZentaoClient extends BaseClient {
         ENDPOINT = url;
     }
 
+
+    public String getTocken() {
+        GetUserResponse getUserResponse = new GetUserResponse();
+        String sessionId = "";
+        try {
+            sessionId = getSessionId();
+            String loginUrl = requestUrl.getLogin();
+            MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("account", USER_NAME);
+            paramMap.add("password", PASSWD);
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+            ResponseEntity<String> response = restTemplate.exchange(loginUrl + sessionId, HttpMethod.POST, requestEntity, String.class);
+            getUserResponse = (GetUserResponse) getResultForObject(GetUserResponse.class, response);
+        } catch (JSONException e) {
+            MSException.throwException(Translator.get("zentao_test_type_error"));
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException(e.getMessage());
+        }
+        GetUserResponse.User user = getUserResponse.getUser();
+        if (user == null) {
+            LogUtil.error(JSONObject.toJSON(getUserResponse));
+            // 登录失败，获取的session无效，置空session
+            MSException.throwException("zentao login fail, user null");
+        }
+        if (!StringUtils.equals(user.getAccount(), USER_NAME)) {
+            LogUtil.error("login fail，inconsistent users");
+            MSException.throwException("zentao login fail, inconsistent user");
+        }
+        return user.getToken();
+    }
+
     public String login() {
         GetUserResponse getUserResponse = new GetUserResponse();
         String sessionId = "";
@@ -197,6 +229,29 @@ public abstract class ZentaoClient extends BaseClient {
         return String.format(replaceImgUrl, suffix);
     }
 
+    public boolean checkProjectExistByNew(String relateId) {
+        try {
+            ResponseEntity<String> response = null;
+            String tocken = getTocken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Tocken", tocken);
+            headers.add("Content-Type", "application/json");
+
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(null, headers);
+            response = restTemplate.exchange(requestUrl.getProductGetNew(),
+                    HttpMethod.GET, requestEntity, String.class, relateId);
+
+            Object data = JSONObject.parseObject(response.getBody()).get("data");
+            if (!StringUtils.equals((String) data, "false")) {
+                return true;
+            }
+        } catch (Exception e) {
+            LogUtil.info("query zentao product info error. product id: " + relateId);
+        }
+        return false;
+    }
+
     public boolean checkProjectExist(String relateId) {
         String sessionId = login();
         ResponseEntity<String> response = restTemplate.exchange(requestUrl.getProductGet(),
@@ -208,6 +263,7 @@ public abstract class ZentaoClient extends BaseClient {
             }
         } catch (Exception e) {
             LogUtil.info("query zentao product info error. product id: " + relateId);
+            return checkProjectExistByNew(relateId);
         }
         return false;
     }
