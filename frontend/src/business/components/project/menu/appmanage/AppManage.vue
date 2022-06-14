@@ -66,7 +66,7 @@
                       </template>
                       <template #append>
                         <el-switch v-model="config.mockTcpOpen"
-                                   @change="switchChange('MOCK_TCP_OPEN', $event, ['MOCK_TCP_PORT', config.mockTcpPort])"></el-switch>
+                                   @change="tcpMockSwitchChange($event, ['MOCK_TCP_PORT', config.mockTcpPort])"></el-switch>
                       </template>
                     </app-manage-item>
                     <timing-item ref="apiTimingItem" :choose.sync="config.cleanApiReport"
@@ -74,8 +74,10 @@
                                  @chooseChange="switchChange('CLEAN_API_REPORT', config.cleanApiReport, ['CLEAN_API_REPORT_EXPR', config.cleanApiReportExpr])"
                                  :title="$t('project.timing_clean_api_report')"/>
                     <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
-                                 :expr.sync="config.apiShareReportTime" :share-link="true" :unit-options="applyUnitOptions"
-                                 @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime)" :title="$t('report.report_sharing_link')"/>
+                                 :expr.sync="config.apiShareReportTime" :share-link="true"
+                                 :unit-options="applyUnitOptions"
+                                 @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime)"
+                                 :title="$t('report.report_sharing_link')"/>
                   </el-row>
                 </el-col>
                 <el-col :span="8" :offset="4">
@@ -100,9 +102,9 @@
                 </el-col>
               </el-row>
             </el-tab-pane>
-            
+
             <!-- UI 测试 -->
-            <el-tab-pane v-if="isXpack" :label="$t('commons.ui_test')" name="ui_test" >
+            <el-tab-pane v-if="isXpack" :label="$t('commons.ui_test')" name="ui_test">
               <el-row style="margin-top: 10px">
                 <span style="font-weight:bold">{{ $t('commons.view_settings') }}</span>
               </el-row>
@@ -153,12 +155,7 @@
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
-import {
-  getCurrentProjectID,
-  getCurrentUserId,
-  getCurrentWorkspaceId,
-  hasLicense,
-} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense,} from "@/common/js/utils";
 import AppManageItem from "@/business/components/project/menu/appmanage/AppManageItem";
 import TimingItem from "@/business/components/project/menu/appmanage/TimingItem";
 
@@ -225,6 +222,19 @@ export default {
     },
   },
   methods: {
+    tcpMockSwitchChange(value, other) {
+      if (value && this.config.mockTcpPort === 0) {
+        this.result = this.$get('/project/genTcpMockPort/' + this.projectId, res => {
+          let port = res.data;
+          this.config.mockTcpPort = port;
+          this.$nextTick(() => {
+            this.switchChange("MOCK_TCP_OPEN", value, ['MOCK_TCP_PORT', this.config.mockTcpPort]);
+          })
+        });
+      } else {
+        this.switchChange("MOCK_TCP_OPEN", value, other);
+      }
+    },
     switchChange(type, value, other) {
       let configs = [];
       if (other && value) {
@@ -247,7 +257,7 @@ export default {
         if (res.data) {
           this.config = res.data;
           this.config.shareReport = true;
-          if(!this.config.uiQuickMenu){
+          if (!this.config.uiQuickMenu) {
             this.config.uiQuickMenu = "server";
           }
         }
