@@ -67,6 +67,7 @@ export default {
     if (!this.jsonPath.option) {
       this.jsonPath.option = "REGEX";
     }
+    this.showTip = !this.jsonPath || !this.jsonPath.expression || this.jsonPath.expression.length < 50;
   },
 
   data() {
@@ -106,7 +107,7 @@ export default {
       })
     },
     setJSONPathDescription() {
-      this.showTip = this.jsonPath.expression.length < 50;
+      this.showTip = !this.jsonPath || !this.jsonPath.expression || this.jsonPath.expression.length < 50;
       this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
     }
   }

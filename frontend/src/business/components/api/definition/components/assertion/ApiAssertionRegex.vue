@@ -12,7 +12,7 @@
       <el-col>
         <el-tooltip :disabled="showTip" placement="top" :content="regex.expression">
           <el-input :disabled="isReadOnly" v-model="regex.expression" size="small" show-word-limit
-                  :placeholder="$t('api_test.request.assertions.expression')"/>
+                    :placeholder="$t('api_test.request.assertions.expression')"/>
         </el-tooltip>
       </el-col>
       <el-col class="assertion-checkbox">
@@ -21,8 +21,8 @@
         </el-checkbox>
       </el-col>
       <el-col class="assertion-btn">
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top"  v-if="edit">
-          <el-switch v-model="regex.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right:10px" />
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="edit">
+          <el-switch v-model="regex.enable" class="enable-switch" size="mini" :disabled="isReadOnly" style="width: 30px;margin-right:10px"/>
         </el-tooltip>
 
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"
@@ -75,7 +75,9 @@ export default {
       this.setRegexDescription();
     }
   },
-
+  created() {
+    this.showTip = !this.regex || !this.regex.description || this.regex.description.length < 80;
+  },
   methods: {
     add: function () {
       this.list.push(this.getRegex());
@@ -91,7 +93,7 @@ export default {
       return regex;
     },
     setRegexDescription() {
-      this.showTip = this.regex.description.length < 80;
+      this.showTip = !this.regex || !this.regex.description || this.regex.description.length < 80;
       this.regex.description = this.regex.subject + " has: " + this.regex.expression;
     }
   }
