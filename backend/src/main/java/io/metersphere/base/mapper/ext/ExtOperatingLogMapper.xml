@@ -7,7 +7,6 @@
         t.id,
         t.project_id,
         t.oper_user,
-        t3.source_id,
         t.oper_type,
         upper (t.oper_module) oper_module ,
         t.oper_title,
@@ -17,7 +16,6 @@
         FROM
         operating_log t
         LEFT JOIN project t2 ON t.project_id = t2.id
-        LEFT JOIN operating_log_resource t3 ON t.id = t3.operating_log_id
         <where>
             <if test="request.projectIds != null and request.projectIds.size > 0 ">
                 t.project_id in
@@ -114,5 +112,12 @@
 
     <select id="isNewInstallation" resultType="boolean">
        SELECT count(1) = 0 from operating_log limit 1
+    </select>
+    <select id="findSourceIdByLogIds" resultType="io.metersphere.log.vo.OperatingLogDTO">
+        select * from operating_log_resource where operating_log_id in
+        <foreach collection="ids" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </select>
 </mapper>

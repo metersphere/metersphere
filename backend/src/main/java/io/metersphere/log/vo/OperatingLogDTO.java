@@ -35,4 +35,6 @@ public class OperatingLogDTO implements Serializable {
     private OperatingLogDetails details;
 
     private String projectId;
+
+    private String operatingLogId;
 }
