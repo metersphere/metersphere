@@ -78,12 +78,7 @@ public class TestPlanScenarioCaseService {
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
-        List<OrderRequest> orderRequests = new ArrayList<>();
-        OrderRequest orderRequest = new OrderRequest();
-        orderRequest.setName("num");
-        orderRequest.setType("desc");
-        orderRequests.add(orderRequest);
-        request.setOrders(orderRequests);
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;

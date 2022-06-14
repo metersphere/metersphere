@@ -79,13 +79,8 @@ public class TestPlanApiCaseService {
     }
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
-        List<OrderRequest> orderRequests = new ArrayList<>();
-        OrderRequest orderRequest = new OrderRequest();
-        orderRequest.setName("num");
-        orderRequest.setType("desc");
-        orderRequests.add(orderRequest);
         request.setProjectId(null);
-        request.setOrders(orderRequests);
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanApiCaseDTO> apiTestCases = extTestPlanApiCaseMapper.list(request);
         ServiceUtils.buildVersionInfo(apiTestCases);
         if (CollectionUtils.isEmpty(apiTestCases)) {
