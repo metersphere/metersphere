@@ -92,9 +92,14 @@ public class TestPlanTestCaseService {
 
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         if (CollectionUtils.isNotEmpty(list)) {
+
+            Map<String, String> projectMap = ServiceUtils.getProjectNameMap(list.stream().map(TestPlanCaseDTO::getProjectId)
+                    .distinct()
+                    .collect(Collectors.toList()));
+
             list.forEach(item -> {
                 // 设置项目名称
-                item.setProjectName(request.getProjectName());
+                item.setProjectName(projectMap.get(item.getProjectId()));
                 if (!request.getIsCustomNum()) {
                     // 如果配置是不启用自定义字段，则设置为 num
                     item.setCustomNum(item.getNum().toString());
@@ -116,10 +121,8 @@ public class TestPlanTestCaseService {
     }
 
     public QueryTestPlanCaseRequest wrapQueryTestPlanCaseRequest(QueryTestPlanCaseRequest request) {
-        Project project = projectService.getProjectById(request.getProjectId());
-        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(request.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
         request.setIsCustomNum(StringUtils.equals(projectApplication.getTypeValue(), "false") ? false : true);
-        request.setProjectName(project.getName());
         return request;
     }
 
