@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,11 +72,20 @@ public class OperatingLogService {
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> userIds = list.stream().map(OperatingLogDTO::getOperUser).collect(Collectors.toList());
             List<String> projectIds = list.stream().map(OperatingLogDTO::getProjectId).collect(Collectors.toList());
+            List<String> logIds = list.stream().map(OperatingLogDTO::getId).collect(Collectors.toList());
+            Map<String, String> sourceMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(logIds)) {
+                List<OperatingLogDTO> logDtoArr = extOperatingLogMapper.findSourceIdByLogIds(logIds);
+                // 如果重复是批量操作，置空sourceID
+                sourceMap = logDtoArr.stream()
+                        .collect(Collectors.toMap(OperatingLogDTO::getOperatingLogId, OperatingLogDTO::getSourceId, (val1, val2) -> ""));
+            }
             Map<String, String> userNameMap = ServiceUtils.getUserNameMap(userIds);
             Map<String, String> workspaceNameMap = ServiceUtils.getWorkspaceNameByProjectIds(projectIds);
             for (OperatingLogDTO dto : list) {
                 dto.setUserName(userNameMap.getOrDefault(dto.getOperUser(), ""));
                 dto.setWorkspaceName(workspaceNameMap.getOrDefault(dto.getProjectId(), ""));
+                dto.setSourceId(sourceMap.getOrDefault(dto.getId(), ""));
             }
         }
         return list;
