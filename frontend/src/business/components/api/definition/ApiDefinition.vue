@@ -693,43 +693,22 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-
+      if (targetName === undefined || targetName === null) {
+        targetName = this.$t('api_test.definition.request.title');
+      }
       let newTabName = getUUID();
-      let addNewTab = true;
-      if (action === 'SCHEDULE') {
-        //定时同步页面不需要重复新建
-        this.apiTabs.forEach(tab => {
-          if (tab.title === targetName) {
-            addNewTab = false;
-            newTabName = tab.name;
-          }
-        });
-      }
-      if (addNewTab) {
-        if (targetName === undefined || targetName === null) {
-          targetName = this.$t('api_test.definition.request.title');
-        }
-        this.apiTabs.push({
-          title: targetName,
-          name: newTabName,
-          closable: true,
-          type: action,
-          api: api,
-          isCopy: api ? api.isCopy : false
-        });
-      }
+      this.apiTabs.push({
+        title: targetName,
+        name: newTabName,
+        closable: true,
+        type: action,
+        api: api,
+        isCopy: api ? api.isCopy : false
+      });
       if (action === "ADD") {
         this.activeTab = "api";
       }
-      this.$nextTick(() => {
-        this.apiDefaultTab = newTabName;
-        if (!addNewTab && action === "SCHEDULE") {
-          //定时任务tab不用重新开启，但是需要更新数据
-          if (this.$refs.apiSchedules) {
-            this.$refs.apiSchedules.searchTaskList();
-          }
-        }
-      });
+      this.apiDefaultTab = newTabName;
     },
     debug(id) {
       this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
