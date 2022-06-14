@@ -66,9 +66,6 @@ export function diff (oldDom, newDom,oldColor,newColor) {
 }
 
 function changeStyle(diffNode,oldColor,newColor){
-  /*console.log("查看结果");
-  console.log(diffNode.oldNodeArray);
-  console.log(diffNode.nodeArray);*/
   for (let i = 0; i < diffNode.oldNodeArray.length; i++) {
     if(diffNode.oldNodeArray[i]==='comment'||diffNode.oldNodeArray[i].nodeName==="#comment"){
       continue

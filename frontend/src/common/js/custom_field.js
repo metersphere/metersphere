@@ -65,7 +65,7 @@ export function parseCustomField(data, template, rules, oldFields) {
               try {
                 customField.value = JSON.parse(customField.value);
               } catch (e) {
-                console.log("JSON parse custom field value error.");
+                console.error("JSON parse custom field value error.", e);
               }
             }
           }
