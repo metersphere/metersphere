@@ -11,20 +11,23 @@
       <span class="link-type" v-if="!menu.hideScript">
         <i class="icon el-icon-arrow-right" style="font-weight: bold; margin-right: 2px;"
            @click="active(menu)" :class="{'is-active': menu.open}"></i>
-        <span @click="active(menu)" class="nav-menu-title nav-font">{{menu.title}}</span>
+        <span @click="active(menu)" class="nav-menu-title nav-font">{{ menu.title }}</span>
       </span>
 
       <el-collapse-transition>
         <div v-if="menu.open">
           <div v-for="(child, key) in menu.children" :key="key" class="func-div">
-            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">{{child.title}}</el-link>
+            <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">
+              {{ child.title }}
+            </el-link>
           </div>
         </div>
       </el-collapse-transition>
     </div>
     <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="handleCodeTemplate"/>
     <!--接口列表-->
-    <api-func-relevance @save="apiSave" :is-test-plan="false" :is-script="true" @close="apiClose" ref="apiFuncRelevance"/>
+    <api-func-relevance @save="apiSave" :is-test-plan="false" :is-script="true" @close="apiClose"
+                        ref="apiFuncRelevance"/>
   </div>
 
 </template>
@@ -117,6 +120,8 @@ export default {
       let requestRest = new Map();
       let requestMethod = "";
       let requestBody = "";
+      let requestBodyKvs = new Map();
+      let bodyType = "";
       let requestPath = "";
       let request = JSON.parse(data.request);
       // 拼接发送请求需要的参数
@@ -149,8 +154,16 @@ export default {
       let body = request.body;
       if (body.json) {
         requestBody = body.raw;
+        bodyType = "json";
+      } else if (body.kvs) {
+        bodyType = "kvs";
+        body.kvs.forEach(arg => {
+          if (arg.name) {
+            requestBodyKvs.set(arg.name, arg.value);
+          }
+        })
       }
-      return {requestPath, requestHeaders, requestMethod, requestBody, requestArguments, requestRest}
+      return {requestPath, requestHeaders, requestMethod, requestBody, requestBodyKvs, bodyType, requestArguments, requestRest}
     },
     apiClose() {
 
