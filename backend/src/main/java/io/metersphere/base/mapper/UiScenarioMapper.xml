@@ -160,27 +160,25 @@
     insert into ui_scenario (id, project_id, tags,
       user_id, module_id, module_path,
       `name`, `level`, `status`,
-      principal, step_total, schedule,
+      principal, step_total,
       create_time, update_time, pass_rate,
       last_result, report_id, num,
       original_state, custom_num, create_user,
       version, delete_time, delete_user_id,
-      execute_times, `order`, environment_type,
-      environment_group_id, version_id, ref_id,
-      latest, scenario_definition, description,
-      use_url, environment_json)
+      execute_times, `order`,
+      version_id, ref_id,
+      latest, scenario_definition, description)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
       #{userId,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR},
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-      #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{schedule,jdbcType=VARCHAR},
+      #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER},
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{passRate,jdbcType=VARCHAR},
       #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER},
       #{originalState,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
       #{version,jdbcType=INTEGER}, #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR},
-      #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT}, #{environmentType,jdbcType=VARCHAR},
-      #{environmentGroupId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR},
-      #{latest,jdbcType=BIT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR},
-      #{useUrl,jdbcType=LONGVARCHAR}, #{environmentJson,jdbcType=LONGVARCHAR})
+      #{executeTimes,jdbcType=INTEGER}, #{order,jdbcType=BIGINT},
+      #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR},
+      #{latest,jdbcType=BIT}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.UiScenarioWithBLOBs">
     insert into ui_scenario
@@ -716,7 +714,6 @@
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
-      schedule = #{schedule,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       pass_rate = #{passRate,jdbcType=VARCHAR},
@@ -731,15 +728,11 @@
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       execute_times = #{executeTimes,jdbcType=INTEGER},
       `order` = #{order,jdbcType=BIGINT},
-      environment_type = #{environmentType,jdbcType=VARCHAR},
-      environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
-      description = #{description,jdbcType=LONGVARCHAR},
-      use_url = #{useUrl,jdbcType=LONGVARCHAR},
-      environment_json = #{environmentJson,jdbcType=LONGVARCHAR}
+      description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.UiScenario">
