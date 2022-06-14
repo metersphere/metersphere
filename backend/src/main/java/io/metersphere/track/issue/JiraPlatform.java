@@ -28,10 +28,13 @@ import io.metersphere.track.service.IssuesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -101,6 +104,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 JSONObject attachment = attachments.getJSONObject(i);
                 String filename = attachment.getString("filename");
                 String content = attachment.getString("content");
+                content = "/resource/md/get/url?platform=Jira&url=" + URLEncoder.encode(content, StandardCharsets.UTF_8);
+
                 if (StringUtils.contains(attachment.getString("mimeType"), "image")) {
                     String contentUrl = "![" + filename + "](" + content + ")";
                     fileContentMap.put(filename, contentUrl);
@@ -124,6 +129,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         // 解析标签内容
                         String name = getHyperLinkPathForImg("\\!\\[(.*?)\\]", StringEscapeUtils.unescapeJava(splitStr));
                         String path = getHyperLinkPathForImg("\\|(.*?)\\)", splitStr);
+                        path = "/resource/md/get/url?platform=Jira&url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
+
                         // 解析标签内容为图片超链接格式，进行替换
                         description = description.replace(splitStr, "\n\n![" + name + "](" + path + ")");
                     }
@@ -802,5 +809,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
             return false;
         }
         return false;
+    }
+
+    public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
+        return jiraClientV2.proxyForGet(url, responseEntityClazz);
     }
 }
