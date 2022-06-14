@@ -27,7 +27,9 @@ export function getCodeTemplate(language, requestObj) {
 function groovyCode(requestObj) {
   let {
     requestHeaders = new Map(), requestBody = "", requestPath = "",
-    requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map()
+    requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map(),
+    requestBodyKvs = new Map(),
+    bodyType
   } = requestObj;
   let requestUrl = "";
   requestPath = getRequestPath(requestArguments, requestPath);
@@ -35,8 +37,20 @@ function groovyCode(requestObj) {
   if (protocol && host && requestPath) {
     requestUrl = protocol + "://" + host + requestPath;
   }
+
   let body = JSON.stringify(requestBody);
-  let headers = getHeaders(requestHeaders);
+  if (requestMethod === 'POST' && bodyType === 'kvs') {
+    body = "\"";
+    for (let [k, v] of requestBodyKvs) {
+      if (body !== "\"") {
+        body += "&";
+      }
+      body += k + "=" + v;
+    }
+    body += "\"";
+  }
+
+  let headers = getGroovyHeaders(requestHeaders);
   let obj = {requestUrl, requestMethod, headers, body};
   return _groovyCodeTemplate(obj);
 }
@@ -101,6 +115,21 @@ function getHeaders(requestHeaders) {
     index++;
   }
   headers = headers + "}"
+  return headers;
+}
+
+function getGroovyHeaders(requestHeaders) {
+  let headers = "[";
+  let index = 1;
+  for (let [k, v] of requestHeaders) {
+    if (index !== 1) {
+      headers += ",";
+    }
+    // 拼装
+    headers += `'${k}':'${v}'`;
+    index++;
+  }
+  headers = headers + "]"
   return headers;
 }
 
@@ -286,6 +315,8 @@ function _jsTemplate(obj) {
     requestArguments = new Map(),
     domain = "",
     port = "",
+    requestBodyKvs = new Map(),
+    bodyType = "",
     requestRest = new Map()
   } = obj;
   let url = "";
@@ -304,6 +335,18 @@ function _jsTemplate(obj) {
   for (let [k, v] of requestHeaders) {
     connStr += `conn.setRequestProperty("${k}","${v}");` + '\n';
   }
+
+  if (requestMethod === 'POST' && bodyType === 'kvs') {
+    requestBody = "\"";
+    for (let [k, v] of requestBodyKvs) {
+      if (requestBody !== "\"") {
+        requestBody += "&";
+      }
+      requestBody += k + "=" + v;
+    }
+    requestBody += "\"";
+  }
+
 
   return `var urlStr = "${url}"; // 请求地址
 var requestMethod = "${requestMethod}"; // 请求类型
