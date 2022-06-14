@@ -199,10 +199,19 @@ export default {
     redirect(pageType, param) {
       //api页面跳转
       //传入UUID是为了进行页面重新加载判断
+      let resolve;
       let uuid = getUUID();
       switch (pageType) {
         case "api":
-          this.$emit('redirectPage', 'api', 'api', 'edit:' + param);
+          resolve = this.$router.resolve({
+            name: 'ApiDefinition',
+            params: {
+              redirectID: getUUID(),
+              dataType: "api",
+              dataSelectRange: 'edit:' + param,
+            }
+          });
+          window.open(resolve.href, '_blank');
           break;
         case "apiCase":
           this.$emit('redirectPage', 'api', 'apiTestCase', 'singleList:' + param);
