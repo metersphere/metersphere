@@ -188,7 +188,7 @@ export default {
       }
     },
     watch: {
-      '$route'(to, from) {
+      '$route'(to) {
         switch (to.name) {
           case "system":
             this.getWorkSpaceList();
@@ -201,13 +201,12 @@ export default {
         }
       },
       '$route.path': {
-        handler(toPath, fromPath) {
+        handler(toPath) {
           if (toPath === '/setting/operatingLog/workspace') {
             this.isSystem = false;
             this.sysList = new WORKSYSLIST();
             this.condition.workspaceId = getCurrentWorkspaceId();
           } else {
-            this.getWorkSpaceList();
             this.isSystem = true;
             this.sysList = new SYSLIST();
             this.condition.workspaceId = '';
@@ -313,7 +312,7 @@ export default {
       this.initTableData();
     },
     getWorkSpaceList() {
-      this.$get("/workspace/list/userworkspace", response => {
+      this.$get("/workspace/list", response => {
         let workspaceList = response.data;
         let workspaceIds = [];
         if (workspaceList) {
