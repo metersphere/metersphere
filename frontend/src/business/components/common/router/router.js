@@ -37,8 +37,6 @@ router.beforeEach((to, from, next) => {
 
   //解决localStorage清空，cookie没失效导致的卡死问题
   if (!localStorage.getItem('Admin-Token')) {
-    // axios.get("/signout");
-    // console.log("signout");
     localStorage.setItem('Admin-Token', "{}");
     window.location.href = "/login";
     next();
