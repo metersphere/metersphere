@@ -140,7 +140,7 @@
 <script>
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableOperator from "../../common/components/MsTableOperator";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getUrl, LOG_MODULE_MAP, LOG_TYPE, LOG_TYPE_MAP, SYSLIST, WORKSYSLIST} from "./config";
 import MsLogDetail from "./LogDetail";
 
@@ -241,6 +241,14 @@ export default {
           }
           if (resourceId instanceof Array) {
             resourceId = resourceId[0];
+          }
+          if (!this.isSystem) {
+            let user = getCurrentUser();
+            let permission = user.userGroups.filter(ug => ug.sourceId === resource.projectId);
+            if (!permission || (Array.isArray(permission) && permission.length === 0)) {
+              this.$warning(this.$t("commons.no_operation_permission"));
+              return;
+            }
           }
           this.$get('/user/update/currentByResourceId/' + resourceId, () => {
             this.toPage(uri);
