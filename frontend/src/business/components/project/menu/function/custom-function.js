@@ -25,8 +25,10 @@ export function getCodeTemplate(language, requestObj) {
 }
 
 function groovyCode(requestObj) {
-  let {requestHeaders = new Map(), requestBody = "", requestPath = "",
-    requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map()} = requestObj;
+  let {
+    requestHeaders = new Map(), requestBody = "", requestPath = "",
+    requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map()
+  } = requestObj;
   let requestUrl = "";
   requestPath = getRequestPath(requestArguments, requestPath);
   requestPath = replaceRestParams(requestPath, requestRest);
@@ -40,8 +42,18 @@ function groovyCode(requestObj) {
 }
 
 function pythonCode(requestObj) {
-  let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
-    requestMethod = "", host = "", protocol = "http", requestArguments = new Map(), requestRest = new Map()} = requestObj;
+  let {
+    requestHeaders = new Map(),
+    requestBody = "",
+    requestPath = "/",
+    requestMethod = "",
+    host = "",
+    protocol = "http",
+    requestArguments = new Map(),
+    requestBodyKvs = new Map(),
+    bodyType,
+    requestRest = new Map()
+  } = requestObj;
   let connType = "HTTPConnection";
   if (protocol === 'https') {
     connType = "HTTPSConnection";
@@ -50,7 +62,7 @@ function pythonCode(requestObj) {
   requestBody = requestBody ? JSON.stringify(requestBody) : "{}";
   requestPath = getRequestPath(requestArguments, requestPath);
   requestPath = replaceRestParams(requestPath, requestRest);
-  let obj = {requestBody, headers, host, requestPath, requestMethod, connType};
+  let obj = {requestBody, headers, host, requestPath, requestMethod, requestBodyKvs, bodyType, connType};
   return _pythonCodeTemplate(obj);
 }
 
@@ -86,17 +98,27 @@ function getHeaders(requestHeaders) {
     }
     // 拼装
     headers += `'${k}':'${v}'`;
-    index ++;
+    index++;
   }
   headers = headers + "}"
   return headers;
 }
 
 function _pythonCodeTemplate(obj) {
-  let {requestBody, headers, host, requestPath, requestMethod, connType} = obj;
-  return `import httplib
-params = ${requestBody} #例 {'username':'test'}
-headers = ${headers} #例 {'Content-Type':'application/json'}
+  let {requestBody, requestBodyKvs, bodyType, headers, host, requestPath, requestMethod, connType} = obj;
+  let reqBody = obj.requestBody;
+  if (obj.bodyType !== 'json' && obj.requestBodyKvs) {
+    reqBody = 'urllib.urlencode({';
+    // 设置post参数
+    for (let [k, v] of requestBodyKvs) {
+      reqBody += `\'${k}\':\'${v}\'`;
+    }
+    reqBody += `})`;
+  }
+
+  return `import httplib,urllib
+params = ${reqBody} #例 {'username':'test'}
+headers = ${headers} #例 {'Content-Type':'application/json'} 或 {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
 host = '${host}'
 path = '${requestPath}'
 method = '${requestMethod}' # POST/GET
@@ -111,7 +133,7 @@ log.info(data)
 
 function _groovyCodeTemplate(obj) {
   let {requestUrl, requestMethod, headers, body} = obj;
-  let params =  `[
+  let params = `[
                 'url': '${requestUrl}',
                 'method': '${requestMethod}', // POST/GET
                 'headers': ${headers}, // 请求headers 例：{'Content-type':'application/json'}
@@ -143,8 +165,20 @@ log.info(conn.content.text)
 }
 
 function _beanshellTemplate(obj) {
-  let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
-    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = "", requestRest = new Map()} = obj;
+  let {
+    requestHeaders = new Map(),
+    requestBody = "",
+    requestBodyKvs = new Map(),
+    bodyType = "",
+    requestPath = "/",
+    requestMethod = "GET",
+    protocol = "http",
+    requestArguments = new Map(),
+    domain = "",
+    port = "",
+    requestRest = new Map()
+  } = obj;
+
   requestPath = replaceRestParams(requestPath, requestRest);
   let uri = `new URIBuilder()
                 .setScheme("${protocol}")
@@ -158,6 +192,21 @@ function _beanshellTemplate(obj) {
   for (let [k, v] of requestArguments) {
     uri = uri + `.setParameter("${k}", "${v}")`;
   }
+
+
+  let postKvsParam = "";
+  if (method === 'Post') {
+    // 设置post参数
+    for (let [k, v] of requestBodyKvs) {
+      postKvsParam += `
+    nameValueList.add(new BasicNameValuePair("${k}", "${v}"));\r\n`;
+    }
+    if (postKvsParam !== "") {
+      postKvsParam = `
+    List nameValueList = new ArrayList();\r\n` + postKvsParam;
+    }
+  }
+
   if (port) {
     uri += `.setPort(${port}) // int类型端口
     `;
@@ -170,16 +219,26 @@ function _beanshellTemplate(obj) {
   // 设置请求头
   let setHeader = "";
   for (let [k, v] of requestHeaders) {
-    setHeader = setHeader + `request.setHeader("${k}", "${v}");` +'\n';
+    setHeader = setHeader + `request.setHeader("${k}", "${v}");` + '\n';
   }
   try {
     requestBody = JSON.stringify(requestBody);
   } catch (e) {
     requestBody = "";
   }
+  let postMethodCode = "";
+  if (requestMethod === "POST") {
+    if (bodyType === "json") {
+      postMethodCode = `
+    request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));
+    `;
+    } else {
+      postMethodCode = postKvsParam + "\r\n" + `
+    request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));
+    `;
+    }
+  }
 
-  let postMethodCode = requestMethod === "POST" ?
-    `request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));` : "";
   return `import java.net.URI;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.*;
@@ -189,6 +248,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.StringEntity;
+
+import java.util. *;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 
 // 创建Httpclient对象
 CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -213,8 +277,17 @@ if (response.getStatusLine().getStatusCode() == 200) {
 }
 
 function _jsTemplate(obj) {
-  let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
-    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = "", requestRest = new Map()} = obj;
+  let {
+    requestHeaders = new Map(),
+    requestBody = "",
+    requestPath = "/",
+    requestMethod = "GET",
+    protocol = "http",
+    requestArguments = new Map(),
+    domain = "",
+    port = "",
+    requestRest = new Map()
+  } = obj;
   let url = "";
   requestPath = replaceRestParams(requestPath, requestRest);
   if (protocol && domain && port) {
