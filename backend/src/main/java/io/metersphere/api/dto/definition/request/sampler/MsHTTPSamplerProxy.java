@@ -254,7 +254,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             httpSamplerTree.add(arguments);
         }
         //判断是否要开启DNS
-        if (!config.isOperating() && config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()), httpConfig);
