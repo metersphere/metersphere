@@ -20,6 +20,7 @@ public class ZentaoGetClient extends ZentaoClient {
     private static final String REPLACE_IMG_URL="<img src=\"%s/index.php?m=file&f=read&fileID=$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("m=file&f=read&fileID=(.*?)\"/>");
     private static final String PRODUCT_GET = "&module=product&methodName=getById&params=productID={0}&zentaosid={1}";
+    private static final String PRODUCT_GET_NEW = "/api.php/v1/projects/{0}";
     // 注意 recTotal={1}&recPerPage={2}&pageID={3} 顺序不能调换，有点恶心
     private static final String BUG_LIST_URL = "/?m=bug&f=browse&productID={0}&branch=&browseType=all&param=0&orderBy=&recTotal={1}&recPerPage={2}&pageID={3}&t=json&zentaosid={4}";
 
@@ -45,11 +46,16 @@ public class ZentaoGetClient extends ZentaoClient {
         request.setBugList(getNotSuperModelUrl(BUG_LIST_URL));
         request.setCreateMetaData(getNotSuperModelUrl(CREATE_META_DATA));
         request.setProductGet(getUrl(PRODUCT_GET));
+        request.setProductGetNew(getUrlForNew(PRODUCT_GET_NEW));
         requestUrl = request;
     }
 
     private String getUrl(String url) {
         return getBaseUrl() + "/?m=api&f=getModel" + url;
+    }
+
+    protected String getUrlForNew(String url) {
+        return getBaseUrl() + url;
     }
 
     private String getNotSuperModelUrl(String url) {
