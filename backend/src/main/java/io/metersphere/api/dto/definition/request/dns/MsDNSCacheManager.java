@@ -33,7 +33,7 @@ public class MsDNSCacheManager extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (!this.isEnable()) {
             return;
         }
         for (MsTestElement el : hashTree) {
@@ -103,9 +103,9 @@ public class MsDNSCacheManager extends MsTestElement {
         dnsCacheManager.setName(name);
         dnsCacheManager.setProperty(TestElement.TEST_CLASS, DNSCacheManager.class.getName());
         dnsCacheManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DNSCachePanel"));
-        dnsCacheManager.setCustomResolver(true);
+        dnsCacheManager.setCustomResolver(false);
+        dnsCacheManager.setClearEachIteration(true);
         hosts.forEach(host -> dnsCacheManager.addHost(host.getDomain(), host.getIp()));
-        hosts.forEach(host -> dnsCacheManager.addServer(host.getDomain()));
 
         return dnsCacheManager;
     }
