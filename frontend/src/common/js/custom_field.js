@@ -71,7 +71,7 @@ export function parseCustomField(data, template, rules, oldFields) {
             }
             item.isEdit = true;
           } catch (e) {
-            console.log("JSON parse custom field value error.");
+            console.error("JSON parse custom field value error.", e);
           }
           break;
         }
