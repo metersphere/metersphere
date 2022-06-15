@@ -19,9 +19,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -65,24 +63,6 @@ public class MsDNSCacheManager extends MsTestElement {
                 samplerHashTree.add(dnsCacheManager(name + " DNSCacheManager", hosts));
             }
         }
-    }
-
-    public static Map<String, String> getEnvironmentDns(EnvironmentConfig config, HttpConfig httpConfig) {
-        Map<String, String> dnsMap = new HashMap<>();
-        if (config.getCommonConfig().isEnableHost() && CollectionUtils.isNotEmpty(config.getCommonConfig().getHosts()) && httpConfig != null && httpConfig.getDomain() != null) {
-            String domain = httpConfig.getDomain().trim();
-            config.getCommonConfig().getHosts().forEach(host -> {
-                if (StringUtils.isNotBlank(host.getDomain())) {
-                    String hostDomain = host.getDomain().trim().replace("http://", "").replace("https://", "");
-                    if (StringUtils.equals(hostDomain, domain)) {
-                        dnsMap.put(hostDomain, host.getIp());
-                    } else if (StringUtils.startsWith(hostDomain, domain + ":")) {
-                        dnsMap.put(domain, StringUtils.replace(hostDomain, domain, host.getIp()));
-                    }
-                }
-            });
-        }
-        return dnsMap;
     }
 
     private static Arguments arguments(String name, List<KeyValue> variables) {
