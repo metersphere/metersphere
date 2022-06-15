@@ -338,7 +338,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionResult update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        if (request.getRequest() != null) {
+        if (request.getRequest() != null && StringUtils.isNotEmpty(request.getRequest().getId())) {
             deleteFileByTestId(request.getRequest().getId());
         }
         request.setBodyUploadIds(null);
