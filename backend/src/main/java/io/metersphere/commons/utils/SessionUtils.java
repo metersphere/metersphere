@@ -1,5 +1,7 @@
 package io.metersphere.commons.utils;
 
+import io.metersphere.base.domain.Group;
+import io.metersphere.base.domain.UserGroupPermission;
 import io.metersphere.commons.user.SessionUser;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -15,8 +17,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
@@ -112,5 +114,58 @@ public class SessionUtils {
             LogUtil.error(e.getMessage(), e);
         }
         return getUser().getLastProjectId();
+    }
+
+    public static boolean hasPermission(String workspaceId, String projectId, String permission) {
+        Map<String, List<UserGroupPermission>> userGroupPermissions = new HashMap<>();
+        Map<String, Group> group = new HashMap<>();
+        SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
+        user.getUserGroups().forEach(ug -> user.getGroupPermissions().forEach(gp -> {
+            if (org.apache.commons.lang3.StringUtils.equals(gp.getGroup().getId(), ug.getGroupId())) {
+                userGroupPermissions.put(ug.getId(), gp.getUserGroupPermissions());
+                group.put(ug.getId(), gp.getGroup());
+            }
+        }));
+
+
+        Set<String> currentProjectPermissions = getCurrentProjectPermissions(userGroupPermissions, projectId, group, user);
+        if (currentProjectPermissions.contains(permission)) {
+            return true;
+        }
+
+        Set<String> currentWorkspacePermissions = getCurrentWorkspacePermissions(userGroupPermissions, workspaceId, group, user);
+        if (currentWorkspacePermissions.contains(permission)) {
+            return true;
+        }
+
+        Set<String> systemPermissions = getSystemPermissions(userGroupPermissions, group, user);
+        return systemPermissions.contains(permission);
+    }
+
+    private static Set<String> getSystemPermissions(Map<String, List<UserGroupPermission>> userGroupPermissions, Map<String, Group> group, SessionUser user) {
+        return user.getUserGroups().stream()
+                .filter(ug -> group.get(ug.getId()) != null && StringUtils.equals(group.get(ug.getId()).getType(), "SYSTEM"))
+                .filter(ug -> StringUtils.equals(ug.getSourceId(), "system") || StringUtils.equals(ug.getSourceId(), "'adminSourceId'"))
+                .flatMap(ug -> userGroupPermissions.get(ug.getId()).stream())
+                .map(UserGroupPermission::getPermissionId)
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<String> getCurrentWorkspacePermissions(Map<String, List<UserGroupPermission>> userGroupPermissions, String workspaceId, Map<String, Group> group, SessionUser user) {
+        return user.getUserGroups().stream()
+                .filter(ug -> group.get(ug.getId()) != null && StringUtils.equals(group.get(ug.getId()).getType(), "WORKSPACE"))
+                .filter(ug -> StringUtils.equals(ug.getSourceId(), workspaceId))
+                .flatMap(ug -> userGroupPermissions.get(ug.getId()).stream())
+                .map(UserGroupPermission::getPermissionId)
+                .collect(Collectors.toSet());
+    }
+
+    private static Set<String> getCurrentProjectPermissions(Map<String, List<UserGroupPermission>> userGroupPermissions, String projectId, Map<String, Group> group, SessionUser user) {
+        return user.getUserGroups().stream()
+                .filter(ug -> group.get(ug.getId()) != null && StringUtils.equals(group.get(ug.getId()).getType(), "PROJECT"))
+                .filter(ug -> StringUtils.equals(ug.getSourceId(), projectId))
+                .flatMap(ug -> userGroupPermissions.get(ug.getId()).stream())
+                .map(UserGroupPermission::getPermissionId)
+                .collect(Collectors.toSet());
     }
 }
