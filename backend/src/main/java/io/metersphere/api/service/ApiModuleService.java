@@ -307,6 +307,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (StringUtils.isNotEmpty(node.getProtocol())) {
             criteria.andProtocolEqualTo(node.getProtocol());
         }
+        //同一个模块下不能有相同名字的子模块
+        if(StringUtils.isNotBlank(node.getParentId())){
+            criteria.andParentIdEqualTo(node.getParentId());
+        }
         return apiModuleMapper.selectByExample(example);
     }
 
