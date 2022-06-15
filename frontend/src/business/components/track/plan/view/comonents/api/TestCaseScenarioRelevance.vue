@@ -137,12 +137,17 @@ export default {
       if (!sign) {
         return false;
       }
+      let selectIds = [];
       let url = '/api/automation/relevance';
+      let selectRows = this.$refs.apiScenarioList.selectRows;
       const envMap = this.$refs.apiScenarioList.projectEnvMap;
       let envType = this.$refs.apiScenarioList.environmentType;
       let map = this.$refs.apiScenarioList.map;
       let envGroupId = this.$refs.apiScenarioList.envGroupId;
 
+      selectRows.forEach(row => {
+        selectIds.push(row.id);
+      })
       if (envType === ENV_TYPE.JSON && (!envMap || envMap.size < 1)) {
         this.$warning(this.$t("api_test.environment.select_environment"));
         return false;
@@ -156,6 +161,7 @@ export default {
       param.envMap = strMapToObj(envMap);
       param.environmentType = envType;
       param.envGroupId = envGroupId;
+      param.selectIds = selectIds;
 
       this.result = this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
