@@ -217,9 +217,12 @@ export default {
       if (tree.children.length === 0) {
         resolveArr = this.originalData;
         //找到最后一层children
-        const tarItem = resolveArr.find(item => item.id === tree.idList.shift())
-        tarItem.loadedChildren = true
-        resolveArr = tarItem.children
+        let id;
+        while ((id = tree.idList.shift())) {
+          const tarItem = resolveArr.find(item => item.id === id)
+          tarItem.loadedChildren = true
+          resolveArr = tarItem.children
+        }
       } else {
         resolveArr = tree;
         resolveArr = tree.children;
