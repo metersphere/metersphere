@@ -228,7 +228,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      totalCount: 0,
+      pageCount: 0,
       enableOrderDrag: true,
       selectRows: new Set(),
       testReview: {},
@@ -316,6 +316,9 @@ export default {
     currentVersion() {
       this.condition.versionId = this.currentVersion;
       this.initTableData();
+    },
+    pageCount() {
+      this.currentPage = 1;
     }
   },
   computed: {
@@ -328,6 +331,7 @@ export default {
   },
   created() {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+    this.pageCount = Math.ceil(this.total / this.pageSize);
   },
   mounted() {
     this.$emit('setCondition', this.condition);
@@ -374,13 +378,8 @@ export default {
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = getTestReviewTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
-          if (this.totalCount === 0) {
-            this.totalCount = data.itemCount;
-          }
           this.total = data.itemCount;
-          if (this.total !== this.totalCount) {
-            this.currentPage = 1
-          }
+          this.pageCount = Math.ceil(this.total / this.pageSize);
           this.tableData = data.listObject;
           this.getPreData();
           if (callback && callback instanceof Function) {
