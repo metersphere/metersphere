@@ -34,13 +34,13 @@
               :show-select-all="false"
               @selectCountChange="selectCountChange">
 
-      <el-table-column v-if="!customNum" prop="num" label="ID"
+      <el-table-column v-if="!customNum" prop="num" label="ID" sortable
                        show-overflow-tooltip>
       </el-table-column>
-      <el-table-column v-if="customNum" prop="customNum" label="ID"
+      <el-table-column v-if="customNum" prop="customNum" label="ID" sortable
                        show-overflow-tooltip>
       </el-table-column>
-      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
+      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" sortable min-width="100px"
                        show-overflow-tooltip/>
       <el-table-column
         v-if="versionEnable"
