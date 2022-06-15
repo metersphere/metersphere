@@ -30,7 +30,7 @@
         <span v-if="!data.isEdit" class="node-icon">
           <i class="el-icon-folder"/>
         </span>
-        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start">
+        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" open-delay="1000">
           <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
         </el-tooltip>
 
@@ -214,7 +214,7 @@ export default {
       // this.reloaded = false;
       this.$nextTick(() => {
         let node = this.$refs.tree.getNode(data);
-        if(node){
+        if (node) {
           node.expanded = false;
         }
 
@@ -224,14 +224,14 @@ export default {
       });
     },
     // 改变节点的状态
-    changeTreeNodeStatus (parentData) {
+    changeTreeNodeStatus(parentData) {
       for (let i = 0; i < parentData.children.length; i++) {
         let data = parentData.children[i];
         if (data.id) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
         }
         let node = this.$refs.tree.getNode(data);
-        if(node){
+        if (node) {
           node.expanded = false;
         }
 
@@ -290,7 +290,9 @@ export default {
         }
         return true;
       }
-      if (!rootNode.children) {return false;}
+      if (!rootNode.children) {
+        return false;
+      }
       for (let i = 0; i < rootNode.children.length; i++) {
         let children = rootNode.children[i];
         let result = this._traverse(children, id, callback, isParentCallback);
@@ -347,7 +349,7 @@ export default {
         this.$refs.tree.remove(node);
         return;
       }
-      let tip =  '确定删除节点 ' + data.label + ' 及其子节点下所有资源' + '？';
+      let tip = '确定删除节点 ' + data.label + ' 及其子节点下所有资源' + '？';
       // let info =  this.$t("test_track.module.delete_confirm") + data.label + "，" + this.$t("test_track.module.delete_all_resource") + "？";
       this.$alert(tip, "", {
           confirmButtonText: this.$t("commons.confirm"),
@@ -436,9 +438,9 @@ export default {
       }
       for (let i = 0; i < nodes.length; i++) {
         if (nodes[i].id === id) {
-          i - 1 >= 0 ? list[0] = nodes[i-1].id : list[0] = "";
+          i - 1 >= 0 ? list[0] = nodes[i - 1].id : list[0] = "";
           list[1] = nodes[i].id;
-          i + 1 < nodes.length ? list[2] = nodes[i+1].id : list[2] = "";
+          i + 1 < nodes.length ? list[2] = nodes[i + 1].id : list[2] = "";
           return;
         }
         if (nodes[i].children) {
