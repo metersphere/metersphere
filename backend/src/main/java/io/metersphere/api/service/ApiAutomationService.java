@@ -977,15 +977,15 @@ public class ApiAutomationService {
         Map<String, List<String>> mapping = request.getMapping();
         Map<String, String> envMap = request.getEnvMap();
         Set<String> set = mapping.keySet();
-        List<String> ids = new ArrayList<>(set);
-        Collections.reverse(ids);
+        List<String> relevanceIds = request.getSelectIds();
+        Collections.reverse(relevanceIds);
         String envType = request.getEnvironmentType();
         String envGroupId = request.getEnvGroupId();
         if (set.isEmpty()) {
             return;
         }
         Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
-        for (String id : ids) {
+        for (String id : relevanceIds) {
             Map<String, String> newEnvMap = new HashMap<>(16);
             List<String> list = mapping.get(id);
             list.forEach(l -> newEnvMap.put(l, envMap == null ? "" : envMap.getOrDefault(l, "")));
