@@ -224,12 +224,17 @@ export default {
   methods: {
     tcpMockSwitchChange(value, other) {
       if (value && this.config.mockTcpPort === 0) {
-        this.result = this.$get('/project/genTcpMockPort/' + this.projectId, res => {
-          let port = res.data;
+        this.$get('/project/genTcpMockPort/' + this.projectId).then(res => {
+          let port = res.data.data;
           this.config.mockTcpPort = port;
           this.$nextTick(() => {
             this.switchChange("MOCK_TCP_OPEN", value, ['MOCK_TCP_PORT', this.config.mockTcpPort]);
           })
+        }).catch(resp => {
+          this.config.mockTcpOpen = false;
+          if (resp.response && resp.response.data && resp.response.data.message) {
+            this.$error(resp.response.data.message);
+          }
         });
       } else {
         this.switchChange("MOCK_TCP_OPEN", value, other);
@@ -245,11 +250,14 @@ export default {
       // 后台按照顺序先校验其它数据合法性，如tcp端口合法性，合法后保存是否开启
       configs.push({projectId: this.projectId, typeValue: value, type});
       let params = {configs};
-      this.$post("/project_application/update/batch", params, () => {
+      this.$post("/project_application/update/batch", params).then(() => {
         this.$success(this.$t('commons.save_success'));
         this.init();
-      }, () => {
+      }).catch(resp => {
         this.init();
+        if (resp.response && resp.response.data && resp.response.data.message) {
+          this.$error(resp.response.data.message);
+        }
       });
     },
     init() {
