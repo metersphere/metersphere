@@ -152,7 +152,13 @@ export default {
         })
       }
       let body = request.body;
-      if (body.json) {
+      if (body.type === 'XML') {
+        requestBody = body.raw;
+        bodyType = "xml";
+      } else if (body.type === 'Raw') {
+        requestBody = body.raw;
+        bodyType = "raw";
+      } else if (body.json) {
         requestBody = body.raw;
         bodyType = "json";
       } else if (body.kvs) {
@@ -163,7 +169,16 @@ export default {
           }
         })
       }
-      return {requestPath, requestHeaders, requestMethod, requestBody, requestBodyKvs, bodyType, requestArguments, requestRest}
+      return {
+        requestPath,
+        requestHeaders,
+        requestMethod,
+        requestBody,
+        requestBodyKvs,
+        bodyType,
+        requestArguments,
+        requestRest
+      }
     },
     apiClose() {
 
