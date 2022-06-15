@@ -867,7 +867,15 @@ export default {
       });
     },
     handleCopy(row) {
-      this.$get('/api/testcase/findById/' + row.id, (response) => {
+      this.$get('/api/definition/get/' + row.apiDefinitionId, (response) => {
+        let api = response.data;
+        if (api) {
+          this.getCaseAndOpen(row.id, api.name, row.apiDefinitionId);
+        }
+      });
+    },
+    getCaseAndOpen(id, apiName, apiId) {
+      this.$get('/api/testcase/findById/' + id, (response) => {
         let data = response.data;
         let uuid = getUUID();
         let apiCaseRequest = JSON.parse(data.request);
@@ -877,9 +885,10 @@ export default {
         } else if (apiCaseRequest.type === "JDBCSampler") {
           apiCaseRequest.method = "SQL";
         }
+        apiCaseRequest.name = apiName;
         let obj = {
           name: "copy_" + data.name,
-          apiDefinitionId: row.apiDefinitionId,
+          apiDefinitionId: apiId,
           versionId: data.versionId,
           priority: data.priority,
           active: true,
