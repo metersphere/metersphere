@@ -121,6 +121,7 @@ export default {
       fullTreeNodes: [],
       stepFilter: new STEP,
       exportReportIsOk: false,
+      tempResult: [],
     }
   },
   activated() {
@@ -408,7 +409,14 @@ export default {
             if (data.content) {
               let report = JSON.parse(data.content);
               this.content = report;
-              this.fullTreeNodes = report.steps;
+              if(data.reportType === "UI_INDEPENDENT"){
+                  this.tempResult = report.steps;
+                  //校对执行次序
+                  this.checkOrder(this.tempResult);
+                  this.fullTreeNodes = this.tempResult;
+              }else{
+                this.fullTreeNodes = report.steps;
+              }
               this.content.console = report.console;
               this.content.error = report.error;
               let successCount = (report.total - report.error - report.errorCode - report.unExecute);
@@ -423,6 +431,23 @@ export default {
       } else {
         this.$emit('invisible');
         this.$warning(this.$t('commons.report_delete'));
+      }
+    },
+    checkOrder(origin){
+      if(!origin){
+        return;
+      }
+      if(origin.children && Array.isArray(origin.children)){
+        origin.children.sort((m,n)=>{
+          let mTime = m.value ? m.value.startTime ? m.value.startTime : 0 : 0;
+          let nTime = m.value ? n.value.startTime ? n.value.startTime : 0 : 0;
+          return mTime <= nTime;
+        })
+        origin.children.forEach(v => {
+          if(v.children){
+            this.checkOrder(v.children)
+          }
+        })
       }
     },
     buildReport() {
