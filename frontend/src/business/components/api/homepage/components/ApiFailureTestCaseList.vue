@@ -80,26 +80,33 @@ export default {
           this.$emit('redirectPage', 'testPlanEdit', null, param);
           break;
         case "apiCase":
-          this.$get('/api/definition/get/' + param.id, (response) => {
-            let api = response.data;
-            if (!api) {
+          this.$get('/api/testcase/findById/' + param.id, (response) => {
+            let apiCase = response.data;
+            if (!apiCase) {
               this.$message.error(this.$t('commons.api_case') + this.$t('commons.not_exist'))
             } else {
-              if (param.protocol === 'dubbo://') {
-                param.protocol = 'DUBBO'
-              }
-              definitionData = this.$router.resolve({
-                name: 'ApiDefinition',
-                params: {
-                  redirectID: getUUID(),
-                  dataType: "api",
-                  dataSelectRange: 'edit:' + param.id,
-                  projectId: getCurrentProjectID(),
-                  type: api.protocol,
-                  workspaceId: getCurrentWorkspaceId(),
+              this.$get('/api/definition/get/' + apiCase.apiDefinitionId, (response) => {
+                let api = response.data;
+                if (api) {
+                  this.$message.error(this.$t('api_test.home_page.api_details_card.title') + this.$t('commons.not_exist'))
+                } else {
+                  if (param.protocol === 'dubbo://') {
+                    param.protocol = 'DUBBO'
+                  }
+                  definitionData = this.$router.resolve({
+                    name: 'ApiDefinition',
+                    params: {
+                      redirectID: getUUID(),
+                      dataType: "api",
+                      dataSelectRange: 'edit:' + param.id,
+                      projectId: getCurrentProjectID(),
+                      type: api.protocol,
+                      workspaceId: getCurrentWorkspaceId(),
+                    }
+                  });
+                  window.open(definitionData.href, '_blank');
                 }
               });
-              window.open(definitionData.href, '_blank');
             }
           });
           break;

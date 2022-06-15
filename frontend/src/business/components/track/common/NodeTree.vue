@@ -30,7 +30,7 @@
         <span v-if="!data.isEdit" class="node-icon">
           <i class="el-icon-folder"/>
         </span>
-        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" open-delay="1000">
+        <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
           <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
         </el-tooltip>
 
