@@ -11,7 +11,6 @@ export default {
   name: 'MsRun',
   components: {},
   props: {
-    environment: Object,
     editCaseRequest: {
       type: Boolean,
       default: false
