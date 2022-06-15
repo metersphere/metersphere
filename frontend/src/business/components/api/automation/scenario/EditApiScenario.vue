@@ -402,7 +402,7 @@ import {
 } from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
 import {ENV_TYPE} from "@/common/js/constants";
-import {hisDataProcessing, mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
+import {mergeRequestDocumentData} from "@/business/components/api/definition/api-definition";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const versionHistory = requireComponent.keys().length > 0 ? requireComponent("./version/VersionHistory.vue") : {};
@@ -1728,7 +1728,7 @@ export default {
                 } else {
                   this.onSampleError = obj.onSampleError;
                 }
-                this.dataProcessing(obj.hashTree, obj);
+                this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -1770,13 +1770,9 @@ export default {
         })
       }
     },
-    dataProcessing(stepArray, obj) {
+    dataProcessing(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {
-          if (stepArray[i].type === "Assertions") {
-            hisDataProcessing(stepArray, obj)
-            this.sort();
-          }
           let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
             stepArray[i].originalDataSourceId = stepArray[i].dataSourceId;
@@ -1792,7 +1788,7 @@ export default {
             };
           }
           if (stepArray[i].hashTree.length > 0) {
-            this.dataProcessing(stepArray[i].hashTree, stepArray[i]);
+            this.dataProcessing(stepArray[i].hashTree);
           }
         }
       }
