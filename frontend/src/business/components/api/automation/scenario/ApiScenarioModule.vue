@@ -125,7 +125,7 @@
                 }
               },
               {
-                label: this.$t('report.export') + 'JMETER 格式',
+                label: this.$t('report.export_jmeter_format'),
                 permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
                 callback: () => {
                   this.$emit('exportJmx');
