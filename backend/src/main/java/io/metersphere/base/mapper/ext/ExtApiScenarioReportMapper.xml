@@ -107,11 +107,21 @@
         </if>
         <if test="${isUi} and ${condition}.testName != null">
             and `scenario_id` IN
-            (SELECT id FROM ui_scenario WHERE name like CONCAT('%',  #{${condition}.testName.value},'%') )
+            <if test="${condition}.testName.operator == 'like'">
+                (SELECT id FROM ui_scenario WHERE name like CONCAT('%', #{${condition}.testName.value},'%') )
+            </if>
+            <if test="${condition}.testName.operator != 'like'">
+                (SELECT id FROM ui_scenario WHERE name not like CONCAT('%', #{${condition}.testName.value},'%') )
+            </if>
         </if>
         <if test="!${isUi} and ${condition}.testName != null">
             and `scenario_id` IN
-                (SELECT id FROM api_scenario WHERE name like CONCAT('%',  #{${condition}.testName.value},'%') )
+            <if test="${condition}.testName.operator == 'like'">
+                (SELECT id FROM api_scenario WHERE name like CONCAT('%', #{${condition}.testName.value},'%') )
+            </if>
+            <if test="${condition}.testName.operator != 'like'">
+                (SELECT id FROM api_scenario WHERE name not like CONCAT('%', #{${condition}.testName.value},'%') )
+            </if>
         </if>
         <if test="${condition}.createTime != null">
             and create_time
