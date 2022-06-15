@@ -204,6 +204,7 @@ function _beanshellTemplate(obj) {
     protocol = "http",
     requestArguments = new Map(),
     domain = "",
+    host = "",
     port = "",
     requestRest = new Map()
   } = obj;
@@ -211,7 +212,7 @@ function _beanshellTemplate(obj) {
   requestPath = replaceRestParams(requestPath, requestRest);
   let uri = `new URIBuilder()
                 .setScheme("${protocol}")
-                .setHost("${domain}")
+                .setHost("${host}")
                 .setPath("${requestPath}")
                 `;
   // http 请求类型
@@ -278,7 +279,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.StringEntity;
 
-import java.util. *;
+import java.util.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -313,6 +314,7 @@ function _jsTemplate(obj) {
     requestMethod = "GET",
     protocol = "http",
     requestArguments = new Map(),
+    host = "",
     domain = "",
     port = "",
     requestBodyKvs = new Map(),
@@ -322,7 +324,7 @@ function _jsTemplate(obj) {
   let url = "";
   requestPath = replaceRestParams(requestPath, requestRest);
   if (protocol && domain && port) {
-    url = protocol + "://" + domain + ":" + port + requestPath;
+    url = protocol + "://" + host + requestPath;
   }
   url = getRequestPath(requestArguments, url);
   try {
