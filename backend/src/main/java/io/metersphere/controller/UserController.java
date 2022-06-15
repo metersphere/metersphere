@@ -19,6 +19,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -147,8 +148,10 @@ public class UserController {
      * 获取工作空间成员用户
      */
     @PostMapping("/ws/member/list/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_USER_READ)
     public Pager<List<User>> getMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
+        if (!SessionUtils.hasPermission(request.getWorkspaceId(), null, PermissionConstants.WORKSPACE_USER_READ)) {
+            throw new UnauthorizedException(Translator.get("check_owner_workspace"));
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
     }
@@ -176,8 +179,10 @@ public class UserController {
      * 获取工作空间成员用户 不分页
      */
     @PostMapping("/ws/member/list/all")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
+        if (!SessionUtils.hasPermission(request.getWorkspaceId(), null, PermissionConstants.WORKSPACE_USER_READ)) {
+            throw new UnauthorizedException(Translator.get("check_owner_workspace"));
+        }
         return userService.getMemberList(request);
     }
 
