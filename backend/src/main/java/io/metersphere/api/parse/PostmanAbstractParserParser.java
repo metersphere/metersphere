@@ -80,6 +80,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         addBodyHeader(request);
         HttpResponse response = new HttpResponse();
         BeanUtils.copyBean(response, request);
+        response.setStatusCode(new ArrayList<>());
         response.setType("HTTP");
         return response;
     }
