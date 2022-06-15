@@ -47,8 +47,14 @@
             <when test='${object}.operator == "current user"'>
                 = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
             </when>
+            <!--以秒为精度处理时间相等 -->
             <otherwise>
-                = #{${object}.value}
+                <if test="${prop} != 'createTime'">
+                    = #{${object}.value}
+                </if>
+                <if test="${prop} == 'createTime'">
+                    &gt;= #{${object}.value} and create_time &lt;= (#{${object}.value} + 999)
+                </if>
             </otherwise>
         </choose>
     </sql>
@@ -127,6 +133,7 @@
             and create_time
             <include refid="condition">
                 <property name="object" value="${condition}.createTime"/>
+                <property name="prop" value="'createTime'"/>
             </include>
         </if>
         <if test="${condition}.status != null">
