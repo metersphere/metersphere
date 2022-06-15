@@ -4,17 +4,22 @@ package io.metersphere.config;
 import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
 import io.metersphere.security.CsrfFilter;
+import io.metersphere.security.MsPermissionAnnotationMethodInterceptor;
 import io.metersphere.security.UserModularRealmAuthenticator;
 import io.metersphere.security.realm.LdapRealm;
 import io.metersphere.security.realm.LocalRealm;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.aop.AnnotationResolver;
 import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
+import org.apache.shiro.authz.aop.*;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
+import org.apache.shiro.spring.aop.SpringAnnotationResolver;
+import org.apache.shiro.spring.security.interceptor.AopAllianceAnnotationsAuthorizingMethodInterceptor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
@@ -133,6 +138,17 @@ public class ShiroConfig implements EnvironmentAware {
     public AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(DefaultWebSecurityManager sessionManager) {
         AuthorizationAttributeSourceAdvisor aasa = new AuthorizationAttributeSourceAdvisor();
         aasa.setSecurityManager(sessionManager);
+        AopAllianceAnnotationsAuthorizingMethodInterceptor advice = new AopAllianceAnnotationsAuthorizingMethodInterceptor();
+        List<AuthorizingAnnotationMethodInterceptor> interceptors = new ArrayList<>(5);
+
+        AnnotationResolver resolver = new SpringAnnotationResolver();
+        interceptors.add(new RoleAnnotationMethodInterceptor(resolver));
+        interceptors.add(new MsPermissionAnnotationMethodInterceptor(resolver));
+        interceptors.add(new AuthenticatedAnnotationMethodInterceptor(resolver));
+        interceptors.add(new UserAnnotationMethodInterceptor(resolver));
+        interceptors.add(new GuestAnnotationMethodInterceptor(resolver));
+        advice.setMethodInterceptors(interceptors);
+        aasa.setAdvice(advice);
         return aasa;
     }
 

@@ -24,6 +24,9 @@ import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
 public class SessionUtils {
 
+    private static final ThreadLocal<String> projectId = new ThreadLocal<>();
+    private static final ThreadLocal<String> workspaceId = new ThreadLocal<>();
+
     public static String getUserId() {
         SessionUser user = getUser();
         return user == null ? null : user.getId();
@@ -90,7 +93,24 @@ public class SessionUtils {
         SecurityUtils.getSubject().getSession().setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, sessionUser.getId());
     }
 
+    /**
+     * 权限验证时从 controller 参数列表中找到 workspaceId 传入
+     */
+    public static void setCurrentWorkspaceId(String workspaceId) {
+        SessionUtils.workspaceId.set(workspaceId);
+    }
+
+    /**
+     * 权限验证时从 controller 参数列表中找到 projectId 传入
+     */
+    public static void setCurrentProjectId(String projectId) {
+        SessionUtils.projectId.set(projectId);
+    }
+
     public static String getCurrentWorkspaceId() {
+        if (StringUtils.isNotEmpty(workspaceId.get())) {
+            return workspaceId.get();
+        }
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
             LogUtil.info("WORKSPACE: {}", request.getHeader("WORKSPACE"));
@@ -104,6 +124,9 @@ public class SessionUtils {
     }
 
     public static String getCurrentProjectId() {
+        if (StringUtils.isNotEmpty(projectId.get())) {
+            return projectId.get();
+        }
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
             LogUtil.info("PROJECT: {}", request.getHeader("PROJECT"));
@@ -167,5 +190,13 @@ public class SessionUtils {
                 .flatMap(ug -> userGroupPermissions.get(ug.getId()).stream())
                 .map(UserGroupPermission::getPermissionId)
                 .collect(Collectors.toSet());
+    }
+
+    public static void clearCurrentWorkspaceId() {
+        workspaceId.remove();
+    }
+
+    public static void clearCurrentProjectId() {
+        projectId.remove();
     }
 }

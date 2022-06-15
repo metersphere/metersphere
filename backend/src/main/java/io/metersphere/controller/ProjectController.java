@@ -15,11 +15,9 @@ import io.metersphere.controller.request.AddProjectRequest;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ProjectService;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -50,10 +48,8 @@ public class ProjectController {
 
     /*jenkins项目列表*/
     @GetMapping("/listAll/{workspaceId}")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public List<ProjectDTO> listAll(@PathVariable String workspaceId) {
-        if (!SessionUtils.hasPermission(workspaceId, null, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)) {
-            throw new UnauthorizedException(Translator.get("check_owner_workspace"));
-        }
         ProjectRequest request = new ProjectRequest();
         request.setWorkspaceId(workspaceId);
         return projectService.getProjectList(request);
@@ -73,7 +69,6 @@ public class ProjectController {
     public Project getProject(@PathVariable String id) {
         return projectService.getProjectById(id);
     }
-
     @GetMapping("/member/size/{id}")
     public long getProjectMemberSize(@PathVariable String id) {
         return projectService.getProjectMemberSize(id);
@@ -90,10 +85,8 @@ public class ProjectController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
-        if (!SessionUtils.hasPermission(request.getWorkspaceId(), null, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)) {
-            throw new UnauthorizedException(Translator.get("check_owner_workspace"));
-        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, projectService.getProjectList(request));
     }
@@ -154,12 +147,12 @@ public class ProjectController {
     }
 
     @GetMapping("/getOwnerProjects")
-    public List<ProjectDTO> getOwnerProjects() {
+    public List<ProjectDTO>  getOwnerProjects() {
         return checkPermissionService.getOwnerProjects();
     }
 
     @GetMapping("/genTcpMockPort/{id}")
-    public String genTcpMockPort(@PathVariable String id) {
+    public String genTcpMockPort(@PathVariable String id){
         return projectService.genTcpMockPort(id);
     }
 
