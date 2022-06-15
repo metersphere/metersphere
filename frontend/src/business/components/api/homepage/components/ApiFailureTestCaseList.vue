@@ -87,7 +87,7 @@ export default {
             } else {
               this.$get('/api/definition/get/' + apiCase.apiDefinitionId, (response) => {
                 let api = response.data;
-                if (api) {
+                if (!api) {
                   this.$message.error(this.$t('api_test.home_page.api_details_card.title') + this.$t('commons.not_exist'))
                 } else {
                   if (param.protocol === 'dubbo://') {
@@ -97,8 +97,8 @@ export default {
                     name: 'ApiDefinition',
                     params: {
                       redirectID: getUUID(),
-                      dataType: "api",
-                      dataSelectRange: 'edit:' + param.id,
+                      dataType: "apiTestCase",
+                      dataSelectRange: 'single:' + param.id,
                       projectId: getCurrentProjectID(),
                       type: api.protocol,
                       workspaceId: getCurrentWorkspaceId(),
