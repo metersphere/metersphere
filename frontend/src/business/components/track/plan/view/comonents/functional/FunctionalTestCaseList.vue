@@ -335,7 +335,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      totalCount: 0,
+      pageCount: 0,
       status: 'default',
       testPlan: {},
       isReadOnly: false,
@@ -480,9 +480,13 @@ export default {
     condition() {
       this.$emit('setCondition', this.condition);
     },
+    pageCount() {
+      this.currentPage = 1;
+    }
   },
   created() {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+    this.pageCount = Math.ceil(this.total / this.pageSize);
   },
   mounted() {
     this.$emit('setCondition', this.condition);
@@ -565,13 +569,8 @@ export default {
       this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
         this.result = getTestPlanTestCase(this.currentPage, this.pageSize, this.condition, (data) => {
-          if (this.totalCount === 0) {
-            this.totalCount = data.itemCount;
-          }
           this.total = data.itemCount;
-          if (this.total !== this.totalCount) {
-            this.currentPage = 1
-          }
+          this.pageCount = Math.ceil(this.total / this.pageSize);
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
             if (this.tableData[i]) {
