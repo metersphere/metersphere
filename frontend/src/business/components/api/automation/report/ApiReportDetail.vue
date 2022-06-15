@@ -440,7 +440,7 @@ export default {
       if(origin.children && Array.isArray(origin.children)){
         origin.children.sort((m,n)=>{
           let mTime = m.value ? m.value.startTime ? m.value.startTime : 0 : 0;
-          let nTime = m.value ? n.value.startTime ? n.value.startTime : 0 : 0;
+          let nTime = n.value ? n.value.startTime ? n.value.startTime : 0 : 0;
           return mTime <= nTime;
         })
         origin.children.forEach(v => {
