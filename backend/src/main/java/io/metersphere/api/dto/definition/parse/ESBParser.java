@@ -502,39 +502,40 @@ public class ESBParser extends EsbAbstractParser {
 
     private String getCellValue(Cell cell) {
         String returnCellValue = "";
-        int cellType = cell.getCellType();
-        switch (cellType) {
-            case Cell.CELL_TYPE_BLANK:
-                returnCellValue = "";
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                returnCellValue = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case Cell.CELL_TYPE_ERROR:
-                returnCellValue = "";
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                returnCellValue = getValueOfNumericCell(cell);
-                break;
-            case Cell.CELL_TYPE_FORMULA:
-                try {
-                    returnCellValue = getValueOfNumericCell(cell);
-                } catch (IllegalStateException e) {
-                    try {
-                        returnCellValue = cell.getRichStringCellValue().toString();
-                    } catch (IllegalStateException e2) {
-                    }
-                } catch (Exception e) {
-                    LogUtil.error(e);
-                }
-                break;
-            default:
-                returnCellValue = cell.getRichStringCellValue().getString();
-        }
-        if (returnCellValue == null) {
-            returnCellValue = "";
-        }
-        return returnCellValue;
+//        int cellType = cell.getCellType();
+//        switch (cellType) {
+//            case Cell.CELL_TYPE_BLANK:
+//                returnCellValue = "";
+//                break;
+//            case Cell.CELL_TYPE_BOOLEAN:
+//                returnCellValue = String.valueOf(cell.getBooleanCellValue());
+//                break;
+//            case Cell.CELL_TYPE_ERROR:
+//                returnCellValue = "";
+//                break;
+//            case Cell.CELL_TYPE_NUMERIC:
+//                returnCellValue = getValueOfNumericCell(cell);
+//                break;
+//            case Cell.CELL_TYPE_FORMULA:
+//                try {
+//                    returnCellValue = getValueOfNumericCell(cell);
+//                } catch (IllegalStateException e) {
+//                    try {
+//                        returnCellValue = cell.getRichStringCellValue().toString();
+//                    } catch (IllegalStateException e2) {
+//                    }
+//                } catch (Exception e) {
+//                    LogUtil.error(e);
+//                }
+//                break;
+//            default:
+//                returnCellValue = cell.getRichStringCellValue().getString();
+//        }
+//        if (returnCellValue == null) {
+//            returnCellValue = "";
+//        }
+//        return returnCellValue;
+        return null;
     }
 
     private String getValueOfNumericCell(Cell cell) {
