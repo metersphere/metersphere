@@ -136,7 +136,7 @@ function getGroovyHeaders(requestHeaders) {
 function _pythonCodeTemplate(obj) {
   let {requestBody, requestBodyKvs, bodyType, headers, host, requestPath, requestMethod, connType} = obj;
   let reqBody = obj.requestBody;
-  if (obj.bodyType !== 'json' && obj.requestBodyKvs) {
+  if (requestMethod === 'Post' && obj.bodyType !== 'json' && obj.requestBodyKvs) {
     reqBody = 'urllib.urlencode({';
     // 设置post参数
     for (let [k, v] of requestBodyKvs) {
@@ -222,18 +222,21 @@ function _beanshellTemplate(obj) {
   for (let [k, v] of requestArguments) {
     uri = uri + `.setParameter("${k}", "${v}")`;
   }
+  if (method === "Get" && requestBodyKvs) {
+    for (let [k, v] of requestBodyKvs) {
+      uri = uri + `.setParameter("${k}", "${v}")`;
+    }
+  }
 
 
   let postKvsParam = "";
   if (method === 'Post') {
     // 设置post参数
     for (let [k, v] of requestBodyKvs) {
-      postKvsParam += `
-    nameValueList.add(new BasicNameValuePair("${k}", "${v}"));\r\n`;
+      postKvsParam += `nameValueList.add(new BasicNameValuePair("${k}", "${v}"));\r\n`;
     }
     if (postKvsParam !== "") {
-      postKvsParam = `
-    List nameValueList = new ArrayList();\r\n` + postKvsParam;
+      postKvsParam = `List nameValueList = new ArrayList();\r\n` + postKvsParam;
     }
   }
 
@@ -258,14 +261,10 @@ function _beanshellTemplate(obj) {
   }
   let postMethodCode = "";
   if (requestMethod === "POST") {
-    if (bodyType === "json") {
-      postMethodCode = `
-    request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));
-    `;
+    if (bodyType === "kvs") {
+      postMethodCode = postKvsParam + "\r\n" + `request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));`;
     } else {
-      postMethodCode = postKvsParam + "\r\n" + `
-    request.setEntity(new UrlEncodedFormEntity(nameValueList, "UTF-8"));
-    `;
+      postMethodCode = `request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));`;
     }
   }
 
