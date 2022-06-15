@@ -26,6 +26,12 @@ public class Document {
     private String assertionName;
 
     private static final String delimiter = "split==";
+    private static final String STRING = "string";
+    private static final String INTEGER = "integer";
+    private static final String ARRAY = "array";
+    private static final String OBJECT = "object";
+    private static final String NONE = "none";
+    private static final String ROOT = "root";
 
     public void parseJson(HashTree hashTree, String name) {
         this.assertionName = name;
@@ -85,13 +91,14 @@ public class Document {
     }
 
     public void formatting(List<DocumentElement> dataList, List<JSONPathAssertion> list, DocumentElement parentNode, Map<String, ElementCondition> conditionMap) {
-        for (DocumentElement item : dataList) {
+        for (int i = 0; i < dataList.size(); i++) {
+            DocumentElement item = dataList.get(i);
             if (StringUtils.isEmpty(item.getGroupId())) {
-                if (!item.getId().equals("root")) {
+                if (!item.getId().equals(ROOT)) {
                     if (parentNode != null) {
-                        if (parentNode.getType().equals("array") && item.getType().equals("string")) {
+                        if (parentNode.getType().equals(ARRAY) && StringUtils.equalsAnyIgnoreCase(item.getType(), STRING, INTEGER)) {
                             try {
-                                int index = StringUtils.isNotEmpty(item.getName()) ? Integer.parseInt(item.getName()) : 0;
+                                int index = StringUtils.isNotEmpty(item.getName()) ? Integer.parseInt(item.getName()) : i;
                                 item.setJsonPath(parentNode.getJsonPath() + "[" + index + "]");
                             } catch (Exception e) {
                                 item.setJsonPath(parentNode.getJsonPath() + "." + item.getName());
@@ -102,11 +109,11 @@ public class Document {
                     } else {
                         item.setJsonPath("$." + item.getName());
                     }
-                    if (!StringUtils.equalsAny(item.getContentVerification(), "none", null) || item.isInclude() || item.isArrayVerification() || item.isTypeVerification()) {
+                    if (!StringUtils.equalsAny(item.getContentVerification(), NONE, null) || item.isInclude() || item.isArrayVerification() || item.isTypeVerification()) {
                         list.add(newJSONPathAssertion(item, conditionMap.get(item.getId())));
                     }
                     if (CollectionUtils.isNotEmpty(item.getChildren())) {
-                        if (item.getType().equals("array") && !item.isArrayVerification()) {
+                        if (item.getType().equals(ARRAY) && !item.isArrayVerification()) {
                             continue;
                         }
                         formatting(item.getChildren(), list, item, conditionMap);
@@ -124,7 +131,7 @@ public class Document {
         for (DocumentElement item : dataList) {
             if (StringUtils.isEmpty(item.getGroupId())) {
                 if (parentNode != null) {
-                    if (StringUtils.equals(parentNode.getType(), "array") && item.getType().equals("string")) {
+                    if (StringUtils.equals(parentNode.getType(), ARRAY) && item.getType().equals(STRING)) {
                         try {
                             int index = StringUtils.isNotEmpty(item.getName()) ? Integer.parseInt(item.getName()) : 0;
                             item.setJsonPath(parentNode.getJsonPath() + "[" + index + "]");
@@ -137,11 +144,11 @@ public class Document {
                 } else {
                     item.setJsonPath("$." + item.getName());
                 }
-                if (!StringUtils.equalsAny(item.getContentVerification(), "none", null) || item.isInclude() || item.isArrayVerification() || item.isTypeVerification()) {
+                if (!StringUtils.equalsAny(item.getContentVerification(), NONE, null) || item.isInclude() || item.isArrayVerification() || item.isTypeVerification()) {
                     list.add(newXMLAssertion(item, conditionMap.get(item.getId())));
                 }
                 if (CollectionUtils.isNotEmpty(item.getChildren())) {
-                    if (item.getType().equals("array") && !item.isArrayVerification()) {
+                    if (item.getType().equals(ARRAY) && !item.isArrayVerification()) {
                         continue;
                     }
                     xmlFormatting(item.getChildren(), list, item, conditionMap);
@@ -158,7 +165,7 @@ public class Document {
                 conditionStr.append(" and ");
             }
             elementCondition.getConditions().forEach(condition -> {
-                if (!StringUtils.equals("none", condition.getKey())) {
+                if (!StringUtils.equals(NONE, condition.getKey())) {
                     conditionStr.append(item.getLabel(condition.getKey()).replace("'%'", (condition.getValue() != null ? condition.getValue().toString() : "")));
                     conditionStr.append(" and ");
                 }
