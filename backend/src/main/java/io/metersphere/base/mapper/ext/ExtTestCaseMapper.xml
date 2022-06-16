@@ -261,66 +261,16 @@
         project on test_case.project_id = project.id
         left join project_version on project.id = project_version.project_id and project_version.id =
         test_case.version_id
-        <where>
-            <include refid="filters"/>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                    <property name="objectKey" value="request.combine.tags"/>
-                </include>
-            </if>
-
-            <if test="request.statusIsNot != null">
-                and (test_case.status is null or test_case.status != #{request.statusIsNot})
-            </if>
-
-            <if test="request.notEqStatus != null">
-                and (test_case.status is null or test_case.status != #{request.notEqStatus})
-            </if>
-            <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%')
-                or test_case.num like CONCAT('%', #{request.name},'%')
-                or test_case.tags like CONCAT('%', #{request.name},'%')
-                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
-            </if>
-            <if test="request.ids != null">
-                and test_case.id in
-                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
-            </if>
-            <if test="request.relevanceCreateTime >0">
-                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
-                #{request.createTime})
-            </if>
-            <if test="request.createTime >0">
-                and test_case.create_time >= #{request.createTime}
-            </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.workspaceId != null">
-                AND test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
-            </if>
-            and test_case.case_public = TRUE
-            <include refid="filters"/>
-            <if test="request.caseCoverage == 'uncoverage' ">
-                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
-            </if>
-            <if test="request.caseCoverage == 'coverage' ">
-                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
-            </if>
-            <include refid="queryVersionCondition">
-                <property name="versionTable" value="test_case"/>
-            </include>
-        </where>
-
+        <include refid="queryPublicCaseWhere"></include>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
 
+    <select id="getPublicProjectIdByWorkSpaceId" resultType="java.lang.String">
+        select
+        distinct test_case.project_id
+        from test_case
+        <include refid="queryPublicCaseWhere"></include>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
@@ -486,6 +436,66 @@
         </where>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+
+    <sql id="queryPublicCaseWhere">
+        <where>
+            <include refid="filters"/>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+
+            <if test="request.statusIsNot != null">
+                and (test_case.status is null or test_case.status != #{request.statusIsNot})
+            </if>
+
+            <if test="request.notEqStatus != null">
+                and (test_case.status is null or test_case.status != #{request.notEqStatus})
+            </if>
+            <if test="request.name != null">
+                and (test_case.name like CONCAT('%', #{request.name},'%')
+                or test_case.num like CONCAT('%', #{request.name},'%')
+                or test_case.tags like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.ids != null">
+                and test_case.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="request.relevanceCreateTime >0">
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
+                #{request.createTime})
+            </if>
+            <if test="request.createTime >0">
+                and test_case.create_time >= #{request.createTime}
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.workspaceId != null">
+                AND test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
+            </if>
+            and test_case.case_public = TRUE
+            <include refid="filters"/>
+            <if test="request.caseCoverage == 'uncoverage' ">
+                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <if test="request.caseCoverage == 'coverage' ">
+                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
+            </if>
+            <include refid="queryVersionCondition">
+                <property name="versionTable" value="test_case"/>
+            </include>
+        </where>
+    </sql>
 
     <sql id="filters">
         <if test="request.filters != null and request.filters.size() > 0">
