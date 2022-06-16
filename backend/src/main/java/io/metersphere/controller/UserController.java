@@ -154,7 +154,11 @@ public class UserController {
     }
 
     @PostMapping("/project/member/list/{goPage}/{pageSize}")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_USER_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_USER_READ,
+            PermissionConstants.WORKSPACE_USER_READ,
+            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ
+    }, logical = Logical.OR)
     public Pager<List<User>> getProjectMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
@@ -170,15 +174,6 @@ public class UserController {
     @GetMapping("/project/member/option/{projectId}")
     public List<User> getProjectMemberOption(@PathVariable String projectId) {
         return userService.getProjectMemberOption(projectId);
-    }
-
-    /**
-     * 获取工作空间成员用户 不分页
-     */
-    @PostMapping("/ws/member/list/all")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
-    public List<User> getMemberList(@RequestBody QueryMemberRequest request) {
-        return userService.getMemberList(request);
     }
 
     @GetMapping("/ws/current/member/list")
