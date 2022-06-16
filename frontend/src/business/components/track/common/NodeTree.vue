@@ -203,6 +203,7 @@ export default {
       });
     },
     nodeExpand(data) {
+      console.log(data)
       if (data.id) {
         this.expandedNode.push(data.id);
       }
