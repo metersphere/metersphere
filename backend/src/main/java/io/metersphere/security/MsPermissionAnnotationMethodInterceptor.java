@@ -37,10 +37,10 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
                     }
                 } else {
                     try {
-                        if (isExistField(argument, "projectId")) {
+                        if (StringUtils.isEmpty(projectId) && isExistField(argument, "projectId")) {
                             projectId = (String) MethodUtils.invokeMethod(argument, "getProjectId");
                         }
-                        if (isExistField(argument, "workspaceId")) {
+                        if (StringUtils.isEmpty(workspaceId) && isExistField(argument, "workspaceId")) {
                             workspaceId = (String) MethodUtils.invokeMethod(argument, "getWorkspaceId");
                         }
                     } catch (Exception e) {
