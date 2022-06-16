@@ -122,6 +122,7 @@ export default {
   },
   watch: {
     projectId() {
+      this.condition.versionId = null;
       this.initTable();
     }
   },
