@@ -81,10 +81,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private List<AuthorizationValue> setAuths(ApiTestImportRequest request) {
         List<AuthorizationValue> auths = new ArrayList<>();
         // 如果有 BaseAuth 参数，base64 编码后转换成 headers
-        if(request.getAuthManager() != null
+        if (request.getAuthManager() != null
                 && StringUtils.isNotBlank(request.getAuthManager().getUsername())
                 && StringUtils.isNotBlank(request.getAuthManager().getPassword())
-                && request.getAuthManager().getVerification().equals("Basic Auth")){
+                && request.getAuthManager().getVerification().equals("Basic Auth")) {
             AuthorizationValue authorizationValue = new AuthorizationValue();
             authorizationValue.setType("header");
             authorizationValue.setKeyName("Authorization");
@@ -94,10 +94,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             auths.add(authorizationValue);
         }
         // 设置 headers
-        if(!CollectionUtils.isEmpty(request.getHeaders())){
-            for(KeyValue keyValue : request.getHeaders()){
+        if (!CollectionUtils.isEmpty(request.getHeaders())) {
+            for (KeyValue keyValue : request.getHeaders()) {
                 // 当有 key 时才进行设置
-                if(StringUtils.isNotBlank(keyValue.getName())){
+                if (StringUtils.isNotBlank(keyValue.getName())) {
                     AuthorizationValue authorizationValue = new AuthorizationValue();
                     authorizationValue.setType("header");
                     authorizationValue.setKeyName(keyValue.getName());
@@ -107,9 +107,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
         // 设置 query 参数
-        if(!CollectionUtils.isEmpty(request.getArguments())){
-            for(KeyValue keyValue : request.getArguments()){
-                if(StringUtils.isNotBlank(keyValue.getName())){
+        if (!CollectionUtils.isEmpty(request.getArguments())) {
+            for (KeyValue keyValue : request.getArguments()) {
+                if (StringUtils.isNotBlank(keyValue.getName())) {
                     AuthorizationValue authorizationValue = new AuthorizationValue();
                     authorizationValue.setType("query");
                     authorizationValue.setKeyName(keyValue.getName());
@@ -120,7 +120,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         return CollectionUtils.size(auths) == 0 ? null : auths;
     }
-
 
 
     private List<ApiDefinitionWithBLOBs> parseRequests(OpenAPI openAPI, ApiTestImportRequest importRequest) {
@@ -380,7 +379,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             Object propertiesResult = parseSchemaPropertiesToJson(schema, refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         } else {
-            return schema;
+            return getDefaultValueByPropertyType(schema);
         }
     }
 
@@ -401,7 +400,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 parseKvBodyItem(schema, body, k, infoMap);
             });
         } else {
-            if(data instanceof Schema) {
+            if (data instanceof Schema) {
                 Schema dataSchema = (Schema) data;
                 if (StringUtils.isNotBlank(dataSchema.getName())) {
                     parseKvBodyItem(schema, body, dataSchema.getName(), infoMap);
@@ -462,7 +461,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private JsonSchemaItem parseSchema(Schema schema, Set<String> refSet) {
         if (schema == null) return null;
         JsonSchemaItem item = new JsonSchemaItem();
-        if(schema.getRequired()!=null){
+        if (schema.getRequired() != null) {
             item.setRequired(schema.getRequired());
         }
         if (StringUtils.isNotBlank(schema.get$ref())) {
@@ -470,7 +469,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             item.setType("object");
             refSet.add(schema.get$ref());
             Schema modelByRef = getModelByRef(schema.get$ref());
-            if (modelByRef != null){
+            if (modelByRef != null) {
                 item.setProperties(parseSchemaProperties(modelByRef, refSet));
                 item.setRequired(modelByRef.getRequired());
             }
@@ -495,7 +494,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return null;
         }
 
-         if (schema.getExample() != null) {
+        if (schema.getExample() != null) {
             item.getMock().put("mock", schema.getExample());
         } else {
             item.getMock().put("mock", "");
@@ -525,7 +524,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return example == null ? 0 : example;
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
-        } else if (value instanceof StringSchema) {
+        } else if (value instanceof StringSchema || value.getType().equals("string")) {
             return example == null ? "" : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
@@ -603,13 +602,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JSONObject requestBody = buildRequestBody(requestObject);
             swaggerApiInfo.setRequestBody(requestBody);
             //  设置响应体
-            JSONObject responseObject = JSON.parseObject(apiDefinition.getResponse(),Feature.DisableSpecialKeyDetect);
+            JSONObject responseObject = JSON.parseObject(apiDefinition.getResponse(), Feature.DisableSpecialKeyDetect);
             swaggerApiInfo.setResponses(buildResponseBody(responseObject));
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
             swaggerApiInfo.setDescription(apiDefinition.getDescription());
-            JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo),Feature.DisableSpecialKeyDetect);
+            JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo), Feature.DisableSpecialKeyDetect);
             if (paths.getJSONObject(apiDefinition.getPath()) == null) {
                 paths.put(apiDefinition.getPath(), new JSONObject());
             }   //  一个路径下有多个发方法，如post，get，因此是一个 JSONObject 类型
@@ -649,7 +648,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 //                        schema.put("example", param.getString("value"));
 //                        swaggerParam.setSchema(schema);
 //                    }
-                    paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam),Feature.DisableSpecialKeyDetect));
+                    paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam), Feature.DisableSpecialKeyDetect));
                 }
             }
         }
@@ -725,8 +724,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         String type = requestBody.getString("type");
 
         JSONObject parsedParam = new JSONObject();
-        if(required!=null){
-            parsedParam.put("required",required);
+        if (required != null) {
+            parsedParam.put("required", required);
         }
         if (StringUtils.isNotBlank(type)) {
             if (StringUtils.equals(type, "array")) {
@@ -844,7 +843,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             property.put("required", obj.getString("required"));
             if (obj.getJSONObject("properties") != null) {
                 JSONObject properties1 = buildFormDataSchema(obj.getJSONObject("properties"));
-                property.put("properties",properties1.getJSONObject("properties"));
+                property.put("properties", properties1.getJSONObject("properties"));
             }
             properties.put(key, property);
         }
