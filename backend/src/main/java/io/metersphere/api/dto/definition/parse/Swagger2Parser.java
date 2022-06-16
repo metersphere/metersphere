@@ -24,7 +24,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-
 import java.io.InputStream;
 import java.util.*;
 
@@ -41,14 +40,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             try {
                 //  使用 url 导入 swagger
                 swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
-            }catch (Exception e){
+            } catch (Exception e) {
                 LoggerUtil.error(e);
                 MSException.throwException("swagger验证失败");
             }
 
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
-            swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
+            swagger = new SwaggerParser().readWithInfo(sourceStr, false).getSwagger();
         }
         if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
@@ -65,10 +64,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     private List<AuthorizationValue> setAuths(ApiTestImportRequest request) {
         List<AuthorizationValue> auths = new ArrayList<>();
         // 如果有 BaseAuth 参数，base64 编码后转换成 headers
-        if(request.getAuthManager() != null
+        if (request.getAuthManager() != null
                 && StringUtils.isNotBlank(request.getAuthManager().getUsername())
                 && StringUtils.isNotBlank(request.getAuthManager().getPassword())
-                && request.getAuthManager().getVerification().equals("Basic Auth")){
+                && request.getAuthManager().getVerification().equals("Basic Auth")) {
             AuthorizationValue authorizationValue = new AuthorizationValue();
             authorizationValue.setType("header");
             authorizationValue.setKeyName("Authorization");
@@ -78,10 +77,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             auths.add(authorizationValue);
         }
         // 设置 headers
-        if(!CollectionUtils.isEmpty(request.getHeaders())){
-            for(KeyValue keyValue : request.getHeaders()){
+        if (!CollectionUtils.isEmpty(request.getHeaders())) {
+            for (KeyValue keyValue : request.getHeaders()) {
                 // 当有 key 时才进行设置
-                if(StringUtils.isNotBlank(keyValue.getName())){
+                if (StringUtils.isNotBlank(keyValue.getName())) {
                     AuthorizationValue authorizationValue = new AuthorizationValue();
                     authorizationValue.setType("header");
                     authorizationValue.setKeyName(keyValue.getName());
@@ -91,9 +90,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             }
         }
         // 设置 query 参数
-        if(!CollectionUtils.isEmpty(request.getArguments())){
-            for(KeyValue keyValue : request.getArguments()){
-                if(StringUtils.isNotBlank(keyValue.getName())){
+        if (!CollectionUtils.isEmpty(request.getArguments())) {
+            for (KeyValue keyValue : request.getArguments()) {
+                if (StringUtils.isNotBlank(keyValue.getName())) {
                     AuthorizationValue authorizationValue = new AuthorizationValue();
                     authorizationValue.setType("query");
                     authorizationValue.setKeyName(keyValue.getName());
@@ -133,11 +132,11 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             for (HttpMethod method : httpMethods) {
                 Operation operation = operationMap.get(method);
                 MsHTTPSamplerProxy request = buildRequest(operation, pathName, method.name());
-                ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(),importRequest);
+                ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(), importRequest);
                 parseParameters(operation, request);
                 addBodyHeader(request);
                 if (StringUtils.isNotBlank(basePath)) {
-                    String pathStr = (basePath + apiDefinition.getPath()).replaceAll("//","/");
+                    String pathStr = (basePath + apiDefinition.getPath()).replaceAll("//", "/");
                     apiDefinition.setPath(pathStr);
                     request.setPath(pathStr);
                 }
@@ -155,16 +154,16 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         return results;
     }
 
-    private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method,ApiTestImportRequest importRequest) {
+    private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method, ApiTestImportRequest importRequest) {
         String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
-        } else  if (StringUtils.isNotBlank(operation.getOperationId())) {
+        } else if (StringUtils.isNotBlank(operation.getOperationId())) {
             name = operation.getOperationId();
         } else {
             name = path;
         }
-        return buildApiDefinition(id, name, path, method,importRequest);
+        return buildApiDefinition(id, name, path, method, importRequest);
     }
 
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {
@@ -270,14 +269,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             responseCode = next.getKey();
             response = next.getValue();
         }
-        if (response!=null && responseCode!=null) {
+        if (response != null && responseCode != null) {
             if (StringUtils.isNotBlank(response.getDescription())) {
                 msResponse.getStatusCode().add(new KeyValue(responseCode, response.getDescription()));
             } else {
                 msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
             }
-            if (response.getResponseSchema()!=null) {
-                parseResponseBody(response.getResponseSchema(),msResponse.getBody());
+            if (response.getResponseSchema() != null) {
+                parseResponseBody(response.getResponseSchema(), msResponse.getBody());
                 msResponse.getBody().setFormat("JSON-SCHEMA");
                 String body = parseSchema(response.getResponseSchema());
                 if (StringUtils.isNotBlank(body)) {
@@ -295,7 +294,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         return msResponse;
     }
 
-    private void parseResponseBody(Model schema,Body body) {
+    private void parseResponseBody(Model schema, Body body) {
         HashSet<String> refSet = new HashSet<>();
         body.setJsonSchema(parseJsonSchema(schema, refSet));
     }
@@ -313,7 +312,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             item.setType("object");
             ModelImpl model = (ModelImpl) schema;
             item.setProperties(parseNewSchemaProperties(model, refSet));
-            if(model.getAdditionalProperties()!=null){
+            if (model.getAdditionalProperties() != null) {
                 item.setAdditionalProperties(parseProperty(model.getAdditionalProperties(), refSet));
             }
         } else if (schema instanceof AbstractModel) {
@@ -324,7 +323,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             Model model = getRefModelType(schema, refSet);
             item.setType("object");
             item.setProperties(parseNewSchemaProperties(model, refSet));
-        }else {
+        } else {
             return null;
         }
 
@@ -346,7 +345,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     }
 
 
-    private JsonSchemaItem parseProperty(Property property,HashSet<String> refSet){
+    private JsonSchemaItem parseProperty(Property property, HashSet<String> refSet) {
         JsonSchemaItem item = new JsonSchemaItem();
         item.setDescription(property.getDescription());
         if (property instanceof ObjectProperty) {
@@ -398,9 +397,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             HashSet<String> refSet = new HashSet<>();
             Model model = getRefModelType(schema, refSet);
             item.setType("object");
-            if (model != null){
+            if (model != null) {
                 item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
-                if(((AbstractModel) model).getRequired()!=null){
+                if (((AbstractModel) model).getRequired() != null) {
                     item.setRequired(((AbstractModel) model).getRequired());
                 }
             }
@@ -412,22 +411,22 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         } else if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
             item.setType("object");
-            if (model != null){
+            if (model != null) {
                 item.setProperties(parseSchemaProperties(model.getProperties(), new HashSet<>()));
-                if(model.getRequired()!=null){
+                if (model.getRequired() != null) {
                     item.setRequired(model.getRequired());
                 }
-                if(model.getAdditionalProperties()!=null){
+                if (model.getAdditionalProperties() != null) {
                     item.setAdditionalProperties(parseProperty(model.getAdditionalProperties(), new HashSet<>()));
                 }
             }
-        }else if(schema instanceof AbstractModel){
+        } else if (schema instanceof AbstractModel) {
             AbstractModel abstractModel = (AbstractModel) schema;
             HashSet<String> refSet = new HashSet<>();
             item.setType("object");
             if (abstractModel != null)
                 item.setProperties(parseSchemaProperties(abstractModel.getProperties(), refSet));
-            if(abstractModel.getRequired()!=null){
+            if (abstractModel.getRequired() != null) {
                 item.setRequired(abstractModel.getRequired());
             }
         }
@@ -501,7 +500,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     }
 
     private void handleBaseProperties(JsonSchemaItem item, Property value) {
-        if (value instanceof StringProperty || value instanceof DateProperty || value instanceof DateTimeProperty ) {
+        if (value instanceof StringProperty || value instanceof DateProperty || value instanceof DateTimeProperty) {
             item.setType("string");
         } else if (value instanceof IntegerProperty || value instanceof BaseIntegerProperty) {
             item.setType("integer");
@@ -524,7 +523,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         Model model = this.definitions.get(simpleRef);
         if (model != null) {
             item.setProperties(parseSchemaProperties(model.getProperties(), refSet));
-            if(((AbstractModel) model).getRequired()!=null){
+            if (((AbstractModel) model).getRequired() != null) {
                 item.setRequired(((AbstractModel) model).getRequired());
             }
         }
@@ -612,8 +611,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                             propertyList.add(getBodyParameters(((ObjectProperty) items).getProperties(), refSet));
                         }
                         jsonObject.put(key, propertyList);
-                    }
-                    else {
+                    } else {
                         jsonObject.put(key, new ArrayList<>());
                     }
                 } else if (value instanceof RefProperty) {
