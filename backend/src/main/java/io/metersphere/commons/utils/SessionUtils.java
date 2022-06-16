@@ -113,7 +113,7 @@ public class SessionUtils {
         }
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-            LogUtil.info("WORKSPACE: {}", request.getHeader("WORKSPACE"));
+            LogUtil.debug("WORKSPACE: {}", request.getHeader("WORKSPACE"));
             if (request.getHeader("WORKSPACE") != null) {
                 return request.getHeader("WORKSPACE");
             }
@@ -129,7 +129,7 @@ public class SessionUtils {
         }
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-            LogUtil.info("PROJECT: {}", request.getHeader("PROJECT"));
+            LogUtil.debug("PROJECT: {}", request.getHeader("PROJECT"));
             if (request.getHeader("PROJECT") != null) {
                 return request.getHeader("PROJECT");
             }
