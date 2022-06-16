@@ -412,8 +412,12 @@ export default {
               if(data.reportType === "UI_INDEPENDENT"){
                   this.tempResult = report.steps;
                   //校对执行次序
-                  this.checkOrder(this.tempResult);
-                  this.fullTreeNodes = this.tempResult;
+                  try{
+                    this.checkOrder(this.tempResult);
+                    this.fullTreeNodes = this.tempResult;
+                  }catch(e){
+                    this.fullTreeNodes = report.steps;
+                  }
               }else{
                 this.fullTreeNodes = report.steps;
               }
@@ -437,18 +441,53 @@ export default {
       if(!origin){
         return;
       }
-      if(origin.children && Array.isArray(origin.children)){
-        origin.children.sort((m,n)=>{
-          let mTime = m.value ? m.value.startTime ? m.value.startTime : 0 : 0;
-          let nTime = n.value ? n.value.startTime ? n.value.startTime : 0 : 0;
-          return mTime <= nTime;
-        })
-        origin.children.forEach(v => {
+      if(Array.isArray(origin)){
+        this.sortChildren(origin);
+        origin.forEach(v => {
           if(v.children){
             this.checkOrder(v.children)
           }
         })
       }
+    },
+    sortChildren(source){
+      if(!source){
+        return;
+      }
+      source.forEach( item =>{
+        let children = item.children;
+        if(children && children.length > 0){
+          let tempArr = new Array(children.length);
+          let tempMap = new Map();
+          for(let i = 0; i < children.length; i++){
+            if(!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0){
+              //若没有value或未执行的，则step留在当前位置
+              tempArr[i] = children[i];
+              //进行标识
+              tempMap.set(children[i].stepId, children[i])
+            }
+          }
+          //过滤出还没有指定好位置的step
+          let arr = children.filter(m => {
+            return !tempMap.get(m.stepId);
+          }).sort((m, n) => {
+            //按时间排序
+            return m.value.startTime - n.value.startTime;
+          });
+          //找出arr(已经有序，从头取即可)中时间最小的插入 tempArr 可用位置
+          for(let j = 0, i = 0; j < tempArr.length; j++){
+            if(!tempArr[j]){
+              //占位
+              tempArr[j] = arr[i];
+              i++;
+            }
+            //重新排序
+            tempArr[j].index = j + 1;
+          }
+          //赋值
+          item.children = tempArr;
+        }
+      })
     },
     buildReport() {
       if (this.report) {
