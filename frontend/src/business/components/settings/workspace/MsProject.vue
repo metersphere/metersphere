@@ -137,16 +137,16 @@
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off" :disabled="true" />
+          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
-          <el-input v-model="form.name" autocomplete="off" :disabled="true" />
+          <el-input v-model="form.name" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.email')" prop="email">
           <el-input v-model="form.email" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.phone')" prop="phone">
-          <el-input v-model="form.phone" autocomplete="off" :disabled="true" />
+          <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item :label="$t('commons.group')" prop="groupIds"
                       :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
@@ -173,7 +173,7 @@
       :group-scope-id="workspaceId"
       ref="addMember"
       :user-resource-url="'user/ws/current/member/list'"
-      @submit="submitForm"/>'
+      @submit="submitForm"/>
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
@@ -303,10 +303,9 @@ export default {
       this.currentWorkspaceRow = row;
       this.currentProjectId = row.id;
       let param = {
-        name: '',
         projectId: row.id
       };
-      this.result = this.$post("/user/project/member/list/1/100000", param, res => {
+      this.result = this.$post("/user/ws/project/member/list/" + row.workspaceId + "/1/100000", param, res => {
         this.memberLineData = res.data.listObject;
         let arr = this.memberLineData.filter(item => item.id === getCurrentUserId());
         if (arr.length > 0) {
@@ -387,7 +386,7 @@ export default {
           let param = {
             projectId: this.items[i].id
           };
-          let path = "/user/project/member/list/1/100000";
+          let path = "/user/ws/project/member/list/" + this.condition.workspaceId + "/1/100000";
           this.$post(path, param, res => {
             let member = res.data.listObject;
             this.$set(this.items[i], "memberSize", member.length);
@@ -419,7 +418,7 @@ export default {
         name: '',
         projectId: row.id
       };
-      let path = "/user/project/member/list";
+      let path = "/user/ws/project/member/list/" + row.workspaceId;
       this.result = this.$post(this.buildPagePath(path), param, res => {
         let data = res.data;
         this.memberLineData = data.listObject;

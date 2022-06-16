@@ -1,4 +1,3 @@
-import {getCurrentProjectID} from "@/common/js/utils";
 import {get} from "@/common/js/ajax";
 import axios from "axios";
 import {ORGANIZATION_ID, PROJECT_ID, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
@@ -38,5 +37,5 @@ export function logout() {
 let baseUrl = '/user/';
 
 export function getProjectMemberOption(callback) {
-  return baseGet(baseUrl + 'project/member/option/' + getCurrentProjectID(), callback);
+  return baseGet(baseUrl + 'project/member/option', callback);
 }
