@@ -26,16 +26,17 @@ export function getCodeTemplate(language, requestObj) {
 
 function groovyCode(requestObj) {
   let {
-    requestHeaders = new Map(), requestBody = "", requestPath = "",
+    requestHeaders = new Map(), requestBody = "", requestPath = "", domain = "", port = "",
     requestMethod = "", host = "", protocol = "", requestArguments = new Map(), requestRest = new Map(),
     requestBodyKvs = new Map(),
     bodyType
   } = requestObj;
   let requestUrl = "";
   requestPath = getRequestPath(requestArguments, requestPath);
-  requestPath = replaceRestParams(requestPath, requestRest);
+  let path = getMockPath(domain, port, host);
+  requestPath = path + replaceRestParams(requestPath, requestRest);
   if (protocol && host && requestPath) {
-    requestUrl = protocol + "://" + host + requestPath;
+    requestUrl = protocol + "://" + domain + (port ? ":" + port : "") + requestPath;
   }
 
   let body = JSON.stringify(requestBody);
@@ -62,6 +63,8 @@ function pythonCode(requestObj) {
     requestPath = "/",
     requestMethod = "",
     host = "",
+    domain = "",
+    port = "",
     protocol = "http",
     requestArguments = new Map(),
     requestBodyKvs = new Map(),
@@ -75,8 +78,9 @@ function pythonCode(requestObj) {
   let headers = getHeaders(requestHeaders);
   requestBody = requestBody ? JSON.stringify(requestBody) : "{}";
   requestPath = getRequestPath(requestArguments, requestPath);
-  requestPath = replaceRestParams(requestPath, requestRest);
-  let obj = {requestBody, headers, host, requestPath, requestMethod, requestBodyKvs, bodyType, connType};
+  let path = getMockPath(domain, port, host);
+  requestPath = path + replaceRestParams(requestPath, requestRest);
+  let obj = {requestBody, headers, requestPath, requestMethod, requestBodyKvs, bodyType, connType, domain, port};
   return _pythonCodeTemplate(obj);
 }
 
@@ -134,7 +138,7 @@ function getGroovyHeaders(requestHeaders) {
 }
 
 function _pythonCodeTemplate(obj) {
-  let {requestBody, requestBodyKvs, bodyType, headers, host, requestPath, requestMethod, connType} = obj;
+  let {requestBody, requestBodyKvs, bodyType, headers, requestPath, requestMethod, connType, domain, port} = obj;
   let reqBody = obj.requestBody;
   if (requestMethod === 'Post' && obj.bodyType !== 'json' && obj.requestBodyKvs) {
     reqBody = 'urllib.urlencode({';
@@ -144,6 +148,8 @@ function _pythonCodeTemplate(obj) {
     }
     reqBody += `})`;
   }
+
+  let host = domain + (port ? ":" + port : "");
 
   return `import httplib,urllib
 params = ${reqBody} #例 {'username':'test'}
@@ -209,10 +215,11 @@ function _beanshellTemplate(obj) {
     requestRest = new Map()
   } = obj;
 
-  requestPath = replaceRestParams(requestPath, requestRest);
+  let path = getMockPath(domain, port, host);
+  requestPath = path + replaceRestParams(requestPath, requestRest);
   let uri = `new URIBuilder()
                 .setScheme("${protocol}")
-                .setHost("${host}")
+                .setHost("${domain}")
                 .setPath("${requestPath}")
                 `;
   // http 请求类型
@@ -323,7 +330,11 @@ function _jsTemplate(obj) {
   let url = "";
   requestPath = replaceRestParams(requestPath, requestRest);
   if (protocol && domain && port) {
-    url = protocol + "://" + host + requestPath;
+    let path = getMockPath(domain, port, host);
+    requestPath = path + requestPath;
+    url = protocol + "://" + domain + (port ? ":" + port : "") + requestPath;
+  } else if (protocol && domain) {
+    url = protocol + "://" + domain + requestPath;
   }
   url = getRequestPath(requestArguments, url);
   try {
@@ -393,4 +404,13 @@ function replaceRestParams(path, restMap) {
     }
   }
   return path;
+}
+
+function getMockPath(domain, port, socket) {
+  if (domain === socket || !port) {
+    return "";
+  }
+  let str = domain + ":" + port;
+  // 获取socket之后的路径
+  return socket.substring(str.length);
 }
