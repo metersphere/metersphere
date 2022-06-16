@@ -163,6 +163,7 @@ public class UserController {
     @PostMapping("/ws/project/member/list/{workspaceId}/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<User>> getProjectMemberListForWorkspace(@PathVariable int goPage, @PathVariable int pageSize, @PathVariable String workspaceId, @RequestBody QueryMemberRequest request) {
+        request.setWorkspaceId(workspaceId); // workspaceId 作为验证权限用，不在查询中体现
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
     }
