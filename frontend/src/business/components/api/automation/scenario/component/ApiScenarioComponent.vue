@@ -105,9 +105,7 @@ export default {
   },
   watch: {
     message() {
-      if (this.message === "stop") {
-        this.scenario.run = false;
-      }
+      this.scenario.run = this.message !== "stop";
       this.reload();
     },
     'node.data.isBatchProcess'() {
@@ -117,15 +115,11 @@ export default {
     }
   },
   created() {
-    if (this.scenario.num) {
-      this.isShowNum = true;
-    } else {
-      this.isShowNum = false;
-    }
+    this.isShowNum = this.scenario.num ? true : false;
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
-      this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
+      this.scenario.root = this.node.parent.parent ? false : true;
+      this.recursive(this.scenario.hashTree, this.scenario.projectId);
     }
-    this.setOwnEnvironment(this.scenario.hashTree);
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
   data() {
@@ -152,18 +146,18 @@ export default {
       let variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
 
       // 合并自身依赖场景变量
-      if(runScenario && runScenario.variableEnable && runScenario.variables){
-         if(variables){
+      if (runScenario && runScenario.variableEnable && runScenario.variables) {
+        if (variables) {
           // 同名合并
-           runScenario.variables.forEach(data =>{
-             variables.forEach(item =>{
-              if(data.type === item.type && data.name === item.name){
-                Object.assign(data,item);
+          runScenario.variables.forEach(data => {
+            variables.forEach(item => {
+              if (data.type === item.type && data.name === item.name) {
+                Object.assign(data, item);
               }
             })
           });
         }
-      }else{
+      } else {
         runScenario.variables = variables;
       }
 
@@ -241,32 +235,17 @@ export default {
       for (let i in arr) {
         arr[i].disabled = true;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
-        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
-          this.recursive(arr[i].hashTree, arr[i].projectId);
-        }
-      }
-    },
-    setDisabled(scenarioDefinition, id) {
-      for (let i in scenarioDefinition) {
-        scenarioDefinition[i].disabled = true;
-        scenarioDefinition[i].projectId = this.calcProjectId(scenarioDefinition[i].projectId, id);
-        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
-          this.recursive(scenarioDefinition[i].hashTree, scenarioDefinition[i].projectId);
-        }
-      }
-    },
-    setOwnEnvironment(scenarioDefinition) {
-      for (let i in scenarioDefinition) {
+        // 处理子请求环境
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
-        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
-          scenarioDefinition[i].refEevMap = new Map();
-          scenarioDefinition[i].environmentEnable = this.scenario.environmentEnable;
+        if (typeArray.indexOf(arr[i].type) !== -1) {
+          arr[i].refEevMap = new Map();
+          arr[i].environmentEnable = this.scenario.environmentEnable;
           if (this.scenario.environmentEnable && this.scenario.environmentMap) {
-            scenarioDefinition[i].refEevMap = this.scenario.environmentMap;
+            arr[i].refEevMap = this.scenario.environmentMap;
           }
         }
-        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
-          this.setOwnEnvironment(scenarioDefinition[i].hashTree);
+        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+          this.recursive(arr[i].hashTree, arr[i].projectId);
         }
       }
     },

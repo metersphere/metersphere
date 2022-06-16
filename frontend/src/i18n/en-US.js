@@ -1372,7 +1372,7 @@ export default {
       wait_controller: "Wait controller",
       if_controller: "If controller",
       loop_controller: "Loop Controller",
-      transcation_controller: "Transcation controller",
+      transaction_controller: "Transcation controller",
       scenario_import: "Scenario import",
       customize_script: "Customize script",
       customize_req: "Customize req",
