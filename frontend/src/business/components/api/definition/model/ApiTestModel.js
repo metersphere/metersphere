@@ -1145,7 +1145,7 @@ export class TransactionController extends Controller {
 
   label() {
     if (this.isValid()) {
-      let label = this.$t('api_test.automation.transcation_controller');
+      let label = this.$t('api_test.automation.transaction_controller');
       if (this.name != null && this.name !== "") {
         label = this.name;
       }

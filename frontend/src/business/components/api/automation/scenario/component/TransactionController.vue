@@ -11,7 +11,7 @@
     color="#6D317C"
     background-color="#FCF6EE"
     :if-from-variable-advance="ifFromVariableAdvance"
-    :title="$t('api_test.automation.transcation_controller')">
+    :title="$t('api_test.automation.transaction_controller')">
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
          <i class="el-icon-loading" style="font-size: 16px"/>
@@ -23,9 +23,15 @@
     </template>
 
     <template v-slot:headerLeft>
-      <el-input draggable size="mini" v-model="controller.name" style="width: 20%" :placeholder="$t('api_test.automation.transcation_controller')"/>
-      <el-checkbox v-model="controller.generateParentSample" style="margin-left: 20px" @change="changeGenerateParantSample">Generate Parent Sample</el-checkbox>
-      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers">Include Timers</el-checkbox>
+      <el-input draggable size="mini" v-model="controller.name" style="width: 20%" :placeholder="$t('api_test.automation.transaction_controller')"/>
+      <el-checkbox v-model="controller.generateParentSample"
+                   @change="changeGenerateParantSample"
+                   :disabled="controller.disabled" class="ms-btn">
+        Generate Parent Sample
+      </el-checkbox>
+      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers" :disabled="controller.disabled">
+        Include Timers
+      </el-checkbox>
     </template>
 
   </api-base-component>
@@ -157,8 +163,7 @@ export default {
 
 <style scoped>
 .ms-btn {
-  width: 20%;
-  margin-left: 5px;
+  margin-left: 20px;
 }
 
 .ms-select {
@@ -184,6 +189,7 @@ export default {
   white-space: nowrap;
   width: 80px;
 }
+
 .ms-test-running {
   color: #6D317C;
 }
