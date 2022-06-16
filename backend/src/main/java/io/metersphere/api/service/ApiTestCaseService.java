@@ -540,7 +540,13 @@ public class ApiTestCaseService {
             return;
         }
         Collections.reverse(request.getSelectIds());
-        relevance(request.getSelectIds(), request);
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        List<String> ids = apiTestCases.stream()
+                .map(ApiTestCase::getId)
+                .collect(Collectors.toList());
+        relevance(ids, request);
     }
 
     public void relevanceByApiByReview(ApiCaseRelevanceRequest request) {
