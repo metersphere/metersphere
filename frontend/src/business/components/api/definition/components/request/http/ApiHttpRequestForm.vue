@@ -2,7 +2,7 @@
   <div>
     <!-- HTTP 请求参数 -->
     <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%" v-loading="isReloadData">
-      <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
+      <el-tabs v-model="activeName" class="request-tabs ms-tabs__nav-scroll" @tab-click="tabClick">
         <!-- 请求头-->
         <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
           <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
@@ -556,4 +556,9 @@ export default {
   float: right;
   margin-right: 45px;
 }
+
+.ms-tabs__nav-scroll >>> .el-tabs__nav-scroll {
+  width: 100%;
+}
+
 </style>
