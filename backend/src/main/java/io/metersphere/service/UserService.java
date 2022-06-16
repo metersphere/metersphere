@@ -3,16 +3,15 @@ package io.metersphere.service;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.CodingUtil;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.WorkspaceRequest;
@@ -1134,6 +1133,17 @@ public class UserService {
 
     public List<User> getProjectMemberList(QueryMemberRequest request) {
         return extUserGroupMapper.getProjectMemberList(request);
+    }
+
+    public Pager<List<User>> getProjectMemberListForWorkspace(String workspaceId, int goPage, int pageSize, QueryMemberRequest request) {
+        if (StringUtils.isNotEmpty(request.getProjectId())) {
+            Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+            if (project == null || !StringUtils.equals(project.getWorkspaceId(), workspaceId)) {
+                return null;
+            }
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, extUserGroupMapper.getProjectMemberList(request));
     }
 
     public void addProjectMember(AddMemberRequest request) {
