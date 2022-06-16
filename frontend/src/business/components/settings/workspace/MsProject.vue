@@ -385,12 +385,11 @@ export default {
         this.items = data.listObject;
         for (let i = 0; i < this.items.length; i++) {
           let param = {
-            name: '',
-            workspaceId: this.items[i].id
+            projectId: this.items[i].id
           };
-          let path = "user/ws/member/list/all";
+          let path = "/user/project/member/list/1/100000";
           this.$post(path, param, res => {
-            let member = res.data;
+            let member = res.data.listObject;
             this.$set(this.items[i], "memberSize", member.length);
           });
         }
