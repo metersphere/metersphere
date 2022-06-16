@@ -34,46 +34,46 @@
               :show-select-all="false"
               @selectCountChange="selectCountChange">
 
-      <el-table-column v-if="!customNum" prop="num" label="ID" sortable
+      <el-table-column v-if="!customNum" prop="num" label="ID" sortable="custom"
                        show-overflow-tooltip>
       </el-table-column>
-      <el-table-column v-if="customNum" prop="customNum" label="ID" sortable
+      <el-table-column v-if="customNum" prop="customNum" label="ID" sortable="custom"
                        show-overflow-tooltip>
       </el-table-column>
-      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" sortable min-width="100px"
+      <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')" sortable="custom" min-width="100px"
                        show-overflow-tooltip/>
       <el-table-column
         v-if="versionEnable"
         column-key="version_id"
         :filters="versionFilters"
         :label="$t('commons.version')"
-        min-width="120px">
+        min-width="100px">
         <template v-slot:default="scope">
           <span>{{ scope.row.versionName }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
+      <el-table-column prop="level" :label="$t('api_test.automation.case_level')" sortable="custom" min-width="100px"
                        show-overflow-tooltip>
         <template v-slot:default="scope">
           <priority-table-item :value="scope.row.level" ref="level"/>
         </template>
 
       </el-table-column>
-      <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
+      <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="100">
         <template v-slot:default="scope">
           <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName"
                   style="margin-left: 0px; margin-right: 2px"/>
         </template>
       </el-table-column>
-      <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
-      <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180">
+      <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip sortable="custom" min-width="100px"/>
+      <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180" sortable="custom">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
+      <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" sortable="custom">
         <template v-slot:default="{row}">
           <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
             {{ $t('api_test.automation.success') }}
