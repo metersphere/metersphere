@@ -154,12 +154,15 @@ public class UserController {
     }
 
     @PostMapping("/project/member/list/{goPage}/{pageSize}")
-    @RequiresPermissions(value = {
-            PermissionConstants.PROJECT_USER_READ,
-            PermissionConstants.WORKSPACE_USER_READ,
-            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ
-    }, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
     public Pager<List<User>> getProjectMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
+    }
+
+    @PostMapping("/ws/project/member/list/{workspaceId}/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
+    public Pager<List<User>> getProjectMemberListForWorkspace(@PathVariable int goPage, @PathVariable int pageSize, @PathVariable String workspaceId, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
     }
@@ -171,9 +174,9 @@ public class UserController {
         return userService.getProjectMemberList(request);
     }
 
-    @GetMapping("/project/member/option/{projectId}")
-    public List<User> getProjectMemberOption(@PathVariable String projectId) {
-        return userService.getProjectMemberOption(projectId);
+    @GetMapping("/project/member/option")
+    public List<User> getProjectMemberOption() {
+        return userService.getProjectMemberOption(SessionUtils.getCurrentProjectId());
     }
 
     @GetMapping("/ws/current/member/list")
