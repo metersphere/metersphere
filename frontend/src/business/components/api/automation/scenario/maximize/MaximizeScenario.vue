@@ -248,6 +248,8 @@ export default {
     groupId: String,
     projectIds: Set,
     projectList: Array,
+    enableCookie: Boolean,
+    onSampleError: Boolean
   },
   components: {
     MsAsideContainer,
@@ -366,6 +368,8 @@ export default {
     this.initPlugins();
     this.buttonData = buttons(this);
     this.projectEnvMap = this.envMap;
+    this.cookieShare = this.enableCookie;
+    this.sampleError = this.onSampleError;
   },
   mounted() {
     this.$refs.refFab.openMenu();

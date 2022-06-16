@@ -324,6 +324,8 @@
             :reloadDebug="reloadDebug"
             :stepReEnable="stepEnable"
             :message="message"
+            :enable-cookie="enableCookieShare"
+            :on-sample-error="onSampleError"
             @setEnvType="setEnvType"
             @envGroupId="setEnvGroup"
             @closePage="close"
