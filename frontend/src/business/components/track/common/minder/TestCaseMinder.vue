@@ -59,6 +59,7 @@ import {getTestCasesForMinder, getMinderExtraNode, getMinderTreeExtraNodeCount} 
 import {addIssueHotBox, getSelectedNodeData, handleIssueAdd, handleIssueBatch} from "./minderUtils";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
+import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 
 const {getIssuesListById} = require("@/network/Issue");
 const {getCurrentWorkspaceId} = require("@/common/js/utils");
@@ -191,6 +192,11 @@ name: "TestCaseMinder",
               }
             });
           }
+        }
+
+        if ('resource' === even.commandName) {
+          // 设置完标签后，优先级显示有问题，重新设置下
+          setTimeout(() => setPriorityView(true, 'P'), 100);
         }
       });
 
