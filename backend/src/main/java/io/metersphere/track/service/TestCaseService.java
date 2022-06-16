@@ -690,6 +690,25 @@ public class TestCaseService {
         });
     }
 
+    public List<TestCaseNodeDTO> publicProjectNode(QueryTestCaseRequest request) {
+        this.initRequest(request, true);
+        setDefaultOrder(request);
+        if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
+            request.getFilters().put("status", new ArrayList<>(0));
+        }
+        List<TestCaseNodeDTO> testCaseNodeDTOList = new ArrayList<>();
+        List<String> publicProjectIds = extTestCaseMapper.getPublicProjectIdByWorkSpaceId(request);
+        publicProjectIds.forEach(projectId -> {
+            Project project = projectMapper.selectByPrimaryKey(projectId);
+            TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
+            testCaseNodeDTO.setName(project.getName());
+            testCaseNodeDTO.setLabel(project.getName());
+            testCaseNodeDTO.setId(projectId);
+            testCaseNodeDTOList.add(testCaseNodeDTO);
+        });
+        return testCaseNodeDTOList;
+    }
+
     public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
         this.initRequest(request, true);
         setDefaultOrder(request);
@@ -2737,8 +2756,8 @@ public class TestCaseService {
     }
 
     public List<TestCaseNodeDTO> getPublicCaseNode(QueryTestCaseRequest request) {
-        List<TestCaseDTO> testCaseDTOS = publicListTestCase(request);
-        return testCaseNodeService.getNodeByTestCases(testCaseDTOS);
+        List<TestCaseNodeDTO> testCaseDTOS = publicProjectNode(request);
+        return testCaseNodeService.getPublicNodeByProjectNode(testCaseDTOS);
     }
 
     public void saveRelationshipBatch(TestCaseRelationshipEdgeRequest request) {

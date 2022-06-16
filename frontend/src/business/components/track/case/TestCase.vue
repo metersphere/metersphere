@@ -315,6 +315,7 @@ export default {
         }
       });
     },
+
     trashEnable() {
       if (this.trashEnable) {
         this.activeName = 'trash';
@@ -327,6 +328,8 @@ export default {
         this.activeName = 'public';
         this.result = this.$post('/test/case/public/case/node', {workspaceId: getCurrentWorkspaceId()}, res => {
           this.publicTreeNodes = res.data;
+          this.$refs.publicNodeTree.nodeExpand(res.data[0]);
+          this.$refs.publicNodeTree.nodeExpand(res.data[1]);
         })
       } else {
         this.activeName = 'default';
