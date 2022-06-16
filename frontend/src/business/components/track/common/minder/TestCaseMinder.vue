@@ -483,7 +483,7 @@ name: "TestCaseMinder",
             } else {
               testCase.moveMode = 'APPEND';
             }
-          } else if (this.isCaseNode(nextNode)) {
+          } else if (this.isCaseNode(nextNode) && !nextNode.data.isExtraNode) {
             let nextId = nextNode.data.id;
             if (nextId && nextId.length > 15) {
               testCase.targetId = nextId;
