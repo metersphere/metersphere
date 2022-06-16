@@ -121,7 +121,7 @@
               :project-id="projectId"
               :condition="condition"
               v-if="activeDom === 'right'"
-              @refresh="refreshAll"
+              @refresh="minderSaveRefresh"
               ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
@@ -695,6 +695,12 @@ export default {
       }
       this.$refs.nodeTree.list();
       this.setTable(data);
+    },
+    minderSaveRefresh() {
+      if (this.$refs.testCaseList) {
+        this.$refs.testCaseList.initTableData();
+      }
+      this.$refs.nodeTree.list();
     },
     refreshPublic() {
       if (this.$refs.testCasePublicList) {
