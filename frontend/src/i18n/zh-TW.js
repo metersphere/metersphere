@@ -1371,7 +1371,7 @@ export default {
       wait_controller: "等待控製器",
       if_controller: "條件控製器",
       loop_controller: "循環控製器",
-      transcation_controller: "事務控製器",
+      transaction_controller: "事務控製器",
       scenario_import: "場景導入",
       customize_script: "自定義腳本",
       customize_req: "自定義請求",
