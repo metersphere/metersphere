@@ -259,14 +259,9 @@ export default {
     }
     if (this.request.id && this.request.referenced === 'REF') {
       this.request.disabled = true;
+      this.request.root = this.node.parent.parent ? false : true;
     }
-    if (this.request.num) {
-      this.isShowNum = true;
-      this.request.root = true;
-
-    } else {
-      this.isShowNum = false;
-    }
+    this.isShowNum = this.request.num ? true : false;
     if (this.request.protocol === 'HTTP') {
       // 历史数据 auth 处理
       if (this.request.hashTree) {
@@ -334,28 +329,18 @@ export default {
       return "";
     },
     isApiImport() {
-      if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced == 'REF' || this.request.referenced === 'Copy') {
-        return true
-      }
-      return false;
+      let verifies = ['Deleted', 'REF', 'Copy'];
+      return (this.request.referenced && verifies.indexOf(this.request.referenced) !== -1);
     },
     isExternalImport() {
-      if (this.request.referenced != undefined && this.request.referenced === 'OT_IMPORT') {
-        return true
-      }
-      return false;
+      return (this.request.referenced && this.request.referenced === 'OT_IMPORT');
     },
     isCustomizeReq() {
-      if (this.request.referenced == undefined || this.request.referenced === 'Created') {
-        return true;
-      }
-      return false;
+      return (!this.request.referenced || this.request.referenced === 'Created');
     },
     isDeletedOrRef() {
-      if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced === 'REF') {
-        return true;
-      }
-      return false;
+      let verifies = ['Deleted', 'REF'];
+      return (this.request.referenced && verifies.indexOf(this.request.referenced) !== -1);
     },
     projectId() {
       return getCurrentProjectID();
@@ -534,7 +519,7 @@ export default {
       this.request.customizeReq = this.isCustomizeReq;
       // 场景变量
       let variables = [];
-      if(this.currentScenario && this.currentScenario.variables) {
+      if (this.currentScenario && this.currentScenario.variables) {
         variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
       }
       let debugData = {
@@ -543,15 +528,15 @@ export default {
         enableCookieShare: this.enableCookieShare, environmentId: selectEnvId, hashTree: [this.request],
       };
       // 合并自身依赖场景变量
-      if(this.currentScenarioData && this.currentScenarioData.variableEnable && this.currentScenarioData.variables){
-        if(!debugData.variables || debugData.variables.length === 0){
+      if (this.currentScenarioData && this.currentScenarioData.variableEnable && this.currentScenarioData.variables) {
+        if (!debugData.variables || debugData.variables.length === 0) {
           debugData.variables = this.currentScenarioData.variables;
-        }else if(this.currentScenarioData.variables){
-           // 同名合并
-          debugData.variables.forEach(data =>{
-            this.currentScenarioData.variables.forEach(item =>{
-              if(data.type === item.type && data.name === item.name){
-                Object.assign(data,item);
+        } else if (this.currentScenarioData.variables) {
+          // 同名合并
+          debugData.variables.forEach(data => {
+            this.currentScenarioData.variables.forEach(item => {
+              if (data.type === item.type && data.name === item.name) {
+                Object.assign(data, item);
               }
             })
           });
@@ -563,8 +548,8 @@ export default {
       /*触发执行操作*/
       this.reportId = getUUID();
     },
-    getParentVariables(node){
-      if(!this.currentScenarioData) {
+    getParentVariables(node) {
+      if (!this.currentScenarioData) {
         if (node && node.data && node.data.type === "scenario") {
           this.currentScenarioData = node.data;
         } else {
