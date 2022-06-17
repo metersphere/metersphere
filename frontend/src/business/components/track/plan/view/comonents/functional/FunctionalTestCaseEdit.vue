@@ -142,7 +142,6 @@
 
 <script>
 import TestPlanTestCaseStatusButton from '../../../common/TestPlanTestCaseStatusButton';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import ApiTestDetail from "../test/ApiTestDetail";
 import ApiTestResult from "../test/ApiTestResult";
 import PerformanceTestDetail from "../test/PerformanceTestDetail";
@@ -191,10 +190,6 @@ export default {
       showDialog: false,
       testCase: {},
       index: 0,
-      editor: ClassicEditor,
-      editorConfig: {
-        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
-      },
       readConfig: {toolbar: []},
       test: {},
       activeTab: 'detail',
