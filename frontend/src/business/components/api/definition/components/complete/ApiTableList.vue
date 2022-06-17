@@ -187,7 +187,9 @@ export default {
   },
   created: function () {
     getProjectMember((data) => {
-      this.userFilters = data;
+      this.userFilters = data.map(u => {
+        return {text: u.name, value: u.id};
+      });
     });
     this.getProtocolFilter();
     this.checkVersionEnable();
