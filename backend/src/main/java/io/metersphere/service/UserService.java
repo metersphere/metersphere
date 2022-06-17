@@ -3,15 +3,16 @@ package io.metersphere.service;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CodingUtil;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.WorkspaceRequest;
@@ -702,9 +703,11 @@ public class UserService {
                 ProjectExample example = new ProjectExample();
                 example.createCriteria().andWorkspaceIdEqualTo(user.getLastWorkspaceId());
                 List<Project> projects = projectMapper.selectByExample(example);
+                // 工作空间下没有项目
                 if (CollectionUtils.isEmpty(projects)) {
                     return true;
                 }
+                // 工作空间下有项目，选中有权限的项目
                 List<String> projectIds = projects.stream()
                         .map(Project::getId)
                         .collect(Collectors.toList());
@@ -714,16 +717,21 @@ public class UserService {
                         .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
                         .map(Group::getId)
                         .collect(Collectors.toList());
-                String projectId = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
+                List<String> projectIdsWithPermission = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
                         .filter(p -> StringUtils.isNotBlank(p.getSourceId()))
                         .map(UserGroup::getSourceId)
                         .filter(projectIds::contains)
-                        .collect(Collectors.toList())
-                        .get(0);
-                Project project = projects.stream().filter(p -> StringUtils.equals(projectId, p.getId())).findFirst().get();
+                        .collect(Collectors.toList());
+
+                List<String> intersection = projectIds.stream().filter(projectIdsWithPermission::contains).collect(Collectors.toList());
+                // 当前工作空间下的所有项目都没有权限
+                if (CollectionUtils.isEmpty(intersection)) {
+                    return true;
+                }
+                Project project = projects.stream().filter(p -> StringUtils.equals(intersection.get(0), p.getId())).findFirst().get();
                 String wsId = project.getWorkspaceId();
                 user.setId(user.getId());
-                user.setLastProjectId(projectId);
+                user.setLastProjectId(project.getId());
                 user.setLastWorkspaceId(wsId);
                 updateUser(user);
                 SessionUtils.putUser(SessionUser.fromUser(user));
