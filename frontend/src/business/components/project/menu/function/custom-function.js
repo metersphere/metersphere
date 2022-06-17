@@ -32,13 +32,18 @@ function groovyCode(requestObj) {
     bodyType
   } = requestObj;
   let requestUrl = "";
+  if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
+    //如果是get方法要将kv值加入argument中
+    for (let [k, v] of requestBodyKvs) {
+      requestArguments.set(k, v);
+    }
+  }
   requestPath = getRequestPath(requestArguments, requestPath);
   let path = getMockPath(domain, port, host);
   requestPath = path + replaceRestParams(requestPath, requestRest);
   if (protocol && host && requestPath) {
     requestUrl = protocol + "://" + domain + (port ? ":" + port : "") + requestPath;
   }
-
   let body = JSON.stringify(requestBody);
   if (requestMethod === 'POST' && bodyType === 'kvs') {
     body = "\"";
@@ -77,6 +82,11 @@ function pythonCode(requestObj) {
   }
   let headers = getHeaders(requestHeaders);
   requestBody = requestBody ? JSON.stringify(requestBody) : "{}";
+  if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
+    for (let [k, v] of requestBodyKvs) {
+      requestArguments.set(k, v);
+    }
+  }
   requestPath = getRequestPath(requestArguments, requestPath);
   let path = getMockPath(domain, port, host);
   requestPath = path + replaceRestParams(requestPath, requestRest);
@@ -140,13 +150,16 @@ function getGroovyHeaders(requestHeaders) {
 function _pythonCodeTemplate(obj) {
   let {requestBody, requestBodyKvs, bodyType, headers, requestPath, requestMethod, connType, domain, port} = obj;
   let reqBody = obj.requestBody;
-  if (requestMethod === 'Post' && obj.bodyType !== 'json' && obj.requestBodyKvs) {
+  if (requestMethod.toLowerCase() === 'post' && obj.bodyType === 'kvs' && obj.requestBodyKvs) {
     reqBody = 'urllib.urlencode({';
     // 设置post参数
     for (let [k, v] of requestBodyKvs) {
       reqBody += `\'${k}\':\'${v}\'`;
     }
     reqBody += `})`;
+    if (headers === '{}') {
+      headers = '{\'Content-type\': \'application/x-www-form-urlencoded\', \'Accept\': \'text/plain\'}';
+    }
   }
 
   let host = domain + (port ? ":" + port : "");
@@ -336,6 +349,12 @@ function _jsTemplate(obj) {
   } else if (protocol && domain) {
     url = protocol + "://" + domain + requestPath;
   }
+  if (requestMethod.toLowerCase() === 'get' && requestBodyKvs) {
+    //如果是get方法要将kv值加入argument中
+    for (let [k, v] of requestBodyKvs) {
+      requestArguments.set(k, v);
+    }
+  }
   url = getRequestPath(requestArguments, url);
   try {
     requestBody = JSON.stringify(requestBody);
@@ -358,6 +377,16 @@ function _jsTemplate(obj) {
     }
     requestBody += "\"";
   }
+  let postParamExecCode = "";
+  if (requestBody && requestBody !== "" && requestBody !== "\"\"") {
+    postParamExecCode = `
+var opt = new java.io.DataOutputStream(conn.getOutputStream());
+var t = (new java.lang.String(parameterData)).getBytes("utf-8");
+opt.write(t);
+opt.flush();
+opt.close();
+    `;
+  }
 
 
   return `var urlStr = "${url}"; // 请求地址
@@ -368,11 +397,7 @@ var conn = url.openConnection();
 conn.setRequestMethod(requestMethod);
 conn.setDoOutput(true);
 ${connStr}conn.connect();
-var opt = new java.io.DataOutputStream(conn.getOutputStream());
-var t = (new java.lang.String(parameterData)).getBytes("utf-8");
-opt.write(t);
-opt.flush();
-opt.close();
+${postParamExecCode}
 var ipt = conn.getInputStream();
 var reader = new java.io.BufferedReader(new java.io.InputStreamReader(ipt, "UTF-8"));
 var lines;
