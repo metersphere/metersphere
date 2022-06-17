@@ -632,23 +632,18 @@ public class UserService {
 
     private void autoSwitch(UserDTO user) {
         // 用户有 last_project_id 权限
-        if (StringUtils.isNotBlank(user.getLastProjectId())) {
-            List<UserGroup> projectUserGroups = user.getUserGroups().stream()
-                    .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(projectUserGroups)) {
-                return;
-            }
+        if (hasLastProjectPermission(user)) {
+            return;
         }
         // 用户有 last_workspace_id 权限
-        if (StringUtils.isNotBlank(user.getLastWorkspaceId())) {
-            List<UserGroup> workspaceUserGroups = user.getUserGroups().stream()
-                    .filter(ug -> StringUtils.equals(user.getLastWorkspaceId(), ug.getSourceId()))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(workspaceUserGroups)) {
-                return;
-            }
+        if (hasLastWorkspacePermission(user)) {
+            return;
         }
+        // 判断其他权限
+        checkNewWorkspaceAndProject(user);
+    }
+
+    private void checkNewWorkspaceAndProject(UserDTO user) {
         List<UserGroup> userGroups = user.getUserGroups();
         List<String> projectGroupIds = user.getGroups()
                 .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
@@ -686,6 +681,56 @@ public class UserService {
             updateUser(user);
             SessionUtils.putUser(SessionUser.fromUser(user));
         }
+    }
+
+    private boolean hasLastProjectPermission(UserDTO user) {
+        if (StringUtils.isNotBlank(user.getLastProjectId())) {
+            List<UserGroup> projectUserGroups = user.getUserGroups().stream()
+                    .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
+                    .collect(Collectors.toList());
+            return CollectionUtils.isNotEmpty(projectUserGroups);
+        }
+        return false;
+    }
+
+    private boolean hasLastWorkspacePermission(UserDTO user) {
+        if (StringUtils.isNotBlank(user.getLastWorkspaceId())) {
+            List<UserGroup> workspaceUserGroups = user.getUserGroups().stream()
+                    .filter(ug -> StringUtils.equals(user.getLastWorkspaceId(), ug.getSourceId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(workspaceUserGroups)) {
+                ProjectExample example = new ProjectExample();
+                example.createCriteria().andWorkspaceIdEqualTo(user.getLastWorkspaceId());
+                List<Project> projects = projectMapper.selectByExample(example);
+                if (CollectionUtils.isEmpty(projects)) {
+                    return true;
+                }
+                List<String> projectIds = projects.stream()
+                        .map(Project::getId)
+                        .collect(Collectors.toList());
+
+                List<UserGroup> userGroups = user.getUserGroups();
+                List<String> projectGroupIds = user.getGroups()
+                        .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
+                        .map(Group::getId)
+                        .collect(Collectors.toList());
+                String projectId = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
+                        .filter(p -> StringUtils.isNotBlank(p.getSourceId()))
+                        .map(UserGroup::getSourceId)
+                        .filter(projectIds::contains)
+                        .collect(Collectors.toList())
+                        .get(0);
+                Project project = projects.stream().filter(p -> StringUtils.equals(projectId, p.getId())).findFirst().get();
+                String wsId = project.getWorkspaceId();
+                user.setId(user.getId());
+                user.setLastProjectId(projectId);
+                user.setLastWorkspaceId(wsId);
+                updateUser(user);
+                SessionUtils.putUser(SessionUser.fromUser(user));
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<User> searchUser(String condition) {
