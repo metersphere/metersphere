@@ -1,7 +1,7 @@
 <template>
 
   <span>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="initTableData" class="search-input"
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="search" class="search-input"
               size="small"
               v-model="condition.name" ref="inputVal"/>
     <el-link type="primary" @click="open" style="float: right;margin-top: 5px;padding-right: 10px">
@@ -27,7 +27,7 @@
       @handleRowClick="handleEdit"
       :fields.sync="fields"
       :field-key="tableHeaderKey"
-      @refresh="initTableData"
+      @filter="search"
       :custom-fields="testCaseTemplate.customFields"
       ref="table">
 
@@ -138,8 +138,6 @@
             <span/>
           </template>
         </ms-table-column>
-
-
 
         <ms-table-column
           v-if="versionEnable"
@@ -678,6 +676,9 @@ export default {
       if (field.name === '用例等级') {
         return this.priorityFilters;
       } else if (field.name === '用例状态') {
+        if (this.trashEnable) {
+          return null;
+        }
         return this.statusFilters;
       }
       return null;
@@ -772,7 +773,7 @@ export default {
       if (this.trashEnable) {
         //支持回收站查询版本
         let versionIds = this.condition.filters.version_id;
-        this.condition.filters = {status: ["Trash"]};
+        this.condition.filters.status = ["Trash"];
         if (versionIds) {
           this.condition.filters.version_id = versionIds;
         }
@@ -802,6 +803,8 @@ export default {
       }
     },
     search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.page.currentPage = 1;
       this.initTableData();
     },
     buildPagePath(path) {
