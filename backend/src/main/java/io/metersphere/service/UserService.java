@@ -612,7 +612,10 @@ public class UserService {
             if (subject.isAuthenticated()) {
                 UserDTO user = (UserDTO) subject.getSession().getAttribute(ATTR_USER);
                 autoSwitch(user);
-                return ResultHolder.success(subject.getSession().getAttribute("user"));
+                // 放入session中
+                SessionUser sessionUser = SessionUser.fromUser(user);
+                SessionUtils.putUser(sessionUser);
+                return ResultHolder.success(sessionUser);
             } else {
                 return ResultHolder.error(Translator.get("login_fail"));
             }
@@ -631,7 +634,7 @@ public class UserService {
         }
     }
 
-    private void autoSwitch(UserDTO user) {
+    public void autoSwitch(UserDTO user) {
         // 用户有 last_project_id 权限
         if (hasLastProjectPermission(user)) {
             return;
@@ -668,7 +671,6 @@ public class UserService {
                 user.setLastWorkspaceId("");
                 user.setLastProjectId("");
                 updateUser(user);
-                SessionUtils.putUser(SessionUser.fromUser(user));
             }
         } else {
             UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
@@ -680,7 +682,6 @@ public class UserService {
             user.setLastProjectId(projectId);
             user.setLastWorkspaceId(wsId);
             updateUser(user);
-            SessionUtils.putUser(SessionUser.fromUser(user));
         }
     }
 
@@ -697,7 +698,6 @@ public class UserService {
                 // last_project_id 和 last_workspace_id 对应不上了
                 user.setLastWorkspaceId(project.getWorkspaceId());
                 updateUser(user);
-                SessionUtils.putUser(SessionUser.fromUser(user));
                 return true;
             }
         }
@@ -744,7 +744,6 @@ public class UserService {
                 user.setLastProjectId(project.getId());
                 user.setLastWorkspaceId(wsId);
                 updateUser(user);
-                SessionUtils.putUser(SessionUser.fromUser(user));
                 return true;
             }
         }
