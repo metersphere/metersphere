@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
+
 const {getCurrentWorkspaceId} = require("@/common/js/utils");
 const {getIssuesListById} = require("@/network/Issue");
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
@@ -122,6 +124,8 @@ name: "TestPlanMinder",
         if (handleMinderIssueDelete(even.commandName, true))  return; // 删除缺陷不算有编辑脑图信息
 
         if (even.commandName.toLocaleLowerCase() === 'resource') {
+          // 设置完标签后，优先级显示有问题，重新设置下
+          setTimeout(() => setPriorityView(true, 'P'), 100);
           this.setIsChange(true);
         }
       });
