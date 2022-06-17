@@ -420,6 +420,7 @@ export default {
     },
     filter(filters) {
       _filter(filters, this.condition);
+      this.$emit('filter');
       this.handleRefresh();
     },
     sort(column) {
