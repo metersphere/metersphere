@@ -44,9 +44,8 @@ public class LoginController {
             if (StringUtils.isBlank(user.getLanguage())) {
                 user.setLanguage(LocaleContextHolder.getLocale().toString());
             }
-            SessionUser sessionUser = SessionUser.fromUser(user);
-            SessionUtils.putUser(sessionUser);
-            return ResultHolder.success(sessionUser);
+            userService.autoSwitch(user);
+            return ResultHolder.success(SessionUtils.getUser());
         }
         return ResultHolder.error(rsaKey.getPublicKey());
     }
