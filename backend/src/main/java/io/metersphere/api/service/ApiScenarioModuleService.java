@@ -62,6 +62,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId);
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         ApiScenarioRequest request = new ApiScenarioRequest();
         request.setProjectId(projectId);
