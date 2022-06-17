@@ -25,7 +25,7 @@
       @handleRowClick="handleEdit"
       :fields.sync="fields"
       :field-key="tableHeaderKey"
-      @refresh="initTableData"
+      @filter="search"
       :custom-fields="testCaseTemplate.customFields"
       ref="table">
 
@@ -136,8 +136,6 @@
             <span/>
           </template>
         </ms-table-column>
-
-
 
         <ms-table-column
           v-if="versionEnable"
@@ -680,7 +678,7 @@ export default {
       return value ? value : '';
     },
     getCustomFieldFilter(field) {
-      if (field.type === 'multipleMember') {
+      if (field.type === 'multipleMember' || field.name === '用例状态') {
         return null;
       }
       return Array.isArray(field.options) ?
@@ -773,7 +771,7 @@ export default {
       if (this.trashEnable) {
         //支持回收站查询版本
         let versionIds = this.condition.filters.version_id;
-        this.condition.filters = {status: ["Trash"]};
+        this.condition.filters.status = ["Trash"];
         if (versionIds) {
           this.condition.filters.version_id = versionIds;
         }
@@ -799,6 +797,8 @@ export default {
       }
     },
     search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.page.currentPage = 1;
       this.initTableData();
     },
     buildPagePath(path) {
