@@ -100,7 +100,6 @@ import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 import MsApiVariableAdvance from "./ApiVariableAdvance";
 import MsApiVariableJson from "./ApiVariableJson";
 import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
-import {REQUIRED} from "../model/JsonData";
 import Vue from 'vue';
 import ApiVariableSetting from "@/business/components/api/definition/components/ApiVariableSetting";
 
@@ -262,6 +261,7 @@ export default {
     },
     advanced(item) {
       if (item.type === 'json') {
+        this.appendDialogToBody = true;
         this.$refs.variableJson.open(item);
         this.currentItem = item;
       } else {

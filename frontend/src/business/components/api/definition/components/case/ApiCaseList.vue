@@ -13,7 +13,7 @@
             :useEnvironment="environment"
             :is-case-edit="isCaseEdit"
             :button-text="saveButtonText"
-            ref="header"/>
+            ref="header" v-if="refreshHeader"/>
       </template>
 
       <el-container v-if="!result.loading">
@@ -103,7 +103,8 @@ export default {
       api: {},
       envMap: new Map,
       maintainerOptions: [],
-      environments: []
+      environments: [],
+      refreshHeader: true
     };
   },
   watch: {
@@ -198,6 +199,10 @@ export default {
     },
     runTestCase(api, testCaseId) {
       if (api && testCaseId) {
+        this.refreshHeader = false;
+        this.$nextTick(() => {
+          this.refreshHeader = true;
+        });
         this.api = api;
         this.testCaseId = testCaseId;
         this.condition = {components: API_CASE_CONFIGS};
