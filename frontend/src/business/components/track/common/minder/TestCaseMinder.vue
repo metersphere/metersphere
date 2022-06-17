@@ -31,6 +31,10 @@
       @refresh="refreshIssue"
       ref="issueEdit"/>
 
+    <is-change-confirm
+      @confirm="changeConfirm"
+      ref="isChangeConfirm"/>
+
   </div>
 
 </template>
@@ -60,12 +64,13 @@ import {addIssueHotBox, getSelectedNodeData, handleIssueAdd, handleIssueBatch} f
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
+import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 
 const {getIssuesListById} = require("@/network/Issue");
 const {getCurrentWorkspaceId} = require("@/common/js/utils");
 export default {
 name: "TestCaseMinder",
-  components: {TestPlanIssueEdit, IssueRelateList, MsModuleMinder},
+  components: {IsChangeConfirm, TestPlanIssueEdit, IssueRelateList, MsModuleMinder},
   data() {
     return{
       testCase: [],
@@ -73,6 +78,7 @@ name: "TestCaseMinder",
       tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark'), this.$t('test_track.module.module')],
       result: {loading: false},
       needRefresh: false,
+      noRefresh: false,
       saveCases: [],
       saveModules: [],
       saveModuleNodeMap: new Map(),
@@ -91,6 +97,7 @@ name: "TestCaseMinder",
     currentVersion: String,
     condition: Object,
     projectId: String,
+    activeName: String
   },
   computed: {
     selectNodeIds() {
@@ -125,6 +132,12 @@ name: "TestCaseMinder",
     },
     currentVersion() {
       this.$refs.minder.initData();
+    },
+    treeNodes(newVal, oldVal) {
+      if (newVal !== oldVal && this.activeName === 'default')  {
+        // 模块刷新并且当前 tab 是用例列表时，提示是否刷新脑图
+        this.handleNodeUpdateForMinder();
+      }
     }
   },
   mounted() {
@@ -137,8 +150,30 @@ name: "TestCaseMinder",
     }
   },
   methods: {
+    handleNodeUpdateForMinder() {
+      this.noRefresh = true;
+      // 如果脑图没有修改直接刷新，有修改提示
+      if (!this.$store.state.isTestCaseMinderChanged) {
+        if (this.$refs.minder) {
+          this.$refs.minder.initData();
+        }
+      } else {
+        this.$refs.isChangeConfirm.open();
+      }
+    },
+    changeConfirm(isSave) {
+      if (isSave) {
+        this.save(() => {
+          this.initData();
+        });
+      } else {
+        this.initData();
+      }
+    },
     initData() {
-      this.$refs.minder.initData();
+      if (this.$refs.minder) {
+        this.$refs.minder.initData();
+      }
     },
     getMinderTreeExtraNodeCount() {
       return getMinderTreeExtraNodeCount;
@@ -249,7 +284,11 @@ name: "TestCaseMinder",
           item.isExtraNode = false;
         });
         this.extraNodeChanged = [];
-        this.$emit('refresh');
+        if (!this.noRefresh) {
+          this.$emit('refresh');
+        }
+        // 由于模块修改刷新的脑图，不刷新模块
+        this.noRefresh = false;
         this.setIsChange(false);
         if (callback && callback instanceof Function) {
           callback();
