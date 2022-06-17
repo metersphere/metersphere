@@ -300,6 +300,7 @@ export default {
       this.selectNodeIds = [];
       this.selectNodeNames = [];
       this.dialogFormVisible = false;
+      this.condition.filters = {}
     },
     filter(filters) {
       _filter(filters, this.condition);
