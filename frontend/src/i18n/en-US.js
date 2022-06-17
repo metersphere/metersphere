@@ -848,6 +848,7 @@ export default {
     remove_member: 'Are you sure you want to remove this member',
     org_remove_member: 'Removing the user from the organization will also remove permissions from all workspaces under the organization. Are you sure you want to remove the member ?',
     input_id_or_email: 'Please enter user ID, or user Email',
+    input_id_or_email_or_name: 'Please enter User ID, Username, or User Email',
     no_such_user: 'Without this user information, please enter the correct user ID or user Email!',
   },
   user: {
