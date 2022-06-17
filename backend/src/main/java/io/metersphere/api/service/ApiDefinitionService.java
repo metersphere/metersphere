@@ -1538,6 +1538,7 @@ public class ApiDefinitionService {
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
+        buildUserInfo(resList);
         calculateResult(resList, request.getProjectId());
         return PageUtils.setPageInfo(page, resList);
     }
