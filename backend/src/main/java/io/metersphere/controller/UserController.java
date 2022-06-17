@@ -17,6 +17,7 @@ import io.metersphere.dto.UserGroupPermissionDTO;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -36,6 +37,8 @@ public class UserController {
 
     @Resource
     private UserService userService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
 
     @PostMapping("/special/add")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
@@ -163,7 +166,9 @@ public class UserController {
     @PostMapping("/ws/project/member/list/{workspaceId}/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<User>> getProjectMemberListForWorkspace(@PathVariable int goPage, @PathVariable int pageSize, @PathVariable String workspaceId, @RequestBody QueryMemberRequest request) {
-        return userService.getProjectMemberListForWorkspace(workspaceId, goPage, pageSize, request);
+        checkPermissionService.checkProjectBelongToWorkspace(request.getProjectId(), workspaceId);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
     }
 
     @GetMapping("/project/member/list")

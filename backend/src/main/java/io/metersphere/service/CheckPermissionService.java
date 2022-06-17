@@ -1,7 +1,9 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.Group;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.UserGroup;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
@@ -37,6 +39,8 @@ public class CheckPermissionService {
     private UserService userService;
     @Resource
     private ExtProjectMapper extProjectMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
 
     public void checkProjectOwner(String projectId) {
@@ -149,5 +153,12 @@ public class CheckPermissionService {
                 .filter(ur -> groupIds.contains(ur.getGroupId()))
                 .map(UserGroup::getSourceId)
                 .collect(Collectors.toSet());
+    }
+
+    public void checkProjectBelongToWorkspace(String projectId, String workspaceId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null || !StringUtils.equals(project.getWorkspaceId(), workspaceId)) {
+            MSException.throwException(Translator.get("check_owner_project"));
+        }
     }
 }
