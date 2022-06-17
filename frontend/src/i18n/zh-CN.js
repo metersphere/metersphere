@@ -846,6 +846,7 @@ export default {
     remove_member: '确定要移除该成员吗',
     org_remove_member: '将该用户从组织中移除，将同时移除该组织下所有工作空间的权限，确定要移除该成员吗？',
     input_id_or_email: '请输入用户 ID, 或者 用户邮箱',
+    input_id_or_email_or_name: '请输入用户 ID, 用户名, 或者 用户邮箱',
     no_such_user: '无此用户信息, 请输入正确的用户 ID 或者 用户邮箱！',
   },
   user: {
