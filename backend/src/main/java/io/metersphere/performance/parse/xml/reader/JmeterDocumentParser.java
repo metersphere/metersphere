@@ -558,6 +558,8 @@ public class JmeterDocumentParser implements EngineSourceParser {
         String resourcePoolId = context.getResourcePoolId();
         TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
         if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+            // 禁用现有的backend listener
+            backendListener.addAttribute("enabled", "false");
             return;
         }
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
