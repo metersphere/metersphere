@@ -44,6 +44,7 @@ public class LoginController {
             if (StringUtils.isBlank(user.getLanguage())) {
                 user.setLanguage(LocaleContextHolder.getLocale().toString());
             }
+            userService.autoSwitch(user);
             SessionUser sessionUser = SessionUser.fromUser(user);
             SessionUtils.putUser(sessionUser);
             return ResultHolder.success(sessionUser);

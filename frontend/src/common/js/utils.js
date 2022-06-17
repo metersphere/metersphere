@@ -122,12 +122,30 @@ export function enableModules(...modules) {
 
 export function saveLocalStorage(response) {
   // 登录信息保存 cookie
-  localStorage.setItem(TokenKey, JSON.stringify(response.data));
-  if (!sessionStorage.getItem(PROJECT_ID)) {
-    sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+  let user = response.data;
+  localStorage.setItem(TokenKey, JSON.stringify(user));
+  // 校验权限
+  user.userGroups.forEach(ug => {
+    user.groupPermissions.forEach(gp => {
+      if (gp.group.id === ug.groupId) {
+        ug.userGroupPermissions = gp.userGroupPermissions;
+        ug.group = gp.group;
+      }
+    });
+  });
+  // 检查当前项目有没有权限
+  let currentProjectId = sessionStorage.getItem(PROJECT_ID);
+  if (!currentProjectId) {
+    sessionStorage.setItem(PROJECT_ID, user.lastProjectId);
+  } else {
+    let v = user.userGroups.filter(ug => ug.group && ug.group.type === 'PROJECT')
+      .filter(ug => ug.sourceId === currentProjectId);
+    if (v.length === 0) {
+      sessionStorage.setItem(PROJECT_ID, user.lastProjectId);
+    }
   }
   if (!sessionStorage.getItem(WORKSPACE_ID)) {
-    sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
+    sessionStorage.setItem(WORKSPACE_ID, user.lastWorkspaceId);
   }
 }
 
@@ -491,7 +509,7 @@ export function getTranslateOptions(data) {
   let options = [];
   data.forEach(i => {
     let option = {};
-    Object.assign(option, i)
+    Object.assign(option, i);
     option.text = i18n.t(option.text);
     options.push(option);
   });
