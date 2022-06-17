@@ -689,7 +689,17 @@ public class UserService {
             List<UserGroup> projectUserGroups = user.getUserGroups().stream()
                     .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
                     .collect(Collectors.toList());
-            return CollectionUtils.isNotEmpty(projectUserGroups);
+            if (CollectionUtils.isNotEmpty(projectUserGroups)) {
+                Project project = projectMapper.selectByPrimaryKey(user.getLastProjectId());
+                if (StringUtils.equals(project.getWorkspaceId(), user.getLastWorkspaceId())) {
+                    return true;
+                }
+                // last_project_id 和 last_workspace_id 对应不上了
+                user.setLastWorkspaceId(project.getWorkspaceId());
+                updateUser(user);
+                SessionUtils.putUser(SessionUser.fromUser(user));
+                return true;
+            }
         }
         return false;
     }
