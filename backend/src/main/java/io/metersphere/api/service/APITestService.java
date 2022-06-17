@@ -41,7 +41,6 @@ import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -460,51 +459,55 @@ public class APITestService {
      * @return
      * @author song tianyang
      */
-    public JmxInfoDTO updateJmxString(String jmx, String projectId) {
+    public JmxInfoDTO updateJmxString(String jmx, String projectId, boolean saveFile) {
         jmx = this.updateJmxMessage(jmx);
 
-        //获取要转化的文件
-        List<String> attachmentFilePathList = new ArrayList<>();
-        try {
-            Document doc = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(jmx.getBytes("utf-8")));
-            Element root = doc.getRootElement();
-            Element rootHashTreeElement = root.element("hashTree");
-            List<Element> innerHashTreeElementList = rootHashTreeElement.elements("hashTree");
-            for (Element innerHashTreeElement : innerHashTreeElementList) {
-                List<Element> thirdHashTreeElementList = innerHashTreeElement.elements();
-                for (Element element : thirdHashTreeElementList) {
-                    //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
-                    attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
-                }
-                //如果存在证书文件，也要匹配出来
-                attachmentFilePathList.addAll(this.parseAttachmentFileInfo(rootHashTreeElement));
-            }
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-        if (!jmx.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
-            jmx = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + jmx;
-        }
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
-        //去重处理
-        if (!CollectionUtils.isEmpty(attachmentFilePathList)) {
-            attachmentFilePathList = attachmentFilePathList.stream().distinct().collect(Collectors.toList());
-        }
         List<FileMetadata> fileMetadataList = new ArrayList<>();
-        for (String filePath : attachmentFilePathList) {
-            File file = new File(filePath);
-            if (file.exists() && file.isFile()) {
-                try {
-                    FileMetadata fileMetadata = fileService.insertFileByFileName(file, FileUtil.readAsByteArray(file), projectId);
-                    if (fileMetadata != null) {
-                        fileMetadataList.add(fileMetadata);
-                        attachmentFiles.put(fileMetadata.getId(), fileMetadata.getName());
+        if (saveFile) {
+            //获取要转化的文件
+            List<String> attachmentFilePathList = new ArrayList<>();
+            try {
+                Document doc = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(jmx.getBytes("utf-8")));
+                Element root = doc.getRootElement();
+                Element rootHashTreeElement = root.element("hashTree");
+                List<Element> innerHashTreeElementList = rootHashTreeElement.elements("hashTree");
+                for (Element innerHashTreeElement : innerHashTreeElementList) {
+                    List<Element> thirdHashTreeElementList = innerHashTreeElement.elements();
+                    for (Element element : thirdHashTreeElementList) {
+                        //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
+                        attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
                     }
-                } catch (Exception e) {
-                    LogUtil.error(e);
+                    //如果存在证书文件，也要匹配出来
+                    attachmentFilePathList.addAll(this.parseAttachmentFileInfo(rootHashTreeElement));
+                }
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+
+            //去重处理
+            if (!CollectionUtils.isEmpty(attachmentFilePathList)) {
+                attachmentFilePathList = attachmentFilePathList.stream().distinct().collect(Collectors.toList());
+            }
+            for (String filePath : attachmentFilePathList) {
+                File file = new File(filePath);
+                if (file.exists() && file.isFile()) {
+                    try {
+                        FileMetadata fileMetadata = fileService.insertFileByFileName(file, FileUtil.readAsByteArray(file), projectId);
+                        if (fileMetadata != null) {
+                            fileMetadataList.add(fileMetadata);
+                            attachmentFiles.put(fileMetadata.getId(), fileMetadata.getName());
+                        }
+                    } catch (Exception e) {
+                        LogUtil.error(e);
+                    }
                 }
             }
+        }
+
+        if (!jmx.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+            jmx = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + jmx;
         }
 
         JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx", jmx, attachmentFiles);
@@ -628,7 +631,7 @@ public class APITestService {
         HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
         //将jmx处理封装为通用方法
-        JmxInfoDTO dto = updateJmxString(jmxString, runRequest.getProjectId());
+        JmxInfoDTO dto = updateJmxString(jmxString, runRequest.getProjectId(), true);
         dto.setName(runRequest.getName() + ".jmx");
         return dto;
     }
