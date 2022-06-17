@@ -51,7 +51,7 @@ export function login() {
 
 function then(success, response, result) {
   // 已经掉线不再弹出错误信息，避免满屏都是错误
-  if (response && response.headers["authentication-status"] === "invalid") {
+  if (response && response.headers && response.headers["authentication-status"] === "invalid") {
     login();
     return;
   }
