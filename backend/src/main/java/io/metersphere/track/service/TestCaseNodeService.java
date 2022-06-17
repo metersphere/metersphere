@@ -309,23 +309,16 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return getNodeTreeWithPruningTree(projectNodeMap);
     }
 
-    public List<TestCaseNodeDTO> getNodeByTestCases(List<TestCaseDTO> testCaseDTOS) {
-        Map<String, List<String>> projectNodeMap = new HashMap<>();
-        for (TestCase testCase : testCaseDTOS) {
-            List<String> nodeIds = Optional.ofNullable(projectNodeMap.get(testCase.getProjectId())).orElse(new ArrayList<>());
-            nodeIds.add(testCase.getNodeId());
-            projectNodeMap.put(testCase.getProjectId(), nodeIds);
-        }
-        List<TestCaseNodeDTO> tree = getNodeTreeWithPruningTree(projectNodeMap);
+    public List<TestCaseNodeDTO> getPublicNodeByProjectNode(List<TestCaseNodeDTO> projectNodes) {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setCasePublic(true);
-        for (TestCaseNodeDTO dto : tree) {
+        for (TestCaseNodeDTO dto : projectNodes) {
             List<TestCaseNodeDTO> children = this.getNodeTreeByProjectId(dto.getId(), request);
             dto.setChildren(children);
             int sum = children.stream().mapToInt(TestCaseNodeDTO::getCaseNum).sum();
             dto.setCaseNum(sum);
         }
-        return tree;
+        return projectNodes;
     }
 
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {
