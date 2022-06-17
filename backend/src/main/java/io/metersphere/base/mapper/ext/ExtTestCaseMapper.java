@@ -25,6 +25,8 @@ public interface ExtTestCaseMapper {
 
     int moduleCount(@Param("request") QueryTestCaseRequest request);
 
+    List<String> getPublicProjectIdByWorkSpaceId(@Param("request") QueryTestCaseRequest request);
+
     List<TestCaseDTO> listByMethod(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> listByTestCaseIds(@Param("request") TestCaseBatchRequest request);
