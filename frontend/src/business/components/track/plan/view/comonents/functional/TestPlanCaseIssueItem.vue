@@ -4,12 +4,14 @@
     <ms-table-column prop="description" :label="$t('test_track.issue.description')">
       <template v-slot:default="scope">
         <el-popover
-          placement="left"
-          width="400"
+          placement="right"
+          width="500"
           trigger="hover"
-        >
-          <ckeditor :editor="editor" disabled :config="editorConfig"
-                    v-model="scope.row.description"/>
+          popper-class="issues-popover">
+          <ms-mark-down-text
+            prop="description"
+            :data="scope.row"
+            :disabled="true"/>
           <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
         </el-popover>
       </template>
@@ -21,23 +23,14 @@
 <script>
 
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 
 export default {
   name: "TestPlanCaseIssueItem",
-  components: {MsTableColumn},
+  components: {MsMarkDownText, MsTableColumn},
   props: {
     data: Object
-  },
-  data() {
-    return {
-      visible: true,
-      editor: ClassicEditor,
-      editorConfig: {
-        toolbar: [],
-      },
-    }
-  },
+  }
 }
 </script>
 
