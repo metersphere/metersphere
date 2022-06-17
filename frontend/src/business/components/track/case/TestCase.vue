@@ -119,6 +119,7 @@
               :tree-nodes="treeNodes"
               :project-id="projectId"
               :condition="condition"
+              :active-name="activeName"
               v-if="activeDom === 'right'"
               @refresh="minderSaveRefresh"
               ref="minder"/>
@@ -688,9 +689,6 @@ export default {
     refreshAll(data) {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
-      }
-      if (this.$refs.minder) {
-        this.$refs.minder.initData();
       }
       this.$refs.nodeTree.list();
       this.setTable(data);
