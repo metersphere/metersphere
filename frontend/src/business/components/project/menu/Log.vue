@@ -23,21 +23,28 @@
                   </el-col>
                   <el-col :span="4">
                     <el-form-item :label="$t('operating_log.user')" prop="user">
-                      <el-autocomplete
-                        class="input-with-autocomplete"
+                      <el-select
                         v-model="condition.operUser"
-                        :placeholder="$t('member.input_id_or_email')"
-                        :trigger-on-focus="false"
-                        :fetch-suggestions="querySearch"
+                        filterable
+                        remote
+                        clearable
                         size="small"
-                        highlight-first-item
-                        value-key="email"
-                        @select="handleSelect">
-                        <template v-slot:default="scope">
-                          <span class="ws-member-name">{{ scope.item.name }}</span>
-                          <span class="ws-member-email">{{ scope.item.email }}</span>
-                        </template>
-                      </el-autocomplete>
+                        style="width: 100%"
+                        @visible-change="visibleChange"
+                        reserve-keyword
+                        :placeholder="$t('member.input_id_or_email_or_name')"
+                        :remote-method="querySearch"
+                        @clear="initTableData"
+                        :loading="selectLoading">
+                        <el-option
+                          v-for="item in options"
+                          :key="item.id"
+                          :label="item.name"
+                          :value="item.id">
+                          <span class="ws-member-name">{{ item.name }} &nbsp;&nbsp;</span>
+                          <span class="ws-member-email">{{ item.email }}</span>
+                        </el-option>
+                      </el-select>
                     </el-form-item>
                   </el-col>
 
@@ -170,6 +177,8 @@ export default {
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
       LOG_MODULE_MAP: new LOG_MODULE_MAP(this),
       sysList: new PROJECTSYSLIST(),
+      options: [],
+      selectLoading: false
     }
   },
   mounted() {
@@ -231,14 +240,26 @@ export default {
     },
     createFilter(queryString) {
       return (user) => {
-        return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
+        return (user.email.indexOf(queryString.toLowerCase()) === 0
+          || user.id.indexOf(queryString.toLowerCase()) === 0
+          || (user.name && user.name.indexOf(queryString) === 0));
       };
     },
-    querySearch(queryString, cb) {
-      let userList = this.userList;
-      let results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
+    querySearch(query) {
+      if (query !== '') {
+        this.selectLoading = true;
+        setTimeout(() => {
+          this.selectLoading = false;
+          this.options = this.userList.filter(this.createFilter(query));
+        }, 300);
+      } else {
+        this.options = [];
+      }
+    },
+    visibleChange(val) {
+      if (!val) {
+        this.querySearch('');
+      }
     },
     initTableData() {
       if (this.condition.operModules && this.condition.operModules.length > 0) {
