@@ -24,6 +24,7 @@ import {
   tagBatch
 } from "@/business/components/track/common/minder/minderUtils";
 import {getReviewCasesForMinder} from "@/network/testCase";
+import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 export default {
 name: "TestReviewMinder",
   components: {MsModuleMinder},
@@ -87,6 +88,8 @@ name: "TestReviewMinder",
         }
 
         if (even.commandName.toLocaleLowerCase() === 'resource') {
+          // 设置完标签后，优先级显示有问题，重新设置下
+          setTimeout(() => setPriorityView(true, 'P'), 100);
           this.setIsChange(true);
         }
       });
