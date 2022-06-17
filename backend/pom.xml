@@ -354,6 +354,13 @@
             <artifactId>json-schema-validator</artifactId>
             <version>2.2.14</version>
         </dependency>
+
+        <!--解决升级JDK11后动态加载JAR 需要JVM的JCA签名信任才能作为加密提供者-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+        </dependency>
     </dependencies>
 
     <build>
