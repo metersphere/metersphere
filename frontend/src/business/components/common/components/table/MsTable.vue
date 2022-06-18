@@ -19,7 +19,6 @@
         @header-dragend="headerDragend"
         @cell-mouse-enter="showPopover"
         @row-click="handleRowClick"
-        :key="tableActive"
         ref="table">
 
       <el-table-column
@@ -139,7 +138,6 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
 import {lineToHump} from "@/common/js/utils";
-import {editTestCaseOrder} from "@/network/testCase";
 
 /**
  * 参考 ApiList
@@ -166,8 +164,7 @@ export default {
       selectRows: new Set(),
       selectIds: [],
       hasBatchTipShow: false,
-      defaultSort: {},
-      tableActive: true
+      defaultSort: {}
     };
   },
   props: {
@@ -489,10 +486,8 @@ export default {
       this.$refs.table.toggleRowSelection();
     },
     reloadTable() {
-      this.tableActive = false;
       this.$nextTick(() => {
         this.doLayout();
-        this.tableActive = true;
       });
     },
     addPaddingColClass({column}) {
