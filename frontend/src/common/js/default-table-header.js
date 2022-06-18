@@ -32,7 +32,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createTime', key: '6', label: 'commons.create_time'},
     {id: 'updateTime', key: '7', label: 'commons.update_time'},
   ],
-//接口定义
+  //接口定义
   API_DEFINITION: [
     {id: 'num', key: '1', label: "ID"},
     {id: 'name', key: '2', label: 'api_test.definition.api_name'},
@@ -49,7 +49,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createTime', key: 'c', label: 'commons.create_time'},
     {id: 'description', key: 'e', label: 'commons.description'},
   ],
-//接口用例
+  //接口用例
   API_CASE: [
     {id: 'num', key: '1', label: "ID"},
     {id: 'name', key: '2', label: 'test_track.case.name'},
@@ -215,7 +215,20 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
     {id: 'lastExecResult', key: '0', label: 'test_track.plan_view.execute_result'},
   ],
-
+  // 公共用例库
+  TRACK_PUBLIC_TEST_CASE: [
+    {id: 'num', key: '1', label: 'commons.id'},
+    {id: 'name', key: '2', label: 'commons.name'},
+    {id: 'reviewStatus', key: '3', label: 'test_track.case.status'},
+    {id: 'tags', key: '4', label: 'commons.tag'},
+    {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},
+    {id: 'projectName', key: '5', label: 'test_track.case.project'},
+    {id: 'updateTime', key: '6', label: 'commons.update_time'},
+    {id: 'createName', key: '7', label: 'commons.create_user'},
+    {id: 'createTime', key: '8', label: 'commons.create_time'},
+    {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
+    {id: 'lastExecResult', key: '0', label: 'test_track.plan_view.execute_result'},
+  ],
   // 测试报告
   TRACK_REPORT_TABLE: [
     {id: 'name', key: '1', label: 'test_track.report.list.name'},
@@ -306,4 +319,3 @@ export let CUSTOM_TABLE_HEADER = {
   ]
 
 }
-

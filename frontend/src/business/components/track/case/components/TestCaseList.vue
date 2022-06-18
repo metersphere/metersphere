@@ -50,14 +50,6 @@
         :label="$t('commons.delete_user')"
         min-width="120"/>
 
-       <ms-table-column
-         prop="projectName"
-         :fields-width="fieldsWidth"
-         :label="$t('test_track.case.project')"
-         v-if="publicEnable"
-         min-width="150px">
-        </ms-table-column>
-
       <span v-for="(item, index) in fields" :key="index">
         <ms-table-column
           v-if="item.id === 'lastExecResult'"
@@ -72,6 +64,14 @@
             </span>
         </template>
       </ms-table-column>
+
+       <ms-table-column
+         prop="projectName"
+         :fields-width="fieldsWidth"
+         :label="$t('test_track.case.project')"
+         v-if="publicEnable && item.id === 'projectName'"
+         min-width="150px">
+       </ms-table-column>
 
         <ms-table-column
           v-if="!customNum"
@@ -526,6 +526,10 @@ export default {
     }
   },
   created: function () {
+    if (this.publicEnable) {
+      this.tableHeaderKey = 'TRACK_PUBLIC_TEST_CASE';
+      this.fields = getCustomTableHeader(this.tableHeaderKey);
+    }
     this.getTemplateField();
     this.$emit('setCondition', this.condition);
     this.initTableData();
@@ -631,7 +635,7 @@ export default {
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
-        this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
+        this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
         this.setTestCaseDefaultValue(template);
         this.typeArr = [];
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
