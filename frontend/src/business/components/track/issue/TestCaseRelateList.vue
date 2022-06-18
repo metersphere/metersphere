@@ -6,10 +6,12 @@
 
       <template v-slot:aside>
         <ms-node-tree class="node-tree"
-                   v-loading="result.loading"
-                   @nodeSelectEvent="nodeChange"
-                   :tree-nodes="treeNodes"
-                   ref="nodeTree"/>
+                      v-loading="result.loading"
+                      @nodeSelectEvent="nodeChange"
+                      :tree-nodes="treeNodes"
+                      default-label="未规划用例"
+                      local-suffix="test_case"
+                      ref="nodeTree"/>
       </template>
 
       <el-card>

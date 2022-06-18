@@ -31,7 +31,7 @@
           <i class="el-icon-folder"/>
         </span>
         <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-          <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
+          <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
         </el-tooltip>
 
         <span class="count-title" v-if="isDisplay !== 'relevance'">
@@ -49,7 +49,7 @@
             <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.name === defaultLabel && data.level !==1"
+            v-if="data.name === defaultLabel && data.level !== 1"
             v-permission="updatePermission"
             class="item"
             effect="dark"
@@ -63,7 +63,7 @@
             effect="dark"
             :open-delay="200"
             v-permission="addPermission"
-            v-if="!(data.name === defaultLabel && data.level ===1)"
+            v-if="!isDefault(data)"
             :content="$t('test_track.module.add_submodule')"
             placement="top">
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
@@ -133,7 +133,7 @@ export default {
     defaultLabel: {
       type: String,
       default() {
-        return '默认模块';
+        return '未规划用例';
       }
     },
     nameLimit: {
@@ -150,7 +150,8 @@ export default {
     },
     updatePermission: Array,
     addPermission: Array,
-    deletePermission: Array
+    deletePermission: Array,
+    localSuffix: String
   },
   watch: {
     treeNodes() {
@@ -484,6 +485,12 @@ export default {
           this.$refs.tree.setCurrentKey(currentNode.data.id);
         })
       }
+    },
+    isDefault(data) {
+      return data.name === this.defaultLabel && data.level === 1;
+    },
+    getLocalDefaultName() {
+      return this.$t('commons.default_module.' + this.localSuffix);
     }
   }
 };
