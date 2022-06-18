@@ -449,7 +449,14 @@ export default {
     delete_all_version: 'All versions',
     change_password_tips: 'Your password is the initial system password, please change it as soon as possible',
     ui: 'UI TEST',
-    not_eligible_for_deletion:'Not Eligible For Deletion'
+    not_eligible_for_deletion:'Not Eligible For Deletion',
+    default_module: {
+      test_case: 'default',
+      api_definition: 'default',
+      api_scenario: 'default',
+      ui_element: 'default',
+      ui_scenario: 'default'
+    }
   },
   login: {
     normal_Login: "Normal Login",

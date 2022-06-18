@@ -451,7 +451,14 @@ export default {
     delete_all_version: '全部版本',
     change_password_tips: '您的密碼是系統初始密碼，請盡快修改密碼',
     ui: 'UI 測試',
-    not_eligible_for_deletion:'不符合删除條件'
+    not_eligible_for_deletion:'不符合删除條件',
+    default_module: {
+      test_case: '未規劃用例',
+      api_definition: '未規劃接口',
+      api_scenario: '未規劃場景',
+      ui_element: '未規劃元素',
+      ui_scenario: '未規劃場景'
+    }
   },
   login: {
     normal_Login: "普通登錄",

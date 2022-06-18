@@ -5,6 +5,8 @@
       <node-tree class="node-tree"
                  v-loading="result.loading"
                  @nodeSelectEvent="nodeChange"
+                 local-suffix="test_case"
+                 default-label="未规划用例"
                  :tree-nodes="treeNodes"
                  ref="nodeTree"/>
     </template>
