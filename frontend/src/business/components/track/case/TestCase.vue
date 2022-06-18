@@ -26,6 +26,8 @@
       <node-tree class="node-tree"
                  :is-display="'public'"
                  v-loading="result.loading"
+                 local-suffix="test_case"
+                 default-label="未规划用例"
                  @nodeSelectEvent="publicNodeChange"
                  :tree-nodes="publicTreeNodes"
                  ref="publicNodeTree"/>

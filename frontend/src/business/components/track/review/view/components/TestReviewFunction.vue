@@ -4,6 +4,8 @@
       <ms-node-tree
         class="node-tree"
         :all-label="$t('commons.all_label.review')"
+        local-suffix="test_case"
+        default-label="未规划用例"
         v-loading="result.loading"
         @nodeSelectEvent="nodeChange"
         :tree-nodes="treeNodes"

@@ -454,6 +454,13 @@ export default {
     not_eligible_for_deletion:'不符合删除條件',
     batch:'批量',
     change:'改变',
+    default_module: {
+      test_case: '未規劃用例',
+      api_definition: '未規劃接口',
+      api_scenario: '未規劃場景',
+      ui_element: '未規劃元素',
+      ui_scenario: '未規劃場景'
+    }
   },
   login: {
     normal_Login: "普通登錄",

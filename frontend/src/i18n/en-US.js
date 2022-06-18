@@ -452,6 +452,13 @@ export default {
     not_eligible_for_deletion:'Not Eligible For Deletion',
     batch:'Batch',
     change:'Change',
+    default_module: {
+      test_case: 'default',
+      api_definition: 'default',
+      api_scenario: 'default',
+      ui_element: 'default',
+      ui_scenario: 'default'
+    }
   },
   login: {
     normal_Login: "Normal Login",

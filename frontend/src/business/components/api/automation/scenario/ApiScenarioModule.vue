@@ -13,6 +13,7 @@
       :add-permission="['PROJECT_API_SCENARIO:READ+CREATE']"
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
       :default-label="$t('api_test.automation.unplanned_scenario')"
+      local-suffix="api_scenario"
       @add="add"
       @edit="edit"
       @drag="drag"

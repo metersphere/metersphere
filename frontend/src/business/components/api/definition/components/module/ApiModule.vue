@@ -10,6 +10,7 @@
         :type="isReadOnly ? 'view' : 'edit'"
         :allLabel="$t('api_test.definition.api_all')"
         :default-label="$t('api_test.definition.unplanned_api')"
+        local-suffix="api_definition"
         @add="add"
         @edit="edit"
         @drag="drag"
