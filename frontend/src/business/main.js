@@ -31,8 +31,6 @@ import 'mavon-editor/dist/css/index.css'
 import 'element-ui/lib/theme-chalk/display.css';
 Vue.use(mavonEditor)
 
-Vue.use(vueMinderEditor)
-
 Vue.use(JsonSchemaEditor);
 Vue.use(ComparedEditor);
 
@@ -45,6 +43,10 @@ Vue.use(icon);
 Vue.use(ElementUI, {
   i18n: (key, value) => i18n.t(key, value)
 });
+Vue.use(vueMinderEditor, {
+  i18n: (key, value) => i18n.t(key, value)
+});
+
 Vue.use(filters);
 Vue.use(ajax);
 Vue.use(chart);
