@@ -451,7 +451,14 @@ export default {
     delete_all_version: '全部版本',
     change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
     ui: 'UI 测试',
-    not_eligible_for_deletion:'不符合删除条件'
+    not_eligible_for_deletion:'不符合删除条件',
+    default_module: {
+      test_case: '未规划用例',
+      api_definition: '未规划接口',
+      api_scenario: '未规划场景',
+      ui_element: '未规划元素',
+      ui_scenario: '未规划场景'
+    }
   },
   login: {
     normal_Login: "普通登录",

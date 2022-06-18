@@ -27,6 +27,8 @@
                      :is-display="openType"
                      :all-label="$t('commons.all_label.review')"
                      v-loading="result.loading"
+                     local-suffix="test_case"
+                     default-label="未规划用例"
                      @nodeSelectEvent="nodeChange"
                      :tree-nodes="treeNodes"
                      ref="nodeTree"/>
