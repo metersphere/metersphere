@@ -17,7 +17,8 @@
         from workspace w
                  join user_group ur on w.id = ur.source_id
                  join `group` r on r.id = ur.group_id
-        where w.id = #{workspaceId} and ur.user_id = #{userId}
+        where w.id = #{workspaceId}
+          and ur.user_id = #{userId}
     </select>
     <select id="getMemberList" resultType="io.metersphere.base.domain.User">
         SELECT DISTINCT * FROM (
@@ -29,17 +30,21 @@
         order by user_group.update_time desc) temp
     </select>
     <select id="getProjectMemberList" resultType="io.metersphere.base.domain.User">
-        SELECT DISTINCT * FROM (
-        SELECT `user`.* FROM user_group JOIN `user` ON user_group.user_id = `user`.id
-        WHERE user_group.source_id = #{request.projectId}
-        order by `user`.update_time desc) temp
+        SELECT DISTINCT *
+        FROM (
+                 SELECT `user`.*
+                 FROM user_group
+                          JOIN `user` ON user_group.user_id = `user`.id
+                 WHERE user_group.source_id = #{request.projectId}
+                 order by `user`.update_time desc) temp
     </select>
     <select id="getProjectMemberGroups" resultType="io.metersphere.base.domain.Group">
         select r.id, r.name
         from project p
                  join user_group ur on p.id = ur.source_id
                  join `group` r on r.id = ur.group_id
-        where p.id = #{projectId} and ur.user_id = #{userId}
+        where p.id = #{projectId}
+          and ur.user_id = #{userId}
     </select>
     <select id="getRelatedSource" resultType="io.metersphere.dto.RelatedSource">
         SELECT workspace_id, project.id
@@ -48,15 +53,15 @@
                  JOIN workspace w ON project.workspace_id = w.id
         WHERE user_id = #{userId} -- project_admin project_member read_only bb
         UNION
-        SELECT  w.id, ''
+        SELECT w.id, ''
         FROM user_group
                  JOIN workspace w ON user_group.source_id = w.id
         WHERE user_id = #{userId} -- workspace_admin workspace_member ccc
     </select>
     <select id="getGroupUser" resultType="io.metersphere.base.domain.User">
         select distinct user.id, user.name, user.email, user.phone, user.create_time
-          from user join user_group ug on user.id = ug.user_id
-         where ug.group_id = #{request.userGroupId}
+        from user join user_group ug on user.id = ug.user_id
+        where ug.group_id = #{request.userGroupId}
         <if test="request.name != null and request.name !=''">
             and user.name like concat('%', #{request.name},'%')
         </if>
@@ -70,21 +75,32 @@
         SELECT COUNT(id)
         FROM user_group ug
         WHERE ug.user_id = #{userId}
-        AND ug.source_id = #{sourceId}
-        AND ug.group_id = #{groupId}
+          AND ug.source_id = #{sourceId}
+          AND ug.group_id = #{groupId}
     </select>
 
-    <select id="getUserGroupInfo" resultType="io.metersphere.dto.UserGroupInfoDTO">
-        select distinct user.id AS userId, user.name AS userName, user.email AS userEmail, g.`name` AS groupName, g.id AS groupId
-        from user INNER JOIN user_group ug on user.id = ug.user_id
-                  INNER JOIN `group` g ON ug.group_id = g.id
-        order by ug.create_time ASC;
+    <select id="getUserGroupInfoByProjectId" resultType="io.metersphere.dto.UserGroupInfoDTO">
+        select distinct user.id      AS userId,
+                        user.name    AS userName,
+                        user.email   AS userEmail,
+                        ug.source_id AS sourceId,
+                        g.`name`     AS groupName,
+                        g.id         AS groupId
+        from user
+                 INNER JOIN user_group ug on user.id = ug.user_id
+                 INNER JOIN `group` g ON ug.group_id = g.id
+        WHERE g.type = 'PROJECT'
+          AND ug.source_id = #{0}
+        order by g.create_time ASC;
     </select>
     <select id="getProjectMemberOption" resultType="io.metersphere.base.domain.User">
-        SELECT DISTINCT * FROM (
-            SELECT u.id, u.name, u.email FROM user_group JOIN `user` u ON user_group.user_id = u.id
-            WHERE user_group.source_id = #{projectId}
-            order by user_group.update_time desc
-        ) temp
+        SELECT DISTINCT *
+        FROM (
+                 SELECT u.id, u.name, u.email
+                 FROM user_group
+                          JOIN `user` u ON user_group.user_id = u.id
+                 WHERE user_group.source_id = #{projectId}
+                 order by user_group.update_time desc
+             ) temp
     </select>
 </mapper>
