@@ -73,7 +73,6 @@ export default {
       this.resource = data;
       if (!this.currentInstance) {
         this.currentInstance = this.resource[0]?.resourceId;
-        this.changeInstance(this.currentInstance);
       }
       this.page = data.map(item => item.resourceId).reduce((result, curr) => {
         result[curr] = 1;
@@ -83,6 +82,10 @@ export default {
         result[curr] = [];
         return result;
       }, {});
+      //
+      if (this.currentInstance) {
+        this.changeInstance(this.currentInstance);
+      }
     },
     load(resourceId) {
       if (this.loading || this.page[resourceId] > this.pageCount) {
