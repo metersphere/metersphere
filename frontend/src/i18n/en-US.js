@@ -1042,6 +1042,7 @@ export default {
     ramp_up_tips: 'The RampUp is too large, the chart rendering will not be displayed, this does not affect the test execution, please refer to the actual results',
     iterate_num: 'Iterations',
     by_iteration: 'By iterations',
+    by_iteration_tip: 'The execution time needs to be configured according to the number of iterations. JMeter will decide whether to end the test according to the number of iterations and the execution time',
     by_duration: 'By duration',
     ramp_up_time_times: 'add VUs',
     advanced_config_error: 'Advanced configuration verification failed',
