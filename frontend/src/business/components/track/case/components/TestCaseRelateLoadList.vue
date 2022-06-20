@@ -82,7 +82,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import {TEST_CASE_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
-import {hasLicense, getCurrentProjectID} from "@/common/js/utils";
+import {getVersionFilters} from "@/network/project";
 
 export default {
   name: "TestCaseRelateLoadList",
@@ -123,6 +123,7 @@ export default {
   watch: {
     projectId() {
       this.condition.versionId = null;
+      this.getVersionOptions();
       this.initTable();
     }
   },
@@ -170,14 +171,9 @@ export default {
       }
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;

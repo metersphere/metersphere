@@ -64,7 +64,7 @@ import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
 import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
 import RelevanceApiList from "../../../../../api/automation/scenario/api/RelevanceApiList";
 import RelevanceCaseList from "../../../../../api/automation/scenario/api/RelevanceCaseList";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getVersionFilters} from "@/network/project";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -106,6 +106,9 @@ export default {
     planId() {
       this.condition.planId = this.planId;
     },
+    projectId() {
+      this.getVersionOptions();
+    }
   },
   mounted() {
     this.getVersionOptions();
@@ -220,14 +223,9 @@ export default {
       });
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(currentVersion, type) {
       if (type == 'api') {

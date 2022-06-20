@@ -14,6 +14,10 @@ export function getProjectMember(callBack) {
   });
 }
 
+export function getProjectMemberById(projectId, callback) {
+  return projectId ? baseGet('/user/project/member/' + projectId, callback) : {};
+}
+
 export function logout() {
   axios.get("/signout").then(response => {
     if (response.data.success) {

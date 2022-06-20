@@ -107,8 +107,8 @@ import {
   TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
 } from "@/business/components/common/components/search/search-components";
 import {ENV_TYPE} from "@/common/js/constants";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {getVersionFilters} from "@/network/project";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -179,6 +179,7 @@ export default {
     projectId() {
       this.condition.versionId = null;
       this.search();
+      this.getVersionOptions();
     },
   },
   created() {
@@ -268,13 +269,9 @@ export default {
       this.search();
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     filter(field) {
       this.condition.filters = field || null;
