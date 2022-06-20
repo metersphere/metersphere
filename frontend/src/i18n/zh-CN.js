@@ -1040,6 +1040,7 @@ export default {
     ramp_up_tips: 'RampUp 过大，图表渲染卡顿不予展示，这并不影响测试执行，请以实际结果为准',
     iterate_num: '迭代次数',
     by_iteration: '按迭代次数',
+    by_iteration_tip: '按迭代次数执行需要配置执行时长，JMeter会按照迭代次数和执行时长来决定是否结束测试',
     by_duration: '按持续时间',
     ramp_up_time_times: '次增加并发用户',
     advanced_config_error: '高级配置校验失败',
