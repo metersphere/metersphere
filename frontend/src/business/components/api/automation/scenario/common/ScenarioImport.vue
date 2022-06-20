@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
+    <el-form :model="formData" :rules="rules" label-width="105px" v-loading="result.loading" ref="form">
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.import_module')">
