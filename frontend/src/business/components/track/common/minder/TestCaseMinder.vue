@@ -79,6 +79,7 @@ name: "TestCaseMinder",
       result: {loading: false},
       needRefresh: false,
       noRefresh: false,
+      noRefreshMinder: false,
       saveCases: [],
       saveModules: [],
       saveModuleNodeMap: new Map(),
@@ -152,6 +153,11 @@ name: "TestCaseMinder",
   methods: {
     handleNodeUpdateForMinder() {
       this.noRefresh = true;
+      if (this.noRefreshMinder) {
+        // 如果是保存触发的刷新模块，则不刷新脑图
+        this.noRefreshMinder = false;
+        return;
+      }
       // 如果脑图没有修改直接刷新，有修改提示
       if (!this.$store.state.isTestCaseMinderChanged) {
         if (this.$refs.minder) {
@@ -286,6 +292,9 @@ name: "TestCaseMinder",
         this.extraNodeChanged = [];
         if (!this.noRefresh) {
           this.$emit('refresh');
+          // 保存会刷新模块，刷新完模块，脑图也会自动刷新
+          // 如果是保存触发的刷新模块，则不刷新脑图
+          this.noRefreshMinder = true;
         }
         // 由于模块修改刷新的脑图，不刷新模块
         this.noRefresh = false;
