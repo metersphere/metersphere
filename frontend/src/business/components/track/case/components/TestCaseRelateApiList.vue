@@ -72,8 +72,9 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import MsTag from "@/business/components/common/components/MsTag";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
+import {getVersionFilters} from "@/network/project";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
 
@@ -137,6 +138,7 @@ export default {
     },
     projectId() {
       this.condition.versionId = null;
+      this.getVersionOptions();
       this.initTable();
     }
   },
@@ -196,13 +198,9 @@ export default {
       }
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(currentVersion) {
         this.condition.versionId = currentVersion || null;

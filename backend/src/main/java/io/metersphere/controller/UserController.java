@@ -179,6 +179,13 @@ public class UserController {
         return userService.getProjectMemberList(request);
     }
 
+    @GetMapping("/project/member/{projectId}")
+    public List<User> getProjectMembers(@PathVariable String projectId) {
+        QueryMemberRequest request = new QueryMemberRequest();
+        request.setProjectId(projectId);
+        return userService.getProjectMemberList(request);
+    }
+
     @GetMapping("/project/member/option")
     public List<User> getProjectMemberOption() {
         return userService.getProjectMemberOption(SessionUtils.getCurrentProjectId());

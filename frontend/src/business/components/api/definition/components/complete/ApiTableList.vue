@@ -125,7 +125,7 @@ import PriorityTableItem from "../../../../track/common/tableItems/planview/Prio
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {getProtocolFilter} from "@/business/components/api/definition/api-definition";
-import {getProjectMember} from "@/network/user";
+import {getProjectMemberById} from "@/network/user";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 import {hasLicense} from "@/common/js/utils";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
@@ -186,11 +186,7 @@ export default {
     }
   },
   created: function () {
-    getProjectMember((data) => {
-      this.userFilters = data.map(u => {
-        return {text: u.name, value: u.id};
-      });
-    });
+    this.getUserFilter();
     this.getProtocolFilter();
     this.checkVersionEnable();
   },
@@ -200,6 +196,7 @@ export default {
     },
     projectId() {
       this.checkVersionEnable();
+      this.getUserFilter();
     }
   },
   mounted() {
@@ -255,6 +252,13 @@ export default {
           this.versionEnable = response.data;
         });
       }
+    },
+    getUserFilter() {
+      getProjectMemberById(this.projectId, (data) => {
+        this.userFilters = data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
     }
   },
 };
