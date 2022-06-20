@@ -15,6 +15,7 @@ import java.util.Map;
 public class RequestResultExpandDTO extends RequestResult {
     private String status;
     private String uiImg;
+    private String reportId;
     private long time;
     private Map<String, String> attachInfoMap;
 
@@ -32,6 +33,7 @@ public class RequestResultExpandDTO extends RequestResult {
                 this.setTime(dto.getRspTime());
                 this.setEndTime(dto.getRspTime() - dto.getReqStartTime());
                 this.setUiImg(dto.getUiImg());
+                this.setReportId(dto.getReportId());
                 this.setStatus(requestResult.getStatus());
                 ResponseResult responseResult = this.getResponseResult();
                 responseResult.setResponseCode(dto.getRspCode());

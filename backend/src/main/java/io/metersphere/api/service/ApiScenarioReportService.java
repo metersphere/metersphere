@@ -31,6 +31,7 @@ import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.xpack.ui.service.UiScenarioReportStructureService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -90,6 +91,8 @@ public class ApiScenarioReportService {
     private UiReportServiceProxy uiReportServiceProxy;
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
+    @Resource
+    private UiScenarioReportStructureService uiScenarioReportStructureService;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -248,6 +251,11 @@ public class ApiScenarioReportService {
         report.setUpdateTime(System.currentTimeMillis());
         if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
             report.setTriggerMode(TriggerMode.MANUAL.name());
+        }
+        // UI 调试类型报告不记录更新状态
+        if(report.getExecuteType().equals(ExecuteType.Debug.name()) &&
+        report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())){
+            return report;
         }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
@@ -496,6 +504,11 @@ public class ApiScenarioReportService {
                 executeTimes = scenario.getExecuteTimes().intValue();
             }
             scenario.setExecuteTimes(executeTimes + 1);
+            // 针对 UI 调试类型的不需要更新
+            if(report.getExecuteType().equals(ExecuteType.Debug.name()) &&
+                    report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())){
+                return report;
+            }
             uiScenarioMapper.updateByPrimaryKey(scenario);
         }
 
@@ -615,6 +628,11 @@ public class ApiScenarioReportService {
             ApiDefinitionExecResultExample execResultExample = new ApiDefinitionExecResultExample();
             execResultExample.createCriteria().andIntegratedReportIdEqualTo(request.getId());
             definitionExecResultMapper.deleteByExample(execResultExample);
+        }else{
+            // 为 UI 类型报告，需要删除报告产生的截图
+            List<String> ids = new ArrayList<>();
+            ids.add(request.getId());
+            uiScenarioReportStructureService.cleanUpReport(ids);
         }
 
         // 补充逻辑，如果是集成报告则把零时报告全部删除
@@ -733,6 +751,11 @@ public class ApiScenarioReportService {
 
             //转存剩余的数据
             ids = otherIdList;
+        }
+
+        if(!BooleanUtils.isNotTrue(reportRequest.getIsUi())){
+            // 为 UI 类型报告，需要删除报告产生的截图
+            uiScenarioReportStructureService.cleanUpReport(ids);
         }
 
         //处理最后剩余的数据
