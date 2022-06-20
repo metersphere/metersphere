@@ -2,8 +2,7 @@
   <div>
     <el-row :gutter="10">
       <el-col :span="4">
-        <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
-                   @change="changeInstance(currentInstance)">
+        <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%">
           <el-option
             v-for="item in resource"
             :key="item.resourceId"
@@ -73,7 +72,6 @@ export default {
       this.resource = data;
       if (!this.currentInstance) {
         this.currentInstance = this.resource[0]?.resourceId;
-        this.changeInstance(this.currentInstance);
       }
       this.page = data.map(item => item.resourceId).reduce((result, curr) => {
         result[curr] = 1;
@@ -186,6 +184,11 @@ export default {
         }
       },
       deep: true
+    },
+    currentInstance() {
+      if (this.currentInstance) {
+        this.changeInstance(this.currentInstance);
+      }
     }
   },
 };
