@@ -311,33 +311,28 @@ export default {
           this.$warning(this.$t('test_track.comment.description_is_null'));
         } else {
           // 第四种情况，未通过状态直接点击未通过
-          this.$post('/test/review/case/edit', param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.updateTestCases(param);
-            this.setReviewStatus(this.testCase.reviewId);
-            this.testCase.reviewStatus = status;
-            // 修改当前用例在整个用例列表的状态
-            this.testCases[this.index].reviewStatus = status;
-            // 修改旧的状态
-            this.oldReviewStatus = status;
-            if (this.index < this.testCases.length - 1) {
-              this.handleNext();
-            }
-          });
+          this._saveCase(param, status);
         }
       } else {
-        this.$post('/test/review/case/edit', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.updateTestCases(param);
-          this.setReviewStatus(this.testCase.reviewId);
-          this.testCase.reviewStatus = status;
-          // 修改当前用例在整个用例列表的状态
-          this.testCases[this.index].reviewStatus = status;
-          this.handleNext();
-          // 切换状态后需要修改旧的状态
-          this.oldReviewStatus = status;
-        });
+        this._saveCase(param, status);
       }
+    },
+    _saveCase(param, status) {
+      this.$post('/test/review/case/edit', param, () => {
+        if (!this.isLastData()) {
+          this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
+        } else {
+          this.$success(this.$t('commons.save_success'));
+        }
+        this.updateTestCases(param);
+        this.setReviewStatus(this.testCase.reviewId);
+        this.testCase.reviewStatus = status;
+        // 修改当前用例在整个用例列表的状态
+        this.testCases[this.index].reviewStatus = status;
+        this.handleNext();
+        // 切换状态后需要修改旧的状态
+        this.oldReviewStatus = status;
+      });
     },
     saveCaseReview() {
       let param = {};
@@ -378,6 +373,9 @@ export default {
       }
       this.index++;
       this.getTestCase(this.testCases[this.index].id);
+    },
+    isLastData() {
+      return this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal;
     },
     handlePre() {
       if (this.index === 0 && this.pageNum === 1) {
