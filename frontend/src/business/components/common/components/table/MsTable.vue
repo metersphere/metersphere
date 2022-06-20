@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-table
+        v-if="tableActive"
         border
         class="test-content adjust-table ms-table"
         v-loading="tableIsLoading"
@@ -164,7 +165,8 @@ export default {
       selectRows: new Set(),
       selectIds: [],
       hasBatchTipShow: false,
-      defaultSort: {}
+      defaultSort: {},
+      tableActive: true
     };
   },
   props: {
@@ -480,7 +482,12 @@ export default {
     },
     resetHeader() {
       this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
-      this.reloadTable();
+      this.tableActive = false;
+      this.$nextTick(() => {
+        this.doLayout();
+        this.tableActive = true;
+      });
+      this.listenRowDrop();
     },
     toggleRowSelection() {
       this.$refs.table.toggleRowSelection();
