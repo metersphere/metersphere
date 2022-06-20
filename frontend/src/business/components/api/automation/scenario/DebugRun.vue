@@ -86,9 +86,15 @@ export default {
         url = '/ui/automation/run/debug';
       }
       saveScenario(url, reqObj, this.runData.hashTree, this, (response) => {
-        if(!response.success && response.data !== "SUCCESS"){
+        // 兼容ui执行提示
+        if (url.startsWith("/api") &&response.data!== "SUCCESS") {
           this.$error(response.data ? response.data : this.$t('commons.run_fail'));
           this.$emit('errorRefresh');
+        } else {
+          if (!response.success &&response.data!=="SUCCESS") {
+            this.$error(response.data ? response.data : this.$t('commons.run_fail'));
+            this.$emit('errorRefresh');
+          }
         }
       });
     },
