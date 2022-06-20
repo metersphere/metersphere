@@ -78,9 +78,7 @@ public class LoadTestVumEvent implements LoadTestFinishEvent {
 
     @Override
     public void execute(LoadTestReport report) {
-        if (PerformanceTestStatus.Error.name().equals(report.getStatus())) {
-            // 失败后回退vum数量
-            this.handleVum(report);
-        }
+        // 根据报告结束时间修正vum值
+        this.handleVum(report);
     }
 }
