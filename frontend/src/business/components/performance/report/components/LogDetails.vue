@@ -14,13 +14,16 @@
       </el-col>
       <el-col :span="20">
         <div v-if="currentInstance" class="logging-content">
-          <ul class="infinite-list" v-infinite-scroll="load(currentInstance)">
+          <ul class="infinite-list">
             <li class="infinite-list-item" v-for="(log, index) in logContent[currentInstance]"
                 :key="currentInstance+index">
               {{ log.content }}
             </li>
           </ul>
-          <el-link type="primary" @click="downloadLogFile(currentInstance)">{{ $t('load_test.download_log_file') }}</el-link>
+          <el-link type="primary" @click="downloadLogFile(currentInstance)">{{
+              $t('load_test.download_log_file')
+            }}
+          </el-link>
         </div>
       </el-col>
     </el-row>
@@ -70,6 +73,7 @@ export default {
       this.resource = data;
       if (!this.currentInstance) {
         this.currentInstance = this.resource[0]?.resourceId;
+        this.changeInstance(this.currentInstance);
       }
       this.page = data.map(item => item.resourceId).reduce((result, curr) => {
         result[curr] = 1;
@@ -106,6 +110,8 @@ export default {
       });
       this.page[resourceId]++;
       this.loading = false;
+      // 继续查询
+      this.load(resourceId);
     },
     changeInstance(instance) {
       this.currentInstance = instance;
