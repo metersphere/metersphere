@@ -26,10 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -89,7 +87,7 @@ public class IssueTemplateService extends TemplateBaseService {
     public void update(UpdateIssueTemplateRequest request) {
         if (request.getGlobal() != null && request.getGlobal()) {
             String originId = request.getId();
-            // 如果是全局字段，则创建对应工作空间字段
+            // 如果是全局字段，则创建对应项目字段
             String id = add(request);
             projectService.updateIssueTemplate(originId, id, request.getProjectId());
         } else {
@@ -105,51 +103,58 @@ public class IssueTemplateService extends TemplateBaseService {
     }
 
     /**
-     * 获取该工作空间的系统模板
-     * - 如果没有，则创建该工作空间模板，并关联默认的字段
+     * 获取该项目下的系统模板
+     * - 如果没有，则创建该工项目模板，并关联默认的字段
      * - 如果有，则更新原来关联的 fieldId
      *
      * @param customField
      */
-    public void handleSystemFieldCreate(CustomField customField) {
-        IssueTemplate workspaceSystemTemplate = getWorkspaceSystemTemplate(customField.getProjectId());
-        if (workspaceSystemTemplate == null) {
-            createTemplateWithUpdateField(customField.getProjectId(), customField);
-        } else {
-            updateRelateWithUpdateField(workspaceSystemTemplate, customField);
-        }
-    }
-
-    private IssueTemplate getWorkspaceSystemTemplate(String workspaceId) {
+    public void handleSystemFieldCreate(CustomFieldDao customField) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
-                .andProjectIdEqualTo(workspaceId)
-                .andSystemEqualTo(true);
+                .andGlobalEqualTo(true);
+        example.or(example.createCriteria()
+                .andProjectIdEqualTo(customField.getProjectId()));
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExampleWithBLOBs(example);
-        if (CollectionUtils.isNotEmpty(issueTemplates)) {
-            return issueTemplates.get(0);
+
+        Map<Boolean, List<IssueTemplate>> templatesMap = issueTemplates.stream()
+                .collect(Collectors.groupingBy(IssueTemplate::getGlobal));
+
+        // 获取全局模板
+        List<IssueTemplate> globalTemplates = templatesMap.get(true);
+        // 获取当前工作空间下模板
+        List<IssueTemplate> projectTemplates = templatesMap.get(false);
+
+        globalTemplates.forEach(global -> {
+            List<IssueTemplate> projectTemplate = null;
+            if (CollectionUtils.isNotEmpty(projectTemplates)) {
+                projectTemplate = projectTemplates.stream()
+                        .filter(i -> i.getName().equals(global.getName()))
+                        .collect(Collectors.toList());
+            }
+            // 如果没有项目级别的模板就创建
+            if (CollectionUtils.isEmpty(projectTemplate)) {
+                IssueTemplate template = new IssueTemplate();
+                BeanUtils.copyBean(template, global);
+                template.setId(UUID.randomUUID().toString());
+                template.setCreateTime(System.currentTimeMillis());
+                template.setUpdateTime(System.currentTimeMillis());
+                template.setCreateUser(SessionUtils.getUserId());
+                template.setGlobal(false);
+                template.setProjectId(customField.getProjectId());
+                issueTemplateMapper.insert(template);
+
+                List<CustomFieldTemplate> customFieldTemplate =
+                        customFieldTemplateService.getSystemFieldCreateTemplate(customField, global.getId());
+
+                customFieldTemplateService.create(customFieldTemplate, template.getId(),
+                        TemplateConstants.FieldTemplateScene.ISSUE.name());
+            }
+        });
+        if (CollectionUtils.isNotEmpty(projectTemplates)) {
+            customFieldTemplateService.updateProjectTemplateGlobalField(customField,
+                    projectTemplates.stream().map(IssueTemplate::getId).collect(Collectors.toList()));
         }
-        return null;
-    }
-
-    private void createTemplateWithUpdateField(String projectId, CustomField customField) {
-        UpdateIssueTemplateRequest request = new UpdateIssueTemplateRequest();
-        IssueTemplate issueTemplate = new IssueTemplate();
-        issueTemplate.setName("default");
-        issueTemplate.setPlatform(TemplateConstants.IssueTemplatePlatform.metersphere.name());
-        issueTemplate.setGlobal(false);
-        issueTemplate.setSystem(true);
-        issueTemplate.setProjectId(projectId);
-        BeanUtils.copyBean(request, issueTemplate);
-        List<CustomFieldTemplate> systemFieldCreateTemplate =
-                customFieldTemplateService.getSystemFieldCreateTemplate(customField, TemplateConstants.FieldTemplateScene.ISSUE.name());
-        request.setCustomFields(systemFieldCreateTemplate);
-        add(request);
-    }
-
-    private void updateRelateWithUpdateField(IssueTemplate template, CustomField customField) {
-        CustomField globalField = customFieldService.getGlobalFieldByName(customField.getName());
-        customFieldTemplateService.updateFieldIdByTemplate(template.getId(), globalField.getId(), customField.getId());
     }
 
     private void checkExist(IssueTemplate issueTemplate) {

@@ -17,5 +17,7 @@ public class CustomFieldDao extends CustomField {
 
     private String customData;
 
+    private String originGlobalId;
+
     private String key;
 }
