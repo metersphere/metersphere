@@ -152,12 +152,12 @@ name: "TestCaseMinder",
   },
   methods: {
     handleNodeUpdateForMinder() {
-      this.noRefresh = true;
       if (this.noRefreshMinder) {
         // 如果是保存触发的刷新模块，则不刷新脑图
         this.noRefreshMinder = false;
         return;
       }
+      this.noRefresh = true;
       // 如果脑图没有修改直接刷新，有修改提示
       if (!this.$store.state.isTestCaseMinderChanged) {
         if (this.$refs.minder) {
