@@ -2806,6 +2806,8 @@ export default {
     mail_subject: "邮件主题",
     mail_addressee: "收件人",
     mail_duplicate: "抄送人",
+    enter_mail_addressee: "输入回车添加邮箱",
+    enter_mail_duplicate: "输入回车添加邮箱",
   },
   notice: {
     operation: {
