@@ -57,6 +57,7 @@ export default {
     annotation: '註釋',
     clear: '清空',
     save: '保存',
+    not_save: '不保存',
     save_as: '另存為',
     update: '更新',
     save_success: '保存成功',
@@ -2245,7 +2246,8 @@ export default {
       reviewed_by_me: "待我評審",
       creator: "創建人",
       done: "已評用例",
-      result_distribution: "結果分布"
+      result_distribution: "結果分布",
+      deadline_cannot_early_tips: "截止時間不能早於當前時間！",
     },
     comment: {
       no_comment: "暫無評論",

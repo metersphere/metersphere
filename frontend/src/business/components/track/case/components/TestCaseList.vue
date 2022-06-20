@@ -796,8 +796,12 @@ export default {
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
           this.page.data.forEach(item => {
+            let nodePath = item.nodePath;
             if (item.customFields) {
               item.customFields = JSON.parse(item.customFields);
+            }
+            if (nodePath.startsWith("/未规划用例", "0")) {
+              item.nodePath = nodePath.replaceAll("/未规划用例", "/" + this.$t('api_test.unplanned_case'));
             }
           });
           parseTag(this.page.data);
