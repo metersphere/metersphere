@@ -336,7 +336,11 @@ export default {
 
         });
         if (!noTip) {
-          this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
+          if (!this.isLastData()) {
+            this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
+          } else {
+            this.$success(this.$t('commons.save_success'));
+          }
         }
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
@@ -357,7 +361,7 @@ export default {
       }
     },
     handleNext() {
-      if (this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal) {
+      if (this.isLastData()) {
         return;
       } else if (this.index === this.testCases.length - 1) {
         this.$emit('nextPage');
@@ -367,6 +371,9 @@ export default {
       this.index++;
       this.getTestCase(this.testCases[this.index].id);
       this.reloadOtherInfo();
+    },
+    isLastData() {
+      return this.index === this.testCases.length - 1 && this.pageNum === this.pageTotal;
     },
     reloadOtherInfo() {
       this.otherInfoActive = false;
