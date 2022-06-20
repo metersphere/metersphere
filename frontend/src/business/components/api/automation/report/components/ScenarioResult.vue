@@ -10,9 +10,9 @@
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
           <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
-            {{ node.label }}
+            {{ getLable(node.label) }}
           </el-link>
-          <span v-else>{{ node.label }}</span>
+          <span v-else>{{ getLable(node.label) }}</span>
         </el-tooltip>
       </el-card>
     </div>
@@ -70,6 +70,18 @@ export default {
     }
   },
   methods: {
+    getLable(label) {
+      switch (label) {
+        case "ConstantTimer":
+          return "等待控制器";
+        case "LoopController":
+          return "循环控制器";
+        case "Assertion":
+          return "场景断言";
+        default:
+          return label;
+      }
+    },
     isLink() {
       let uri =  "/#/api/automation?resourceId=" + this.node.resourceId;
       this.clickResource(uri)
