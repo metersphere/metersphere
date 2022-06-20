@@ -111,10 +111,18 @@
               <div class="value">{{ content.scenarioStepErrorReport ? content.scenarioStepErrorReport : 0 }}</div>
               <div class="name">{{ $t('error_report_library.option.name') }}</div>
             </div>
-            <span v-show="showUnExecuteReport" class="ms-point-unexecute" />
-            <div v-show="showUnExecuteReport" class="metric-box">
+            <span v-show="showUnExecuteReport && !isUi" class="ms-point-unexecute"/>
+            <div v-show="showUnExecuteReport && !isUi" class="metric-box">
               <div class="value">{{
                   content.scenarioStepUnExecuteReport ? content.scenarioStepUnExecuteReport : 0
+                }}
+              </div>
+              <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
+            </div>
+            <span v-show="showUnExecuteReport && isUi" class="ms-point-unexecute"/>
+            <div v-show="showUnExecuteReport && isUi" class="metric-box">
+              <div class="value">{{
+                  content.unExecute ? content.unExecute : 0
                 }}
               </div>
               <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
@@ -293,8 +301,8 @@ export default {
     },
     showUnExecuteReport() {
       return (this.content.scenarioStepUnExecuteReport && this.content.scenarioStepUnExecuteReport > 0)
-        || (this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0);
-    }
+        || (this.content.scenarioUnExecute && this.content.scenarioUnExecute > 0) || (this.content.unExecute && this.content.unExecute > 0);
+    },
   },
 }
 </script>
