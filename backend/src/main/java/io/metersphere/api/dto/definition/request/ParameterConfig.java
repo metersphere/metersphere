@@ -79,6 +79,11 @@ public class ParameterConfig extends MsParameter {
 
     private String scenarioId;
 
+    /**
+     * 报告 ID
+     */
+    private String reportId;
+
     private String reportType;
 
     private boolean runLocal;
