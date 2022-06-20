@@ -37,12 +37,14 @@ import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -81,6 +83,10 @@ public class IssuesService {
     private CustomFieldIssuesService customFieldIssuesService;
     @Resource
     private CustomFieldIssuesMapper customFieldIssuesMapper;
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
+
+    private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
     public void testAuth(String workspaceId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -486,6 +492,12 @@ public class IssuesService {
 
     public void syncThirdPartyIssues(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
+            String syncValue = stringRedisTemplate.opsForValue().get(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+            if (StringUtils.isNotEmpty(syncValue)) {
+                MSException.throwException("当前项目正在同步缺陷, 请稍等");
+            }
+            stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId,
+                    UUID.randomUUID().toString(), 60 * 10, TimeUnit.SECONDS);
             Project project = projectService.getProjectById(projectId);
             List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId);
 
@@ -537,6 +549,7 @@ public class IssuesService {
                     LogUtil.error(e);
                 }
             }
+            stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
         }
     }
 
