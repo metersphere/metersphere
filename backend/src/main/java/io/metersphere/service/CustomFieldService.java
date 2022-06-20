@@ -93,12 +93,15 @@ public class CustomFieldService {
 
     public void update(CustomField customField) {
         if (customField.getGlobal() != null && customField.getGlobal()) {
-            // 如果是全局字段，则创建对应工作空间字段
-            add(customField);
+            CustomFieldDao customFieldDao = new CustomFieldDao();
+            BeanUtils.copyBean(customFieldDao, customField);
+            customFieldDao.setOriginGlobalId(customField.getId());
+            // 如果是全局字段，则创建对应项目字段
+            add(customFieldDao);
             if (StringUtils.equals(customField.getScene(), TemplateConstants.FieldTemplateScene.TEST_CASE.name())) {
-                testCaseTemplateService.handleSystemFieldCreate(customField);
+                testCaseTemplateService.handleSystemFieldCreate(customFieldDao);
             } else {
-                issueTemplateService.handleSystemFieldCreate(customField);
+                issueTemplateService.handleSystemFieldCreate(customFieldDao);
             }
         } else {
             checkExist(customField);

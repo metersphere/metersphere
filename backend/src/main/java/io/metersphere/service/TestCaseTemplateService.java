@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -101,45 +102,52 @@ public class TestCaseTemplateService extends TemplateBaseService {
      * - 如果有，则更新原来关联的 fieldId
      * @param customField
      */
-    public void handleSystemFieldCreate(CustomField customField) {
-        TestCaseTemplateWithBLOBs workspaceSystemTemplate = getWorkspaceSystemTemplate(customField.getProjectId());
-        if (workspaceSystemTemplate == null) {
-            createTemplateWithUpdateField(customField.getProjectId(), customField);
-        } else {
-            updateRelateWithUpdateField(workspaceSystemTemplate, customField);
-        }
-    }
-
-    private void createTemplateWithUpdateField(String projectId, CustomField customField) {
-        UpdateCaseFieldTemplateRequest request = new UpdateCaseFieldTemplateRequest();
-        TestCaseTemplate testCaseTemplate = new TestCaseTemplate();
-        testCaseTemplate.setName("default");
-        testCaseTemplate.setType(TemplateConstants.TestCaseTemplateScene.functional.name());
-        testCaseTemplate.setGlobal(false);
-        testCaseTemplate.setSystem(true);
-        testCaseTemplate.setProjectId(projectId);
-        BeanUtils.copyBean(request, testCaseTemplate);
-        List<CustomFieldTemplate> systemFieldCreateTemplate =
-                customFieldTemplateService.getSystemFieldCreateTemplate(customField, TemplateConstants.FieldTemplateScene.TEST_CASE.name());
-        request.setCustomFields(systemFieldCreateTemplate);
-        add(request);
-    }
-
-    private void updateRelateWithUpdateField(TestCaseTemplateWithBLOBs template, CustomField customField) {
-        CustomField globalField = customFieldService.getGlobalFieldByName(customField.getName());
-        customFieldTemplateService.updateFieldIdByTemplate(template.getId(), globalField.getId(), customField.getId());
-    }
-
-    private TestCaseTemplateWithBLOBs getWorkspaceSystemTemplate(String workspaceId) {
+    public void handleSystemFieldCreate(CustomFieldDao customField) {
         TestCaseTemplateExample example = new TestCaseTemplateExample();
         example.createCriteria()
-                .andProjectIdEqualTo(workspaceId)
-                .andSystemEqualTo(true);
+                .andGlobalEqualTo(true);
+        example.or(example.createCriteria()
+                .andProjectIdEqualTo(customField.getProjectId()));
         List<TestCaseTemplateWithBLOBs> testCaseTemplates = testCaseTemplateMapper.selectByExampleWithBLOBs(example);
-        if (CollectionUtils.isNotEmpty(testCaseTemplates)) {
-            return testCaseTemplates.get(0);
+
+        Map<Boolean, List<TestCaseTemplateWithBLOBs>> templatesMap = testCaseTemplates.stream()
+                .collect(Collectors.groupingBy(TestCaseTemplateWithBLOBs::getGlobal));
+
+        // 获取全局模板
+        List<TestCaseTemplateWithBLOBs> globalTemplates = templatesMap.get(true);
+        // 获取当前工作空间下模板
+        List<TestCaseTemplateWithBLOBs> projectTemplates = templatesMap.get(false);
+
+        globalTemplates.forEach(global -> {
+            List<TestCaseTemplateWithBLOBs> projectTemplate = null;
+            if (CollectionUtils.isNotEmpty(projectTemplates)) {
+                projectTemplate = projectTemplates.stream()
+                        .filter(i -> i.getName().equals(global.getName()))
+                        .collect(Collectors.toList());
+            }
+            // 如果没有项目级别的模板就创建
+            if (CollectionUtils.isEmpty(projectTemplate)) {
+                TestCaseTemplateWithBLOBs template = new TestCaseTemplateWithBLOBs();
+                BeanUtils.copyBean(template, global);
+                template.setId(UUID.randomUUID().toString());
+                template.setCreateTime(System.currentTimeMillis());
+                template.setUpdateTime(System.currentTimeMillis());
+                template.setCreateUser(SessionUtils.getUserId());
+                template.setGlobal(false);
+                template.setProjectId(customField.getProjectId());
+                testCaseTemplateMapper.insert(template);
+
+                List<CustomFieldTemplate> customFieldTemplate =
+                        customFieldTemplateService.getSystemFieldCreateTemplate(customField, global.getId());
+
+                customFieldTemplateService.create(customFieldTemplate, template.getId(),
+                        TemplateConstants.FieldTemplateScene.TEST_CASE.name());
+            }
+        });
+        if (CollectionUtils.isNotEmpty(projectTemplates)) {
+            customFieldTemplateService.updateProjectTemplateGlobalField(customField,
+                    projectTemplates.stream().map(TestCaseTemplateWithBLOBs::getId).collect(Collectors.toList()));
         }
-        return null;
     }
 
     private void checkExist(TestCaseTemplateWithBLOBs testCaseTemplate) {
