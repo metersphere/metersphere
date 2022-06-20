@@ -410,14 +410,14 @@ public class UserService {
         }
     }
 
-    public void switchUserResource(String sign, String sourceId) {
-        SessionUser sessionUser = SessionUtils.getUser();
+    public void switchUserResource(String sign, String sourceId, UserDTO sessionUser) {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
 
         if (StringUtils.equals("workspace", sign)) {
             user.setLastWorkspaceId(sourceId);
+            sessionUser.setLastWorkspaceId(sourceId);
             List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
             if (projects.size() > 0) {
                 user.setLastProjectId(projects.get(0).getId());
@@ -665,7 +665,7 @@ public class UserService {
                     .collect(Collectors.toList());
             if (workspaces.size() > 0) {
                 String wsId = workspaces.get(0).getSourceId();
-                switchUserResource("workspace", wsId);
+                switchUserResource("workspace", wsId, user);
             } else {
                 // 用户登录之后没有项目和工作空间的权限就把值清空
                 user.setLastWorkspaceId("");
