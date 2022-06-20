@@ -71,7 +71,7 @@
 
         <ms-table-column
           prop="createUser"
-          :label="'创建人'"/>
+          :label="$t('commons.create_user')"/>
 
         <ms-table-column
           sortable="createTime"

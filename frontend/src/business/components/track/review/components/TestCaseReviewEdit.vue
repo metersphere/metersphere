@@ -105,6 +105,7 @@ import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
 import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import i18n from "@/i18n/i18n";
 
 export default {
   name: "TestCaseReviewEdit",
@@ -271,7 +272,7 @@ export default {
     },
     compareTime(ts1, ts2) {
       if (ts1 > ts2) {
-        this.$warning("截止时间不能早于当前时间！");
+        this.$warning(i18n.t('test_track.review.deadline_cannot_early_tips'));
         return false;
       }
       return true;
