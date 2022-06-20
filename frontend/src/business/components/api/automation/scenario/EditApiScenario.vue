@@ -195,9 +195,9 @@
                     <span class="custom-tree-node-col" style="padding-left:0px;padding-right:0px"
                           v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                       <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e"
-                            @click="openOrClose(node)"/>
+                            @click="openOrClose(node,data)"/>
                       <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e"
-                            @click="openOrClose(node)"/>
+                            @click="openOrClose(node,data)"/>
                     </span>
                     <!-- 批量操作 -->
                     <span :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'"
@@ -674,8 +674,18 @@ export default {
         }
       });
     },
-    openOrClose(node) {
+    openOrClose(node, data) {
       node.expanded = !node.expanded;
+      this.pluginOrder(data);
+    },
+    plugnOrder(nodes) {
+      // 兼容历史数据
+      if (nodes && nodes.type === 'GenericController' && nodes.hashTree) {
+        let data = nodes.hashTree.filter(v => v.type !== "Assertions");
+        for (let i = 0; i < data.length; i++) {
+          data[i].index = (i + 1);
+        }
+      }
     },
     hideNode(node) {
       node.isLeaf = true;
@@ -1310,7 +1320,12 @@ export default {
         })
       }
       this.isBtnHide = false;
-      this.sort();
+      // 历史数据兼容处理
+      if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
+        this.plugnOrder(this.selectedTreeNode);
+      } else {
+        this.sort();
+      }
       this.cancelBatchProcessing();
     },
     setApiParameter(item, refType, referenced) {
@@ -1366,7 +1381,12 @@ export default {
       });
       this.isBtnHide = false;
       this.$refs.scenarioApiRelevance.changeButtonLoadingType();
-      this.sort();
+      // 历史数据兼容处理
+      if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
+        this.plugnOrder(this.selectedTreeNode);
+      } else {
+        this.sort();
+      }
       this.cancelBatchProcessing();
     },
     getMaintainerOptions() {
