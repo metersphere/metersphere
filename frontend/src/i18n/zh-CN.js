@@ -451,7 +451,7 @@ export default {
     delete_all_version: '全部版本',
     change_password_tips: '您的密码是系统初始密码，请尽快修改密码',
     ui: 'UI 测试',
-    not_eligible_for_deletion:'不符合删除条件',
+    not_eligible_for_deletion: '不符合删除条件',
     default_module: {
       test_case: '未规划用例',
       api_definition: '未规划接口',
@@ -2797,6 +2797,8 @@ export default {
     mail_subject: "邮件主题",
     mail_addressee: "收件人",
     mail_duplicate: "抄送人",
+    enter_mail_addressee: "输入回车添加邮箱",
+    enter_mail_duplicate: "输入回车添加邮箱",
   },
   notice: {
     operation: {

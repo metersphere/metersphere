@@ -449,7 +449,7 @@ export default {
     delete_all_version: 'All versions',
     change_password_tips: 'Your password is the initial system password, please change it as soon as possible',
     ui: 'UI TEST',
-    not_eligible_for_deletion:'Not Eligible For Deletion',
+    not_eligible_for_deletion: 'Not Eligible For Deletion',
     default_module: {
       test_case: 'default',
       api_definition: 'default',
@@ -2791,6 +2791,8 @@ export default {
     mail_subject: "Subject ",
     mail_addressee: "To ",
     mail_duplicate: "Cc ",
+    enter_mail_addressee: "Enter to add email",
+    enter_mail_duplicate: "Enter to add email",
   },
   notice: {
     operation: {
@@ -3183,7 +3185,7 @@ export default {
   error_report_library: {
     name: "Error report",
     assertion: "Error code assertion",
-    tips:"Tips: Use error report in \"Project Settings - Project environment-Assertions\"",
+    tips: "Tips: Use error report in \"Project Settings - Project environment-Assertions\"",
     use_error_report: "Use error code",
     use_desc: "In case of conflict between error code and error assertions, it is treated as error code",
     conflict_with_success: "If request has error report and success assertion：",
