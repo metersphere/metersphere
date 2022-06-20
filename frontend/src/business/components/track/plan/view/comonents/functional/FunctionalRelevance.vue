@@ -109,6 +109,7 @@ import MsTag from "@/business/components/common/components/MsTag";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import {getVersionFilters} from "@/network/project";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -191,6 +192,7 @@ export default {
       this.getProjectNode();
       this.getTestCases();
       this.getCustomNum();
+      this.getVersionOptions();
     }
   },
   methods: {
@@ -258,14 +260,9 @@ export default {
       this.getNodeTree(this);
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(currentVersion) {
       this.page.condition.versionId = currentVersion || null;

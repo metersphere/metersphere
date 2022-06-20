@@ -76,6 +76,9 @@ export default {
     planId() {
       this.condition.planId = this.planId;
     },
+    projectId() {
+      this.getVersionOptions();
+    }
   },
   methods: {
     open() {
