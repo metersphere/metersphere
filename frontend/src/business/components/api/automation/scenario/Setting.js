@@ -24,7 +24,7 @@ export function STEP() {
         ['MaxSamplerProxy', getDefaultSamplerMenu()],
         ['GenericController', getAll()],
         ['SpecialSteps', ['HTTPSamplerProxy', 'Assertions', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'Sampler', 'AbstractSampler', 'JSR223Processor', 'API', 'MsUiCommand']],
-        ['AllSamplerProxy', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'Sampler', 'AbstractSampler', 'JSR223Processor', 'API', 'MsUiCommand']],
+        ['AllSamplerProxy', ['GenericController','HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'Sampler', 'AbstractSampler', 'JSR223Processor', 'API', 'MsUiCommand']],
         ['DEFINITION', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler']],
         ['ALlSamplerStep', ['JSR223PreProcessor', 'JSR223PostProcessor', 'JDBCPreProcessor', 'JDBCPostProcessor', 'Assertions', 'Extract', 'ConstantTimer']],
         ['AllCanExecType', ['HTTPSamplerProxy', 'DubboSampler', 'JDBCSampler', 'TCPSampler', 'JSR223Processor', 'AbstractSampler']]]);
