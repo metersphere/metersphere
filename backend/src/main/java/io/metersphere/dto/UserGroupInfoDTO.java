@@ -11,4 +11,5 @@ public class UserGroupInfoDTO {
     private String userEmail;
     private String groupId;
     private String groupName;
+    private String sourceId;
 }
