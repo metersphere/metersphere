@@ -23,7 +23,7 @@ export default {
           subtext: '55',
           textAlign:'center',
           y: 'center',
-          padding: 40,
+          padding: 100,
           itemGap: 5,
           textStyle: {
             lineHeight: 30,
@@ -46,7 +46,7 @@ export default {
           data: [],
         },
         grid: {
-          left: 100
+          left: 200
         },
         xAxis: {
           type: 'value',

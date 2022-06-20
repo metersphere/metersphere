@@ -795,6 +795,15 @@ export default {
           this.page.data = data.listObject;
           parseCustomFilesForList(this.page.data);
           parseTag(this.page.data);
+          this.page.data.forEach(item => {
+            let nodePath = item.nodePath;
+            if (item.customFields) {
+              item.customFields = JSON.parse(item.customFields);
+            }
+            if (nodePath.startsWith("/未规划用例", "0")) {
+              item.nodePath = nodePath.replaceAll("/未规划用例", "/" + this.$t('api_test.unplanned_case'));
+            }
+          });
         });
         this.$emit("getTrashList");
         this.$emit("getPublicList");
