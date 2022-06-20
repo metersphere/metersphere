@@ -38,6 +38,7 @@
              @remove="remove"
              @copyRow="copyRow"
              :protocol="protocol"
+             :draggable="true"
              :title="$t('api_test.definition.request.pre_script')"
              :jsr223-processor="data"
              color="#B8741A"
@@ -52,11 +53,19 @@
             :scenarioId="scenarioId"
             :request="data"
             :jdbc-processor="data"
+            :draggable="true"
             color="#B8741A"
             background-color="#F9F1EA"/>
 
-           <ms-constant-timer :inner-step="true" :timer="data" :node="node" v-if="data.type ==='ConstantTimer'"
-                              @remove="remove" @copyRow="copyRow"/>
+           <ms-constant-timer
+             :inner-step="true"
+             :timer="data"
+             :node="node"
+             :draggable="true"
+             @remove="remove"
+             @copyRow="copyRow"
+             v-if="data.type ==='ConstantTimer'"
+           />
 
          </div>
         <div v-if="tabType ==='post'">
@@ -69,6 +78,7 @@
             :is-read-only="false"
             :title="$t('api_test.definition.request.post_script')"
             :jsr223-processor="data"
+            :draggable="true"
             color="#783887"
             background-color="#F2ECF3"/>
 
@@ -82,6 +92,7 @@
             :request="data"
             :scenarioId="scenarioId"
             :jdbc-processor="data"
+            :draggable="true"
             color="#783887"
             background-color="#F2ECF3"/>
           <!--提取规则-->
