@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RequestMapping("user")
 @RestController
@@ -131,7 +132,7 @@ public class UserController {
 
     @PostMapping("/switch/source/ws/{sourceId}")
     public UserDTO switchWorkspace(@PathVariable(value = "sourceId") String sourceId) {
-        userService.switchUserResource("workspace", sourceId);
+        userService.switchUserResource("workspace", sourceId, Objects.requireNonNull(SessionUtils.getUser()));
         return SessionUtils.getUser();
     }
 
