@@ -13,9 +13,7 @@ import io.metersphere.performance.parse.EngineSourceParser;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -937,8 +935,10 @@ public class JmeterDocumentParser implements EngineSourceParser {
         // elementProp
         // 避免出现配置错位
         Object durations = context.getProperty("duration");
+        String duration = "2";
         if (durations instanceof List) {
-            ((List<?>) durations).remove(0);
+            Object o = ((List<?>) durations).remove(0);
+            duration = o.toString();
         }
         Object units = context.getProperty("unit");
         if (units instanceof List) {
@@ -1015,10 +1015,10 @@ public class JmeterDocumentParser implements EngineSourceParser {
         appendStringProp(threadGroup, "ThreadGroup.on_sample_error", onSampleError);
         appendStringProp(threadGroup, "ThreadGroup.num_threads", threads);
         appendStringProp(threadGroup, "ThreadGroup.ramp_time", rampUp);
-        appendBoolProp(threadGroup, "ThreadGroup.scheduler", false);
+        appendBoolProp(threadGroup, "ThreadGroup.scheduler", true);
         appendStringProp(threadGroup, "Hold", "1");
-        appendStringProp(threadGroup, "ThreadGroup.duration", "10");
-        appendStringProp(threadGroup, "ThreadGroup.delay", "");
+        appendStringProp(threadGroup, "ThreadGroup.duration", duration);
+        appendStringProp(threadGroup, "ThreadGroup.delay", "0");
         appendBoolProp(threadGroup, "ThreadGroup.same_user_on_next_iteration", true);
     }
 
