@@ -14,6 +14,7 @@ export default {
     environment: Map,
     executeType: String,
     runMode: String,
+    uiRunMode: String,
     debug: Boolean,
     reportId: String,
     runData: Object,
@@ -79,6 +80,7 @@ export default {
         reqObj.variables = this.runData.variables;
       }
       reqObj.runLocal = this.runLocal;
+      reqObj.uiRunMode = this.uiRunMode;
       this.$emit('runRefresh', {});
 
       let url = '/api/automation/run/debug';
