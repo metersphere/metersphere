@@ -31,8 +31,8 @@ public class ResourceController {
     }
 
     @GetMapping(value = "/ui/get")
-    public ResponseEntity<FileSystemResource> getUiFile(@RequestParam ("fileName") String fileName) {
-        return resourceService.getUiResultImage(fileName);
+    public ResponseEntity<FileSystemResource> getUiFile(@RequestParam ("fileName") String fileName, @RequestParam ("reportId") String reportId) {
+        return resourceService.getUiResultImage(fileName, reportId);
     }
 
     /**

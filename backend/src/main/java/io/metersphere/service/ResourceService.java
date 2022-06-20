@@ -46,11 +46,11 @@ public class ResourceService {
         return getImage(FileUtils.MD_IMAGE_DIR + "/" + name);
     }
 
-    public ResponseEntity<FileSystemResource> getUiResultImage(String name) {
+    public ResponseEntity<FileSystemResource> getUiResultImage(String name, String reportId) {
         if (name.contains("/")) {
             MSException.throwException(Translator.get("invalid_parameter"));
         }
-        return getImage(FileUtils.UI_IMAGE_DIR + "/" + name);
+        return getImage(FileUtils.UI_IMAGE_DIR + "/" + reportId +  "/" + name);
     }
 
     public ResponseEntity<FileSystemResource> getImage(String path) {
