@@ -398,12 +398,15 @@ conn.setRequestMethod(requestMethod);
 conn.setDoOutput(true);
 ${connStr}conn.connect();
 ${postParamExecCode}
+var res = "";
+var rspCode = conn.getResponseCode();
+if (rspCode == 200) {
 var ipt = conn.getInputStream();
 var reader = new java.io.BufferedReader(new java.io.InputStreamReader(ipt, "UTF-8"));
 var lines;
-var res = "";
 while((lines = reader.readLine()) !== null) {
   res += lines;
+}
 }
 log.info(res);
   `;
