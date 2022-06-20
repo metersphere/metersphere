@@ -97,53 +97,9 @@
                 </el-radio-group>
               </el-form-item>
               <div v-if="threadGroup.threadType === 'DURATION'">
-                <el-form-item :label="$t('load_test.duration')">
-                  <el-input-number controls-position="right"
-
-                                   v-model="threadGroup.durationHours"
-                                   :min="0"
-                                   :max="9999"
-                                   @change="calculateTotalChart()"
-                                   size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.hours')" label-width="20px"/>
-                <el-form-item>
-                  <el-input-number controls-position="right"
-
-                                   v-model="threadGroup.durationMinutes"
-                                   :min="0"
-                                   :max="59"
-                                   @change="calculateTotalChart()"
-                                   size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.minutes')" label-width="20px"/>
-                <el-form-item>
-                  <el-input-number controls-position="right"
-
-                                   v-model="threadGroup.durationSeconds"
-                                   :min="0"
-                                   :max="59"
-                                   @change="calculateTotalChart()"
-                                   size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.seconds')" label-width="20px"/>
-                <br>
-                <el-form-item :label="$t('load_test.rps_limit_enable')">
-                  <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.rps_limit')">
-                  <el-input-number controls-position="right"
-                                   :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
-                                   v-model="threadGroup.rpsLimit"
-                                   @change="calculateTotalChart()"
-                                   :min="1"
-                                   :max="99999"
-                                   size="mini"/>
-                </el-form-item>
                 <div v-if="threadGroup.tgType === 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup'">
                   <el-form-item label="Ramp-Up">
                     <el-input-number controls-position="right"
-
                                      :min="1"
                                      v-if="rampUpTimeVisible"
                                      :max="getDuration(threadGroup)"
@@ -153,7 +109,6 @@
                   </el-form-item>
                   <el-form-item label="Step" label-width="50px">
                     <el-input-number controls-position="right"
-
                                      :min="1"
                                      :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
                                      v-model="threadGroup.step"
@@ -179,34 +134,66 @@
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">
                   <el-input-number controls-position="right"
-
                                    v-model="threadGroup.iterateNum"
                                    :min="1"
                                    :max="9999999"
                                    @change="calculateTotalChart()"
-                                   size="mini"/>
+                                   size="mini"/> &nbsp;
+                  <el-tooltip :content="$t('load_test.by_iteration_tip')"
+                              effect="light"
+                              trigger="hover">
+                    <i class="el-icon-info"></i>
+                  </el-tooltip>
                 </el-form-item>
-                <br>
-                <el-form-item :label="$t('load_test.rps_limit_enable')">
-                  <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.rps_limit')">
-                  <el-input-number controls-position="right"
-                                   :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
-                                   v-model="threadGroup.rpsLimit"
-                                   :min="1"
-                                   :max="99999"
-                                   size="mini"/>
-                </el-form-item>
-                <br>
                 <el-form-item label="Ramp-Up">
                   <el-input-number controls-position="right"
-
                                    :min="1"
                                    v-model="threadGroup.iterateRampUp"
                                    size="mini"/>
                 </el-form-item>
+                <br>
               </div>
+              <el-form-item :label="$t('load_test.duration')">
+                <el-input-number controls-position="right"
+
+                                 v-model="threadGroup.durationHours"
+                                 :min="0"
+                                 :max="9999"
+                                 @change="calculateTotalChart()"
+                                 size="mini"/>
+              </el-form-item>
+              <el-form-item :label="$t('load_test.hours')" label-width="20px"/>
+              <el-form-item>
+                <el-input-number controls-position="right"
+
+                                 v-model="threadGroup.durationMinutes"
+                                 :min="0"
+                                 :max="59"
+                                 @change="calculateTotalChart()"
+                                 size="mini"/>
+              </el-form-item>
+              <el-form-item :label="$t('load_test.minutes')" label-width="20px"/>
+              <el-form-item>
+                <el-input-number controls-position="right"
+                                 v-model="threadGroup.durationSeconds"
+                                 :min="0"
+                                 :max="59"
+                                 @change="calculateTotalChart()"
+                                 size="mini"/>
+              </el-form-item>
+              <el-form-item :label="$t('load_test.seconds')" label-width="20px"/>
+              <br>
+              <el-form-item :label="$t('load_test.rps_limit_enable')">
+                <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
+              </el-form-item>
+              <el-form-item :label="$t('load_test.rps_limit')">
+                <el-input-number controls-position="right"
+                                 :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
+                                 v-model="threadGroup.rpsLimit"
+                                 :min="1"
+                                 :max="99999"
+                                 size="mini"/>
+              </el-form-item>
               <!-- 资源池自己配置各个节点的并发 -->
               <div v-if="resourcePoolType === 'NODE'">
                 <el-form-item :label="$t('load_test.resource_strategy')">
