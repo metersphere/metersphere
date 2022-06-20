@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -72,17 +71,19 @@ public class CustomFieldTemplateService {
         }
     }
 
-    public  List<CustomFieldTemplate> getSystemFieldCreateTemplate(CustomField customField, String scene) {
-        List<CustomField> globalField = customFieldService.getGlobalField(scene);
-        for (int i = 0; i < globalField.size(); i++) {
-            // 替换全局的字段
-            if (StringUtils.equals(globalField.get(i).getName(), customField.getName())) {
-                globalField.set(i, customField);
+    public  List<CustomFieldTemplate> getSystemFieldCreateTemplate(CustomFieldDao customField, String templateId) {
+        CustomFieldTemplateExample example = new CustomFieldTemplateExample();
+        example.createCriteria().andTemplateIdEqualTo(templateId);
+        // 获取全局模板的关联关系
+        List<CustomFieldTemplate> fieldTemplates = customFieldTemplateMapper.selectByExample(example);
+        for (int i = 0; i < fieldTemplates.size(); i++) {
+            // 将全局字段替换成项目下的字段
+            if (StringUtils.equals(fieldTemplates.get(i).getFieldId(), customField.getOriginGlobalId())) {
+                fieldTemplates.get(i).setFieldId(customField.getId());
                 break;
             }
         }
-        List<String> fieldIds = globalField.stream().map(CustomField::getId).collect(Collectors.toList());
-        return getFieldTemplateByFieldIds(fieldIds);
+        return fieldTemplates;
     }
 
     public  void updateFieldIdByTemplate(String templateId, String originId , String fieldId) {
@@ -134,5 +135,25 @@ public class CustomFieldTemplateService {
         CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(id);
         String fieldId = customFieldTemplate.getFieldId();
         return customFieldMapper.selectByPrimaryKey(fieldId);
+    }
+
+    /**
+     * 将原来全局字段与模板的关联
+     * 改为项目下字段与模板的关联
+     * @param customField
+     * @param templateIds
+     * @return
+     */
+    public int updateProjectTemplateGlobalField(CustomFieldDao customField, List<String> templateIds) {
+        if (CollectionUtils.isEmpty(templateIds)) {
+          return 0;
+        }
+        CustomFieldTemplateExample example = new CustomFieldTemplateExample();
+        example.createCriteria()
+                .andFieldIdEqualTo(customField.getOriginGlobalId())
+                .andTemplateIdIn(templateIds);
+        CustomFieldTemplate customFieldTemplate = new CustomFieldTemplate();
+        customFieldTemplate.setFieldId(customField.getId());
+        return customFieldTemplateMapper.updateByExampleSelective(customFieldTemplate, example);
     }
 }
