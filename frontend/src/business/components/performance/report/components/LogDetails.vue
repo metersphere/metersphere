@@ -13,7 +13,7 @@
         </el-select>
       </el-col>
       <el-col :span="20">
-        <div v-if="currentInstance" class="logging-content">
+        <div class="logging-content">
           <ul class="infinite-list">
             <li class="infinite-list-item" v-for="(log, index) in logContent[currentInstance]"
                 :key="currentInstance+index">
