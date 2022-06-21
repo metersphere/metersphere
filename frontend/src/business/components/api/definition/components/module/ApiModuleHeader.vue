@@ -24,6 +24,7 @@
 
     <ms-add-basis-api
       :current-protocol="condition.protocol"
+      :module-options="moduleOptions"
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisApi"/>
