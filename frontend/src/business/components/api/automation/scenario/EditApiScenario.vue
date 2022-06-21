@@ -195,9 +195,9 @@
                     <span class="custom-tree-node-col" style="padding-left:0px;padding-right:0px"
                           v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                       <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e"
-                            @click="openOrClose(node,data)"/>
+                            @click="openOrClose(node, data)"/>
                       <span v-show="node.expanded" class="el-icon-remove-outline custom-node_e"
-                            @click="openOrClose(node,data)"/>
+                            @click="openOrClose(node, data)"/>
                     </span>
                     <!-- 批量操作 -->
                     <span :class="data.checkBox? 'custom-tree-node-hide' : 'custom-tree-node-col'"
@@ -678,7 +678,7 @@ export default {
       node.expanded = !node.expanded;
       this.pluginOrder(data);
     },
-    plugnOrder(nodes) {
+    pluginOrder(nodes) {
       // 兼容历史数据
       if (nodes && nodes.type === 'GenericController' && nodes.hashTree) {
         let data = nodes.hashTree.filter(v => v.type !== "Assertions");
@@ -1322,7 +1322,7 @@ export default {
       this.isBtnHide = false;
       // 历史数据兼容处理
       if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
-        this.plugnOrder(this.selectedTreeNode);
+        this.pluginOrder(this.selectedTreeNode);
       } else {
         this.sort();
       }
@@ -1383,7 +1383,7 @@ export default {
       this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       // 历史数据兼容处理
       if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
-        this.plugnOrder(this.selectedTreeNode);
+        this.pluginOrder(this.selectedTreeNode);
       } else {
         this.sort();
       }
