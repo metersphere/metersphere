@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <api-list-container
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
