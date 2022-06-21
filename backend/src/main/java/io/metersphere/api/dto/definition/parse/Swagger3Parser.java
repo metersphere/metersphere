@@ -18,7 +18,6 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -131,14 +130,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule selectModule = null;
+        /*ApiModule selectModule = null;
         String selectModulePath = null;
         if (StringUtils.isNotBlank(importRequest.getModuleId())) {
             selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
             if (selectModule != null) {
                 selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
             }
-        }
+        }*/
 
         for (String pathName : pathNames) {
             PathItem pathItem = paths.get(pathName);
@@ -167,7 +166,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     }   //  有数据的话，去掉 Kvs 里初始化的第一个全 null 的数据，否则有空行
                     apiDefinition.setRequest(JSON.toJSONString(request));
                     apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
+/*
                     buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
+*/
                     if (operation.getDeprecated() != null && operation.getDeprecated()) {
                         apiDefinition.setTags("[\"Deleted\"]");
                     }

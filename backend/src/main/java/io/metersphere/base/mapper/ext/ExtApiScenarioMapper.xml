@@ -771,4 +771,34 @@
         FROM api_scenario
         WHERE `status` != 'Trash' AND project_id IN (SELECT id FROM project);
     </select>
+    <select id="selectRepeatByBLOBs" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        SELECT * from api_scenario
+        <include refid="Same_Where_Clause"/>
+        and status != 'TRASH'
+    </select>
+
+    <select id="selectRepeatByBLOBsSameUrl" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        SELECT * from api_scenario
+        <include refid="Same_Where_Clause"/>
+        and status != 'TRASH'
+        and api_scenario_module_id = #{moduleId}
+    </select>
+
+    <sql id="Same_Where_Clause">
+        <where>
+            <foreach collection="blobs" item="blob" separator="or">
+                <trim prefix="(" prefixOverrides="and" suffix=")">
+                    <if test="blob.name">
+                        and api_scenario.name = #{blob.name}
+                    </if>
+                    <if test="blob.projectId">
+                        and api_scenario.project_id = #{blob.projectId}
+                    </if>
+                </trim>
+
+            </foreach>
+        </where>
+    </sql>
+
 </mapper>
+

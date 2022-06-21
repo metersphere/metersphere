@@ -11,7 +11,6 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.utils.LoggerUtil;
@@ -115,14 +114,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule selectModule = null;
+        /*ApiModule selectModule = null;
         String selectModulePath = null;
         if (StringUtils.isNotBlank(importRequest.getModuleId())) {
             selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
             if (selectModule != null) {
                 selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
             }
-        }
+        }*/
 
         String basePath = swagger.getBasePath();
         for (String pathName : pathNames) {
@@ -142,7 +141,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 }
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
+/*
                 buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
+*/
                 if (operation.isDeprecated() != null && operation.isDeprecated()) {
                     apiDefinition.setTags("[\"Deleted\"]");
                 }

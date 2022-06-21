@@ -438,11 +438,6 @@ export default {
       param.saved = this.saved;
       param.model = this.model;
       if (this.currentModule) {
-        if (!this.formData.moduleId || this.formData.moduleId.length === 0) {
-          param.moduleId = this.currentModule[0].id;
-        } else {
-          param.moduleId = this.formData.moduleId
-        }
         param.modeId = this.formData.modeId
       }
       param.projectId = this.projectId;
@@ -456,7 +451,7 @@ export default {
         // 设置 query 参数
         param.arguments = this.queryArguments;
         // 设置 BaseAuth 参数
-        if (this.authConfig.authManager != undefined) {
+        if (this.authConfig.authManager !== undefined) {
           this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
           param.authManager = this.authConfig.authManager;
         }
@@ -571,6 +566,5 @@ export default {
 .el-divider {
   height: 200px;
 }
-
 
 </style>
