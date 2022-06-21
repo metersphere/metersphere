@@ -3,7 +3,6 @@ package io.metersphere.api.dto.automation.parse;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.parse.postman.PostmanCollection;
@@ -11,9 +10,9 @@ import io.metersphere.api.dto.parse.postman.PostmanCollectionInfo;
 import io.metersphere.api.dto.parse.postman.PostmanItem;
 import io.metersphere.api.dto.parse.postman.PostmanKeyValue;
 import io.metersphere.api.parse.PostmanAbstractParserParser;
-import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.commons.constants.VariableTypeConstants;
+import io.metersphere.plugin.core.MsTestElement;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -46,11 +45,11 @@ public class PostmanScenarioParser extends PostmanAbstractParserParser<ScenarioI
     }
 
     private void parseScenarioWithBLOBs(List<ApiScenarioWithBLOBs> scenarioWithBLOBsList, MsScenario msScenario, ApiTestImportRequest request) {
-        ApiScenarioModule selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
+       /* ApiScenarioModule selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
 
-        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);*/
         ApiScenarioWithBLOBs scenarioWithBLOBs = parseScenario(msScenario);
-        if (module != null) {
+        /*if (module != null) {
             scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
             if (selectModule != null) {
                 String selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
@@ -58,7 +57,8 @@ public class PostmanScenarioParser extends PostmanAbstractParserParser<ScenarioI
             } else {
                 scenarioWithBLOBs.setModulePath("/" + module.getName());
             }
-        }
+        }*/
+        scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 

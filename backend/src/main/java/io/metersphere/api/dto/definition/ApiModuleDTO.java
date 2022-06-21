@@ -8,4 +8,6 @@ import lombok.Setter;
 @Setter
 public class ApiModuleDTO extends TreeNodeDTO<ApiModuleDTO> {
     private String protocol;
+
+    private String path;
 }

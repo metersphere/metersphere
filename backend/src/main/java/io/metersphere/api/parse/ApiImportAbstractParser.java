@@ -161,6 +161,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         request.setHeaders(new ArrayList<>());
         request.setArguments(new ArrayList<>());
         request.setRest(new ArrayList<>());
+        request.setFollowRedirects(true);
         Body body = new Body();
         body.initKvs();
         body.initBinary();

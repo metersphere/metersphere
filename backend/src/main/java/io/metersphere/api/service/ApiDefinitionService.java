@@ -3,6 +3,9 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
@@ -544,30 +547,30 @@ public class ApiDefinitionService {
         }
     }
 
-    private List<ApiDefinition> getSameRequest(SaveApiDefinitionRequest request) {
+    private List<ApiDefinitionWithBLOBs> getSameRequest(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
             example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExample(example);
+            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
         } else {
             example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
                     .andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExample(example);
+            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
         }
     }
 
-    private List<ApiDefinition> getSameRequestById(String id, String projectId) {
+    private List<ApiDefinitionWithBLOBs> getSameRequestById(String id, String projectId) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andStatusNotEqualTo("Trash")
                 .andProjectIdEqualTo(projectId)
                 .andIdEqualTo(id);
-        return apiDefinitionMapper.selectByExample(example);
+        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
     }
 
-    private List<ApiDefinition> getSameRequestWithName(SaveApiDefinitionRequest request) {
+    private List<ApiDefinitionWithBLOBs> getSameRequestWithName(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
             example.createCriteria()
@@ -585,7 +588,7 @@ public class ApiDefinitionService {
                     .andIdNotEqualTo(request.getId());
         }
 
-        return apiDefinitionMapper.selectByExample(example);
+        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
 
     }
 
@@ -787,10 +790,10 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinition importCreate(ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionMapper batchMapper,
-                                       ApiTestCaseMapper apiTestCaseMapper, ExtApiDefinitionMapper extApiDefinitionMapper,
+    private ApiDefinition importCreate(ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionMapper batchMapper, ApiTestCaseMapper apiTestCaseMapper,
+                                       ExtApiDefinitionMapper extApiDefinitionMapper,
                                        ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks,
-                                       Boolean repeatable) {
+                                       List<ApiDefinitionWithBLOBs> updateList) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
@@ -803,27 +806,13 @@ public class ApiDefinitionService {
         } else {
             apiDefinition.setUserId(apiDefinition.getUserId());
         }
-        if (apiDefinition.getModuleId() == null) {
-            if (StringUtils.isEmpty(apiDefinition.getModuleId()) || "default-module".equals(apiDefinition.getModuleId())) {
-                initModulePathAndId(apiDefinition.getProjectId(), apiDefinition);
-            }
-        }
         apiDefinition.setDescription(apiDefinition.getDescription());
+        List<ApiDefinitionWithBLOBs> collect = updateList.stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(Collectors.toList());
 
-        List<ApiDefinition> sameRequest;
-        if (repeatable == null || !repeatable) {
-            sameRequest = getSameRequest(saveReq);
-        } else {
-            // 如果勾选了允许重复，则判断更新要加上name字段
-            sameRequest = getSameRequestWithName(saveReq);
-        }
-        if (CollectionUtils.isEmpty(sameRequest)) {
-            sameRequest = getSameRequestById(apiDefinition.getId(), apiTestImportRequest.getProjectId());
-        }
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
+            _importCreate(collect, batchMapper, apiTestCaseMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
-            if (CollectionUtils.isEmpty(sameRequest)) {
+            if (CollectionUtils.isEmpty(collect)) {
                 //postman 可能含有前置脚本，接口定义去掉脚本
                 apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 String originId = apiDefinition.getId();
@@ -845,13 +834,13 @@ public class ApiDefinitionService {
                 reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
-                importApiCase(apiDefinition, apiTestImportRequest);
+                importApiCase(apiDefinition, apiTestImportRequest, apiTestCaseMapper);
             } else {
                 //不覆盖的接口，如果没有sameRequest则不导入。此时清空mock信息
                 mocks.clear();
             }
         } else {
-            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
+            _importCreate(collect, batchMapper, apiTestCaseMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
         }
 
         return apiDefinition;
@@ -877,8 +866,8 @@ public class ApiDefinitionService {
         return order;
     }
 
-    private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
-                               ApiTestCaseMapper apiTestCaseMapper, ExtApiDefinitionMapper extApiDefinitionMapper,
+    private void _importCreate(List<ApiDefinitionWithBLOBs> sameRequest, ApiDefinitionMapper batchMapper, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionWithBLOBs apiDefinition,
+                               ExtApiDefinitionMapper extApiDefinitionMapper,
                                ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks) {
         String originId = apiDefinition.getId();
 
@@ -902,7 +891,7 @@ public class ApiDefinitionService {
                 batchMapper.insert(apiDefinition);
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
-                importApiCase(apiDefinition, apiTestImportRequest);
+                importApiCase(apiDefinition, apiTestImportRequest, apiTestCaseMapper);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
@@ -914,13 +903,17 @@ public class ApiDefinitionService {
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
                 apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
             }
-            Optional<ApiDefinition> apiOp = sameRequest.stream()
+            Optional<ApiDefinitionWithBLOBs> apiOp = sameRequest.stream()
                     .filter(api -> StringUtils.equals(api.getVersionId(), apiTestImportRequest.getUpdateVersionId()))
                     .findFirst();
 
             if (!apiOp.isPresent()) {
                 apiDefinition.setId(UUID.randomUUID().toString());
-                apiDefinition.setRefId(sameRequest.get(0).getRefId());
+                if (sameRequest.get(0).getRefId() != null) {
+                    apiDefinition.setRefId(sameRequest.get(0).getRefId());
+                } else {
+                    apiDefinition.setRefId(apiDefinition.getId());
+                }
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
@@ -929,15 +922,25 @@ public class ApiDefinitionService {
                 }
                 batchMapper.insert(apiDefinition);
             } else {
-                ApiDefinition existApi = apiOp.get();
+                ApiDefinitionWithBLOBs existApi = apiOp.get();
                 apiDefinition.setStatus(existApi.getStatus());
                 apiDefinition.setOriginalState(existApi.getOriginalState());
                 apiDefinition.setCaseStatus(existApi.getCaseStatus());
                 apiDefinition.setNum(existApi.getNum()); //id 不变
                 apiDefinition.setRefId(existApi.getRefId());
+                if (existApi.getRefId() != null) {
+                    apiDefinition.setRefId(existApi.getRefId());
+                } else {
+                    apiDefinition.setRefId(apiDefinition.getId());
+                }
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 if (existApi.getUserId() != null) {
                     apiDefinition.setUserId(existApi.getUserId());
+                }
+                //Check whether the content has changed, if not, do not change the creation time
+                Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
+                if (!toChangeTime) {
+                    apiDefinition.setUpdateTime(existApi.getUpdateTime());
                 }
                 // case 设置版本
                 cases.forEach(c -> {
@@ -950,14 +953,12 @@ public class ApiDefinitionService {
                     //如果存在则修改
                     apiDefinition.setId(existApi.getId());
                     String request = setImportHashTree(apiDefinition);
-                    apiDefinition.setModuleId(existApi.getModuleId());
-                    apiDefinition.setModulePath(existApi.getModulePath());
                     apiDefinition.setOrder(existApi.getOrder());
-                    apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                     apiDefinition.setRequest(request);
                     reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                    importApiCase(apiDefinition, apiTestImportRequest);
+                    importApiCase(apiDefinition, apiTestImportRequest, apiTestCaseMapper);
                 } else {
                     apiDefinition.setId(existApi.getId());
                     if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
@@ -966,12 +967,88 @@ public class ApiDefinitionService {
                     apiDefinition.setOrder(existApi.getOrder());
                     reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                    apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 }
             }
             extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
             extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         }
+    }
+
+    public Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
+
+        ApiDefinition exApi;
+        ApiDefinition api;
+        exApi = existApi;
+        api = apiDefinition;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String exApiString = null;
+        String apiString = null;
+        try {
+            exApiString = objectMapper.writeValueAsString(exApi);
+            apiString = objectMapper.writeValueAsString(api);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        //Compare the basic information of the API. If it contains the comparison that needs to be done for the synchronization information,
+        // put the data into the to-be-synchronized
+        if (!StringUtils.equals(exApiString, apiString)) {
+            if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
+                return true;
+            }
+            if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
+                return true;
+            }
+
+            if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
+                return true;
+            }
+
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getRemark(), apiDefinition.getRemark())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getDescription(), apiDefinition.getDescription())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getResponse(), apiDefinition.getResponse())) {
+            return true;
+        }
+
+        JsonNode exApiRequest = null;
+        JsonNode apiRequest = null;
+        try {
+            exApiRequest = objectMapper.readTree(existApi.getRequest());
+            apiRequest = objectMapper.readTree(apiDefinition.getRequest());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        if (exApiRequest == null || apiRequest == null) {
+            return false;
+        }
+        if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -1023,17 +1100,18 @@ public class ApiDefinitionService {
     }
 
     private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession,
-                              ApiTestImportRequest request) {
+                              ApiTestImportRequest request, ApiTestCaseMapper apiTestCaseMapper) {
         List<ApiTestCaseWithBLOBs> cases = apiImport.getCases();
         if (CollectionUtils.isNotEmpty(cases)) {
             int batchCount = 0;
             for (int i = 0; i < cases.size(); i++) {
                 ApiTestCaseWithBLOBs item = cases.get(i);
-                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getApiDefinitionId());
-                if (apiDefinitionWithBLOBs == null) {
+                List<ApiDefinitionWithBLOBs> data = apiImport.getData();
+                List<ApiDefinitionWithBLOBs> collect = data.stream().filter(t -> t.getId().equals(item.getApiDefinitionId())).collect(Collectors.toList());
+                if (collect.isEmpty()) {
                     continue;
                 }
-                insertOrUpdateImportCase(item, request, apiDefinitionWithBLOBs);
+                insertOrUpdateImportCase(item, request, collect.get(0), apiTestCaseMapper);
             }
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
@@ -1045,7 +1123,7 @@ public class ApiDefinitionService {
      * 导入是插件或者postman时创建用例
      * postman考虑是否有前置脚本
      */
-    private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest apiTestImportRequest) {
+    private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest apiTestImportRequest, ApiTestCaseMapper apiTestCaseMapper) {
         try {
             if (StringUtils.equalsAnyIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Plugin.name(), ApiImportPlatform.Postman.name())) {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
@@ -1055,16 +1133,21 @@ public class ApiDefinitionService {
                 if (apiTestCase.getName().length() > 255) {
                     apiTestCase.setName(apiTestCase.getName().substring(0, 255));
                 }
-                insertOrUpdateImportCase(apiTestCase, apiTestImportRequest, apiDefinition);
+                insertOrUpdateImportCase(apiTestCase, apiTestImportRequest, apiDefinition, apiTestCaseMapper);
             }
         } catch (Exception e) {
             LogUtil.error("导入创建用例异常", e);
         }
     }
 
-    private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest, ApiDefinitionWithBLOBs apiDefinition) {
+    private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest, ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
-        checkRequest.setName(apiTestCase.getName());
+        if (apiTestCase.getName().length() > 255) {
+            apiTestCase.setName(apiTestCase.getName().substring(0, 255));
+            checkRequest.setName(apiTestCase.getName().substring(0, 255));
+        } else {
+            checkRequest.setName(apiTestCase.getName());
+        }
         checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
         checkRequest.setId(apiTestCase.getId());
         ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
@@ -1287,21 +1370,39 @@ public class ApiDefinitionService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         currentApiCaseOrder.remove();
         currentApiOrder.remove();
-        List<ApiDefinitionWithBLOBs> data = apiImport.getData();
-        data = this.initApiModuleId(data);
-        ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-        ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
+        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        request.setDefaultVersion(defaultVersion);
+        List<ApiDefinitionWithBLOBs> initData = apiImport.getData();
 
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
         boolean urlRepeat = config.getUrlRepeatable();
+        //过滤(一次只导入一个协议)
+        List<ApiDefinitionWithBLOBs> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
+        if (filterData.isEmpty()) {
+            return;
+        }
+        UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, filterData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
+        List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
+        List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
+        List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
+
+        ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
+        ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
+
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
         }
-        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
-        request.setDefaultVersion(defaultVersion);
+
+        if (moduleList != null) {
+            for (ApiModule apiModule : moduleList) {
+                apiModuleMapper.insert(apiModule);
+            }
+        }
+
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             this.setModule(item);
@@ -1314,14 +1415,14 @@ public class ApiDefinitionService {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
                 request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), urlRepeat);
+                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), updateList);
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), urlRepeat);
+                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), updateList);
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
@@ -1341,7 +1442,6 @@ public class ApiDefinitionService {
                     model.setId(exiteModelList.get(0).getId());
                     esbApiParamsMapper.updateByPrimaryKeyWithBLOBs(model);
                 }
-
             }
         }
 
@@ -1351,7 +1451,7 @@ public class ApiDefinitionService {
         }
 
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
-            importMsCase(apiImport, sqlSession, request);
+            importMsCase(apiImport, sqlSession, request, apiTestCaseMapper);
         }
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);

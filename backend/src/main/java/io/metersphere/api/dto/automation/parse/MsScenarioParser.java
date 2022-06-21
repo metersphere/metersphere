@@ -5,23 +5,24 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.EnvironmentType;
-import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.base.domain.*;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.parse.MsAbstractParser;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
 
-    private ApiScenarioModule selectModule;
+/*    private ApiScenarioModule selectModule;
 
-    private String selectModulePath;
+    private String selectModulePath;*/
 
     @Override
     public ScenarioImport parse(InputStream source, ApiTestImportRequest request) {
@@ -29,12 +30,12 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         this.projectId = request.getProjectId();
         JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
 
-        if (StringUtils.isNotBlank(request.getModuleId())) {
+        /*if (StringUtils.isNotBlank(request.getModuleId())) {
             this.selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
             if (this.selectModule != null) {
                 this.selectModulePath = ApiScenarioImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
             }
-        }
+        }*/
 
         if (testObject.get("projectName") != null || testObject.get("projectId") != null) {
             return parseMsFormat(testStr, request);
@@ -64,19 +65,25 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class, Feature.DisableSpecialKeyDetect);
         List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
 
-        Set<String> moduleIdSet = scenarioImport.getData().stream()
-                .map(ApiScenarioWithBLOBs::getApiScenarioModuleId).collect(Collectors.toSet());
+        /*Set<String> moduleIdSet = scenarioImport.getData().stream()
+                .map(ApiScenarioWithBLOBs::getApiScenarioModuleId).collect(Collectors.toSet());*/
 
+/*
         Map<String, NodeTree> nodeMap = null;
+*/
+/*
         List<NodeTree> nodeTree = scenarioImport.getNodeTree();
-        if (CollectionUtils.isNotEmpty(nodeTree)) {
+*/
+        /*if (CollectionUtils.isNotEmpty(nodeTree)) {
             cutDownTree(nodeTree, moduleIdSet);
             ApiScenarioImportUtil.createNodeTree(nodeTree, projectId, importRequest.getModuleId());
             nodeMap = getNodeMap(nodeTree);
-        }
+        }*/
 
         if (CollectionUtils.isNotEmpty(data)) {
+/*
             Map<String, NodeTree> finalNodeMap = nodeMap;
+*/
             data.forEach(item -> {
                 String scenarioDefinitionStr = item.getScenarioDefinition();
                 if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
@@ -94,7 +101,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     }
                 }
 
-                if (finalNodeMap != null && finalNodeMap.get(item.getApiScenarioModuleId()) != null) {
+                /*if (finalNodeMap != null && finalNodeMap.get(item.getApiScenarioModuleId()) != null) {
                     NodeTree node = finalNodeMap.get(item.getApiScenarioModuleId());
                     item.setApiScenarioModuleId(node.getNewId());
                     item.setModulePath(node.getPath());
@@ -104,13 +111,14 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     }
                     // 旧版本未导出模块
                     parseModule(item.getModulePath(), importRequest, item);
-                }
+                }*/
                 item.setProjectId(this.projectId);
             });
         }
         return scenarioImport;
     }
 
+/*
     protected void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
         if (StringUtils.isEmpty(modulePath)) {
             return;
@@ -138,4 +146,5 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
             }
         }
     }
+*/
 }

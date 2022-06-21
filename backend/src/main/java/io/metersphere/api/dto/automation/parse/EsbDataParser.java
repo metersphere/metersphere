@@ -1,6 +1,5 @@
 package io.metersphere.api.dto.automation.parse;
 
-import com.alibaba.fastjson.JSONArray;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
@@ -89,11 +88,11 @@ public class EsbDataParser {
                     } else {
                         returnData = dataStuct.copy(true);
                     }
-                }else if(index == 0){
+                } else if (index == 0) {
                     //如果是第一个节点不符合，则遍历子节点是否有符合的。
                     int newIndex = index;
                     EsbDataStruct itemData = selectEsbDataStructByNameStruct(dataStuct.getChildren(), paramArr, newIndex);
-                    if(itemData != null ){
+                    if (itemData != null) {
                         returnData = itemData;
                     }
                 }
