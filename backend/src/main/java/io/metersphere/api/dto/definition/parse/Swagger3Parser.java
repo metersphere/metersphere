@@ -524,7 +524,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return example == null ? 0 : example;
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
-        } else if (value instanceof StringSchema || value.getType().equals("string")) {
+        } else if (value instanceof StringSchema || StringUtils.equals("string", value.getType())) {
             return example == null ? "" : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
