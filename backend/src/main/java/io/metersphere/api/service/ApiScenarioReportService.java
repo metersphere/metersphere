@@ -1006,13 +1006,18 @@ public class ApiScenarioReportService {
         return apiScenarioReportStructureService.selectReportContent(stepId);
     }
 
-    public void cleanUpUiReportImg(List<String> ids){
-        if(ids != null && CollectionUtils.isNotEmpty(ids)){
-            for(String id : ids){
-                if(FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + id))){
-                    LogUtil.info("删除 UI 报告截图成功，报告 ID 为 ：" + id);
+    public void cleanUpUiReportImg(List<String> ids) {
+        try {
+            if (ids != null && CollectionUtils.isNotEmpty(ids)) {
+                for (String id : ids) {
+                    if (FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + id))) {
+                        LogUtil.info("删除 UI 报告截图成功，报告 ID 为 ：" + id);
+                    }
                 }
             }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
         }
     }
 }
