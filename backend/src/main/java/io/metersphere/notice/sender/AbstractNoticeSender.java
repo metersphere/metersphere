@@ -146,6 +146,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                             toUsers.addAll(receivers);
                         }
                     }
+                    if (paramMap.containsKey("executor")) {
+                        toUsers.add(new Receiver((String) paramMap.get("executor"), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    }
                     break;
                 case NoticeConstants.RelatedUser.CREATOR:
                     String creator = (String) paramMap.get("creator");

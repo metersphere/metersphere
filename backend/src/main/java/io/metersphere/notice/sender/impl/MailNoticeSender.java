@@ -21,10 +21,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -97,7 +94,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
         LogUtil.debug("helper" + helper);
         helper.setSubject("MeterSphere " + subject);
 
-        LogUtil.info("收件人地址: {}", users);
+        LogUtil.info("收件人地址: {}", Arrays.asList(users));
         helper.setText(context, true);
         helper.setTo(users);
         if (cc != null && cc.length > 0) {
