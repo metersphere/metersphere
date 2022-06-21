@@ -31,7 +31,7 @@ import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.xpack.ui.service.UiScenarioReportStructureService;
+import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -91,8 +92,6 @@ public class ApiScenarioReportService {
     private UiReportServiceProxy uiReportServiceProxy;
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
-    @Resource
-    private UiScenarioReportStructureService uiScenarioReportStructureService;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -632,7 +631,7 @@ public class ApiScenarioReportService {
             // 为 UI 类型报告，需要删除报告产生的截图
             List<String> ids = new ArrayList<>();
             ids.add(request.getId());
-            uiScenarioReportStructureService.cleanUpReport(ids);
+            this.cleanUpUiReportImg(ids);
         }
 
         // 补充逻辑，如果是集成报告则把零时报告全部删除
@@ -755,7 +754,7 @@ public class ApiScenarioReportService {
 
         if(!BooleanUtils.isNotTrue(reportRequest.getIsUi())){
             // 为 UI 类型报告，需要删除报告产生的截图
-            uiScenarioReportStructureService.cleanUpReport(ids);
+            this.cleanUpUiReportImg(ids);
         }
 
         //处理最后剩余的数据
@@ -996,5 +995,15 @@ public class ApiScenarioReportService {
 
     public RequestResult selectReportContent(String stepId) {
         return apiScenarioReportStructureService.selectReportContent(stepId);
+    }
+
+    public void cleanUpUiReportImg(List<String> ids){
+        if(ids != null && CollectionUtils.isNotEmpty(ids)){
+            for(String id : ids){
+                if(FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + id))){
+                    LogUtil.info("删除 UI 报告截图成功，报告 ID 为 ：" + id);
+                }
+            }
+        }
     }
 }
