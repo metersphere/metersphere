@@ -668,7 +668,7 @@ export default {
           return row.priority;
         }
         if (field.name === '责任人') {
-          return row.maintainer;
+          return row.maintainerName;
         }
         if (field.name === '用例状态') {
           return row.status;
