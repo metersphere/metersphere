@@ -108,6 +108,7 @@ public class TestPlanMessageService {
         paramMap.put("projectId", projectId);
         if (userDTO != null) {
             paramMap.put("operator", userDTO.getName());
+            paramMap.put("executor", userDTO.getId());
         }
         paramMap.putAll(new BeanMap(testPlanDTOWithMetric));
 
