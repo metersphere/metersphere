@@ -679,7 +679,8 @@ public class ApiAutomationService {
                 .andProjectIdEqualTo(request.getProjectId())
                 .andStatusNotEqualTo("Trash")
                 .andIdNotEqualTo(request.getId())
-                .andVersionIdEqualTo(request.getVersionId());
+                .andVersionIdEqualTo(request.getVersionId())
+                .andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("automation_name_already_exists"));
         }
