@@ -139,6 +139,16 @@
                 <span v-if="field.name === '状态'">
                   {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
                 </span>
+                <span v-if="field.type === 'richText'">
+                   <el-popover
+                     placement="right"
+                     width="500"
+                     trigger="hover"
+                     popper-class="issues-popover">
+                     <ms-mark-down-text prop="value" :data="{value: getCustomFieldValue(scope.row, field)}" :disabled="true"/>
+                    <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
+                  </el-popover>
+                </span>
                 <span v-else>
                   {{getCustomFieldValue(scope.row, field)}}
                 </span>
@@ -185,10 +195,12 @@ import {getProjectMember} from "@/network/user";
 import {LOCAL} from "@/common/js/constants";
 import {TEST_TRACK_ISSUE_LIST} from "@/business/components/common/components/search/search-components";
 import {getAdvSearchCustomField} from "@/business/components/common/components/search/custom-component";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 
 export default {
   name: "IssueList",
   components: {
+    MsMarkDownText,
     MsMainContainer,
     MsContainer,
     IssueEdit,
