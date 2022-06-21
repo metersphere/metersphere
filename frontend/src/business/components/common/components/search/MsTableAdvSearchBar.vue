@@ -120,8 +120,7 @@ export default {
         let value = component.value;
         if (component.type === "multipleMember") {
           try {
-            let str = JSON.stringify(component.value);
-            value = str.substring(1, str.length - 1);
+            value = JSON.stringify(component.value);
           } catch (e) {
             // nothing
           }
