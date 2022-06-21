@@ -10,9 +10,9 @@
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
           <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
-            {{ getLable(node.label) }}
+            {{ getLabel(node.label) }}
           </el-link>
-          <span v-else>{{ getLable(node.label) }}</span>
+          <span v-else>{{ getLabel(node.label) }}</span>
         </el-tooltip>
       </el-card>
     </div>
@@ -70,7 +70,7 @@ export default {
     }
   },
   methods: {
-    getLable(label) {
+    getLabel(label) {
       switch (label) {
         case "ConstantTimer":
           return "等待控制器";
