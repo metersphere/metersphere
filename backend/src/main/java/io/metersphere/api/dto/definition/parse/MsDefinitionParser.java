@@ -4,13 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -21,26 +19,19 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
-
-    private ApiModule selectModule;
-
-    private String selectModulePath;
 
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         JSONObject testObject = JSONObject.parseObject(testStr, Feature.DisableSpecialKeyDetect);
         this.projectId = request.getProjectId();
-        if (StringUtils.isNotBlank(request.getModuleId())) {
-            this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
-            if (this.selectModule != null) {
-                this.selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
-            }
-        }
 
         if (testObject.get("projectName") != null || testObject.get("projectId") != null) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
@@ -56,14 +47,10 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     protected List<ApiDefinitionWithBLOBs> parsePluginFormat(JSONObject testObject, ApiTestImportRequest importRequest, Boolean isCreateModule) {
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
         testObject.keySet().forEach(tag -> {
-            String moduleId = null;
-            if (isCreateModule) {
-                moduleId = ApiDefinitionImportUtil.buildModule(this.selectModule, tag, this.projectId).getId();
-            }
+
             List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag, false);
             for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(), msHTTPSamplerProxy.getPath(), msHTTPSamplerProxy.getMethod(), importRequest);
-                apiDefinition.setModuleId(moduleId);
                 apiDefinition.setProjectId(this.projectId);
                 apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
                 apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
@@ -90,20 +77,8 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             });
         }
 
-        Set<String> moduleIdSet = apiDefinitionImport.getData().stream()
-                .map(ApiDefinitionWithBLOBs::getModuleId).collect(Collectors.toSet());
-
-        Map<String, NodeTree> nodeMap = null;
-        List<NodeTree> nodeTree = apiDefinitionImport.getNodeTree();
-        if (CollectionUtils.isNotEmpty(nodeTree)) {
-            cutDownTree(nodeTree, moduleIdSet);
-            ApiDefinitionImportUtil.createNodeTree(nodeTree, projectId, importRequest.getModuleId());
-            nodeMap = getNodeMap(nodeTree);
-        }
-
-        Map<String, NodeTree> finalNodeMap = nodeMap;
         apiDefinitionImport.getData().forEach(apiDefinition -> {
-            parseApiDefinition(apiDefinition, importRequest, caseMap, finalNodeMap);
+            parseApiDefinition(apiDefinition, importRequest, caseMap);
         });
         if (MapUtils.isNotEmpty(caseMap)) {
             List<ApiTestCaseWithBLOBs> list = new ArrayList<>();
@@ -116,19 +91,8 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     }
 
     private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest,
-                                    Map<String, List<ApiTestCaseWithBLOBs>> caseMap, Map<String, NodeTree> nodeMap) {
+                                    Map<String, List<ApiTestCaseWithBLOBs>> caseMap) {
         String originId = apiDefinition.getId();
-        if (nodeMap != null && nodeMap.get(apiDefinition.getModuleId()) != null) {
-            NodeTree nodeTree = nodeMap.get(apiDefinition.getModuleId());
-            apiDefinition.setModuleId(nodeTree.getNewId());
-            apiDefinition.setModulePath(nodeTree.getPath());
-        } else {
-            if (StringUtils.isBlank(apiDefinition.getModulePath())) {
-                apiDefinition.setModuleId(null);
-            }
-            // 旧版本未导出模块
-            parseModule(apiDefinition.getModulePath(), importRequest, apiDefinition);
-        }
 
         apiDefinition.setProjectId(this.projectId);
         JSONObject requestObj = this.parseObject(apiDefinition.getRequest(), apiDefinition.getProjectId());
@@ -190,32 +154,5 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             return null;
         }
     }
-
-    private void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiDefinitionWithBLOBs apiDefinition) {
-        if (StringUtils.isEmpty(modulePath)) {
-            return;
-        }
-        if (modulePath.startsWith("/")) {
-            modulePath = modulePath.substring(1, modulePath.length());
-        }
-        if (modulePath.endsWith("/")) {
-            modulePath = modulePath.substring(0, modulePath.length() - 1);
-        }
-        List<String> modules = Arrays.asList(modulePath.split("/"));
-        ApiModule parent = this.selectModule;
-        Iterator<String> iterator = modules.iterator();
-        while (iterator.hasNext()) {
-            String item = iterator.next();
-            parent = ApiDefinitionImportUtil.buildModule(parent, item, this.projectId, importRequest.getUserId());
-            if (!iterator.hasNext()) {
-                apiDefinition.setModuleId(parent.getId());
-                String path = apiDefinition.getModulePath() == null ? "" : apiDefinition.getModulePath();
-                if (StringUtils.isNotBlank(this.selectModulePath)) {
-                    apiDefinition.setModulePath(this.selectModulePath + path);
-                } else if (StringUtils.isBlank(importRequest.getModuleId())) {
-                    apiDefinition.setModulePath("/未规划接口" + path);
-                }
-            }
-        }
-    }
+    
 }

@@ -8,7 +8,6 @@ import io.github.ningyu.jmeter.plugin.util.Constants;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.*;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
@@ -39,7 +38,6 @@ import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
@@ -48,6 +46,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
@@ -115,27 +114,11 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private List<ApiScenarioWithBLOBs> parseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
-        ApiScenarioModule selectModule = null;
-        String selectModulePath = null;
-        if (StringUtils.isNotBlank(request.getModuleId())) {
-            selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
-            if (selectModule != null) {
-                selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
-            }
-        }
-        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
         scenarioWithBLOBs.setName(request.getFileName());
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
             scenarioWithBLOBs.setStepTotal(msScenario.getHashTree().size());
-        }
-        if (module != null) {
-            scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-            if (StringUtils.isNotBlank(selectModulePath)) {
-                scenarioWithBLOBs.setModulePath(selectModulePath + "/" + module.getName());
-            } else {
-                scenarioWithBLOBs.setModulePath("/" + module.getName());
-            }
+            scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
         }
         scenarioWithBLOBs.setId(UUID.randomUUID().toString());
         scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
@@ -780,11 +763,6 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 elementNode.setType("ConstantTimer");
             }
             // IF条件控制器，这里平台方式和jmeter 不同，暂时不处理
-//            else if (key instanceof IfController) {
-//                elementNode = new MsIfController();
-//                BeanUtils.copyBean(elementNode, key);
-//                elementNode.setType("IfController");
-//            }
             // 次数循环控制器
             else if (key instanceof LoopController) {
                 elementNode = new MsLoopController();

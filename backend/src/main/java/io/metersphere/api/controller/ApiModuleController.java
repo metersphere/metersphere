@@ -46,12 +46,6 @@ public class ApiModuleController {
         return apiModuleService.countTrashApiData(projectId, protocol);
     }
 
-    @GetMapping("/getModuleByName/{projectId}/{protocol}")
-    public ApiModule getModuleByName(@PathVariable String projectId, @PathVariable String protocol) {
-//        checkPermissionService.checkProjectOwner(projectId);
-        return apiModuleService.getModuleByName(projectId, protocol);
-    }
-
     @GetMapping("/getUserDefaultApiType")
     public String getUserDefaultApiType() {
         String returnStr = ApiDefinitionDefaultApiTypeUtil.HTTP;

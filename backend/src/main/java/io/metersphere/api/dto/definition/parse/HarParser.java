@@ -11,7 +11,6 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
@@ -60,16 +59,6 @@ public class HarParser extends HarAbstractParser {
     private List<ApiDefinitionWithBLOBs> parseRequests(Har har, ApiTestImportRequest importRequest) {
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule selectModule = null;
-        String selectModulePath = null;
-        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
-            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
-            if (selectModule != null) {
-                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
-            }
-        }
-
-
         List<HarEntry> harEntryList = new ArrayList<>();
         if (har.log != null && har.log.entries != null) {
             harEntryList = har.log.entries;
@@ -113,17 +102,6 @@ public class HarParser extends HarAbstractParser {
                 addBodyHeader(request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(entry.response)));
-                if (selectModule == null) {
-                    apiDefinition.setModuleId("default-module");
-
-                } else {
-                    apiDefinition.setModuleId(selectModule.getId());
-                }
-                if (StringUtils.isNotBlank(selectModulePath)) {
-                    apiDefinition.setModulePath(selectModulePath);
-                } else {
-                    apiDefinition.setModulePath("/未规划接口");
-                }
                 results.add(apiDefinition);
             }
         }
