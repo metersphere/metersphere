@@ -137,13 +137,13 @@ public class JMeterService {
         // 如果是K8S调用
         if (request.getPool().isK8s()) {
             try {
-                LoggerUtil.error("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行");
+                LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行");
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
                 RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 apiScenarioReportService.testEnded(request, e.getMessage());
-                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ] 失败：", e);
+                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ],报告：[" + request.getReportId() + "] 失败：", e);
             }
         } else {
             this.send(request);

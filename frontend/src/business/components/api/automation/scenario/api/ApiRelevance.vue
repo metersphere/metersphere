@@ -54,6 +54,7 @@
       <!--  显示数量    -->
       <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
 
+      <el-button size="mini" icon="el-icon-refresh" @click="refresh"/>
       <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent size="mini">
         {{ $t('commons.copy') }}
       </el-button>
