@@ -35,5 +35,9 @@ public class ApiTestImportRequest {
     private List<KeyValue> headers;
     private List<KeyValue> arguments;
     private MsAuthManager authManager;
+    // 是否覆盖模块
+    private Boolean coverModule;
+    // 当前协议
+    private String protocol;
 
 }
