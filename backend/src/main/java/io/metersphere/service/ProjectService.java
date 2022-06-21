@@ -1015,31 +1015,36 @@ public class ProjectService {
     }
 
     // 删除 UI 报告产生的截图
-    public void cleanUpUiReportImg(){
-        // 属于定时任务删除调试报告情况
-        // 获取昨天的当前时间
-        Date backupTime = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), -1);
-        // 清理类型为 UI 报告类型，且时间为昨天之前的 UI 调试类型报告截图
-        ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andCreateTimeLessThan(backupTime.getTime()).andReportTypeEqualTo(ReportTypeConstants.UI_INDEPENDENT.name())
-                .andExecuteTypeEqualTo(ExecuteType.Debug.name());
-        List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
-        // 删除调试报告的截图
-        for(ApiScenarioReport apiScenarioReport : apiScenarioReports){
-            if(FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + apiScenarioReport.getId()))){
-                LogUtil.info("删除 UI 调试报告截图成功，报告 ID 为 ：" + apiScenarioReport.getId());
+    public void cleanUpUiReportImg() {
+        try {
+            // 属于定时任务删除调试报告情况
+            // 获取昨天的当前时间
+            Date backupTime = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), -1);
+            // 清理类型为 UI 报告类型，且时间为昨天之前的 UI 调试类型报告截图
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andCreateTimeLessThan(backupTime.getTime()).andReportTypeEqualTo(ReportTypeConstants.UI_INDEPENDENT.name())
+                    .andExecuteTypeEqualTo(ExecuteType.Debug.name());
+            List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
+            // 删除调试报告的截图
+            for (ApiScenarioReport apiScenarioReport : apiScenarioReports) {
+                if (FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + apiScenarioReport.getId()))) {
+                    LogUtil.info("删除 UI 调试报告截图成功，报告 ID 为 ：" + apiScenarioReport.getId());
 
-                // 删除调试报告
-                ApiScenarioReportResultExample resultExample = new ApiScenarioReportResultExample();
-                resultExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
-                ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
-                structureExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
+                    // 删除调试报告
+                    ApiScenarioReportResultExample resultExample = new ApiScenarioReportResultExample();
+                    resultExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
+                    ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+                    structureExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
 
-                apiScenarioReportDetailMapper.deleteByPrimaryKey(apiScenarioReport.getId());
-                apiScenarioReportResultMapper.deleteByExample(resultExample);
-                apiScenarioReportStructureMapper.deleteByExample(structureExample);
-                apiScenarioReportMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+                    apiScenarioReportDetailMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+                    apiScenarioReportResultMapper.deleteByExample(resultExample);
+                    apiScenarioReportStructureMapper.deleteByExample(structureExample);
+                    apiScenarioReportMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+                }
             }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
         }
     }
 
