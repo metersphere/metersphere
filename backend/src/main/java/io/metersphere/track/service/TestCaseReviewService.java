@@ -471,10 +471,10 @@ public class TestCaseReviewService {
                 countMapDTOS.forEach(item -> {
                     testReview.setTotal(testReview.getTotal() + item.getValue());
                     if (!StringUtils.equals(item.getKey(), TestReviewCaseStatus.Prepare.name())) {
-                        testReview.setReviewed(testReview.getReviewed() + 1);
+                        testReview.setReviewed(testReview.getReviewed() + item.getValue());
                     }
                     if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Pass.name())) {
-                        testReview.setPass(testReview.getPass() + 1);
+                        testReview.setPass(testReview.getPass() + item.getValue());
                     }
                 });
             });
