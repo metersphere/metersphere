@@ -9,12 +9,14 @@
       @close="handleClose"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="150px" size="medium" ref="form" :rules="rules">
+      <el-form :model="form" label-position="right" label-width="180px" size="medium" ref="form" :rules="rules">
+
         <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
-          <el-select v-model="form.type" style="width: 80%" @change="changeType">
+          <el-select v-model="form.type" style="width: 100%" @change="changeType">
             <el-option v-for="(type, index) in typeArr" :key="index" :value="type.custom ? type.custom : type.id" :label="type.name"/>
           </el-select>
         </el-form-item>
+
         <el-form-item  v-if="form.type === 'projectEnv'" :label="$t('test_track.case.updated_attr_value')">
           <env-popover :env-map="projectEnvMap"
                        :project-ids="projectIds"
@@ -27,11 +29,13 @@
                        @setEnvGroup="setEnvGroup"
                        ref="envPopover"/>
         </el-form-item>
-        <el-form-item v-else-if="fieldType === 'custom'" :label="$t('test_track.case.updated_attr_value')">
+
+        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue" :label="$t('test_track.case.updated_attr_value')">
           <custom-filed-component :data="customField" prop="defaultValue"/>
         </el-form-item>
+
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
-          <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
+          <el-select v-model="form.value" style="width: 100%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
                 <span>{{option.id}}({{option.name}})</span>
@@ -39,6 +43,7 @@
             </el-option>
           </el-select>
         </el-form-item>
+
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
@@ -77,11 +82,17 @@ export default {
       return {
         dialogVisible: false,
         showConfigButtonWithOutPermission:false,
-        form: {},
+        form: {
+          appendTag: true,
+          customFieldValue: null,
+          value: null
+        },
         size: 0,
         rules: {
           type: {required: true, message: this.$t('test_track.case.please_select_attr'), trigger: ['blur','change']},
-          value: {required: true, message: this.$t('test_track.case.please_select_attr_value'), trigger: ['blur','change']}
+          value: {required: true, message: this.$t('test_track.case.please_select_attr_value'), trigger: ['blur','change']},
+          tags: {required: true, message: this.$t('test_track.case.please_select_attr_value'), trigger: ['blur','change']},
+          customFieldValue: {required: true, message: this.$t('test_track.case.please_select_attr_value'), trigger: ['blur','change']}
         },
         options: [],
         filterable: false,
@@ -102,6 +113,11 @@ export default {
     computed: {
       ENV_TYPE() {
         return ENV_TYPE;
+      }
+    },
+    watch: {
+      'customField.defaultValue'() {
+        this.$set(this.form, 'customFieldValue', this.customField.defaultValue);
       }
     },
     methods: {
