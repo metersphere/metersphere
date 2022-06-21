@@ -1094,6 +1094,124 @@
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
+    <update id="bathUpdateByCondition">
+        update test_case
+        <set>
+            <if test="record.id != null">
+                id = #{record.id,jdbcType=VARCHAR},
+            </if>
+            <if test="record.nodeId != null">
+                node_id = #{record.nodeId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.testId != null">
+                test_id = #{record.testId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.nodePath != null">
+                node_path = #{record.nodePath,jdbcType=VARCHAR},
+            </if>
+            <if test="record.projectId != null">
+                project_id = #{record.projectId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.name != null">
+                `name` = #{record.name,jdbcType=VARCHAR},
+            </if>
+            <if test="record.type != null">
+                `type` = #{record.type,jdbcType=VARCHAR},
+            </if>
+            <if test="record.maintainer != null">
+                maintainer = #{record.maintainer,jdbcType=VARCHAR},
+            </if>
+            <if test="record.priority != null">
+                priority = #{record.priority,jdbcType=VARCHAR},
+            </if>
+            <if test="record.method != null">
+                `method` = #{record.method,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createTime != null">
+                create_time = #{record.createTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.updateTime != null">
+                update_time = #{record.updateTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.sort != null">
+                sort = #{record.sort,jdbcType=INTEGER},
+            </if>
+            <if test="record.num != null">
+                num = #{record.num,jdbcType=INTEGER},
+            </if>
+            <if test="record.otherTestName != null">
+                other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.reviewStatus != null">
+                review_status = #{record.reviewStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="record.tags != null">
+                tags = #{record.tags,jdbcType=VARCHAR},
+            </if>
+            <if test="record.demandId != null">
+                demand_id = #{record.demandId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.demandName != null">
+                demand_name = #{record.demandName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.status != null">
+                `status` = #{record.status,jdbcType=VARCHAR},
+            </if>
+            <if test="record.stepModel != null">
+                step_model = #{record.stepModel,jdbcType=VARCHAR},
+            </if>
+            <if test="record.customNum != null">
+                custom_num = #{record.customNum,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createUser != null">
+                create_user = #{record.createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="record.originalStatus != null">
+                original_status = #{record.originalStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="record.deleteTime != null">
+                delete_time = #{record.deleteTime,jdbcType=BIGINT},
+            </if>
+            <if test="record.deleteUserId != null">
+                delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.order != null">
+                `order` = #{record.order,jdbcType=BIGINT},
+            </if>
+            <if test="record.casePublic != null">
+                case_public = #{record.casePublic,jdbcType=BIT},
+            </if>
+            <if test="record.versionId != null">
+                version_id = #{record.versionId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.refId != null">
+                ref_id = #{record.refId,jdbcType=VARCHAR},
+            </if>
+            <if test="record.latest != null">
+                latest = #{record.latest,jdbcType=BIT},
+            </if>
+            <if test="record.prerequisite != null">
+                prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.remark != null">
+                remark = #{record.remark,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.steps != null">
+                steps = #{record.steps,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.stepDescription != null">
+                step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.expectedResult != null">
+                expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.customFields != null">
+                custom_fields = #{record.customFields,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        <include refid="queryWhereCondition"/>
+    </update>
+
     <select id="moduleExtraNodeCount" resultType="java.util.Map">
         select parent_id as moduleId, count(id) as countNum from minder_extra_node
         where parent_id in
