@@ -9,7 +9,7 @@
           </div>
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
-          <span>{{ getLable(node.label) }}</span>
+          <span>{{ getLabel(node.label) }}</span>
         </el-tooltip>
       </el-card>
     </div>
@@ -67,7 +67,7 @@ export default {
     }
   },
   methods: {
-    getLable(label) {
+    getLabel(label) {
       switch (label) {
         case "ConstantTimer":
           return "等待控制器";

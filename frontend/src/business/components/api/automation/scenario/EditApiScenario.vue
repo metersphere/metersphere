@@ -678,7 +678,7 @@ export default {
       node.expanded = !node.expanded;
       this.pluginOrder(data);
     },
-    plugnOrder(nodes) {
+    pluginOrder(nodes) {
       // 兼容历史数据
       if (nodes && nodes.type === 'GenericController' && nodes.hashTree) {
         let data = nodes.hashTree.filter(v => v.type !== "Assertions");
@@ -1322,7 +1322,7 @@ export default {
       this.isBtnHide = false;
       // 历史数据兼容处理
       if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
-        this.plugnOrder(this.selectedTreeNode);
+        this.pluginOrder(this.selectedTreeNode);
       } else {
         this.sort();
       }
@@ -1383,7 +1383,7 @@ export default {
       this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       // 历史数据兼容处理
       if (this.selectedTreeNode && this.selectedTreeNode.type === 'GenericController') {
-        this.plugnOrder(this.selectedTreeNode);
+        this.pluginOrder(this.selectedTreeNode);
       } else {
         this.sort();
       }
