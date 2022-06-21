@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
@@ -76,6 +77,8 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     private ApiDefinitionImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
         ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class, Feature.DisableSpecialKeyDetect);
 
+        List<ApiDefinitionWithBLOBs> protocol = apiDefinitionImport.getData().stream().filter(item -> StringUtils.equals(importRequest.getProtocol(), item.getProtocol())).collect(Collectors.toList());
+        apiDefinitionImport.setData(protocol);
         Map<String, List<ApiTestCaseWithBLOBs>> caseMap = new HashMap<>();
         if (apiDefinitionImport.getCases() != null) {
             apiDefinitionImport.getCases().forEach(item -> {
