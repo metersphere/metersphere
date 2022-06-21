@@ -3,6 +3,7 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
+import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiTestDelService;
@@ -38,6 +39,7 @@ import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanService;
+import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +50,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -115,6 +118,14 @@ public class ProjectService {
     ExtModuleNodeMapper extModuleNodeMapper;
     @Resource
     ApiModuleMapper apiModuleMapper;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
+    @Resource
+    private ApiScenarioReportStructureMapper apiScenarioReportStructureMapper;
+    @Resource
+    private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
 
     public Project addProject(AddProjectRequest project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -1001,6 +1012,35 @@ public class ProjectService {
         }
         LogUtil.info("clean up load report before: " + DateUtils.getTimeString(time) + ", resourceId : " + projectId);
         performanceReportService.cleanUpReport(time, projectId);
+    }
+
+    // 删除 UI 报告产生的截图
+    public void cleanUpUiReportImg(){
+        // 属于定时任务删除调试报告情况
+        // 获取昨天的当前时间
+        Date backupTime = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), -1);
+        // 清理类型为 UI 报告类型，且时间为昨天之前的 UI 调试类型报告截图
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andCreateTimeLessThan(backupTime.getTime()).andReportTypeEqualTo(ReportTypeConstants.UI_INDEPENDENT.name())
+                .andExecuteTypeEqualTo(ExecuteType.Debug.name());
+        List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
+        // 删除调试报告的截图
+        for(ApiScenarioReport apiScenarioReport : apiScenarioReports){
+            if(FileUtil.deleteDir(new File(FileUtils.UI_IMAGE_DIR + "/" + apiScenarioReport.getId()))){
+                LogUtil.info("删除 UI 调试报告截图成功，报告 ID 为 ：" + apiScenarioReport.getId());
+
+                // 删除调试报告
+                ApiScenarioReportResultExample resultExample = new ApiScenarioReportResultExample();
+                resultExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
+                ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
+                structureExample.createCriteria().andReportIdEqualTo(apiScenarioReport.getId());
+
+                apiScenarioReportDetailMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+                apiScenarioReportResultMapper.deleteByExample(resultExample);
+                apiScenarioReportStructureMapper.deleteByExample(structureExample);
+                apiScenarioReportMapper.deleteByPrimaryKey(apiScenarioReport.getId());
+            }
+        }
     }
 
     public void checkProjectIsRepeatable(String projectId) {
