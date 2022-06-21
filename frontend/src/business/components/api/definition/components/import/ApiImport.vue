@@ -32,6 +32,10 @@
             <el-select size="small" v-model="formData.modeId" clearable style="width: 100%">
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
+            <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule"
+                         style="display:block;">
+              {{ this.$t('commons.cover_api') }}
+            </el-checkbox>
           </el-form-item>
           <el-form-item v-xpack v-if="projectVersionEnable && formData.modeId === 'incrementalMerge'"
                         :label="$t('api_test.api_import.import_version')" prop="versionId">
@@ -54,7 +58,7 @@
           <el-form-item v-if="showTemplate">
             <el-link type="primary" class="download-template"
                      @click="downloadTemplate"
-            >{{$t('test_track.case.import.download_template')}}
+            >{{ $t('test_track.case.import.download_template') }}
             </el-link>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
@@ -78,21 +82,23 @@
         </el-col>
 
         <el-col :span="14" v-show="isSwagger2 && authEnable && swaggerUrlEnable">
-            <!--请求头 -->
-            <div style="margin-top: 15px;">
-              <span>{{$t('api_test.request.headers')}}{{$t('api_test.api_import.optional')}}：</span>
-            </div>
-            <ms-api-key-value :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
-            <!--query 参数-->
-            <div style="margin-top: 10px">
-              <span>{{$t('api_test.definition.request.query_param')}}{{$t('api_test.api_import.optional')}}：</span>
-            </div>
-            <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="queryArguments"/>
-            <!--认证配置-->
-            <div style="margin-top: 10px">
-              <span>{{$t('api_test.definition.request.auth_config')}}{{$t('api_test.api_import.optional')}}：</span>
-            </div>
-            <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" ref="importAuth"/>
+          <!--请求头 -->
+          <div style="margin-top: 15px;">
+            <span>{{ $t('api_test.request.headers') }}{{ $t('api_test.api_import.optional') }}：</span>
+          </div>
+          <ms-api-key-value :show-desc="true" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
+                            :items="headers"/>
+          <!--query 参数-->
+          <div style="margin-top: 10px">
+            <span>{{ $t('api_test.definition.request.query_param') }}{{ $t('api_test.api_import.optional') }}：</span>
+          </div>
+          <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+                           :parameters="queryArguments"/>
+          <!--认证配置-->
+          <div style="margin-top: 10px">
+            <span>{{ $t('api_test.definition.request.auth_config') }}{{ $t('api_test.api_import.optional') }}：</span>
+          </div>
+          <ms-api-auth-config :is-read-only="isReadOnly" :request="authConfig" :encryptShow="false" ref="importAuth"/>
         </el-col>
 
         <el-col :span="12"
@@ -125,10 +131,18 @@
       </div>
       <div>
         <span>
-          {{ $t('api_test.api_import.import_cover_tip') }}<br/>
+          {{ $t('api_test.api_import.import_tip') }} : <br/>
+          {{ $t('api_test.api_import.import_tip1') }} <br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip2') }} <br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip3') }} <br/>
+          {{ $t('api_test.api_import.cover_tip') }} :<br/>
           {{ $t('api_test.api_import.cover_tip_1') }}<br/>
           {{ $t('api_test.api_import.cover_tip_2') }}<br/>
-          {{ $t('api_test.api_import.cover_tip_3') }}
+          {{ $t('api_test.api_import.cover_tip_3') }}<br/>
+          {{ $t('api_test.api_import.cover_tip_4') }}<br/>
+           {{ $t('api_test.api_import.no_cover_tip') }} :<br/>
+          {{ $t('api_test.api_import.no_cover_tip_1') }}<br/>
+          {{ $t('api_test.api_import.no_cover_tip_2') }}
         </span>
       </div>
     </div>
@@ -158,403 +172,405 @@ export default {
   props: {
     saved: {
       type: Boolean,
-        default: true,
-      },
-      moduleOptions: Array,
-      propotal: String,
-      model: {
-        type: String,
-        default: 'definition'
-      }
+      default: true,
     },
-    data() {
-      return {
-        visible: false,
-        swaggerUrlEnable: false,
-        authEnable: false,
-        showEnvironmentSelect: true,
-        showXpackCompnent:false,
-        headerSuggestions: REQUEST_HEADERS,
-        moduleObj: {
-          id: 'id',
-          label: 'name',
+    moduleOptions: Array,
+    protocol: String,
+    model: {
+      type: String,
+      default: 'definition'
+    }
+  },
+  data() {
+    return {
+      visible: false,
+      swaggerUrlEnable: false,
+      authEnable: false,
+      showEnvironmentSelect: true,
+      showXpackCompnent: false,
+      headerSuggestions: REQUEST_HEADERS,
+      moduleObj: {
+        id: 'id',
+        label: 'name',
+      },
+      modeOptions: [
+        {
+          id: 'fullCoverage',
+          name: this.$t('commons.cover')
         },
-        modeOptions: [
-          {
-            id: 'fullCoverage',
-            name: this.$t('commons.cover')
-          },
-          {
-            id: 'incrementalMerge',
-            name: this.$t('commons.not_cover')
-          }
-        ],
-        protocol: "",
-        platforms: [
-          {
-            name: 'MeterSphere',
-            value: 'Metersphere',
-            tip: this.$t('api_test.api_import.ms_tip'),
-            exportTip: this.$t('api_test.api_import.ms_export_tip'),
-            suffixes: new Set(['json'])
-          },
-        ],
-        postmanPlanform: {
-          name: 'Postman',
-          value: 'Postman',
-          tip: this.$t('api_test.api_import.postman_tip'),
-          exportTip: this.$t('api_test.api_import.post_export_tip'),
+        {
+          id: 'incrementalMerge',
+          name: this.$t('commons.not_cover')
+        }
+      ],
+      platforms: [
+        {
+          name: 'MeterSphere',
+          value: 'Metersphere',
+          tip: this.$t('api_test.api_import.ms_tip'),
+          exportTip: this.$t('api_test.api_import.ms_export_tip'),
           suffixes: new Set(['json'])
         },
-        swaggerPlanform: {
-          name: 'Swagger',
-          value: 'Swagger2',
-          tip: this.$t('api_test.api_import.swagger_tip'),
-          exportTip: this.$t('api_test.api_import.swagger_export_tip'),
-          suffixes: new Set(['json'])
-        },
-        harPlanform: {
-          name: 'HAR',
-          value: 'Har',
-          tip: this.$t('api_test.api_import.har_tip'),
-          exportTip: this.$t('api_test.api_import.har_export_tip'),
-          suffixes: new Set(['har'])
-        },
-        esbPlanform: {
-          name: 'ESB',
-          value: 'ESB',
-          tip: this.$t('api_test.api_import.esb_tip'),
-          exportTip: this.$t('api_test.api_import.esb_export_tip'),
-          suffixes: new Set(['xlsx', 'xls'])
-        },
-        jmeterPlatform: {
-          name: 'JMeter',
-          value: 'Jmeter',
-          tip: this.$t('api_test.api_import.jmeter_tip'),
-          exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
-          suffixes: new Set(['jmx'])
-        },
-        selectedPlatform: {},
-        selectedPlatformValue: 'Metersphere',
-        result: {},
-        projects: [],
-        environments: [],
-        useEnvironment: false,
-        formData: {
-          file: undefined,
-          swaggerUrl: '',
-          modeId: 'incrementalMerge',
-          moduleId: ''
-        },
-        rules: {
-          modeId: [
-            {required: true, message: this.$t('commons.please_select_import_mode'), trigger: 'change'},
-          ],
-        },
-        currentModule: {},
-        fileList: [],
-        isShowEnable: true,
-        isReadOnly: false,
-        headers: [],
-        queryArguments: [],
-        authConfig: {
-          hashTree: []
-        },
-        versionOptions: [],
-        projectVersionEnable: false,
+      ],
+      postmanPlanform: {
+        name: 'Postman',
+        value: 'Postman',
+        tip: this.$t('api_test.api_import.postman_tip'),
+        exportTip: this.$t('api_test.api_import.post_export_tip'),
+        suffixes: new Set(['json'])
+      },
+      swaggerPlanform: {
+        name: 'Swagger',
+        value: 'Swagger2',
+        tip: this.$t('api_test.api_import.swagger_tip'),
+        exportTip: this.$t('api_test.api_import.swagger_export_tip'),
+        suffixes: new Set(['json'])
+      },
+      harPlanform: {
+        name: 'HAR',
+        value: 'Har',
+        tip: this.$t('api_test.api_import.har_tip'),
+        exportTip: this.$t('api_test.api_import.har_export_tip'),
+        suffixes: new Set(['har'])
+      },
+      esbPlanform: {
+        name: 'ESB',
+        value: 'ESB',
+        tip: this.$t('api_test.api_import.esb_tip'),
+        exportTip: this.$t('api_test.api_import.esb_export_tip'),
+        suffixes: new Set(['xlsx', 'xls'])
+      },
+      jmeterPlatform: {
+        name: 'JMeter',
+        value: 'Jmeter',
+        tip: this.$t('api_test.api_import.jmeter_tip'),
+        exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
+        suffixes: new Set(['jmx'])
+      },
+      selectedPlatform: {},
+      selectedPlatformValue: 'Metersphere',
+      result: {},
+      projects: [],
+      environments: [],
+      useEnvironment: false,
+      formData: {
+        file: undefined,
+        swaggerUrl: '',
+        modeId: 'incrementalMerge',
+        moduleId: '',
+        coverModule: false
+      },
+      rules: {
+        modeId: [
+          {required: true, message: this.$t('commons.please_select_import_mode'), trigger: 'change'},
+        ],
+      },
+      currentModule: {},
+      fileList: [],
+      isShowEnable: true,
+      isReadOnly: false,
+      headers: [],
+      queryArguments: [],
+      authConfig: {
+        hashTree: []
+      },
+      versionOptions: [],
+      projectVersionEnable: false,
+    }
+  },
+  created() {
+    this.platforms.push(this.postmanPlanform);
+    this.platforms.push(this.swaggerPlanform);
+    this.platforms.push(this.harPlanform);
+    this.platforms.push(this.jmeterPlatform);
+    this.selectedPlatform = this.platforms[0];
+    //
+    this.getVersionOptions();
+    this.checkVersionEnable();
+  },
+  watch: {
+    moduleOptions() {
+      if (this.moduleOptions.length > 0) {
+        this.formData.moduleId = this.moduleOptions[0].id;
       }
     },
-    created() {
-      this.platforms.push(this.postmanPlanform);
-      this.platforms.push(this.swaggerPlanform);
-      this.platforms.push(this.harPlanform);
-      this.platforms.push(this.jmeterPlatform);
-      this.selectedPlatform = this.platforms[0];
-      //
-      this.getVersionOptions();
-      this.checkVersionEnable();
-    },
-    watch: {
-      moduleOptions() {
-        if (this.moduleOptions.length > 0) {
-          this.formData.moduleId = this.moduleOptions[0].id;
-        }
-      },
-      selectedPlatformValue() {
-        for (let i in this.platforms) {
-          if (this.platforms[i].value === this.selectedPlatformValue) {
-            this.selectedPlatform = this.platforms[i];
-            break;
-          }
-        }
-        if (this.selectedPlatformValue === 'Har' || this.selectedPlatformValue === 'ESB') {
-          this.formData.modeId = 'fullCoverage';
-        }
-      },
-      propotal() {
-        let postmanIndex = this.platforms.indexOf(this.postmanPlanform);
-        let swaggerPlanformIndex = this.platforms.indexOf(this.swaggerPlanform);
-        let harPlanformIndex = this.platforms.indexOf(this.harPlanform);
-        let esbPlanformIndex = this.platforms.indexOf(this.esbPlanform);
-        if (postmanIndex >= 0) {
-          this.platforms.splice(this.platforms.indexOf(this.postmanPlanform), 1);
-        }
-        if (swaggerPlanformIndex >= 0) {
-          this.platforms.splice(this.platforms.indexOf(this.swaggerPlanform), 1);
-        }
-        if (harPlanformIndex >= 0) {
-          this.platforms.splice(this.platforms.indexOf(this.harPlanform), 1);
-        }
-        if (esbPlanformIndex >= 0) {
-          this.platforms.splice(this.platforms.indexOf(this.esbPlanform), 1);
-        }
-        if (this.propotal === 'TCP') {
-          if(hasLicense()){
-            this.platforms.push(this.esbPlanform);
-          }
-          return true;
-        } else if (this.propotal === 'HTTP') {
-          this.platforms.push(this.postmanPlanform);
-          this.platforms.push(this.swaggerPlanform);
-          this.platforms.push(this.harPlanform);
-          return false;
+    selectedPlatformValue() {
+      for (let i in this.platforms) {
+        if (this.platforms[i].value === this.selectedPlatformValue) {
+          this.selectedPlatform = this.platforms[i];
+          break;
         }
       }
-    },
-    computed: {
-      isSwagger2() {
-        return this.selectedPlatformValue === 'Swagger2';
-      },
-      showImportModel() {
-        return this.selectedPlatformValue != 'Har' && this.selectedPlatformValue != 'ESB';
-      },
-      showTemplate() {
-        return this.selectedPlatformValue === 'ESB';
-      },
-      isScenarioModel() {
-        return this.model === 'scenario';
-      },
-      projectId() {
-        return getCurrentProjectID();
-      },
-      dialogWidth() {
-        if (this.isSwagger2 && this.authEnable && this.swaggerUrlEnable) {
-          return '80%';
-        }
-        return '30%';
+      if (this.selectedPlatformValue === 'Har' || this.selectedPlatformValue === 'ESB') {
+        this.formData.modeId = 'fullCoverage';
       }
     },
-    methods: {
-      open(module) {
-        this.currentModule = module;
-        this.visible = true;
-        listenGoBack(this.close);
-
-      },
-      upload(file) {
-        this.formData.file = file.file;
-      },
-      handleExceed(files, fileList) {
-        this.$warning(this.$t('test_track.case.import.upload_limit_count'));
-      },
-      handleRemove(file, fileList) {
-        this.formData.file = undefined;
-      },
-      downloadTemplate() {
-        if (this.selectedPlatformValue == "ESB") {
-          this.$fileDownload('/api/definition/export/esbExcelTemplate');
-        }
-      },
-      uploadValidate(file, fileList) {
-        let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-        if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
-          this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
-          return false;
-        }
-        if (file.size / 1024 / 1024 > 100) {
-          this.$warning(this.$t('test_track.case.import.upload_limit_size'));
-          return false;
+    protocol() {
+      let postmanIndex = this.platforms.indexOf(this.postmanPlanform);
+      let swaggerPlanformIndex = this.platforms.indexOf(this.swaggerPlanform);
+      let harPlanformIndex = this.platforms.indexOf(this.harPlanform);
+      let esbPlanformIndex = this.platforms.indexOf(this.esbPlanform);
+      if (postmanIndex >= 0) {
+        this.platforms.splice(this.platforms.indexOf(this.postmanPlanform), 1);
+      }
+      if (swaggerPlanformIndex >= 0) {
+        this.platforms.splice(this.platforms.indexOf(this.swaggerPlanform), 1);
+      }
+      if (harPlanformIndex >= 0) {
+        this.platforms.splice(this.platforms.indexOf(this.harPlanform), 1);
+      }
+      if (esbPlanformIndex >= 0) {
+        this.platforms.splice(this.platforms.indexOf(this.esbPlanform), 1);
+      }
+      if (this.protocol === 'TCP') {
+        if (hasLicense()) {
+          this.platforms.push(this.esbPlanform);
         }
         return true;
-      },
-      save() {
-        this.$refs.form.validate(valid => {
-          if (valid) {
-            if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEnable)) && !this.formData.file) {
-              this.$warning(this.$t('commons.please_upload'));
-              return;
-            }
-            let url = '/api/definition/import';
-            if (this.isScenarioModel) {
-              url = '/api/automation/import';
-            }
-            let param = this.buildParam();
-            this.result = this.$fileUpload(url, param.file, null, this.buildParam(), response => {
-              let res = response.data;
-              this.$success(this.$t('test_track.case.import.success'));
-              this.visible = false;
-              this.$emit('refresh', res);
-            });
-          } else {
-            return false;
+      } else if (this.protocol === 'HTTP') {
+        this.platforms.push(this.postmanPlanform);
+        this.platforms.push(this.swaggerPlanform);
+        this.platforms.push(this.harPlanform);
+        return false;
+      }
+    }
+  },
+  computed: {
+    isSwagger2() {
+      return this.selectedPlatformValue === 'Swagger2';
+    },
+    showImportModel() {
+      return this.selectedPlatformValue != 'Har' && this.selectedPlatformValue != 'ESB';
+    },
+    showTemplate() {
+      return this.selectedPlatformValue === 'ESB';
+    },
+    isScenarioModel() {
+      return this.model === 'scenario';
+    },
+    projectId() {
+      return getCurrentProjectID();
+    },
+    dialogWidth() {
+      if (this.isSwagger2 && this.authEnable && this.swaggerUrlEnable) {
+        return '80%';
+      }
+      return '30%';
+    }
+  },
+  methods: {
+    open(module) {
+      this.currentModule = module;
+      this.visible = true;
+      listenGoBack(this.close);
+
+    },
+    upload(file) {
+      this.formData.file = file.file;
+    },
+    handleExceed(files, fileList) {
+      this.$warning(this.$t('test_track.case.import.upload_limit_count'));
+    },
+    handleRemove(file, fileList) {
+      this.formData.file = undefined;
+    },
+    downloadTemplate() {
+      if (this.selectedPlatformValue == "ESB") {
+        this.$fileDownload('/api/definition/export/esbExcelTemplate');
+      }
+    },
+    uploadValidate(file, fileList) {
+      let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
+      if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
+        this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
+        return false;
+      }
+      if (file.size / 1024 / 1024 > 100) {
+        this.$warning(this.$t('test_track.case.import.upload_limit_size'));
+        return false;
+      }
+      return true;
+    },
+    save() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEnable)) && !this.formData.file) {
+            this.$warning(this.$t('commons.please_upload'));
+            return;
           }
+          let url = '/api/definition/import';
+          if (this.isScenarioModel) {
+            url = '/api/automation/import';
+          }
+          let param = this.buildParam();
+          this.result = this.$fileUpload(url, param.file, null, this.buildParam(), response => {
+            let res = response.data;
+            this.$success(this.$t('test_track.case.import.success'));
+            this.visible = false;
+            this.$emit('refresh', res);
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    setModule(id, data) {
+      this.formData.moduleId = id;
+      this.formData.modulePath = data.path;
+    },
+    clearAuthInfo() {
+      this.headers = [];
+      this.queryArguments = [];
+      this.headers.push(new KeyValue({enable: true}));
+      this.queryArguments.push(new KeyValue({enable: true}));
+      this.authConfig = {hashTree: [], authManager: {}};
+      this.$refs.importAuth.initData();
+    },
+    changeAuthEnable() {
+      if (!this.authEnable) {
+        this.clearAuthInfo();
+      }
+    },
+    buildParam() {
+      let param = {};
+      Object.assign(param, this.formData);
+      param.platform = this.selectedPlatformValue;
+      param.saved = this.saved;
+      param.model = this.model;
+      if (this.currentModule) {
+        if (!this.formData.moduleId || this.formData.moduleId.length === 0) {
+          param.moduleId = this.currentModule[0].id;
+        } else {
+          param.moduleId = this.formData.moduleId
+        }
+        param.modeId = this.formData.modeId
+      }
+      param.projectId = this.projectId;
+      param.protocol = this.protocol;
+      if (!this.swaggerUrlEnable) {
+        param.swaggerUrl = undefined;
+      }
+      if (this.authEnable) {
+        // 设置请求头
+        param.headers = this.headers;
+        // 设置 query 参数
+        param.arguments = this.queryArguments;
+        // 设置 BaseAuth 参数
+        if (this.authConfig.authManager != undefined) {
+          this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
+          param.authManager = this.authConfig.authManager;
+        }
+      }
+      return param;
+    },
+    close() {
+      this.formData = {
+        file: undefined,
+        swaggerUrl: '',
+        modeId: this.formData.modeId,
+      };
+      this.fileList = [];
+      removeGoBackListener(this.close);
+      this.visible = false;
+    },
+    getVersionOptions() {
+      if (hasLicense()) {
+        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
+          this.versionOptions = response.data.filter(v => v.status === 'open');
+          this.versionOptions.forEach(v => {
+            if (v.latest) {
+              v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
+            }
+          });
         });
-      },
-      setModule(id, data) {
-        this.formData.moduleId = id;
-        this.formData.modulePath = data.path;
-      },
-      clearAuthInfo(){
-        this.headers = [];
-        this.queryArguments = [];
-        this.headers.push(new KeyValue({enable: true}));
-        this.queryArguments.push(new KeyValue({enable: true}));
-        this.authConfig = {hashTree: [], authManager: {}};
-        this.$refs.importAuth.initData();
-      },
-      changeAuthEnable() {
-        if(!this.authEnable){
-          this.clearAuthInfo();
-        }
-      },
-      buildParam() {
-        let param = {};
-        Object.assign(param, this.formData);
-        param.platform = this.selectedPlatformValue;
-        param.saved = this.saved;
-        param.model = this.model;
-        if (this.currentModule) {
-          if (!this.formData.moduleId || this.formData.moduleId.length === 0) {
-            param.moduleId = this.currentModule[0].id;
-          } else {
-            param.moduleId= this.formData.moduleId
-          }
-          param.modeId = this.formData.modeId
-        }
-        param.projectId = this.projectId;
-        if (!this.swaggerUrlEnable) {
-          param.swaggerUrl = undefined;
-        }
-        if(this.authEnable){
-          // 设置请求头
-          param.headers = this.headers;
-          // 设置 query 参数
-          param.arguments = this.queryArguments;
-          // 设置 BaseAuth 参数
-          if(this.authConfig.authManager != undefined){
-            this.authConfig.authManager.clazzName = TYPE_TO_C.get("AuthManager");
-            param.authManager = this.authConfig.authManager;
-          }
-        }
-        return param;
-      },
-      close() {
-        this.formData = {
-          file: undefined,
-          swaggerUrl: '',
-          modeId: this.formData.modeId,
-        };
-        this.fileList = [];
-        removeGoBackListener(this.close);
-        this.visible = false;
-      },
-      getVersionOptions() {
-        if (hasLicense()) {
-          this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-            this.versionOptions = response.data.filter(v => v.status === 'open');
-            this.versionOptions.forEach(v => {
-              if (v.latest) {
-                v.name = v.name + ' ' + this.$t('api_test.api_import.latest_version');
-              }
-            });
-          });
-        }
-      },
-      checkVersionEnable() {
-        if (!this.projectId) {
-          return;
-        }
-        if (hasLicense()) {
-          this.$get('/project/version/enable/' + this.projectId, response => {
-            this.projectVersionEnable = response.data;
-          });
-        }
+      }
+    },
+    checkVersionEnable() {
+      if (!this.projectId) {
+        return;
+      }
+      if (hasLicense()) {
+        this.$get('/project/version/enable/' + this.projectId, response => {
+          this.projectVersionEnable = response.data;
+        });
       }
     }
   }
+}
 </script>
 
 <style scoped>
 
-  .api-import >>> .el-dialog {
-    min-width: 750px;
-  }
+.api-import >>> .el-dialog {
+  min-width: 750px;
+}
 
-  .format-tip {
-    background: #EDEDED;
-  }
+.format-tip {
+  background: #EDEDED;
+}
 
-  .api-upload {
-    text-align: center;
-    margin: auto 0;
-  }
+.api-upload {
+  text-align: center;
+  margin: auto 0;
+}
 
-  .api-upload >>> .el-upload {
-    width: 100%;
-    max-width: 350px;
-  }
+.api-upload >>> .el-upload {
+  width: 100%;
+  max-width: 350px;
+}
 
-  .api-upload >>> .el-upload-dragger {
-    width: 100%;
-  }
+.api-upload >>> .el-upload-dragger {
+  width: 100%;
+}
 
-  .el-radio-group {
-    margin: 10px 0;
-  }
+.el-radio-group {
+  margin: 10px 0;
+}
 
-  .el-radio {
-    margin-right: 20px;
-  }
+.el-radio {
+  margin-right: 20px;
+}
 
-  .header-bar, .format-tip, .el-form {
-    border: solid #E1E1E1 1px;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 3px;
-  }
+.header-bar, .format-tip, .el-form {
+  border: solid #E1E1E1 1px;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 3px;
+}
 
-  .header-bar {
-    padding: 10px 15px;
-  }
+.header-bar {
+  padding: 10px 15px;
+}
 
-  .api-import >>> .el-dialog__body {
-    padding: 15px 25px;
-  }
+.api-import >>> .el-dialog__body {
+  padding: 15px 25px;
+}
 
-  .operate-button {
-    float: right;
-  }
+.operate-button {
+  float: right;
+}
 
-  .save-button {
-    margin-left: 10px;
-  }
+.save-button {
+  margin-left: 10px;
+}
 
-  .el-form {
-    padding: 30px 10px;
-  }
+.el-form {
+  padding: 30px 10px;
+}
 
-  .dialog-footer {
-    float: right;
-  }
+.dialog-footer {
+  float: right;
+}
 
-  .swagger-url-disable {
-    margin-top: 10px;
+.swagger-url-disable {
+  margin-top: 10px;
 
-    margin-left: 80px;
-  }
+  margin-left: 80px;
+}
 
-  .el-divider {
-    height: 200px;
-  }
+.el-divider {
+  height: 200px;
+}
+
 
 </style>
