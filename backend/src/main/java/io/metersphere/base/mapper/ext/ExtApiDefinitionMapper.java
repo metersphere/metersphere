@@ -9,6 +9,7 @@ import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionExample;
 import io.metersphere.base.domain.ApiDefinitionExampleWithOperation;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.dto.RelationshipGraphData;
 import org.apache.ibatis.annotations.Param;
@@ -64,13 +65,13 @@ public interface ExtApiDefinitionMapper {
 
     ApiDefinition selectUrlAndMethodById(String id);
 
-    int checkOriginalStatusByIds(@Param("ids")List<String> ids);
+    int checkOriginalStatusByIds(@Param("ids") List<String> ids);
 
     List<String> selectProjectIds();
 
     List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
 
-    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+    Long getPreOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
     Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
@@ -89,4 +90,11 @@ public interface ExtApiDefinitionMapper {
     List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
 
     String selectNameById(String testId);
+
+    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBs(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("versionIds") Set<String> versionIds);
+
+    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId, @Param("versionIds") Set<String> versionIds);
+
+    List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol, @Param("versionIds") Set<String> versionIds);
+
 }
