@@ -2,7 +2,8 @@
   <div>
     <el-row :gutter="10">
       <el-col :span="4">
-        <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%">
+        <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
+                   @change="changeInstance(currentInstance)">
           <el-option
             v-for="item in resource"
             :key="item.resourceId"
@@ -12,9 +13,9 @@
         </el-select>
       </el-col>
       <el-col :span="20">
-        <div v-if="currentInstance" class="logging-content">
+        <div class="logging-content" v-loading="loading">
           <ul class="infinite-list">
-            <li class="infinite-list-item" v-for="(log, index) in logContent[currentInstance]"
+            <li class="infinite-list-item" v-for="(log, index) in logContent"
                 :key="currentInstance+index">
               {{ log.content }}
             </li>
@@ -43,13 +44,12 @@ export default {
   data() {
     return {
       resource: [],
-      logContent: {},
+      logContent: [],
       result: {},
       id: '',
-      page: {},
+      page: 1,
       pageCount: 5,
       loading: false,
-      logStatus: {},
       currentInstance: ''
     };
   },
@@ -73,52 +73,43 @@ export default {
       if (!this.currentInstance) {
         this.currentInstance = this.resource[0]?.resourceId;
       }
-      this.page = data.map(item => item.resourceId).reduce((result, curr) => {
-        result[curr] = 1;
-        return result;
-      }, {});
-      this.logContent = data.map(item => item.resourceId).reduce((result, curr) => {
-        result[curr] = [];
-        return result;
-      }, {});
+
+      //
+      if (this.currentInstance) {
+        this.changeInstance(this.currentInstance);
+      }
     },
     load(resourceId) {
-      if (this.loading || this.page[resourceId] > this.pageCount) {
+      if (this.loading || this.page > this.pageCount) {
         return;
       }
-      this.logStatus[resourceId] = true;
       this.loading = true;
       if (this.planReportTemplate) {
         // this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
       } else if (this.isShare) {
-        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId] || 1, data => {
+        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       } else {
-        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page[resourceId] || 1, data => {
+        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       }
     },
     handleGetLogResourceDetail(data, resourceId) {
       data.listObject.forEach(log => {
-        if (this.logContent[resourceId]) {
-          this.logContent[resourceId].push(log);
+        if (this.logContent) {
+          this.logContent.push(log);
         }
       });
-      this.page[resourceId]++;
+      this.page++;
       this.loading = false;
-      // 继续查询
-      this.load(resourceId);
     },
     changeInstance(instance) {
       this.currentInstance = instance;
-      if (this.logStatus[instance]) {
-        return;
-      }
       this.loading = false;
-      this.page[instance] = 1;
-      this.logContent[instance] = [];
+      this.page = 1;
+      this.logContent = [];
       this.load(instance);
     },
     downloadLogFile(resourceId) {
@@ -184,11 +175,6 @@ export default {
         }
       },
       deep: true
-    },
-    currentInstance() {
-      if (this.currentInstance) {
-        this.changeInstance(this.currentInstance);
-      }
     }
   },
 };
