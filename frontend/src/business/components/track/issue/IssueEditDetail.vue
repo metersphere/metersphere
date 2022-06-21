@@ -50,6 +50,7 @@
         </el-row>
 
         <form-rich-text-item
+          ref="frti"
           v-if="!enableThirdPartTemplate"
           :title="$t('custom_field.issue_content')"
           :data="form"
@@ -318,6 +319,7 @@ export default {
       } else {
         this.issueId = null;
         this.form.follows = [];
+        this.$refs.frti.resetMt();
       }
     },
     currentUser: () => {
