@@ -677,20 +677,26 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
+        return listTestCase(request, false);
+    }
+
+    public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request, boolean isSampleInfo) {
         this.initRequest(request, true);
         setDefaultOrder(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
         }
         List<TestCaseDTO> list = extTestCaseMapper.list(request);
-        buildUserInfo(list);
-        if (StringUtils.isNotBlank(request.getProjectId())) {
-            buildProjectInfo(request.getProjectId(), list);
-        } else {
-            buildProjectInfoWidthoutProject(list);
+        if (!isSampleInfo) {
+            buildUserInfo(list);
+            if (StringUtils.isNotBlank(request.getProjectId())) {
+                buildProjectInfo(request.getProjectId(), list);
+            } else {
+                buildProjectInfoWidthoutProject(list);
+            }
+            buildCustomField(list);
+            list = this.parseStatus(list);
         }
-        buildCustomField(list);
-        list = this.parseStatus(list);
         return list;
     }
 
@@ -1494,20 +1500,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> findByBatchRequest(TestCaseBatchRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extTestCaseMapper.selectIds(query));
-        QueryTestCaseRequest condition = request.getCondition();
-        List<OrderRequest> orderList = new ArrayList<>();
-        if (condition != null) {
-            orderList = ServiceUtils.getDefaultSortOrder(condition.getOrders());
-        }
-        OrderRequest order = new OrderRequest();
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
-        List<TestCaseDTO> testCaseList = extTestCaseMapper.listByTestCaseIds(request);
-        return testCaseList;
+        return listTestCase(request.getCondition(), true);
     }
 
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
@@ -1672,73 +1665,100 @@ public class TestCaseService {
      * @param request
      */
     public void editTestCaseBath(TestCaseBatchRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extTestCaseMapper.selectIds(query));
-        List<String> ids = request.getIds();
-        if (CollectionUtils.isEmpty(ids)) {
-            return;
-        }
         if (request.getCustomField() != null) {
-            List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
-            testCases.forEach((testCase) -> {
-                CustomFieldResourceDTO customField = request.getCustomField();
-                if (StringUtils.equals(customField.getName(), "用例等级")) {
-                    testCase.setPriority(JSONObject.parse(customField.getValue()).toString());
-                } else if (StringUtils.equals(request.getCustomField().getName(), "用例状态")) {
-                    testCase.setStatus(JSONObject.parse(customField.getValue()).toString());
-                } else if (StringUtils.equals(customField.getName(), "责任人")) {
-                    testCase.setMaintainer(JSONObject.parse(customField.getValue()).toString());
-                } else {
-                    customField.setResourceId(testCase.getId());
-                    int row = customFieldTestCaseService.updateByPrimaryKeySelective(customField);
-                    if (row < 1) {
-                        customFieldTestCaseService.insert(customField);
-                    }
-                }
-                testCase.setUpdateTime(System.currentTimeMillis());
-                TestCaseExample example = new TestCaseExample();
-                example.createCriteria().andIdEqualTo(testCase.getId());
-                testCaseMapper.updateByExampleSelective(testCase, example);
-            });
+            batchEditField(request);
         } else if (StringUtils.equals("tags", request.getType())) {
-            if (request.getTagList().isEmpty()) {
-                return;
-            }
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-            TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andIdIn(ids);
-            List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
-            for (TestCase tc : testCaseList) {
-                String tags = tc.getTags();
-                if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
-                    tc.setTags(JSON.toJSONString(request.getTagList()));
-                } else {
-                    try {
-                        List<String> list = JSON.parseArray(tags, String.class);
-                        list.addAll(request.getTagList());
-                        tc.setTags(JSON.toJSONString(list));
-                    } catch (Exception e) {
-                        LogUtil.error("batch edit tags error.");
-                        LogUtil.error(e, e.getMessage());
-                        tc.setTags(JSON.toJSONString(request.getTagList()));
-                    }
-                }
-                mapper.updateByPrimaryKey(tc);
-            }
-            sqlSession.flushStatements();
-            if (sqlSession != null && sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
+            batchEditTag(request);
         } else {
             // 批量移动
             TestCaseWithBLOBs batchEdit = new TestCaseWithBLOBs();
             BeanUtils.copyBean(batchEdit, request);
             batchEdit.setUpdateTime(System.currentTimeMillis());
-            TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andIdIn(request.getIds());
-            testCaseMapper.updateByExampleSelective(batchEdit, example);
+            bathUpdateByCondition(request, batchEdit);
         }
+    }
+
+    private void batchEditTag(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        if (CollectionUtils.isEmpty(request.getIds()) || request.getTagList().isEmpty()) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+        for (TestCase tc : testCaseList) {
+            String tags = tc.getTags();
+            if (StringUtils.isBlank(tags) || BooleanUtils.isFalse(request.isAppendTag())) {
+                tc.setTags(JSON.toJSONString(request.getTagList()));
+            } else {
+                try {
+                    List<String> list = JSON.parseArray(tags, String.class);
+                    list.addAll(request.getTagList());
+                    tc.setTags(JSON.toJSONString(list));
+                } catch (Exception e) {
+                    LogUtil.error("batch edit tags error.");
+                    LogUtil.error(e, e.getMessage());
+                    tc.setTags(JSON.toJSONString(request.getTagList()));
+                }
+            }
+            mapper.updateByPrimaryKey(tc);
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void batchEditField(TestCaseBatchRequest request) {
+        CustomFieldResourceDTO customField = request.getCustomField();
+        String name = customField.getName();
+        String value = JSONObject.parse(customField.getValue()).toString();
+        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
+
+        if (StringUtils.equalsAnyIgnoreCase(name, "用例等级")) {
+            testCaseWithBLOBs.setPriority(value);
+            bathUpdateByCondition(request, testCaseWithBLOBs);
+        } else if (StringUtils.equals(name, "用例状态")) {
+            testCaseWithBLOBs.setStatus(value);
+            bathUpdateByCondition(request, testCaseWithBLOBs);
+        } else if (StringUtils.equals(name, "责任人")) {
+            testCaseWithBLOBs.setMaintainer(value);
+            bathUpdateByCondition(request, testCaseWithBLOBs);
+        } else {
+            ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                    (query) -> extTestCaseMapper.selectIds(query));
+            if (CollectionUtils.isEmpty(request.getIds())) {
+                return;
+            }
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+            List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(request.getIds());
+            for (int i = 0; i < testCases.size(); i++) {
+                TestCaseWithBLOBs testCase = testCases.get(i);
+                customField.setResourceId(testCase.getId());
+                int row = customFieldTestCaseService.updateByPrimaryKeySelective(customField);
+                if (row < 1) {
+                    customFieldTestCaseService.insert(customField);
+                }
+                testCase.setUpdateTime(System.currentTimeMillis());
+                TestCaseExample example = new TestCaseExample();
+                example.createCriteria().andIdEqualTo(testCase.getId());
+                mapper.updateByExampleSelective(testCase, example);
+                if (i % 1000 == 0) {
+                    sqlSession.flushStatements();
+                }
+            }
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+
+    }
+
+    private int bathUpdateByCondition(TestCaseBatchRequest request, TestCaseWithBLOBs testCaseWithBLOBs) {
+        return extTestCaseMapper.bathUpdateByCondition(request.getCondition(), testCaseWithBLOBs);
     }
 
     public void copyTestCaseBathPublic(TestCaseBatchRequest request) {

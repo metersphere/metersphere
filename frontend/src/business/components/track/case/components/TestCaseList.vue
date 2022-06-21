@@ -675,7 +675,7 @@ export default {
       if (field.name === '用例等级') {
         return row.priority;
       } else if (field.name === '责任人') {
-        return row.maintainer;
+        return row.maintainerName;
       } else if (field.name === '用例状态') {
         return row.status;
       }
@@ -990,6 +990,7 @@ export default {
     },
     refresh() {
       this.$refs.table.clear();
+      this.condition.selectAll = false;
       this.$emit('refresh');
     },
     refreshAll() {

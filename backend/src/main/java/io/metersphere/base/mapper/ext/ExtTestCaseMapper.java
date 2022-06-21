@@ -157,4 +157,6 @@ public interface ExtTestCaseMapper {
     List<CustomFieldResourceCompatibleDTO> getForCompatibleCustomField(String projectId, int offset, int pageSize);
 
     List<Map<String, Object>> moduleExtraNodeCount(@Param("nodeIds") List<String> nodeIds);
+
+    int bathUpdateByCondition(@Param("request") QueryTestCaseRequest condition, @Param("record") TestCaseWithBLOBs testCaseWithBLOBs);
 }
