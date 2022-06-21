@@ -1,6 +1,6 @@
 <template>
   <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
-    <ms-mark-down-text :prop="prop" :data="data" :disabled="disabled" :default-open="defaultOpen"/>
+    <ms-mark-down-text :prop="prop" :data="data" :disabled="disabled" :default-open="defaultOpen" v-if="renderMt"/>
   </el-form-item>
 </template>
 
@@ -21,6 +21,19 @@ export default {
       }
     },
     labelWidth: [String, Number]
+  },
+  data() {
+    return {
+      renderMt: true
+    }
+  },
+  methods: {
+    resetMt() {
+      this.renderMt = false;
+      this.$nextTick(() => {
+        this.renderMt = true;
+      });
+    }
   }
 }
 </script>
