@@ -173,7 +173,7 @@ export default {
         loading: false
       },
       relateFields: [],
-      showFollow:false,
+      showFollow: false,
       formLabelWidth: "150px",
       issueTemplate: {},
       customFieldForm: null,
@@ -286,6 +286,7 @@ export default {
       }
     },
     open(data, type) {
+      this.showFollow = false;
       this.result.loading = true;
       this.type = type;
       this.richTextDefaultOpen = this.type === 'edit' ? 'preview' : 'edit';
