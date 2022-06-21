@@ -13,7 +13,6 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -580,7 +579,9 @@ public class ESBParser extends EsbAbstractParser {
         ApiDefinitionImport resultModel = new ApiDefinitionImport();
         List<ApiDefinitionWithBLOBs> apiDataList = new ArrayList<>();
 
+/*
         ApiModule parentNode = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+*/
         EsbSheetDataStruct headSheetData = esbExcelDataStruct.getHeadData();
         List<EsbSheetDataStruct> interfaceDataList = esbExcelDataStruct.getInterfaceList();
         List<String> savedNames = new ArrayList<>();
@@ -603,8 +604,8 @@ public class ESBParser extends EsbAbstractParser {
             apiDefinition.setMethod("ESB");
             apiDefinition.setId(apiId);
             apiDefinition.setProjectId(this.projectId);
-            apiDefinition.setModuleId(importRequest.getModuleId());
-            apiDefinition.setModulePath(importRequest.getModulePath());
+           /* apiDefinition.setModuleId(importRequest.getModuleId());
+            apiDefinition.setModulePath(importRequest.getModulePath());*/
             apiDefinition.setRequest(genTCPSampler(esbSendRequest, reqDataStructStr));
             if (StringUtils.equalsIgnoreCase("schedule", importRequest.getType())) {
                 apiDefinition.setUserId(importRequest.getUserId());
@@ -612,7 +613,7 @@ public class ESBParser extends EsbAbstractParser {
                 apiDefinition.setUserId(SessionUtils.getUserId());
             }
             apiDefinition.setProtocol(RequestType.TCP);
-            buildModule(parentNode, apiDefinition, null);
+            /*  buildModule(parentNode, apiDefinition, null);*/
             apiDataList.add(apiDefinition);
 
             EsbApiParamsWithBLOBs apiParams = new EsbApiParamsWithBLOBs();

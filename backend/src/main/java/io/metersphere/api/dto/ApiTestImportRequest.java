@@ -39,5 +39,4 @@ public class ApiTestImportRequest {
     private Boolean coverModule;
     // 当前协议
     private String protocol;
-
 }

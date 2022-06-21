@@ -2,10 +2,7 @@ package io.metersphere.api.service;
 
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.definition.ApiDefinitionRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
-import io.metersphere.api.dto.definition.DragModuleRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
@@ -49,8 +46,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
-    @Resource
     private TestPlanProjectService testPlanProjectService;
     @Resource
     private ProjectService projectService;
@@ -72,11 +67,16 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return apiModuleMapper.selectByPrimaryKey(id);
     }
 
+
+    public List<ApiModuleDTO> getApiModulesByProjectAndPro(String projectId, String protocol) {
+        return extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
+    }
+
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol, String versionId) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId, protocol);
-        List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
         ApiDefinitionRequest request = new ApiDefinitionRequest();
+        List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         request.setProjectId(projectId);
         request.setProtocol(protocol);
         List<String> list = new ArrayList<>();
@@ -162,7 +162,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return addNodeWithoutValidate(node);
     }
 
-    private double getNextLevelPos(String projectId, int level, String parentId) {
+    public double getNextLevelPos(String projectId, int level, String parentId) {
         List<ApiModule> list = getPos(projectId, level, parentId, "pos desc");
         if (!CollectionUtils.isEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
             return list.get(0).getPos() + DEFAULT_POS;
@@ -219,7 +219,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (apiCases.isEmpty()) {
             return null;
         }
-        List<ApiModuleDTO> testCaseNodes = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
+        List<ApiModuleDTO> testCaseNodes = getApiModulesByProjectAndPro(projectId, protocol);
 
         List<String> caseIds = apiCases.stream()
                 .map(TestPlanApiCase::getApiCaseId)
@@ -453,29 +453,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    public ApiModule getModuleByName(String projectId, String protocol) {
+    public ApiModule getModuleByNameAndLevel(String projectId, String protocol, String name, Integer level) {
         ApiModuleExample example = new ApiModuleExample();
-        ApiModuleExample.Criteria criteria = example.createCriteria();
-        criteria.andNameEqualTo("bug")
-                .andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol);
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo(name).andLevelEqualTo(level);
         List<ApiModule> modules = apiModuleMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(modules)) {
             return modules.get(0);
         } else {
-            ApiModule node = new ApiModule();
-            node.setName("bug");
-            node.setLevel(1);
-            node.setPos(0.0);
-            node.setParentId(null);
-            node.setProjectId(projectId);
-            node.setProtocol(protocol);
-            node.setCreateTime(System.currentTimeMillis());
-            node.setUpdateTime(System.currentTimeMillis());
-            node.setId(UUID.randomUUID().toString());
-            node.setCreateUser(SessionUtils.getUserId());
-            apiModuleMapper.insertSelective(node);
-            return node;
+            return null;
         }
+    }
+
+
+    public List<ApiModule> getMListByProAndProtocol(String projectId, String protocol) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol);
+        return apiModuleMapper.selectByExample(example);
     }
 
     public String getLogDetails(List<String> ids) {
@@ -603,4 +596,322 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
         return returnMap;
     }
+
+    /**
+     * 上传文件时对文件的模块进行检测
+     *
+     * @param moduleId        上传文件时选的模块ID
+     * @param projectId
+     * @param protocol
+     * @param data
+     * @param fullCoverage    是否覆盖接口
+     * @param fullCoverageApi 是否更新当前接口所在模块 (如果开启url重复，可重复的是某一模块下的接口，注：只在这个模块下，不包含其子模块)
+     * @return Return to the newly added module list and api list
+     */
+    public UpdateApiModuleDTO checkApiModule(String moduleId, String projectId, String protocol, List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageApi, boolean urlRepeat) {
+        Map<String, ApiModule> map = new HashMap<>();
+        Map<String, ApiDefinitionWithBLOBs> updateApiMap = new HashMap<>();
+        //获取当前项目的当前协议下的所有模块的Tree
+        List<ApiModuleDTO> apiModules = this.getApiModulesByProjectAndPro(projectId, protocol);
+        List<ApiModuleDTO> nodeTreeByProjectId = this.getNodeTrees(apiModules);
+
+        Map<String, List<ApiModule>> pidChildrenMap = new HashMap<>();
+        Map<String, String> idPathMap = new HashMap<>();
+        Map<String, ApiModuleDTO> idModuleMap = apiModules.stream().collect(Collectors.toMap(ApiModuleDTO::getId, apiModuleDTO -> apiModuleDTO));
+        buildProcessData(nodeTreeByProjectId, pidChildrenMap, idPathMap);
+
+        Map<String, ApiDefinitionWithBLOBs> methodPathMap = data.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), apiDefinition -> apiDefinition));
+
+        //获取选中的模块
+        ApiModuleDTO chooseModule = null;
+        if (moduleId != null) {
+            chooseModule = idModuleMap.get(moduleId);
+        }
+        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs;
+
+        if (chooseModule != null) {
+            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(data, chooseModule.getId());
+        } else {
+            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(data);
+        }
+
+        //允许接口重复
+        if (urlRepeat) {
+            //允许覆盖接口
+            if (fullCoverage) {
+                //允许覆盖模块
+                if (fullCoverageApi) {
+                    coverApiModule(map, updateApiMap, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule, repeatApiDefinitionWithBLOBs);
+                } else {
+                    //覆盖但不覆盖模块
+                    justCoverApi(map, updateApiMap, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule, repeatApiDefinitionWithBLOBs);
+                }
+            } else {
+                //不覆盖接口，直接新增
+                setModule(map, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule);
+            }
+        } else {
+            //不允许接口重复
+            if (fullCoverage) {
+                if (fullCoverageApi) {
+                    coverApiModule(map, updateApiMap, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule, repeatApiDefinitionWithBLOBs);
+                } else {
+                    //覆盖但不覆盖模块
+                    justCoverApi(map, updateApiMap, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule, repeatApiDefinitionWithBLOBs);
+                }
+
+            } else {
+                //不覆盖接口
+                if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
+                    Map<String, ApiDefinitionWithBLOBs> collect = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), apiDefinition -> apiDefinition));
+                    collect.forEach((k, v) -> {
+                        if (methodPathMap.get(k) != null) {
+                            methodPathMap.remove(k);
+                        }
+                    });
+                }
+                setModule(map, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule);
+            }
+        }
+
+        UpdateApiModuleDTO updateApiModuleDTO = new UpdateApiModuleDTO();
+        updateApiModuleDTO.setModuleList((List<ApiModule>) map.values());
+        updateApiModuleDTO.setApiDefinitionWithBLOBsList((List<ApiDefinitionWithBLOBs>) updateApiMap.values());
+        return updateApiModuleDTO;
+    }
+
+    private void coverApiModule(Map<String, ApiModule> map, Map<String, ApiDefinitionWithBLOBs> updateApiMap, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, ApiModuleDTO chooseModule, List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs) {
+        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
+            Map<String, ApiDefinitionWithBLOBs> collect = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), apiDefinition -> apiDefinition));
+            collect.forEach((k, v) -> {
+                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
+                if (apiDefinitionWithBLOBs != null) {
+                    //Check whether the content has changed, if not, do not change the creatoCover
+                    Boolean toCover = apiDefinitionService.checkIsSynchronize(v, apiDefinitionWithBLOBs);
+                    //需要更新
+                    if (toCover) {
+                        if (updateApiMap.get(k) != null) {
+                            apiDefinitionWithBLOBs.setId(v.getId());
+                            updateApiMap.put(k, apiDefinitionWithBLOBs);
+                        }
+                    } else {
+                        methodPathMap.remove(k);
+                    }
+                }
+            });
+        }
+        setModule(map, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule);
+    }
+
+    private void justCoverApi(Map<String, ApiModule> map, Map<String, ApiDefinitionWithBLOBs> updateApiMap, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, ApiModuleDTO chooseModule, List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs) {
+        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
+            Map<String, ApiDefinitionWithBLOBs> collect = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), apiDefinition -> apiDefinition));
+            collect.forEach((k, v) -> {
+                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
+                if (apiDefinitionWithBLOBs != null) {
+                    //Check whether the content has changed, if not, do not change the creatoCover
+                    Boolean toCover = apiDefinitionService.checkIsSynchronize(v, apiDefinitionWithBLOBs);
+                    //需要更新
+                    if (toCover) {
+                        if (updateApiMap.get(k) != null) {
+                            apiDefinitionWithBLOBs.setId(v.getId());
+                            updateApiMap.put(k, apiDefinitionWithBLOBs);
+                        }
+                    }
+                    methodPathMap.remove(k);
+                }
+            });
+        }
+        setModule(map, pidChildrenMap, idPathMap, idModuleMap, methodPathMap, chooseModule);
+    }
+
+    private void setModule(Map<String, ApiModule> map, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, ApiModuleDTO chooseModule) {
+        methodPathMap.forEach((methodPath, datum) -> {
+            String[] pathTree;
+            String modulePath = datum.getModulePath();
+            ApiModule apiModule = map.get(modulePath);
+            if (chooseModule != null) {
+                if (chooseModule.getParentId() == null) {
+                    chooseModule.setParentId("root");
+                }
+                String chooseModuleParentId = chooseModule.getParentId();
+                //导入时选了模块，且接口有模块的
+                if (StringUtils.isNotBlank(modulePath)) {
+                    List<ApiModule> moduleList = pidChildrenMap.get(chooseModuleParentId);
+                    String s;
+                    if (chooseModuleParentId.equals("root")) {
+                        s = "/" + chooseModule.getName();
+                    } else {
+                        s = idPathMap.get(chooseModuleParentId);
+                    }
+                    pathTree = getPathTree(s + modulePath);
+
+                    ApiModule chooseModuleOne = JSON.parseObject(JSON.toJSONString(chooseModule), ApiModule.class);
+                    ApiModule minModule = getMinModule(pathTree, moduleList, chooseModuleOne, pidChildrenMap, map, idPathMap, idModuleMap);
+                    String id = minModule.getId();
+                    datum.setModuleId(id);
+                    datum.setModulePath(idPathMap.get(id));
+                } else {
+                    //导入时选了模块，且接口没有模块的
+                    datum.setModuleId(chooseModule.getId());
+                    datum.setModulePath(idPathMap.get(chooseModule.getId()));
+                }
+            } else {
+                if (StringUtils.isNotBlank(modulePath)) {
+                    //导入时没选模块但接口有模块的，根据modulePath，和当前协议查询当前项目里是否有同名称模块，如果有，就在该模块下建立接口，否则新建模块
+                    pathTree = getPathTree(modulePath);
+                    if (apiModule != null) {
+                        datum.setModuleId(apiModule.getId());
+                        datum.setModulePath(modulePath);
+                    } else {
+                        List<ApiModule> moduleList = pidChildrenMap.get("root");
+                        ApiModule minModule = getMinModule(pathTree, moduleList, null, pidChildrenMap, map, idPathMap, idModuleMap);
+                        String id = minModule.getId();
+                        datum.setModuleId(id);
+                        datum.setModulePath(idPathMap.get(id));
+                    }
+                } else {
+                    //导入时即没选中模块，接口自身也没模块的，直接返会当前项目，当前协议下的默认模块
+                    List<ApiModule> moduleList = pidChildrenMap.get("root");
+                    for (ApiModule module : moduleList) {
+                        if (module.getName().equals("未规划接口")) {
+                            datum.setModuleId(module.getId());
+                            datum.setModulePath("/" + module.getName());
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private String[] getPathTree(String modulePath) {
+        String substring = modulePath.substring(0, 1);
+        if (substring.equals("/")) {
+            modulePath = modulePath.substring(1);
+        }
+        if (modulePath.contains("/")) {
+            //如果模块有层级，逐级查找，如果某一级不在当前项目了，则新建该层级的模块及其子集
+            return modulePath.split("/");
+        } else {
+            return new String[]{modulePath};
+        }
+    }
+
+    private ApiModule getMinModule(String[] tagTree, List<ApiModule> moduleList, ApiModule parentModule, Map<String, List<ApiModule>> pidChildrenMap, Map<String, ApiModule> map, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap) {
+        //如果parentModule==null 则证明需要创建根目录同级的模块
+        ApiModule returnModule = null;
+        for (int i = 0; i < tagTree.length; i++) {
+            int finalI = i;
+            List<ApiModule> collect = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            if (collect.isEmpty()) {
+                if (parentModule == null) {
+                    List<ApiModule> moduleList1 = pidChildrenMap.get("root");
+                    ApiModule apiModule = moduleList1.get(0);
+                    apiModule.setId("root");
+                    apiModule.setLevel(0);
+                    parentModule = apiModule;
+                } else if (i > 0) {
+                    if (!moduleList.isEmpty()) {
+                        String parentId = moduleList.get(0).getParentId();
+                        ApiModuleDTO apiModuleDTO = idModuleMap.get(parentId);
+                        parentModule = JSON.parseObject(JSON.toJSONString(apiModuleDTO), ApiModule.class);
+                    }
+                }
+                return createModule(tagTree, i, parentModule, map, pidChildrenMap, idPathMap);
+            } else {
+                returnModule = collect.get(0);
+                moduleList = pidChildrenMap.get(collect.get(0).getId());
+            }
+        }
+        return returnModule;
+    }
+
+
+    private ApiModule createModule(String[] tagTree, int i, ApiModule parentModule, Map<String, ApiModule> map, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap) {
+        ApiModule returnModule = null;
+        for (int i1 = i; i1 < tagTree.length; i1++) {
+            String pathName = tagTree[i1];
+            ApiModule newModule = this.getNewModule(pathName, parentModule.getProjectId(), parentModule.getLevel() + 1);
+            String parentId;
+            if (parentModule.getId().equals("root")) {
+                parentId = null;
+            } else {
+                parentId = parentModule.getId();
+            }
+            double pos = this.getNextLevelPos(parentModule.getProjectId(), parentModule.getLevel() + 1, parentId);
+            newModule.setPos(pos);
+            newModule.setProtocol(parentModule.getProtocol());
+            newModule.setParentId(parentId);
+            List<ApiModule> moduleList = pidChildrenMap.get(parentModule.getId());
+            if (moduleList != null) {
+                moduleList.add(newModule);
+            } else {
+                moduleList = new ArrayList<>();
+                moduleList.add(newModule);
+                pidChildrenMap.put(parentModule.getId(), moduleList);
+            }
+
+            String parentPath = idPathMap.get(parentModule.getId());
+            String path;
+            if (StringUtils.isNotBlank(parentPath)) {
+                path = parentPath + "/" + pathName;
+            } else {
+                path = "/" + pathName;
+            }
+            idPathMap.put(newModule.getId(), path);
+            map.putIfAbsent(path, newModule);
+            parentModule = newModule;
+            returnModule = newModule;
+        }
+        return returnModule;
+    }
+
+    private void buildProcessData(List<ApiModuleDTO> nodeTreeByProjectId, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap) {
+        List<ApiModuleDTO> childrenList = new ArrayList<>();
+        int i = 0;
+        List<ApiModule> moduleList = new ArrayList<>();
+        for (ApiModuleDTO apiModuleDTO : nodeTreeByProjectId) {
+            if (apiModuleDTO.getPath() != null) {
+                apiModuleDTO.setPath(apiModuleDTO.getPath() + "/" + apiModuleDTO.getName());
+            } else {
+                apiModuleDTO.setPath("/" + apiModuleDTO.getName());
+            }
+            idPathMap.put(apiModuleDTO.getId(), apiModuleDTO.getPath());
+            if (StringUtils.isBlank(apiModuleDTO.getParentId())) {
+                apiModuleDTO.setParentId("root");
+            }
+            ApiModule apiModule = buildModule(moduleList, apiModuleDTO);
+            if (pidChildrenMap.get(apiModuleDTO.getParentId()) != null) {
+                pidChildrenMap.get(apiModuleDTO.getParentId()).add(apiModule);
+            } else {
+                pidChildrenMap.put(apiModuleDTO.getParentId(), moduleList);
+            }
+            i = i + 1;
+            if (apiModuleDTO.getChildren() != null) {
+                childrenList.addAll(apiModuleDTO.getChildren());
+            } else {
+                childrenList.addAll(new ArrayList<>());
+                if (i == nodeTreeByProjectId.size() && childrenList.size() == 0) {
+                    pidChildrenMap.put(apiModuleDTO.getId(), new ArrayList<>());
+                }
+            }
+        }
+        if (i == nodeTreeByProjectId.size() && nodeTreeByProjectId.size() > 0) {
+            buildProcessData(childrenList, pidChildrenMap, idPathMap);
+        }
+    }
+
+    private ApiModule buildModule(List<ApiModule> moduleList, ApiModuleDTO apiModuleDTO) {
+        ApiModule apiModule = new ApiModule();
+        apiModule.setId(apiModuleDTO.getId());
+        apiModule.setName(apiModuleDTO.getName());
+        apiModule.setParentId(apiModuleDTO.getParentId());
+        apiModule.setProjectId(apiModuleDTO.getProjectId());
+        apiModule.setProtocol(apiModuleDTO.getProtocol());
+        apiModule.setLevel(apiModuleDTO.getLevel());
+        moduleList.add(apiModule);
+        return apiModule;
+    }
+
+
 }
