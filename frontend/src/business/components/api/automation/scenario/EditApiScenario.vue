@@ -1248,7 +1248,6 @@ export default {
         step.index = !isGeneric ? Number(i) + 1 : step.index;
         if (step.type === 'GenericController') {
           this.pluginOrder(step);
-          isGeneric = true;
         }
         step.resourceId = step.resourceId || getUUID();
         // 历史数据处理
@@ -1270,7 +1269,7 @@ export default {
         // 添加debug结果
         step.parentIndex = fullPath ? fullPath + "_" + step.index : step.index;
         if (step.hashTree && step.hashTree.length > 0) {
-          this.recursionStep(step.hashTree, step.projectId, step.parentIndex, isGeneric);
+          this.recursionStep(step.hashTree, step.projectId, step.parentIndex, step.type === 'GenericController');
         }
       }
     },
