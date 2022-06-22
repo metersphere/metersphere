@@ -453,6 +453,7 @@ export default {
     not_eligible_for_deletion:'Not Eligible For Deletion',
     batch:'Batch',
     change:'Change',
+    follow_people: "Follow people",
     default_module: {
       test_case: 'default',
       api_definition: 'default',

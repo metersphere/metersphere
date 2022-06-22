@@ -455,6 +455,7 @@ export default {
     not_eligible_for_deletion:'不符合删除條件',
     batch:'批量',
     change:'改变',
+    follow_people: "關註人",
     default_module: {
       test_case: '未規劃用例',
       api_definition: '未規劃接口',

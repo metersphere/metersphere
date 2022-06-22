@@ -11,6 +11,7 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private String id;
     private String excludeId;
     private String moduleId;
+    private String module;
     private String protocol;
     private String name;
     private String userId;

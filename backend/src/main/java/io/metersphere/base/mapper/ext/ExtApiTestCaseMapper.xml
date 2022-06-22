@@ -204,6 +204,12 @@
                 not in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
             </if>
         </if>
+        <if test="${condition}.path != null">
+            and a.path
+            <include refid="condition">
+                <property name="object" value="${condition}.path"/>
+            </include>
+        </if>
         <if test="${condition}.status != null">
             and t1.status
             <include refid="condition">
