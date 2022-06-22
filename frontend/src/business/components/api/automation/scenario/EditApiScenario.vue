@@ -519,7 +519,6 @@ export default {
       reloadDebug: "",
       stopDebug: "",
       isTop: false,
-      stepSize: 0,
       message: "",
       messageWebSocket: {},
       buttonData: [],
@@ -1239,40 +1238,39 @@ export default {
       this.isBtnHide = true;
       this.$refs.scenarioApiRelevance.open();
     },
-    sort(stepArray, scenarioProjectId, fullPath) {
-      if (!stepArray) {
-        stepArray = this.scenarioDefinition;
-      }
+    sort(stepArray) {
+      stepArray = stepArray || this.scenarioDefinition;
+      this.recursionStep(stepArray);
+    },
+    recursionStep(stepArray, scenarioProjectId, fullPath, isGeneric) {
       for (let i in stepArray) {
-        stepArray[i].index = Number(i) + 1;
-        if (!stepArray[i].resourceId) {
-          stepArray[i].resourceId = getUUID();
+        let step = stepArray[i];
+        step.index = !isGeneric ? Number(i) + 1 : step.index;
+        if (step.type === 'GenericController') {
+          this.pluginOrder(step);
+          isGeneric = true;
         }
+        step.resourceId = step.resourceId || getUUID();
         // 历史数据处理
-        if (stepArray[i].type === "HTTPSamplerProxy" && !stepArray[i].headers) {
-          stepArray[i].headers = [new KeyValue()];
+        if (step.type === "HTTPSamplerProxy" && !step.headers) {
+          step.headers = [new KeyValue()];
         }
-        if (stepArray[i].type === ELEMENT_TYPE.LoopController
-          && stepArray[i].loopType === "LOOP_COUNT"
-          && stepArray[i].hashTree
-          && stepArray[i].hashTree.length > 1) {
-          stepArray[i].countController.proceed = true;
+        if (step.type === ELEMENT_TYPE.LoopController
+          && step.loopType === "LOOP_COUNT"
+          && step.hashTree
+          && step.hashTree.length > 1) {
+          step.countController.proceed = true;
         }
-        if (!stepArray[i].clazzName) {
-          stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+        step.clazzName = step.clazzName || TYPE_TO_C.get(step.type);
+        if (step && step.authManager && !step.authManager.clazzName) {
+          step.authManager.clazzName = TYPE_TO_C.get(step.authManager.type);
         }
-        if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
-          stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
-        }
-        if (!stepArray[i].projectId) {
-          // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-          stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-        }
+        // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+        step.projectId = step.projectId || scenarioProjectId || this.projectId;
         // 添加debug结果
-        stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
-        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
-          this.stepSize += stepArray[i].hashTree.length;
-          this.sort(stepArray[i].hashTree, stepArray[i].projectId, stepArray[i].parentIndex);
+        step.parentIndex = fullPath ? fullPath + "_" + step.index : step.index;
+        if (step.hashTree && step.hashTree.length > 0) {
+          this.recursionStep(step.hashTree, step.projectId, step.parentIndex, isGeneric);
         }
       }
     },
