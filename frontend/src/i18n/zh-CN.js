@@ -2416,6 +2416,8 @@ export default {
       use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平台的缺陷",
       sync_bugs: "同步缺陷",
+      sync_complete: "同步完成",
+      issue_sync_tip: "当前项目正在同步缺陷, 请稍等!",
       save_before_open_comment: "请先保存缺陷再添加评论",
       delete_tip: "确认删除缺陷：",
       check_id_exist: "检查",
@@ -2427,7 +2429,7 @@ export default {
       tapd_status_verified: "已验证",
       tapd_status_closed: "已关闭",
       tapd_status_resolved: "已解决",
-      please_choose_platform_status: "请选择平台状态",
+      please_choose_platform_status: "请选择平台状态"
     },
     report: {
       name: "测试计划报告",

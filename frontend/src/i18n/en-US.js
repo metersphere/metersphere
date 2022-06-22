@@ -2409,6 +2409,8 @@ export default {
       use_third_party: "Enable Jira Issue Template",
       update_third_party_bugs: "Update the defects of third-party platforms",
       sync_bugs: "Synchronization Issue",
+      sync_complete: "Synchronization complete",
+      issue_sync_tip: "The current project is synchronizing defects, please wait!",
       save_before_open_comment: "Please save issue before comment",
       delete_tip: "Confirm Delete Issue：",
       check_id_exist: "Check",

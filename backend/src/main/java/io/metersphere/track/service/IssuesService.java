@@ -6,7 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.IssueFollowMapper;
+import io.metersphere.base.mapper.IssuesMapper;
+import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
@@ -29,7 +32,6 @@ import io.metersphere.track.dto.*;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
-import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
@@ -491,19 +493,39 @@ public class IssuesService {
         LogUtil.info("测试计划-测试用例同步缺陷信息结束");
     }
 
-    public void syncThirdPartyIssues(String projectId) {
+    public boolean checkSync(String projectId) {
+        String syncValue = getSyncKey(projectId);
+        if (StringUtils.isNotEmpty(syncValue)) {
+            return false;
+        }
+        return true;
+    }
+
+    public String getSyncKey(String projectId) {
+        return stringRedisTemplate.opsForValue().get(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+    }
+
+    public void setSyncKey(String projectId) {
+        stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId,
+                UUID.randomUUID().toString(), 60 * 10, TimeUnit.SECONDS);
+    }
+
+    public void deleteSyncKey(String projectId) {
+        stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+    }
+
+    public boolean syncThirdPartyIssues(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
-            String syncValue = stringRedisTemplate.opsForValue().get(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+            String syncValue = getSyncKey(projectId);
             if (StringUtils.isNotEmpty(syncValue)) {
-                MSException.throwException("当前项目正在同步缺陷, 请稍等");
+                return false;
             }
-            stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId,
-                    UUID.randomUUID().toString(), 60 * 10, TimeUnit.SECONDS);
+            setSyncKey(projectId);
             Project project = projectService.getProjectById(projectId);
             List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId);
 
             if (CollectionUtils.isEmpty(issues)) {
-                return;
+                return true;
             }
 
             List<IssuesDao> tapdIssues = issues.stream()
@@ -550,8 +572,9 @@ public class IssuesService {
                     LogUtil.error(e);
                 }
             }
-            stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
+            deleteSyncKey(projectId);
         }
+        return true;
     }
 
 
