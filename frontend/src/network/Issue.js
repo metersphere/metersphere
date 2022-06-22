@@ -1,6 +1,6 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate, parseCustomFilesForList} from "@/common/js/tableUtils";
-import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasLicense} from "@/common/js/utils";
 import {baseGet, basePost} from "@/network/base-network";
 import {getCurrentProject} from "@/network/project";
 import {JIRA, LOCAL} from "@/common/js/constants";
@@ -103,7 +103,7 @@ export function syncIssues(success) {
   if (hasLicense()) {
     uri = 'xpack/issue/sync/';
   }
-  return get(uri + getCurrentProjectID(), (response) => {
+  return get(uri + getCurrentProjectID() + "?q=" + getUUID(), (response) => {
     if (success) {
       success(response);
     }

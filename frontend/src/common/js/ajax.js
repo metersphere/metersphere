@@ -77,7 +77,10 @@ function exception(error, result, url) {
     window.location.href = "/";
     return;
   }
-  result.loading = false;
+  // 同步缺陷并行报错保留loading
+  if (!error.response.config.url.includes("issue/sync/") && !error.response.config.url.includes("xpack/issue/sync/")) {
+    result.loading = false;
+  }
   window.console.error(error.response || error.message);
   if (error.response && error.response.data) {
     if (error.response.headers["authentication-status"] !== "invalid") {
