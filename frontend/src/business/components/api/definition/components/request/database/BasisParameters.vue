@@ -57,7 +57,7 @@
               <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
             </el-form-item>
 
-            <el-tabs v-model="activeName" @tab-click="tabClick">
+            <el-tabs v-model="activeName" @tab-click="tabClick" class="ms-tab-content">
               <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables" v-if="isBodyShow">
                 <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
                                            :description="$t('api_test.scenario.kv_description')"/>
@@ -444,8 +444,8 @@ export default {
 </script>
 
 <style scoped>
-.sql-content {
-  height: calc(100vh - 570px);
+.ms-tab-content {
+  min-height: 200px;
 }
 
 .one-row .el-form-item {
