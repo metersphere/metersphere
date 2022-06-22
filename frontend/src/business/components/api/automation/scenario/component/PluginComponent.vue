@@ -158,7 +158,6 @@ export default {
       default: false,
     },
     message: String,
-    response: {},
     isReadOnly: {
       type: Boolean,
       default:
@@ -201,6 +200,7 @@ export default {
         '{"form":{"labelPosition":"right","size":"mini","labelWidth":"120px","hideRequiredAsterisk":false,"showMessage":false,"inlineMessage":false}}'
       ),
       pluginName: "",
+      response: {},
     }
   },
   computed: {
