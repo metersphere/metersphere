@@ -17,8 +17,7 @@ export function uploadMarkDownImg(file, callback) {
 
 export function deleteMarkDownImg(file, callback) {
   if (file) {
-    let fileName = file.name.replace("(", "").replace(")", "").replace(" ", "");
-    return baseGet('/resource/md/delete/' + file[1].prefix + "_" + fileName, callback);
+    return baseGet('/resource/md/delete/' + file[1].name, callback);
   }
   return {};
 }
