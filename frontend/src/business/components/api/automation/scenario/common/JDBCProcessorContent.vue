@@ -50,15 +50,20 @@
               <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
             </el-form-item>
 
-            <el-tabs v-model="activeName">
+            <el-tabs v-model="activeName" class="ms-sql-tabs">
               <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
                 <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
                                            :description="$t('api_test.scenario.kv_description')"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
-                <div class="sql-content">
-                  <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query" theme="eclipse" ref="codeEdit"/>
-                </div>
+                <ms-code-edit
+                    :height="120"
+                    :read-only="isReadOnly"
+                    :modes="['sql']"
+                    :data.sync="request.query"
+                    theme="eclipse"
+                    mode="sql"
+                    ref="codeEdit"/>
               </el-tab-pane>
             </el-tabs>
           </el-form>
@@ -206,7 +211,7 @@ export default {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       let scenarioEnvId = this.scenarioId !== "" ? (this.scenarioId + "_" + id) : id;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-        && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
+          && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
       if (!this.scenarioId && !this.request.customizeReq) {
@@ -226,7 +231,7 @@ export default {
           envId = this.request.refEevMap.get(id);
         }
       }
-      if(envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
+      if (envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
         this.request.dataSourceId = this.request.originalDataSourceId;
       }
       let targetDataSourceName = "";
@@ -326,8 +331,9 @@ export default {
 </script>
 
 <style scoped>
-.sql-content {
-  height: calc(100vh - 570px);
+
+.ms-sql-tabs {
+  min-height: 160px;
 }
 
 .one-row .el-form-item {
