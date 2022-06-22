@@ -130,6 +130,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsDialogHeader from "@/business/components/common/components/MsDialogHeader";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
+import {getVersionFilters} from "@/network/project";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -215,7 +216,9 @@ export default {
     },
     projectId() {
       this.condition.projectId = this.projectId;
+      this.condition.versionId = null;
       this.getProjectNode();
+      this.getVersionOptions();
     }
   },
   mounted() {
@@ -366,13 +369,9 @@ export default {
       this.selectNodeIds = [];
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(version) {
       this.condition.versionId = version || null;
