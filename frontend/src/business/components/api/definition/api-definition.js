@@ -181,7 +181,7 @@ export function mergeRequestDocumentData(request) {
   if (request && request.hashTree && request.hashTree.length > 0) {
     let index = request.hashTree.findIndex(item => item.type === 'Assertions');
     if (index !== -1) {
-      if (request.hashTree[index].document.originalData && request.hashTree[index].document.tableData.size && request.hashTree[index].document.tableData.size !== 0) {
+      if (request.hashTree[index].document && request.hashTree[index].document.originalData && request.hashTree[index].document.tableData.size && request.hashTree[index].document.tableData.size !== 0) {
         mergeDocumentData(request.hashTree[index].document.originalData, request.hashTree[index].document.tableData);
         request.hashTree[index].document.data.json = request.hashTree[index].document.originalData;
       }
