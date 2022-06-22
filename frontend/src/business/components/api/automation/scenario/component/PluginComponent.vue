@@ -43,7 +43,8 @@
                   <div class="el-step__icon-inner">{{ request.preSize }}</div>
                 </div>
               </span>
-              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response" :tab-type="'pre'" ref="preStep"/>
+              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response"
+                           :tab-type="'pre'" ref="preStep"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate">
                 <span class="item-tabs" effect="dark" placement="top-start" slot="label">
@@ -52,7 +53,8 @@
                   <div class="el-step__icon-inner">{{ request.postSize }}</div>
                 </div>
               </span>
-              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response" :tab-type="'post'" ref="postStep"/>
+              <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response"
+                           :tab-type="'post'" ref="postStep"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule">
                 <span class="item-tabs" effect="dark" placement="top-start" slot="label">
@@ -62,7 +64,8 @@
                 </div>
               </span>
               <div style="margin-right: 20px">
-                <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id" :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
+                <ms-jmx-step :request="request" :apiId="request.id" :scenario-id="currentScenario.id"
+                             :response="response" @reload="reload" :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </div>
             </el-tab-pane>
 
@@ -75,17 +78,20 @@
          <i class="el-icon-loading" style="font-size: 16px"/>
          {{ $t('commons.testing') }}
        </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'"
+              v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
 
       <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px"
+                     class="ms-btn" size="mini" circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-          <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+          <el-button :disabled="!request.enable" @click.once="stop" size="mini"
+                     style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
             </div>
@@ -99,15 +105,18 @@
           <div v-if="request.result">
             <div v-for="(scenario,h) in request.result.scenarios" :key="h">
               <el-tabs v-model="request.activeName" closable class="ms-tabs">
-                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i"
+                             style="margin-bottom: 5px">
                   <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
                 </el-tab-pane>
               </el-tabs>
             </div>
           </div>
           <div v-else>
-            <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+            <el-tabs v-model="request.activeName" closable class="ms-tabs"
+                     v-if="request.requestResult && request.requestResult.length > 1">
+              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i"
+                           style="margin-bottom: 5px">
                 <api-response-component
                   :currentProtocol="request.protocol"
                   :apiActive="true"
@@ -137,7 +146,7 @@ import MsUpload from "../common/MsPluginUpload";
 import {PLUGIN_ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import {getUUID} from "@/common/js/utils";
 import MsJmxStep from "../../../definition/components/step/JmxStep";
-import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, stepCompute} from "@/business/components/api/definition/api-definition";
 import MsPluginContentAssertions from "@/business/components/api/automation/scenario/component/PluginContentAssertions";
 
 formCreate.component("msUpload", MsUpload);
@@ -158,7 +167,6 @@ export default {
       default: false,
     },
     message: String,
-    response: {},
     isReadOnly: {
       type: Boolean,
       default:
@@ -201,6 +209,7 @@ export default {
         '{"form":{"labelPosition":"right","size":"mini","labelWidth":"120px","hideRequiredAsterisk":false,"showMessage":false,"inlineMessage":false}}'
       ),
       pluginName: "",
+      response: {},
     }
   },
   computed: {
