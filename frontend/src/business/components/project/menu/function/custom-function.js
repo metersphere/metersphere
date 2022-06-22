@@ -56,6 +56,9 @@ function groovyCode(requestObj) {
     body += "\"";
   }
 
+  if (bodyType && bodyType.toUpperCase() === 'RAW') {
+    requestHeaders.set("Content-type", "text/plain");
+  }
   let headers = getGroovyHeaders(requestHeaders);
   let obj = {requestUrl, requestMethod, headers, body};
   return _groovyCodeTemplate(obj);
@@ -196,10 +199,12 @@ def headers = params['headers']
 def data = params['data']
 def conn = new URL(params['url']).openConnection()
 conn.setRequestMethod(params['method'])
-if (data) {
+if (headers) {
     headers.each {
       k,v -> conn.setRequestProperty(k, v);
     }
+}
+if (data) {
     // 输出请求参数
     log.info(data)
     conn.doOutput = true
@@ -363,6 +368,9 @@ function _jsTemplate(obj) {
   }
 
   let connStr = "";
+  if (bodyType && bodyType.toUpperCase() === 'RAW') {
+    requestHeaders.set("Content-type", "text/plain");
+  }
   for (let [k, v] of requestHeaders) {
     connStr += `conn.setRequestProperty("${k}","${v}");` + '\n';
   }
