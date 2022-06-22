@@ -213,4 +213,8 @@ export default {
   position: initial;
 }
 
+/deep/ .dropdown-item.dropdown-images {
+  display: none;
+}
+
 </style>
