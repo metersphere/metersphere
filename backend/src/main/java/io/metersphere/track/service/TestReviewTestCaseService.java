@@ -221,13 +221,18 @@ public class TestReviewTestCaseService {
             checkReviewCase(request.getReviewId());
         }
 
-        // 更新状态
+        // 更新状态{TestCase, TestCaseReviewTestCase}
         if (StringUtils.isNotBlank(request.getStatus())) {
             TestCaseExample example = new TestCaseExample();
             example.createCriteria().andIdIn(ids);
             TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
             testCase.setReviewStatus(request.getStatus());
             testCaseMapper.updateByExampleSelective(testCase, example);
+            TestCaseReviewTestCaseExample caseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
+            caseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdIn(ids);
+            TestCaseReviewTestCase testCaseReviewTestCase = new TestCaseReviewTestCase();
+            testCaseReviewTestCase.setStatus(request.getStatus());
+            testCaseReviewTestCaseMapper.updateByExampleSelective(testCaseReviewTestCase, caseReviewTestCaseExample);
         }
     }
 
