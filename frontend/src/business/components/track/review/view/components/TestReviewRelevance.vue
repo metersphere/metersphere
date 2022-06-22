@@ -216,6 +216,7 @@ export default {
     },
     projectId() {
       this.condition.projectId = this.projectId;
+      this.condition.versionId = null;
       this.getVersionOptions();
       this.getProjectNode();
     }
