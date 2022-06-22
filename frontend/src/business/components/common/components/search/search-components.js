@@ -2,9 +2,14 @@ import MsTableSearchInput from "./MsTableSearchInput";
 import MsTableSearchDateTimePicker from "./MsTableSearchDateTimePicker";
 import MsTableSearchDatePicker from "./MsTableSearchDatePicker";
 import MsTableSearchSelect from "./MsTableSearchSelect";
+import MsTableSearchInputNumber from "@/business/components/common/components/search/MsTableSearchInputNumber";
 
 export default {
-  MsTableSearchInput, MsTableSearchDatePicker, MsTableSearchDateTimePicker, MsTableSearchSelect
+  MsTableSearchInput,
+  MsTableSearchDatePicker,
+  MsTableSearchDateTimePicker,
+  MsTableSearchSelect,
+  MsTableSearchInputNumber
 }
 
 export const OPERATORS = {
@@ -54,6 +59,16 @@ export const OPERATORS = {
   },
 }
 
+const MS_USER_OPTIONS = { // 获取当前项目的用户列表
+  url: "/user/ws/current/member/list",
+  labelKey: "name",
+  valueKey: "id",
+  showLabel: option => {
+    return option.label + "(" + option.value + ")";
+  }
+}
+
+// 名称
 export const NAME = {
   key: "name", // 返回结果Map的key
   name: 'MsTableSearchInput', // Vue控件名称
@@ -63,7 +78,7 @@ export const NAME = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE] // 运算符候选项
   },
 }
-
+// 更新时间
 export const UPDATE_TIME = {
   key: "updateTime",
   name: 'MsTableSearchDateTimePicker',
@@ -72,6 +87,7 @@ export const UPDATE_TIME = {
     options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
   },
 }
+// 所属项目
 export const PROJECT_NAME = {
   key: "projectName",
   name: 'MsTableSearchInput',
@@ -80,6 +96,7 @@ export const PROJECT_NAME = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
   },
 }
+// 所属测试
 export const TEST_NAME = {
   key: "testName",
   name: 'MsTableSearchInput',
@@ -88,6 +105,7 @@ export const TEST_NAME = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
   },
 }
+// 测试计划
 export const TEST_PLAN_NAME = {
   key: "testPlanName",
   name: 'MsTableSearchInput',
@@ -96,6 +114,7 @@ export const TEST_PLAN_NAME = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
   },
 }
+// 创建时间
 export const CREATE_TIME = {
   key: "createTime",
   name: 'MsTableSearchDateTimePicker',
@@ -104,7 +123,7 @@ export const CREATE_TIME = {
     options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
   },
 }
-
+// 报告状态
 export const STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -123,7 +142,7 @@ export const STATUS = {
     multiple: true
   }
 }
-
+// ui 报告状态
 export const UI_REPORT_STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -142,7 +161,7 @@ export const UI_REPORT_STATUS = {
     multiple: true
   }
 }
-
+// api 状态
 export const API_STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -159,23 +178,7 @@ export const API_STATUS = {
     multiple: true
   }
 }
-export const API_CASE_PRIORITY = {
-  key: "priority",
-  name: 'MsTableSearchSelect',
-  label: 'test_track.case.priority',
-  operator: {
-    options: [OPERATORS.IN, OPERATORS.NOT_IN]
-  },
-  options: [
-    {value: 'P0', label: 'P0'},
-    {value: 'P1', label: 'P1'},
-    {value: 'P2', label: 'P2'},
-    {value: 'P3', label: 'P3'}
-  ],
-  props: { // 尾部控件的props，一般为element ui控件的props
-    multiple: true
-  }
-}
+// 用例执行结果
 export const API_CASE_RESULT = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -193,7 +196,7 @@ export const API_CASE_RESULT = {
     multiple: true
   }
 }
-
+// 场景执行结果
 export const API_SCENARIO_RESULT = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -209,7 +212,7 @@ export const API_SCENARIO_RESULT = {
     multiple: true
   }
 }
-
+// 请求类型
 export const API_METHOD = {
   key: "method",
   name: 'MsTableSearchSelect',
@@ -235,7 +238,7 @@ export const API_METHOD = {
     multiple: true
   }
 }
-
+// api 路径
 export const API_PATH = {
   key: "path", // 返回结果Map的key
   name: 'MsTableSearchInput', // Vue控件名称
@@ -245,8 +248,8 @@ export const API_PATH = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE] // 运算符候选项
   },
 }
-
-export const API_TAGS = {
+// 标签
+export const TAGS = {
   key: "tags", // 返回结果Map的key
   name: 'MsTableSearchInput', // Vue控件名称
   label: 'commons.tag', // 显示名称
@@ -255,7 +258,7 @@ export const API_TAGS = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE] // 运算符候选项
   },
 }
-
+// 创建人
 export const CREATOR = {
   key: "creator",
   name: 'MsTableSearchSelect',
@@ -268,14 +271,7 @@ export const CREATOR = {
       }
     }
   },
-  options: { // 异步获取候选项
-    url: "/user/ws/current/member/list",
-    labelKey: "name",
-    valueKey: "id",
-    showLabel: option => {
-      return option.label + "(" + option.value + ")";
-    }
-  },
+  options: MS_USER_OPTIONS,
   props: {
     multiple: true
   },
@@ -283,7 +279,7 @@ export const CREATOR = {
     return operator !== OPERATORS.CURRENT_USER.value;
   }
 }
-
+// 执行人
 export const EXECUTOR = {
   key: "executor",
   name: 'MsTableSearchSelect',
@@ -296,14 +292,7 @@ export const EXECUTOR = {
       }
     }
   },
-  options: { // 异步获取候选项
-    url: "/user/ws/current/member/list",
-    labelKey: "name",
-    valueKey: "id",
-    showLabel: option => {
-      return option.label + "(" + option.value + ")";
-    }
-  },
+  options: MS_USER_OPTIONS,
   props: {
     multiple: true
   },
@@ -311,12 +300,33 @@ export const EXECUTOR = {
     return operator !== OPERATORS.CURRENT_USER.value;
   }
 }
-
+// 关注人
+export const FOLLOW_PEOPLE = {
+  key: "followPeople",
+  name: 'MsTableSearchSelect',
+  label: 'commons.follow_people',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: MS_USER_OPTIONS,
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+}
+// 引用
 export const ISREFERENCE = {
   key: "isReference",
-      name: 'MsTableSearchSelect',
-      label: 'api_test.scenario.reference',
-      operator: {
+  name: 'MsTableSearchSelect',
+  label: 'api_test.scenario.reference',
+  operator: {
     options: [OPERATORS.IN]
   },
   options: [
@@ -324,11 +334,11 @@ export const ISREFERENCE = {
     {value: 'true', label: 'commons.yes'},
     {value: 'false', label: 'commons.no'}
   ],
-      props: { // 尾部控件的props，一般为element ui控件的props
+  props: { // 尾部控件的props，一般为element ui控件的props
     multiple: false
   }
 }
-
+// 触发方式
 export const TRIGGER_MODE = {
   key: "triggerMode",
   name: 'MsTableSearchSelect',
@@ -337,15 +347,13 @@ export const TRIGGER_MODE = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "commons.trigger_mode.manual", value: "MANUAL"},
-    // {label: "commons.trigger_mode.schedule", value: "SCHEDULE"},
-    // {label: "commons.trigger_mode.api", value: "API"}
+    {label: "commons.trigger_mode.manual", value: "MANUAL"}
   ],
   props: {
     multiple: true
   }
 }
-
+// 优先级
 export const PRIORITY = {
   key: "priority",
   name: 'MsTableSearchSelect',
@@ -363,7 +371,7 @@ export const PRIORITY = {
     multiple: true
   }
 }
-
+// 测试用例类型
 export const TYPE = {
   key: "type",
   name: 'MsTableSearchSelect',
@@ -380,23 +388,7 @@ export const TYPE = {
     multiple: true
   }
 }
-
-export const METHOD = {
-  key: "method",
-  name: 'MsTableSearchSelect',
-  label: "test_track.case.method",
-  operator: {
-    options: [OPERATORS.IN, OPERATORS.NOT_IN]
-  },
-  options: [
-    {label: 'test_track.case.manual', value: 'manual'},
-    {label: 'test_track.case.auto', value: 'auto'}
-  ],
-  props: {
-    multiple: true
-  }
-}
-
+// 所属模块
 export const MODULE = {
   key: "module",
   name: 'MsTableSearchInput',
@@ -406,7 +398,7 @@ export const MODULE = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
   },
 }
-
+// 责任人
 export const PRINCIPAL = {
   key: "principal",
   name: 'MsTableSearchSelect',
@@ -419,14 +411,7 @@ export const PRINCIPAL = {
       }
     }
   },
-  options: { // 异步获取候选项
-    url: "/user/ws/current/member/list",
-    labelKey: "name",
-    valueKey: "id",
-    showLabel: option => {
-      return option.label + "(" + option.value + ")";
-    }
-  },
+  options: MS_USER_OPTIONS,
   props: {
     multiple: true
   },
@@ -435,34 +420,10 @@ export const PRINCIPAL = {
   }
 };
 
-export const PRINCIPALAPI = {
-  key: "creator",
-  name: 'MsTableSearchSelect',
-  label: 'api_test.definition.request.responsible',
-  operator: {
-    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
-    change: function (component, value) { // 运算符change事件
-      if (value === OPERATORS.CURRENT_USER.value) {
-        component.value = value;
-      }
-    }
-  },
-  options: { // 异步获取候选项
-    url: "/user/ws/current/member/list",
-    labelKey: "name",
-    valueKey: "id",
-    showLabel: option => {
-      return option.label + "(" + option.value + ")";
-    }
-  },
-  props: {
-    multiple: true
-  },
-  isShow: operator => {
-    return operator !== OPERATORS.CURRENT_USER.value;
-  }
-};
+export const API_PRINCIPAL = PRINCIPAL;
+API_PRINCIPAL.key = 'creator';
 
+// 测试阶段
 export const STAGE = {
   key: "stage",
   name: 'MsTableSearchSelect',
@@ -479,7 +440,7 @@ export const STAGE = {
     multiple: true
   }
 };
-
+// 测试计划状态
 export const TEST_PLAN_STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -498,7 +459,7 @@ export const TEST_PLAN_STATUS = {
     multiple: true
   }
 };
-
+// 测试计划报告状态
 export const TEST_PLAN_REPORT_STATUS = {
   key: "status",
   name: 'MsTableSearchSelect',
@@ -515,7 +476,7 @@ export const TEST_PLAN_REPORT_STATUS = {
     multiple: true
   }
 };
-
+// 测试计划报告触发方式
 export const TEST_PLAN_TRIGGER_MODE = {
   key: "triggerMode",
   name: 'MsTableSearchSelect',
@@ -571,7 +532,7 @@ export const PLAN_CASE_STATUS = {
     multiple: true
   }
 }
-
+// 缺陷所属平台
 export const PLATFORM = {
   key: "platform",
   name: 'MsTableSearchSelect',
@@ -590,6 +551,14 @@ export const PLATFORM = {
   }
 }
 
+export const CASE_COUNT = {
+  key: "caseCount",
+  name: 'MsTableSearchInputNumber',
+  label: 'api_test.definition.api_case_number',
+  operator: {
+    options: [OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
 
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
 
@@ -601,32 +570,33 @@ export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_
 
 export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE];
 
-export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS];
+// 测试跟踪-测试用例 列表
+export const TEST_CASE_CONFIGS = [NAME, TAGS, MODULE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE];
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];
 
-export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, PRINCIPALAPI, ISREFERENCE];
+export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, ISREFERENCE, MODULE, FOLLOW_PEOPLE, CASE_COUNT];
 
-export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR,ISREFERENCE];
+export const API_CASE_CONFIGS = [NAME, PRIORITY, TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, ISREFERENCE, FOLLOW_PEOPLE, API_PATH];
 
-export const API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
+export const API_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
 
-export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME,CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_REPORT_STATUS];
+export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME, CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_REPORT_STATUS];
 
 // 测试计划 功能用例
-export const TEST_PLAN_TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, EXECUTOR, CASE_REVIEW_STATUS, PLAN_CASE_STATUS];
+export const TEST_PLAN_TEST_CASE_CONFIGS = [NAME, TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, EXECUTOR, CASE_REVIEW_STATUS, PLAN_CASE_STATUS];
 
 // 测试计划关联页面
-export const TEST_PLAN_RELEVANCE_FUNC_CONFIGS = [NAME, API_TAGS, CREATE_TIME, UPDATE_TIME, CREATOR];
-export const TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_TAGS, UPDATE_TIME, CREATE_TIME, CREATOR];
-export const TEST_PLAN_RELEVANCE_API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, UPDATE_TIME, CREATOR];
-export const TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_SCENARIO_RESULT, CREATE_TIME, UPDATE_TIME, CREATOR];
-export const TEST_PLAN_RELEVANCE_LOAD_CASE= [NAME, STATUS, CREATE_TIME, UPDATE_TIME, CREATOR];
+export const TEST_PLAN_RELEVANCE_FUNC_CONFIGS = [NAME, TAGS, CREATE_TIME, UPDATE_TIME, CREATOR];
+export const TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, TAGS, UPDATE_TIME, CREATE_TIME, CREATOR];
+export const TEST_PLAN_RELEVANCE_API_CASE_CONFIGS = [NAME, PRIORITY, TAGS, UPDATE_TIME, CREATOR];
+export const TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, CREATE_TIME, UPDATE_TIME, CREATOR];
+export const TEST_PLAN_RELEVANCE_LOAD_CASE = [NAME, STATUS, CREATE_TIME, UPDATE_TIME, CREATOR];
 
 // 测试用例关联测试
-export const TEST_CASE_RELEVANCE_API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, CREATOR];
-export const TEST_CASE_RELEVANCE_API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, CREATOR];
-export const TEST_CASE_RELEVANCE_LOAD_CASE= [NAME, STATUS, CREATE_TIME, UPDATE_TIME, CREATOR];
+export const TEST_CASE_RELEVANCE_API_CASE_CONFIGS = [NAME, PRIORITY, TAGS, CREATOR];
+export const TEST_CASE_RELEVANCE_API_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, CREATOR];
+export const TEST_CASE_RELEVANCE_LOAD_CASE = [NAME, STATUS, CREATE_TIME, UPDATE_TIME, CREATOR];
 
 
 // 测试跟踪-缺陷管理-缺陷列表
