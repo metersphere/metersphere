@@ -1,10 +1,12 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate, parseCustomFilesForList} from "@/common/js/tableUtils";
-import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasLicense} from "@/common/js/utils";
 import {baseGet, basePost} from "@/network/base-network";
 import {getCurrentProject} from "@/network/project";
 import {JIRA, LOCAL} from "@/common/js/constants";
 import {getIssueTemplate} from "@/network/custom-field-template";
+import {success, warning} from "@/common/js/message";
+import i18n from "@/i18n/i18n";
 
 export function buildIssues(page) {
   let data = page.data;
@@ -99,13 +101,33 @@ export function getRelateIssues(page) {
 }
 
 export function syncIssues(success) {
-  let uri = 'issues/sync/';
+  let url = 'issues/sync/';
   if (hasLicense()) {
-    uri = 'xpack/issue/sync/';
+    url = 'xpack/issue/sync/';
   }
-  return get(uri + getCurrentProjectID(), (response) => {
-    if (success) {
-      success(response);
+  // 浏览器默认策略，请求同一个url，可能导致 stalled 时间过长，加个uuid防止请求阻塞
+  url = url + getCurrentProjectID() + "?stamp=" + getUUID();
+  return baseGet(url, success);
+}
+
+
+// 轮询同步状态
+export function checkSyncIssues(result, isNotFirst) {
+  let url = 'issues/sync/check/' + getCurrentProjectID() + "?stamp=" + getUUID();
+  return baseGet(url, (data) => {
+    if (data === false) {
+      if (result.loading === true) {
+        if (!isNotFirst) {
+          // 第一次才提示
+          warning(i18n.t('test_track.issue.issue_sync_tip'));
+        }
+        setTimeout(() => checkSyncIssues(result, true), 1000);
+      }
+    } else {
+      if (result.loading === true) {
+        success(i18n.t('test_track.issue.sync_complete'));
+        result.loading = false;
+      }
     }
   });
 }
