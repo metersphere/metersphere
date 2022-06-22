@@ -18,7 +18,6 @@ import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
-import io.metersphere.track.issue.domain.jira.JiraTransitionsResponse;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
@@ -139,8 +138,13 @@ public class IssuesController {
     }
 
     @GetMapping("/sync/{projectId}")
-    public void getPlatformIssue(@PathVariable String projectId) {
-        issuesService.syncThirdPartyIssues(projectId);
+    public boolean getPlatformIssue(@PathVariable String projectId) {
+        return issuesService.syncThirdPartyIssues(projectId);
+    }
+
+    @GetMapping("/sync/check/{projectId}")
+    public boolean checkSync(@PathVariable String projectId) {
+        return issuesService.checkSync(projectId);
     }
 
     @PostMapping("/change/status")

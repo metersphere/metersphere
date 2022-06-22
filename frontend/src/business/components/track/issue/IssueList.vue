@@ -180,7 +180,7 @@ import {
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/components/track/issue/IssueEdit";
-import {getIssuePartTemplateWithProject, getIssues, syncIssues} from "@/network/Issue";
+import {checkSyncIssues, getIssuePartTemplateWithProject, getIssues, syncIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
@@ -352,8 +352,15 @@ export default {
       return false;
     },
     syncIssues() {
-      this.page.result = syncIssues(() => {
-        this.getIssues();
+      this.page.result.loading = true;
+      syncIssues((data) => {
+        if (data === false) {
+          checkSyncIssues(this.page.result);
+        } else {
+          this.$success(this.$t('test_track.issue.sync_complete'));
+          this.page.result.loading = false;
+          this.getIssues();
+        }
       });
     }
   }

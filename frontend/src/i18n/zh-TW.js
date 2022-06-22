@@ -2413,6 +2413,8 @@ export default {
       use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷",
+      sync_complete: "同步完成",
+      issue_sync_tip: "當前項目正在同步缺陷, 請稍等!",
       save_before_open_comment: "請先保存缺陷再添加評論",
       delete_tip: "確認刪除缺陷：",
       check_id_exist: "檢查",
