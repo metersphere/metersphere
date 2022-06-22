@@ -110,9 +110,7 @@ export default {
         {text: this.$t('api_test.home_page.running_task_list.swagger_schedule'), value: 'SWAGGER_IMPORT'},
       ];
     } else {
-      this.typeFilters = [
-        {text: this.$t('api_test.home_page.running_task_list.test_plan_schedule'), value: 'TEST_PLAN_TEST'}
-      ];
+      this.typeFilters = null;
     }
   },
   methods: {
