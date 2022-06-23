@@ -1,11 +1,11 @@
 package io.metersphere.track.issue.client;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.UnicodeConvertUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.issue.domain.zentao.*;
 import org.apache.commons.lang3.StringUtils;
@@ -85,7 +85,11 @@ public abstract class ZentaoClient extends BaseClient {
             MSException.throwException(e.getMessage());
         }
         AddIssueResponse addIssueResponse = (AddIssueResponse) getResultForObject(AddIssueResponse.class, response);
-        return JSONObject.parseObject(addIssueResponse.getData(), AddIssueResponse.Issue.class);
+        AddIssueResponse.Issue issue = JSONObject.parseObject(addIssueResponse.getData(), AddIssueResponse.Issue.class);
+        if (issue == null) {
+            MSException.throwException(UnicodeConvertUtils.unicodeToCn(response.getBody()));
+        }
+        return issue;
     }
 
     public void updateIssue(String id, MultiValueMap<String, Object> paramMap) {
