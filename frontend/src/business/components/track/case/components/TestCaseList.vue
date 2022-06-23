@@ -990,8 +990,7 @@ export default {
     },
     refresh() {
       this.$refs.table.clear();
-      this.condition.selectAll = false;
-      this.$emit('refresh');
+      this.$emit('refreshAll');
     },
     refreshAll() {
       this.$refs.table.clear();
