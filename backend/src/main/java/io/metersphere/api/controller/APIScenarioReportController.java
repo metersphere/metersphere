@@ -59,7 +59,7 @@ public class APIScenarioReportController {
 
     @PostMapping("/delete")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioReportService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.get(#request.id)", targetClass = ApiScenarioReportService.class,
+    @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.get(#request.id, false)", targetClass = ApiScenarioReportService.class,
             subject = "接口报告通知")
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
