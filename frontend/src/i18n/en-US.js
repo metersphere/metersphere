@@ -1902,7 +1902,7 @@ export default {
     },
     script: {
       tip_3: "Script steps will be counted in the execution result of the scene, and the final execution result of the scene will be affected when an execution error is reported",
-      filter_request_type: "Request type",
+      filter_request_type: "Ignore request",
       execution_order: "Order",
       associated_scene_results: "Associated scene results",
       execute_before_step: "Execute before single",
