@@ -203,10 +203,10 @@ export default {
     },
     getOptions() {
       if (this.$refs.issueTemplate) {
-        this.$refs.issueTemplate.getTemplateOptions();
+        this.$refs.issueTemplate.getTemplateOptions(this.form.id);
       }
       if (this.$refs.caseTemplate) {
-        this.$refs.caseTemplate.getTemplateOptions();
+        this.$refs.caseTemplate.getTemplateOptions(this.form.id);
       }
     },
     thirdPartTemplateChange(val) {
@@ -214,6 +214,9 @@ export default {
         this.form.issueTemplateId = '';
     },
     edit(row) {
+      if (row) {
+        this.form.id = row.id;
+      }
       this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
