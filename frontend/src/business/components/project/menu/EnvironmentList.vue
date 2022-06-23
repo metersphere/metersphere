@@ -168,7 +168,7 @@ export default {
       total: 0,
       projectIds: [],   //当前工作空间所拥有的所有项目id
       projectFilters: [],
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       ifCreate: false, //是否是创建环境
     }
   },

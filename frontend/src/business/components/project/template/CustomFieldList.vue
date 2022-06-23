@@ -191,7 +191,7 @@ export default {
       return SYSTEM_FIELD_NAME_MAP;
     },
     tableHeight() {
-      return document.documentElement.clientHeight - 240;
+      return document.documentElement.clientHeight - 200;
     }
   },
   methods: {

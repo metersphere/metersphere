@@ -193,7 +193,7 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       userFilters: [],
-      screenHeight: 'calc(100vh - 200px)',
+      screenHeight: 'calc(100vh - 160px)',
       versionOptions: [],
       currentVersion: '',
       versionEnable: false,

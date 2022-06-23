@@ -172,7 +172,7 @@ export default {
       },
       tableData: [],
       userList: [],
-      screenHeight: 'calc(100vh - 215px)',
+      screenHeight: 'calc(100vh - 175px)',
       LOG_TYPE: new LOG_TYPE(this),
       LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
       LOG_MODULE_MAP: new LOG_MODULE_MAP(this),

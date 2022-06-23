@@ -1,6 +1,6 @@
 <template>
   <el-dropdown size="medium" @command="handleCommand" class="align-right">
-    <span class="dropdown-link">
+    <span class="dropdown-link global">
         {{ currentUser.name }}<i class="el-icon-caret-bottom el-icon--right"/>
     </span>
     <template v-slot:dropdown>
@@ -49,7 +49,7 @@ export default {
   mounted() {
     this.$EventBus.$on('showPersonInfo', this.handleCommand)
   },
-  beforeDestroy(){
+  beforeDestroy() {
     this.$EventBus.$off("showPersonInfo")
   },
   methods: {
@@ -111,8 +111,12 @@ export default {
 
 .align-right {
   float: right;
+  margin-right: 20px;
 }
 
+.global {
+  color: var(--color);
+}
 </style>
 
 

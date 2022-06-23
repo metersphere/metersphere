@@ -435,7 +435,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 180px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
       projectName: "",

@@ -218,7 +218,7 @@ export default {
       fields: [],
       fieldsWidth: getCustomTableWidth('TEST_CASE_REVIEW_FUNCTION_TEST_CASE'),
       headerItems: Test_Case_Review_Case_List,
-      screenHeight: 'calc(100vh - 280px)',
+      screenHeight: 'calc(100vh - 240px)',
       tableLabel: [],
       result: {},
       condition: {},

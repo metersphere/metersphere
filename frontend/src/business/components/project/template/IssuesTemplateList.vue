@@ -137,7 +137,7 @@ export default {
       return ISSUE_PLATFORM_OPTION;
     },
     tableHeight() {
-      return document.documentElement.clientHeight - 240;
+      return document.documentElement.clientHeight - 200;
     }
   },
   methods: {

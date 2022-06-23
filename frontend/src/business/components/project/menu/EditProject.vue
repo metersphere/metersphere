@@ -152,7 +152,7 @@ export default {
         // caseTemplateId: [{required: true}],
         // issueTemplateId: [{required: true}],
       },
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       labelWidth: '150px',
       platformOptions: [],
       issueOptions: [],

@@ -294,7 +294,7 @@
                 @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
         <!-- 调试结果 -->
         <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
-                   :withHeader="true" :modal="false" size="90%">
+                   :withHeader="true" :modal="false" size="80%">
           <ms-api-report-detail :scenario="currentScenario" :report-id="reportId" :debug="true"
                                 :currentProjectId="projectId" @refresh="detailRefresh"/>
         </el-drawer>
@@ -2387,7 +2387,7 @@ export default {
 
 .ms-batch-btn:hover {
   cursor: pointer;
-  color: #6D317C;
+  color: #783887;
 }
 
 .ms-debug-result {

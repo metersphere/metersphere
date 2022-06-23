@@ -220,7 +220,7 @@ export default {
       fields: [],
       tableHeaderKey:"ISSUE_LIST",
       fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
-      screenHeight: 'calc(100vh - 200px)',
+      screenHeight: 'calc(100vh - 160px)',
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",

@@ -323,7 +323,7 @@ export default {
       projectName: "",
       type: TEST_CASE_LIST,
       tableHeaderKey: "TRACK_TEST_CASE",
-      screenHeight: 'calc(100vh - 228px)',
+      screenHeight: 'calc(100vh - 185px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
       enableOrderDrag: true,

@@ -179,7 +179,7 @@ export default {
       pageSize: 10,
       isTestManagerOrTestUser: false,
       selectRows: new Set(),
-      screenHeight: 'calc(100vh - 200px)', //屏幕高度
+      screenHeight: 'calc(100vh - 160px)', //屏幕高度
       total: 0,
       tableData: [],
       statusFilters: [

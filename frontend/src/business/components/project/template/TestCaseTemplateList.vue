@@ -147,7 +147,7 @@ export default {
       return new CASE_TYPE_OPTION();
     },
     tableHeight() {
-      return document.documentElement.clientHeight - 240;
+      return document.documentElement.clientHeight - 200;
     }
   },
   methods: {

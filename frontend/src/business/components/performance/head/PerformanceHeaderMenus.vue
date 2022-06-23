@@ -2,7 +2,7 @@
   <div id="menu-bar">
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
-      <el-col :span="12">
+      <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active="pathName">
           <el-menu-item :index="'/performance/home'">
             {{ $t("i18n.home") }}
@@ -15,7 +15,9 @@
           </el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="12"/>
+      <el-col :span="10">
+        <ms-header-right-menus/>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -26,6 +28,7 @@ import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsShowAll from "../../common/head/ShowAll";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import MsHeaderRightMenus from "@/business/components/layout/HeaderRightMenus";
 
 export default {
   name: "PerformanceHeaderMenus",
@@ -34,6 +37,7 @@ export default {
     MsCreateButton,
     MsShowAll,
     MsRecentList,
+    MsHeaderRightMenus
   },
   data() {
     return {

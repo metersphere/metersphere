@@ -300,7 +300,7 @@ export default {
       pageSize: 10,
       total: 0,
       form: {performance: true, api: true, backendListener: true},
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
         name: [

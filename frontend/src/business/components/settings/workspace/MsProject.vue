@@ -258,7 +258,7 @@ export default {
           {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
         ],
       },
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       dialogCondition: {},
       memberVisible: false,
       memberLineData: [],
