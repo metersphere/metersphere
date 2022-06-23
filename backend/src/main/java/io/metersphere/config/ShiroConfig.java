@@ -90,7 +90,6 @@ public class ShiroConfig implements EnvironmentAware {
     /**
      * securityManager 不用直接注入 Realm，可能会导致事务失效
      * 解决方法见 handleContextRefresh
-     * http://www.debugrun.com/a/NKS9EJQ.html
      */
     @Bean(name = "securityManager")
     public DefaultWebSecurityManager securityManager(SessionManager sessionManager, CacheManager cacheManager) {
