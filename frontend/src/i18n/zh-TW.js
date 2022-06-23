@@ -1907,7 +1907,7 @@ export default {
     },
     script: {
       tip_3: "腳本步驟會統計到場景執行結果中，執行報錯時會影響場景的最終執行結果",
-      filter_request_type: "過濾請求類型",
+      filter_request_type: "忽略請求",
       execution_order: "腳本執行順序",
       associated_scene_results: "關聯場景結果",
       execute_before_step: "單個請求步驟前執行",

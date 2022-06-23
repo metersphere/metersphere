@@ -1907,7 +1907,7 @@ export default {
     },
     script: {
       tip_3: "脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果",
-      filter_request_type: "过滤请求类型",
+      filter_request_type: "忽略请求",
       execution_order: "脚本执行顺序",
       associated_scene_results: "关联场景结果",
       execute_before_step: "单个请求步骤前执行",
