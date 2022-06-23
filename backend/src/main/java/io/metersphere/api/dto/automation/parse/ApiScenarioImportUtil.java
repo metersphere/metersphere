@@ -6,8 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
@@ -16,10 +15,7 @@ import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioModuleService;
 import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiDefinitionExample;
-import io.metersphere.base.domain.ApiScenarioModule;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -108,6 +104,7 @@ public class ApiScenarioImportUtil {
 
     /**
      * 根据导出的模块树，创建新的模块树
+     *
      * @param nodeTree
      * @param projectId
      */
@@ -127,10 +124,10 @@ public class ApiScenarioImportUtil {
         }
     }
 
-    private static ApiDefinition getApiDefinitionResult(JSONObject object, ApiDefinitionService apiDefinitionService,Map<String,ApiDefinition>definitionMap,Set<String> userRelatedProjectIds) {
+    private static ApiDefinition getApiDefinitionResult(JSONObject object, ApiDefinitionService apiDefinitionService, Map<String, ApiDefinition> definitionMap, Set<String> userRelatedProjectIds) {
         List<String> projectIds = new ArrayList<>(userRelatedProjectIds);
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
-        if(object.getString("path") != null && object.getString("method") != null){
+        if (object.getString("path") != null && object.getString("method") != null) {
             apiDefinitionExample.createCriteria()
                     .andPathEqualTo(object.getString("path"))
                     .andMethodEqualTo(object.getString("method"))
@@ -139,20 +136,20 @@ public class ApiScenarioImportUtil {
                     .andStatusNotEqualTo("Trash");
         }
         ApiDefinition apiDefinition = apiDefinitionService.getApiDefinition(apiDefinitionExample);
-        if(apiDefinition==null){
-            if(MapUtils.isEmpty(definitionMap)){
+        if (apiDefinition == null) {
+            if (MapUtils.isEmpty(definitionMap)) {
                 return null;
-            }else {
+            } else {
                 return definitionMap.get(object.getString("path") + object.getString("method") + object.getString("protocol"));
             }
         } else {
-            if(MapUtils.isEmpty(definitionMap)){
-                definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"),apiDefinition);
+            if (MapUtils.isEmpty(definitionMap)) {
+                definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"), apiDefinition);
                 return apiDefinition;
-            }else {
+            } else {
                 ApiDefinition apiDefinition1 = definitionMap.get(object.getString("path") + object.getString("method") + object.getString("protocol"));
                 if (apiDefinition1 == null) {
-                    definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"),apiDefinition);
+                    definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"), apiDefinition);
                     return apiDefinition;
                 } else {
                     return apiDefinition1;
@@ -161,65 +158,64 @@ public class ApiScenarioImportUtil {
         }
     }
 
-    public static void checkCase(int i,JSONObject object, String versionId, String projectId, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper,Map<String,ApiDefinition>definitionMap) {
+    public static void checkCase(int i, JSONObject object, String versionId, String projectId, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap) {
         ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.getString("id"));
         CheckPermissionService checkPermissionService = CommonBeanFactory.getBean(CheckPermissionService.class);
         Set<String> userRelatedProjectIds = checkPermissionService.getUserRelatedProjectIds();
-        if (bloBs == null||!userRelatedProjectIds.contains(bloBs.getProjectId())) {
-            ApiDefinition apiDefinition = getApiDefinitionResult(object,apiDefinitionService,definitionMap,userRelatedProjectIds);
-            if(apiDefinition!=null){
-                if(MapUtils.isNotEmpty(definitionMap)||definitionMap.size()==0){
-                    ApiTestCaseRequest request = new ApiTestCaseRequest();
+        if (bloBs == null || !userRelatedProjectIds.contains(bloBs.getProjectId())) {
+            ApiDefinition apiDefinition = getApiDefinitionResult(object, apiDefinitionService, definitionMap, userRelatedProjectIds);
+            if (apiDefinition != null) {
+                if (MapUtils.isNotEmpty(definitionMap) || definitionMap.size() == 0) {
+                    SaveApiTestCaseRequest request = new SaveApiTestCaseRequest();
                     request.setApiDefinitionId(apiDefinition.getId());
                     request.setName(object.getString("name"));
-                    List<ApiTestCaseDTO> apiTestCaseDTOS = testCaseService.listSimple(request);
-                    if (apiTestCaseDTOS ==null || apiTestCaseDTOS.isEmpty()) {
-                        structureCaseByJson(i,object,testCaseService, apiDefinition,apiTestCaseMapper);
+                    ApiTestCase sameCase = testCaseService.getSameCase(request);
+                    if (sameCase == null) {
+                        structureCaseByJson(i, object, testCaseService, apiDefinition, apiTestCaseMapper);
                     } else {
-                        ApiTestCaseDTO apiTestCase = apiTestCaseDTOS.get(0);
-                        object.put("id", apiTestCase.getId());
-                        object.put("resourceId", apiTestCase.getId());
+                        object.put("id", sameCase.getId());
+                        object.put("resourceId", sameCase.getId());
                         object.put("projectId", projectId);
-                        object.put("useEnvironment","");
-                        object.put("environmentId","");
+                        object.put("useEnvironment", "");
+                        object.put("environmentId", "");
                     }
                 }
-            }else{
-                ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(i,apiDefinitionService, object, versionId, projectId, apiDefinitionMapper,definitionMap);
-                structureCaseByJson(i,object,testCaseService, apiDefinitionResult,apiTestCaseMapper);
+            } else {
+                ApiDefinitionResult apiDefinitionResult = structureApiDefinitionByJson(i, apiDefinitionService, object, versionId, projectId, apiDefinitionMapper, definitionMap);
+                structureCaseByJson(i, object, testCaseService, apiDefinitionResult, apiTestCaseMapper);
             }
         }
     }
 
-    public static ApiDefinitionResult structureApiDefinitionByJson(int i,ApiDefinitionService apiDefinitionService,JSONObject object, String versionId, String projectId,ApiDefinitionMapper apiDefinitionMapper,Map<String,ApiDefinition>definitionMap) {
+    public static ApiDefinitionResult structureApiDefinitionByJson(int i, ApiDefinitionService apiDefinitionService, JSONObject object, String versionId, String projectId, ApiDefinitionMapper apiDefinitionMapper, Map<String, ApiDefinition> definitionMap) {
         ApiDefinitionResult test = new ApiDefinitionResult();
         apiDefinitionService.checkQuota(projectId);
         String protocal = object.getString("protocal");
         if (StringUtils.equals(protocal, "DUBBO")) {
             test.setMethod("dubbo://");
-        }else{
+        } else {
             test.setMethod(object.getString("method"));
         }
         test.setProtocol(object.getString("protocol"));
-        if(StringUtils.isNotBlank(object.getString("modulePath"))&&StringUtils.isNotBlank(object.getString("moduleId"))){
+        if (StringUtils.isNotBlank(object.getString("modulePath")) && StringUtils.isNotBlank(object.getString("moduleId"))) {
             test.setModulePath(object.getString("modulePath"));
             test.setModuleId(object.getString("moduleId"));
-        }else{
-            apiDefinitionService.initModulePathAndId(projectId,test);
+        } else {
+            apiDefinitionService.initModulePathAndId(projectId, test);
         }
         String id = UUID.randomUUID().toString();
         test.setId(id);
-        test.setNum(apiDefinitionService.getNextNum(projectId)+i);
+        test.setNum(apiDefinitionService.getNextNum(projectId) + i);
         test.setName(object.getString("name"));
-        if(StringUtils.isBlank(object.getString("path"))){
-            if(StringUtils.isNotBlank(object.getString("url"))){
+        if (StringUtils.isBlank(object.getString("path"))) {
+            if (StringUtils.isNotBlank(object.getString("url"))) {
                 ApiImportAbstractParser apiImportAbstractParser = CommonBeanFactory.getBean(ApiImportAbstractParser.class);
                 String path = apiImportAbstractParser.formatPath(object.getString("url"));
                 test.setPath(path);
             }
-        }else{
+        } else {
             test.setPath(object.getString("path"));
         }
         test.setCreateUser(SessionUtils.getUserId());
@@ -233,15 +229,15 @@ public class ApiScenarioImportUtil {
         object.put("id", test.getId());
         object.put("resourceId", test.getId());
         object.put("projectId", projectId);
-        object.put("useEnvironment","");
-        object.put("environmentId","");
-        object.put("url","");
+        object.put("useEnvironment", "");
+        object.put("environmentId", "");
+        object.put("url", "");
         JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
         test.setRequest(objectNew.toJSONString());
         HttpResponse httpResponse = new HttpResponse();
-        KeyValue keyValue =  new KeyValue();
+        KeyValue keyValue = new KeyValue();
         List<KeyValue> list = new ArrayList<>();
         list.add(keyValue);
         httpResponse.setHeaders(list);
@@ -252,11 +248,11 @@ public class ApiScenarioImportUtil {
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
         apiDefinitionMapper.insert(test);
-        definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"),test);
+        definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"), test);
         return test;
     }
 
-    public static void structureCaseByJson(int i,JSONObject object,ApiTestCaseService testCaseService, ApiDefinition apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
+    public static void structureCaseByJson(int i, JSONObject object, ApiTestCaseService testCaseService, ApiDefinition apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
         String projectId = apiDefinition.getProjectId();
         ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
@@ -272,13 +268,13 @@ public class ApiScenarioImportUtil {
         apiTestCase.setUpdateTime(System.currentTimeMillis());
         apiTestCase.setVersionId(apiDefinition.getVersionId());
         apiTestCase.setPriority("P0");
-        apiTestCase.setNum(testCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum()+i));
+        apiTestCase.setNum(testCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum() + i));
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
-        object.put("useEnvironment","");
-        object.put("environmentId","");
-        JSONObject objectNew = JSONObject.parseObject(object.toJSONString(),Feature.DisableSpecialKeyDetect);
+        object.put("useEnvironment", "");
+        object.put("environmentId", "");
+        JSONObject objectNew = JSONObject.parseObject(object.toJSONString(), Feature.DisableSpecialKeyDetect);
         objectNew.remove("refType");
         objectNew.remove("referenced");
         apiTestCase.setRequest(objectNew.toJSONString());
