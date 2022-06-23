@@ -31,7 +31,9 @@
           </el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="8"/>
+      <el-col :span="10">
+        <ms-header-right-menus/>
+      </el-col>
     </el-row>
   </div>
 
@@ -43,10 +45,11 @@ import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 import {getCurrentProjectID} from "@/common/js/utils";
+import MsHeaderRightMenus from "@/business/components/layout/HeaderRightMenus";
 
 export default {
   name: "TrackHeaderMenus",
-  components: {ProjectChange, MsShowAll, MsRecentList, MsCreateButton},
+  components: {ProjectChange, MsShowAll, MsRecentList, MsCreateButton, MsHeaderRightMenus},
   data() {
     return {
       testPlanViewPath: '',

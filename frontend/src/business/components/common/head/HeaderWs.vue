@@ -4,12 +4,12 @@
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
                   'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ','WORKSPACE_USER:READ']" >
-    <span class="dropdown-link">
+    <span class="dropdown-link global">
       {{ currentWorkspaceName }}
       <i class="el-icon-caret-bottom el-icon--right"/>
     </span>
     <template v-slot:dropdown>
-      <el-dropdown-menu style="margin-top: 5px;">
+      <el-dropdown-menu style="margin-top: 5px;" :style="{'color':color}">
         <el-input :placeholder="$t('project.search_by_name')"
                   prefix-icon="el-icon-search"
                   v-model="searchString"
@@ -63,6 +63,9 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
+    color: function () {
+      return `var(--primary_color)`;
+    }
   },
   watch: {
     searchString(val) {
@@ -211,6 +214,10 @@ export default {
 
 .dropdown-content::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(255, 0, 0, 0.4);
+}
+
+.global {
+  color: var(--color);
 }
 
 </style>

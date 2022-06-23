@@ -182,6 +182,6 @@
     width: 80px;
   }
   .ms-test-running {
-    color: #6D317C;
+    color: #783887;
   }
 </style>

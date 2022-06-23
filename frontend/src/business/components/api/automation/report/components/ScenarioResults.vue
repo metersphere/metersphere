@@ -162,7 +162,7 @@ export default {
 
 .ms-open-btn {
   margin: 5px 5px 0px;
-  color: #6D317C;
+  color: #783887;
   font-size: 20px;
 }
 

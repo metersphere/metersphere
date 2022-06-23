@@ -46,12 +46,12 @@ export default {
 
 <style scoped>
 .ms-aside-container {
-  height: calc(100vh - 40px) !important;
+  height: calc(100vh) !important;
   padding: 20px;
 }
 
 .ms-main-container {
-  height: calc(100vh - 40px) !important;
+  height: calc(100vh) !important;
 }
 
 h1 {

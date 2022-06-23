@@ -1,50 +1,55 @@
 <template>
-  <el-col v-if="auth">
-    <el-row v-if="licenseHeader != null">
-      <el-col>
-        <component :is="licenseHeader"></component>
-      </el-col>
-    </el-row>
-    <el-row v-if="changePassword">
-      <el-col>
-        <div class="change-password-tip">
-          {{ $t('commons.change_password_tips') }}
+  <el-container v-if="auth">
+    <el-header :height="headerHeight" class="ms-header-w">
+      <el-row v-if="licenseHeader != null">
+        <el-col>
+          <component :is="licenseHeader"></component>
+        </el-col>
+      </el-row>
+      <el-row v-if="changePassword">
+        <el-col>
+          <div class="change-password-tip">
+            {{ $t('commons.change_password_tips') }}
+          </div>
+        </el-col>
+      </el-row>
+    </el-header>
+
+    <el-container>
+      <el-aside
+        :class="isCollapse ? 'ms-aside': 'ms-aside-open'"
+        class="ms-left-aside"
+        :style="isFixed ? 'opacity:100%; position: relative': 'opacity: 95%;position: fixed'"
+        @mouseenter.native="collapseOpen"
+        @mouseleave.native="collapseClose">
+        <ms-aside-header :color="color" :isCollapse="isCollapse"/>
+        <ms-aside-menus :color="color" :isCollapse="isCollapse"/>
+        <div class="ms-header-fixed" v-show="!isCollapse">
+          <!--<el-checkbox v-model="isFixed" v-show="!isCollapse" class="checkBox-input"/>-->
+          <img src="@/assets/module/pushpin.svg" class="ms-pin" alt="" v-if="isFixed" @click="fixedChange(false)">
+          <img src="@/assets/module/unpin.svg" class="ms-pin" alt="" v-else @click="fixedChange(true)">
         </div>
-      </el-col>
-    </el-row>
-    <el-row id="header-top" type="flex" justify="space-between" align="middle" v-if="isMenuShow">
-      <el-col :span="12">
-        <img :src="'/display/file/logo'" class="logo" alt="">
-        <ms-top-menus :color="color"/>
-      </el-col>
-
-      <el-col :span="12" class="align-right">
-        <!-- float right -->
-        <ms-user ref="headerUser"/>
-        <ms-language-switch :color="color"/>
-        <ms-header-ws :color="color"/>
-        <ms-task-center :color="color"/>
-        <ms-notification :color="color"/>
-      </el-col>
-    </el-row>
-
-    <ms-view v-if="isShow"/>
-
-    <theme/>
-  </el-col>
+      </el-aside>
+      <el-main class="container">
+        <div :class="isFixed ? 'ms-left-fixed': 'left'">
+        </div>
+        <div :class="isFixed ? 'ms-right-fixed': 'ms-main-view right'">
+          <ms-view v-if="isShow"/>
+        </div>
+      </el-main>
+      <theme/>
+    </el-container>
+  </el-container>
 </template>
 
 <script>
-import MsTopMenus from "./components/common/head/HeaderTopMenus";
+import MsAsideMenus from "./components/layout/AsideMenus";
+import MsAsideHeader from "./components/layout/AsideHeader";
+import MsAsideFooter from "./components/layout/AsideFooter";
 import MsView from "./components/common/router/View";
-import MsUser from "./components/common/head/HeaderUser";
-import MsHeaderWs from "./components/common/head/HeaderWs";
-import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
 import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
-import MsTaskCenter from "@/business/components/task/TaskCenter";
-import MsNotification from "@/business/components/notice/Notification";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
@@ -65,6 +70,9 @@ export default {
       sessionTimer: null,
       isShow: true,
       isMenuShow: true,
+      isCollapse: true,
+      headerHeight: "0px",
+      isFixed: false,
     };
   },
   computed: {
@@ -73,6 +81,9 @@ export default {
     }
   },
   created() {
+    if (this.licenseHeader != null || this.changePassword) {
+      this.headerHeight = "30px";
+    }
     this.initSessionTimer();
     if (!hasLicense()) {
       setDefaultTheme();
@@ -95,6 +106,8 @@ export default {
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("store", JSON.stringify(this.$store.state));
     });
+    this.isFixed = localStorage.getItem('app-fixed') === 'true' || false;
+    this.isCollapse = this.isFixed === true ? false : true;
   },
   beforeCreate() {
     this.$get("/isLogin").then(response => {
@@ -111,8 +124,6 @@ export default {
         if (display.default !== undefined) {
           display.default.showHome(this);
         }
-
-        //
         if (localStorage.getItem("store")) {
           this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))));
           this.$get("/project/listAll", response => {
@@ -137,6 +148,22 @@ export default {
     };
   },
   methods: {
+    fixedChange(isFixed) {
+      this.isFixed = isFixed;
+      if (this.isFixed) {
+        this.isCollapse = false;
+      }
+      localStorage.removeItem('app-fixed');
+      localStorage.setItem('app-fixed', this.isFixed);
+    },
+    collapseOpen() {
+      this.isCollapse = false;
+    },
+    collapseClose() {
+      if (!this.isFixed) {
+        this.isCollapse = true;
+      }
+    },
     initSessionTimer() {
       let timeout = 1800;
       this.initTimer(timeout);
@@ -188,13 +215,10 @@ export default {
     }
   },
   components: {
-    MsNotification,
-    MsTaskCenter,
-    MsLanguageSwitch,
-    MsUser,
     MsView,
-    MsTopMenus,
-    MsHeaderWs,
+    MsAsideMenus,
+    MsAsideHeader,
+    MsAsideFooter,
     "LicenseMessage": header.default,
     "Theme": theme.default
   }
@@ -203,59 +227,19 @@ export default {
 
 
 <style scoped>
-#header-top {
-  width: 100%;
-  padding: 0 10px;
+.ms-aside {
+  z-index: 666;
+  width: var(--asideWidth) !important;
   background-color: var(--color);
-  color: rgb(245, 245, 245);
-  font-size: 14px;
-  height: 40px;
+  opacity: 100%;
+  height: calc(100vh);
 }
 
-.logo {
-  width: 156px;
-  margin-bottom: 0;
-  border: 0;
-  margin-right: 20px;
-  display: inline-block;
-  line-height: 37px;
-  background-size: 156px 30px;
-  box-sizing: border-box;
-  height: 37px;
-  background-repeat: no-repeat;
-  background-position: 50% center;
-}
-
-.menus > * {
-  color: inherit;
-  padding: 0;
-  max-width: 180px;
-  white-space: pre;
-  cursor: pointer;
-  line-height: 40px;
-}
-
-.header-top-menus {
-  display: inline-block;
-  border: 0;
-  position: absolute;
-}
-
-.menus > a {
-  padding-right: 15px;
-  text-decoration: none;
-}
-
-.align-right {
-  float: right;
-}
-
-.license-head {
-  height: 30px;
-  background: #BA331B;
-  text-align: center;
-  line-height: 30px;
-  color: white;
+.ms-aside-open {
+  width: var(--asideOpenWidth) !important;
+  background-color: var(--color);
+  opacity: 95%;
+  z-index: 9999;
 }
 
 .change-password-tip {
@@ -264,5 +248,83 @@ export default {
   text-align: center;
   line-height: 30px;
   color: white;
+}
+
+.ms-left-aside {
+  position: fixed;
+  left: 0;
+  height: calc(100vh);
+  background-color: var(--color);
+  padding-left: 0px;
+  border: 0px;
+  overflow: hidden;
+}
+
+.ms-main-view {
+  margin-left: var(--asideWidth);
+}
+
+.container {
+  padding: 0px !important;
+  height: calc(100vh);
+}
+
+.left {
+  float: left;
+  width: var(--asideWidth);
+  height: calc(100vh);
+  background-color: var(--color);
+}
+
+.ms-left-fixed {
+  width: 0px;
+}
+
+.right {
+  flex: 1;
+  height: calc(100vh);
+}
+
+.ms-right-fixed {
+  flex: 0;
+  margin-left: 0px;
+}
+
+.ms-header-w {
+  width: 100%;
+  padding: 0px;
+}
+
+.ms-header-fixed {
+  margin-left: var(--asideOpenMargin);
+  position: absolute;
+  bottom: 20px;
+}
+
+.ms-pin {
+  height: 20px;
+  width: 20px;
+}
+
+.ms-pin:hover {
+  height: 21px;
+  width: 21px;
+  cursor: pointer;
+}
+
+.checkBox-input >>> .el-checkbox__inner {
+  border-color: #fff;
+}
+
+.checkBox-input >>> .el-checkbox__inner::after {
+  top: 4px;
+  left: 4px;
+  width: 3px;
+  height: 3px;
+  border-radius: 100%;
+  background-color: #fff !important;
+  content: "";
+  position: absolute;
+  border-color: #fff !important;
 }
 </style>

@@ -448,7 +448,7 @@ export function getNodePath(id, moduleOptions) {
 }
 
 export function getDefaultTableHeight() {
-  return document.documentElement.clientHeight - 200;
+  return document.documentElement.clientHeight - 160;
 }
 
 export function fullScreenLoading(component) {

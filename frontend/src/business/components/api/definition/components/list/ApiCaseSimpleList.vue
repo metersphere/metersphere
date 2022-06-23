@@ -442,7 +442,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度
+      screenHeight: 'calc(100vh - 180px)',//屏幕高度
       environmentId: undefined,
       selectAll: false,
       unSelection: [],
@@ -1341,7 +1341,7 @@ export default {
 }
 
 .ms-running {
-  color: #6D317C;
+  color: #783887;
 }
 
 .oneLine {

@@ -99,7 +99,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       languages: [
         {text: 'beanshell', value: 'beanshell'},
         {text: 'python', value: 'python'},

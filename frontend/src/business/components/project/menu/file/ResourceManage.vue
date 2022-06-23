@@ -116,7 +116,7 @@ export default {
       condition: {},
       projectId: getCurrentProjectID(),
       currentRow: null,
-      height: 'calc(50vh - 160px)'
+      height: 'calc(50vh - 110px)'
     };
   },
   created() {

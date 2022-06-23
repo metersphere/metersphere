@@ -41,6 +41,6 @@ export default {
 }
 
 .file-manage-resource {
-  height: calc(50vh - 44px);
+  height: calc(50vh - 4px);
 }
 </style>

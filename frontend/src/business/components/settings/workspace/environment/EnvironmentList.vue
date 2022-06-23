@@ -190,7 +190,7 @@ export default {
       total: 0,
       projectIds: [],   //当前工作空间所拥有的所有项目id
       projectFilters: [],
-      screenHeight: 'calc(100vh - 210px)',
+      screenHeight: 'calc(100vh - 170px)',
       rules: {
         currentProjectId: [
           {required: true, message: "", trigger: 'blur'},

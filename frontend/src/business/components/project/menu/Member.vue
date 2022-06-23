@@ -115,7 +115,7 @@ export default {
       result: {},
       dialogResult: {},
       tableData: [],
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       currentPage: 1,
       pageSize: 10,
       total: 0,

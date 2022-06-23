@@ -264,13 +264,13 @@
                            :total="total"/>
       <div>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
+        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="rtl" :withHeader="true" :modal="false"
                    size="90%">
           <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId"
                                   :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
+        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="rtl" :withHeader="true"
                    :modal="false"
                    size="90%">
           <ms-api-report-detail @invisible="showReportVisible = false" @refresh="search" :infoDb="infoDb"
@@ -278,7 +278,7 @@
                                 :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
-        <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
+        <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="rtl" :withHeader="false"
                    :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
           <ms-test-plan-list @addTestPlan="addTestPlan(arguments)" @cancel="cancel" ref="testPlanList"
                              :scenario-condition="condition" :row="selectRows"/>
@@ -419,7 +419,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 180px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },

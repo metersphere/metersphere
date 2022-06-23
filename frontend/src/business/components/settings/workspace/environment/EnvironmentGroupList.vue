@@ -111,7 +111,7 @@ export default {
     screenHeight: {
       type: String,
       default() {
-        return 'calc(100vh - 210px)';
+        return 'calc(100vh - 170px)';
       }
     },
     readOnly: {

@@ -5,7 +5,6 @@
       :unique-opened="true"
       class="header-user-menu align-right header-top-menu"
       mode="horizontal"
-      :background-color="color"
       text-color="#fff"
       active-text-color="#fff">
       <el-menu-item onselectstart="return false">
@@ -32,7 +31,7 @@
       :title="$t('commons.task_center')"
       :size="size.toString()"
       custom-class="ms-drawer-task">
-      <el-card style="float: left;width: 850px" v-if="size > 550 ">
+      <el-card style="float: left;" :style="{'width': (size - 550)+'px'}" v-if="size > 550 ">
         <div class="ms-task-opt-btn" @click="packUp">{{ $t('commons.task_close') }}</div>
         <!-- 接口用例结果 -->
         <ms-request-result-tail :response="response" ref="debugResult" v-if="executionModule === 'API' && reportType !=='API_INTEGRATED'"/>
@@ -193,7 +192,6 @@ export default {
     };
   },
   props: {
-    color: String,
     showMenu: {
       type: Boolean,
       default: true
@@ -202,7 +200,7 @@ export default {
   computed: {
     disabled() {
       return this.loading
-    }
+    },
   },
 
   created() {
@@ -357,7 +355,7 @@ export default {
       if (status) {
         status = row.executionStatus.toLowerCase();
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'unexecute' || status === 'errorreportresult') {
-          this.size = 1400;
+          this.size = window.innerWidth - 50;
           this.reportId = row.id;
           this.executionModule = row.executionModule;
           this.reportType = row.reportType;
@@ -486,7 +484,7 @@ export default {
 }
 
 .global {
-  color: #fff;
+  color: var(--color);
 }
 
 .header-top-menu {
@@ -586,7 +584,7 @@ export default {
 
 .ms-task-opt-btn {
   position: fixed;
-  right: 1372px;
+  right: calc(98% - var(--asideWidth));
   top: 50%;
   z-index: 5;
   width: 20px;

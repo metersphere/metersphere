@@ -127,7 +127,7 @@ export default {
     enable_settings: '啟用設置',
     view_settings: '顯示設置',
     functional: '功能測試',
-    my_workstation: '我的工作臺',
+    my_workstation: '工作臺',
     ui_test: 'UI測試',
     input_content: '請輸入內容',
     create: '新建',

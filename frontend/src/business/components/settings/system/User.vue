@@ -196,7 +196,7 @@ export default {
         }]
       },
       changePasswordUser: '',
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       checkPasswordForm: {},
       ruleForm: {},
       buttons: [

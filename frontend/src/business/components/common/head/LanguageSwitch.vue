@@ -1,6 +1,6 @@
 <template>
   <el-dropdown size="medium" @command="changeLanguage" class="align-right">
-    <span class="dropdown-link">
+    <span class="dropdown-link global">
         <font-awesome-icon :icon="['fas', 'language']" size="lg"/>
     </span>
     <template v-slot:dropdown>
@@ -32,9 +32,6 @@ export default {
         [ZH_TW]: '繁體中文',
       }
     };
-  },
-  props: {
-    color: String
   },
   created() {
     let lang = this.currentUser().language;
@@ -106,7 +103,7 @@ export default {
 }
 
 .global {
-  color: #fff;
+  color: var(--color);
 }
 
 /deep/ .el-submenu__title {

@@ -1327,7 +1327,7 @@ export default {
 
 .ms-batch-btn:hover {
   cursor: pointer;
-  color: #6D317C;
+  color: #783887;
 }
 .ms-max-scenario-name-width {
   font-size: 12px;

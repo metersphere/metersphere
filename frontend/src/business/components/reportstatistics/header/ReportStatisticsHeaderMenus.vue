@@ -13,6 +13,9 @@
 
         </el-menu>
       </el-col>
+      <el-col :span="10">
+        <ms-header-right-menus/>
+      </el-col>
     </el-row>
   </div>
 
@@ -22,10 +25,11 @@
 
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 import {hasLicense, hasPermission} from "@/common/js/utils";
+import MsHeaderRightMenus from "@/business/components/layout/HeaderRightMenus";
 
 export default {
   name: "ReportStatisticsHeaderMenus",
-  components: {ProjectChange},
+  components: {ProjectChange,MsHeaderRightMenus},
   data() {
     return {
       licenseCheck: false,

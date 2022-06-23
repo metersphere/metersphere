@@ -87,7 +87,7 @@ export function buttons(this_) {
     {
       title: this_.$t('api_test.automation.transaction_controller'),
       show: this_.showButton("TransactionController"),
-      titleColor: "#6D317C",
+      titleColor: "#783887",
       titleBgColor: "#F4F4F5",
       icon: "alt_route",
       click: () => {

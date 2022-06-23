@@ -2,7 +2,7 @@
   <div id="menu-bar">
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
-      <el-col :span="24">
+      <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active="pathName">
           <el-menu-item :index="'/project/home'">
@@ -23,31 +23,37 @@
                         popper-class="submenu">
             {{ $t('project.file_manage') }}
           </el-menu-item>
-          <el-menu-item :index="'/project/code/segment'" popper-class="submenu"
-                        v-permission="['PROJECT_CUSTOM_CODE:READ']">
-            {{ $t('project.code_segment.code_segment') }}
-          </el-menu-item>
-          <el-menu-item :index="'/project/errorreportlibrary'" v-permission="['PROJECT_ERROR_REPORT_LIBRARY:READ']"
-                        v-xpack>
-            {{ $t("error_report_library.name") }}
-          </el-menu-item>
-          <el-menu-item index="/project/template" v-permission="['PROJECT_TEMPLATE:READ']">
-            <template slot="title">{{ $t('workspace.template_manage') }}</template>
-          </el-menu-item>
-          <el-menu-item :index="'/project/messagesettings'" v-permission="['PROJECT_MESSAGE:READ']">
-            {{ $t("organization.message_settings") }}
-          </el-menu-item>
-          <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
-            {{ $t('project.log') }}
-          </el-menu-item>
-          <el-menu-item v-xpack :index="'/project/version'" v-permission="['PROJECT_VERSION:READ']">
-            {{ $t('project.version_manage') }}
-          </el-menu-item>
-          <el-menu-item :index="'/project/app'" popper-class="submenu"
-                        v-permission="['PROJECT_APP_MANAGER:READ+EDIT']">
-            {{ $t('project.app_manage') }}
-          </el-menu-item>
+          <el-submenu index="2">
+            <template slot="title">{{ $t('commons.report_statistics.report_filter.more_options') }}</template>
+            <el-menu-item :index="'/project/errorreportlibrary'" v-permission="['PROJECT_ERROR_REPORT_LIBRARY:READ']"
+                          v-xpack>
+              {{ $t("error_report_library.name") }}
+            </el-menu-item>
+            <el-menu-item index="/project/template" v-permission="['PROJECT_TEMPLATE:READ']">
+              <template slot="title">{{ $t('workspace.template_manage') }}</template>
+            </el-menu-item>
+            <el-menu-item :index="'/project/messagesettings'" v-permission="['PROJECT_MESSAGE:READ']">
+              {{ $t("organization.message_settings") }}
+            </el-menu-item>
+            <el-menu-item :index="'/project/log'" popper-class="submenu" v-permission="['PROJECT_OPERATING_LOG:READ']">
+              {{ $t('project.log') }}
+            </el-menu-item>
+            <el-menu-item v-xpack :index="'/project/version'" v-permission="['PROJECT_VERSION:READ']">
+              {{ $t('project.version_manage') }}
+            </el-menu-item>
+            <el-menu-item :index="'/project/app'" popper-class="submenu"
+                          v-permission="['PROJECT_APP_MANAGER:READ+EDIT']">
+              {{ $t('project.app_manage') }}
+            </el-menu-item>
+            <el-menu-item :index="'/project/code/segment'" popper-class="submenu"
+                          v-permission="['PROJECT_CUSTOM_CODE:READ']">
+              {{ $t('project.code_segment.code_segment') }}
+            </el-menu-item>
+          </el-submenu>
         </el-menu>
+      </el-col>
+      <el-col :span="10">
+        <ms-header-right-menus/>
       </el-col>
     </el-row>
   </div>
@@ -60,10 +66,11 @@ import MsRecentList from "@/business/components/common/head/RecentList";
 import MsCreateButton from "@/business/components/common/head/CreateButton";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 import {hasLicense} from "@/common/js/utils";
+import MsHeaderRightMenus from "@/business/components/layout/HeaderRightMenus";
 
 export default {
   name: "ProjectHeaderMenus",
-  components: {ProjectChange, MsShowAll, MsRecentList, MsCreateButton},
+  components: {ProjectChange, MsShowAll, MsRecentList, MsCreateButton, MsHeaderRightMenus},
   data() {
     return {
       currentProject: '',
@@ -99,6 +106,7 @@ export default {
   border-bottom: 1px solid #E6E6E6;
   background-color: #FFF;
 }
+
 .el-menu-item {
   padding: 0 10px;
 }

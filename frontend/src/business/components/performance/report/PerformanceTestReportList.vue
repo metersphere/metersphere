@@ -217,7 +217,7 @@ export default {
       total: 0,
       loading: false,
       testId: null,
-      screenHeight: 'calc(100vh - 200px)',
+      screenHeight: 'calc(100vh - 160px)',
       statusFilters: [
         {text: 'Starting', value: 'Starting'},
         {text: 'Running', value: 'Running'},

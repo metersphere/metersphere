@@ -8,7 +8,7 @@
     :is-max="isMax"
     :show-btn="showBtn"
     :show-version="showVersion"
-    color="#6D317C"
+    color="#783887"
     background-color="#FCF6EE"
     :if-from-variable-advance="ifFromVariableAdvance"
     :title="$t('api_test.automation.transaction_controller')">
@@ -191,6 +191,6 @@ export default {
 }
 
 .ms-test-running {
-  color: #6D317C;
+  color: #783887;
 }
 </style>

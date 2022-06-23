@@ -2,7 +2,6 @@
   <div>
     <el-menu :unique-opened="true" class="header-user-menu align-right header-top-menu"
              mode="horizontal"
-             :background-color="color"
              text-color="#fff"
              active-text-color="#fff">
       <el-menu-item onselectstart="return false">
@@ -78,9 +77,6 @@ export default {
       totalCount: 0,
       noticeShow: false,
     };
-  },
-  props: {
-    color: String
   },
   created() {
     this.getNotifications();
@@ -223,7 +219,7 @@ export default {
 }
 
 .global {
-  color: #fff;
+  color: var(--color);
 }
 
 .header-top-menu {

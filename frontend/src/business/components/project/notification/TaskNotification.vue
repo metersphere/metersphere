@@ -201,7 +201,7 @@ export default {
 
 <style scoped>
 .task-notification {
-  height: calc(100vh - 230px);
+  height: calc(100vh - 190px);
   overflow: auto;
 }
 

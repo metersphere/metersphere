@@ -127,7 +127,7 @@ export default {
     enable_settings: '启用设置',
     view_settings: '显示设置',
     functional: '功能测试',
-    my_workstation: '我的工作台',
+    my_workstation: '工作台',
     ui_test: 'UI测试',
     input_content: '请输入内容',
     create: '新建',

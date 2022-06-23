@@ -146,7 +146,7 @@ export default {
           {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
         ]
       },
-      screenHeight: 'calc(100vh - 195px)',
+      screenHeight: 'calc(100vh - 155px)',
       multipleSelection: [],
       currentPage: 1,
       pageSize: 10,

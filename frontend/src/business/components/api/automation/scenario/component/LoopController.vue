@@ -381,7 +381,7 @@ export default {
 }
 
 .ms-test-running {
-  color: #6D317C;
+  color: #783887;
 }
 
 .ms-step-debug-code {

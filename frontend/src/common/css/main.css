@@ -69,6 +69,9 @@ body {
   --color_shallow: '';
   --count_number: '';
   --count_number_shallow: '';
+  --asideWidth: 44px;
+  --asideOpenWidth: 150px;
+  --asideOpenMargin: 114px;
 }
 
 /* 解决 document.body.clientHeight 为0 */

@@ -122,7 +122,7 @@ export default {
     view: 'view',
     follow_api: 'Follow API definition',
     response_time_delay: 'Response delay time',
-    my_workstation: 'MyWorkstation',
+    my_workstation: 'Workstation',
     ui_test: 'UiTest',
     performance: 'Performance',
     enable_settings: 'Enable Settings',
