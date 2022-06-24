@@ -19,6 +19,7 @@ import TestCaseReviewEdit from "./components/TestCaseReviewEdit";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsContainer from "../../common/components/MsContainer";
 import {getCurrentProjectID} from "@/common/js/utils";
+import {TEST_REVIEW} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "TestCaseReview",
@@ -29,9 +30,7 @@ export default {
     TestCaseReviewEdit
   },
   data() {
-    return {
-
-    }
+    return {}
   },
   computed: {
     projectId() {
@@ -39,14 +38,14 @@ export default {
     },
   },
   mounted() {
-    if (this.$route.path.indexOf("/track/review/create") >= 0){
+    if (this.$route.path.indexOf("/track/review/create") >= 0) {
       this.openCaseReviewEditDialog();
       this.$router.push('/track/review/all');
     }
   },
   watch: {
     '$route'(to) {
-      if (to.path.indexOf("/track/review/create") >= 0){
+      if (to.path.indexOf("/track/review/create") >= 0) {
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
@@ -61,7 +60,7 @@ export default {
       this.$refs.caseReviewEditDialog.openCaseReviewEditDialog(data);
     },
     refreshCaseReviewList() {
-      this.$refs.caseReviewList.condition = {};
+      this.$refs.caseReviewList.condition = {TEST_REVIEW};
       this.$refs.caseReviewList.initTableData();
     }
   }

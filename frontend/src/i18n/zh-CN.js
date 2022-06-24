@@ -316,6 +316,8 @@ export default {
       reset: "重置",
       and: '所有',
       or: '任意一个',
+      add_filter_link: '添加筛选条件',
+      add_filter_link_tip: '有为空的查询条件，请先选择！',
       operators: {
         is_empty: "空",
         is_not_empty: "非空",

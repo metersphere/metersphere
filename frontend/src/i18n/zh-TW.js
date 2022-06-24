@@ -316,6 +316,8 @@ export default {
       reset: "重置",
       and: '所有',
       or: '任意一個',
+      add_filter_link: '添加篩選條件',
+      add_filter_link_tip: '有為空的查詢條件，請先選擇！',
       operators: {
         is_empty: "空",
         is_not_empty: "非空",

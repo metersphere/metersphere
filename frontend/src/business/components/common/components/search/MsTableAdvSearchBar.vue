@@ -16,7 +16,7 @@
           </el-row>
         </div>
         <el-link type="primary" icon="el-icon-plus" v-if="showAddFilterLink"
-                 class="add-filter-link" @click="addFilter">添加筛选条件</el-link>
+                 class="add-filter-link" @click="addFilter">{{ $t('commons.adv_search.add_filter_link') }}</el-link>
       </div>
       <template v-slot:footer>
         <div class="dialog-footer">
@@ -157,8 +157,8 @@ export default {
       }
       // 默认显示几个搜索条件
       this.optional.components = slice(this.optional.components, 0, this.showItemSize);
-      const all = concat(this.config.components[0].child, this.config.components[1].child);
-      let allComponent = this.condition.custom ? all : this.config.components;
+      let allComponent = this.condition.custom ?
+        concat(this.config.components[0].child, this.config.components[1].child) : this.config.components;
       for (let component of allComponent) {
         let co = _findByKey(this.optional.components, component.key);
         co ? this.$set(co, 'disable', true) : this.$set(component, 'disable', false);
@@ -174,7 +174,7 @@ export default {
     addFilter() {
       const index = _findIndexByKey(this.optional.components, this.nullFilterKey);
       if (index > -1) {
-        this.$warning("有为空的查询条件，请先选择！")
+        this.$warning(this.$t('commons.adv_search.add_filter_link'));
         return;
       }
       let data = {
