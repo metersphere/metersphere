@@ -198,7 +198,7 @@ export const API_CASE_RESULT = {
 }
 // 场景执行结果
 export const API_SCENARIO_RESULT = {
-  key: "status",
+  key: "lastResult",
   name: 'MsTableSearchSelect',
   label: 'test_track.plan_view.execute_result',
   operator: {
@@ -560,7 +560,64 @@ export const CASE_COUNT = {
   },
 }
 
-export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
+export const STEP_COUNT = {
+  key: "stepCount",
+  name: 'MsTableSearchInputNumber',
+  label: 'api_test.automation.step',
+  operator: {
+    options: [OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
+
+// 测试计划 实际开始时间
+export const ACTUAL_START_TIME = {
+  key: "actualStartTime",
+  name: 'MsTableSearchDateTimePicker',
+  label: 'test_track.plan.actual_start_time',
+  operator: {
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
+// 测试计划 实际结束时间
+export const ACTUAL_END_TIME = {
+  key: "actualEndTime",
+  name: 'MsTableSearchDateTimePicker',
+  label: 'test_track.plan.actual_end_time',
+  operator: {
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
+
+// 测试计划 计划开始时间
+export const PLAN_START_TIME = {
+  key: "planStartTime",
+  name: 'MsTableSearchDateTimePicker',
+  label: 'test_track.plan.planned_start_time',
+  operator: {
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
+
+// 测试计划 计划结束时间
+export const PLAN_END_TIME = {
+  key: "planEndTime",
+  name: 'MsTableSearchDateTimePicker',
+  label: 'test_track.plan.planned_end_time',
+  operator: {
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
+// 测试评审 截止时间
+export const END_TIME = {
+  key: "endTime",
+  name: 'MsTableSearchDateTimePicker',
+  label: 'test_track.review.end_time',
+  operator: {
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+  },
+}
+
+export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR, FOLLOW_PEOPLE];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
 
@@ -573,13 +630,16 @@ export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS
 // 测试跟踪-测试用例 列表
 export const TEST_CASE_CONFIGS = [NAME, TAGS, MODULE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE];
 
-export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];
+export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE, TAGS, FOLLOW_PEOPLE, ACTUAL_START_TIME, ACTUAL_END_TIME, PLAN_START_TIME, PLAN_END_TIME];
+
+// 测试跟踪 测试评审列表
+export const TEST_REVIEW = [NAME, CREATOR, TAGS, TEST_PLAN_STATUS, FOLLOW_PEOPLE, CREATE_TIME, UPDATE_TIME, END_TIME];
 
 export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, ISREFERENCE, MODULE, FOLLOW_PEOPLE, CASE_COUNT];
 
 export const API_CASE_CONFIGS = [NAME, PRIORITY, TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, ISREFERENCE, FOLLOW_PEOPLE, API_PATH];
 
-export const API_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
+export const API_SCENARIO_CONFIGS = [NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, FOLLOW_PEOPLE, STEP_COUNT, MODULE, API_STATUS];
 
 export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME, CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_REPORT_STATUS];
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-select class="search-label" v-model="selectKey" v-if="!custom"
-               filterable placeholder="请选择" size="small">
+               filterable :placeholder="$t('commons.please_select')" size="small">
       <el-option
         v-for="item in components"
         :disabled="item.disable !== undefined ? item.disable : true"
@@ -12,7 +12,7 @@
       </el-option>
     </el-select>
     <el-select class="search-label" v-model="selectKey" v-else
-               filterable placeholder="请选择" size="small">
+               filterable :placeholder="$t('commons.please_select')" size="small">
       <el-option-group
         v-for="group in components"
         :key="group.key"

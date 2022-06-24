@@ -27,5 +27,7 @@ export default {
 </script>
 
 <style scoped>
-
+/deep/ .el-input-number--small {
+  width: 100%;
+}
 </style>

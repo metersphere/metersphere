@@ -78,6 +78,30 @@
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
+        <if test="${condition}.actualStartTime != null">
+            and test_plan.actual_start_time
+            <include refid="condition">
+                <property name="object" value="${condition}.actualStartTime"/>
+            </include>
+        </if>
+        <if test="${condition}.actualEndTime != null">
+            and test_plan.actual_end_time
+            <include refid="condition">
+                <property name="object" value="${condition}.actualEndTime"/>
+            </include>
+        </if>
+        <if test="${condition}.planStartTime != null">
+            and test_plan.planned_start_time
+            <include refid="condition">
+                <property name="object" value="${condition}.planStartTime"/>
+            </include>
+        </if>
+        <if test="${condition}.planEndTime != null">
+            and test_plan.planned_end_time
+            <include refid="condition">
+                <property name="object" value="${condition}.planEndTime"/>
+            </include>
+        </if>
         <if test="${condition}.status != null">
             and test_plan.status
             <include refid="condition">
@@ -100,6 +124,19 @@
             and test_plan.creator
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
+            and (test_plan.tags is null or test_plan.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+            and test_plan.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
             </include>
         </if>
         <if test="${condition}.principal != null">
@@ -128,6 +165,7 @@
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>
                     <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
             <if test="request.name != null">

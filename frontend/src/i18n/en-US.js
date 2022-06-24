@@ -315,6 +315,8 @@ export default {
       reset: "Reset",
       and: 'All',
       or: 'any one',
+      add_filter_link: 'Add filter',
+      add_filter_link_tip: 'There are empty query conditions, please select first!',
       operators: {
         is_empty: "Is empty",
         is_not_empty: "Is not empty",

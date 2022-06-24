@@ -146,6 +146,7 @@ import {TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
+import {TEST_REVIEW} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "TestCaseReviewList",
@@ -168,7 +169,9 @@ export default {
       tableLabel: [],
       tableHeaderKey:"TEST_CASE_REVIEW",
       result: {},
-      condition: {},
+      condition: {
+        components: TEST_REVIEW
+      },
       tableData: [],
       isTestManagerOrTestUser: false,
       currentPage: 1,
