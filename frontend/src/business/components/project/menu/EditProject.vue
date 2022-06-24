@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
+    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" v-if="createVisible"
                @close="handleClose">
       <el-form v-loading="result.loading" :model="form" :rules="rules" ref="form" label-position="right" label-width="80px" size="small">
         <el-form-item :label-width="labelWidth" :label="$t('commons.name')" prop="name">
@@ -203,10 +203,10 @@ export default {
     },
     getOptions() {
       if (this.$refs.issueTemplate) {
-        this.$refs.issueTemplate.getTemplateOptions(this.form.id);
+        this.$refs.issueTemplate.getTemplateOptions();
       }
       if (this.$refs.caseTemplate) {
-        this.$refs.caseTemplate.getTemplateOptions(this.form.id);
+        this.$refs.caseTemplate.getTemplateOptions();
       }
     },
     thirdPartTemplateChange(val) {
@@ -214,9 +214,6 @@ export default {
         this.form.issueTemplateId = '';
     },
     edit(row) {
-      if (row) {
-        this.form.id = row.id;
-      }
       this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
