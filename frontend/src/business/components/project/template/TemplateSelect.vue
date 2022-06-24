@@ -47,12 +47,12 @@ export default {
     }
   },
   methods: {
-    getTemplateOptions(id) {
+    getTemplateOptions() {
       let url = 'field/template/case/option/';
       if (this.scene === 'ISSUE') {
         url = 'field/template/issue/option/';
       }
-      let projectId = id ? id : (this.projectId || '');
+      let projectId = this.projectId || '';
       this.$get(url + projectId, (response) => {
         this.templateOptions = response.data;
         this.templateFilterOptions = this.templateOptions;
