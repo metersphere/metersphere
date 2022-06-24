@@ -30,6 +30,8 @@ public abstract class BaseClient {
                     .build();
             SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
             CloseableHttpClient httpClient = HttpClients.custom()
+                    // 可以支持设置系统代理
+                    .useSystemProperties()
                     .setSSLSocketFactory(csf)
                     .build();
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
