@@ -49,4 +49,11 @@ public class ApiKeyFilter extends AnonymousFilter {
 
         return true;
     }
+
+    @Override
+    protected void postHandle(ServletRequest request, ServletResponse response) throws Exception {
+        if (SecurityUtils.getSubject().isAuthenticated()) {
+            SecurityUtils.getSubject().logout();
+        }
+    }
 }
