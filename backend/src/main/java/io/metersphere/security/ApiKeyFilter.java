@@ -52,7 +52,7 @@ public class ApiKeyFilter extends AnonymousFilter {
 
     @Override
     protected void postHandle(ServletRequest request, ServletResponse response) throws Exception {
-        if (SecurityUtils.getSubject().isAuthenticated()) {
+        if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request)) && SecurityUtils.getSubject().isAuthenticated()) {
             SecurityUtils.getSubject().logout();
         }
     }
