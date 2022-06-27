@@ -5,41 +5,52 @@ export function getAdvSearchCustomField(condition, fields) {
   const components = [];
   for (let field of fields) {
     let index = componentArr.findIndex(a => a.key === field.id);
-    if (index > -1) {
+    if (index > -1 || field.id === 'platformStatus') {
       continue;
-    }
-    if (field.id === 'platformStatus') {
-      continue;
-    }
-    const componentType = getComponentName(field.type);
-    let component = {
-      key: field.id,
-      name: componentType,
-      label: field.name,
-      operator: getComponentOperator(componentType, field.type, false), // 自定义字段可以异步获取选项？
-      options: getComponentOptions(field),
-      custom: !field.system,
-      type: field.type
     }
     // 自定义字段中有"系统字段"属性为否的，记录为含有自定义字段
     if (!field.system && !condition.custom) {
       condition.custom = true;
     }
-    // 作为搜索条件时，可以多选
-    if (componentType === 'MsTableSearchSelect') {
-      component['props'] = {
-        multiple: true
-      }
-    }
-    //
-    if (component.type === 'member' || component.type === 'multipleMember') {
-      component['isShow']= operator => {
-        return operator !== OPERATORS.CURRENT_USER.value;
-      }
-    }
-    components.push(component);
+    components.push(_createComponent(field));
   }
   return components;
+}
+
+function _createComponent(field) {
+  const componentType = getComponentName(field.type);
+  let component = {
+    key: field.id,
+    name: componentType,
+    label: field.name,
+    operator: getComponentOperator(componentType, field.type, false), // 自定义字段可以异步获取选项？
+    options: getComponentOptions(field),
+    custom: !field.system,
+    type: field.type
+  }
+  _handleComponentAttributes(component, componentType);
+  return component;
+}
+
+function _handleComponentAttributes(component, componentType) {
+  // 作为搜索条件时，可以多选
+  if (componentType === 'MsTableSearchSelect') {
+    component['props'] = {
+      multiple: true
+    }
+  }
+  // 浮点数精度
+  if (componentType === 'MsTableSearchInputNumber' && component.type === 'float') {
+    component['props'] = {
+      precision: 2
+    }
+  }
+  //
+  if (component.type === 'member' || component.type === 'multipleMember') {
+    component['isShow']= operator => {
+      return operator !== OPERATORS.CURRENT_USER.value;
+    }
+  }
 }
 
 function getComponentOptions(field) {
@@ -65,6 +76,7 @@ function getComponentName(type) {
       return 'MsTableSearchDateTimePicker';
     case 'int':
     case 'float':
+      return 'MsTableSearchInputNumber';
     case 'multipleInput':
       return 'MsTableSearchInput'; // todo 创建对应组件
     default:
@@ -102,6 +114,11 @@ function getComponentOperator(componentType, fieldType, async) {
     case 'MsTableSearchDateTimePicker':
       operator = {
         options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+      }
+      break;
+    case 'MsTableSearchInputNumber':
+      operator = {
+        options: [OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
       }
       break;
   }
