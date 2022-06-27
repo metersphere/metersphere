@@ -10,6 +10,12 @@
     </insert>
     <update id="updateByPrimaryKeySelective">
         update ${tableName}
+        <include refid="updateValueColumn"/>
+        where resource_id = #{record.resourceId,jdbcType=VARCHAR}
+        and field_id = #{record.fieldId,jdbcType=VARCHAR}
+    </update>
+
+    <sql id="updateValueColumn">
         <set>
             <if test="record.value != null">
                 `value` = #{record.value,jdbcType=VARCHAR},
@@ -18,8 +24,28 @@
                 text_value = #{record.textValue,jdbcType=LONGVARCHAR},
             </if>
         </set>
-        where resource_id = #{record.resourceId,jdbcType=VARCHAR}
-        and field_id = #{record.fieldId,jdbcType=VARCHAR}
+    </sql>
+    <update id="batchUpdateByResourceIds">
+        update ${tableName}
+        <include refid="updateValueColumn"/>
+        where resource_id in
+        <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
+            #{resourceId}
+        </foreach>
+    </update>
+    <update id="batchInsertIfNotExists">
+        INSERT INTO ${tableName} (resource_id, field_id, `value`, text_value)
+        SELECT
+            '${record.resourceId}',
+            '${record.fieldId}',
+            '${record.value}',
+            '${record.textValue}'
+        FROM DUAL
+        WHERE NOT EXISTS(
+            select resource_id
+            from ${tableName}
+            where resource_id = #{record.resourceId} and field_id = #{record.fieldId}
+        )
     </update>
     <delete id="deleteByResourceId">
         delete from ${tableName}
