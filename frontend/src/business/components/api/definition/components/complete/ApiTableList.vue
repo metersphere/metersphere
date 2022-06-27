@@ -1,17 +1,18 @@
 <template>
   <span>
     <slot name="header"></slot>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable" class="search-input" size="small"
-              @keyup.enter.native="initTable" v-model="condition.name"/>
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="search" class="search-input" size="small"
+              @keyup.enter.native="search" v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="initTable"/>
+                             @search="search"/>
 
     <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
               :total="total" enableSelection @selectCountChange="selectCountChange"
               :screenHeight="screenHeight"
               operator-width="170px"
-              @refresh="initTable"
+              @order="initTable"
+              @filter="search"
               ref="apitable">
       <ms-table-column
         prop="num"
@@ -233,6 +234,11 @@ export default {
     },
     getSelectIds() {
       return this.$refs.apitable.selectIds;
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.currentPage = 1;
+      this.initTable();
     },
     initTable() {
       this.$emit('refreshTable');

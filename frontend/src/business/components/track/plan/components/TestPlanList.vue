@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="cardResult.loading">
     <template v-slot:header>
       <ms-table-header :create-permission="['PROJECT_TRACK_PLAN:READ+CREATE']" :condition.sync="condition"
-                       @search="initTableData" @create="testPlanCreate"
+                       @search="search" @create="testPlanCreate"
                        :create-tip="$t('test_track.plan.create_plan')"/>
 
     </template>
@@ -22,8 +22,9 @@
       :fields.sync="fields"
       :field-key="tableHeaderKey"
       @handlePageChange="intoPlan"
-      @refresh="initTableData"
+      @order="initTableData"
       ref="testPlanLitTable"
+      @filter="search"
       @handleRowClick="intoPlan">
 
       <span v-for="item in fields" :key="item.key">
@@ -501,6 +502,11 @@ export default {
     customHeader() {
       const list = deepClone(this.tableLabel);
       this.$refs.headerCustom.open(list);
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.currentPage = 1;
+      this.initTableData();
     },
     initTableData() {
       if (this.planId) {
