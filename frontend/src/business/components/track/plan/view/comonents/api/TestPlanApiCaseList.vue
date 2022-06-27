@@ -7,7 +7,7 @@
           :condition="condition"
           :plan-id="planId"
           :plan-status="planStatus"
-          @refresh="initTable"
+          @refresh="search"
           @relevanceCase="$emit('relevanceCase')"
           @setEnvironment="setEnvironment"
           v-if="isPlanModel"/>
@@ -24,11 +24,12 @@
         @handlePageChange="initTable"
         :fields.sync="fields"
         :field-key="tableHeaderKey"
-        @refresh="initTable"
+        @order="initTable"
         :row-order-group-id="planId"
         :row-order-func="editTestPlanApiCaseOrder"
         :enable-order-drag="enableOrderDrag"
         row-key="id"
+        @filter="search"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
           <ms-table-column :field="item" prop="num"
@@ -433,6 +434,7 @@ export default {
       }
     },
     search() {
+      this.currentPage = 1;
       this.initTable();
     },
     buildPagePath(path) {

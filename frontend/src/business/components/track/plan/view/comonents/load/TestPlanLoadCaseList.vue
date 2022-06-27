@@ -7,7 +7,7 @@
             :plan-id="planId"
             :plan-status="planStatus"
             :isShowVersion="false"
-            @refresh="initTable"
+            @refresh="search"
             @relevanceCase="$emit('relevanceCase')"/>
       </template>
 
@@ -27,7 +27,8 @@
         row-key="id"
         :row-order-group-id="planId"
         :row-order-func="editTestPlanLoadCaseOrder"
-        @refresh="initTable"
+        @order="initTable"
+        @filter="search"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
@@ -318,6 +319,10 @@ export default {
       this.$success(this.$t('test_track.plan.load_case.exec'));
       this.initTable();
       this.refreshStatus();
+    },
+    search() {
+      this.currentPage = 1;
+      this.initTable();
     },
     initTable() {
       this.autoCheckStatus();
