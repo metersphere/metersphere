@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.dto.CustomFieldResourceDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,4 +21,8 @@ public interface ExtCustomFieldResourceMapper {
     List<CustomFieldResource> getByResourceIds(@Param("tableName")  String tableName, @Param("resourceIds") List<String> resourceIds);
 
     long countFieldResource(@Param("tableName") String tableName, @Param("resourceId") String resourceId, @Param("fieldId") String field_id);
+
+    int batchUpdateByResourceIds(@Param("tableName") String tableName, @Param("resourceIds") List<String> resourceIds, @Param("record") CustomFieldResourceDTO customField);
+
+    void batchInsertIfNotExists(@Param("tableName") String tableName, @Param("record") CustomFieldResourceDTO customField);
 }

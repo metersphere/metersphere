@@ -15,9 +15,11 @@ import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SubListUtil;
 import io.metersphere.controller.request.customfield.CustomFieldResourceRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.dto.CustomFieldResourceDTO;
 import io.metersphere.track.dto.CustomFieldResourceCompatibleDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -128,6 +130,21 @@ public class CustomFieldResourceService {
 
     protected List<CustomFieldResource> getByResourceId(String tableName, String resourceId) {
         return extCustomFieldResourceMapper.getByResourceId(tableName, resourceId);
+    }
+
+    public void batchUpdateByResourceIds(String tableName, List<String> resourceIds, CustomFieldResourceDTO customField) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+             return;
+        }
+        SubListUtil.dealForSubList(resourceIds, 5000, (subIds) ->
+                extCustomFieldResourceMapper.batchUpdateByResourceIds(tableName, subIds, customField));
+    }
+
+    public void batchInsertIfNotExists(String tableName, List<String> resourceIds, CustomFieldResourceDTO customField) {
+        ServiceUtils.batchOperate(resourceIds, 5000, ExtCustomFieldResourceMapper.class, (resourceId, batchMapper) -> {
+            customField.setResourceId((String) resourceId);
+            ((ExtCustomFieldResourceMapper) batchMapper).batchInsertIfNotExists(tableName, customField);
+        });
     }
 
     protected List<CustomFieldResource>  getByResourceIds(String tableName, List<String> resourceIds) {

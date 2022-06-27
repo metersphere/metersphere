@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.CustomFieldResourceDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,5 +45,13 @@ public class CustomFieldTestCaseService extends CustomFieldResourceService {
 
     public List<CustomFieldResource> getByResourceId(String resourceId) {
         return super.getByResourceId(TABLE_NAME, resourceId);
+    }
+
+    public void batchUpdateByResourceIds(List<String> resourceIds, CustomFieldResourceDTO customField) {
+       super.batchUpdateByResourceIds(TABLE_NAME, resourceIds, customField);
+    }
+
+    public void batchInsertIfNotExists(List<String> ids, CustomFieldResourceDTO customField) {
+        super.batchInsertIfNotExists(TABLE_NAME, ids, customField);
     }
 }

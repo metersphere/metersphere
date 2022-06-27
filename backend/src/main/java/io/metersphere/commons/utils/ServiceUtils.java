@@ -21,10 +21,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
 
 public class ServiceUtils {
@@ -300,6 +297,26 @@ public class ServiceUtils {
     public static SqlSession getBatchSqlSession() {
         SqlSessionFactory sqlSessionFactory = CommonBeanFactory.getBean(SqlSessionFactory.class);
         return sqlSessionFactory.openSession(ExecutorType.BATCH);
+    }
+
+    /**
+     * 批量操作
+     */
+    public static void batchOperate(List data, int batchSize, Class mapperClazz, BiConsumer operateFunc) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+        SqlSessionFactory sqlSessionFactory = CommonBeanFactory.getBean(SqlSessionFactory.class);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        Object mapper = sqlSession.getMapper(mapperClazz);
+        for (int i = 0; i < data.size(); i++) {
+            operateFunc.accept(data.get(i), mapper);
+            if (i % batchSize == 0) {
+                sqlSession.flushStatements();
+            }
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     public static String getCopyName(String name) {

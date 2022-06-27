@@ -1500,6 +1500,9 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> findByBatchRequest(TestCaseBatchRequest request) {
+        if (!request.getCondition().isSelectAll()) {
+            request.getCondition().setIds(request.getIds());
+        }
         return listTestCase(request.getCondition(), true);
     }
 
@@ -1717,6 +1720,7 @@ public class TestCaseService {
         String name = customField.getName();
         String value = JSONObject.parse(customField.getValue()).toString();
         TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
+        testCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
 
         if (StringUtils.equalsAnyIgnoreCase(name, "用例等级")) {
             testCaseWithBLOBs.setPriority(value);
@@ -1733,26 +1737,17 @@ public class TestCaseService {
             if (CollectionUtils.isEmpty(request.getIds())) {
                 return;
             }
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-            List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(request.getIds());
-            for (int i = 0; i < testCases.size(); i++) {
-                TestCaseWithBLOBs testCase = testCases.get(i);
-                customField.setResourceId(testCase.getId());
-                int row = customFieldTestCaseService.updateByPrimaryKeySelective(customField);
-                if (row < 1) {
-                    customFieldTestCaseService.insert(customField);
-                }
-                testCase.setUpdateTime(System.currentTimeMillis());
-                TestCaseExample example = new TestCaseExample();
-                example.createCriteria().andIdEqualTo(testCase.getId());
-                mapper.updateByExampleSelective(testCase, example);
-                if (i % 1000 == 0) {
-                    sqlSession.flushStatements();
-                }
+
+            customFieldTestCaseService.batchUpdateByResourceIds(request.getIds(), customField);
+            // 如果没有字段，则添加
+            customFieldTestCaseService.batchInsertIfNotExists(request.getIds(), customField);
+
+            if (request.getCondition().isSelectAll()) {
+                // 如果全选，去掉这个查询条件，避免ids过长
+                request.getCondition().setIds(null);
             }
-            sqlSession.flushStatements();
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            // 更新修改时间
+            bathUpdateByCondition(request, testCaseWithBLOBs);
         }
 
     }
