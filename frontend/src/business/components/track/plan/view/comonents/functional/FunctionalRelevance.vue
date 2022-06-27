@@ -19,7 +19,7 @@
                  ref="nodeTree"/>
     </template>
 
-    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false">
+    <ms-table-header :condition.sync="page.condition" @search="search" title="" :show-create="false">
       <template v-slot:searchBarBefore>
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
       </template>
@@ -34,7 +34,8 @@
       :screen-height="screenHeight"
       @handlePageChange="getTestCases"
       @selectCountChange="setSelectCounts"
-      @refresh="getTestCases"
+      @order="getTestCases"
+      @filter="search"
       ref="table">
 
       <ms-table-column
@@ -217,6 +218,11 @@ export default {
           this.customNum = data.caseCustomNum;
         }
       });
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.page.currentPage = 1;
+      this.getTestCases();
     },
     getTestCases() {
       let condition = this.page.condition;

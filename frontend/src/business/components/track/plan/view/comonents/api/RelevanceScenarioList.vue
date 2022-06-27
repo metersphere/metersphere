@@ -12,11 +12,11 @@
                  ref="envPopover" class="env-popover"/>
 
 
-    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
-              @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="filterSearch"
+              @keyup.enter.native="filterSearch" class="search-input" size="small" v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="search"/>
+                             @search="filterSearch"/>
     <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" style="float: left;"
                     class="search-input"/>
 
@@ -29,7 +29,8 @@
               :remember-order="true"
               row-key="id"
               :row-order-group-id="projectId"
-              @refresh="search"
+              @order="search"
+              @filter="filterSearch"
               :disable-header-config="true"
               :show-select-all="false"
               @selectCountChange="selectCountChange">
@@ -187,6 +188,10 @@ export default {
     this.getVersionOptions();
   },
   methods: {
+    filterSearch() {
+      this.currentPage = 1;
+      this.search();
+    },
     search() {
       this.projectEnvMap.clear();
       this.projectIds.clear();

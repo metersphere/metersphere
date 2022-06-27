@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
       <ms-table-header :create-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
-                       @search="initTableData" @create="testCaseReviewCreate"
+                       @search="search" @create="testCaseReviewCreate"
                        :create-tip="$t('test_track.review.create_review')"/>
     </template>
 
@@ -289,6 +289,11 @@ export default {
     },
     filter(filters) {
       _filter(filters, this.condition);
+      this.search();
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.currentPage = 1;
       this.initTableData();
     },
     sort(column) {

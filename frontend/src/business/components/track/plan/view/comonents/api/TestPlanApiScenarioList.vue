@@ -6,7 +6,7 @@
           :condition="condition"
           :projectId="projectId"
           :plan-status="planStatus"
-          @refresh="search"
+          @refresh="filterSearch"
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
 
@@ -25,7 +25,8 @@
         row-key="id"
         :row-order-func="editTestPlanScenarioCaseOrder"
         :row-order-group-id="planId"
-        @refresh="search"
+        @order="search"
+        @filter="filterSearch"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
@@ -341,6 +342,11 @@ export default {
     }
   },
   methods: {
+    filterSearch() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.currentPage = 1;
+      this.search();
+    },
     search() {
       initCondition(this.condition,this.condition.selectAll);
       this.loading = true;
