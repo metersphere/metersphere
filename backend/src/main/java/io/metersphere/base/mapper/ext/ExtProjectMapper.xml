@@ -83,6 +83,34 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key == 'tapd_id'">
+                                AND p.platform  = 'Tapd'
+                                AND p.tapd_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'jira_key'">
+                                AND p.platform  = 'Jira':wq:wq;:wq
+                                AND p.jira_key IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'zentao_id'">
+                                AND p.platform  = 'Zentao'
+                                AND p.zentao_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'azure_devops_id'">
+                                AND p.platform = 'AzureDevops'
+                                AND p.azure_devops_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
