@@ -387,9 +387,14 @@ public class APITestService {
             provider.setService(p);
             provider.setServiceInterface(info[0]);
             Map<String, URL> services = providerService.findByService(p);
-            if (services != null && !services.isEmpty()) {
-                String[] methods = services.values().stream().findFirst().get().getParameter(CommonConstants.METHODS_KEY).split(",");
-                provider.setMethods(Arrays.asList(methods));
+            if (services != null && !services.isEmpty() && !CollectionUtils.isEmpty(services.values())) {
+                String parameter = services.values().stream().findFirst().get().getParameter(CommonConstants.METHODS_KEY);
+                if (StringUtils.isNotBlank(parameter)) {
+                    String[] methods = parameter.split(",");
+                    provider.setMethods(Arrays.asList(methods));
+                } else {
+                    provider.setMethods(new ArrayList<>());
+                }
             } else {
                 provider.setMethods(new ArrayList<>());
             }
