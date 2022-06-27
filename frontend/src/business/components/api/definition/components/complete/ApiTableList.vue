@@ -3,14 +3,15 @@
     <slot name="header"></slot>
     <ms-search
       :condition.sync="condition"
-      @search="initTable">
+      @search="search">
     </ms-search>
 
     <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
               :total="total" enableSelection @selectCountChange="selectCountChange"
               :screenHeight="screenHeight"
               operator-width="170px"
-              @refresh="initTable"
+              @order="initTable"
+              @filter="search"
               ref="apitable">
       <ms-table-column
         prop="num"
@@ -234,6 +235,11 @@ export default {
     },
     getSelectIds() {
       return this.$refs.apitable.selectIds;
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.currentPage = 1;
+      this.initTable();
     },
     initTable() {
       this.$emit('refreshTable');

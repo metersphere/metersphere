@@ -4,7 +4,7 @@
 
       <el-card class="table-card">
         <template v-slot:header>
-          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
+          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="search" @create="handleCreate"
                            :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
@@ -30,7 +30,8 @@
           @handlePageChange="getIssues"
           :fields.sync="fields"
           :field-key="tableHeaderKey"
-          @refresh="getIssues"
+          @order="getIssues"
+          @filter="search"
           :custom-fields="issueTemplate.customFields"
           ref="table"
         >
@@ -320,6 +321,11 @@ export default {
       let comp = getAdvSearchCustomField(this.page.condition, this.issueTemplate.customFields);
       this.page.condition.components.push(...comp);
       if (this.$refs.table) this.$refs.table.reloadTable();
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.page.currentPage = 1;
+      this.getIssues();
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
