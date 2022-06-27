@@ -524,7 +524,7 @@ public class ApiDefinitionService {
             criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId())
-                    .andVersionIdEqualTo(request.getVersionId());
+                    .andVersionIdEqualTo(request.getVersionId()).andModuleIdEqualTo(request.getModuleId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
             boolean urlRepeat = config.getUrlRepeatable();
@@ -541,7 +541,7 @@ public class ApiDefinitionService {
         } else {
             example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId()).andVersionIdEqualTo(request.getVersionId());
+                    .andIdNotEqualTo(request.getId()).andVersionIdEqualTo(request.getVersionId()).andModuleIdEqualTo(request.getModuleId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("load_test_already_exists"));
             }

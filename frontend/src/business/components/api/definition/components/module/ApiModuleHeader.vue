@@ -28,7 +28,7 @@
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisApi"/>
-    <api-import :propotal="condition.protocol" ref="apiImport" :moduleOptions="moduleOptions"
+    <api-import :protocol="condition.protocol" ref="apiImport" :moduleOptions="moduleOptions"
                 @refresh="$emit('refresh')"/>
   </div>
 </template>
