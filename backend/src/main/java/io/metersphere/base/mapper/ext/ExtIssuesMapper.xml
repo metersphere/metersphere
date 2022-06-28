@@ -60,6 +60,9 @@
             left join
             project on issues.project_id = project.id
         </if>
+        <if test="request.isCustomSorted and request.customFieldId != null">
+            left join custom_field_issues cfi on issues.id = cfi.resource_id and cfi.field_id = #{request.customFieldId}
+        </if>
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>

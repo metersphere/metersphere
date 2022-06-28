@@ -41,7 +41,7 @@ public class OrderRequest {
         if (StringUtils.isEmpty(script)) {
             return false;
         }
-        Pattern pattern = Pattern.compile("^\\w+$");
+        Pattern pattern = Pattern.compile("^[\\w-]+$");
         Matcher matcher = pattern.matcher(script.toLowerCase());
         return !matcher.find();
     }

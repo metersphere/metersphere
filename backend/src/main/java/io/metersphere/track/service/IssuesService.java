@@ -341,6 +341,14 @@ public class IssuesService {
 
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
+        request.getOrders().forEach(order -> {
+            if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
+                request.setIsCustomSorted(true);
+                request.setCustomFieldId(order.getName().substring(6));
+                order.setPrefix("cfi");
+                order.setName("value");
+            }
+        });
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         Map<String, Set<String>> caseSetMap = getCaseSetMap(issues);
