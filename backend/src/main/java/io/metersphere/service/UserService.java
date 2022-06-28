@@ -9,10 +9,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.CodingUtil;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.WorkspaceRequest;
@@ -162,13 +159,6 @@ public class UserService {
                 }
             }
 
-        }
-    }
-
-    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, int size) {
-        if (quotaService != null) {
-            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap(id -> id, id -> size));
-            quotaService.checkMemberCount(addMemberMap, type);
         }
     }
 
@@ -328,6 +318,7 @@ public class UserService {
     }
 
     public List<User> getUserListWithRequest(io.metersphere.controller.request.UserRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders(), "create_time"));
         return extUserMapper.getUserList(request);
     }
 
@@ -458,32 +449,8 @@ public class UserService {
         return extUserGroupMapper.getMemberList(request);
     }
 
-    public void addMember(AddMemberRequest request) {
-        if (!CollectionUtils.isEmpty(request.getUserIds())) {
-            QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-            if (CollectionUtils.isNotEmpty(request.getUserIds())) {
-                checkQuota(quotaService, "WORKSPACE", Collections.singletonList(request.getWorkspaceId()), request.getUserIds().size());
-            }
-            for (String userId : request.getUserIds()) {
-                UserGroupExample userGroupExample = new UserGroupExample();
-                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
-                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-                if (userGroups.size() > 0) {
-                    MSException.throwException(Translator.get("user_already_exists"));
-                } else {
-                    for (String groupId : request.getGroupIds()) {
-                        UserGroup userGroup = new UserGroup();
-                        userGroup.setGroupId(groupId);
-                        userGroup.setSourceId(request.getWorkspaceId());
-                        userGroup.setUserId(userId);
-                        userGroup.setId(UUID.randomUUID().toString());
-                        userGroup.setUpdateTime(System.currentTimeMillis());
-                        userGroup.setCreateTime(System.currentTimeMillis());
-                        userGroupMapper.insertSelective(userGroup);
-                    }
-                }
-            }
-        }
+    public void addWorkspaceMember(AddMemberRequest request) {
+        this.addGroupMember("WORKSPACE", request.getWorkspaceId(), request.getUserIds(), request.getGroupIds());
     }
 
     public void deleteMember(String workspaceId, String userId) {
@@ -1198,32 +1165,78 @@ public class UserService {
     }
 
     public void addProjectMember(AddMemberRequest request) {
-        if (CollectionUtils.isEmpty(request.getUserIds())) {
-            LogUtil.info("add project member warning, request param user id list empty!");
+        this.addGroupMember("PROJECT", request.getProjectId(), request.getUserIds(), request.getGroupIds());
+    }
+
+    /**
+     * 添加项目｜工作空间成员
+     *
+     * @param type     项目｜工作空间
+     * @param sourceId project_id | workspace_id
+     * @param userIds  成员ID列表
+     * @param groupIds 用户组ID列表
+     */
+    private void addGroupMember(String type, String sourceId, List<String> userIds, List<String> groupIds) {
+        if (!StringUtils.equalsAny(type, "PROJECT", "WORKSPACE") || StringUtils.isBlank(sourceId)
+                || CollectionUtils.isEmpty(userIds) || CollectionUtils.isEmpty(groupIds)) {
+            LogUtil.info("add member warning, please check param!");
             return;
         }
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (CollectionUtils.isNotEmpty(request.getUserIds())) {
-            checkQuota(quotaService, "PROJECT", Collections.singletonList(request.getProjectId()), request.getUserIds().size());
-        }
-        for (String userId : request.getUserIds()) {
-            UserGroupExample userGroupExample = new UserGroupExample();
-            userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getProjectId());
-            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-            if (userGroups.size() > 0) {
-                MSException.throwException(Translator.get("user_already_exists"));
-            } else {
-                for (String groupId : request.getGroupIds()) {
-                    UserGroup userGroup = new UserGroup();
-                    userGroup.setGroupId(groupId);
-                    userGroup.setSourceId(request.getProjectId());
-                    userGroup.setUserId(userId);
-                    userGroup.setId(UUID.randomUUID().toString());
-                    userGroup.setUpdateTime(System.currentTimeMillis());
-                    userGroup.setCreateTime(System.currentTimeMillis());
-                    userGroupMapper.insertSelective(userGroup);
-                }
+        this.checkQuotaOfMemberSize(type, sourceId, userIds);
+        List<String> dbOptionalGroupIds = this.getGroupIdsByType(type, sourceId);
+        for (String userId : userIds) {
+            User user = userMapper.selectByPrimaryKey(userId);
+            if (user == null) {
+                LogUtil.info("add member warning, invalid user id: " + userId);
+                continue;
             }
+            List<String> toAddGroupIds = new ArrayList<>(groupIds);
+            List<String> existGroupIds = this.getUserExistSourceGroup(userId, sourceId);
+            toAddGroupIds.removeAll(existGroupIds);
+            toAddGroupIds.retainAll(dbOptionalGroupIds);
+            for (String groupId : toAddGroupIds) {
+                UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, groupId,
+                        sourceId, System.currentTimeMillis(), System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
+            }
+        }
+    }
+
+    private List<String> getUserExistSourceGroup(String userId, String sourceId) {
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(sourceId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        return userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+    }
+
+    private List<String> getGroupIdsByType(String type, String sourceId) {
+        // 某项目/工作空间下能查看到的用户组
+        List<String> scopeList = Arrays.asList("global", sourceId);
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andScopeIdIn(scopeList)
+                .andTypeEqualTo(type);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        return groups.stream().map(Group::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * 向单个工作空间或单个项目中添加成员时检查成员数量配额
+     *
+     * @param type     PROJECT ｜ WORKSPACE
+     * @param sourceId project_id | workspace_id
+     * @param userIds  添加的用户id
+     */
+    private void checkQuotaOfMemberSize(String type, String sourceId, List<String> userIds) {
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            checkQuota(quotaService, type, Collections.singletonList(sourceId), userIds.size());
+        }
+    }
+
+    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, int size) {
+        if (quotaService != null) {
+            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap(id -> id, id -> size));
+            quotaService.checkMemberCount(addMemberMap, type);
         }
     }
 
