@@ -29,6 +29,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.poi.ss.formula.functions.T;
 import org.mybatis.spring.SqlSessionUtils;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +62,8 @@ public class GroupService {
     private WorkspaceMapper workspaceMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private UserMapper userMapper;
 
     private static final String GLOBAL = "global";
 
@@ -412,47 +415,63 @@ public class GroupService {
     }
 
     public void addGroupUser(EditGroupUserRequest request) {
-        String groupId = request.getGroupId();
-        Group group = groupMapper.selectByPrimaryKey(groupId);
-        List<String> userIds = request.getUserIds();
-        for (String userId : userIds) {
-            UserGroupExample userGroupExample = new UserGroupExample();
-            userGroupExample.createCriteria().andUserIdEqualTo(userId)
-                    .andGroupIdEqualTo(groupId);
-            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-            if (userGroups.size() > 0) {
-                MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
-            } else {
-                this.addGroupUser(group, userId, request.getSourceIds());
+        if (StringUtils.isBlank(request.getGroupId()) || CollectionUtils.isEmpty(request.getUserIds())) {
+            LogUtil.info("add group user warning, please check param!");
+            return;
+        }
+
+        Group group = groupMapper.selectByPrimaryKey(request.getGroupId());
+        if (group == null) {
+            LogUtil.info("add group user warning, group is null. group id: " + request.getGroupId());
+            return;
+        }
+
+        if (StringUtils.equals(group.getType(), UserGroupType.SYSTEM)) {
+            this.addSystemGroupUser(group, request.getUserIds());
+        } else {
+            if (CollectionUtils.isNotEmpty(request.getSourceIds())) {
+                this.addNotSystemGroupUser(group, request.getUserIds(), request.getSourceIds());
             }
         }
     }
 
-    private void addGroupUser(Group group, String userId, List<String> sourceIds) {
-        String id = group.getId();
-        String type = group.getType();
-        if (StringUtils.equals(type, UserGroupType.SYSTEM)) {
-            UserGroup userGroup = new UserGroup();
-            userGroup.setId(UUID.randomUUID().toString());
-            userGroup.setUserId(userId);
-            userGroup.setGroupId(id);
-            userGroup.setSourceId("system");
-            userGroup.setCreateTime(System.currentTimeMillis());
-            userGroup.setUpdateTime(System.currentTimeMillis());
-            userGroupMapper.insertSelective(userGroup);
-        } else {
-            QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+    private void addSystemGroupUser(Group group, List<String> userIds) {
+        for (String userId : userIds) {
+            User user = userMapper.selectByPrimaryKey(userId);
+            if (user == null) {
+                continue;
+            }
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdEqualTo(group.getId());
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+            if (userGroups.size() <= 0) {
+                UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, group.getId(),
+                        "system", System.currentTimeMillis(), System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
+            }
+        }
+    }
+
+    private void addNotSystemGroupUser(Group group, List<String> userIds, List<String> sourceIds) {
+        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
+        for (String userId : userIds) {
+            User user = userMapper.selectByPrimaryKey(userId);
+            if (user == null) {
+                continue;
+            }
+            checkQuota(quotaService, group.getType(), sourceIds, 1);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
-            checkQuota(quotaService, type, sourceIds, 1);
-            for (String sourceId : sourceIds) {
-                UserGroup userGroup = new UserGroup();
-                userGroup.setId(UUID.randomUUID().toString());
-                userGroup.setUserId(userId);
-                userGroup.setGroupId(id);
-                userGroup.setSourceId(sourceId);
-                userGroup.setCreateTime(System.currentTimeMillis());
-                userGroup.setUpdateTime(System.currentTimeMillis());
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdEqualTo(group.getId());
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+            List<String> existSourceIds = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            List<String> toAddSourceIds = new ArrayList<>(sourceIds);
+            toAddSourceIds.removeAll(existSourceIds);
+
+            for (String sourceId : toAddSourceIds) {
+                UserGroup userGroup = new UserGroup(UUID.randomUUID().toString(), userId, group.getId(),
+                        sourceId, System.currentTimeMillis(), System.currentTimeMillis());
                 mapper.insertSelective(userGroup);
             }
             sqlSession.flushStatements();

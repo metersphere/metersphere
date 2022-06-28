@@ -14,4 +14,5 @@ public class UserRequest {
 
     boolean selectAll;
     List<String> unSelectIds;
+    private List<OrderRequest> orders;
 }

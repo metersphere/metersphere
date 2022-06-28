@@ -12,6 +12,8 @@
       <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
                 @select-all="handleSelectAll"
                 @select="handleSelect"
+                @sort-change="sort"
+                :header-cell-class-name="handleHeadAddClass"
                 :height="screenHeight"
                 ref="userTable">
         <el-table-column type="selection" width="50"/>
@@ -37,7 +39,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="email" :label="$t('commons.email')"/>
-        <el-table-column prop="status" :label="$t('commons.status')" width="120">
+        <el-table-column prop="status" :label="$t('commons.status')" width="120" sortable="custom">
           <template v-slot:default="scope">
             <el-switch :disabled="currentUserId === scope.row.id" v-model="scope.row.status"
                        inactive-color="#DCDFE6"
@@ -47,7 +49,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable="custom">
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
@@ -120,7 +122,7 @@ import UserImport from "@/business/components/settings/system/components/UserImp
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {
   _handleSelect,
-  _handleSelectAll,
+  _handleSelectAll, _sort,
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection
@@ -492,19 +494,48 @@ export default {
       param.condition = this.condition;
       return param;
     },
+    sort(column) {
+      if (this.condition.orders) {
+        let index = this.condition.orders.findIndex(o => o.name.replace('_', '').toLowerCase() === column.column.property.toLowerCase());
+        if (index !== -1) {
+          this.condition.orders.splice(index, 1);
+        }
+      }
+      _sort(column, this.condition);
+      this.clearSelectRows();
+      this.search();
+    },
+    handleHeadAddClass({column}) {
+      if (!column || !column.property || !column.sortable || !this.condition.orders) {
+        return;
+      }
+      let order = this.condition.orders.find(o => o.name.replace('_', '').toLowerCase() === column.property.toLowerCase());
+      if (!order) {
+        return;
+      }
+      if (!order.type) {
+        column.order = '';
+      } else {
+        column.order = order.type === 'desc' ? 'descending' : 'ascending';
+      }
+    },
+    clearSelectRows() {
+      this.selectRows.clear();
+      this.selectIds = [];
+      if(!this.condition.selectAll){
+        this.condition.selectAll = false;
+        this.condition.unSelectIds = [];
+      }
+      this.selectDataCounts = 0;
+      if (this.$refs.userTable) {
+        this.$refs.userTable.clearSelection();
+      }
+    },
   }
 }
 </script>
 
 <style scoped>
-/*/deep/ .el-table__fixed-right {*/
-/*  height: 100% !important;*/
-/*}*/
-
-/*/deep/ .el-table__fixed {*/
-/*  height: 110px !important;*/
-/*}*/
-
 /deep/ .ms-select-all-fixed th:first-child.el-table-column--selection {
   margin-top: 0px;
 }
