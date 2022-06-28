@@ -129,9 +129,11 @@
          </ms-table-column>
 
           <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
-                           :filters="getCustomFieldFilter(field)"
+                           :filters="field.name === '状态'? i18nCustomStatus(getCustomFieldFilter(field)) : getCustomFieldFilter(field)"
+                           sortable="custom"
                            :field="item"
                            :fields-width="fieldsWidth"
+                           min-width="120"
                            :label="field.system ? $t(systemNameMap[field.name]) :field.name"
                            :column-key="'custom' + field.id"
                            :prop="field.name">
@@ -295,6 +297,14 @@ export default {
       }
       return Array.isArray(field.options) ?
         (field.options.length > 0 ? field.options : null) : null;
+    },
+    i18nCustomStatus(options) {
+      let i18ns = [];
+      options.forEach(option => {
+        option.text = this.$t(option.text);
+        i18ns.push(option);
+      })
+      return i18ns;
     },
     initFields(template) {
       this.issueTemplate = template;

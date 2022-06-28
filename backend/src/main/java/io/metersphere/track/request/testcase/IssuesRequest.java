@@ -50,4 +50,13 @@ public class IssuesRequest extends BaseQueryRequest {
     private String defaultCustomFields;
     private Boolean isPlanEdit = false;
     private String planId;
+
+    /**
+     * 是否根据自定义字段进行排序
+     */
+    private Boolean isCustomSorted = false;
+    /**
+     * 自定义字段ID
+     */
+    private String customFieldId;
 }
