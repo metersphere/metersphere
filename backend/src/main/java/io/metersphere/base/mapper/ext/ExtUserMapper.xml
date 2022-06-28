@@ -52,7 +52,12 @@
                 AND u.email like CONCAT('%', #{userRequest.email},'%')
             </if>
         </where>
-        order by u.update_time desc
+        <if test="userRequest.orders != null and userRequest.orders.size() > 0">
+            ORDER BY
+            <foreach collection="userRequest.orders" separator="," item="order">
+                ${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
     <select id="queryTypeByIds" parameterType="java.lang.String" resultType="io.metersphere.notice.domain.UserDetail">
         SELECT

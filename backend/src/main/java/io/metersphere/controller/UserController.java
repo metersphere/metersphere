@@ -99,7 +99,7 @@ public class UserController {
     @PostMapping("/special/ws/member/add")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.userIds,#request.workspaceId)", msClass = UserService.class)
     public void addMemberByAdmin(@RequestBody AddMemberRequest request) {
-        userService.addMember(request);
+        userService.addWorkspaceMember(request);
     }
 
     @GetMapping("/special/ws/member/delete/{workspaceId}/{userId}")
@@ -204,16 +204,11 @@ public class UserController {
     @PostMapping("/ws/member/add")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.CREATE, title = "添加工作空间成员")
     public void addMember(@RequestBody AddMemberRequest request) {
-
-        String wsId = request.getWorkspaceId();
-//        workspaceService.checkWorkspaceOwner(wsId);
-        userService.addMember(request);
+        userService.addWorkspaceMember(request);
     }
 
     @PostMapping("/project/member/add")
-//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, title = "添加项目成员成员")
     public void addProjectMember(@RequestBody AddMemberRequest request) {
-//        workspaceService.checkWorkspaceOwner(wsId);
         userService.addProjectMember(request);
     }
 
@@ -223,7 +218,6 @@ public class UserController {
     @GetMapping("/ws/member/delete/{workspaceId}/{userId}")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.DELETE, title = "删除工作空间成员")
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
-//        workspaceService.checkWorkspaceOwner(workspaceId);
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
             MSException.throwException(Translator.get("cannot_remove_current"));
@@ -232,7 +226,6 @@ public class UserController {
     }
 
     @GetMapping("/project/member/delete/{projectId}/{userId}")
-//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, title = "删除工作空间成员")
     public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
