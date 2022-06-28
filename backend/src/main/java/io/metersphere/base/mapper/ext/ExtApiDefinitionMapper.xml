@@ -1020,20 +1020,24 @@
     </select>
     <sql id="Same_Where_Clause">
         <where>
-            <foreach collection="blobs" item="blob" separator="or">
+            <if test="blobs">
                 <trim prefix="(" prefixOverrides="and" suffix=")">
-                    <if test="blob.method">
-                        and api_definition.method = #{blob.method}
-                    </if>
-                    <if test="blob.path">
-                        and api_definition.path = #{blob.path}
-                    </if>
-                    <if test="blob.projectId">
-                        and api_definition.project_id = #{blob.projectId}
-                    </if>
-                </trim>
+                    <foreach collection="blobs" item="blob" separator="or">
+                        <trim prefix="(" prefixOverrides="and" suffix=")">
+                            <if test="blob.method">
+                                and api_definition.method = #{blob.method}
+                            </if>
+                            <if test="blob.path">
+                                and api_definition.path = #{blob.path}
+                            </if>
+                            <if test="blob.projectId">
+                                and api_definition.project_id = #{blob.projectId}
+                            </if>
+                        </trim>
 
-            </foreach>
+                    </foreach>
+                </trim>
+            </if>
         </where>
     </sql>
 </mapper>
