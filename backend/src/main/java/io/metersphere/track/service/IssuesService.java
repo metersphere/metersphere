@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
@@ -341,6 +342,15 @@ public class IssuesService {
 
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
+        request.getOrders().forEach(order -> {
+            //ordername: custom + custom_field_issues(field_id)
+            if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
+                request.setIsCustomSorted(true);
+                request.setCustomFieldId(order.getName().substring(6));
+                order.setPrefix("cfi");
+                order.setName("value");
+            }
+        });
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         Map<String, Set<String>> caseSetMap = getCaseSetMap(issues);

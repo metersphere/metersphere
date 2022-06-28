@@ -129,9 +129,11 @@
          </ms-table-column>
 
           <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
-                           :filters="getCustomFieldFilter(field)"
+                           :filters="field.name === '状态'? i18nCustomStatus(getCustomFieldFilter(field)) : getCustomFieldFilter(field)"
+                           sortable="custom"
                            :field="item"
                            :fields-width="fieldsWidth"
+                           min-width="120"
                            :label="field.system ? $t(systemNameMap[field.name]) :field.name"
                            :column-key="'custom' + field.id"
                            :prop="field.name">
@@ -196,6 +198,7 @@ import {LOCAL} from "@/common/js/constants";
 import {TEST_TRACK_ISSUE_LIST} from "@/business/components/common/components/search/search-components";
 import {getAdvSearchCustomField} from "@/business/components/common/components/search/custom-component";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
+import i18n from "@/i18n/i18n";
 
 export default {
   name: "IssueList",
@@ -295,6 +298,14 @@ export default {
       }
       return Array.isArray(field.options) ?
         (field.options.length > 0 ? field.options : null) : null;
+    },
+    i18nCustomStatus(options) {
+      let i18ns = [];
+      options.forEach(option => {
+        option.text = i18n.t(option.text);
+        i18ns.push(option);
+      })
+      return i18ns;
     },
     initFields(template) {
       this.issueTemplate = template;
