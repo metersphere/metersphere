@@ -786,17 +786,22 @@
 
     <sql id="Same_Where_Clause">
         <where>
-            <foreach collection="blobs" item="blob" separator="or">
+            <if test="blobs">
                 <trim prefix="(" prefixOverrides="and" suffix=")">
-                    <if test="blob.name">
-                        and api_scenario.name = #{blob.name}
-                    </if>
-                    <if test="blob.projectId">
-                        and api_scenario.project_id = #{blob.projectId}
-                    </if>
-                </trim>
+                    <foreach collection="blobs" item="blob" separator="or">
+                        <trim prefix="(" prefixOverrides="and" suffix=")">
+                            <if test="blob.name">
+                                and api_scenario.name = #{blob.name}
+                            </if>
+                            <if test="blob.projectId">
+                                and api_scenario.project_id = #{blob.projectId}
+                            </if>
+                        </trim>
 
-            </foreach>
+                    </foreach>
+                </trim>
+            </if>
+
         </where>
     </sql>
 
