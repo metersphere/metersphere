@@ -14,9 +14,8 @@
         <template v-slot:default="scope">
           <el-input
             size="mini"
-            class="border-hidden"
+            class="border-hidden sync-textarea"
             type="textarea"
-            :autosize="{ minRows: scope.row.minRows, maxRows: 4}"
             :disabled="true"
             v-model="scope.row.desc"/>
         </template>
@@ -25,25 +24,24 @@
         <template v-slot:default="scope">
           <el-input
             size="mini"
-            class="border-hidden"
+            class="border-hidden sync-textarea"
             type="textarea"
-            :autosize="{ minRows: scope.row.minRows, maxRows: 4}"
             :disabled="true"
-            v-model="scope.row.result"/>
+            v-model="scope.row.result"/>eee
         </template>
-      </el-table-column>
+      </el-table-column>f
       <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
-        <template v-slot:default="scope">
+        G<template v-slot:default="scope">DD
           <el-input
-            class="table-edit-input"
+            v-model="scope.row.actualResult"
+            clearable
             size="mini"
             type="textarea"
-            :autosize="{ minRows: scope.row.minRows, maxRows: 4}"
+            class="table-edit-input sync-textarea"
+            :rows="2"
             :disabled="isReadOnly"
-            @blur="actualResultChange(scope.row)"
-            v-model="scope.row.actualResult"
             :placeholder="$t('commons.input_content')"
-            clearable/>
+            @input="resizeTextarea(scope)"/>
         </template>
       </el-table-column>
       <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
@@ -70,7 +68,7 @@
 </template>
 
 <script>
-import {getCharCountInStr} from "@/common/js/utils";
+import {resizeTextarea} from "@/common/js/utils";
 
 export default {
   name: "TestPlanCaseStepResultsItem",
@@ -80,32 +78,14 @@ export default {
       visible: true
     }
   },
-  mounted() {
-    let step = this.testCase.steptResults;
-    if (step) {
-      step.forEach(item => {
-        let maxCount = Math.max(
-          getCharCountInStr(item.desc, '\n'),
-          getCharCountInStr(item.result, '\n'),
-          getCharCountInStr(item.actualResult, '\n')
-        );
-        let minRows = maxCount + 1;
-        minRows = minRows > 4 ? 4 : minRows;
-        this.$set(item, 'minRows', minRows);
+  watch: {
+    'testCase.steptResults.length'() {
+      this.$nextTick(() => {
+        this.resizeTextarea();
       });
     }
   },
   methods: {
-    actualResultChange(item) {
-      let minRows = getCharCountInStr(item.actualResult, '\n') + 1;
-      if (minRows > item.minRows) {
-        this.$set(item, 'minRows', Math.min(minRows, 4));
-        this.visible = false;
-        this.$nextTick(() => {
-          this.visible = true;
-        });
-      }
-    },
     stepResultChange() {
       if (this.testCase.method === 'manual' || !this.testCase.method) {
         this.isFailure = this.testCase.steptResults.filter(s => {
@@ -115,6 +95,10 @@ export default {
         this.isFailure = false;
       }
     },
+    // 同一行文本框高度保持一致
+    resizeTextarea(scope) {
+      resizeTextarea(3, scope ? scope.$index : null);
+    }
   }
 }
 </script>
@@ -122,5 +106,15 @@ export default {
 <style scoped>
 /deep/ .table-edit-input .el-textarea__inner, .table-edit-input .el-input__inner {
   border-style: solid;
+}
+
+.el-table >>> td:nth-child(2) .cell,.el-table >>> td:nth-child(2),
+.el-table >>> td:nth-child(3) .cell,.el-table >>> td:nth-child(3),
+.el-table >>> td:nth-child(4) .cell,.el-table >>> td:nth-child(4) {
+  padding: 0;
+}
+
+.el-table >>> td:nth-child(1) .cell {
+  text-align: center;
 }
 </style>

@@ -9,35 +9,40 @@
       :default-sort="{prop: 'num', order: 'ascending'}"
       highlight-current-row>
       <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="10%"></el-table-column>
-      <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="35%">
+      <el-table-column
+        :label="$t('test_track.case.step_desc')"
+        prop="desc"
+        min-width="35%">
         <template v-slot:default="scope">
           <el-input
-            class="table-edit-input"
-            size="mini"
-            :disabled="readOnly"
-            type="textarea"
-            :autosize="{ minRows: 1, maxRows: 6}"
-            :rows="2"
             v-model="scope.row.desc"
+            size="mini"
+            type="textarea"
+            class="table-edit-input sync-textarea"
+            :disabled="readOnly"
+            :rows="defaultRows"
             :placeholder="$t('commons.input_content')"
-            clearable/>
+            @input="resizeTextarea(scope)"/>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="35%">
+      <el-table-column
+        :label="$t('test_track.case.expected_results')"
+        prop="result"
+        min-width="35%">
         <template v-slot:default="scope">
           <el-input
-            class="table-edit-input"
-            size="mini"
-            :disabled="readOnly"
-            type="textarea"
-            :autosize="{ minRows: 1, maxRows: 6}"
-            :rows="2"
             v-model="scope.row.result"
+            clearable
+            size="mini"
+            type="textarea"
+            class="table-edit-input sync-textarea"
+            :rows="defaultRows"
+            :disabled="readOnly"
             :placeholder="$t('commons.input_content')"
-            clearable/>
+            @input="resizeTextarea(scope)"/>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('commons.input_content')" min-width="30%">
+      <el-table-column :label="$t('commons.operating')" min-width="30%">
         <template v-slot:default="scope">
           <el-button
             type="primary"
@@ -64,12 +69,20 @@
 </template>
 
 <script>
+
+import {resizeTextarea} from "@/common/js/utils";
+
 export default {
   name: "TestCaseStepItem",
   props: {
     labelWidth: String,
     form: Object,
     readOnly: Boolean
+  },
+  data() {
+    return {
+      defaultRows: 2
+    }
   },
   created() {
     if (!this.form.steps || this.form.steps.length < 1) {
@@ -78,6 +91,13 @@ export default {
         desc: '',
         result: ''
       }];
+    }
+  },
+  watch: {
+    'form.steps'() {
+      this.$nextTick(() => {
+        this.resizeTextarea();
+      });
     }
   },
   methods: {
@@ -113,10 +133,21 @@ export default {
         }
       });
     },
+    // 同一行文本框高度保持一致
+    resizeTextarea(scope) {
+      resizeTextarea(2, scope ? scope.$index : null);
+    }
   }
 }
 </script>
 
 <style scoped>
+.el-table >>> td:nth-child(2) .cell,.el-table >>> td:nth-child(2),
+.el-table >>> td:nth-child(3) .cell,.el-table >>> td:nth-child(3) {
+  padding: 0;
+}
 
+.el-table >>> td:nth-child(1) .cell {
+  text-align: center;
+}
 </style>
