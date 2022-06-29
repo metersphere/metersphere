@@ -344,6 +344,8 @@ export default {
     },
     image: '鏡像',
     tag: '標簽',
+    append_tag: '追加標籤',
+    append_tag_tip: '勾選：新增標籤；不勾選：覆蓋原有標籤；',
     module: {
       select_module: "選擇模塊",
       default_module: "默認模塊",
@@ -2242,7 +2244,12 @@ export default {
     },
     demand: {
       id: '需求ID',
-      name: '需求名稱'
+      name: '需求名稱',
+      batch_relate: '批量關聯需求',
+      relate_is_null_warn: '關聯需求不能為空!',
+      relate_name_is_null_warn: '需求名稱不能為空!',
+      third_platform_demand: "三方平台需求",
+      other_demand: "其他需求"
     },
     step_model: '步驟模型',
     review: {

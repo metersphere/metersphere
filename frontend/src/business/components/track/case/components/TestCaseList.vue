@@ -216,6 +216,8 @@
     <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove" :public-enable="publicEnable"
                 @copyPublic="copyPublic"/>
 
+    <relate-demand ref="relateDemand" @batchRelate="_batchRelateDemand"/>
+
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
 
     <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
@@ -252,12 +254,14 @@ import {
   buildBatchParam,
   deepClone,
   getCustomFieldBatchEditOption,
-  getCustomFieldValue, getCustomTableHeader,
+  getCustomFieldValue,
+  getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
   getPageInfo,
   getTableHeaderWithCustomFields,
-  initCondition, parseCustomFilesForList,
+  initCondition,
+  parseCustomFilesForList,
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
@@ -282,6 +286,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import {getAdvSearchCustomField} from "@/business/components/common/components/search/custom-component";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
+import RelateDemand from "@/business/components/track/case/components/RelateDemand";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -289,6 +294,7 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "TestCaseList",
   components: {
+    RelateDemand,
     MsSearch,
     ListItemDeleteConfirm,
     MsTableAdvSearchBar,
@@ -381,6 +387,10 @@ export default {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatchToGc,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE']
+        },
+        {
+          name: this.$t('test_track.demand.batch_relate'),
+          handleClick: this.openRelateDemand
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
@@ -1117,6 +1127,24 @@ export default {
         }
       });
 
+    },
+    openRelateDemand() {
+      this.$refs.relateDemand.open();
+    },
+    _batchRelateDemand(form) {
+      if (form.demandId !== 'other') {
+        form.demandName = '';
+      }
+      let ids = this.$refs.table.selectIds;
+      let param = {};
+      param.ids = ids;
+      param.condition = this.condition;
+      param.demandId = form.demandId;
+      param.demandName = form.demandName;
+      this.$post('/test/case/batch/relate/demand', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.refresh();
+      });
     },
     handleDeleteBatchToPublic() {
       this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {

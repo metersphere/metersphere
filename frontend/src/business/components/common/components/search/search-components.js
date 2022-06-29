@@ -3,13 +3,16 @@ import MsTableSearchDateTimePicker from "./MsTableSearchDateTimePicker";
 import MsTableSearchDatePicker from "./MsTableSearchDatePicker";
 import MsTableSearchSelect from "./MsTableSearchSelect";
 import MsTableSearchInputNumber from "@/business/components/common/components/search/MsTableSearchInputNumber";
+import {getCurrentProjectID} from "@/common/js/utils";
+import MsTableSearchMix from "@/business/components/common/components/search/MsTableSearchMix";
 
 export default {
   MsTableSearchInput,
   MsTableSearchDatePicker,
   MsTableSearchDateTimePicker,
   MsTableSearchSelect,
-  MsTableSearchInputNumber
+  MsTableSearchInputNumber,
+  MsTableSearchMix
 }
 
 export const OPERATORS = {
@@ -617,6 +620,42 @@ export const END_TIME = {
   },
 }
 
+// 用例需求
+export const CASE_DEMAND = {
+  key: "demand",
+  name: "MsTableSearchMix",
+  label: "test_track.related_requirements",
+  operator: {
+    options: [{
+        label: "test_track.demand.third_platform_demand",
+        value: "third_platform"
+      },
+      {
+        label: "test_track.demand.other_demand",
+        value: "other_platform"
+      }],
+    change: function (component, value) { // 运算符change事件
+      component.showInput = value === 'other_platform';
+      component.value = "";
+    }
+  },
+  reset() { // 重置搜索时执行
+    this.showInput = false;
+  },
+  options: {
+    url: "/issues/demand/list/" + getCurrentProjectID(),
+    labelKey: "name",
+    valueKey: "id",
+    showLabel: option => {
+      return option.label;
+    }
+  },
+  props: {
+    multiple: true,
+    'collapse-tags': true
+  }
+}
+
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR, FOLLOW_PEOPLE];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
@@ -628,7 +667,7 @@ export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_
 export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE];
 
 // 测试跟踪-测试用例 列表
-export const TEST_CASE_CONFIGS = [NAME, TAGS, MODULE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE];
+export const TEST_CASE_CONFIGS = [NAME, TAGS, MODULE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE, CASE_DEMAND];
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE, TAGS, FOLLOW_PEOPLE, ACTUAL_START_TIME, ACTUAL_END_TIME, PLAN_START_TIME, PLAN_END_TIME];
 

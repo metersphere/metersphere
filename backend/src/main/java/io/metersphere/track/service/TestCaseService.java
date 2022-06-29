@@ -2801,4 +2801,35 @@ public class TestCaseService {
             relationshipEdgeService.saveBatch(request);
         }
     }
+
+    public void batchRelateDemand(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return;
+        }
+        String demandId = request.getDemandId();
+        String demandName = request.getDemandName();
+        if (StringUtils.isBlank(demandId) || (StringUtils.equals(demandId, "other") && StringUtils.isBlank(demandName))) {
+            return;
+        }
+        if (!StringUtils.equals(demandId, "other")) {
+            demandName = "";
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+
+        for (TestCase tc : testCaseList) {
+            tc.setDemandId(demandId);
+            tc.setDemandName(demandName);
+            mapper.updateByPrimaryKey(tc);
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
 }

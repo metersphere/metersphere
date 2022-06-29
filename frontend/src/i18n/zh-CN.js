@@ -344,6 +344,8 @@ export default {
     },
     image: '镜像',
     tag: '标签',
+    append_tag: '追加标签',
+    append_tag_tip: '勾选：新增标签；不勾选：覆盖原有标签；',
     module: {
       select_module: "选择模块",
       default_module: "默认模块",
@@ -2248,7 +2250,12 @@ export default {
     },
     demand: {
       id: '需求ID',
-      name: '需求名称'
+      name: '需求名称',
+      batch_relate: '批量关联需求',
+      relate_is_null_warn: '关联需求不能为空!',
+      relate_name_is_null_warn: '需求名称不能为空!',
+      third_platform_demand: "三方平台需求",
+      other_demand: "其他需求"
     },
     step_model: '步骤模型',
     review: {
