@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public class UpdateApiModuleDTO {
     private List<ApiModule> moduleList;
-    private List<ApiDefinitionWithBLOBs> apiDefinitionWithBLOBsList;
+    private List<ApiDefinitionWithBLOBs> needUpdateList;
+    private List<ApiDefinitionWithBLOBs> definitionWithBLOBs;
 
 }

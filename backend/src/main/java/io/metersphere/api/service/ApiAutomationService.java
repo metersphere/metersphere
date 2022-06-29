@@ -76,6 +76,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiAutomationService {
@@ -1336,17 +1338,21 @@ public class ApiAutomationService {
         ApiDefinitionMapper apiDefinitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiScenarioModuleMapper apiScenarioModuleMapper = sqlSession.getMapper(ApiScenarioModuleMapper.class);
 
-        List<ApiScenarioWithBLOBs> data = apiImport.getData();
+        List<ApiScenarioWithBLOBs> initData = apiImport.getData();
         currentScenarioOrder.remove();
 
-        UpdateScenarioModuleDTO updateScenarioModuleDTO = apiScenarioModuleService.checkScenarioModule(request.getModuleId(), request.getProjectId(), data, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule());
+        UpdateScenarioModuleDTO updateScenarioModuleDTO = apiScenarioModuleService.checkScenarioModule(request, initData, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule());
         List<ApiScenarioModule> moduleList = updateScenarioModuleDTO.getModuleList();
-        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBsList = updateScenarioModuleDTO.getApiScenarioWithBLOBsList();
-        for (ApiScenarioModule apiScenarioModule : moduleList) {
-            apiScenarioModuleMapper.insert(apiScenarioModule);
+        List<ApiScenarioWithBLOBs> data = updateScenarioModuleDTO.getApiScenarioWithBLOBsList();
+        List<ApiScenarioWithBLOBs> needUpdateList = updateScenarioModuleDTO.getNeedUpdateList();
+
+        if (moduleList != null) {
+            for (ApiScenarioModule apiScenarioModule : moduleList) {
+                apiScenarioModuleMapper.insert(apiScenarioModule);
+            }
         }
         int num = 0;
-        Project project = new Project();
+        Project project;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             project = projectMapper.selectByPrimaryKey(data.get(0).getProjectId());
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
@@ -1358,7 +1364,7 @@ public class ApiAutomationService {
         for (int i = 0; i < data.size(); i++) {
 
             ApiScenarioWithBLOBs item = data.get(i);
-            List<ApiScenarioWithBLOBs> sameList = apiScenarioWithBLOBsList.stream().filter(t -> t.getName().equals(item.getName())).collect(Collectors.toList());
+            List<ApiScenarioWithBLOBs> sameList = needUpdateList.stream().filter(t -> t.getId().equals(item.getId())).collect(toList());
             if (StringUtils.isBlank(item.getCreateUser())) {
                 item.setCreateUser(SessionUtils.getUserId());
             }
