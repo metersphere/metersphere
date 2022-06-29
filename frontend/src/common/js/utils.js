@@ -12,6 +12,7 @@ import {
 import {jsPDF} from "jspdf";
 import JSEncrypt from 'jsencrypt';
 import i18n from "@/i18n/i18n";
+import calcTextareaHeight from "element-ui/packages/input/src/calcTextareaHeight";
 
 export function hasRole(role) {
   let user = getCurrentUser();
@@ -187,14 +188,6 @@ export function lineToHump(name) {
   });
 }
 
-// 查找字符出现的次数
-export function getCharCountInStr(str, char) {
-  if (!str) return 0;
-  let regex = new RegExp(char, 'g'); // 使用g表示整个字符串都要匹配
-  let result = str.match(regex);
-  let count = !result ? 0 : result.length;
-  return count;
-}
 
 export function downloadFile(name, content) {
   const blob = new Blob([content]);
@@ -529,4 +522,40 @@ export function parseTag(data) {
       item.tags = [];
     }
   });
+}
+
+/**
+ * 同一行的多个文本框高度保持一致
+ * 同时支持 autosize 的功能
+ * @param size 同一行中文本框的个数
+ * @param index 编辑行的下标
+ * 如果编辑某一行，则只调整某一行，提升效率
+ */
+export function resizeTextarea(size = 2, index) {
+  let textareaList = document.querySelectorAll('.sync-textarea .el-textarea__inner');
+  if (index || index === 0)  {
+    _resizeTextarea(index * size, size, textareaList);
+  } else {
+    for (let i = 0; i < textareaList.length; i+=size) {
+      _resizeTextarea(i, size, textareaList);
+    }
+  }
+}
+
+function _resizeTextarea(i, size, textareaList) {
+  // 查询同一行中文本框的最大高度
+  let maxHeight = 0;
+  for (let j = 0; j < size; j++) {
+    let cur = textareaList[i + j];
+    let curHeight = Number.parseInt(calcTextareaHeight(cur).height.replace(/[^\d]/g, ''));
+    maxHeight = Math.max(curHeight, maxHeight);
+  }
+
+  // 将同一行中的文本框设置为最大高度
+  for (let k = 0; k < size; k++) {
+    let cur = textareaList[i + k];
+    if (cur.clientHeight !== maxHeight) {
+      cur.style.height = maxHeight + 'px';
+    }
+  }
 }
