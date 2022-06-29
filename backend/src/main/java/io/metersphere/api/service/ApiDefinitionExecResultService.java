@@ -11,7 +11,6 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
-import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
@@ -497,21 +496,6 @@ public class ApiDefinitionExecResultService {
         if (CollectionUtils.isEmpty(apiReportIds))
             return new ArrayList<>();
         return extApiDefinitionExecResultMapper.selectForPlanReport(apiReportIds);
-    }
-
-    private static List<OrderRequest> getDefaultOrderByField(String prefix, List<OrderRequest> orders, String field) {
-        if (orders == null || orders.size() < 1) {
-            OrderRequest orderRequest = new OrderRequest();
-            orderRequest.setName(field);
-            orderRequest.setType("desc");
-            if (StringUtils.isNotBlank(prefix)) {
-                orderRequest.setPrefix(prefix);
-            }
-            orders = new ArrayList<>();
-            orders.add(orderRequest);
-            return orders;
-        }
-        return orders;
     }
 
     public List<ApiDefinitionExecResultExpand> apiReportList(QueryAPIReportRequest request) {

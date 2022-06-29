@@ -20,6 +20,7 @@
           <span style="margin-left: 10px">{{$t('report.test_end_time')}}：</span>
           <span class="time"> {{ report.endTime | timestampFormatDate }}</span>
         </span>
+        <div style="float: right">
         <el-button v-if="!isPlan && (!debug || exportFlag) && !isTemplate && !isUi" v-permission="['PROJECT_API_REPORT:READ+EXPORT']" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
           {{ $t('test_track.plan_view.export_report') }}
         </el-button>
@@ -52,7 +53,7 @@
         <el-button v-if="showCancelButton" class="export-button" plain  size="mini" @click="returnView" >
           {{$t('commons.cancel')}}
         </el-button>
-
+        </div>
       </el-col>
     </el-row>
   </header>
@@ -136,6 +137,7 @@ export default {
           this.$error(res.data);
         }else{
           this.$success("已经开始重跑，稍后刷新结果查看");
+          this.returnView();
         }
       });
     },
