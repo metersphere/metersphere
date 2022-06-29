@@ -30,7 +30,7 @@
 
 <script>
 import components from "./search-components";
-import {cloneDeep, slice, concat} from "lodash";
+import {cloneDeep, concat, slice} from "lodash";
 import {_findByKey, _findIndexByKey} from "@/business/components/common/components/search/custom-component";
 
 export default {
@@ -144,6 +144,9 @@ export default {
         if (component.value !== undefined) {
           component.value = source[index].value;
         }
+        if (component.reset && component.reset instanceof Function) {
+          component.reset();
+        }
       })
       this.condition.combine = undefined;
       this.$emit('update:condition', this.condition);
@@ -174,7 +177,7 @@ export default {
     addFilter() {
       const index = _findIndexByKey(this.optional.components, this.nullFilterKey);
       if (index > -1) {
-        this.$warning(this.$t('commons.adv_search.add_filter_link'));
+        this.$warning(this.$t('commons.adv_search.add_filter_link_tip'));
         return;
       }
       let data = {

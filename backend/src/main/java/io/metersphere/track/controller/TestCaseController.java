@@ -314,6 +314,12 @@ public class TestCaseController {
         testCaseService.editTestCaseBath(request);
     }
 
+    @PostMapping("/batch/relate/demand")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
+    public void batchRelateDemand(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.batchRelateDemand(request);
+    }
+
     @PostMapping("/batch/copy")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_COPY)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)

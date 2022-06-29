@@ -78,6 +78,17 @@
                 <property name="object" value="${condition}.reviewStatus"/>
             </include>
         </if>
+        <if test="${condition}.demand != null">
+            <if test="${condition}.demand.operator == 'third_platform'">
+                and test_case.demand_id in
+                <foreach collection="${condition}.demand.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </if>
+            <if test="${condition}.demand.operator == 'other_platform'">
+                and test_case.demand_name like CONCAT('%', #{${condition}.demand.value},'%')
+            </if>
+        </if>
         <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
             <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
                 and test_case.id in (

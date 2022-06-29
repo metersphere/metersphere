@@ -343,6 +343,8 @@ export default {
     },
     image: 'Image',
     tag: 'Tag',
+    append_tag: 'Append Tag',
+    append_tag_tip: 'Checked: add a new label; unchecked: overwrite the original label;',
     module: {
       select_module: "Select module",
       default_module: "Default module",
@@ -2036,7 +2038,12 @@ export default {
     other_test_name: 'Other Test Name',
     demand: {
       id: 'Demand ID',
-      name: 'Demand Name'
+      name: 'Demand Name',
+      batch_relate: 'Bulk Association Requirements',
+      relate_is_null_warn: 'The associated requirement cannot be empty!',
+      relate_name_is_null_warn: 'Requirement name cannot be empty!',
+      third_platform_demand: "Third platform demand",
+      other_demand: "Other demand"
     },
     step_model: 'Step Model',
     automatic_status_update: "Automatic Status Update",
