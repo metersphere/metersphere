@@ -10,8 +10,8 @@
         </template>
         <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate"
                    :plan-id="planId" @setSize="setFailureSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
+        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+          {{ $t('api_test.automation.rerun') }}
         </el-button>
       </el-tab-pane>
       <el-tab-pane style="min-height: 500px" name="third" v-if="errorReportEnable">
@@ -20,8 +20,8 @@
         </template>
         <api-cases :is-db="isDb" :is-error-report="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setErrorReportSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
+        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+          {{ $t('api_test.automation.rerun') }}
         </el-button>
 
       </el-tab-pane>
@@ -32,8 +32,8 @@
         <api-cases :is-db="isDb" :is-un-execute="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setUnExecuteSize"/>
 
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
+        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+          {{ $t('api_test.automation.rerun') }}
         </el-button>
       </el-tab-pane>
 
@@ -43,8 +43,8 @@
         </template>
         <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0)" @click="rerun">
-          {{$t('api_test.automation.rerun')}}
+        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+          {{ $t('api_test.automation.rerun') }}
         </el-button>
 
       </el-tab-pane>
@@ -69,12 +69,12 @@ export default {
       activeName: 'first',
       failureSize: 0,
       errorReportSize: 0,
-      unExecuteSize:0,
+      unExecuteSize: 0,
       allSize: 0,
       showRerunBtn: true,
     };
   },
-  created(){
+  created() {
     this.showRerunBtn = hasLicense();
   },
   props: [
@@ -101,6 +101,13 @@ export default {
       let disable = this.report.config && this.report.config.api.children.all.enable === false;
       return !disable;
     },
+    isRerun() {
+      return ((this.report && this.report.apiFailureCases)
+        || (this.report && this.report.unExecuteCases)
+        || (this.report && this.report.scenarioFailureCases)
+        || (this.report && this.report.unExecuteScenarios)
+        || (this.report && this.report.loadFailureCases));
+    }
   },
   watch: {
     resultEnable() {
@@ -137,7 +144,7 @@ export default {
     setErrorReportSize(size) {
       this.errorReportSize = size;
     },
-    setUnExecuteSize(size){
+    setUnExecuteSize(size) {
       this.unExecuteSize = size;
     },
     setAllSize(size) {
@@ -145,7 +152,7 @@ export default {
     },
     handleClick(tab, event) {
     },
-    rerun(){
+    rerun() {
       let type = "TEST_PLAN";
       let scenarios = [];
       let cases = [];
@@ -158,24 +165,23 @@ export default {
         performanceCases: performanceCases
       }
       // 获取需要重跑的用例
-      if(this.report && this.report.apiFailureCases){
-        this.format(cases,this.report.apiFailureCases);
+      if (this.report && this.report.apiFailureCases) {
+        this.format(cases, this.report.apiFailureCases);
       }
-      if(this.report && this.report.unExecuteCases){
-        this.format(cases,this.report.unExecuteCases);
+      if (this.report && this.report.unExecuteCases) {
+        this.format(cases, this.report.unExecuteCases);
       }
       // 获取需要重跑的场景
-      if(this.report && this.report.scenarioFailureCases){
-        this.format(scenarios,this.report.scenarioFailureCases);
+      if (this.report && this.report.scenarioFailureCases) {
+        this.format(scenarios, this.report.scenarioFailureCases);
       }
-      if(this.report && this.report.unExecuteScenarios){
-        this.format(scenarios,this.report.unExecuteScenarios);
+      if (this.report && this.report.unExecuteScenarios) {
+        this.format(scenarios, this.report.unExecuteScenarios);
       }
       // 获取需要重跑的性能用例
-      if(this.report && this.report.loadFailureCases){
-        this.format(performanceCases,this.report.loadFailureCases);
+      if (this.report && this.report.loadFailureCases) {
+        this.format(performanceCases, this.report.loadFailureCases);
       }
-
       this.$post('/api/test/exec/rerun', rerunObj, res => {
         if (res.data !== 'SUCCESS') {
           this.$error(res.data);
@@ -184,11 +190,11 @@ export default {
         }
       });
     },
-    format(cases, datas){
-      if(this.report && datas){
-        datas.forEach(item=>{
-          if(item){
-            let obj = {id: item.id, reportId: item.reportId,userId:item.createUser};
+    format(cases, datas) {
+      if (this.report && datas) {
+        datas.forEach(item => {
+          if (item) {
+            let obj = {id: item.id, reportId: item.reportId, userId: item.createUser};
             cases.push(obj);
           }
         });
@@ -199,13 +205,13 @@ export default {
 </script>
 
 <style scoped>
-  .rerun-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    margin-right: 10px;
-    z-index: 1100;
-    background-color: #F2F9EF;
-    color: #87C45D;
-  }
+.rerun-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin-right: 10px;
+  z-index: 1100;
+  background-color: #F2F9EF;
+  color: #87C45D;
+}
 </style>

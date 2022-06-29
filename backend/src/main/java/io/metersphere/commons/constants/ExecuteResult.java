@@ -12,7 +12,10 @@ public enum ExecuteResult {
     //场景执行状态(兼容旧数据)
     SCENARIO_SUCCESS("Success"), SCENARIO_ERROR("Error"),
     //测试计划执行状态(兼容旧数据)
-    TEST_PLAN_PREPARE("PREPARE"), TEST_PLAN_RUNNING("RUNNING");
+    TEST_PLAN_PREPARE("PREPARE"), TEST_PLAN_RUNNING("RUNNING"),
+
+    FAIL("fail");
+
     private String value;
 
     ExecuteResult(String value) {
@@ -24,4 +27,7 @@ public enum ExecuteResult {
         return this.value;
     }
 
+    public String getValue() {
+        return this.value;
+    }
 }

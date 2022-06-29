@@ -22,10 +22,15 @@ public class RequestResultExpandDTO extends RequestResult {
     public RequestResultExpandDTO() {
     }
 
+    public RequestResultExpandDTO(String name, String status) {
+        this.setName(name);
+        this.setStatus(status);
+    }
+
     public RequestResultExpandDTO(ApiScenarioReportResultWithBLOBs requestResult) {
-        if(requestResult.getBaseInfo() != null){
+        if (requestResult.getBaseInfo() != null) {
             try {
-                ApiScenarioReportBaseInfoDTO dto = JSONObject.parseObject(requestResult.getBaseInfo(),ApiScenarioReportBaseInfoDTO.class);
+                ApiScenarioReportBaseInfoDTO dto = JSONObject.parseObject(requestResult.getBaseInfo(), ApiScenarioReportBaseInfoDTO.class);
                 this.setName(dto.getReqName());
                 this.setSuccess(dto.isReqSuccess());
                 this.setError(dto.getReqError());
@@ -39,8 +44,8 @@ public class RequestResultExpandDTO extends RequestResult {
                 responseResult.setResponseCode(dto.getRspCode());
                 responseResult.setResponseTime(dto.getRspTime());
                 this.setResponseResult(responseResult);
-            }catch (Exception e){
-                LogUtil.error("Parse report base-info error :"+ e.getMessage());
+            } catch (Exception e) {
+                LogUtil.error("Parse report base-info error :" + e.getMessage());
             }
         }
     }
