@@ -56,7 +56,7 @@
     </ms-aside-container>
     <ms-main-container>
       <el-card v-if="showResponse">
-        <ms-request-result-tail :response="response" ref="debugResult"/>
+        <ms-request-result-tail :response="response" ref="debugResult" :is-test-plan="showResponse"/>
       </el-card>
       <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>

@@ -3,15 +3,23 @@
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
         <ms-sql-result-table v-if="isSqlType && activeName === 'body'" :body="responseResult.body"/>
-        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'" :mode="mode" :read-only="true" :modes="modes" :data.sync="responseResult.body" ref="codeEdit"/>
+        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'" :mode="mode" :read-only="true"
+                      :modes="modes" :data.sync="responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.headers" v-if="activeName === 'headers'"/>
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.headers"
+                      v-if="activeName === 'headers'"/>
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console" v-if="activeName === 'console'"/>
+      <el-tab-pane v-if="isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console"
+                      v-if="activeName === 'console'" height="calc(100vh - 300px)"/>
+      </el-tab-pane>
+
+      <el-tab-pane v-if="!isTestPlan" :label="$t('api_test.definition.request.console')" name="console" class="pane">
+        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.console"
+                      v-if="activeName === 'console'"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
@@ -56,6 +64,12 @@ export default {
   props: {
     response: Object,
     currentProtocol: String,
+    isTestPlan: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    }
   },
 
   data() {
