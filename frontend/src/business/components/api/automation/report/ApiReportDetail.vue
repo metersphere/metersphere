@@ -205,7 +205,7 @@
         this.showRerunButton = false;
       },
       rerunVerify() {
-        if (hasLicense() && this.fullTreeNodes && this.fullTreeNodes.length > 0) {
+        if (hasLicense() && this.fullTreeNodes && this.fullTreeNodes.length > 0 && !this.isShare) {
           this.fullTreeNodes.forEach(item => {
               item.redirect = true;
               if (item.totalStatus === 'fail' || item.unExecuteTotal > 0
