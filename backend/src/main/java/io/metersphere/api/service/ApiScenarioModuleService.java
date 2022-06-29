@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -472,111 +473,161 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     /**
      * 上传文件时对文件的模块进行检测
      *
-     * @param moduleId        上传文件时选的模块ID
-     * @param projectId
      * @param data
      * @param fullCoverage    是否覆盖接口
      * @param fullCoverageApi 是否更新当前接口所在模块
      * @return Return to the newly added module map
      */
-    public UpdateScenarioModuleDTO checkScenarioModule(String moduleId, String projectId, List<ApiScenarioWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageApi) {
-        Map<String, ApiScenarioModule> map = new HashMap<>();
-        Map<String, ApiScenarioWithBLOBs> updateMap = new HashMap<>();
+    public UpdateScenarioModuleDTO checkScenarioModule(ApiTestImportRequest request, List<ApiScenarioWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageApi) {
+        //需要新增的模块，key 为模块路径
+        Map<String, ApiScenarioModule> moduleMap = new HashMap<>();
+        List<ApiScenarioWithBLOBs> toUpdateList = new ArrayList<>();
+
+        //上传文件时选的模块ID
+        String chooseModuleId = request.getModuleId();
+        String projectId = request.getProjectId();
+
         //获取当前项目的当前协议下的所有模块的Tree
         List<ApiScenarioModuleDTO> scenarioModules = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         List<ApiScenarioModuleDTO> nodeTreeByProjectId = this.getNodeTrees(scenarioModules);
+
+        Map<String, ApiScenarioModuleDTO> idModuleMap = scenarioModules.stream().collect(Collectors.toMap(ApiScenarioModuleDTO::getId, scenarioModuleDTO -> scenarioModuleDTO));
+
         Map<String, List<ApiScenarioModule>> pidChildrenMap = new HashMap<>();
         Map<String, String> idPathMap = new HashMap<>();
-        Map<String, ApiScenarioModuleDTO> idModuleMap = scenarioModules.stream().collect(Collectors.toMap(ApiScenarioModuleDTO::getId, scenarioModuleDTO -> scenarioModuleDTO));
-        buildProcessData(nodeTreeByProjectId, pidChildrenMap, idPathMap);
-
-        Map<String, ApiScenarioWithBLOBs> nameMap = data.stream().collect(Collectors.toMap(ApiScenario::getName, apiScenario -> apiScenario));
-
+        //构建以上两种数据
+        String initParentModulePath = "/root";
+        Map<String, String> initParentModulePathMap = new HashMap<>();
+        initParentModulePathMap.put("root", initParentModulePath);
+        buildProcessData(nodeTreeByProjectId, pidChildrenMap, idPathMap, initParentModulePathMap);
 
         ApiScenarioModuleDTO chooseModule = null;
-        if (moduleId != null) {
-            chooseModule = idModuleMap.get(moduleId);
+        if (chooseModuleId != null) {
+            chooseModule = idModuleMap.get(chooseModuleId);
         }
+
+        String updateVersionId = getUpdateVersionId(request, fullCoverage);
+
+        List<ApiScenarioWithBLOBs> optionData = new ArrayList<>();
+
+        //覆盖模式留重复的最后一个，不覆盖留第一个
+        LinkedHashMap<String, List<ApiScenarioWithBLOBs>> nameModuleMapList = data.stream().collect(Collectors.groupingBy(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
+        removeRepeat(fullCoverage, optionData, nameModuleMapList);
+
+        //处理模块
+        setModule(optionData, moduleMap, pidChildrenMap, idPathMap, idModuleMap, chooseModule);
+
+        //系统内重复的数据
         List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs;
-
         if (chooseModule != null) {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(data, chooseModule.getId());
+            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(data, projectId, chooseModule.getId(), updateVersionId);
         } else {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(data);
+            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(data, projectId, updateVersionId);
         }
 
+        Map<String, ApiScenarioWithBLOBs> nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), scenario -> scenario));
+        Map<String, ApiScenarioWithBLOBs> repeatDataMap = null;
+        if (!repeatApiScenarioWithBLOBs.isEmpty()) {
+            repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+        }
+        //处理数据
         if (fullCoverage) {
             if (fullCoverageApi) {
-                coverScenarioModule(updateMap, nameMap, repeatApiScenarioWithBLOBs);
+                startCoverModule(toUpdateList, nameModuleMap, repeatDataMap);
             } else {
-                //只覆盖场景
-                justCoverScenario(updateMap, nameMap, repeatApiScenarioWithBLOBs);
+                //覆盖但不覆盖模块
+                if (repeatDataMap != null) {
+                    //导入文件没有新增场景无需创建接口模块
+                    moduleMap = judgeModuleMap(moduleMap, nameModuleMap, repeatDataMap);
+                    startCover(toUpdateList, nameModuleMap, repeatDataMap);
+                }
             }
         } else {
             //不覆盖
-            if (!repeatApiScenarioWithBLOBs.isEmpty()) {
-                Map<String, ApiScenarioWithBLOBs> collect = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(ApiScenario::getName, scenario -> scenario));
-                collect.forEach((k, v) -> {
-                    if (nameMap.get(k) != null) {
-                        nameMap.remove(k);
-                    }
-                });
-            }
-            setModule(nameMap, map, pidChildrenMap, idPathMap, idModuleMap, chooseModule);
+            removeRepeat(optionData, nameModuleMap, repeatDataMap);
         }
 
         UpdateScenarioModuleDTO updateScenarioModuleDTO = new UpdateScenarioModuleDTO();
-        updateScenarioModuleDTO.setModuleList((List<ApiScenarioModule>) map.values());
-        updateScenarioModuleDTO.setApiScenarioWithBLOBsList((List<ApiScenarioWithBLOBs>) nameMap.values());
-        
+        updateScenarioModuleDTO.setModuleList(new ArrayList<>(moduleMap.values()));
+        updateScenarioModuleDTO.setNeedUpdateList(toUpdateList);
+        updateScenarioModuleDTO.setApiScenarioWithBLOBsList(optionData);
         return updateScenarioModuleDTO;
     }
 
-    private void coverScenarioModule(Map<String, ApiScenarioWithBLOBs> updateMap, Map<String, ApiScenarioWithBLOBs> nameMap, List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs) {
-        if (!repeatApiScenarioWithBLOBs.isEmpty()) {
-            Map<String, ApiScenarioWithBLOBs> collect = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(ApiScenario::getName, apiScenario -> apiScenario));
-            collect.forEach((name, scenario) -> {
-                ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameMap.get(name);
+    private void removeRepeat(List<ApiScenarioWithBLOBs> optionData, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
+        if (repeatDataMap != null) {
+            repeatDataMap.forEach((k, v) -> {
+                ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
                 if (apiScenarioWithBLOBs != null) {
-                    //Check whether the content has changed, if not, do not change the creatoCover
-                    Boolean toCover = apiAutomationService.checkIsSynchronize(scenario, apiScenarioWithBLOBs);
-                    //需要更新
-                    if (toCover) {
-                        if (updateMap.get(name) != null) {
-                            apiScenarioWithBLOBs.setId(scenario.getId());
-                            updateMap.put(name, apiScenarioWithBLOBs);
-                        }
-                    } else {
-                        nameMap.remove(name);
-                    }
+                    optionData.remove(apiScenarioWithBLOBs);
                 }
             });
         }
     }
 
-    private void justCoverScenario(Map<String, ApiScenarioWithBLOBs> updateMap, Map<String, ApiScenarioWithBLOBs> nameMap, List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs) {
-        if (!repeatApiScenarioWithBLOBs.isEmpty()) {
-            Map<String, ApiScenarioWithBLOBs> collect = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(ApiScenario::getName, apiScenario -> apiScenario));
-            collect.forEach((name, scenario) -> {
-                ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameMap.get(name);
+    private void startCover(List<ApiScenarioWithBLOBs> toUpdateList, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
+        repeatDataMap.forEach((k, v) -> {
+            ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
+            if (apiScenarioWithBLOBs != null) {
+                apiScenarioWithBLOBs.setId(v.getId());
+                apiScenarioWithBLOBs.setApiScenarioModuleId(v.getApiScenarioModuleId());
+                apiScenarioWithBLOBs.setModulePath(v.getModulePath());
+                toUpdateList.add(apiScenarioWithBLOBs);
+            }
+        });
+    }
+
+    private Map<String, ApiScenarioModule> judgeModuleMap(Map<String, ApiScenarioModule> moduleMap, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
+        if (repeatDataMap.size() >= nameModuleMap.size()) {
+            moduleMap = new HashMap<>();
+        }
+        return moduleMap;
+    }
+
+    private void startCoverModule(List<ApiScenarioWithBLOBs> toUpdateList, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
+        if (repeatDataMap != null) {
+            repeatDataMap.forEach((k, v) -> {
+                ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
                 if (apiScenarioWithBLOBs != null) {
-                    //Check whether the content has changed, if not, do not change the creatoCover
-                    Boolean toCover = apiAutomationService.checkIsSynchronize(scenario, apiScenarioWithBLOBs);
-                    //需要更新
-                    if (toCover) {
-                        if (updateMap.get(name) != null) {
-                            apiScenarioWithBLOBs.setId(scenario.getId());
-                            updateMap.put(name, apiScenarioWithBLOBs);
-                        }
-                    }
-                    nameMap.remove(name);
+                    apiScenarioWithBLOBs.setId(v.getId());
+                    toUpdateList.add(apiScenarioWithBLOBs);
                 }
             });
         }
     }
 
-    private void setModule(Map<String, ApiScenarioWithBLOBs> nameMap, Map<String, ApiScenarioModule> map, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiScenarioModuleDTO> idModuleMap, ApiScenarioModuleDTO chooseModule) {
-        nameMap.forEach((k, datum) -> {
+    private void removeRepeat(Boolean fullCoverage, List<ApiScenarioWithBLOBs> optionData, LinkedHashMap<String, List<ApiScenarioWithBLOBs>> nameModuleMapList) {
+        if (fullCoverage) {
+            nameModuleMapList.forEach((k, v) -> {
+                optionData.add(v.get(v.size() - 1));
+            });
+        } else {
+            nameModuleMapList.forEach((k, v) -> {
+                optionData.add(v.get(0));
+            });
+        }
+    }
+
+    private String getUpdateVersionId(ApiTestImportRequest request, Boolean fullCoverage) {
+        String updateVersionId;
+        if (!fullCoverage) {
+            if (request.getVersionId() == null) {
+                updateVersionId = request.getDefaultVersion();
+            } else {
+                updateVersionId = request.getVersionId();
+            }
+        } else {
+            if (request.getUpdateVersionId() == null) {
+                updateVersionId = request.getDefaultVersion();
+            } else {
+                updateVersionId = request.getUpdateVersionId();
+            }
+        }
+        return updateVersionId;
+    }
+
+    private void setModule(List<ApiScenarioWithBLOBs> data, Map<String, ApiScenarioModule> map, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiScenarioModuleDTO> idModuleMap, ApiScenarioModuleDTO chooseModule) {
+        for (ApiScenarioWithBLOBs datum : data) {
             StringBuilder path = new StringBuilder();
             path.append("/");
             String[] tagTree;
@@ -589,17 +640,19 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 String chooseModuleParentId = chooseModule.getParentId();
                 //导入时选了模块，且接口有模块的
                 if (StringUtils.isNotBlank(modulePath)) {
-                    List<ApiScenarioModule> moduleList = pidChildrenMap.get(chooseModuleParentId);
+                    //选中模块的同级模块集合，用于和场景的全路径做对比
+                    List<ApiScenarioModule> parentModuleList = pidChildrenMap.get(chooseModuleParentId);
                     String s;
                     if (chooseModuleParentId.equals("root")) {
                         s = "/" + chooseModule.getName();
                     } else {
                         s = idPathMap.get(chooseModuleParentId);
                     }
+                    //场景的全部路径的集合
                     tagTree = getTagTree(s + modulePath);
 
                     ApiScenarioModule chooseModuleOne = JSON.parseObject(JSON.toJSONString(chooseModule), ApiScenarioModule.class);
-                    ApiScenarioModule minModule = getMinModule(tagTree, moduleList, chooseModuleOne, pidChildrenMap, map, idPathMap, idModuleMap);
+                    ApiScenarioModule minModule = getMinModule(tagTree, parentModuleList, chooseModuleOne, pidChildrenMap, map, idPathMap, idModuleMap);
                     String id = minModule.getId();
                     datum.setApiScenarioModuleId(id);
                     datum.setModulePath(idPathMap.get(id));
@@ -616,8 +669,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                         datum.setApiScenarioModuleId(scenarioModule.getId());
                         datum.setModulePath(modulePath);
                     } else {
-                        List<ApiScenarioModule> moduleList = pidChildrenMap.get("root");
-                        ApiScenarioModule minModule = getMinModule(tagTree, moduleList, null, pidChildrenMap, map, idPathMap, idModuleMap);
+                        //父级同级的模块list 
+                        List<ApiScenarioModule> parentModuleList = pidChildrenMap.get("root");
+                        ApiScenarioModule minModule = getMinModule(tagTree, parentModuleList, null, pidChildrenMap, map, idPathMap, idModuleMap);
                         String id = minModule.getId();
                         datum.setApiScenarioModuleId(id);
                         datum.setModulePath(idPathMap.get(id));
@@ -633,7 +687,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     }
                 }
             }
-        });
+        }
     }
 
     private String[] getTagTree(String modulePath) {
@@ -649,13 +703,15 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         }
     }
 
-    private ApiScenarioModule getMinModule(String[] tagTree, List<ApiScenarioModule> moduleList, ApiScenarioModule parentModule, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, ApiScenarioModule> map, Map<String, String> idPathMap, Map<String, ApiScenarioModuleDTO> idModuleMap) {
+    private ApiScenarioModule getMinModule(String[] tagTree, List<ApiScenarioModule> parentModuleList, ApiScenarioModule parentModule, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, ApiScenarioModule> map, Map<String, String> idPathMap, Map<String, ApiScenarioModuleDTO> idModuleMap) {
         //如果parentModule==null 则证明需要创建根目录同级的模块
         ApiScenarioModule returnModule = null;
         for (int i = 0; i < tagTree.length; i++) {
             int finalI = i;
-            List<ApiScenarioModule> collect = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            //查找上一级里面是否有当前全路径的第一级，没有则需要创建
+            List<ApiScenarioModule> collect = parentModuleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
             if (collect.isEmpty()) {
+                //如果找不到，而且父级模块也为空，证明当前的父级模块应为root
                 if (parentModule == null) {
                     List<ApiScenarioModule> moduleList1 = pidChildrenMap.get("root");
                     ApiScenarioModule apiModule = moduleList1.get(0);
@@ -663,16 +719,18 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     apiModule.setLevel(0);
                     parentModule = apiModule;
                 } else if (i > 0) {
-                    if (!moduleList.isEmpty()) {
-                        String parentId = moduleList.get(0).getParentId();
+                    //如果已经循环第二次级以上，如果父模块不为空， parentModuleList不为空，tagTree[finalI] 找不到，那就从上一级开始创建
+                    if (!parentModuleList.isEmpty()) {
+                        String parentId = parentModuleList.get(0).getParentId();
                         ApiScenarioModuleDTO apiScenarioModuleDTO = idModuleMap.get(parentId);
                         parentModule = JSON.parseObject(JSON.toJSONString(apiScenarioModuleDTO), ApiScenarioModule.class);
                     }
                 }
+                //开始创建tagTree[finalI]这个模块
                 return createModule(tagTree, i, parentModule, map, pidChildrenMap, idPathMap);
             } else {
                 returnModule = collect.get(0);
-                moduleList = pidChildrenMap.get(collect.get(0).getId());
+                parentModuleList = pidChildrenMap.get(collect.get(0).getId());
             }
         }
         return returnModule;
@@ -684,6 +742,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         ApiScenarioModule returnModule = null;
         for (int i1 = i; i1 < tagTree.length; i1++) {
             String pathName = tagTree[i1];
+
+            //创建模块
             ApiScenarioModule newModule = this.getNewModule(pathName, parentModule.getProjectId(), parentModule.getLevel() + 1);
             String parentId;
             if (parentModule.getId().equals("root")) {
@@ -718,20 +778,22 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         return returnModule;
     }
 
-    private void buildProcessData(List<ApiScenarioModuleDTO> nodeTreeByProjectId, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, String> idPathMap) {
+    private void buildProcessData(List<ApiScenarioModuleDTO> nodeTreeByProjectId, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, String> parentModulePathMap) {
         List<ApiScenarioModuleDTO> childrenList = new ArrayList<>();
         int i = 0;
         List<ApiScenarioModule> moduleList = new ArrayList<>();
         for (ApiScenarioModuleDTO scenarioModuleDTO : nodeTreeByProjectId) {
-            if (scenarioModuleDTO.getPath() != null) {
-                scenarioModuleDTO.setPath(scenarioModuleDTO.getPath() + "/" + scenarioModuleDTO.getName());
+            if (StringUtils.isBlank(scenarioModuleDTO.getParentId())) {
+                scenarioModuleDTO.setParentId("root");
+            }
+            String parentModulePath = parentModulePathMap.get(scenarioModuleDTO.getParentId());
+            if (parentModulePath != null) {
+                scenarioModuleDTO.setPath(parentModulePath + "/" + scenarioModuleDTO.getName());
             } else {
                 scenarioModuleDTO.setPath("/" + scenarioModuleDTO.getName());
             }
             idPathMap.put(scenarioModuleDTO.getId(), scenarioModuleDTO.getPath());
-            if (StringUtils.isBlank(scenarioModuleDTO.getParentId())) {
-                scenarioModuleDTO.setParentId("root");
-            }
+
             ApiScenarioModule scenarioModule = buildModule(moduleList, scenarioModuleDTO);
             if (pidChildrenMap.get(scenarioModuleDTO.getParentId()) != null) {
                 pidChildrenMap.get(scenarioModuleDTO.getParentId()).add(scenarioModule);
@@ -747,9 +809,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     pidChildrenMap.put(scenarioModuleDTO.getId(), new ArrayList<>());
                 }
             }
+            parentModulePathMap.put(scenarioModuleDTO.getId(), scenarioModuleDTO.getPath());
         }
         if (i == nodeTreeByProjectId.size() && nodeTreeByProjectId.size() > 0) {
-            buildProcessData(childrenList, pidChildrenMap, idPathMap);
+            buildProcessData(childrenList, pidChildrenMap, idPathMap, parentModulePathMap);
         }
     }
 

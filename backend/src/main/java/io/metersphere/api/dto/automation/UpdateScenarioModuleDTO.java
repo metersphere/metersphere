@@ -11,5 +11,6 @@ import java.util.List;
 @Setter
 public class UpdateScenarioModuleDTO {
     private List<ApiScenarioModule> moduleList;
+    private List<ApiScenarioWithBLOBs> needUpdateList;
     private List<ApiScenarioWithBLOBs> apiScenarioWithBLOBsList;
 }

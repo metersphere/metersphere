@@ -1010,13 +1010,17 @@
     <select id="selectRepeatByBLOBs" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition
         <include refid="Same_Where_Clause"/>
-        and status != 'TRASH'
+        and status != 'Trash'
+        and project_id = #{projectId}
+        and version_id = #{versionId}
     </select>
     <select id="selectRepeatByBLOBsSameUrl" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition
         <include refid="Same_Where_Clause"/>
         and status != 'TRASH'
+        and project_id = #{projectId}
         and module_id = #{moduleId}
+        and version_id = #{versionId}
     </select>
     <sql id="Same_Where_Clause">
         <where>
@@ -1030,11 +1034,7 @@
                             <if test="blob.path">
                                 and api_definition.path = #{blob.path}
                             </if>
-                            <if test="blob.projectId">
-                                and api_definition.project_id = #{blob.projectId}
-                            </if>
                         </trim>
-
                     </foreach>
                 </trim>
             </if>

@@ -1376,25 +1376,29 @@ public class ApiDefinitionService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         currentApiCaseOrder.remove();
         currentApiOrder.remove();
-        List<ApiDefinitionWithBLOBs> data = apiImport.getData();
+        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        request.setDefaultVersion(defaultVersion);
+        List<ApiDefinitionWithBLOBs> initData = apiImport.getData();
 
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
         boolean urlRepeat = config.getUrlRepeatable();
 
-        UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request.getModuleId(), request.getProjectId(), apiImport.getProtocol(), data, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule(), urlRepeat);
-        List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getApiDefinitionWithBLOBsList();
+        UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, initData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
+        List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
+        List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
+        List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
 
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
         ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
         ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
+
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
         }
-        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
-        request.setDefaultVersion(defaultVersion);
+
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             this.setModule(item);
@@ -1416,8 +1420,10 @@ public class ApiDefinitionService {
             } else {
                 importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), updateList);
             }
-            for (ApiModule apiModule : updateApiModuleDTO.getModuleList()) {
-                apiModuleMapper.insert(apiModule);
+            if (moduleList != null) {
+                for (ApiModule apiModule : moduleList) {
+                    apiModuleMapper.insert(apiModule);
+                }
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
