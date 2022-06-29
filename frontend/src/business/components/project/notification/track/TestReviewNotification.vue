@@ -205,7 +205,7 @@ export default {
         default:
           break;
       }
-      row.reviewReceiverOptions = reviewReceiverOptions;
+      row.receiverOptions = reviewReceiverOptions;
     },
     handleTemplate(index, row) {
       if (hasLicense()) {

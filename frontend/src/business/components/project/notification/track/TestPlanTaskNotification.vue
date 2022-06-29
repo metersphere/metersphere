@@ -214,7 +214,7 @@ export default {
         default:
           break;
       }
-      row.testPlanReceiverOptions = testPlanReceivers;
+      row.receiverOptions = testPlanReceivers;
     },
     initExecuteReceivers(testPlanReceivers,row){
       let i = row.userIds.indexOf('FOLLOW_PEOPLE');
