@@ -1354,7 +1354,7 @@ export default {
 }
 
 .api-case-simple-list >>> .el-table {
-  height: calc(100vh - 262px) !important;
+  height: calc(100vh - 185px) !important;
 }
 
 </style>
