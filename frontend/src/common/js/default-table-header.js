@@ -270,7 +270,8 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'location', key: '4', label: '元素定位'},
     {id: 'createUser', key: '5', label: '创建人'},
     {id: 'createTime', key: '6', label: 'commons.create_time'},
-    {id: 'updateTime', key: '7', label: 'commons.update_time'},
+    {id: 'updateUser', key: '7', label: '更新人'},
+    {id: 'updateTime', key: '8', label: 'commons.update_time'},
   ],
 
   //空间配额

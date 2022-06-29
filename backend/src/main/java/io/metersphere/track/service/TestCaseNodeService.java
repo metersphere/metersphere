@@ -403,7 +403,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     @Override
-    public String insertNode(String nodeName, String pId, String projectId, Integer level) {
+    public String insertNode(String nodeName, String pId, String projectId, Integer level, String path) {
         TestCaseNode testCaseNode = new TestCaseNode();
         testCaseNode.setName(nodeName.trim());
         testCaseNode.setParentId(pId);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.UiTaskRefreshMapper">
+    <select id="getByTaskKey" resultType="io.metersphere.base.domain.UiTaskRefresh">
+        SELECT *
+        FROM
+            ui_task_refresh
+        WHERE
+            task_key = #{taskKey}
+    </select>
+
+    <insert id="insert" parameterType="io.metersphere.base.domain.UiTaskRefresh">
+        INSERT INTO
+            ui_task_refresh(
+            id, task_key, task_status, create_time
+            )
+        VALUE(
+            #{id}, #{taskKey}, #{taskStatus}, #{createTime}
+        )
+    </insert>
+</mapper>

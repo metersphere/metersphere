@@ -9,4 +9,5 @@ import lombok.Data;
 public class ModuleNode extends TestCaseNode {
     private Integer caseNum;
     private String protocol;
+    private String modulePath;
 }

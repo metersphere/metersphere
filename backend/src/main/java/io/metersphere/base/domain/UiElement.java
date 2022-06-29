@@ -21,6 +21,8 @@ public class UiElement implements Serializable {
 
     private String createUser;
 
+    private String updateUser;
+
     private String versionId;
 
     private String refId;
