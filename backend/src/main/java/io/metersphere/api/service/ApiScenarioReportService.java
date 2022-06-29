@@ -952,7 +952,7 @@ public class ApiScenarioReportService {
     }
 
     public void reName(ApiScenarioReport reportRequest) {
-        if (StringUtils.equalsIgnoreCase(reportRequest.getReportType(), ReportTypeConstants.API_INDEPENDENT.name())) {
+        if (StringUtils.equalsAnyIgnoreCase(reportRequest.getReportType(), ReportTypeConstants.API_INDEPENDENT.name(), ReportTypeConstants.API_INTEGRATED.name())) {
             ApiDefinitionExecResult result = definitionExecResultMapper.selectByPrimaryKey(reportRequest.getId());
             if (result != null) {
                 result.setName(reportRequest.getName());
