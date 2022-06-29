@@ -16,6 +16,7 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.service.FunctionCaseExecutionInfoService;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.UserService;
@@ -74,6 +75,8 @@ public class TestPlanTestCaseService {
     private ProjectService projectService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
 
     public List<TestPlanTestCaseWithBLOBs> listAll() {
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
@@ -144,6 +147,14 @@ public class TestPlanTestCaseService {
     public void editTestCase(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
+        } else {
+            if (StringUtils.isEmpty(testPlanTestCase.getCaseId())) {
+                String caseId = extTestPlanTestCaseMapper.selectCaseId(testPlanTestCase.getId());
+                functionCaseExecutionInfoService.insertExecutionInfo(caseId, testPlanTestCase.getStatus());
+            } else {
+                //记录功能用例执行信息
+                functionCaseExecutionInfoService.insertExecutionInfo(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
+            }
         }
         testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
@@ -458,13 +469,13 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> buildCaseInfo(List<TestPlanCaseDTO> cases) {
-        if(CollectionUtils.isNotEmpty(cases)){
+        if (CollectionUtils.isNotEmpty(cases)) {
             Map<String, Project> projectMap = ServiceUtils.getProjectMap(
                     cases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
             Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
                     cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
             cases.forEach(item -> {
-                if(projectMap.containsKey(item.getProjectId())){
+                if (projectMap.containsKey(item.getProjectId())) {
                     item.setProjectName(projectMap.get(item.getProjectId()).getName());
                 }
                 ProjectConfig config = projectApplicationService.getSpecificTypeValue(item.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
@@ -485,6 +496,7 @@ public class TestPlanTestCaseService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {

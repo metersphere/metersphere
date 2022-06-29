@@ -146,6 +146,8 @@ public class ApiAutomationService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ScenarioExecutionInfoService scenarioExecutionInfoService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -1646,6 +1648,7 @@ public class ApiAutomationService {
     }
 
     private void deleteScenarioByIds(List<String> scenarioIds) {
+        scenarioExecutionInfoService.deleteByScenarioIdList(scenarioIds);
         ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
         apiScenarioExample.createCriteria().andIdIn(scenarioIds);
         apiScenarioMapper.deleteByExample(apiScenarioExample);
@@ -2051,6 +2054,10 @@ public class ApiAutomationService {
     public void deleteApiScenarioByVersion(String refId, String version) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        List<String> scenarioIds = apiScenarios.stream().map(ApiScenario::getId).collect(toList());
+        scenarioExecutionInfoService.deleteByScenarioIdList(scenarioIds);
+        
         apiScenarioMapper.deleteByExample(example);
         scheduleService.deleteByResourceId(refId, ScheduleGroup.API_SCENARIO_TEST.name());
         checkAndSetLatestVersion(refId);

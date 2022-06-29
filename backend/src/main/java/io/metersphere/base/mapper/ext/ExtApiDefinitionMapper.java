@@ -98,4 +98,5 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId, @Param("versionId") String versionId);
 
 
+    int countById(String id);
 }

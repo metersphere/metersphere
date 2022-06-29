@@ -26,6 +26,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.ScenarioExecutionInfoService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
@@ -87,6 +88,9 @@ public class ApiScenarioReportService {
     private UiReportServiceProxy uiReportServiceProxy;
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
+
+    @Resource
+    private ScenarioExecutionInfoService scenarioExecutionInfoService;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -305,6 +309,9 @@ public class ApiScenarioReportService {
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
 
+            //增加场景的运行记录
+            scenarioExecutionInfoService.insertExecutionInfo(testPlanApiScenario.getApiScenarioId(), status);
+
             // 更新场景状态
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
             if (scenario != null) {
@@ -426,6 +433,8 @@ public class ApiScenarioReportService {
                 report.setStatus(this.getIntegrationReportStatus(statusList));
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
+                //场景集合报告，按照集合报告的结果作为场景的最后执行结果
+                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus());
             }
         }
 
