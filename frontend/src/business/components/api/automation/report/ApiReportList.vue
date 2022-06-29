@@ -223,7 +223,7 @@ export default {
       selectAll: false,
       unSelection: [],
       selectDataCounts: 0,
-      screenHeight: 'calc(100vh - 200px)',
+      screenHeight: 'calc(100vh - 160px)',
       trashActiveDom:'left'
     }
   },
