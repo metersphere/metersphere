@@ -71,4 +71,6 @@ public interface ExtTestPlanTestCaseMapper {
     List<TestCase> getTestCaseWithNodeInfo(@Param("planId") String planId);
 
     List<CountMapDTO> getExecResultMapByPlanId(@Param("planId") String planId);
+
+    String selectCaseId(String id);
 }

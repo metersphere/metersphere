@@ -168,6 +168,8 @@ public class TestCaseService {
     private CustomFieldTestCaseMapper customFieldTestCaseMapper;
     @Resource
     private CustomFieldTestCaseService customFieldTestCaseService;
+    @Resource
+    private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
     @Lazy
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
@@ -345,7 +347,7 @@ public class TestCaseService {
 
     public TestCaseDTO getTestCase(String testCaseId) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
-        TestCaseDTO testCaseDTO =  new TestCaseDTO();
+        TestCaseDTO testCaseDTO = new TestCaseDTO();
         BeanUtils.copyBean(testCaseDTO, testCaseWithBLOBs);
         buildCustomField(testCaseDTO);
         return testCaseDTO;
@@ -531,11 +533,9 @@ public class TestCaseService {
             if (StringUtils.isNotBlank(testCase.getTestId())) {
                 criteria.andTestIdEqualTo(testCase.getTestId());
             }
-
             if (StringUtils.isNotBlank(testCase.getId())) {
                 criteria.andIdNotEqualTo(testCase.getId());
             }
-
             List<TestCaseWithBLOBs> caseList = testCaseMapper.selectByExampleWithBLOBs(example);
 
             // 如果上边字段全部相同，去检查 remark 和 steps
@@ -606,6 +606,7 @@ public class TestCaseService {
         relationshipEdgeService.delete(testCaseId); // 删除关系图
         deleteFollows(testCaseId);
         customFieldTestCaseService.deleteByResourceId(testCaseId); // 删除自定义字段关联关系
+        functionCaseExecutionInfoService.deleteBySourceId(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -1597,14 +1598,14 @@ public class TestCaseService {
                         for (int j = 0; j < jsonArray.size(); j++) {
                             int num = j + 1;
                             String stepItem = jsonArray.getJSONObject(j).getString("desc");
-                            if(StringUtils.isEmpty(stepItem)){
+                            if (StringUtils.isEmpty(stepItem)) {
                                 stepItem = "";
                             }
                             //正则去空格、回车、换行符、制表符
                             stepItem = stepItem.replaceAll("\\s*|\t|\r|\n", "");
                             step.append(num + "." + stepItem + "\n");
                             String resultItem = jsonArray.getJSONObject(j).getString("result");
-                            if(StringUtils.isEmpty(resultItem)){
+                            if (StringUtils.isEmpty(resultItem)) {
                                 resultItem = "";
                             }
                             result.append(num + "." + resultItem + "\n");
@@ -1825,6 +1826,8 @@ public class TestCaseService {
         deleteTestPlanTestCaseBath(request.getIds());
         relationshipEdgeService.delete(request.getIds()); // 删除关系图
         customFieldTestCaseService.deleteByResourceIds(request.getIds()); // 删除自定义字段
+        //删除执行信息
+        functionCaseExecutionInfoService.deleteBySourceIdList(request.getIds());
 
         request.getIds().forEach(testCaseId -> { // todo 优化下效率
             testCaseIssueService.delTestCaseIssues(testCaseId);
@@ -1856,6 +1859,12 @@ public class TestCaseService {
     public void deleteTestCaseByProjectId(String projectId) {
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
+        List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(testCaseList)) {
+            List<String> idList = testCaseList.stream().map(TestCase::getId).collect(Collectors.toList());
+            //删除执行记录
+            functionCaseExecutionInfoService.deleteBySourceIdList(idList);
+        }
         testCaseMapper.deleteByExample(example);
     }
 
@@ -2676,6 +2685,9 @@ public class TestCaseService {
         List<TestCaseWithBLOBs> testCaseList = testCaseMapper.selectByExampleWithBLOBs(e);
         if (CollectionUtils.isNotEmpty(testCaseList)) {
             testCaseMapper.deleteByExample(e);
+            List<String> idList = testCaseList.stream().map(TestCase::getId).collect(Collectors.toList());
+            //删除执行记录
+            functionCaseExecutionInfoService.deleteBySourceIdList(idList);
             //检查最新版本
             checkAndSetLatestVersion(refId, version, testCaseList.get(0).getProjectId(), "del");
         }

@@ -77,5 +77,7 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> checkName(@Param("request") SaveApiTestCaseRequest request);
 
-    int toBeUpdateCase(@Param("ids") List<String> ids,@Param("toBeUpdate") Boolean toBeUpdate);
+    int toBeUpdateCase(@Param("ids") List<String> ids, @Param("toBeUpdate") Boolean toBeUpdate);
+
+    int countById(String resourceID);
 }

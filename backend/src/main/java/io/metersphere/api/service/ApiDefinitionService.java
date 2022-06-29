@@ -144,8 +144,10 @@ public class ApiDefinitionService {
     private EsbApiParamsMapper esbApiParamsMapper;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
-
-
+    @Resource
+    private ApiExecutionInfoService apiExecutionInfoService;
+    @Resource
+    private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Lazy
     @Resource
     private ApiModuleService apiModuleService;
@@ -385,6 +387,7 @@ public class ApiDefinitionService {
             deleteFileByTestId(api.getId());
             extApiDefinitionExecResultMapper.deleteByResourceId(api.getId());
             apiDefinitionMapper.deleteByPrimaryKey(api.getId());
+            apiExecutionInfoService.deleteByApiId(api.getId());
             esbApiParamService.deleteByResourceId(api.getId());
             MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             mockConfigService.deleteMockConfigByApiId(api.getId());
@@ -404,6 +407,7 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
         esbApiParamService.deleteByResourceIdIn(apiIds);
+        apiExecutionInfoService.deleteByApiIdList(apiIds);
         apiDefinitionMapper.deleteByExample(example);
         apiTestCaseService.deleteBatchByDefinitionId(apiIds);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
@@ -1616,6 +1620,7 @@ public class ApiDefinitionService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
+
         ids.forEach(id -> {
             // 把所有版本的api移到回收站
             ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(id);
@@ -1625,10 +1630,11 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andRefIdEqualTo(api.getRefId());
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-
             List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(toList());
+            //删除Api、ApiCase中resourceID被删除了的执行记录
+            apiExecutionInfoService.deleteByApiIdList(apiIds);
+            apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
             apiTestCaseService.deleteBatchByDefinitionId(apiIds);
-            //
             apiDefinitionMapper.deleteByExample(example);
         });
     }
@@ -2246,13 +2252,15 @@ public class ApiDefinitionService {
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(toList());
+        //删除Api、ApiCase中resourceID被删除了的执行记录
+        apiExecutionInfoService.deleteByApiIdList(ids);
+        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(ids);
 
         ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
         apiTestCaseExample.createCriteria().andApiDefinitionIdIn(ids);
         apiTestCaseMapper.deleteByExample(apiTestCaseExample);
         //
         apiDefinitionMapper.deleteByExample(example);
-
         checkAndSetLatestVersion(refId);
     }
 

@@ -31,6 +31,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.ApiCaseExecutionInfoService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -106,6 +107,8 @@ public class ApiTestCaseService {
     private TcpApiParamService tcpApiParamService;
     @Resource
     private ObjectMapper mapper;
+    @Resource
+    private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -288,6 +291,7 @@ public class ApiTestCaseService {
         extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
         deleteFileByTestId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
+        apiCaseExecutionInfoService.deleteByApiCaseId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
         deleteBodyFiles(testId);
@@ -519,12 +523,14 @@ public class ApiTestCaseService {
             extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
             deleteFollows(testId);
         }
+        apiCaseExecutionInfoService.deleteByApiCaseIdList(ids);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
     }
 
     public void deleteBatchByDefinitionId(List<String> definitionIds) {
+        apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(definitionIds);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andApiDefinitionIdIn(definitionIds);
         apiTestCaseMapper.deleteByExample(example);
@@ -763,7 +769,7 @@ public class ApiTestCaseService {
         }
     }
 
-    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol,Boolean toBeUpdated) {
+    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol, Boolean toBeUpdated) {
         if ((StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path) && RequestType.HTTP.equals(protocol))) {
             ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
             apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
@@ -793,7 +799,7 @@ public class ApiTestCaseService {
                 }
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
-                if(toBeUpdated!=null){
+                if (toBeUpdated != null) {
                     apiTestCase.setToBeUpdated(toBeUpdated);
                 }
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
