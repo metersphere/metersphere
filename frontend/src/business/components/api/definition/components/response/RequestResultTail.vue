@@ -1,7 +1,7 @@
 <template>
   <div class="request-result">
     <ms-request-metric v-if="showMetric" :response="response"/>
-    <ms-response-result :currentProtocol="currentProtocol" :response="response"/>
+    <ms-response-result :currentProtocol="currentProtocol" :response="response" :isTestPlan="isTestPlan"/>
   </div>
 </template>
 
@@ -19,6 +19,12 @@
         type: Boolean,
         default() {
           return true;
+        }
+      },
+      isTestPlan: {
+        type: Boolean,
+        default() {
+          return false;
         }
       }
     },
