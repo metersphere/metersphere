@@ -31,7 +31,7 @@
 import {
   fullScreenLoading,
   getCurrentUser,
-  getCurrentWorkspaceId, hasPermissions,
+  getCurrentWorkspaceId,
   saveLocalStorage,
   stopFullScreenLoading
 } from "@/common/js/utils";
@@ -167,7 +167,6 @@ export default {
 
 .search-input >>> .el-input__inner {
   border-radius: 0;
-  color: #d2ced8;
   border-color: #b4aebe;
 }
 
