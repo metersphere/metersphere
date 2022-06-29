@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.UiElementReferenceMapper">
+    <delete id="batchDelete">
+        DELETE FROM
+            ui_element_reference
+        <where>
+            <if test="projectId != null">
+                AND
+                project_id = #{projectId}
+            </if>
+            <if test="scenarioId != null">
+                AND
+                scenario_id = #{scenarioId}
+            </if>
+
+            <if test="elementIds != null and elementIds.size() > 0">
+                AND
+                element_id IN
+                <foreach collection="elementIds" item="elementId" separator="," open="(" close=")">
+                    #{elementId}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <delete id="batchDeleteWithScenarioIds">
+        DELETE FROM
+        ui_element_reference
+        <where>
+            <if test="scenarioIds != null and scenarioIds.size() > 0">
+                AND
+                scenario_id IN
+                <foreach collection="scenarioIds" item="scenarioId" separator="," open="(" close=")">
+                    #{scenarioId}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO
+            ui_element_reference (
+                id, element_id, element_module_id, scenario_id, project_id, create_time
+             )
+        VALUES
+        <foreach collection="uiElementReferences" item="reference" separator="," >
+            ( #{reference.id}, #{reference.elementId},#{reference.elementModuleId},
+             #{reference.scenarioId}, #{reference.projectId},#{reference.createTime} )
+        </foreach>
+    </insert>
+
+    <select id="listByElementIds" resultType="io.metersphere.base.domain.UiElementReference">
+        SELECT *
+        FROM
+            ui_element_reference
+        <where>
+            <if test="projectId != null">
+                AND
+                project_id = #{projectId}
+            </if>
+            <if test="scenarioId != null">
+                AND
+                scenario_id = #{scenarioId}
+            </if>
+
+            <if test="elementIds != null and elementIds.size() > 0">
+                AND
+                element_id IN
+                <foreach collection="elementIds" item="elementId" separator="," open="(" close=")">
+                    #{elementId}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        <if test="limit != null">
+            limit #{limit}
+        </if>
+    </select>
+
+    <select id="listByModuleIds" resultType="io.metersphere.base.domain.UiElementReference">
+        SELECT *
+        FROM
+        ui_element_reference
+        <where>
+            <if test="projectId != null">
+                AND
+                project_id = #{projectId}
+            </if>
+
+            <if test="moduleIds != null and moduleIds.size() > 0">
+                AND
+                element_module_id IN
+                <foreach collection="moduleIds" item="moduleId" separator="," open="(" close=")">
+                    #{moduleId}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        <if test="limit != null">
+            limit #{limit}
+        </if>
+    </select>
+
+    <select id="listByScenarioId" resultType="io.metersphere.base.domain.UiElementReference">
+        SELECT *
+        FROM
+            ui_element_reference
+        WHERE
+            project_id = #{projectId}
+        AND
+            scenario_id = #{scenarioId}
+    </select>
+</mapper>

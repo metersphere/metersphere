@@ -68,8 +68,22 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         module.setCreateUser(SessionUtils.getUserId());
         double pos = getNextLevelPos(module.getProjectId(), module.getLevel(), module.getParentId());
         module.setPos(pos);
+        module.setModulePath(getModulePath(module));
         extModuleNodeMapper.insertSelective(tableName, module);
         return module.getId();
+    }
+
+    public String getModulePath(ModuleNode module){
+        Integer level = module.getLevel();
+        if( level == null || level <= 1){
+            return String.format("/%s",module.getName());
+        }
+        //获取父级信息
+        if(StringUtils.isNotBlank(module.getParentId())){
+            ModuleNode parent = extModuleNodeMapper.selectByPrimaryKey(tableName, module.getParentId());
+            return parent.getModulePath() + "/" +  module.getName();
+        }
+        return null;
     }
 
     public List<String> getNodes(String nodeId) {
@@ -338,9 +352,10 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
     }
 
     @Override
-    public String insertNode(String nodeName, String pId, String projectId, Integer level) {
+    public String insertNode(String nodeName, String pId, String projectId, Integer level, String path) {
         ModuleNode moduleNode = new ModuleNode();
         moduleNode.setName(nodeName.trim());
+        moduleNode.setModulePath(path);
         moduleNode.setParentId(pId);
         moduleNode.setProjectId(projectId);
         moduleNode.setCreateTime(System.currentTimeMillis());
@@ -384,7 +399,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             buildUpdateTestCase(nodeTree, nodeData, updateNodes, "/", "0", 1);
             editNodeDataFunc.accept(nodeData);
         } else {
-            buildUpdateModule(nodeTree, updateNodes, "0", 1);
+            buildUpdateModule(nodeTree, updateNodes, "0", 1, "");
         }
 
         updateNodes = updateNodes.stream()
@@ -407,19 +422,25 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
     }
 
     private void buildUpdateModule(TestCaseNodeDTO rootNode,
-                                   List<ModuleNode> updateNodes, String pId, int level) {
+                                   List<ModuleNode> updateNodes, String pId, int level, String parentPath) {
         checkoutNodeLimit(level);
 
         ModuleNode moduleNode = new ModuleNode();
         moduleNode.setId(rootNode.getId());
         moduleNode.setLevel(level);
         moduleNode.setParentId(pId);
+        if(level <= 1 && StringUtils.isBlank(parentPath)){
+            moduleNode.setModulePath("/" + rootNode.getName());
+        }
+        else {
+            moduleNode.setModulePath(parentPath + "/" + rootNode.getName());
+        }
         updateNodes.add(moduleNode);
 
         List<TestCaseNodeDTO> children = rootNode.getChildren();
         if (children != null && children.size() > 0) {
             for (int i = 0; i < children.size(); i++) {
-                buildUpdateModule(children.get(i), updateNodes, rootNode.getId(), level + 1);
+                buildUpdateModule(children.get(i), updateNodes, rootNode.getId(), level + 1, moduleNode.getModulePath());
             }
         }
     }
@@ -589,5 +610,9 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             criteria.andIdNotEqualTo(node.getId());
         }
         return extModuleNodeMapper.selectByExample(tableName, example);
+    }
+
+    public List<ModuleNode> selectByModulePath(ModuleNode node){
+        return extModuleNodeMapper.selectByModulePath(tableName, node.getModulePath(), node.getProjectId());
     }
 }

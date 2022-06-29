@@ -291,7 +291,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
             pid = pathMap.get(path.toString());
             level++;
         } else {
-            pid = insertNode(nodeName, pNode == null ? null : pNode.getId(), projectId, level);
+            pid = insertNode(nodeName, pNode == null ? null : pNode.getId(), projectId, level, path.toString());
             pathMap.put(path.toString(), pid);
             level++;
         }
@@ -303,7 +303,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
                 pid = pathMap.get(path.toString());
                 level++;
             } else {
-                pid = insertNode(nextNodeName, pid, projectId, level);
+                pid = insertNode(nextNodeName, pid, projectId, level, path.toString());
                 pathMap.put(path.toString(), pid);
                 level++;
             }
@@ -360,7 +360,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
     }
 
 
-    public String insertNode(String nodeName, String pId, String projectId, Integer level) {
+    public String insertNode(String nodeName, String pId, String projectId, Integer level, String path) {
         return "";
     }
 

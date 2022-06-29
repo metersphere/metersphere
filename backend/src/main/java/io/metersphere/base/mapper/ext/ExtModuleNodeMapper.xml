@@ -14,6 +14,9 @@
       <if test="record.name != null">
         `name`,
       </if>
+      <if test="record.modulePath != null">
+        `module_path`,
+      </if>
       <if test="record.parentId != null">
         parent_id,
       </if>
@@ -43,6 +46,9 @@
       <if test="record.name != null">
         #{record.name,jdbcType=VARCHAR},
       </if>
+      <if test="record.modulePath != null">
+        #{record.modulePath,jdbcType=VARCHAR},
+      </if>
       <if test="record.parentId != null">
         #{record.parentId,jdbcType=VARCHAR},
       </if>
@@ -64,11 +70,11 @@
     </trim>
   </insert>
   <insert id="insert">
-    insert into ${tableName} (id, project_id, `name`,
+    insert into ${tableName} (id, project_id, `name`, module_path,
                                 parent_id, `level`, create_time,
                                 update_time, pos, create_user
     )
-    values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
+    values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR}, #{record.modulePath,jdbcType=VARCHAR},
             #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER}, #{record.createTime,jdbcType=BIGINT},
             #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE}, #{record.createUser,jdbcType=VARCHAR}
            )
@@ -81,6 +87,9 @@
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modulePath != null">
+        `module_path` = #{record.modulePath,jdbcType=VARCHAR},
       </if>
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
@@ -114,6 +123,7 @@
     update ${tableName}
     set project_id = #{record.projectId,jdbcType=VARCHAR},
         `name` = #{record.name,jdbcType=VARCHAR},
+        `module_path` = #{record.modulePath,jdbcType=VARCHAR},
         parent_id = #{record.parentId,jdbcType=VARCHAR},
         `level` = #{record.level,jdbcType=INTEGER},
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -136,6 +146,7 @@
       distinct
     </if>
     <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List" />
+    ,module_path
     from ${tableName}
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -154,6 +165,13 @@
     <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
     from ${tableName}
     where project_id = #{projectId}
+    order by pos asc
+  </select>
+  <select id="getAllNodeTree" resultType="io.metersphere.base.domain.ModuleNode">
+    select
+    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user
+    ,module_path
+    from ${tableName}
     order by pos asc
   </select>
   <select id="get" resultType="io.metersphere.track.dto.ModuleNodeDTO">
@@ -205,4 +223,15 @@
       </foreach>
     </where>
   </sql>
+
+  <select id="selectByModulePath" resultType="io.metersphere.base.domain.ModuleNode" parameterType="io.metersphere.base.domain.ModuleNode">
+        SELECT
+            *
+        FROM
+            ${tableName}
+        WHERE
+            project_id = #{projectId}
+        AND
+            module_path = #{modulePath}
+  </select>
 </mapper>

@@ -16,6 +16,8 @@ public interface ExtModuleNodeMapper {
 
     List<ModuleNodeDTO> getNodeTreeByProjectId(@Param("tableName") String tableName, @Param("projectId") String projectId);
 
+    List<ModuleNode> getAllNodeTree(@Param("tableName") String tableName);
+
     int updateByPrimaryKeySelective(@Param("tableName") String tableName, @Param("record") ModuleNode record);
 
     int deleteByExample(@Param("tableName") String tableName, @Param("example") TestCaseNodeExample example);
@@ -31,4 +33,6 @@ public interface ExtModuleNodeMapper {
     ModuleNode selectByPrimaryKey(@Param("tableName") String tableName, @Param("id") String id);
 
     long countByExample(@Param("tableName") String tableName, @Param("example") TestCaseNodeExample example);
+
+    List<ModuleNode> selectByModulePath(@Param("tableName") String tableName,@Param("modulePath") String modulePath, @Param("projectId") String projectId);
 }

@@ -10,6 +10,7 @@
     <result column="location_type" jdbcType="VARCHAR" property="locationType" />
     <result column="location" jdbcType="VARCHAR" property="location" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="order" jdbcType="BIGINT" property="order" />
@@ -77,7 +78,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, module_id, project_id, `name`, location_type, `location`, create_user, version_id, 
+    id, num, module_id, project_id, `name`, location_type, `location`, create_user, update_user, version_id,
     ref_id, `order`, latest, description, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UiElementExample" resultMap="BaseResultMap">
@@ -111,14 +112,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.UiElement">
-    insert into ui_element (id, num, module_id, 
+    insert into ui_element (id,num, module_id,
       project_id, `name`, location_type, 
-      `location`, create_user, version_id, 
+      `location`, create_user, update_user, version_id,
       ref_id, `order`, latest, description, 
       create_time, update_time)
-    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{moduleId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{moduleId,jdbcType=VARCHAR},
       #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{locationType,jdbcType=VARCHAR}, 
-      #{location,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
+      #{location,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR},
       #{refId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{latest,jdbcType=BIT}, #{description,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
   </insert>
@@ -148,6 +149,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
       <if test="versionId != null">
         version_id,
@@ -195,6 +199,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
@@ -252,6 +259,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
       </if>
@@ -288,6 +298,7 @@
       location_type = #{record.locationType,jdbcType=VARCHAR},
       `location` = #{record.location,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       ref_id = #{record.refId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
@@ -323,6 +334,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
       </if>
@@ -356,6 +370,7 @@
       location_type = #{locationType,jdbcType=VARCHAR},
       `location` = #{location,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       ref_id = #{refId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
