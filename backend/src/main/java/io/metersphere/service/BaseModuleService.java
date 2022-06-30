@@ -198,7 +198,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
             if (moduleIdObj != null && countNumObj != null) {
                 String moduleId = String.valueOf(moduleIdObj);
                 try {
-                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
+                    Integer countNumInteger = Integer.valueOf(String.valueOf(countNumObj));
                     returnMap.put(moduleId, countNumInteger);
                 } catch (Exception e) {
                 }

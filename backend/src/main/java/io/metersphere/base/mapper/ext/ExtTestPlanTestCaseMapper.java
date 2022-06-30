@@ -1,6 +1,5 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.base.domain.TestCase;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
@@ -68,7 +67,9 @@ public interface ExtTestPlanTestCaseMapper {
 
     Long getLastOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
 
-    List<TestCase> getTestCaseWithNodeInfo(@Param("planId") String planId);
+    List<TestCaseNodeDTO> getTestPlanCountNodes(@Param("request") QueryTestPlanCaseRequest request);
+
+    List<String> projectIdsByPlanId(@Param("planId") String planId);
 
     List<CountMapDTO> getExecResultMapByPlanId(@Param("planId") String planId);
 

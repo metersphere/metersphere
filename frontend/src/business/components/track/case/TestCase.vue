@@ -3,34 +3,28 @@
 
     <ms-aside-container v-show="isAsideHidden">
       <test-case-node-tree
-        @nodeSelectEvent="nodeChange"
+        :type="'edit'"
+        :total='total'
+        :show-operator="true"
+        :public-total="publicTotal"
         @refreshTable="refresh"
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
-        :show-operator="true"
-        @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         @enableTrash="enableTrash"
         @enablePublic="enablePublic"
         @toPublic="toPublic"
-        :type="'edit'"
-        :total='total'
-        :public-total="publicTotal"
-        ref="nodeTree"
         @importChangeConfirm="importChangeConfirm"
+        @createCase="handleCaseSimpleCreate($event, 'add')"
+        ref="nodeTree"
       />
     </ms-aside-container>
 
     <ms-aside-container v-if="showPublicNode">
-      <node-tree class="node-tree"
-                 :is-display="'public'"
-                 v-loading="result.loading"
-                 local-suffix="test_case"
-                 default-label="未规划用例"
-                 @nodeSelectEvent="publicNodeChange"
-                 :tree-nodes="publicTreeNodes"
-                 ref="publicNodeTree"/>
+      <test-case-public-node-tree
+        @nodeSelectEvent="publicNodeChange"
+        ref="publicNodeTree"/>
     </ms-aside-container>
 
     <ms-main-container>
@@ -57,6 +51,7 @@
               @refresh="refresh"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
+              @search="refreshTreeByCaseFilter"
               ref="testCaseTrashList">
             </test-case-list>
           </ms-tab-button>
@@ -81,6 +76,7 @@
             @refreshAll="refreshAll"
             @refreshPublic="refreshPublic"
             @setCondition="setCondition"
+            @search="refreshTreeByCaseFilter"
             ref="testCasePublicList">
           </test-case-list>
         </el-tab-pane>
@@ -115,6 +111,7 @@
               @refreshAll="refreshAll"
               @setCondition="setCondition"
               @decrease="decrease"
+              @search="refreshTreeByCaseFilter"
               ref="testCaseList">
             </test-case-list>
             <test-case-minder
@@ -218,14 +215,15 @@ import {
   hasPermission,
   setCurTabId
 } from "@/common/js/utils";
-import TestCaseNodeTree from "../common/TestCaseNodeTree";
+import TestCaseNodeTree from "../module/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
-import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
+import {openMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
 import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
 import {PROJECT_ID} from "@/common/js/constants";
+import TestCasePublicNodeTree from "@/business/components/track/module/TestCasePublicNodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -233,6 +231,7 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "TestCase",
   components: {
+    TestCasePublicNodeTree,
     IsChangeConfirm,
     TestCaseMinder,
     MsTabButton,
@@ -267,8 +266,6 @@ export default {
       currentTrashVersion: null,
       versionEnable: false,
       isAsideHidden: true,
-      showPublicNode: false,
-      publicTreeNodes: [],
       ignoreTreeNodes:false,
     };
   },
@@ -306,8 +303,7 @@ export default {
       this.init(to);
     },
     activeName(newVal, oldVal) {
-      this.isAsideHidden = this.activeName === 'default';
-      this.showPublicNode = this.activeName === 'public';
+      this.isAsideHidden = this.activeName === 'default' || this.activeName === 'trash';
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
@@ -323,18 +319,15 @@ export default {
       if (this.trashEnable) {
         this.activeName = 'trash';
       } else {
-        this.activeName = 'default';
+        this.actciveName = 'default';
       }
     },
     publicEnable() {
       if (this.publicEnable) {
         this.activeName = 'public';
-        this.result = this.$post('/test/case/public/case/node', {workspaceId: getCurrentWorkspaceId()}, res => {
-          this.publicTreeNodes = res.data;
-          this.publicTreeNodes.forEach(firstLevel => {
-            this.$refs.publicNodeTree.nodeExpand(firstLevel);
-          })
-        })
+        this.$nextTick(() => {
+          this.$refs.publicNodeTree.list();
+        });
       } else {
         this.activeName = 'default';
       }
@@ -355,7 +348,9 @@ export default {
       let redirectParam = this.$route.params.dataSelectRange;
       return redirectParam;
     },
-
+    showPublicNode() {
+      return this.activeName === 'public';
+    },
     projectId() {
       return getCurrentProjectID();
     },
@@ -592,16 +587,7 @@ export default {
         this.$router.push('/track/case/all');
       }
     },
-    nodeChange(node) {
-      this.condition.trashEnable = false;
-      this.trashEnable = false;
-      this.condition.publicEnable = false;
-      this.publicEnable = false;
-      this.activeName = "default";
-    },
     publicNodeChange(node, nodeIds, pNodes) {
-      this.activeName = 'public';
-      this.publicEnable = true;
       if (this.$refs.testCasePublicList) {
         this.$refs.testCasePublicList.initTableData(nodeIds);
       }
@@ -681,6 +667,13 @@ export default {
       }
       this.refreshAll(data);
     },
+    refreshTreeByCaseFilter() {
+      if (this.publicEnable) {
+        this.$refs.publicNodeTree.list(this.condition);
+      } else if (!this.trashEnable) {
+        this.$refs.nodeTree.list(this.condition);
+      }
+    },
     setTable(data) {
       if (data) {
         for (let index in this.tabs) {
@@ -709,9 +702,7 @@ export default {
       if (this.$refs.testCasePublicList) {
         this.$refs.testCasePublicList.initTableData([]);
       }
-      this.result = this.$post('/test/case/public/case/node', {workspaceId: getCurrentWorkspaceId()}, res => {
-        this.publicTreeNodes = res.data;
-      })
+      this.$refs.publicNodeTree.list();
     },
     setTreeNodes(data) {
       this.treeNodes = data;
@@ -728,11 +719,9 @@ export default {
       });
     },
     enableTrash(data) {
-      this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
     },
     enablePublic(data) {
-      this.initApiTableOpretion = "publicEnable";
       this.publicEnable = !data;
       this.$nextTick(() => {
         this.publicEnable = data;
@@ -744,7 +733,6 @@ export default {
       } else {
         this.activeName = "trash"
       }
-
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;

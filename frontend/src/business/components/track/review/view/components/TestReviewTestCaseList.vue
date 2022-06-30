@@ -1,6 +1,6 @@
 <template>
   <div class="card-container">
-    <ms-table-header :tester-permission="true" :condition.sync="condition" @search="initTableData"
+    <ms-table-header :tester-permission="true" :condition.sync="condition" @search="search"
                      :show-create="false" :tip="$t('commons.search_by_name_or_id')">
       <template v-slot:button>
         <ms-table-button v-permission="['PROJECT_TRACK_REVIEW:READ+REVIEW']" icon="el-icon-video-play"
@@ -33,7 +33,8 @@
       :enable-order-drag="enableOrderDrag"
       :row-order-func="editTestReviewTestCaseOrder"
       :row-order-group-id="reviewId"
-      @refresh="initTableData"
+      @order="initTableData"
+      @filter="search"
       ref="table"
     >
       <span v-for="item in fields" :key="item.key">
@@ -136,7 +137,7 @@
 
     </ms-table>
 
-    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+    <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
     <test-review-test-case-edit
@@ -152,7 +153,7 @@
       @nextPage="nextPage"
       @prePage="prePage"
       @refresh="initTableData"
-      @refreshTable="search"/>
+      @refreshTable="initTableData"/>
 
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
@@ -308,7 +309,7 @@ export default {
       this.refreshTableAndReview();
     },
     selectNodeIds() {
-      this.search();
+      this.initTableData();
     },
     condition() {
       this.$emit('setCondition', this.condition);
@@ -431,10 +432,10 @@ export default {
       let param = {};
       param.id = this.reviewId;
       param.updateTime = Date.now();
-      // this.$post('/test/case/review/edit', param);
     },
     search() {
       this.initTableData();
+      this.$emit('search');
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;

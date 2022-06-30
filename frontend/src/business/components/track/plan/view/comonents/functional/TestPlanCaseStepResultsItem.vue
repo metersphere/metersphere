@@ -27,11 +27,11 @@
             class="border-hidden sync-textarea"
             type="textarea"
             :disabled="true"
-            v-model="scope.row.result"/>eee
+            v-model="scope.row.result"/>
         </template>
       </el-table-column>f
       <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
-        G<template v-slot:default="scope">DD
+        <template v-slot:default="scope">
           <el-input
             v-model="scope.row.actualResult"
             clearable

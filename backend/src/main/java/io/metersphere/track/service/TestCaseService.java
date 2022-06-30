@@ -2775,7 +2775,7 @@ public class TestCaseService {
 
     public List<TestCaseNodeDTO> getPublicCaseNode(QueryTestCaseRequest request) {
         List<TestCaseNodeDTO> testCaseDTOS = publicProjectNode(request);
-        return testCaseNodeService.getPublicNodeByProjectNode(testCaseDTOS);
+        return testCaseNodeService.getPublicNodeByProjectNode(testCaseDTOS, request);
     }
 
     public List<TestCaseNodeDTO> publicProjectNode(QueryTestCaseRequest request) {
