@@ -385,7 +385,7 @@ public class ApiScenarioReportStructureService {
      */
     private void orderLoops(List<StepTreeDTO> dtoList) {
         try {
-            List<StepTreeDTO> steps = dtoList.stream().filter(e -> e.getValue() == null || StringUtils.isEmpty(e.getValue().getId()))
+            List<StepTreeDTO> steps = dtoList.stream().filter(e -> e.getValue() == null || e.getValue().getStartTime() == 0)
                     .collect(Collectors.toList());
             // 都是没有结果的步骤，不需要再次排序
             if (dtoList.size() == steps.size()) {
