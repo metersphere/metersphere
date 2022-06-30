@@ -484,7 +484,7 @@ export default {
 }
 
 .global {
-  color: var(--color);
+  color: rgb(96,98,102);
 }
 
 .header-top-menu {

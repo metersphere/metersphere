@@ -219,7 +219,7 @@ export default {
 }
 
 .global {
-  color: var(--color);
+  color: rgb(146, 147, 150);
 }
 
 .header-top-menu {

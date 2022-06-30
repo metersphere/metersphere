@@ -4,7 +4,7 @@
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
                   'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ','WORKSPACE_USER:READ']" >
-    <span class="dropdown-link global">
+    <span class="dropdown-link">
       {{ currentWorkspaceName }}
       <i class="el-icon-caret-bottom el-icon--right"/>
     </span>
@@ -180,7 +180,6 @@ export default {
 .dropdown-link {
   cursor: pointer;
   font-size: 12px;
-  color: rgb(245, 245, 245);
   line-height: 40px;
   padding-right: 10px;
   padding-left: 5px;

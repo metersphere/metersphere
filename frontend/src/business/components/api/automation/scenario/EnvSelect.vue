@@ -116,7 +116,7 @@ export default {
       return arr;
     },
     getUserPermissionProjectIds(){
-      this.$get('/project/getOwnerProjectIds/', res => {
+      this.$get('/project/getOwnerProjectIds', res => {
         this.permissionProjectIds = res.data;
       })
     },
