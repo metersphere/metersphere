@@ -474,11 +474,11 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
      * 上传文件时对文件的模块进行检测
      *
      * @param data
-     * @param fullCoverage    是否覆盖接口
-     * @param fullCoverageApi 是否更新当前接口所在模块
+     * @param fullCoverage         是否覆盖接口
+     * @param fullCoverageScenario 是否更新当前接口所在模块
      * @return Return to the newly added module map
      */
-    public UpdateScenarioModuleDTO checkScenarioModule(ApiTestImportRequest request, List<ApiScenarioWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageApi) {
+    public UpdateScenarioModuleDTO checkScenarioModule(ApiTestImportRequest request, List<ApiScenarioWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageScenario) {
         //需要新增的模块，key 为模块路径
         Map<String, ApiScenarioModule> moduleMap = new HashMap<>();
         List<ApiScenarioWithBLOBs> toUpdateList = new ArrayList<>();
@@ -486,6 +486,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         //上传文件时选的模块ID
         String chooseModuleId = request.getModuleId();
         String projectId = request.getProjectId();
+
+        if (fullCoverageScenario == null) {
+            fullCoverageScenario = false;
+        }
 
         //获取当前项目的当前协议下的所有模块的Tree
         List<ApiScenarioModuleDTO> scenarioModules = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
@@ -520,23 +524,30 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         //系统内重复的数据
         List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs;
         if (chooseModule != null) {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(data, projectId, chooseModule.getId(), updateVersionId);
+            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), updateVersionId);
         } else {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(data, projectId, updateVersionId);
+            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(optionData, projectId, updateVersionId);
         }
 
-        Map<String, ApiScenarioWithBLOBs> nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), scenario -> scenario));
-        Map<String, ApiScenarioWithBLOBs> repeatDataMap = null;
-        if (!repeatApiScenarioWithBLOBs.isEmpty()) {
-            repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+        Map<String, ApiScenarioWithBLOBs> nameModuleMap = null;
+        Map<String, ApiScenarioWithBLOBs> repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+        if (chooseModule != null) {
+            if (!repeatApiScenarioWithBLOBs.isEmpty()) {
+                String chooseModuleParentId = getChooseModuleParentId(chooseModule);
+                String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
+                nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + chooseModulePath, scenario -> scenario));
+            }
+        } else {
+            nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), scenario -> scenario));
         }
         //处理数据
         if (fullCoverage) {
-            if (fullCoverageApi) {
+            if (fullCoverageScenario) {
+
                 startCoverModule(toUpdateList, nameModuleMap, repeatDataMap);
             } else {
                 //覆盖但不覆盖模块
-                if (repeatDataMap != null) {
+                if (nameModuleMap != null) {
                     //导入文件没有新增场景无需创建接口模块
                     moduleMap = judgeModuleMap(moduleMap, nameModuleMap, repeatDataMap);
                     startCover(toUpdateList, nameModuleMap, repeatDataMap);
@@ -570,6 +581,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
             if (apiScenarioWithBLOBs != null) {
                 apiScenarioWithBLOBs.setId(v.getId());
+                apiScenarioWithBLOBs.setVersionId(v.getVersionId());
                 apiScenarioWithBLOBs.setApiScenarioModuleId(v.getApiScenarioModuleId());
                 apiScenarioWithBLOBs.setModulePath(v.getModulePath());
                 toUpdateList.add(apiScenarioWithBLOBs);
@@ -590,6 +602,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
                 if (apiScenarioWithBLOBs != null) {
                     apiScenarioWithBLOBs.setId(v.getId());
+                    apiScenarioWithBLOBs.setVersionId(v.getVersionId());
                     toUpdateList.add(apiScenarioWithBLOBs);
                 }
             });
@@ -634,22 +647,14 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             String modulePath = datum.getModulePath();
             ApiScenarioModule scenarioModule = map.get(modulePath);
             if (chooseModule != null) {
-                if (chooseModule.getParentId() == null) {
-                    chooseModule.setParentId("root");
-                }
-                String chooseModuleParentId = chooseModule.getParentId();
+                String chooseModuleParentId = getChooseModuleParentId(chooseModule);
+                String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
                 //导入时选了模块，且接口有模块的
                 if (StringUtils.isNotBlank(modulePath)) {
                     //选中模块的同级模块集合，用于和场景的全路径做对比
                     List<ApiScenarioModule> parentModuleList = pidChildrenMap.get(chooseModuleParentId);
-                    String s;
-                    if (chooseModuleParentId.equals("root")) {
-                        s = "/" + chooseModule.getName();
-                    } else {
-                        s = idPathMap.get(chooseModuleParentId);
-                    }
                     //场景的全部路径的集合
-                    tagTree = getTagTree(s + modulePath);
+                    tagTree = getTagTree(chooseModulePath + modulePath);
 
                     ApiScenarioModule chooseModuleOne = JSON.parseObject(JSON.toJSONString(chooseModule), ApiScenarioModule.class);
                     ApiScenarioModule minModule = getMinModule(tagTree, parentModuleList, chooseModuleOne, pidChildrenMap, map, idPathMap, idModuleMap);
@@ -687,6 +692,24 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 }
             }
         }
+    }
+
+    private String getChooseModuleParentId(ApiScenarioModuleDTO chooseModule) {
+        if (chooseModule.getParentId() == null) {
+            chooseModule.setParentId("root");
+        }
+        String chooseModuleParentId = chooseModule.getParentId();
+        return chooseModuleParentId;
+    }
+
+    private String getChooseModulePath(Map<String, String> idPathMap, ApiScenarioModuleDTO chooseModule, String chooseModuleParentId) {
+        String s;
+        if (chooseModuleParentId.equals("root")) {
+            s = "/" + chooseModule.getName();
+        } else {
+            s = idPathMap.get(chooseModuleParentId);
+        }
+        return s;
     }
 
     private String[] getTagTree(String modulePath) {
@@ -812,7 +835,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     idChildrenMap.put(scenarioModuleDTO.getId(), scenarioModuleDTO.getChildren());
                 }
             } else {
-                if (i == nodeTreeByProjectId.size() && idChildrenMap.size() == 0) {
+                if (childrenList == null) {
                     pidChildrenMap.put(scenarioModuleDTO.getId(), new ArrayList<>());
                 }
             }
