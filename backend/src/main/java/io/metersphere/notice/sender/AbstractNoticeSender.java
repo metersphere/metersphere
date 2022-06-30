@@ -61,13 +61,15 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         if (noticeModel.getParamMap().containsKey("customFields")) {
             String customFields = (String) noticeModel.getParamMap().get("customFields");
             JSONArray array = JSON.parseArray(customFields);
-            for (Object o : array) {
-                JSONObject jsonObject = JSON.parseObject(o.toString());
-                String name = jsonObject.getString("name");
-                Object value = jsonObject.getObject("value", Object.class);
-                noticeModel.getParamMap().put(name, value); // 处理人
-                if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
-                    noticeModel.getParamMap().put("processor", value); // 处理人
+            if (CollectionUtils.isNotEmpty(array)) {
+                for (Object o : array) {
+                    JSONObject jsonObject = JSON.parseObject(o.toString());
+                    String name = jsonObject.getString("name");
+                    Object value = jsonObject.getObject("value", Object.class);
+                    noticeModel.getParamMap().put(name, value); // 处理人
+                    if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
+                        noticeModel.getParamMap().put("processor", value); // 处理人
+                    }
                 }
             }
         }
@@ -145,6 +147,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                                     .collect(Collectors.toList());
                             toUsers.addAll(receivers);
                         }
+                    }
+                    if (paramMap.containsKey("executor")) {
+                        toUsers.add(new Receiver((String) paramMap.get("executor"), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                     break;
                 case NoticeConstants.RelatedUser.CREATOR:

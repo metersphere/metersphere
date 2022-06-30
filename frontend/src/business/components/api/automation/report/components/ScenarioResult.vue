@@ -9,7 +9,7 @@
           </div>
         </div>
         <el-tooltip effect="dark" :content="node.label" placement="top">
-          <span>{{ node.label }}</span>
+          <span>{{ getLabel(node.label) }}</span>
         </el-tooltip>
       </el-card>
     </div>
@@ -42,6 +42,7 @@
 <script>
 import MsRequestResult from "./RequestResult";
 import {STEP} from "@/business/components/api/automation/scenario/Setting";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const UiCommandResult = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiCommandResult.vue") : {};
 
@@ -56,7 +57,7 @@ export default {
     node: Object,
     console: String,
     isActive: Boolean,
-    isShare:Boolean,
+    isShare: Boolean,
     shareId: String,
   },
 
@@ -66,6 +67,18 @@ export default {
     }
   },
   methods: {
+    getLabel(label) {
+      switch (label) {
+        case "ConstantTimer":
+          return "等待控制器";
+        case "LoopController":
+          return "循环控制器";
+        case "Assertion":
+          return "场景断言";
+        default:
+          return label;
+      }
+    },
     active() {
       this.isActive = !this.isActive;
     },

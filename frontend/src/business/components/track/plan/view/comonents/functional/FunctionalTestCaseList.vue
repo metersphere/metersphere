@@ -631,13 +631,9 @@ export default {
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row, this.tableData);
     },
     refresh() {
-      this.condition = {components: TEST_PLAN_TEST_CASE_CONFIGS};
       this.$refs.table.clear();
-      this.$emit('refresh');
-    },
-    breadcrumbRefresh() {
-      this.showMyTestCase = false;
-      this.refresh();
+      this.search();
+      this.$emit('refreshTree');
     },
     refreshTableAndPlan() {
       if (this.$refs.tableHeader) {
@@ -683,8 +679,7 @@ export default {
           if (action === 'confirm') {
             let param = buildBatchParam(this, this.$refs.table.selectIds);
             this.$post('/test/plan/case/batch/delete', param, () => {
-              this.$refs.table.clear();
-              this.$emit("refresh");
+              this.refresh();
               this.$success(this.$t('test_track.cancel_relevance_success'));
             });
           }
@@ -694,7 +689,7 @@ export default {
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
       this.result = this.$post('/test/plan/case/delete/' + testCaseId, {}, () => {
-        this.$emit("refresh");
+        this.refresh();
         this.$success(this.$t('test_track.cancel_relevance_success'));
       });
     },
@@ -738,11 +733,10 @@ export default {
       }
       param.ids = this.$refs.table.selectIds;
       this.$post('/test/plan/case/batch/edit', param, () => {
-        this.$refs.table.clear();
         this.status = '';
         this.$post('/test/plan/edit/status/' + this.planId);
         this.$success(this.$t('commons.save_success'));
-        this.$emit('refresh');
+        this.refresh();
       });
     },
     handleBatchEdit() {

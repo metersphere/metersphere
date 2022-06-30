@@ -4,7 +4,7 @@
 
       <el-card class="table-card">
         <template v-slot:header>
-          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
+          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="search" @create="handleCreate"
                            :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
@@ -30,7 +30,8 @@
           @handlePageChange="getIssues"
           :fields.sync="fields"
           :field-key="tableHeaderKey"
-          @refresh="getIssues"
+          @order="getIssues"
+          @filter="search"
           :custom-fields="issueTemplate.customFields"
           ref="table"
         >
@@ -137,6 +138,16 @@
                 <span v-if="field.name === '状态'">
                   {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
                 </span>
+                <span v-if="field.type === 'richText'">
+                   <el-popover
+                     placement="right"
+                     width="500"
+                     trigger="hover"
+                     popper-class="issues-popover">
+                     <ms-mark-down-text prop="value" :data="{value: getCustomFieldValue(scope.row, field)}" :disabled="true"/>
+                    <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
+                  </el-popover>
+                </span>
                 <span v-else>
                   {{getCustomFieldValue(scope.row, field)}}
                 </span>
@@ -170,7 +181,7 @@ import {
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/components/track/issue/IssueEdit";
-import {getIssuePartTemplateWithProject, getIssues, syncIssues} from "@/network/Issue";
+import {checkSyncIssues, getIssuePartTemplateWithProject, getIssues, syncIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
@@ -181,10 +192,12 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import {getProjectMember} from "@/network/user";
 import {LOCAL} from "@/common/js/constants";
+import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 
 export default {
   name: "IssueList",
   components: {
+    MsMarkDownText,
     MsMainContainer,
     MsContainer,
     IssueEdit,
@@ -291,6 +304,11 @@ export default {
       }
       if (this.$refs.table) this.$refs.table.reloadTable();
     },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.page.currentPage = 1;
+      this.getIssues();
+    },
     getIssues() {
       this.page.condition.projectId = this.projectId;
       this.page.condition.workspaceId= this.workspaceId;
@@ -340,8 +358,15 @@ export default {
       return false;
     },
     syncIssues() {
-      this.page.result = syncIssues(() => {
-        this.getIssues();
+      this.page.result.loading = true;
+      syncIssues((data) => {
+        if (data === false) {
+          checkSyncIssues(this.page.result);
+        } else {
+          this.$success(this.$t('test_track.issue.sync_complete'));
+          this.page.result.loading = false;
+          this.getIssues();
+        }
       });
     }
   }

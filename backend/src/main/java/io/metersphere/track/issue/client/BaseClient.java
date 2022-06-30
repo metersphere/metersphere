@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
+import io.metersphere.commons.utils.EnvProxySelector;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -30,6 +32,8 @@ public abstract class BaseClient {
                     .build();
             SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
             CloseableHttpClient httpClient = HttpClients.custom()
+                    // 可以支持设置系统代理
+                    .setRoutePlanner(new SystemDefaultRoutePlanner(new EnvProxySelector()))
                     .setSSLSocketFactory(csf)
                     .build();
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <api-list-container
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
@@ -71,7 +71,7 @@
 
         <ms-table-column
           prop="createUser"
-          :label="'创建人'"/>
+          :label="$t('commons.create_user')"/>
 
         <ms-table-column
           sortable="createTime"

@@ -57,6 +57,7 @@ export default {
     annotation: '注释',
     clear: '清空',
     save: '保存',
+    not_save: '不保存',
     save_as: '另存为',
     update: '更新',
     save_success: '保存成功',
@@ -1126,6 +1127,8 @@ export default {
     hours: "时",
   },
   api_test: {
+    case_jump_message: "跳转的用例已经删除！",
+    scenario_jump_message: "跳转的场景已经删除！",
     is_continue: "是否继续",
     creator: "创建人",
     save_and_run: "保存并执行",
@@ -1906,7 +1909,7 @@ export default {
     },
     script: {
       tip_3: "脚本步骤会统计到场景执行结果中，执行报错时会影响场景的最终执行结果",
-      filter_request_type: "过滤请求类型",
+      filter_request_type: "忽略请求",
       execution_order: "脚本执行顺序",
       associated_scene_results: "关联场景结果",
       execute_before_step: "单个请求步骤前执行",
@@ -2248,7 +2251,8 @@ export default {
       reviewed_by_me: "待我评审",
       creator: "创建人",
       done: "已评用例",
-      result_distribution: "结果分布"
+      result_distribution: "结果分布",
+      deadline_cannot_early_tips: "截止时间不能早于当前时间！",
     },
     comment: {
       no_comment: "暂无评论",
@@ -2414,6 +2418,8 @@ export default {
       use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平台的缺陷",
       sync_bugs: "同步缺陷",
+      sync_complete: "同步完成",
+      issue_sync_tip: "当前项目正在同步缺陷, 请稍等!",
       save_before_open_comment: "请先保存缺陷再添加评论",
       delete_tip: "确认删除缺陷：",
       check_id_exist: "检查",
@@ -2425,7 +2431,7 @@ export default {
       tapd_status_verified: "已验证",
       tapd_status_closed: "已关闭",
       tapd_status_resolved: "已解决",
-      please_choose_platform_status: "请选择平台状态",
+      please_choose_platform_status: "请选择平台状态"
     },
     report: {
       name: "测试计划报告",

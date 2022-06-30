@@ -26,24 +26,16 @@ import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseIssueService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.net.URLDecoder;
-import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -51,8 +43,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class AbstractIssuePlatform implements IssuesPlatform {
-
-    private static RestTemplate restTemplate;
 
     protected IntegrationService integrationService;
     protected TestCaseIssueService testCaseIssueService;
@@ -62,7 +52,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected IssuesMapper issuesMapper;
     protected ExtIssuesMapper extIssuesMapper;
     protected ResourceService resourceService;
-    protected RestTemplate restTemplateIgnoreSSL;
     protected UserService userService;
     protected ProjectMapper projectMapper;
     protected String testCaseId;
@@ -73,28 +62,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected String defaultCustomFields;
     protected boolean isThirdPartTemplate;
 
-
     public String getKey() {
         return key;
-    }
-
-    static {
-        try {
-            TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-            SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
-                    .loadTrustMaterial(null, acceptingTrustStrategy)
-                    .build();
-            SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
-            CloseableHttpClient httpClient = HttpClients.custom()
-                    .setSSLSocketFactory(csf)
-                    .build();
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-            requestFactory.setHttpClient(httpClient);
-
-            restTemplate = new RestTemplate(requestFactory);
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
     }
 
     public AbstractIssuePlatform(IssuesRequest issuesRequest) {
@@ -116,7 +85,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.extIssuesMapper = CommonBeanFactory.getBean(ExtIssuesMapper.class);
         this.resourceService = CommonBeanFactory.getBean(ResourceService.class);
         this.testCaseIssueService = CommonBeanFactory.getBean(TestCaseIssueService.class);
-        this.restTemplateIgnoreSSL = restTemplate;
     }
 
     protected String getPlatformConfig(String platform) {

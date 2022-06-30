@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
+    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" v-if="createVisible"
                @close="handleClose">
       <el-form v-loading="result.loading" :model="form" :rules="rules" ref="form" label-position="right" label-width="80px" size="small">
         <el-form-item :label-width="labelWidth" :label="$t('commons.name')" prop="name">

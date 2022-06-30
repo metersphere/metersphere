@@ -668,7 +668,7 @@ export default {
           return row.priority;
         }
         if (field.name === '责任人') {
-          return row.maintainer;
+          return row.maintainerName;
         }
         if (field.name === '用例状态') {
           return row.status;
@@ -796,8 +796,12 @@ export default {
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
           this.page.data.forEach(item => {
+            let nodePath = item.nodePath;
             if (item.customFields) {
               item.customFields = JSON.parse(item.customFields);
+            }
+            if (nodePath.startsWith("/未规划用例", "0")) {
+              item.nodePath = nodePath.replaceAll("/未规划用例", "/" + this.$t('api_test.unplanned_case'));
             }
           });
           parseTag(this.page.data);
@@ -987,7 +991,7 @@ export default {
     },
     refresh() {
       this.$refs.table.clear();
-      this.$emit('refresh');
+      this.$emit('refreshAll');
     },
     refreshAll() {
       this.$refs.table.clear();

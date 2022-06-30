@@ -623,8 +623,8 @@ export default {
     },
     editScenario(row) {
       if (!row) {
-        this.activeName === 'default'
-        this.$error("跳转的应场景已经删除！");
+        this.activeName = 'default';
+        this.$error(this.$t('api_test.scenario_jump_message'));
         return;
       }
       const index = this.tabs.find(p => p.currentScenario.id === row.id && p.currentScenario.copy === row.copy);

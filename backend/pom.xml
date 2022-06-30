@@ -15,11 +15,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <shiro.version>1.9.0</shiro.version>
         <java.version>11</java.version>
-        <flyway.version>7.15.0</flyway.version>
-        <dubbo.version>2.7.15</dubbo.version>
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
+        <!-- 第三方不包统一版本，如果不指定，Spring 会为我们选择匹配的版本 -->
+        <dubbo.version>2.7.15</dubbo.version>
+        <flyway.version>7.15.0</flyway.version>
+        <shiro.version>1.9.0</shiro.version>
+        <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
+        <postgresql.version>42.3.2</postgresql.version>
+        <java-websocket.version>1.5.3</java-websocket.version>
     </properties>
 
     <dependencies>
@@ -302,7 +306,7 @@
         <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
-            <version>1.5.0</version>
+            <version>${java-websocket.version}</version>
         </dependency>
         <!-- xmind export-->
         <dependency>

@@ -16,11 +16,11 @@
     </template>
 
 
-    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="getTestCases"
-              @keyup.enter.native="getTestCases" class="search-input" size="small" v-model="condition.name"/>
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
+              @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
-                             @search="getTestCases"/>
+                             @search="search"/>
     <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" style="float: left;"
                     class="search-input"/>
 
@@ -33,7 +33,8 @@
       :remember-order="true"
       row-key="id"
       :row-order-group-id="projectId"
-      @refresh="search"
+      @order="getTestCases"
+      @filter="search"
       :disable-header-config="true"
       @selectCountChange="setSelectCounts"
       ref="table">
@@ -108,8 +109,8 @@ import MsPerformanceTestStatus from "@/business/components/performance/test/Perf
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {_filter, buildBatchParam} from "@/common/js/tableUtils";
 import {TEST_PLAN_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {getVersionFilters} from "@/network/project";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -175,6 +176,10 @@ export default {
     reviewId() {
       this.condition.reviewId = this.reviewId;
     },
+    projectId() {
+      this.condition.versionId = null;
+      this.getVersionOptions();
+    }
   },
   mounted() {
     this.getVersionOptions();
@@ -188,7 +193,6 @@ export default {
       this.$refs.baseRelevance.open();
     },
     setProject(projectId) {
-      this.condition.versionId = null;
       this.projectId = projectId;
       this.condition.projectId = this.projectId;
       this.getProjectNode();
@@ -318,14 +322,9 @@ export default {
       this.selectNodeIds = [];
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(currentVersion) {
       this.condition.versionId = currentVersion || null;

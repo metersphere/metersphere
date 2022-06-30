@@ -57,6 +57,7 @@ export default {
     annotation: '註釋',
     clear: '清空',
     save: '保存',
+    not_save: '不保存',
     save_as: '另存為',
     update: '更新',
     save_success: '保存成功',
@@ -1126,6 +1127,8 @@ export default {
     hours: "時",
   },
   api_test: {
+    case_jump_message: "跳轉的用例已經刪除！",
+    scenario_jump_message: "跳轉的場景已經刪除！",
     is_continue: "是否繼續",
     creator: "創建人",
     save_and_run: "保存並執行",
@@ -1906,7 +1909,7 @@ export default {
     },
     script: {
       tip_3: "腳本步驟會統計到場景執行結果中，執行報錯時會影響場景的最終執行結果",
-      filter_request_type: "過濾請求類型",
+      filter_request_type: "忽略請求",
       execution_order: "腳本執行順序",
       associated_scene_results: "關聯場景結果",
       execute_before_step: "單個請求步驟前執行",
@@ -2245,7 +2248,8 @@ export default {
       reviewed_by_me: "待我評審",
       creator: "創建人",
       done: "已評用例",
-      result_distribution: "結果分布"
+      result_distribution: "結果分布",
+      deadline_cannot_early_tips: "截止時間不能早於當前時間！",
     },
     comment: {
       no_comment: "暫無評論",
@@ -2411,6 +2415,8 @@ export default {
       use_third_party: "使用 Jira 缺陷模板",
       update_third_party_bugs: "更新第三方平臺的缺陷",
       sync_bugs: "同步缺陷",
+      sync_complete: "同步完成",
+      issue_sync_tip: "當前項目正在同步缺陷, 請稍等!",
       save_before_open_comment: "請先保存缺陷再添加評論",
       delete_tip: "確認刪除缺陷：",
       check_id_exist: "檢查",

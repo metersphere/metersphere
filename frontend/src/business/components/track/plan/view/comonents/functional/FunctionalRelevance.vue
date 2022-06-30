@@ -19,7 +19,7 @@
                  ref="nodeTree"/>
     </template>
 
-    <ms-table-header :condition.sync="page.condition" @search="getTestCases" title="" :show-create="false">
+    <ms-table-header :condition.sync="page.condition" @search="search" title="" :show-create="false">
       <template v-slot:searchBarBefore>
         <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" margin-right="20"/>
       </template>
@@ -34,7 +34,8 @@
       :screen-height="screenHeight"
       @handlePageChange="getTestCases"
       @selectCountChange="setSelectCounts"
-      @refresh="getTestCases"
+      @order="getTestCases"
+      @filter="search"
       ref="table">
 
       <ms-table-column
@@ -109,6 +110,7 @@ import MsTag from "@/business/components/common/components/MsTag";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import {getVersionFilters} from "@/network/project";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -191,6 +193,7 @@ export default {
       this.getProjectNode();
       this.getTestCases();
       this.getCustomNum();
+      this.getVersionOptions();
     }
   },
   methods: {
@@ -215,6 +218,11 @@ export default {
           this.customNum = data.caseCustomNum;
         }
       });
+    },
+    search() {
+      // 添加搜索条件时，当前页设置成第一页
+      this.page.currentPage = 1;
+      this.getTestCases();
     },
     getTestCases() {
       let condition = this.page.condition;
@@ -258,14 +266,9 @@ export default {
       this.getNodeTree(this);
     },
     getVersionOptions() {
-      if (hasLicense()) {
-        this.$get('/project/version/get-project-versions/' + getCurrentProjectID(), response => {
-          this.versionOptions = response.data;
-          this.versionFilters = response.data.map(u => {
-            return {text: u.name, value: u.id};
-          });
-        });
-      }
+      getVersionFilters(this.projectId, (data) => {
+        this.versionFilters = data;
+      });
     },
     changeVersion(currentVersion) {
       this.page.condition.versionId = currentVersion || null;

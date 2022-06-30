@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.xpack.ui.service.UiScenarioReportStructureService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
@@ -23,6 +24,7 @@ public class CleanUpReportJob extends MsScheduleJob {
 
     private final ProjectService projectService;
     private final ProjectApplicationService projectApplicationService;
+    private final UiScenarioReportStructureService uiScenarioReportStructureService;
     private static final String UNIT_DAY = "D";
     private static final String UNIT_MONTH = "M";
     private static final String UNIT_YEAR = "Y";
@@ -31,6 +33,7 @@ public class CleanUpReportJob extends MsScheduleJob {
     public CleanUpReportJob() {
         projectService = CommonBeanFactory.getBean(ProjectService.class);
         projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
+        uiScenarioReportStructureService = CommonBeanFactory.getBean(UiScenarioReportStructureService.class);
         localDate = LocalDate.now();
     }
 
@@ -52,6 +55,8 @@ public class CleanUpReportJob extends MsScheduleJob {
             if (BooleanUtils.isTrue(config.getCleanLoadReport())) {
                 this.doCleanUp(projectService::cleanUpLoadReport, config.getCleanLoadReportExpr());
             }
+            // 定时删除 UI 调试模式生成的截图
+            projectService.cleanUpUiReportImg();
         } catch (Exception e) {
             LogUtil.error("clean up report error.");
             LogUtil.error(e.getMessage(), e);
