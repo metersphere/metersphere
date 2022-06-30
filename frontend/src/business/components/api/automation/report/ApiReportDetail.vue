@@ -679,9 +679,8 @@
           return;
         }
         this.loading = true;
-        this.report.projectId = this.projectId;
-        let url = "/api/scenario/report/update";
-        this.result = this.$post(url, this.report, response => {
+        let url = "/api/scenario/report/reName";
+        this.result = this.$post(url, {id: this.report.id,name: this.report.name,reportType: this.report.reportType }, response => {
           this.$success(this.$t('commons.save_success'));
           this.loading = false;
           this.$emit('refresh');
