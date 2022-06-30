@@ -58,7 +58,7 @@
 
     <!-- 场景步骤-->
     <ms-container :class="{'maximize-container': !asideHidden}">
-      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding-top: 0px;overflow: hidden">
+      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding: 0px;overflow: hidden">
         <div class="ms-debug-result" v-if="reqTotal > 0">
           <span style="float: right">
              <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
@@ -80,7 +80,7 @@
                    :show-checkbox="isBatchProcess"
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
-                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" class="ms-tree" ref="maxStepTree">
+                   :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" class="ms-max-tree" ref="maxStepTree">
             <el-row class="custom-tree-node" :gutter="18" type="flex" align="middle" slot-scope="{node, data}" style="width: 98%">
               <el-col class="custom-tree-node-col" style="padding-left:0px;padding-right:0px" v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                 <span v-show="!node.expanded" class="el-icon-circle-plus-outline custom-node_e" @click="openOrClose(node)"/>
@@ -1219,27 +1219,26 @@ export default {
   z-index: 9;
 }
 
-
-.ms-tree >>> .el-tree-node__expand-icon.expanded {
+.ms-max-tree >>> .el-tree-node__expand-icon.expanded {
   -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
 }
 
-.ms-tree >>> .el-icon-caret-right:before {
+.ms-max-tree >>> .el-icon-caret-right:before {
   /*content: '\e723';*/
   padding: 0;
   content: "";
 }
 
-.ms-tree >>> .el-tree-node__expand-icon.is-leaf {
+.ms-max-tree >>> .el-tree-node__expand-icon.is-leaf {
   color: transparent;
 }
 
-.ms-tree >>> .el-tree-node__expand-icon {
+.ms-max-tree >>> .el-tree-node__expand-icon {
   color: #7C3985;
 }
 
-.ms-tree >>> .el-tree-node__expand-icon.expanded.el-icon-caret-right:before {
+.ms-max-tree >>> .el-tree-node__expand-icon.expanded.el-icon-caret-right:before {
   color: #7C3985;
   /* content: "\e722";*/
   padding: 0;
