@@ -288,6 +288,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                 apiDefinition.setModulePath("/" + this.apiModule.getName());
             }
         }*/
+        apiDefinition.setModulePath("/" + this.planName);
         // todo 除HTTP协议外，其它协议设置默认模块
         apiDefinition.setStatus("Prepare");
         apiDefinition.setProtocol(protocol);

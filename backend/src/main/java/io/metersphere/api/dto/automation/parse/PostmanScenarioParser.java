@@ -58,6 +58,7 @@ public class PostmanScenarioParser extends PostmanAbstractParserParser<ScenarioI
                 scenarioWithBLOBs.setModulePath("/" + module.getName());
             }
         }*/
+        scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 

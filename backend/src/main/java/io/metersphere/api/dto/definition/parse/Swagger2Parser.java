@@ -144,6 +144,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 /*
                 buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
 */
+                buildModulePath(apiDefinition, operation.getTags());
                 if (operation.isDeprecated() != null && operation.isDeprecated()) {
                     apiDefinition.setTags("[\"Deleted\"]");
                 }
@@ -153,6 +154,28 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         this.definitions = null;
         return results;
+    }
+
+    private void buildModulePath(ApiDefinitionWithBLOBs apiDefinition, List<String> tags) {
+        StringBuilder modulePathBuilder = new StringBuilder();
+        String modulePath = getModulePath(tags, modulePathBuilder);
+        apiDefinition.setModulePath(modulePath);
+    }
+
+    private String getModulePath(List<String> tagTree, StringBuilder modulePath) {
+        for (String s : tagTree) {
+            if (s.contains("/")) {
+                String[] split = s.split("/");
+                if (split.length > 0) {
+                    getModulePath(List.of(split), modulePath);
+                }
+            } else {
+                if (StringUtils.isNotBlank(s)) {
+                    modulePath.append("/").append(s);
+                }
+            }
+        }
+        return modulePath.toString();
     }
 
     private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method, ApiTestImportRequest importRequest) {
