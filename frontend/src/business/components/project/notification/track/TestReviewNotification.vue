@@ -358,7 +358,7 @@ export default {
         default:
           break;
       }
-      row.receiverOptions = reviewReceiverOptions;
+      row.reviewReceiverOptions = reviewReceiverOptions;
     },
     handleTemplate(index, row) {
       if (hasLicense()) {

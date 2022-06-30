@@ -377,7 +377,7 @@ export default {
         default:
           break;
       }
-      row.receiverOptions = testPlanReceivers;
+      row.defectReceiverOptions = testPlanReceivers;
     },
   },
   watch: {
