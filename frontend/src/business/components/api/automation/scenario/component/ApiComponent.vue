@@ -723,7 +723,7 @@ export default {
 
 .ms-step-debug-code {
   display: inline-block;
-  margin: 0 5px;
+  margin: 0 0px;
   overflow-x: hidden;
   padding-bottom: 0;
   text-overflow: ellipsis;

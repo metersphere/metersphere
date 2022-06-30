@@ -415,7 +415,7 @@ fieldset {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 60px;
+  width: 130px;
 }
 .ms-base-card{
   min-height: 36px;

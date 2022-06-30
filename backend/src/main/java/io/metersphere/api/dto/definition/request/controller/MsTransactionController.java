@@ -19,6 +19,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "TransactionController")
 public class MsTransactionController extends MsTestElement {
+    private static final String NAME_CN = "事务控制器";
     private String type = "TransactionController";
     private String clazzName = MsTransactionController.class.getCanonicalName();
 
@@ -65,12 +66,8 @@ public class MsTransactionController extends MsTestElement {
 
     public String getLabelName() {
         if (isValid()) {
-            String label = "事务控制器：";
-            if (StringUtils.isNotBlank(name)) {
-                label += " " + this.name;
-            }
-            return label;
+            return NAME_CN + " " + this.name;
         }
-        return "TransactionController";
+        return NAME_CN;
     }
 }
