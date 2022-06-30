@@ -222,7 +222,7 @@ public class ApiCaseExecuteService {
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
 
         ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andIdIn(request.getIds());
+        example.createCriteria().andIdIn(request.getIds()).andStatusNotEqualTo("Trash");
         List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
         LoggerUtil.debug("查询到执行数据：" + caseList.size());
         // 环境检查
