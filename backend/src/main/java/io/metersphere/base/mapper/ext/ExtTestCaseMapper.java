@@ -6,6 +6,7 @@ import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.dto.RelationshipGraphData;
 import io.metersphere.track.dto.CustomFieldResourceCompatibleDTO;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DeleteTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
@@ -108,7 +109,7 @@ public interface ExtTestCaseMapper {
 
     List<String> selectRelateIdsByQuery(@Param("request") BaseQueryRequest query);
 
-    List<Map<String, Object>> moduleCountByCollection(@Param("request") QueryTestCaseRequest request);
+    List<TestCaseNodeDTO> getCountNodes(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseWithBLOBs> getCustomFieldsByIds(@Param("ids") List<String> ids);
 

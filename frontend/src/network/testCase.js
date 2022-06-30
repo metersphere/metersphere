@@ -84,8 +84,20 @@ export function editTestReviewTestCaseOrder(request, callback) {
   return basePost('/test/review/case/edit/order', request, callback);
 }
 
-export function getTestCaseNodes(projectId, callback) {
-  return baseGet('/case/node/list/' + projectId, callback);
+export function getTestCaseNodesByCaseFilter(projectId, param, callback) {
+  return basePost('/case/node/list/' + projectId, param, callback);
+}
+
+export function getTestPlanCaseNodesByCaseFilter(planId, param, callback) {
+  return basePost('/case/node/list/plan/' + planId, param, callback);
+}
+
+export function getTestReviewCaseNodesByCaseFilter(reviewId, param, callback) {
+  return basePost('/case/node/list/review/' + reviewId, param, callback);
+}
+
+export function getTestCasePublicNodes(param, callback) {
+  return basePost('/test/case/public/case/node', param, callback);
 }
 
 export function getRelationshipCase(id, relationshipType, callback) {

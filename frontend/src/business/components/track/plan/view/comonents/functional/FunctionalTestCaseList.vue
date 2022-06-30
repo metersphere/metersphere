@@ -1,6 +1,6 @@
 <template>
   <div class="card-container">
-    <ms-table-header :condition.sync="condition" @search="initTableData" ref="tableHeader"
+    <ms-table-header :condition.sync="condition" @search="search" ref="tableHeader"
                      :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
 
       <!-- 不显示 “全部用例” 标题,使标题为空 -->
@@ -35,7 +35,8 @@
       :row-order-group-id="planId"
       :row-order-func="editTestPlanTestCaseOrder"
       :enable-order-drag="enableOrderDrag"
-      @refresh="initTableData"
+      @filter="search"
+      @order="initTableData"
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       row-key="id"
@@ -236,7 +237,7 @@
       </span>
     </ms-table>
 
-    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+    <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
     <functional-test-case-edit
@@ -252,7 +253,7 @@
       :test-cases="tableData"
       :is-read-only="isReadOnly"
       :total="total"
-      @refreshTable="search"/>
+      @refreshTable="initTableData"/>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -469,7 +470,7 @@ export default {
     },
     selectNodeIds() {
       this.condition.selectAll = false;
-      this.search();
+      this.initTableData();
     },
     tableLabel: {
       handler(newVal) {
@@ -632,7 +633,7 @@ export default {
     },
     refresh() {
       this.$refs.table.clear();
-      this.search();
+      this.initTableData();
       this.$emit('refreshTree');
     },
     refreshTableAndPlan() {
@@ -650,6 +651,7 @@ export default {
     },
     search() {
       this.initTableData();
+      this.$emit('search');
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;

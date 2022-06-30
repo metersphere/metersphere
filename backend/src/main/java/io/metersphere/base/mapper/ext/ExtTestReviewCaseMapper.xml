@@ -464,7 +464,19 @@
         where review_id = #{reviewId} and is_del = 0
         group by status
     </select>
-
+    <select id="projectIdsByPlanId" resultType="java.lang.String">
+        select distinct project_id
+        from test_case_review_test_case
+        inner join test_case on test_case_review_test_case.case_id = test_case.id
+    </select>
+    <select id="getTestReviewCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select tcn.id, count(*) as caseNum, test_case.project_id
+        from test_case_review_test_case
+        inner join test_case on test_case_review_test_case.case_id = test_case.id
+        inner join test_case_node tcn on test_case.node_id = tcn.id
+        <include refid="queryWhereCondition"/>
+        group by test_case.node_id;
+    </select>
     <sql id="queryVersionCondition">
         <if test="request.versionId != null">
             and ${versionTable}.version_id = #{request.versionId}

@@ -23,15 +23,16 @@
         <functional-test-case-list
           class="table-list"
           v-if="activeDom === 'left'"
-          @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
-          @refresh="refresh"
-          @refreshTree="refreshTree"
-          @setCondition="setCondition"
           :plan-id="planId"
           :plan-status="planStatus "
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
           :version-enable="versionEnable"
+          @refresh="refresh"
+          @refreshTree="refreshTree"
+          @setCondition="setCondition"
+          @search="refreshTreeByCaseFilter"
+          @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           ref="testPlanTestCaseList"/>
         <test-plan-minder
           :tree-nodes="treeNodes"
@@ -69,6 +70,7 @@ import TestPlanFunctionalRelevance
   from "@/business/components/track/plan/view/comonents/functional/TestPlanFunctionalRelevance";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 import {openMinderConfirm, saveMinderConfirm} from "@/business/components/track/common/minder/minderUtils";
+import {getTestPlanCaseNodesByCaseFilter} from "@/network/testCase";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 
 export default {
@@ -143,6 +145,9 @@ export default {
     openTestCaseRelevanceDialog() {
       this.$refs.testCaseRelevance.open();
     },
+    refreshTreeByCaseFilter() {
+      this.getNodeTreeByPlanId(this.condition);
+    },
     nodeChange(node, nodeIds, pNodes) {
       this.selectNodeIds = nodeIds;
       this.$store.commit('setTestPlanViewSelectNode', node);
@@ -153,16 +158,19 @@ export default {
         this.$refs.testPlanTestCaseList.pageSize = 10;
       }
     },
-    getNodeTreeByPlanId() {
+    getNodeTreeByPlanId(condition) {
       if (this.planId) {
-        let url = "/case/node/list/plan/" + this.planId;
         if (this.clickType) {
-          url = url + "/" + this.clickType;
+          this.result = this.$get('/' + this.clickType, response => {
+            this.treeNodes = response.data;
+            this.setCurrentKey();
+          });
+        } else {
+          this.result = getTestPlanCaseNodesByCaseFilter(this.planId, condition, (data) => {
+            this.treeNodes = data;
+            this.setCurrentKey();
+          });
         }
-        this.result = this.$get(url, response => {
-          this.treeNodes = response.data;
-          this.setCurrentKey();
-        });
       }
     },
     setCurrentKey() {
