@@ -522,6 +522,7 @@ export default {
     loginImage: '登陆页面右侧图片',
     loginTitle: '登陆页面提示信息',
     pageTitle: '页面 Title',
+    sysTitle: '系统名称',
   },
   system_config: {
     base_config: '基本配置',

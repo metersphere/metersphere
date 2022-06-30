@@ -1,11 +1,11 @@
 <template>
   <el-menu
-    class="ms-menu-vertical ms-menu"
-    :collapse="isCollapse"
-    :background-color="color"
+    class="ms-menu-vertical ms-menu horizontal-collapse-transition"
     text-color="#F2F2F2"
     active-text-color="#fff"
     :key="menuKey"
+    :collapse="isCollapse"
+    :background-color="color"
     router>
     <el-menu-item>
       <div>
@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     title() {
-      return localStorage.getItem("title") || "MeterSphere";
+      return localStorage.getItem("sysTitle") || "MeterSphere";
     }
   },
   props: {
@@ -65,7 +65,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 98px;
+  width: 105px;
 }
 
 /deep/ .el-menu-item {
@@ -88,5 +88,9 @@ export default {
   box-sizing: border-box;
   background-repeat: no-repeat;
   background-position: 50% center;
+}
+
+.horizontal-collapse-transition {
+  transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
 }
 </style>

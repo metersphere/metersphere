@@ -517,6 +517,7 @@ export default {
     loginImage: 'Picture on the right side of the login page',
     loginTitle: 'Login page prompt information',
     pageTitle: 'Page Title',
+    sysTitle: 'System Name',
   },
   system_config: {
     base_config: 'Base Config',

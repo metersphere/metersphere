@@ -1,6 +1,6 @@
 <template>
   <el-dropdown size="medium" @command="changeLanguage" class="align-right">
-    <span class="dropdown-link global">
+    <span class="dropdown-link">
         <font-awesome-icon :icon="['fas', 'language']" size="lg"/>
     </span>
     <template v-slot:dropdown>
@@ -83,7 +83,6 @@ export default {
 .dropdown-link {
   cursor: pointer;
   font-size: 12px;
-  color: rgb(245, 245, 245);
   line-height: 40px;
   padding-right: 20px;
 }

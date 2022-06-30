@@ -1,12 +1,13 @@
 <template>
   <el-menu menu-trigger="click"
-           class="ms-menu-vertical ms-menu ms-menu-title" :collapse="isCollapse"
-           :background-color="color"
+           class="ms-menu-vertical ms-menu ms-menu-title horizontal-collapse-transition"
            text-color="#F2F2F2"
            active-text-color="#fff"
+           :collapse="isCollapse"
+           :background-color="color"
            :default-active="activeIndex"
-           @select="handleSelect"
            :key="menuKey"
+           @select="handleSelect"
            router>
     <el-menu-item index="/workstation" v-xpack v-if="check('workstation')">
       <div>
@@ -212,4 +213,7 @@ export default {
   color: #fff !important;
 }
 
+.horizontal-collapse-transition {
+  transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
+}
 </style>
