@@ -24,10 +24,10 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-          <module-trash-button
-            :condition="condition"
-            :total="total"
-            :exe="enableTrash"/>
+        <module-trash-button
+          :condition="condition"
+          :total="total"
+          :exe="enableTrash"/>
         <module-public-button
           :condition="condition"
           :public-total="publicTotal"
@@ -58,8 +58,8 @@
 </template>
 
 <script>
-import NodeEdit from "./NodeEdit";
-import MsNodeTree from "./NodeTree";
+import NodeEdit from "../common/NodeEdit";
+import MsNodeTree from "../common/NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/components/track/case/components/import/TestCaseImport";
 import TestCaseExport from "@/business/components/track/case/components/TestCaseExport";
@@ -69,7 +69,7 @@ import {buildNodePath} from "@/business/components/api/definition/model/NodeTree
 import {getCurrentProjectID} from "@/common/js/utils";
 import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
 import ModulePublicButton from "@/business/components/api/definition/components/module/ModulePublicButton";
-import {getTestCaseNodes} from "@/network/testCase";
+import {getTestCaseNodes, getTestCaseNodesByCaseFilter} from "@/network/testCase";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 
 export default {
@@ -181,21 +181,30 @@ export default {
       this.$emit('enablePublic', this.condition.publicEnable);
       this.$emit('toPublic', 'public');
     },
-    list() {
+    list(caseCondition) {
       if (this.projectId) {
-        this.result = getTestCaseNodes(this.projectId, data => {
-          this.treeNodes = data;
-          this.treeNodes.forEach(node => {
-            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
-            buildTree(node, {path: ''});
+        if (caseCondition) {
+          this.result = getTestCaseNodesByCaseFilter(this.projectId, caseCondition, data => {
+            this.handleData(data);
           });
-          this.setModuleOptions();
-          if (this.$refs.nodeTree) {
-            this.$refs.nodeTree.filter(this.condition.filterText);
-          }
-          this.setCurrentKey();
-        });
+        } else {
+          this.result = getTestCaseNodes(this.projectId, data => {
+            this.handleData(data);
+          });
+        }
       }
+    },
+    handleData(data) {
+      this.treeNodes = data;
+      this.treeNodes.forEach(node => {
+        node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+        buildTree(node, {path: ''});
+      });
+      this.setModuleOptions();
+      if (this.$refs.nodeTree) {
+        this.$refs.nodeTree.filter(this.condition.filterText);
+      }
+      this.setCurrentKey();
     },
     setCurrentKey() {
       if (this.$refs.nodeTree) {
@@ -275,15 +284,10 @@ export default {
       this.$store.commit('setTestCaseSelectNodeIds', nodeIds);
       this.condition.trashEnable = false;
       this.condition.publicEnable = false;
-
-      this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       this.currentModule = node.data;
       this.currentNode = node;
-      if (node.data.id === 'root') {
-        this.$emit("nodeSelectEvent", node, [], pNodes);
-      } else {
-        this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
-      }
+
+      this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
     },
     openMinderConfirm() {
       let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
