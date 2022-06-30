@@ -18,6 +18,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.service.ProjectApplicationService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
@@ -42,6 +43,10 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         }
 
         ApiModule apiModule = ApiDefinitionImportUtil.buildModule(this.selectModule, postmanCollection.getInfo().getName(), this.projectId);*/
+        String modulePath = null;
+        if (StringUtils.isNotBlank(postmanCollection.getInfo().getName())) {
+            modulePath = "/" + postmanCollection.getInfo().getName();
+        }
         List<ApiTestCaseWithBLOBs> cases = new ArrayList<>();
         Map<String, String> repeatMap = new HashMap();
         ProjectMapper projectMapper = CommonBeanFactory.getBean(ProjectMapper.class);
@@ -49,7 +54,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
         boolean urlRepeat = config.getUrlRepeatable();
-        parseItem(postmanCollection.getItem(), variables, results,
+        parseItem(postmanCollection.getItem(), modulePath, variables, results,
                 cases, repeatMap, urlRepeat);
         Collections.reverse(results); // 调整顺序
         Collections.reverse(cases);
@@ -58,14 +63,17 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         return apiImport;
     }
 
-    protected void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results,
+    protected void parseItem(List<PostmanItem> items, String modulePath, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results,
                              List<ApiTestCaseWithBLOBs> cases, Map<String, String> repeatMap, Boolean repeatable) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
                 /*ApiModule module = null;
                 module = ApiDefinitionImportUtil.buildModule(parentModule, item.getName(), this.projectId);*/
-                parseItem(childItems, variables, results, cases, repeatMap, repeatable);
+                if (StringUtils.isNotBlank(modulePath) && StringUtils.isNotBlank(item.getName())) {
+                    modulePath = modulePath + "/" + item.getName();
+                }
+                parseItem(childItems, modulePath, variables, results, cases, repeatMap, repeatable);
             } else {
                 MsHTTPSamplerProxy msHTTPSamplerProxy = parsePostman(item);
                 HttpResponse response = parsePostmanResponse(item);
@@ -82,6 +90,9 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                         request.setModulePath("/" + path);
                     }
                 }*/
+                if (StringUtils.isNotBlank(modulePath)) {
+                    request.setModulePath(modulePath);
+                }
                 if (request != null) {
                     if (repeatMap.keySet().contains(request.getMethod() + request.getPath())
                             && (repeatable == null || repeatable == false)) {

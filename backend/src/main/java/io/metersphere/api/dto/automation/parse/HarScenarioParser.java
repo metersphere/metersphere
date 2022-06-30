@@ -76,6 +76,7 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
                 scenarioWithBLOBs.setModulePath("/" + module.getName());
             }
         }*/
+        scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 

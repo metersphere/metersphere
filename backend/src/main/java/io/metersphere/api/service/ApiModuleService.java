@@ -618,6 +618,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             fullCoverage = false;
         }
 
+        if (fullCoverageApi == null) {
+            fullCoverageApi = false;
+        }
+
         //标准版ESB数据导入不区分是否覆盖，默认都为覆盖
         if (apiImport.getEsbApiParamsMap() != null) {
             fullCoverage = true;
@@ -810,6 +814,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     BeanUtils.copyBean(api, apiDefinitionWithBLOBs);
                     api.setId(definitionWithBLOBs.getId());
                     api.setVersionId(definitionWithBLOBs.getVersionId());
+                    api.setOrder(definitionWithBLOBs.getOrder());
+                    api.setRefId(apiDefinitionWithBLOBs.getRefId());
+                    api.setLatest(apiDefinitionWithBLOBs.getLatest());
                     coverApiList.add(api);
                 }
                 optionData.remove(apiDefinitionWithBLOBs);
@@ -830,6 +837,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     api.setVersionId(definitionWithBLOBs.getVersionId());
                     api.setModuleId(definitionWithBLOBs.getModuleId());
                     api.setModulePath(definitionWithBLOBs.getModulePath());
+                    api.setOrder(definitionWithBLOBs.getOrder());
+                    api.setRefId(apiDefinitionWithBLOBs.getRefId());
+                    api.setLatest(apiDefinitionWithBLOBs.getLatest());
                     coverApiList.add(api);
                 }
                 optionData.remove(apiDefinitionWithBLOBs);
@@ -963,6 +973,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     parentModule.setProjectId(pidChildrenMap.get("root").get(0).getProjectId());
                     parentModule.setId("root");
                     parentModule.setLevel(0);
+                    parentModule.setProtocol(pidChildrenMap.get("root").get(0).getProtocol());
                 } else {
                     if (!parentModuleList.isEmpty() && parentModule == null) {
                         String parentId = parentModuleList.get(0).getParentId();
@@ -1024,7 +1035,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<ApiModuleDTO>> idChildrenMap = new HashMap<>();
         int i = 0;
         Map<String, List<ApiModule>> idModuleMap = new HashMap<>();
-        List<ApiModule> moduleList = new ArrayList<>();
         for (ApiModuleDTO apiModuleDTO : nodeTreeByProjectId) {
             if (StringUtils.isBlank(apiModuleDTO.getParentId())) {
                 apiModuleDTO.setParentId("root");
@@ -1050,7 +1060,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             i = i + 1;
             List<ApiModuleDTO> childrenList = idChildrenMap.get(apiModuleDTO.getId());
             if (apiModuleDTO.getChildren() != null) {
-                childrenList.addAll(apiModuleDTO.getChildren());
+                if (childrenList != null) {
+                    childrenList.addAll(apiModuleDTO.getChildren());
+                } else {
+                    idChildrenMap.put(apiModuleDTO.getId(), apiModuleDTO.getChildren());
+                }
             } else {
                 if (childrenList == null) {
                     pidChildrenMap.put(apiModuleDTO.getId(), new ArrayList<>());

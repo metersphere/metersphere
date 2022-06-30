@@ -1399,6 +1399,12 @@ public class ApiDefinitionService {
             num = getNextNum(data.get(0).getProjectId());
         }
 
+        if (moduleList != null) {
+            for (ApiModule apiModule : moduleList) {
+                apiModuleMapper.insert(apiModule);
+            }
+        }
+        
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             this.setModule(item);
@@ -1419,11 +1425,6 @@ public class ApiDefinitionService {
                 }
             } else {
                 importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), updateList);
-            }
-            if (moduleList != null) {
-                for (ApiModule apiModule : moduleList) {
-                    apiModuleMapper.insert(apiModule);
-                }
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
