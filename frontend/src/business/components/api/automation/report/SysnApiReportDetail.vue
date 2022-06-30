@@ -516,8 +516,9 @@ export default {
     cleanHeartBeat() {
       if (window.heartBeatHandle) {
         clearInterval(window.heartBeatHandle);
-        if (window.localStorage.getItem(this.websocketKey()))
+        if (window.localStorage.getItem(this.websocketKey())) {
           window.localStorage.removeItem(this.websocketKey());
+        }
       }
     },
     heartBeat() {
