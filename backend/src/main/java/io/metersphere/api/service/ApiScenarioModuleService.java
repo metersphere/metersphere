@@ -669,9 +669,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                         datum.setApiScenarioModuleId(scenarioModule.getId());
                         datum.setModulePath(modulePath);
                     } else {
-                        //父级同级的模块list 
-                        List<ApiScenarioModule> parentModuleList = pidChildrenMap.get("root");
-                        ApiScenarioModule minModule = getMinModule(tagTree, parentModuleList, null, pidChildrenMap, map, idPathMap, idModuleMap);
+                        //父级同级的模块list
+                        ApiScenarioModule minModule = getMinModule(tagTree, pidChildrenMap.get("root"), null, pidChildrenMap, map, idPathMap, idModuleMap);
                         String id = minModule.getId();
                         datum.setApiScenarioModuleId(id);
                         datum.setModulePath(idPathMap.get(id));
@@ -680,7 +679,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     //导入时即没选中模块，接口自身也没模块的，直接返会当前项目，当前协议下的默认模块
                     List<ApiScenarioModule> moduleList = pidChildrenMap.get("root");
                     for (ApiScenarioModule module : moduleList) {
-                        if (module.getName().equals("未规划接口")) {
+                        if (module.getName().equals("未规划场景")) {
                             datum.setApiScenarioModuleId(module.getId());
                             datum.setModulePath("/" + module.getName());
                         }
@@ -706,30 +705,30 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     private ApiScenarioModule getMinModule(String[] tagTree, List<ApiScenarioModule> parentModuleList, ApiScenarioModule parentModule, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, ApiScenarioModule> map, Map<String, String> idPathMap, Map<String, ApiScenarioModuleDTO> idModuleMap) {
         //如果parentModule==null 则证明需要创建根目录同级的模块
         ApiScenarioModule returnModule = null;
+
         for (int i = 0; i < tagTree.length; i++) {
             int finalI = i;
             //查找上一级里面是否有当前全路径的第一级，没有则需要创建
             List<ApiScenarioModule> collect = parentModuleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+
             if (collect.isEmpty()) {
-                //如果找不到，而且父级模块也为空，证明当前的父级模块应为root
-                if (parentModule == null) {
-                    List<ApiScenarioModule> moduleList1 = pidChildrenMap.get("root");
-                    ApiScenarioModule apiModule = moduleList1.get(0);
-                    apiModule.setId("root");
-                    apiModule.setLevel(0);
-                    parentModule = apiModule;
-                } else if (i > 0) {
-                    //如果已经循环第二次级以上，如果父模块不为空， parentModuleList不为空，tagTree[finalI] 找不到，那就从上一级开始创建
-                    if (!parentModuleList.isEmpty()) {
+                if (i == 0) {
+                    //证明需要在根目录创建，
+                    parentModule = new ApiScenarioModule();
+                    parentModule.setProjectId(pidChildrenMap.get("root").get(0).getProjectId());
+                    parentModule.setId("root");
+                    parentModule.setLevel(0);
+                } else {
+                    if (!parentModuleList.isEmpty() && parentModule == null) {
                         String parentId = parentModuleList.get(0).getParentId();
                         ApiScenarioModuleDTO apiScenarioModuleDTO = idModuleMap.get(parentId);
                         parentModule = JSON.parseObject(JSON.toJSONString(apiScenarioModuleDTO), ApiScenarioModule.class);
                     }
                 }
-                //开始创建tagTree[finalI]这个模块
                 return createModule(tagTree, i, parentModule, map, pidChildrenMap, idPathMap);
             } else {
                 returnModule = collect.get(0);
+                parentModule = collect.get(0);
                 parentModuleList = pidChildrenMap.get(collect.get(0).getId());
             }
         }
@@ -779,51 +778,71 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     private void buildProcessData(List<ApiScenarioModuleDTO> nodeTreeByProjectId, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, String> parentModulePathMap) {
-        List<ApiScenarioModuleDTO> childrenList = new ArrayList<>();
+        Map<String, List<ApiScenarioModuleDTO>> idChildrenMap = new HashMap<>();
         int i = 0;
-        List<ApiScenarioModule> moduleList = new ArrayList<>();
+        Map<String, List<ApiScenarioModule>> idModuleMap = new HashMap<>();
         for (ApiScenarioModuleDTO scenarioModuleDTO : nodeTreeByProjectId) {
             if (StringUtils.isBlank(scenarioModuleDTO.getParentId())) {
                 scenarioModuleDTO.setParentId("root");
             }
             String parentModulePath = parentModulePathMap.get(scenarioModuleDTO.getParentId());
             if (parentModulePath != null) {
-                scenarioModuleDTO.setPath(parentModulePath + "/" + scenarioModuleDTO.getName());
+                if (parentModulePath.equals("/root")) {
+                    scenarioModuleDTO.setPath("/" + scenarioModuleDTO.getName());
+                } else {
+                    scenarioModuleDTO.setPath(parentModulePath + "/" + scenarioModuleDTO.getName());
+                }
             } else {
                 scenarioModuleDTO.setPath("/" + scenarioModuleDTO.getName());
             }
             idPathMap.put(scenarioModuleDTO.getId(), scenarioModuleDTO.getPath());
 
-            ApiScenarioModule scenarioModule = buildModule(moduleList, scenarioModuleDTO);
+            ApiScenarioModule scenarioModule = buildModule(idModuleMap, scenarioModuleDTO);
             if (pidChildrenMap.get(scenarioModuleDTO.getParentId()) != null) {
                 pidChildrenMap.get(scenarioModuleDTO.getParentId()).add(scenarioModule);
             } else {
-                pidChildrenMap.put(scenarioModuleDTO.getParentId(), moduleList);
+                pidChildrenMap.put(scenarioModuleDTO.getParentId(), idModuleMap.get(scenarioModuleDTO.getId()));
             }
             i = i + 1;
+            List<ApiScenarioModuleDTO> childrenList = idChildrenMap.get(scenarioModuleDTO.getId());
             if (scenarioModuleDTO.getChildren() != null) {
-                childrenList.addAll(scenarioModuleDTO.getChildren());
+                if (childrenList != null) {
+                    childrenList.addAll(scenarioModuleDTO.getChildren());
+                } else {
+                    idChildrenMap.put(scenarioModuleDTO.getId(), scenarioModuleDTO.getChildren());
+                }
             } else {
-                childrenList.addAll(new ArrayList<>());
-                if (i == nodeTreeByProjectId.size() && childrenList.size() == 0) {
+                if (i == nodeTreeByProjectId.size() && idChildrenMap.size() == 0) {
                     pidChildrenMap.put(scenarioModuleDTO.getId(), new ArrayList<>());
                 }
             }
             parentModulePathMap.put(scenarioModuleDTO.getId(), scenarioModuleDTO.getPath());
         }
         if (i == nodeTreeByProjectId.size() && nodeTreeByProjectId.size() > 0) {
+            Collection<List<ApiScenarioModuleDTO>> values = idChildrenMap.values();
+            List<ApiScenarioModuleDTO> childrenList = new ArrayList<>();
+            for (List<ApiScenarioModuleDTO> value : values) {
+                childrenList.addAll(value);
+            }
             buildProcessData(childrenList, pidChildrenMap, idPathMap, parentModulePathMap);
         }
     }
 
-    private ApiScenarioModule buildModule(List<ApiScenarioModule> moduleList, ApiScenarioModuleDTO scenarioModuleDTO) {
+    private ApiScenarioModule buildModule(Map<String, List<ApiScenarioModule>> IdModuleMap, ApiScenarioModuleDTO scenarioModuleDTO) {
         ApiScenarioModule scenarioModule = new ApiScenarioModule();
         scenarioModule.setId(scenarioModuleDTO.getId());
         scenarioModule.setName(scenarioModuleDTO.getName());
         scenarioModule.setParentId(scenarioModuleDTO.getParentId());
         scenarioModule.setProjectId(scenarioModuleDTO.getProjectId());
         scenarioModule.setLevel(scenarioModuleDTO.getLevel());
-        moduleList.add(scenarioModule);
+        List<ApiScenarioModule> moduleList = IdModuleMap.get(scenarioModuleDTO.getId());
+        if (moduleList != null) {
+            moduleList.add(scenarioModule);
+        } else {
+            moduleList = new ArrayList<>();
+            moduleList.add(scenarioModule);
+            IdModuleMap.put(scenarioModuleDTO.getId(), moduleList);
+        }
         return scenarioModule;
     }
 }
