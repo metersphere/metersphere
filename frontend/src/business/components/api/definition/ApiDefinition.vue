@@ -439,13 +439,13 @@ export default {
       }
     }
     this.getEnv();
+  },
+  mounted() {
+    this.init();
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.activeDom = 'middle';
     }
-  },
-  mounted() {
-    this.init();
   },
   methods: {
     setEnvironment(data) {

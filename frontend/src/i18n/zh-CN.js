@@ -1127,6 +1127,8 @@ export default {
     hours: "时",
   },
   api_test: {
+    case_jump_message: "跳转的用例已经删除！",
+    scenario_jump_message: "跳转的场景已经删除！",
     is_continue: "是否继续",
     creator: "创建人",
     save_and_run: "保存并执行",

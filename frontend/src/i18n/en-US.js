@@ -1121,6 +1121,8 @@ export default {
     hours: "H",
   },
   api_test: {
+    case_jump_message: "The jump use case has been removed！",
+    scenario_jump_message: "The jumped scene has been deleted！",
     is_continue: "Is continue",
     creator: "Creator",
     save_and_run: "Save and Run",
