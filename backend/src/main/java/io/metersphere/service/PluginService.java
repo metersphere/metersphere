@@ -108,22 +108,28 @@ public class PluginService {
         return resources;
     }
 
-    private void loadJar(String jarPath) {
+    private boolean loadJar(String jarPath) {
         try {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader();
             try {
+                File file = new File(jarPath);
+                if (!file.exists()) {
+                    return false;
+                }
                 Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
                 method.setAccessible(true);
-                method.invoke(classLoader, new File(jarPath).toURI().toURL());
+                method.invoke(classLoader, file.toURI().toURL());
             } catch (NoSuchMethodException e) {
                 Method method = classLoader.getClass()
                         .getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
                 method.setAccessible(true);
                 method.invoke(classLoader, jarPath);
             }
+            return true;
         } catch (Exception e) {
             LogUtil.error(e);
         }
+        return false;
     }
 
     public void loadPlugins() {
@@ -135,7 +141,12 @@ public class PluginService {
                         -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
                 if (CollectionUtils.isNotEmpty(plugins)) {
                     plugins.forEach(item -> {
-                        this.loadJar(item.getSourcePath());
+                        boolean isLoad = this.loadJar(item.getSourcePath());
+                        if (!isLoad) {
+                            PluginExample pluginExample = new PluginExample();
+                            pluginExample.createCriteria().andPluginIdEqualTo(item.getPluginId());
+                            pluginMapper.deleteByExample(pluginExample);
+                        }
                     });
                 }
             }
