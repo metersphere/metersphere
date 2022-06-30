@@ -333,6 +333,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import {Message} from "element-ui";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -667,7 +668,14 @@ export default {
     },
     editApiScenarioCaseOrder() {
       return editApiScenarioCaseOrder;
-    }
+    },
+    moduleOptionsNew() {
+      let moduleOptions = [];
+      this.moduleOptions.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      return moduleOptions;
+    },
   },
   methods: {
     generateGraph() {
@@ -788,11 +796,11 @@ export default {
     },
     handleBatchMove() {
       this.isMoveBatch = true;
-      this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);
+      this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptionsNew);
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
-      this.$refs.testBatchMove.open(this.moduleTree, this.$refs.scenarioTable.selectIds, this.moduleOptions);
+      this.$refs.testBatchMove.open(this.moduleTree, this.$refs.scenarioTable.selectIds, this.moduleOptionsNew);
     },
     moveSave(param) {
       this.buildBatchParam(param);
