@@ -497,14 +497,20 @@ export default {
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
     this.initTable();
+    this.getVersionOptions();
+    this.checkVersionEnable();
+  },
+  mounted() {
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
+        if(!response.data){
+          this.$error(this.$t('api_test.case_jump_message'));
+          return;
+        }
         this.handleTestCase(response.data);
       });
     }
-    this.getVersionOptions();
-    this.checkVersionEnable();
   },
   watch: {
     selectNodeIds() {
