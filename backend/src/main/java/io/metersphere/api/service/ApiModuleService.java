@@ -917,23 +917,23 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    private ApiModule getMinModule(String[] tagTree, List<ApiModule> moduleList, ApiModule parentModule, Map<String, List<ApiModule>> pidChildrenMap, Map<String, ApiModule> moduleMap
+    private ApiModule getMinModule(String[] tagTree, List<ApiModule> parentModuleList, ApiModule parentModule, Map<String, List<ApiModule>> pidChildrenMap, Map<String, ApiModule> moduleMap
             , Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap) {
         //如果parentModule==null 则证明需要创建根目录同级的模块
         ApiModule returnModule = null;
         for (int i = 0; i < tagTree.length; i++) {
             int finalI = i;
-            List<ApiModule> collect = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            List<ApiModule> collect = parentModuleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
             if (collect.isEmpty()) {
-                if (parentModule == null) {
-                    List<ApiModule> moduleList1 = pidChildrenMap.get("root");
-                    ApiModule apiModule = moduleList1.get(0);
-                    apiModule.setId("root");
-                    apiModule.setLevel(0);
-                    parentModule = apiModule;
-                } else if (i > 0) {
-                    if (!moduleList.isEmpty()) {
-                        String parentId = moduleList.get(0).getParentId();
+                if (i == 0) {
+                    //证明需要在根目录创建，
+                    parentModule = new ApiModule();
+                    parentModule.setProjectId(pidChildrenMap.get("root").get(0).getProjectId());
+                    parentModule.setId("root");
+                    parentModule.setLevel(0);
+                } else {
+                    if (!parentModuleList.isEmpty() && parentModule == null) {
+                        String parentId = parentModuleList.get(0).getParentId();
                         ApiModuleDTO apiModuleDTO = idModuleMap.get(parentId);
                         parentModule = JSON.parseObject(JSON.toJSONString(apiModuleDTO), ApiModule.class);
                     }
@@ -941,7 +941,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 return createModule(tagTree, i, parentModule, moduleMap, pidChildrenMap, idPathMap);
             } else {
                 returnModule = collect.get(0);
-                moduleList = pidChildrenMap.get(collect.get(0).getId());
+                parentModule = collect.get(0);
+                parentModuleList = pidChildrenMap.get(collect.get(0).getId());
             }
         }
         return returnModule;
@@ -988,8 +989,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private void buildProcessData(List<ApiModuleDTO> nodeTreeByProjectId, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, String> parentModulePathMap) {
         //当前层级的模块的所有子模块的集合
-        List<ApiModuleDTO> childrenList = new ArrayList<>();
+        Map<String, List<ApiModuleDTO>> idChildrenMap = new HashMap<>();
         int i = 0;
+        Map<String, List<ApiModule>> idModuleMap = new HashMap<>();
         List<ApiModule> moduleList = new ArrayList<>();
         for (ApiModuleDTO apiModuleDTO : nodeTreeByProjectId) {
             if (StringUtils.isBlank(apiModuleDTO.getParentId())) {
@@ -997,19 +999,24 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             }
             String parentModulePath = parentModulePathMap.get(apiModuleDTO.getParentId());
             if (parentModulePath != null) {
-                apiModuleDTO.setPath(parentModulePath + "/" + apiModuleDTO.getName());
+                if (parentModulePath.equals("/root")) {
+                    apiModuleDTO.setPath("/" + apiModuleDTO.getName());
+                } else {
+                    apiModuleDTO.setPath(parentModulePath + "/" + apiModuleDTO.getName());
+                }
             } else {
                 apiModuleDTO.setPath("/" + apiModuleDTO.getName());
             }
             idPathMap.put(apiModuleDTO.getId(), apiModuleDTO.getPath());
 
-            ApiModule apiModule = buildModule(moduleList, apiModuleDTO);
+            ApiModule apiModule = buildModule(idModuleMap, apiModuleDTO);
             if (pidChildrenMap.get(apiModuleDTO.getParentId()) != null) {
                 pidChildrenMap.get(apiModuleDTO.getParentId()).add(apiModule);
             } else {
-                pidChildrenMap.put(apiModuleDTO.getParentId(), moduleList);
+                pidChildrenMap.put(apiModuleDTO.getParentId(), idModuleMap.get(apiModuleDTO.getId()));
             }
             i = i + 1;
+            List<ApiModuleDTO> childrenList = idChildrenMap.get(apiModuleDTO.getId());
             if (apiModuleDTO.getChildren() != null) {
                 childrenList.addAll(apiModuleDTO.getChildren());
             } else {
@@ -1021,11 +1028,16 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             parentModulePathMap.put(apiModuleDTO.getId(), apiModuleDTO.getPath());
         }
         if (i == nodeTreeByProjectId.size() && nodeTreeByProjectId.size() > 0) {
+            Collection<List<ApiModuleDTO>> values = idChildrenMap.values();
+            List<ApiModuleDTO> childrenList = new ArrayList<>();
+            for (List<ApiModuleDTO> value : values) {
+                childrenList.addAll(value);
+            }
             buildProcessData(childrenList, pidChildrenMap, idPathMap, parentModulePathMap);
         }
     }
 
-    private ApiModule buildModule(List<ApiModule> moduleList, ApiModuleDTO apiModuleDTO) {
+    private ApiModule buildModule(Map<String, List<ApiModule>> idModuleMap, ApiModuleDTO apiModuleDTO) {
         ApiModule apiModule = new ApiModule();
         apiModule.setId(apiModuleDTO.getId());
         apiModule.setName(apiModuleDTO.getName());
@@ -1033,7 +1045,14 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         apiModule.setProjectId(apiModuleDTO.getProjectId());
         apiModule.setProtocol(apiModuleDTO.getProtocol());
         apiModule.setLevel(apiModuleDTO.getLevel());
-        moduleList.add(apiModule);
+        List<ApiModule> moduleList = idModuleMap.get(apiModuleDTO.getId());
+        if (moduleList != null) {
+            moduleList.add(apiModule);
+        } else {
+            moduleList = new ArrayList<>();
+            moduleList.add(apiModule);
+            idModuleMap.put(apiModuleDTO.getId(), moduleList);
+        }
         return apiModule;
     }
 

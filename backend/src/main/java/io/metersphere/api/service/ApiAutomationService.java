@@ -1341,6 +1341,9 @@ public class ApiAutomationService {
         List<ApiScenarioWithBLOBs> initData = apiImport.getData();
         currentScenarioOrder.remove();
 
+        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
+        request.setDefaultVersion(defaultVersion);
+
         UpdateScenarioModuleDTO updateScenarioModuleDTO = apiScenarioModuleService.checkScenarioModule(request, initData, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule());
         List<ApiScenarioModule> moduleList = updateScenarioModuleDTO.getModuleList();
         List<ApiScenarioWithBLOBs> data = updateScenarioModuleDTO.getApiScenarioWithBLOBsList();
@@ -1359,8 +1362,7 @@ public class ApiAutomationService {
             num = getNextNum(data.get(0).getProjectId());
             request.setOpenCustomNum(config.getScenarioCustomNum());
         }
-        String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
-        request.setDefaultVersion(defaultVersion);
+
         for (int i = 0; i < data.size(); i++) {
 
             ApiScenarioWithBLOBs item = data.get(i);
