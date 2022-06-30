@@ -6,6 +6,7 @@ import io.metersphere.websocket.c.to.c.util.MsgDto;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketUtils {
@@ -27,8 +28,8 @@ public class WebSocketUtils {
 
     // 单用户推送
     public static void sendMessageSingle(MsgDto dto) {
-        sendMessage(ONLINE_USER_SESSIONS.get(dto.getReportId()), dto.getContent());
-        sendMessage(ONLINE_USER_SESSIONS.get(dto.getToReport()), dto.getContent());
+        sendMessage(ONLINE_USER_SESSIONS.get(Optional.ofNullable(dto.getReportId()).orElse("")), dto.getContent());
+        sendMessage(ONLINE_USER_SESSIONS.get(Optional.ofNullable(dto.getToReport()).orElse("")), dto.getContent());
     }
 
     // 全用户推送
