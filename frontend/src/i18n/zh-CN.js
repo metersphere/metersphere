@@ -1460,6 +1460,7 @@ export default {
       request_error: "失败",
       generate_report: "生成报告",
       rerun: "失败重跑",
+      rerun_success: "已经开始重跑，稍后刷新结果查看"
     },
     environment: {
       id: '环境ID',

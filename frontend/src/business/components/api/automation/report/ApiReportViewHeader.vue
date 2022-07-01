@@ -136,7 +136,7 @@ export default {
         if (res.data !=='SUCCESS') {
           this.$error(res.data);
         }else{
-          this.$success("已经开始重跑，稍后刷新结果查看");
+          this.$success(this.$t('api_test.automation.rerun_success'));
           this.returnView();
         }
       });
