@@ -8,7 +8,7 @@
               <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm"
                        style="margin-right: 20px">
                 <el-row>
-                  <el-col :span="5">
+                  <el-col :span="6">
                     <el-form-item :label="$t('operating_log.time')" prop="times">
                       <el-date-picker
                         size="small"
@@ -21,7 +21,7 @@
                       </el-date-picker>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="4">
+                  <el-col :span="6">
                     <el-form-item :label="$t('operating_log.user')" prop="user">
                       <el-select
                         v-model="condition.operUser"
@@ -49,14 +49,6 @@
                   </el-col>
 
                   <el-col :span="4">
-                    <el-form-item :label="$t('commons.project')" prop="project">
-                      <el-select size="small" v-model="condition.projectId" @change="initTableData" clearable>
-                        <el-option v-for="o in items" :key="o.id" :label="$t(o.label)" :value="o.id"/>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-
-                  <el-col :span="4">
                     <el-form-item :label="$t('operating_log.type')" prop="type">
                       <el-select size="small" v-model="condition.operType" clearable @change="initTableData">
                         <el-option v-for="o in LOG_TYPE" :key="o.id" :label="$t(o.label)" :value="o.id"/>
@@ -76,7 +68,7 @@
                     </el-form-item>
                   </el-col>
 
-                  <el-col :span="3">
+                  <el-col :span="4">
                     <div style="width: 140px">
                       <el-button type="primary" size="small" style="float: right" @click="search">
                         {{ $t('commons.adv_search.search') }}
