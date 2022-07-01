@@ -90,7 +90,8 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
+          <ms-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip
+                           :filters="userFilters"/>
           <el-table-column prop="createTime" min-width="120" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -224,7 +225,8 @@ export default {
       unSelection: [],
       selectDataCounts: 0,
       screenHeight: 'calc(100vh - 160px)',
-      trashActiveDom:'left'
+      trashActiveDom: 'left',
+      userFilters: []
     }
   },
   watch: {
@@ -243,6 +245,13 @@ export default {
     },
   },
   methods: {
+    getMaintainerOptions() {
+      this.$get('/user/project/member/list', response => {
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
+    },
     search() {
       if (this.testId !== 'all') {
         this.condition.testId = this.testId;
@@ -434,6 +443,7 @@ export default {
 
   created() {
     this.init();
+    this.getMaintainerOptions();
   }
 }
 </script>
