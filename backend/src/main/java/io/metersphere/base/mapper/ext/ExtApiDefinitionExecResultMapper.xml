@@ -207,6 +207,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='user_name'">
+                            and a_r.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                         <when test="key=='report_type'">
                             and a_r.report_type in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
