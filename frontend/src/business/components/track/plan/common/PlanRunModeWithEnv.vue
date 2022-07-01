@@ -32,10 +32,7 @@
           <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
         </el-col>
         <el-col :span="18">
-          <div>
-            <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
-          </div>
-          <div v-if="testType === 'API'" style="padding-top: 10px">
+          <div v-if="testType === 'API'">
             <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
               {{ $t('run_mode.run_with_resource_pool') }}
             </el-checkbox>
@@ -91,7 +88,8 @@
             </el-tooltip>
             <span>
               {{ $t('run_mode.retry') }}
-              <el-input-number v-model="runConfig.retryNum" :min="1" :max="10000000" size="mini"/>
+              <el-input-number :value="runConfig.retryNum" v-model="runConfig.retryNum" :min="1" :max="10000000"
+                               size="mini"/>
               &nbsp;
               {{ $t('run_mode.retry_frequency') }}
             </span>
@@ -99,16 +97,25 @@
         </el-col>
       </el-row>
     </div>
+    <div class="ms-failure-div" v-if="runConfig.mode === 'serial'">
+      <el-row>
+        <el-col :span="18" :offset="6">
+          <div>
+            <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
 
     <template v-slot:footer>
       <div class="dialog-footer" v-if="showSave">
-        <el-button @click="close">{{$t('commons.cancel')}}</el-button>
+        <el-button @click="close">{{ $t('commons.cancel') }}</el-button>
         <el-dropdown @command="handleCommand" style="margin-left: 5px">
           <el-button type="primary">
-            {{$t('load_test.save_and_run')}}<i class="el-icon-arrow-down el-icon--right"></i>
+            {{ $t('load_test.save_and_run') }}<i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="run">{{$t('load_test.save_and_run')}}</el-dropdown-item>
+            <el-dropdown-item command="run">{{ $t('load_test.save_and_run') }}</el-dropdown-item>
             <el-dropdown-item command="save">{{$t('commons.save')}}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
