@@ -18,6 +18,12 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
+        <if test='${condition}.id != null'>
+            and load_test.num
+            <include refid="condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+        </if>
         <if test="${condition}.followPeople != null">
             and load_test.id in (
             select test_id from load_test_follow where follow_id
