@@ -776,7 +776,10 @@
         <include refid="Same_Where_Clause"/>
         and status != 'Trash'
         and project_id = #{projectId}
-        and version_id = #{versionId}
+        and version_id in
+        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
+            #{versionId}
+        </foreach>
     </select>
 
     <select id="selectRepeatByBLOBsSameUrl" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
@@ -785,7 +788,10 @@
         and status != 'TRASH'
         and api_scenario_module_id = #{moduleId}
         and project_id = #{projectId}
-        and version_id = #{versionId}
+        and version_id in
+        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
+            #{versionId}
+        </foreach>
     </select>
 
     <sql id="Same_Where_Clause">

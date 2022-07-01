@@ -626,7 +626,14 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (apiImport.getEsbApiParamsMap() != null) {
             fullCoverage = true;
         }
-        String updateVersionId = getUpdateVersionId(request, fullCoverage);
+        Set<String> versionSet = new HashSet<>();
+
+        if (fullCoverage) {
+            setFullVersionSet(request, versionSet);
+        } else {
+            String updateVersionId = getUpdateVersionId(request);
+            versionSet.add(updateVersionId);
+        }
 
         //需要新增的模块，key 为模块路径
         Map<String, ApiModule> moduleMap = new HashMap<>();
@@ -669,9 +676,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs;
 
         if (chooseModule != null) {
-            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), updateVersionId);
+            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), versionSet);
         } else {
-            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionData, projectId, updateVersionId);
+            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionData, projectId, versionSet);
         }
 
         //处理数据
@@ -777,20 +784,29 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    private String getUpdateVersionId(ApiTestImportRequest request, Boolean fullCoverage) {
-        String updateVersionId;
-        if (!fullCoverage) {
-            if (request.getVersionId() == null) {
-                updateVersionId = request.getDefaultVersion();
-            } else {
-                updateVersionId = request.getVersionId();
-            }
+    private void setFullVersionSet(ApiTestImportRequest request, Set<String> versionSet) {
+        String creatVersionId;
+        if (request.getVersionId() != null) {
+            creatVersionId = request.getVersionId();
         } else {
-            if (request.getUpdateVersionId() == null) {
-                updateVersionId = request.getDefaultVersion();
-            } else {
-                updateVersionId = request.getUpdateVersionId();
-            }
+            creatVersionId = request.getDefaultVersion();
+        }
+        versionSet.add(creatVersionId);
+        String updateVersionId;
+        if (request.getUpdateVersionId() != null) {
+            updateVersionId = request.getUpdateVersionId();
+        } else {
+            updateVersionId = request.getDefaultVersion();
+        }
+        versionSet.add(updateVersionId);
+    }
+
+    private String getUpdateVersionId(ApiTestImportRequest request) {
+        String updateVersionId;
+        if (request.getVersionId() == null) {
+            updateVersionId = request.getDefaultVersion();
+        } else {
+            updateVersionId = request.getVersionId();
         }
         return updateVersionId;
     }

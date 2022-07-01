@@ -511,7 +511,15 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             chooseModule = idModuleMap.get(chooseModuleId);
         }
 
-        String updateVersionId = getUpdateVersionId(request, fullCoverage);
+        Set<String> versionSet = new HashSet<>();
+
+        if (fullCoverage) {
+            setFullVersionSet(request, versionSet);
+        } else {
+            String updateVersionId = getUpdateVersionId(request);
+            versionSet.add(updateVersionId);
+        }
+
 
         List<ApiScenarioWithBLOBs> optionData = new ArrayList<>();
 
@@ -525,9 +533,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         //系统内重复的数据
         List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs;
         if (chooseModule != null) {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), updateVersionId);
+            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), versionSet);
         } else {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(optionData, projectId, updateVersionId);
+            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(optionData, projectId, versionSet);
         }
 
         Map<String, ApiScenarioWithBLOBs> nameModuleMap = null;
@@ -564,6 +572,23 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         updateScenarioModuleDTO.setNeedUpdateList(toUpdateList);
         updateScenarioModuleDTO.setApiScenarioWithBLOBsList(optionData);
         return updateScenarioModuleDTO;
+    }
+
+    private void setFullVersionSet(ApiTestImportRequest request, Set<String> versionSet) {
+        String creatVersionId;
+        if (request.getVersionId() != null) {
+            creatVersionId = request.getVersionId();
+        } else {
+            creatVersionId = request.getDefaultVersion();
+        }
+        versionSet.add(creatVersionId);
+        String updateVersionId;
+        if (request.getUpdateVersionId() != null) {
+            updateVersionId = request.getUpdateVersionId();
+        } else {
+            updateVersionId = request.getDefaultVersion();
+        }
+        versionSet.add(updateVersionId);
     }
 
     private void removeRepeat(List<ApiScenarioWithBLOBs> optionData, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
@@ -622,20 +647,12 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         }
     }
 
-    private String getUpdateVersionId(ApiTestImportRequest request, Boolean fullCoverage) {
+    private String getUpdateVersionId(ApiTestImportRequest request) {
         String updateVersionId;
-        if (!fullCoverage) {
-            if (request.getVersionId() == null) {
-                updateVersionId = request.getDefaultVersion();
-            } else {
-                updateVersionId = request.getVersionId();
-            }
+        if (request.getVersionId() == null) {
+            updateVersionId = request.getDefaultVersion();
         } else {
-            if (request.getUpdateVersionId() == null) {
-                updateVersionId = request.getDefaultVersion();
-            } else {
-                updateVersionId = request.getUpdateVersionId();
-            }
+            updateVersionId = request.getVersionId();
         }
         return updateVersionId;
     }
