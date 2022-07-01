@@ -2244,7 +2244,7 @@ export default {
         });
     },
     del(row) {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+      this.$alert(this.$t('load_test.delete_threadgroup_confirm') + ' ' + row.name + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
