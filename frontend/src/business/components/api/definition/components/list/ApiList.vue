@@ -255,6 +255,7 @@ import {getProtocolFilter} from "@/business/components/api/definition/api-defini
 import {getGraphByCondition} from "@/network/graph";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -492,7 +493,14 @@ export default {
     },
     editApiDefinitionOrder() {
       return editApiDefinitionOrder;
-    }
+    },
+    moduleOptionsNew() {
+      let moduleOptions = [];
+      this.moduleOptions.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      return moduleOptions;
+    },
   },
   created: function () {
     if (!this.projectName || this.projectName === "") {
@@ -575,11 +583,11 @@ export default {
     },
     handleBatchMove() {
       this.isMoveBatch = true;
-      this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
+      this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptionsNew);
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
-      this.$refs.testCaseBatchMove.open(this.moduleTree, this.$refs.table.selectIds, this.moduleOptions);
+      this.$refs.testCaseBatchMove.open(this.moduleTree, this.$refs.table.selectIds, this.moduleOptionsNew);
     },
     closeCaseModel() {
       //关闭案例弹窗
@@ -814,6 +822,7 @@ export default {
       param.projectId = this.projectId;
       param.condition = this.condition;
       param.moduleId = param.nodeId;
+      param.modulePath = param.nodePath;
       let url = '/api/definition/batch/editByParams';
       if (!this.isMoveBatch)
         url = '/api/definition/batch/copy';
