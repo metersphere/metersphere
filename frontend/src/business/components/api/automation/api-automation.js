@@ -109,7 +109,7 @@ export function editApiScenarioCaseOrder(request, callback) {
 }
 
 export function savePreciseEnvProjectIds(projectIds, envMap) {
-  if (envMap != null && projectIds != null) {
+  if (envMap != null && projectIds != null && projectIds.length > 0) {
     let keys = envMap.keys();
     for (let key of keys) {
       if (!projectIds.has(key)) {

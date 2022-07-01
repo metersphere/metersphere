@@ -63,7 +63,7 @@ h1 {
   width: 400px;
   position: fixed;
   right: 0px;
-  z-index: 666;
+  z-index: 3000;
   top: 6px;
 }
 </style>
