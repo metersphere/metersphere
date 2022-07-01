@@ -1,8 +1,8 @@
 <template>
   <span>
     <slot name="header"></slot>
-    <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="search" class="search-input" size="small"
-              @keyup.enter.native="search" v-model="condition.name"/>
+    <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="search" class="search-input" size="small"
+              v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="search"/>

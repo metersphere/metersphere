@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
-              @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
+    <el-input :placeholder="$t('api_test.definition.request.select_case')" @change="search"
+              class="search-input" size="small" v-model="condition.name"/>
     <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                              v-if="condition.components !== undefined && condition.components.length > 0"
                              @search="search"/>
