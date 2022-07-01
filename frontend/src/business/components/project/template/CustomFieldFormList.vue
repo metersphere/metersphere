@@ -27,7 +27,7 @@
       prop="type">
       <template v-slot="scope">
         <el-scrollbar>
-          <custom-filed-component class="default-value-item" :data="scope.row" prop="defaultValue"/>
+          <custom-filed-component class="default-value-item" :data="scope.row" prop="defaultValue" :is-template-edit="true"/>
         </el-scrollbar>
       </template>
     </ms-table-column>

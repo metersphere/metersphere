@@ -1,5 +1,6 @@
 import i18n from '../../i18n/i18n'
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import {getCurrentUserId} from "@/common/js/utils";
 
 function setDefaultValue(item, value) {
   item.defaultValue = value;
@@ -10,7 +11,6 @@ function setDefaultValue(item, value) {
  * 设置默认值，添加自定义校验
  * @param data 原表单值
  * @param template 模板
- * @param customFieldForm 用于自定义表单的校验
  * @param rules 自定义表单的校验规则
  * @param oldFields 用于兼容旧版本数据
  */
@@ -33,6 +33,9 @@ export function parseCustomField(data, template, rules, oldFields) {
         val = JSON.parse(item.defaultValue);
       } catch (e) {
         //
+      }
+      if (item.name === '责任人' && item.system && val && val === 'CURRENT_USER') {
+        val = getCurrentUserId();
       }
       setDefaultValue(item, val);
     }
