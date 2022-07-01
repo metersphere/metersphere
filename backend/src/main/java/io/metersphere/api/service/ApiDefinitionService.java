@@ -924,7 +924,11 @@ public class ApiDefinitionService {
 
             if (!apiOp.isPresent()) {
                 apiDefinition.setId(UUID.randomUUID().toString());
-                apiDefinition.setRefId(sameRequest.get(0).getRefId());
+                if (sameRequest.get(0).getRefId() != null) {
+                    apiDefinition.setRefId(sameRequest.get(0).getRefId());
+                } else {
+                    apiDefinition.setRefId(apiDefinition.getId());
+                }
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 apiDefinition.setOrder(sameRequest.get(0).getOrder());
@@ -939,6 +943,11 @@ public class ApiDefinitionService {
                 apiDefinition.setCaseStatus(existApi.getCaseStatus());
                 apiDefinition.setNum(existApi.getNum()); //id 不变
                 apiDefinition.setRefId(existApi.getRefId());
+                if (existApi.getRefId() != null) {
+                    apiDefinition.setRefId(existApi.getRefId());
+                } else {
+                    apiDefinition.setRefId(apiDefinition.getId());
+                }
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 if (existApi.getUserId() != null) {
                     apiDefinition.setUserId(existApi.getUserId());
@@ -963,7 +972,7 @@ public class ApiDefinitionService {
                     apiDefinition.setId(existApi.getId());
                     String request = setImportHashTree(apiDefinition);
                     apiDefinition.setOrder(existApi.getOrder());
-                    apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                     apiDefinition.setRequest(request);
                     reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
@@ -976,7 +985,7 @@ public class ApiDefinitionService {
                     apiDefinition.setOrder(existApi.getOrder());
                     reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                    apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 }
             }
             extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
@@ -1387,8 +1396,12 @@ public class ApiDefinitionService {
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
         boolean urlRepeat = config.getUrlRepeatable();
-
-        UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, initData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
+        //过滤(一次只导入一个协议)
+        List<ApiDefinitionWithBLOBs> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(toList());
+        if (filterData.isEmpty()) {
+            return;
+        }
+        UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, filterData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
         List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
         List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
         List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
@@ -1408,7 +1421,7 @@ public class ApiDefinitionService {
                 apiModuleMapper.insert(apiModule);
             }
         }
-        
+
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             this.setModule(item);
