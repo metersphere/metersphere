@@ -93,9 +93,9 @@ public interface ExtApiDefinitionMapper {
 
     int toBeUpdateApi(@Param("ids") List<String> ids, @Param("toBeUpdate") Boolean toBeUpdate);
 
-    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBs(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("versionId") String versionId);
+    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBs(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("versionIds") Set<String> versionIds);
 
-    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId, @Param("versionId") String versionId);
+    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId, @Param("versionIds") Set<String> versionIds);
 
 
     int countById(String id);
