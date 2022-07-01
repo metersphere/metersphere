@@ -171,6 +171,7 @@
           <ms-table-column
             prop="environment"
             :field="item"
+            :filters="environmentsFilters"
             :fields-width="fieldsWidth"
             :label="$t('commons.environment')"
           >
@@ -180,6 +181,7 @@
             prop="createUser"
             :field="item"
             :fields-width="fieldsWidth"
+            :filters="userFilters"
             :label="$t('commons.create_user')"/>
 
           <ms-table-column
@@ -455,6 +457,8 @@ export default {
       versionName: '',
       runCaseIds: [],
       versionEnable: false,
+      userFilters: [],
+      environmentsFilters: [],
     };
   },
   props: {
@@ -502,6 +506,8 @@ export default {
     this.initTable();
     this.getVersionOptions();
     this.checkVersionEnable();
+    this.getMaintainerOptions();
+    this.showEnvironment();
   },
   mounted() {
     // 通知过来的数据跳转到编辑
@@ -575,6 +581,13 @@ export default {
     }
   },
   methods: {
+    getMaintainerOptions() {
+      this.$get('/user/project/member/list', response => {
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
+    },
     openHis(row) {
       this.$refs.taskCenter.openHistory(row.id);
     },
@@ -689,7 +702,6 @@ export default {
         }
       }
       this.initCondition();
-
       let isNext = false;
       if (this.condition.projectId) {
         this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
@@ -1141,12 +1153,17 @@ export default {
           this.environments.forEach(environment => {
             parseEnvironment(environment);
           });
+          this.environmentsFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
         });
       } else {
         this.environment = undefined;
       }
-      this.clickRow = row;
-      this.$refs.setEnvironment.open(row);
+      if (row) {
+        this.clickRow = row;
+        this.$refs.setEnvironment.open(row);
+      }
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;

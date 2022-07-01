@@ -454,6 +454,19 @@
                                 (#{value})
                             </foreach>
                         </when>
+                        <when test="key=='create_user' or key=='createUser'">
+                            and t1.create_user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+                        <when test="key=='environment'">
+                            and JSON_UNQUOTE(JSON_EXTRACT(t1.request, '$.useEnvironment')) in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                (#{value})
+                            </foreach>
+                        </when>
+
                     </choose>
                 </if>
                 <if test="request.toUpdate == null || request.toUpdate == false ">
