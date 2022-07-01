@@ -19,7 +19,7 @@
       <el-aside
         :class="isCollapse ? 'ms-aside': 'ms-aside-open'"
         class="ms-left-aside"
-        :style="isFixed ? 'opacity:100%; position: relative': 'opacity: 95%;position: fixed'"
+        :style="isFixed ? 'opacity:100%; position: relative;z-index: 666;': 'opacity: 95%;position: fixed'"
         @mouseenter.native="collapseOpen"
         @mouseleave.native="collapseClose">
         <ms-aside-header :color="color" :isCollapse="isCollapse"/>

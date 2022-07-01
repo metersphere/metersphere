@@ -1,26 +1,17 @@
 <template>
   <div v-permission="['PROJECT_API_SCENARIO:READ','WORKSPACE_USER:READ']">
-    <el-menu
-      v-if="showMenu"
-      :unique-opened="true"
-      class="header-user-menu align-right header-top-menu"
-      mode="horizontal"
-      text-color="#fff"
-      active-text-color="#fff">
-      <el-menu-item onselectstart="return false">
-        <el-tooltip effect="light">
-          <template v-slot:content>
-            <span>{{ $t('commons.task_center') }}</span>
-          </template>
-          <div @click="showTaskCenter" v-if="runningTotal > 0">
-            <el-badge :value="runningTotal" class="item" type="primary">
-              <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']" style="font-size: 18px"/>
-            </el-badge>
-          </div>
-          <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
-        </el-tooltip>
-      </el-menu-item>
-    </el-menu>
+
+    <el-tooltip effect="light" class="ms-header-menu align-right" v-if="showMenu">
+      <template v-slot:content>
+        <span>{{ $t('commons.task_center') }}</span>
+      </template>
+      <div @click="showTaskCenter" v-if="runningTotal > 0">
+        <el-badge :value="runningTotal" class="item" type="primary">
+          <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"/>
+        </el-badge>
+      </div>
+      <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
+    </el-tooltip>
 
     <el-drawer
       :visible.sync="taskVisible"
@@ -484,29 +475,8 @@ export default {
 }
 
 .global {
-  color: rgb(96,98,102);
-}
-
-.header-top-menu {
-  height: 40px;
-  line-height: 40px;
-  color: inherit;
-}
-
-.header-top-menu.el-menu--horizontal > li {
-  height: 40px;
-  line-height: 40px;
-  color: inherit;
-}
-
-.header-top-menu.el-menu--horizontal > li.el-submenu > * {
-  height: 39px;
-  line-height: 40px;
-  color: inherit;
-}
-
-.header-top-menu.el-menu--horizontal > li.is-active {
-  background: var(--color_shallow) !important;
+  color: rgb(96, 98, 102);
+  font-size: 14px
 }
 
 .ms-card-task:hover {
@@ -514,25 +484,18 @@ export default {
   border-color: #783887;
 }
 
+.ms-header-menu {
+  padding: 12px 0px 0px;
+}
+
+.ms-header-menu:hover {
+  cursor: pointer;
+  border-color: var(--color);
+}
+
 /deep/ .el-progress-bar {
   padding-right: 20px;
 }
-
-/deep/ .el-menu-item {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/deep/ .el-badge__content.is-fixed {
-  top: 25px;
-}
-
-/deep/ .el-badge__content {
-  border-radius: 10px;
-  height: 10px;
-  line-height: 10px;
-}
-
 
 .item {
   margin-right: 10px;
