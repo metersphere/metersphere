@@ -70,7 +70,7 @@
             <el-col :span="8">
               <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
                 <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule"
-                                :obj="moduleObj" clearable checkStrictly/>
+                                :obj="moduleObj" clearable checkStrictly ref="msTree"/>
               </el-form-item>
             </el-col>
 
@@ -226,6 +226,13 @@ export default {
       }
       callback();
     };
+    let validateModuleId = (rule, value, callback) => {
+      if (this.httpForm.moduleId.length === 0 || !this.httpForm.moduleId) {
+        callback(this.$t('test_track.case.input_module'));
+      } else {
+        callback();
+      }
+    };
     return {
       rule: {
         name: [
@@ -237,7 +244,7 @@ export default {
           trigger: 'blur'
         }],
         userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-        moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        moduleId: [{required: true, validator: validateModuleId, trigger: 'change'}],
         status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
       },
       httpForm: {environmentId: "", path: "", tags: []},
