@@ -1457,6 +1457,7 @@ export default {
       request_error: "失敗",
       generate_report: "生成報告",
       rerun: "失敗重跑",
+      rerun_success: "已經開始重跑，稍後重繪結果查看"
     },
     environment: {
       id: '環境ID',
