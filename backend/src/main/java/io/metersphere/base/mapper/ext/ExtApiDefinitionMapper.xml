@@ -943,11 +943,7 @@
     <update id="clearLatestVersion">
         UPDATE api_definition
         SET latest = 0
-        <where>
-            <if test="refId != null">
-                and ref_id = #{refId}
-            </if>
-        </where>
+            and ref_id = #{refId}
     </update>
 
     <update id="addLatestVersion">
@@ -1032,6 +1028,18 @@
             #{versionId}
         </foreach>
     </select>
+    <select id="selectRepeatByProtocol" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
+        SELECT * from api_definition
+        where name in
+        <foreach collection="names" item="name" separator="," open="(" close=")">
+            #{name}
+        </foreach>
+        and version_id in
+        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
+            #{versionId}
+        </foreach>
+        and protocol = #{protocol}
+    </select>
     <sql id="Same_Where_Clause">
         <where>
             <if test="blobs">
@@ -1050,4 +1058,5 @@
             </if>
         </where>
     </sql>
+
 </mapper>
