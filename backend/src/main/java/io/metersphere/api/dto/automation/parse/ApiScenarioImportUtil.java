@@ -247,6 +247,9 @@ public class ApiScenarioImportUtil {
         test.setUserId(SessionUtils.getUserId());
         test.setLatest(true);
         test.setOrder(apiDefinitionService.getImportNextOrder(projectId));
+        if (test.getName().length() > 255) {
+            test.setName(test.getName().substring(0, 255));
+        }
         apiDefinitionMapper.insert(test);
         definitionMap.put(object.getString("path") + object.getString("method") + object.getString("protocol"), test);
         return test;
@@ -279,6 +282,9 @@ public class ApiScenarioImportUtil {
         objectNew.remove("referenced");
         apiTestCase.setRequest(objectNew.toJSONString());
         apiTestCase.setOrder(apiDefinitionService.getImportNextCaseOrder(projectId));
+        if (apiTestCase.getName().length() > 255) {
+            apiTestCase.setName(apiTestCase.getName().substring(0, 255));
+        }
         apiTestCaseMapper.insert(apiTestCase);
     }
 

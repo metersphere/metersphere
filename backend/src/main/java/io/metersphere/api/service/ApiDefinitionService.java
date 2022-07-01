@@ -1131,11 +1131,12 @@ public class ApiDefinitionService {
             int batchCount = 0;
             for (int i = 0; i < cases.size(); i++) {
                 ApiTestCaseWithBLOBs item = cases.get(i);
-                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getApiDefinitionId());
-                if (apiDefinitionWithBLOBs == null) {
+                List<ApiDefinitionWithBLOBs> data = apiImport.getData();
+                List<ApiDefinitionWithBLOBs> collect = data.stream().filter(t -> t.getId().equals(item.getApiDefinitionId())).collect(toList());
+                if (collect.isEmpty()) {
                     continue;
                 }
-                insertOrUpdateImportCase(item, request, apiDefinitionWithBLOBs, apiTestCaseMapper);
+                insertOrUpdateImportCase(item, request, collect.get(0), apiTestCaseMapper);
             }
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
@@ -1166,7 +1167,11 @@ public class ApiDefinitionService {
 
     private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest, ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
-        checkRequest.setName(apiTestCase.getName());
+        if (apiTestCase.getName().length() > 255) {
+            checkRequest.setName(apiTestCase.getName().substring(0, 255));
+        } else {
+            checkRequest.setName(apiTestCase.getName());
+        }
         checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
         checkRequest.setId(apiTestCase.getId());
         ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
