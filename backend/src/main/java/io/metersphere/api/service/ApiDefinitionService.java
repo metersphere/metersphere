@@ -51,6 +51,7 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
@@ -125,6 +126,8 @@ public class ApiDefinitionService {
     private MockExpectConfigMapper mockExpectConfigMapper;
     @Resource
     private RelationshipEdgeService relationshipEdgeService;
+    @Resource
+    private TestCaseService testCaseService;
     @Resource
     private ApiDefinitionFollowMapper apiDefinitionFollowMapper;
     @Resource
@@ -379,6 +382,8 @@ public class ApiDefinitionService {
             FileUtils.deleteBodyFiles(api.getId());
             deleteFollows(api.getId());
         });
+        // 删除用例和接口的关联关系
+        testCaseService.deleteTestCaseTestByTestIds(Arrays.asList(apiId));
     }
 
     private void deleteFollows(String apiId) {
@@ -399,6 +404,7 @@ public class ApiDefinitionService {
             mockConfigService.deleteMockConfigByApiId(apiId);
             deleteFollows(apiId);
         }
+        testCaseService.deleteTestCaseTestByTestIds(apiIds);
     }
 
     public void removeToGc(List<String> apiIds) {
