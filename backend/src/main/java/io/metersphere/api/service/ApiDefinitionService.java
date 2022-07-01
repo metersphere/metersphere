@@ -1467,7 +1467,6 @@ public class ApiDefinitionService {
                     model.setId(exiteModelList.get(0).getId());
                     esbApiParamsMapper.updateByPrimaryKeyWithBLOBs(model);
                 }
-
             }
         }
 
