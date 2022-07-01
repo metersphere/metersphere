@@ -121,7 +121,8 @@
                   </el-tooltip>
                   <span>
                     {{ $t('run_mode.retry') }}
-                    <el-input-number v-model="runConfig.retryNum" :min="1" :max="10000000" size="mini"/>
+                    <el-input-number :value="runConfig.retryNum" v-model="runConfig.retryNum" :min="1" :max="10000000"
+                                     size="mini"/>
                     &nbsp;
                     {{ $t('run_mode.retry_frequency') }}
                   </span>
