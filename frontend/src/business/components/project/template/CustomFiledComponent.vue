@@ -87,7 +87,7 @@
        <el-option
          v-for="(item) in memberOptions"
          :key="item.id"
-         :label="item.name + ' (' + item.email + ')'"
+         :label="item.name + (item.email ? ' (' + item.email + ')' : '')"
          :value="item.id">
        </el-option>
     </el-select>
@@ -113,7 +113,6 @@
 
 <script>
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 import {getProjectMemberOption} from "@/network/user";
@@ -126,7 +125,8 @@ export default {
     'prop',
     'form',
     'disabled',
-    'defaultOpen'
+    'defaultOpen',
+    'isTemplateEdit'
   ],
   data() {
     return {
@@ -136,6 +136,9 @@ export default {
   mounted() {
     getProjectMemberOption((data) => {
       this.memberOptions = data;
+      if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
+        this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
+      }
     });
   },
   methods: {

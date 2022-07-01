@@ -63,7 +63,7 @@
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-                <el-button v-else  type="primary" class="ms-api-buttion" @click="handleCommand"
+                <el-button v-else type="primary" class="ms-api-buttion" @click="handleCommand"
                            :disabled="readOnly"
                            @command="handleCommand" size="small" style="float: right;margin-right: 20px">
                   {{ $t('commons.save') }}
@@ -79,21 +79,21 @@
                                    prop="prerequisite"/>
 
               <step-change-item :label-width="formLabelWidth" :form="form"/>
-              <form-rich-text-item  v-if="form.stepModel === 'TEXT'"
-                                    prop="stepDescription"
-                                    :disabled="readOnly"
-                                    :label-width="formLabelWidth"
-                                    :title="$t('test_track.case.step_desc')"
-                                    :data="form"
-                                    :default-open="richTextDefaultOpen"/>
+              <form-rich-text-item v-if="form.stepModel === 'TEXT'"
+                                   prop="stepDescription"
+                                   :disabled="readOnly"
+                                   :label-width="formLabelWidth"
+                                   :title="$t('test_track.case.step_desc')"
+                                   :data="form"
+                                   :default-open="richTextDefaultOpen"/>
 
-              <form-rich-text-item  v-if="form.stepModel === 'TEXT'"
-                                    prop="expectedResult"
-                                    :disabled="readOnly"
-                                    :label-width="formLabelWidth"
-                                    :title="$t('test_track.case.expected_results')"
-                                    :data="form"
-                                    :default-open="richTextDefaultOpen"/>
+              <form-rich-text-item v-if="form.stepModel === 'TEXT'"
+                                   prop="expectedResult"
+                                   :disabled="readOnly"
+                                   :label-width="formLabelWidth"
+                                   :title="$t('test_track.case.expected_results')"
+                                   :data="form"
+                                   :default-open="richTextDefaultOpen"/>
 
               <test-case-step-item v-if="form.stepModel === 'STEP' || !form.stepModel"
                                    :label-width="formLabelWidth"
@@ -223,7 +223,7 @@ export default {
       showFollow: false,
       isValidate: false,
       currentValidateName: "",
-      type:"",
+      type: "",
       form: {
         name: '',
         module: 'default-module',
