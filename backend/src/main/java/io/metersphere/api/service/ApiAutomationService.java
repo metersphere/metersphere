@@ -48,6 +48,7 @@ import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -110,6 +111,8 @@ public class ApiAutomationService {
     @Resource
     @Lazy
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
+    @Resource
+    private TestCaseService testCaseService;
     @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
@@ -588,6 +591,7 @@ public class ApiAutomationService {
         Map<String, String> scenarioIdDefinitionMap = apiScenarioWithBLOBs.stream().collect(Collectors.toMap(ApiScenarioWithBLOBs::getId, scenario -> scenario.getScenarioDefinition() == null ? " " : scenario.getScenarioDefinition()));
         preDelAndResource(scenarioIdDefinitionMap);
         testPlanScenarioCaseService.bathDeleteByScenarioIds(scenarioIds);
+        testCaseService.deleteTestCaseTestByTestIds(ids);
         deleteScenarioByIds(scenarioIds);
     }
 
@@ -1941,7 +1945,9 @@ public class ApiAutomationService {
     public List<ApiScenario> getScenarioCaseByIds(List<String> ids) {
         if (CollectionUtils.isNotEmpty(ids)) {
             ApiScenarioExample example = new ApiScenarioExample();
-            example.createCriteria().andIdIn(ids);
+            example.createCriteria()
+                    .andIdIn(ids)
+                    .andStatusNotEqualTo(CommonConstants.TrashStatus);
             return apiScenarioMapper.selectByExample(example);
         }
         return new ArrayList<>();
