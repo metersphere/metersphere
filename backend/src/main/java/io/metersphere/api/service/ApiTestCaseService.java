@@ -19,6 +19,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
@@ -35,6 +36,7 @@ import io.metersphere.service.ApiCaseExecutionInfoService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
@@ -85,6 +87,8 @@ public class ApiTestCaseService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private EsbApiParamService esbApiParamService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
     @Resource
@@ -294,6 +298,7 @@ public class ApiTestCaseService {
         apiCaseExecutionInfoService.deleteByApiCaseId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
+        testPlanApiCaseService.deleteByCaseId(testId);
         deleteBodyFiles(testId);
         deleteFollows(testId);
     }
@@ -536,9 +541,7 @@ public class ApiTestCaseService {
         apiTestCaseMapper.deleteByExample(example);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         List<String> caseIds = apiTestCases.stream().map(ApiTestCase::getId).collect(Collectors.toList());
-        for (String testId : caseIds) {
-            extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
-        }
+        testPlanApiCaseService.deleteByCaseIds(caseIds);
     }
 
     public void relevanceByApi(ApiCaseRelevanceRequest request) {
@@ -1085,7 +1088,9 @@ public class ApiTestCaseService {
     public List<ApiTestCase> getApiCaseByIds(List<String> apiCaseIds) {
         if (CollectionUtils.isNotEmpty(apiCaseIds)) {
             ApiTestCaseExample example = new ApiTestCaseExample();
-            example.createCriteria().andIdIn(apiCaseIds);
+            example.createCriteria()
+                    .andIdIn(apiCaseIds)
+                    .andStatusNotEqualTo(CommonConstants.TrashStatus);
             return apiTestCaseMapper.selectByExample(example);
         }
         return new ArrayList<>();
