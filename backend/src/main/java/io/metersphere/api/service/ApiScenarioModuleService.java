@@ -491,7 +491,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             fullCoverageScenario = false;
         }
 
-
         //获取当前项目的当前协议下的所有模块的Tree
         List<ApiScenarioModuleDTO> scenarioModules = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         List<ApiScenarioModuleDTO> nodeTreeByProjectId = this.getNodeTrees(scenarioModules);
@@ -552,7 +551,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         //处理数据
         if (fullCoverage) {
             if (fullCoverageScenario) {
-
                 startCoverModule(toUpdateList, nameModuleMap, repeatDataMap);
             } else {
                 //覆盖但不覆盖模块
