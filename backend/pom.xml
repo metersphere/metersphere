@@ -70,7 +70,7 @@
         <!-- http2 配置-->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-alpn-server</artifactId>
+            <artifactId>jetty-alpn-java-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
