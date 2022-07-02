@@ -1,21 +1,19 @@
 package io.metersphere.config;
 
 
-import io.undertow.Undertow;
-import io.undertow.UndertowOptions;
-import io.undertow.server.handlers.DisallowedMethodsHandler;
-import io.undertow.util.HttpString;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.ServerConnector;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.web.embedded.jetty.ConfigurableJettyWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
 @ConditionalOnProperty(name = "server.ssl.enabled", havingValue = "true")
-public class HTTPSConfig {
+public class HTTPSConfig implements WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory> {
 
     /**
      * http服务端口
@@ -29,31 +27,21 @@ public class HTTPSConfig {
     @Value("${server.port}")
     private Integer httpsPort;
 
+    @Override
+    public void customize(ConfigurableJettyWebServerFactory factory) {
 
-    @Bean
-    public ServletWebServerFactory undertowFactory() {
-        UndertowServletWebServerFactory undertowFactory = new UndertowServletWebServerFactory();
-        undertowFactory.addBuilderCustomizers((Undertow.Builder builder) -> {
-            builder.addHttpListener(httpPort, "0.0.0.0");
-            // 开启HTTP2
-            builder.setServerOption(UndertowOptions.ENABLE_HTTP2, true);
-        });
-        // 暂不开启自动跳转
-//        undertowFactory.addDeploymentInfoCustomizers(deploymentInfo -> {
-//            // 开启HTTP自动跳转至HTTPS
-//            deploymentInfo.addSecurityConstraint(new SecurityConstraint()
-//                            .addWebResourceCollection(new WebResourceCollection().addUrlPattern("/*"))
-//                            .setTransportGuaranteeType(TransportGuaranteeType.CONFIDENTIAL)
-//                            .setEmptyRoleSemantic(SecurityInfo.EmptyRoleSemantic.PERMIT))
-//                    .setConfidentialPortManager(exchange -> httpsPort);
-//        });
-        // 禁用 TRACE 和 TRACK
-        undertowFactory.addDeploymentInfoCustomizers(deploymentInfo -> deploymentInfo.addInitialHandlerChainWrapper(handler -> {
-            HttpString[] disallowedHttpMethods = {HttpString.tryFromString("TRACE"), HttpString.tryFromString("TRACK")};
-            return new DisallowedMethodsHandler(handler, disallowedHttpMethods);
-        }));
-        return undertowFactory;
+        factory.addServerCustomizers(
+                server -> {
+                    HttpConfiguration httpConfiguration = new HttpConfiguration();
+                    httpConfiguration.setSecurePort(httpsPort);
+                    httpConfiguration.setSecureScheme("https");
+
+                    ServerConnector connector = new ServerConnector(server);
+                    connector.addConnectionFactory(new HttpConnectionFactory(httpConfiguration));
+                    connector.setPort(httpPort);
+                    server.addConnector(connector);
+                }
+        );
     }
-
 }
 
