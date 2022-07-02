@@ -70,6 +70,10 @@
         <!-- http2 配置-->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-alpn-conscrypt-server</artifactId>
         </dependency>
         <dependency>
