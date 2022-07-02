@@ -86,6 +86,7 @@ public class ApiTestCaseService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private EsbApiParamService esbApiParamService;
+    @Lazy
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
