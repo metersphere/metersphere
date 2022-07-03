@@ -15,7 +15,7 @@
 import {buildPagePath, getPageDate, getPageInfo} from "@/common/js/tableUtils";
 import {TEST_PLAN_RELEVANCE_FUNC_CONFIGS} from "@/business/components/common/components/search/search-components";
 import FunctionalRelevance from "@/business/components/track/plan/view/comonents/functional/FunctionalRelevance";
-import {getTestCaseNodes} from "@/network/testCase";
+import {getTestCaseNodesByCaseFilter} from "@/network/testCase";
 
 export default {
   name: "RelationshipFunctionalRelevance",
@@ -86,7 +86,7 @@ export default {
       });
     },
     getTreeNodes(vueObj) {
-      vueObj.$refs.nodeTree.result = getTestCaseNodes(vueObj.projectId, data => {
+      vueObj.$refs.nodeTree.result = getTestCaseNodesByCaseFilter(vueObj.projectId, {}, data => {
         vueObj.treeNodes = data;
         vueObj.selectNodeIds = [];
       });
