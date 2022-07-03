@@ -69,7 +69,7 @@ import {buildNodePath} from "@/business/components/api/definition/model/NodeTree
 import {getCurrentProjectID} from "@/common/js/utils";
 import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
 import ModulePublicButton from "@/business/components/api/definition/components/module/ModulePublicButton";
-import {getTestCaseNodes, getTestCaseNodesByCaseFilter} from "@/network/testCase";
+import {getTestCaseNodesByCaseFilter} from "@/network/testCase";
 import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 
 export default {
