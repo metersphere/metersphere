@@ -251,7 +251,7 @@ export default {
 }
 
 /deep/ .el-badge__content.is-fixed {
-  top: 25px;
+  top: 15px;
 }
 
 /deep/ .el-badge__content {
