@@ -35,21 +35,21 @@ public class APISingleResultListener implements MsExecListener {
     @Override
     public void handleTeardownTest(List<SampleResult> results, ResultDTO dto, Map<String, Object> kafkaConfig) {
         LoggerUtil.info("接收到执行结果开始处理报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
-        // 清理过程步骤
-        results = RetryResultUtil.clearLoops(results);
         queues.addAll(results);
     }
 
     @Override
     public void testEnded(ResultDTO dto, Map<String, Object> kafkaConfig) {
         try {
+            // 清理过程步骤
+            queues = RetryResultUtil.clearLoops(queues);
+            JMeterBase.resultFormatting(queues, dto);
             if (dto.isRetryEnable()) {
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】开始");
-                RetryResultUtil.mergeRetryResults(queues);
+                RetryResultUtil.mergeRetryResults(dto.getRequestResults());
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】结束");
             }
 
-            JMeterBase.resultFormatting(queues, dto);
             dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())));
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
