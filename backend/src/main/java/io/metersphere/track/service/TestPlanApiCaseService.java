@@ -139,6 +139,9 @@ public class TestPlanApiCaseService {
     }
 
     public int deleteByCaseIds(List<String> caseIds) {
+        if (CollectionUtils.isEmpty(caseIds)) {
+            return 0;
+        }
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
                 .andApiCaseIdIn(caseIds);
