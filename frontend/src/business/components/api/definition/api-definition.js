@@ -16,6 +16,7 @@ export function getProtocolFilter(protocolType) {
   } else if (protocolType === "TCP") {
     return [
       {text: 'TCP', value: 'TCP'},
+      {text: 'ESB', value: 'ESB'}
     ];
   } else if (protocolType === "SQL") {
     return [
@@ -23,7 +24,6 @@ export function getProtocolFilter(protocolType) {
     ];
   } else if (protocolType === "DUBBO") {
     return [
-      {text: 'DUBBO', value: 'DUBBO'},
       {text: 'dubbo://', value: 'dubbo://'},
     ];
   } else {

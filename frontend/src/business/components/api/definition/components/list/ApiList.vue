@@ -406,20 +406,7 @@ export default {
         {text: this.$t('test_track.review.pass'), value: '通过'},
         {text: this.$t('test_track.review.un_pass'), value: '未通过'},
       ],
-      methodFilters: [
-        {text: 'GET', value: 'GET'},
-        {text: 'POST', value: 'POST'},
-        {text: 'PUT', value: 'PUT'},
-        {text: 'PATCH', value: 'PATCH'},
-        {text: 'DELETE', value: 'DELETE'},
-        {text: 'OPTIONS', value: 'OPTIONS'},
-        {text: 'HEAD', value: 'HEAD'},
-        {text: 'CONNECT', value: 'CONNECT'},
-        {text: 'DUBBO', value: 'DUBBO'},
-        {text: 'dubbo://', value: 'dubbo://'},
-        {text: 'SQL', value: 'SQL'},
-        {text: 'TCP', value: 'TCP'},
-      ],
+      methodFilters: [],
       userFilters: [],
       versionFilters: [],
       valueArr: {
@@ -509,7 +496,7 @@ export default {
     this.getMaintainerOptions();
     this.getVersionOptions();
     this.checkVersionEnable();
-
+    this.getProtocolFilter();
 
     // 通知过来的数据跳转到编辑
     if (this.$route.query.resourceId) {
@@ -530,6 +517,7 @@ export default {
       }
     },
     currentProtocol() {
+      this.getProtocolFilter();
       this.currentPage = 1;
       initCondition(this.condition, false);
       this.closeCaseModel();
@@ -556,6 +544,9 @@ export default {
     },
   },
   methods: {
+    getProtocolFilter() {
+      this.methodFilters = getProtocolFilter(this.currentProtocol);
+    },
     getProjectName() {
       this.$get('project/get/' + this.projectId, response => {
         let project = response.data;
