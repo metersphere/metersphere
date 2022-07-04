@@ -51,7 +51,7 @@ export default {
 
 .ms-main-container {
   height: calc(100vh) !important;
-  padding: 2px;
+  padding: 0px;
 }
 
 h1 {

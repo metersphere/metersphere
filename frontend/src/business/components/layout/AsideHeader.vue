@@ -1,11 +1,8 @@
 <template>
   <el-menu
-    class="ms-menu-vertical ms-menu horizontal-collapse-transition"
-    text-color="#F2F2F2"
-    active-text-color="#fff"
+    class="ms-menu-vertical ms-menu-title horizontal-collapse-transition"
     :key="menuKey"
     :collapse="isCollapse"
-    :background-color="color"
     router>
     <el-menu-item>
       <div>
@@ -34,7 +31,6 @@ export default {
     }
   },
   props: {
-    color: String,
     isCollapse: {
       type: Boolean,
       default: true,
@@ -55,11 +51,15 @@ export default {
   border-right: 0px !important;
 }
 
+.ms-menu-vertical > li.is-active {
+  background: var(--aside_color) !important;
+}
+
 .ms-title-width {
   font-size: 15px;
   font-weight: bold;
   margin-left: 4px;
-  color: #fff;
+  color: var(--font_color) !important;
   display: inline-block;
   overflow-x: hidden;
   text-overflow: ellipsis;
@@ -75,9 +75,13 @@ export default {
 }
 
 .el-menu-item:hover {
-  background-color: var(--color) !important;
+  background-color: var(--aside_color) !important;
 }
 
+.ms-menu-title {
+  align-items: center;
+  background-color: var(--aside_color);
+}
 
 .logo {
   margin: 0px;
@@ -88,6 +92,8 @@ export default {
   box-sizing: border-box;
   background-repeat: no-repeat;
   background-position: 50% center;
+  color: var(--font_color) !important;
+  background-color: var(--aside_color);
 }
 
 .horizontal-collapse-transition {

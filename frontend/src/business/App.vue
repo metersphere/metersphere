@@ -17,23 +17,21 @@
 
     <el-container>
       <el-aside
-        :class="isCollapse ? 'ms-aside': 'ms-aside-open'"
+        :class="isCollapse ? 'ms-aside': 'ms-aside-collapse-open'"
         class="ms-left-aside"
         :style="isFixed ? 'opacity:100%; position: relative;z-index: 666;': 'opacity: 95%;position: fixed'"
         @mouseenter.native="collapseOpen"
         @mouseleave.native="collapseClose">
-        <ms-aside-header :color="color" :isCollapse="isCollapse"/>
-        <ms-aside-menus :color="color" :isCollapse="isCollapse"/>
+        <ms-aside-header :sideTheme="sideTheme" :isCollapse="isCollapse"/>
+        <ms-aside-menus :sideTheme="sideTheme" :color="color" :isCollapse="isCollapse"/>
         <div class="ms-header-fixed" v-show="!isCollapse">
-          <!--<el-checkbox v-model="isFixed" v-show="!isCollapse" class="checkBox-input"/>-->
-          <img src="@/assets/module/pushpin.svg" class="ms-pin" alt="" v-if="isFixed" @click="fixedChange(false)">
-          <img src="@/assets/module/unpin.svg" class="ms-pin" alt="" v-else @click="fixedChange(true)">
+          <svg-icon iconClass="pushpin" class-name="ms-menu-pin" v-if="isFixed" @click.native="fixedChange(false)"/>
+          <svg-icon iconClass="unpin" class-name="ms-menu-pin" v-else @click.native="fixedChange(true)"/>
         </div>
       </el-aside>
       <el-main class="container">
-        <div :class="isFixed ? 'ms-left-fixed': 'left'">
-        </div>
-        <div :class="isFixed ? 'ms-right-fixed': 'ms-main-view right'">
+        <div :class="isFixed ? 'ms-left-fixed': 'ms-aside-left'"/>
+        <div :class="isFixed ? 'ms-right-fixed': 'ms-main-view ms-aside-right'">
           <ms-view v-if="isShow"/>
         </div>
       </el-main>
@@ -47,7 +45,7 @@ import MsAsideMenus from "./components/layout/AsideMenus";
 import MsAsideHeader from "./components/layout/AsideHeader";
 import MsAsideFooter from "./components/layout/AsideFooter";
 import MsView from "./components/common/router/View";
-import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/js/utils";
+import {hasLicense, saveLocalStorage, setAsideColor, setColor, setCustomizeColor, setDefaultTheme, setLightColor} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
 
@@ -73,12 +71,13 @@ export default {
       isCollapse: true,
       headerHeight: "0px",
       isFixed: false,
+      sideTheme: "",
     };
   },
   computed: {
     changePassword() {
       return JSON.parse(sessionStorage.getItem("changePassword"));
-    }
+    },
   },
   created() {
     if (this.licenseHeader != null || this.changePassword) {
@@ -89,12 +88,12 @@ export default {
       setDefaultTheme();
       this.color = ORIGIN_COLOR;
     } else {
-      //
       this.$get('/system/theme', res => {
         this.color = res.data ? res.data : ORIGIN_COLOR;
         setColor(this.color, this.color, this.color, this.color, this.color);
         this.$store.commit('setTheme', res.data);
       });
+      this.query();
     }
     // OIDC redirect 之后不跳转
     if (window.location.href.endsWith('#/refresh')) {
@@ -148,6 +147,27 @@ export default {
     };
   },
   methods: {
+    query() {
+      this.result = this.$get("/display/info", response => {
+        let theme = "";
+        if (response.data && response.data[5] && response.data[5].paramValue) {
+          theme = response.data[5].paramValue;
+        }
+        if (response.data && response.data[7] && response.data[7].paramValue) {
+          this.setAsideTheme(response.data[7].paramValue, theme);
+        }
+      })
+    },
+    setAsideTheme(sideTheme, theme) {
+      this.sideTheme = sideTheme;
+      if (sideTheme === "theme-light") {
+        setLightColor();
+      } else if (sideTheme === "theme-default") {
+        setAsideColor();
+      } else {
+        setCustomizeColor(theme);
+      }
+    },
     fixedChange(isFixed) {
       this.isFixed = isFixed;
       if (this.isFixed) {
@@ -230,16 +250,20 @@ export default {
 .ms-aside {
   z-index: 666;
   width: var(--asideWidth) !important;
-  background-color: var(--color);
+  background-color: var(--aside_color);
+  color: var(--font_color);
   opacity: 100%;
   height: calc(100vh);
 }
 
-.ms-aside-open {
+.ms-aside-collapse-open {
   width: var(--asideOpenWidth) !important;
-  background-color: var(--color);
+  background-color: var(--aside_color);
+  color: var(--font_color);
   opacity: 95%;
   z-index: 9999;
+  border-right: 1px #DCDFE6 solid;
+  border-radius: 2px;
 }
 
 .change-password-tip {
@@ -254,9 +278,8 @@ export default {
   position: fixed;
   left: 0;
   height: calc(100vh);
-  background-color: var(--color);
+  background-color: var(--aside_color);
   padding-left: 0px;
-  border: 0px;
   overflow: hidden;
 }
 
@@ -269,18 +292,19 @@ export default {
   height: calc(100vh);
 }
 
-.left {
+.ms-aside-left {
   float: left;
   width: var(--asideWidth);
   height: calc(100vh);
-  background-color: var(--color);
+  background-color: var(--aside_color);
 }
 
 .ms-left-fixed {
   width: 0px;
+  border-right: 0px;
 }
 
-.right {
+.ms-aside-right {
   flex: 1;
   height: calc(100vh);
 }
@@ -301,17 +325,6 @@ export default {
   bottom: 20px;
 }
 
-.ms-pin {
-  height: 20px;
-  width: 20px;
-}
-
-.ms-pin:hover {
-  height: 21px;
-  width: 21px;
-  cursor: pointer;
-}
-
 .checkBox-input >>> .el-checkbox__inner {
   border-color: #fff;
 }
@@ -326,5 +339,15 @@ export default {
   content: "";
   position: absolute;
   border-color: #fff !important;
+}
+
+.ms-menu-pin {
+  color: var(--font_color);
+  fill: currentColor;
+  font-size: 20px;
+}
+
+.ms-menu-pin:hover {
+  cursor: pointer;
 }
 </style>

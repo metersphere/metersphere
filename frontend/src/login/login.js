@@ -8,6 +8,7 @@ import i18n from "../i18n/i18n";
 import infoImg from "../assets/info.png";
 import loginLogo from "../assets/logo-dark-MeterSphere.svg";
 import logoHeader from "../assets/logo-light-MeterSphere.svg";
+import logo from "../assets/logo-default-MeterSphere.svg";
 
 Vue.config.productionTip = false;
 

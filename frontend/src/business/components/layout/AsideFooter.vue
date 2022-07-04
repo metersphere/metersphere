@@ -1,7 +1,6 @@
 <template>
   <el-menu menu-trigger="click"
-           class="ms-menu-vertical ms-menu ms-footer" :collapse="isCollapse"
-           :background-color="color"
+           class="ms-menu-vertical ms-menu-title ms-footer" :collapse="isCollapse"
            text-color="#F2F2F2"
            active-text-color="#fff"
            :default-active="activeIndex"
@@ -65,6 +64,11 @@ export default {
 
 /deep/ .el-menu-item {
   padding-left: 11px !important;
+}
+
+.ms-menu-title {
+  align-items: center;
+  background-color: var(--aside_color);
 }
 
 .ms-menu-img {

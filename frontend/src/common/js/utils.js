@@ -418,6 +418,24 @@ export function setColor(a, b, c, d, e) {
   document.body.style.setProperty('--primary_color', e);
 }
 
+export function setAsideColor() {
+  // 自定义主题风格
+  document.body.style.setProperty('--aside_color', "#783887");
+  document.body.style.setProperty('--font_color', "#fff");
+}
+
+export function setLightColor() {
+  // 自定义主题风格
+  document.body.style.setProperty('--aside_color', "#fff");
+  document.body.style.setProperty('--font_color', "#505266");
+}
+
+export function setCustomizeColor(color) {
+  // 自定义主题风格
+  document.body.style.setProperty('--aside_color', color || '#783887');
+  document.body.style.setProperty('--font_color', "#fff");
+}
+
 export function setDefaultTheme() {
   setColor(ORIGIN_COLOR, ORIGIN_COLOR_SHALLOW, COUNT_NUMBER, COUNT_NUMBER_SHALLOW, PRIMARY_COLOR);
 }
@@ -533,10 +551,10 @@ export function parseTag(data) {
  */
 export function resizeTextarea(size = 2, index) {
   let textareaList = document.querySelectorAll('.sync-textarea .el-textarea__inner');
-  if (index || index === 0)  {
+  if (index || index === 0) {
     _resizeTextarea(index * size, size, textareaList);
   } else {
-    for (let i = 0; i < textareaList.length; i+=size) {
+    for (let i = 0; i < textareaList.length; i += size) {
       _resizeTextarea(i, size, textareaList);
     }
   }
