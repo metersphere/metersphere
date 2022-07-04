@@ -1063,9 +1063,7 @@ public class TestCaseService {
             if (!testCases.isEmpty()) {
                 Integer num = importCreateNum.get();
                 Integer beforeInsertId = beforeImportCreateNum.get();
-
-                for (int i = testCases.size() - 1; i > -1; i--) { // 反向遍历，保持和文件顺序一致
-                    TestCaseWithBLOBs testCase = testCases.get(i);
+                for (TestCaseWithBLOBs testCase : testCases) {
                     testCase.setId(UUID.randomUUID().toString());
                     testCase.setCreateUser(SessionUtils.getUserId());
                     testCase.setCreateTime(System.currentTimeMillis());
