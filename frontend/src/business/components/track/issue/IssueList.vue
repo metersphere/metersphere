@@ -136,9 +136,9 @@
                            :prop="field.name">
               <template v-slot="scope">
                 <span v-if="field.name === '状态'">
-                  {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
+                  {{getCustomFieldValue(scope.row, field, issueStatusMap[scope.row.status])}}
                 </span>
-                <span v-if="field.type === 'richText'">
+                <span v-else-if="field.type === 'richText'">
                    <el-popover
                      placement="right"
                      width="500"
@@ -280,8 +280,9 @@ export default {
     tableDoLayout() {
       if (this.$refs.table) this.$refs.table.doLayout();
     },
-    getCustomFieldValue(row, field) {
-      return getCustomFieldValue(row, field, this.members);
+    getCustomFieldValue(row, field, defaultVal) {
+      let value = getCustomFieldValue(row, field, this.members);
+      return value ? value : defaultVal;
     },
     initFields(template) {
       this.issueTemplate = template;
