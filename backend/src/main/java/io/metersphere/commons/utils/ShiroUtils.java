@@ -80,6 +80,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
         filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
         filterChainDefinitionMap.put("/test/case/file/preview/**", "apikey, authc"); // 预览测试用例附件 不用校验 csrf
+        filterChainDefinitionMap.put("/test/case/attachment/preview/**", "apikey, authc"); // 预览测试用例附件 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
     }
 

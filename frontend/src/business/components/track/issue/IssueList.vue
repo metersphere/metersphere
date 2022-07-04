@@ -352,7 +352,8 @@ export default {
     },
     handleCopy(data) {
       let copyData = {};
-      Object.assign(copyData, data);
+      Object.assign(copyData, data)
+      copyData.copyIssueId = copyData.id
       copyData.id = null;
       copyData.name = data.name + '_copy';
       this.$refs.issueEdit.open(copyData, 'copy');

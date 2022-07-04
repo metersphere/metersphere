@@ -885,6 +885,7 @@ export default {
         let testCase = response.data;
         testCase.name = 'copy_' + testCase.name;
         //复制的时候只复制当前版本
+        testCase.copyId = testCase.id;
         testCase.id = getUUID();
         testCase.refId = null;
         testCase.versionId = null;

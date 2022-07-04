@@ -1,14 +1,10 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.FileContentMapper;
-import io.metersphere.base.mapper.FileMetadataMapper;
-import io.metersphere.base.mapper.TestCaseFileMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.RsaKey;
-import io.metersphere.commons.utils.RsaUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,14 +28,24 @@ public class FileService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
+    private FileAttachmentMetadataMapper fileAttachmentMetadataMapper;
+    @Resource
     private FileContentMapper fileContentMapper;
     @Resource
     private TestCaseFileMapper testCaseFileMapper;
+    @Resource
+    private IssueFileMapper issueFileMapper;
 
     public byte[] loadFileAsBytes(String id) {
         FileContent fileContent = fileContentMapper.selectByPrimaryKey(id);
 
         return fileContent.getFile();
+    }
+
+    public byte[] getAttachmentBytes(String id) {
+        FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(id);
+        File attachmentFile = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
+        return FileUtils.fileToByte(attachmentFile);
     }
 
     public FileContent getFileContent(String fileId) {
@@ -70,6 +76,23 @@ public class FileService {
         deleteFileByIds(ids);
     }
 
+    public void deleteFileAttachmentByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        FileAttachmentMetadataExample example = new FileAttachmentMetadataExample();
+        example.createCriteria().andIdIn(ids);
+        fileAttachmentMetadataMapper.deleteByExample(example);
+    }
+
+    public List<FileMetadata> getAllFileMeta() {
+        return fileMetadataMapper.selectByExample(new FileMetadataExample());
+    }
+
+    public List<FileContent> getAllFileContent() {
+        return fileContentMapper.selectByExampleWithBLOBs(new FileContentExample());
+    }
+
     public FileMetadata saveFile(MultipartFile file, String projectId, String fileId) {
         final FileMetadata fileMetadata = new FileMetadata();
         if (StringUtils.isEmpty(fileId)) {
@@ -96,6 +119,34 @@ public class FileService {
         fileContentMapper.insert(fileContent);
 
         return fileMetadata;
+    }
+
+    public FileAttachmentMetadata saveAttachment(MultipartFile file, String attachmentType, String belongId) {
+        String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
+        FileUtils.uploadFile(file, uploadPath);
+        final FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+        fileAttachmentMetadata.setId(UUID.randomUUID().toString());
+        fileAttachmentMetadata.setName(file.getOriginalFilename());
+        fileAttachmentMetadata.setType(getFileType(fileAttachmentMetadata.getName()).name());
+        fileAttachmentMetadata.setSize(file.getSize());
+        fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
+        fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
+        fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());
+        fileAttachmentMetadata.setFilePath(uploadPath);
+        fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
+        return fileAttachmentMetadata;
+    }
+
+    public void deleteAttachment(List<String> ids) {
+        for (String id : ids) {
+            FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(id);
+            FileUtils.deleteFile(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
+        }
+    }
+
+    public void deleteAttachment(String attachmentType, String belongId) {
+        String deletePath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
+        FileUtils.deleteDir(deletePath);
     }
 
     public FileMetadata saveFile(MultipartFile file, String projectId) {
@@ -224,6 +275,26 @@ public class FileService {
         return fileMetadata;
     }
 
+
+
+    public FileAttachmentMetadata copyAttachment(String fileId, String attachmentType, String belongId) {
+        String copyPath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
+        FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(fileId);
+        if (fileAttachmentMetadata != null) {
+            File copyFile = new File(copyPath);
+            if (!copyFile.exists()) {
+                FileUtils.copyFolder(fileAttachmentMetadata.getFilePath(), copyPath);
+            }
+            fileAttachmentMetadata.setId(UUID.randomUUID().toString());
+            fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
+            fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
+            fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());
+            fileAttachmentMetadata.setFilePath(copyPath);
+            fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
+        }
+        return fileAttachmentMetadata;
+    }
+
     private FileType getFileType(String filename) {
         int s = filename.lastIndexOf(".") + 1;
         String type = filename.substring(s);
@@ -244,6 +315,38 @@ public class FileService {
         example.createCriteria().andIdIn(fileIds);
         return fileMetadataMapper.selectByExample(example);
     }
+
+    public List<FileAttachmentMetadata> getFileAttachmentMetadataByCaseId(String caseId) {
+        TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+        testCaseFileExample.createCriteria().andCaseIdEqualTo(caseId);
+        final List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(testCaseFileExample);
+
+        if (CollectionUtils.isEmpty(testCaseFiles)) {
+            return new ArrayList<>();
+        }
+
+        List<String> fileIds = testCaseFiles.stream().map(TestCaseFile::getFileId).collect(Collectors.toList());
+        FileAttachmentMetadataExample example = new FileAttachmentMetadataExample();
+        example.createCriteria().andIdIn(fileIds);
+        return fileAttachmentMetadataMapper.selectByExample(example);
+    }
+
+    public List<FileAttachmentMetadata> getFileAttachmentMetadataByIssueId(String issueId) {
+        IssueFileExample issueFileExample = new IssueFileExample();
+        issueFileExample.createCriteria().andIssueIdEqualTo(issueId);
+        final List<IssueFile> issueFiles = issueFileMapper.selectByExample(issueFileExample);
+
+        if (CollectionUtils.isEmpty(issueFiles)) {
+            return new ArrayList<>();
+        }
+
+        List<String> fileIds = issueFiles.stream().map(IssueFile::getFileId).collect(Collectors.toList());
+        FileAttachmentMetadataExample example = new FileAttachmentMetadataExample();
+        example.createCriteria().andIdIn(fileIds);
+        return fileAttachmentMetadataMapper.selectByExample(example);
+    }
+
+
 
     public void deleteFileById(String fileId) {
         deleteFileByIds(Collections.singletonList(fileId));

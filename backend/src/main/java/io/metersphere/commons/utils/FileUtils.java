@@ -26,6 +26,10 @@ public class FileUtils {
     public static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
     public static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
     public static final String UI_IMAGE_DIR = "/opt/metersphere/data/image/ui/screenshots";
+    public static final String ATTACHMENT_DIR = "/opt/metersphere/data/attachment";
+    public static final String TEST_CASE_ATTACHMENT_DIR = "/opt/metersphere/data/attachment/testcase";
+    public static final String ISSUE_ATTACHMENT_DIR = "/opt/metersphere/data/attachment/issue";
+
 
     public static byte[] listBytesToZip(Map<String, byte[]> mapReport) {
         try {
@@ -337,6 +341,41 @@ public class FileUtils {
         } catch (Exception e) {
         }
         return buffer;
+    }
+
+    public static File byteToFile(byte[] buf, String filePath, String fileName){
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        File file = null;
+        try{
+            File dir = new File(filePath);
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+            file = new File(filePath + "/" + fileName);
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+            bos.write(buf);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        finally{
+            if (bos != null){
+                try{
+                    bos.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null){
+                try{
+                    fos.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return file;
     }
 
     public static String fileToStr(File tradeFile) {

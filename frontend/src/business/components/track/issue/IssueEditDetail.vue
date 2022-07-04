@@ -3,6 +3,7 @@
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
+        <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
         <el-form-item v-if="!enableThirdPartTemplate" :label="$t('commons.title')" prop="title">
           <el-row>
             <el-col  :span="22">
@@ -89,34 +90,86 @@
           </el-col>
         </el-row>
 
-        <el-form-item v-if="!isCaseEdit">
-          <test-case-issue-list :issues-id="form.id"
-                                ref="testCaseIssueList"/>
-        </el-form-item>
-
-<!--        <form-rich-text-item :title="$t('commons.remark')" :data="form" prop="remark"/>-->
-
-        <el-row style="margin-top: 10px" v-if="type!=='add'">
-          <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
-            <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
+        <el-row class="other-info-rows" style="margin-top: 20px">
+          <el-col :span="2">
+            <ms-form-divider :title="$t('test_track.case.other_info')"/>
           </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="20" :offset="1">
+          <el-col :span="22">
+            <el-tabs class="other-info-tabs" v-loading="result.loading" v-model="tabActiveName">
+              <el-tab-pane :label="$t('test_track.review_view.relevance_case')" name="relateTestCase">
+                <el-form-item v-if="!isCaseEdit" style="margin-left: -80px">
+                  <test-case-issue-list :issues-id="form.id"
+                                        ref="testCaseIssueList"/>
+                </el-form-item>
+              </el-tab-pane>
 
-            <review-comment-item v-for="(comment,index) in comments"
-                                 :key="index"
-                                 :comment="comment"
-                                 @refresh="getComments" api-url="/issues"/>
-            <div v-if="comments.length === 0" style="text-align: center">
-              <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
+              <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
+                <el-row>
+                  <el-col :span="22">
+                    <el-upload
+                      accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx,.txt,.json,.jmx,.side,.mp4,.mov,.dcm,.zip,.rar"
+                      action="#"
+                      :show-file-list="false"
+                      :before-upload="beforeUpload"
+                      :http-request="handleUpload"
+                      :on-exceed="handleExceed"
+                      multiple
+                      :limit="8"
+                      :file-list="fileList">
+                      <el-button type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+                      <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
+                    </el-upload>
+                  </el-col>
+                </el-row>
+                <el-row style="margin-top: 10px">
+                  <el-col :span="22">
+                    <test-case-attachment :table-data="tableData"
+                                          :read-only="readOnly"
+                                          :is-delete="isDelete"
+                                          :is-copy="type === 'copy'"
+                                          @handleDelete="handleDelete"
+                                          @handleCancel="handleCancel"/>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
+
+              <el-tab-pane :label="$t('test_track.review.comment')" name="comment">
+                <el-tooltip class="item-tabs" effect="dark" :content="$t('test_track.review.comment')" placement="top-start"
+                            slot="label">
+                  <span>
+                    {{ $t('test_track.review.comment') }}
+                    <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments && comments.length>0">
+                      <div class="el-step__icon-inner">{{ comments.length }}</div>
+                    </div>
+                  </span>
+                </el-tooltip>
+                <el-row style="margin-top: 10px" v-if="type!=='add'">
+                  <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
+                    <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
+                  </el-col>
+                </el-row>
+                <el-row style="margin-top: 10px">
+                  <el-col :span="20" :offset="1">
+
+                    <review-comment-item v-for="(comment,index) in comments"
+                                         :key="index"
+                                         :comment="comment"
+                                         @refresh="getComments" api-url="/issues"/>
+                    <div v-if="comments.length === 0" style="text-align: center">
+                      <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
                       <span style="font-size: 15px; color: #8a8b8d;">
                         {{ $t('test_track.comment.no_comment') }}
                       </span>
-              </i>
-            </div>
+                      </i>
+                    </div>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
+            </el-tabs>
           </el-col>
         </el-row>
+
+<!--        <form-rich-text-item :title="$t('commons.remark')" :data="form" prop="remark"/>-->
 
         <issue-comment :issues-id="form.id"
                        @getComments="getComments"
@@ -139,13 +192,21 @@ import {buildCustomFields, parseCustomField} from "@/common/js/custom_field";
 import CustomFiledComponent from "@/business/components/project/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId,} from "@/common/js/utils";
+import {
+  byteToSize,
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+} from "@/common/js/utils";
 import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getPlatformTransitions} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
 import IssueComment from "@/business/components/track/issue/IssueComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
-import {JIRA} from "@/common/js/constants";
+import {TokenKey} from "@/common/js/constants";
+import {Message} from "element-ui";
+import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 
 const {getIssuesById} = require("@/network/Issue");
 
@@ -163,7 +224,8 @@ export default {
     TemplateComponentEditHeader,
     MsMarkDownText,
     IssueComment,
-    ReviewCommentItem
+    ReviewCommentItem,
+    TestCaseAttachment
   },
   data() {
     return {
@@ -196,7 +258,8 @@ export default {
         tapdUsers:[],
         zentaoBuilds:[],
         zentaoAssigned: '',
-        platformStatus: null
+        platformStatus: null,
+        copyIssueId: ''
       },
       tapdUsers: [],
       zentaoUsers: [],
@@ -241,7 +304,14 @@ export default {
         preview: false, // 预览
       },
       comments: [],
-      richTextDefaultOpen: 'preview'
+      richTextDefaultOpen: 'preview',
+      tabActiveName: 'relateTestCase',
+      uploadList: [],
+      fileList: [],
+      tableData: [],
+      readOnly: false,
+      isDelete: true,
+      intervalMap: new Map()
     };
   },
   props: {
@@ -368,6 +438,9 @@ export default {
       }
     },
     initEdit(data) {
+      this.tableData = [];
+      this.fileList = [];
+      this.uploadList = [];
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
@@ -383,6 +456,7 @@ export default {
             this.form.creator = getCurrentUserId();
           }
           this.form.title = data.title + '_copy';
+          this.form.copyIssueId = data.copyIssueId;
         }
       } else {
         this.form = {
@@ -399,6 +473,11 @@ export default {
       this.$nextTick(() => {
         if (this.$refs.testCaseIssueList) {
           this.$refs.testCaseIssueList.initTableData();
+        }
+        if (this.type === 'copy' && data.copyIssueId != null) {
+          this.getFileMetaData(data.copyIssueId);
+        } else if (this.type === 'edit' && data.id != null) {
+          this.getFileMetaData(data.id);
         }
         this.getComments();
       });
@@ -465,7 +544,8 @@ export default {
     _save() {
       let param = this.buildPram();
       this.parseOldFields(param);
-      this.result = this.$post(this.url, param, (response) => {
+      let option = this.getOption(param);
+      this.result = this.$request(option, (response) => {
         this.$emit('close');
         this.$success(this.$t('commons.save_success'));
         this.$emit('refresh', response.data);
@@ -481,6 +561,39 @@ export default {
           }
         });
       }
+    },
+    getOption(param) {
+      let formData = new FormData();
+
+      if (this.uploadList) {
+        this.uploadList.forEach(f => {
+          formData.append("file", f);
+        });
+      }
+
+      if (this.fileList) {
+        // 如果是copy，则把文件的ID传到后台进行文件复制 TODO
+        param.updatedFileList = this.fileList;
+      } else {
+        param.fileIds = [];
+        param.updatedFileList = [];
+      }
+
+      let requestJson = JSON.stringify(param, function (key, value) {
+        return key === "file" ? undefined : value
+      });
+
+      formData.append('request', new Blob([requestJson], {
+        type: "application/json"
+      }));
+      return {
+        method: 'POST',
+        url: this.url,
+        data: formData,
+        headers: {
+          'Content-Type': undefined
+        }
+      };
     },
     saveFollow(){
       if(!this.form.follows){
@@ -513,6 +626,139 @@ export default {
         }
       }
     },
+    fileValidator(file) {
+      /// todo: 是否需要对文件内容和大小做限制
+      return file.size > 0;
+    },
+    beforeUpload(file) {
+      if (!this.fileValidator(file)) {
+        /// todo: 显示错误信息
+        return false;
+      }
+
+      if (this.tableData.filter(f => f.name === file.name).length > 0) {
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
+        return false;
+      }
+
+      let user = JSON.parse(localStorage.getItem(TokenKey));
+      this.tableData.push({
+        name: file.name,
+        size: byteToSize(file.size),
+        updateTime: new Date().getTime(),
+        percentage: 0,
+        status: 0,
+        creator: user.name
+      });
+
+      this.handleProcess(file);
+      return true;
+    },
+    handleUpload(uploadResources) {
+      this.uploadList.push(uploadResources.file);
+    },
+    handleDownload(file) {
+      let data = {
+        name: file.name,
+        id: file.id,
+      };
+      let config = {
+        url: '/test/case/file/download',
+        method: 'post',
+        data: data,
+        responseType: 'blob'
+      };
+      this.result = this.$request(config).then(response => {
+        const content = response.data;
+        const blob = new Blob([content]);
+        if ("download" in document.createElement("a")) {
+          // 非IE下载
+          //  chrome/firefox
+          let aTag = document.createElement('a');
+          aTag.download = file.name;
+          aTag.href = URL.createObjectURL(blob);
+          aTag.click();
+          URL.revokeObjectURL(aTag.href);
+        } else {
+          // IE10+下载
+          navigator.msSaveBlob(blob, this.filename);
+        }
+      }).catch(e => {
+        Message.error({message: e.message, showClose: true});
+      });
+    },
+    handleDelete(file, index) {
+      this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleDelete(file, index);
+          }
+        }
+      });
+    },
+    handleCancel(file, index) {
+      this.fileList.splice(index, 1);
+      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
+      if (i > -1) {
+        this.uploadList.splice(i, 1);
+      }
+      let cancelFile = this.tableData.filter(f => f.name === file.name)[0];
+      clearInterval(this.intervalMap.get(cancelFile.name));
+      cancelFile.percentage = 100;
+      cancelFile.status = this.$t('notice.result.EXECUTE_FAILED');
+    },
+    _handleDelete(file, index) {
+      this.fileList.splice(index, 1);
+      this.tableData.splice(index, 1);
+      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
+      if (i > -1) {
+        this.uploadList.splice(i, 1);
+      }
+    },
+    handleExceed() {
+      this.$error(this.$t('load_test.file_size_limit'));
+    },
+    handleProcess(file) {
+      let currentUploadFile = this.tableData.filter(f => f.name === file.name)[0];
+      const interval = setInterval(() => {
+        let randomNum = Math.floor(Math.random() * 10);
+        if (currentUploadFile.percentage + randomNum > 100) {
+          clearInterval(interval)
+          currentUploadFile.percentage = 100;
+          currentUploadFile.status = this.$t('notice.result.EXECUTE_COMPLETED')
+          return
+        }
+        currentUploadFile.percentage += randomNum;
+        currentUploadFile.status += randomNum;
+      }, file.size > 1024 * 1024 ? 200 : 100)
+      this.intervalMap.set(currentUploadFile.name, interval);
+    },
+    getFileMetaData(id) {
+      // 保存用例后传入用例id，刷新文件列表，可以预览和下载
+      if (this.uploadList && this.uploadList.length > 0 && !id) {
+        return;
+      }
+      this.fileList = [];
+      this.tableData = [];
+      this.uploadList = [];
+      if (id) {
+        this.result = this.$get("issues/file/attachmentMetadata/" + id, response => {
+          let files = response.data;
+          if (!files) {
+            return;
+          }
+          // deep copy
+          this.fileList = JSON.parse(JSON.stringify(files));
+          this.tableData = JSON.parse(JSON.stringify(files));
+          this.tableData.map(f => {
+            f.size = byteToSize(f.size);
+            f.status = this.$t('notice.result.EXECUTE_COMPLETED');
+            f.percentage = 100
+          });
+        });
+      }
+    },
     openComment() {
       if (!this.issueId) {
         this.$warning(this.$t('test_track.issue.save_before_open_comment'));
@@ -532,6 +778,10 @@ export default {
 </script>
 
 <style scoped>
+.other-info-tabs >>> .el-tabs__content {
+  padding: 20px 0px;
+}
+
 .top-input-class{
   width: 100%;
 }
@@ -542,5 +792,14 @@ export default {
 
 .custom-field-row {
   padding-left: 18px;
+}
+
+.ms-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  width: 18px;
+  font-size: xx-small;
+  border-radius: 50%;
 }
 </style>
