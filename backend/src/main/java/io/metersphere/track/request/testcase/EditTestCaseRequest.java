@@ -22,6 +22,10 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
      */
     private List<String> fileIds = new ArrayList<>();
     private List<List<String>> selected = new ArrayList<>();
+    /**
+     * 复制测试用例时原始用例ID
+     */
+    private String copyCaseId;
     // 是否处理附件文件
     private boolean handleAttachment = true;
 
