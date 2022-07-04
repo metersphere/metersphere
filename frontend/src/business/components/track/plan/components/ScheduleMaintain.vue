@@ -59,20 +59,17 @@
                   <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
                 </el-col>
                 <el-col :span="18">
-                  <div>
-                    <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
-                  </div>
-                  <div v-if="testType === 'API'" style="padding-top: 10px">
+                  <div v-if="testType === 'API'">
                     <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
                       {{ $t('run_mode.run_with_resource_pool') }}
                     </el-checkbox>
                     <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
                                size="mini">
                       <el-option
-                          v-for="item in resourcePools"
-                          :key="item.id"
-                          :label="item.name"
-                          :value="item.id">
+                        v-for="item in resourcePools"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
                       </el-option>
                     </el-select>
                   </div>
@@ -130,7 +127,15 @@
                 </el-col>
               </el-row>
             </div>
-
+            <div class="ms-failure-div" v-if="runConfig.mode === 'serial'">
+              <el-row>
+                <el-col :span="18" :offset="3">
+                  <div>
+                    <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
 
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
@@ -538,7 +543,12 @@ export default {
   left: -42px;
   padding-top: 0px;
 }
+
 .ms-failure-div-right {
   padding-right: 10px;
+}
+
+.ms-failure-div {
+  margin-top: 10px;
 }
 </style>
