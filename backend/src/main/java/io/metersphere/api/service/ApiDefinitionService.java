@@ -1335,6 +1335,10 @@ public class ApiDefinitionService {
                 MSException.throwException(Translator.get("connection_timeout"));
             }
         }
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        if (StringUtils.equals(request.getType(), "schedule")) {
+            request.setProtocol("HTTP");
+        }
         try {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
             if (apiImport.getMocks() == null) {
@@ -1356,7 +1360,7 @@ public class ApiDefinitionService {
                 paramMap.put("url", request.getSwaggerUrl());
                 paramMap.put("projectId", request.getProjectId());
                 NoticeModel noticeModel = NoticeModel.builder()
-                        .operator(SessionUtils.getUserId())
+                        .operator(project.getCreateUser())
                         .context(context)
                         .testId(scheduleId)
                         .subject(Translator.get("swagger_url_scheduled_import_notification"))
@@ -1381,7 +1385,7 @@ public class ApiDefinitionService {
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
                 NoticeModel noticeModel = NoticeModel.builder()
-                        .operator(SessionUtils.getUserId())
+                        .operator(project.getCreateUser())
                         .context(context)
                         .testId(scheduleId)
                         .subject(Translator.get("swagger_url_scheduled_import_notification"))

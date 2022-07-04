@@ -1018,7 +1018,7 @@
     <update id="clearLatestVersion">
         UPDATE api_definition
         SET latest = 0
-            and ref_id = #{refId}
+        where ref_id = #{refId}
     </update>
 
     <update id="addLatestVersion">
