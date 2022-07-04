@@ -57,20 +57,9 @@ public class TestCaseNodeController {
     }
 
     /*模块列表列表*/
-    @PostMapping("/list/all/plan")
-    public List<TestCaseNodeDTO> getAllNodeByPlanId(@RequestBody QueryNodeRequest request) {
-        return testCaseNodeService.getAllNodeByPlanId(request);
-    }
-
-    /*模块列表列表*/
     @PostMapping("/list/project")
     public List<TestCaseNodeDTO> getAllNodeByProjectId(@RequestBody QueryNodeRequest request) {
         return testCaseNodeService.getAllNodeByProjectId(request);
-    }
-
-    @PostMapping("/list/all/review")
-    public List<TestCaseNodeDTO> getAllNodeByReviewId(@RequestBody QueryNodeRequest request) {
-        return testCaseNodeService.getAllNodeByReviewId(request);
     }
 
     @GetMapping("/list/plan/{planId}")
@@ -83,6 +72,18 @@ public class TestCaseNodeController {
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId, @RequestBody(required = false) QueryTestPlanCaseRequest request) {
         checkPermissionService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId, Optional.ofNullable(request).orElse(new QueryTestPlanCaseRequest()));
+    }
+
+    @PostMapping("/list/plan/relate")
+    public List<TestCaseNodeDTO> getRelatePlanNodes(@RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkTestPlanOwner(request.getPlanId());
+        return testCaseNodeService.getRelatePlanNodes(request);
+    }
+
+    @PostMapping("/list/review/relate")
+    public List<TestCaseNodeDTO> getRelateReviewNodes(@RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkTestReviewOwner(request.getReviewId());
+        return testCaseNodeService.getRelateReviewNodes(request);
     }
 
     @GetMapping("/list/plan/{planId}/{runResult}")

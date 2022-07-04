@@ -86,7 +86,7 @@ export default {
       });
     },
     getTreeNodes(vueObj) {
-      vueObj.$refs.nodeTree.result = getTestCaseNodesByCaseFilter(vueObj.projectId, {}, data => {
+      vueObj.nodeResult = getTestCaseNodesByCaseFilter(vueObj.projectId, {}, data => {
         vueObj.treeNodes = data;
         vueObj.selectNodeIds = [];
       });

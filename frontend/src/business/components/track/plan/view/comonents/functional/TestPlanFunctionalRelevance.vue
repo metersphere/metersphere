@@ -84,9 +84,9 @@ export default {
         });
       });
     },
-    getTreeNodes(vueObj) {
-      vueObj.$refs.nodeTree.result = this.$post("/case/node/list/all/plan",
-        {testPlanId: this.planId, projectId: vueObj.projectId}, response => {
+    getTreeNodes(vueObj, condition) {
+      vueObj.nodeResult = this.$post("/case/node/list/plan/relate",
+        {planId: this.planId, projectId: vueObj.projectId, ...condition}, response => {
           vueObj.treeNodes = response.data;
         });
       vueObj.selectNodeIds = [];

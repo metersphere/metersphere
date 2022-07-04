@@ -10,8 +10,7 @@
 
     <template v-slot:aside>
       <node-tree class="node-tree"
-                 :is-display="openType"
-                 v-loading="result.loading"
+                 v-loading="nodeResult.loading"
                  local-suffix="test_case"
                  default-label="未规划用例"
                  @nodeSelectEvent="nodeChange"
@@ -107,7 +106,6 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import {getVersionFilters} from "@/network/project";
@@ -138,8 +136,8 @@ export default {
   },
   data() {
     return {
-      openType: 'relevance',
       result: {},
+      nodeResult: {},
       isSaving: false,
       treeNodes: [],
       selectNodeIds: [],
@@ -223,6 +221,7 @@ export default {
       // 添加搜索条件时，当前页设置成第一页
       this.page.currentPage = 1;
       this.getTestCases();
+      this.getProjectNode(this.projectId, this.page.condition);
     },
     getTestCases() {
       let condition = this.page.condition;
@@ -255,7 +254,7 @@ export default {
       this.selectNodeNames = [];
       this.$refs.table.clear();
     },
-    getProjectNode(projectId) {
+    getProjectNode(projectId, condition) {
       const index = this.projects.findIndex(project => project.id === projectId);
       if (index !== -1) {
         this.projectName = this.projects[index].name;
@@ -263,7 +262,7 @@ export default {
       if (projectId) {
         this.projectId = projectId;
       }
-      this.getNodeTree(this);
+      this.getNodeTree(this, condition);
     },
     getVersionOptions() {
       getVersionFilters(this.projectId, (data) => {

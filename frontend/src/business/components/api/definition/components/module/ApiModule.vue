@@ -4,7 +4,6 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-        :is-display="getIsRelevance"
         v-loading="result.loading"
         :tree-nodes="data"
         :type="isReadOnly ? 'view' : 'edit'"
@@ -67,7 +66,6 @@ export default {
   },
   data() {
     return {
-        openType: 'relevance',
         result: {},
         condition: {
           protocol: OPTIONS[0].value,
@@ -112,13 +110,6 @@ export default {
       },
       projectId() {
         return getCurrentProjectID();
-      },
-      getIsRelevance(){
-        if(this.pageSource !== 'definition'){
-          return this.openType;
-        }else {
-          return "definition";
-        }
       }
     },
     mounted() {
