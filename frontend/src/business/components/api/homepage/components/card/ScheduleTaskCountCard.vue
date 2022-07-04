@@ -15,7 +15,7 @@
       <el-main style="padding-left: 0px;padding-right: 0px; margin-right: 5px">
         <div style="width: 185px; float:right;margin:0 auto">
           <el-row align="right">
-            <span style="text-align: right;display:block;">
+            <span style="text-align: right;display:block;margin-top: 4px">
             {{
                 $t('api_test.home_page.test_scene_details_card.this_week_execute', [scheduleTaskCountData.thisWeekExecutedCount])
               }}
@@ -25,7 +25,7 @@
             &nbsp;
           </el-row>
           <el-row align="right">
-            <span style="text-align: right;display:block;">
+            <span style="text-align: right;display:block;margin-bottom: 4px;">
             {{ $t('api_test.home_page.test_scene_details_card.executed', [scheduleTaskCountData.executedCount]) }}
             </span>
           </el-row>
@@ -35,7 +35,7 @@
 
     <el-container class="detail-container">
       <!-- 本周新增 -->
-      <el-header style="height:20px;padding: 0px;margin-bottom: 0px;">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 0px;font-size: 14px">
         <el-row>
           <el-col>
             {{ $t('api_test.home_page.api_details_card.this_week_add') }}
@@ -55,7 +55,7 @@
 
     <!-- 任务成功率 -->
     <el-container class="detail-container">
-      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;font-size: 14px">
         <el-row>
           <span style="float: left">
             {{ $t('api_test.home_page.detail_card.rate.success') + ":" }}&nbsp;&nbsp;
@@ -76,28 +76,23 @@
           <el-col :span="8">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.failed') }}
-
-              {{ "\xa0\xa0" }}
                <el-link type="info" class="rows-count-number" @click="redirectPage('executionFailedCount')"
                         target="_blank">
                  <b>{{ scheduleTaskCountData.failedCount + scheduleTaskCountData.failedCount }}</b>
                 </el-link>
             </span>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="8" class="itemIsCenter">
             <span class="default-property">
               {{ $t('error_report_library.option.name') }}
-
-              {{ "\xa0\xa0" }}
                <el-link type="info" class="rows-count-number" @click="redirectPage('fakeErrorCount')" target="_blank">
                  <b>{{ scheduleTaskCountData.fakeErrorCount }}</b>
                 </el-link>
             </span>
           </el-col>
           <el-col :span="8">
-              <span class="main-property" style="float: left">
+              <span class="main-property" style="float: right">
                 {{ $t('api_test.home_page.detail_card.success') }}
-                {{ "\xa0\xa0" }}
                 <el-link class="rows-count-number" @click="redirectPage('executionPassCount')" target="_blank">
                   <b>
                     {{ scheduleTaskCountData.successCount }}
@@ -107,23 +102,17 @@
           </el-col>
         </el-row>
         <el-row v-else>
-          <el-col :span="8">
+          <el-col :span="12">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.failed') }}
-
-              {{ "\xa0\xa0" }}
                <el-link type="info" class="rows-count-number" @click="redirectPage('notSuccessCount')" target="_blank">
                  <b>{{ scheduleTaskCountData.failedCount + scheduleTaskCountData.fakeErrorCount }}</b>
                 </el-link>
             </span>
           </el-col>
-          <el-col :span="8">
-            &nbsp;&nbsp;&nbsp;&nbsp;
-          </el-col>
-          <el-col :span="8">
-              <span class="main-property" style="float: left">
+          <el-col :span="12">
+              <span class="main-property" style="float: right">
                 {{ $t('api_test.home_page.detail_card.success') }}
-                {{ "\xa0\xa0" }}
                 <el-link class="rows-count-number" @click="redirectPage('executionPassCount')" target="_blank">
                   <b>
                     {{ scheduleTaskCountData.successCount }}
@@ -179,7 +168,7 @@ export default {
 
 .rows-count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--count_number);
 }
 
@@ -188,12 +177,12 @@ export default {
 }
 
 .default-property {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .main-property {
   color: #F39021;
-  font-size: 12px
+  font-size: 14px
 }
 
 .el-card /deep/ .el-card__header {
@@ -211,5 +200,11 @@ export default {
 .info-tool-tip {
   position: absolute;
   top: 0;
+}
+
+.itemIsCenter {
+  display: flex;
+  justify-content: center; /*主轴上居中*/
+  align-items: center; /*侧轴上居中*/
 }
 </style>

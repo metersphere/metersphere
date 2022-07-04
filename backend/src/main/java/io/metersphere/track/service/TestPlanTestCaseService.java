@@ -148,13 +148,8 @@ public class TestPlanTestCaseService {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
         } else {
-            if (StringUtils.isEmpty(testPlanTestCase.getCaseId())) {
-                String caseId = extTestPlanTestCaseMapper.selectCaseId(testPlanTestCase.getId());
-                functionCaseExecutionInfoService.insertExecutionInfo(caseId, testPlanTestCase.getStatus());
-            } else {
-                //记录功能用例执行信息
-                functionCaseExecutionInfoService.insertExecutionInfo(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
-            }
+            //记录功能用例执行信息
+            functionCaseExecutionInfoService.insertExecutionInfo(testPlanTestCase.getId(), testPlanTestCase.getStatus());
         }
         testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());

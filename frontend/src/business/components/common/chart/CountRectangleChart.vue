@@ -21,8 +21,9 @@ export default {
 </script>
 
 <style scoped>
-
 .main-number-show {
+  line-height: 100px;
+  text-align: center;
   height: 62px;
   line-height: 62px;
   border-style: solid;

@@ -30,7 +30,7 @@ public interface ExtApiDefinitionExecResultMapper {
 
     List<ExecutedCaseInfoResult> findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("startTimestamp") long startTimestamp);
 
-    List<ExecutedCaseInfoResult> findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("startTimestamp") long startTimestamp);
+    List<ExecutedCaseInfoResult> findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("selectFunctionCase") boolean selectFunctionCase, @Param("startTimestamp") long startTimestamp);
 
     String selectExecResult(String resourceId);
 

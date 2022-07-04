@@ -7,13 +7,11 @@
     </div>
     <el-container>
       <el-aside width="150px">
-
-        <ms-count-ring-chart :content="bugTotalSize"/>
-
+        <count-rectangle-chart :content="bugTotalSize"/>
         <div>
           {{ $t('test_track.home.percentage') }}
           <span class="rage">
-              {{rage}}
+              {{ rage }}
             </span>
         </div>
       </el-aside>
@@ -59,12 +57,12 @@
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
-import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
+import CountRectangleChart from "@/business/components/common/chart/CountRectangleChart";
 
 export default {
   name: "BugCountCard",
   components: {
-    MsCountRingChart,
+    CountRectangleChart,
     PlanStatusTableItem
   },
   data() {
@@ -106,35 +104,9 @@ export default {
   border-bottom: 0px solid #EBEEF5;
 }
 
-.el-aside {
-  line-height: 100px;
-  text-align: center;
-  overflow-y: hidden;
-}
-
-.count-number {
-  font-family: 'ArialMT', 'Arial', sans-serif;
-  font-size: 33px;
-  color: var(--count_number);
-}
-
 .rage {
   font-family: 'ArialMT', 'Arial', sans-serif;
   font-size: 18px;
   color: var(--count_number);
-}
-
-.main-number-show {
-  width: 100px;
-  height: 100px;
-  border-style: solid;
-  border-width: 7px;
-  border-color: var(--count_number_shallow);
-  border-radius: 50%;
-
-}
-
-.count-number-show {
-  margin: 20px auto;
 }
 </style>

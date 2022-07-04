@@ -401,7 +401,7 @@ public class ApiDefinitionExecResultService {
 
     }
 
-    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, int limitNumber) {
+    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, boolean selectFuntionCase, int limitNumber) {
 
         //获取7天之前的日期
         Date startDay = DateUtils.dateSum(new Date(), -6);
@@ -415,7 +415,7 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
+            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, selectFuntionCase, startTime.getTime());
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
 
@@ -423,18 +423,6 @@ public class ApiDefinitionExecResultService {
                 if (i < limitNumber) {
                     //开始遍历查询TestPlan信息 --> 提供前台做超链接
                     ExecutedCaseInfoResult item = list.get(i);
-
-//                    QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
-//                    planRequest.setProjectId(projectId);
-//                    if ("scenario".equals(item.getCaseType())) {
-//                        planRequest.setScenarioId(item.getTestCaseID());
-//                    } else if ("apiCase".equals(item.getCaseType())) {
-//                        planRequest.setApiId(item.getTestCaseID());
-//                    } else if ("load".equals(item.getCaseType())) {
-//                        planRequest.setLoadId(item.getTestCaseID());
-//                    }
-//                    List<TestPlanDTO> dtoList = extTestPlanMapper.selectTestPlanByRelevancy(planRequest);
-//                    item.setTestPlanDTOList(dtoList);
                     returnList.add(item);
                 } else {
                     break;

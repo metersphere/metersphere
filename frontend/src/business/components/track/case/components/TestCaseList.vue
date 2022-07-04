@@ -544,6 +544,7 @@ export default {
     this.getTemplateField();
     this.$emit('setCondition', this.condition);
     this.initTableData();
+
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
     // 切换tab之后版本查询
@@ -720,9 +721,12 @@ export default {
       this.$refs.headerCustom.open(list);
     },
     getSelectDataRange() {
-      let dataRange = this.$route.params.dataSelectRange;
-      let dataType = this.$route.params.dataType;
-      this.selectDataRange = dataType === 'case' ? dataRange : 'all';
+      let routeParamObj = this.$route.params.paramObj;
+      this.selectDataRange = 'all';
+      if (routeParamObj) {
+        let dataRange = routeParamObj.dataSelectRange;
+        this.selectDataRange = dataRange;
+      }
     },
     initTableData(nodeIds) {
       this.condition.planId = "";
@@ -770,14 +774,14 @@ export default {
         case 'coverage':
           this.condition.caseCoverage = 'coverage';
           break;
-        case 'Prepare':
-          this.condition.filters.review_status = [this.selectDataRange];
+        case 'notReviewed':
+          this.condition.filters.review_status = ['Prepare'];
           break;
-        case 'Pass':
-          this.condition.filters.review_status = [this.selectDataRange];
+        case 'reviewSuccess':
+          this.condition.filters.review_status = ['Pass'];
           break;
-        case 'UnPass':
-          this.condition.filters.review_status = [this.selectDataRange];
+        case 'reviewFail':
+          this.condition.filters.review_status = ['UnPass'];
           break;
       }
       this.condition.filters.priority = this.condition.filters['用例等级'];
@@ -1279,7 +1283,7 @@ export default {
   margin-left: 10px;
 }
 
-/deep/ .el-table{
+/deep/ .el-table {
   overflow: auto;
 }
 </style>

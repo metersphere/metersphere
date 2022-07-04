@@ -1,28 +1,28 @@
 <template>
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
-    <div slot="header" >
+    <div slot="header">
       <span class="title">
         {{ $t('test_track.home.case_count') }}
       </span>
     </div>
-
+    <!--数值统计-->
     <el-container>
-
-      <el-aside width="120px">
-        <ms-count-ring-chart :content="trackCountData.allCaseCountNumber"/>
+      <el-aside width="34%">
+        <count-rectangle-chart :content="trackCountData.allCaseCountNumber"/>
       </el-aside>
-
       <el-main style="padding-left: 0px;padding-right: 0px;">
         <div style="width: 200px;margin:0 auto">
-
           <el-row align="center">
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+            <el-col :span="6"
+                    style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="trackCountData.p0CountStr"></div>
             </el-col>
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+            <el-col :span="6"
+                    style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="trackCountData.p1CountStr"></div>
             </el-col>
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+            <el-col :span="6"
+                    style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="trackCountData.p2CountStr"></div>
             </el-col>
             <el-col :span="6" style="padding: 5px;">
@@ -33,71 +33,75 @@
       </el-main>
     </el-container>
 
+    <!-- 本周新增-->
     <el-container class="detail-container">
-      <el-header style="height:20px;padding: 0px;margin-bottom: 10px;">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 0px;font-size: 14px">
         <el-row>
           <el-col>
-            {{$t('api_test.home_page.api_details_card.this_week_add')}}
-            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{trackCountData.thisWeekAddedCount}}
+            {{ $t('api_test.home_page.api_details_card.this_week_add') }}
+            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">
+              {{ trackCountData.thisWeekAddedCount }}
             </el-link>
-            {{$t('api_test.home_page.unit_of_measurement')}}
+            {{ $t('api_test.home_page.unit_of_measurement') }}
           </el-col>
         </el-row>
       </el-header>
-      <el-main style="padding: 5px;margin-top: 10px">
-        <el-container>
-          <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
-            <el-container>
-              <el-aside width="30%">
-                {{ $t('test_track.home.review_rate') }}:
-              </el-aside>
-              <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
-                <span class="count-number">
-                {{trackCountData.reviewRage}}
-                  <el-tooltip placement="top" class="info-tool-tip">
-                    <div slot="content">{{ $t('api_test.home_page.formula.review')}}</div>
-                    <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
-                  </el-tooltip>
+      <el-main style="padding:0px">
+        <el-row>
+          <el-col :span="8">&nbsp;</el-col>
+        </el-row>
+      </el-main>
+    </el-container>
+
+    <!--   评审通过率   -->
+    <el-container class="detail-container">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;font-size: 14px">
+        <el-row>
+          <span style="float: left">
+            {{ $t('test_track.home.review_rate') + ":" }}&nbsp;&nbsp;
+          </span>
+          <span style="font-size: 14px">
+            <b>{{ trackCountData.reviewRage }}</b>
+            <el-tooltip placement="top" class="info-tool-tip">
+              <div slot="content">{{ $t('api_test.home_page.formula.review') }}</div>
+              <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
+            </el-tooltip>
+          </span>
+        </el-row>
+      </el-header>
+      <el-main style="padding:0px">
+        <el-row>
+          <el-col :span="8">
+            <span class="default-property">
+              {{ $t('test_track.review.prepare') }}
+              <el-link class="rows-count-number" @click="redirectPage('notReviewed')" target="_blank">
+                <b>
+                {{ trackCountData.prepareCount }}
+                </b>
+              </el-link>
+            </span>
+          </el-col>
+          <el-col :span="8" class="itemIsCenter">
+            <span class="default-property">
+              {{ $t('test_track.review.un_pass') }}
+              <el-link class="rows-count-number" @click="redirectPage('reviewFail')" target="_blank">
+                <b>
+                {{ trackCountData.unPassCount }}
+                </b>
+              </el-link>
+            </span>
+          </el-col>
+          <el-col :span="8">
+              <span class="main-property" style="float: right">
+                {{ $t('test_track.review.pass') }}
+                <el-link class="rows-count-number" @click="redirectPage('reviewSuccess')" target="_blank">
+                  <b>
+                  {{ trackCountData.passCount }}
+                  </b>
+                </el-link>
               </span>
-              </el-main>
-            </el-container>
-          </el-aside>
-          <el-main style="padding: 5px">
-            <el-card class="no-shadow-card" body-style="padding-left:5px;padding-right:5px">
-              <main>
-                <el-row>
-                  <el-col>
-                    <span class="default-property">
-                      {{ $t('test_track.review.prepare') }}
-                      {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
-                        {{trackCountData.prepareCount}}
-                      </el-link>
-                    </span>
-                  </el-col>
-                  <el-col style="margin-top: 5px;">
-                    <span class="default-property">
-                      {{ $t('test_track.review.un_pass') }}
-                      {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('UnPass')" target="_blank" style="color: #000000">
-                        {{trackCountData.unPassCount}}
-                      </el-link>
-                    </span>
-                  </el-col>
-                  <el-col style="margin-top: 5px;">
-                    <span class="main-property">
-                      {{ $t('test_track.review.pass') }}
-                      {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Pass')" target="_blank" style="color: #000000">
-                        {{trackCountData.passCount}}
-                      </el-link>
-                    </span>
-                  </el-col>
-                </el-row>
-              </main>
-            </el-card>
-          </el-main>
-        </el-container>
+          </el-col>
+        </el-row>
       </el-main>
     </el-container>
   </el-card>
@@ -105,70 +109,68 @@
 
 <script>
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
-import MsCountRingChart from "@/business/components/common/chart/MsCountRingChart";
+import CountRectangleChart from "@/business/components/common/chart/CountRectangleChart";
+
 export default {
   name: "CaseCountCard",
-  components: {MsCountRingChart, MsInstructionsIcon},
-  props:{
+  components: {CountRectangleChart, MsInstructionsIcon},
+  props: {
     trackCountData: {},
   },
   data() {
     return {
-      result: {
-
-      }
+      result: {}
     }
   },
   methods: {
-    redirectPage(clickType){
-      this.$emit("redirectPage","case", "case",clickType);
+    redirectPage(clickType) {
+      this.$emit("redirectPage", "testCase", "case", clickType);
     }
   }
 }
 </script>
 
 <style scoped>
-.el-aside {
-  line-height: 100px;
-  text-align: center;
-}
-.count-number{
-  font-family:'ArialMT', 'Arial', sans-serif;
-  font-size:33px;
-  color: var(--count_number);
-  position: relative;
+
+.detail-container {
+  margin-top: 30px;
 }
 
-.count-number-show{
-  margin:20px auto;
+.default-property {
+  font-size: 14px
 }
-.detail-container{
-  margin-top: 30px
-}
-.no-shadow-card{
-  -webkit-box-shadow: 0 0px 0px 0 rgba(0,0,0,.1);
-  box-shadow: 0 0px 0px 0 rgba(0,0,0,.1);
-}
-.default-property{
-  font-size: 12px
-}
-.main-property{
+
+.main-property {
   color: #F39021;
-  font-size: 12px
+  font-size: 14px
 }
 
 .el-card /deep/ .el-card__header {
   border-bottom: 0px solid #EBEEF5;
 }
 
-.count-info-div{
+.count-info-div {
   margin: 3px;
 }
-.count-info-div >>>p{
+
+.count-info-div >>> p {
   font-size: 10px;
 }
-.info-tool-tip{
+
+.info-tool-tip {
   position: absolute;
   top: 0;
+}
+
+.rows-count-number {
+  font-family: 'ArialMT', 'Arial', sans-serif;
+  font-size: 14px;
+  color: var(--count_number) !important;
+}
+
+.itemIsCenter {
+  display: flex;
+  justify-content: center; /*主轴上居中*/
+  align-items: center; /*侧轴上居中*/
 }
 </style>
