@@ -35,6 +35,7 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.xpack.api.dto.MsRetryLoopController;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -138,6 +139,7 @@ public class ApiScenarioSerialService {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
             // 开始执行
+            LoggerUtil.info(new MsTestPlan().getJmx(runRequest.getHashTree()));
             jMeterService.run(runRequest);
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
@@ -202,7 +204,7 @@ public class ApiScenarioSerialService {
                 // 失败重试
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                     ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
-                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum());
+                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), true);
                     data = StringUtils.isNotEmpty(retryData) ? retryData : data;
                 }
 
@@ -214,8 +216,18 @@ public class ApiScenarioSerialService {
                 group.setLabel(caseWithBLOBs.getName());
                 group.setName(runRequest.getReportId());
                 group.setProjectId(caseWithBLOBs.getProjectId());
-
-                MsTestElement testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
+                MsTestElement testElement = null;
+                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                    MsRetryLoopController controller = JSON.parseObject(data, MsRetryLoopController.class);
+                    GenerateHashTreeUtil.parse(data, controller);
+                    MsTestElement element = parse(JSON.toJSONString(controller.getHashTree().get(0)), testId, envId, caseWithBLOBs.getProjectId());
+                    controller.setHashTree(new LinkedList<>() {{
+                        this.add(element);
+                    }});
+                    testElement = controller;
+                } else {
+                    testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
+                }
                 group.setHashTree(new LinkedList<>());
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);

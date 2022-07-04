@@ -1,5 +1,5 @@
 package io.metersphere.api.exec.api;
 
 public interface ApiRetryOnFailureService {
-    public String retry(String data, long retryNum);
+    public String retry(String data, long retryNum, boolean isCase);
 }
