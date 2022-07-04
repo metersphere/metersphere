@@ -55,29 +55,31 @@
 
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
       <el-row>
-        <el-col :span="20" :offset="1">
+        <el-col :span="22">
           <el-upload
-            accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx,.txt,.json,.jmx,.side"
-            action=""
+            accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx,.txt,.json,.jmx,.side,.mp4,.mov,.dcm,.zip,.rar"
+            action="#"
             :show-file-list="false"
             :before-upload="beforeUpload"
             :http-request="handleUpload"
             :on-exceed="handleExceed"
             multiple
             :limit="8"
-            :disabled="readOnly && !isTestPlanEdit"
+            :disabled="readOnly && isTestPlanEdit"
             :file-list="fileList">
-            <el-button icon="el-icon-plus" :disabled="readOnly && !isTestPlanEdit" size="mini"></el-button>
+            <el-button :disabled="readOnly && isTestPlanEdit" type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
             <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
           </el-upload>
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="19" :offset="2">
+        <el-col :span="22">
           <test-case-attachment :table-data="tableData"
                                 :read-only="readOnly"
+                                :is-copy="isCopy"
                                 :is-delete="!isTestPlan"
-                                @handleDelete="handleDelete"/>
+                                @handleDelete="handleDelete"
+                                @handleCancel="handleCancel"/>
         </el-col>
       </el-row>
     </el-tab-pane>
@@ -128,6 +130,8 @@ import TabPaneCount from "@/business/components/track/plan/view/comonents/report
 import {getRelationshipCountCase} from "@/network/testCase";
 import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
+import {byteToSize} from "@/common/js/utils";
+import {TokenKey} from "@/common/js/constants";
 
 export default {
   name: "TestCaseEditOtherInfo",
@@ -139,7 +143,7 @@ export default {
     ReviewCommentItem,
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText
   },
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'isTestPlanEdit',
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'copyCaseId', 'isTestPlanEdit',
     'type', 'comments', 'isClickAttachmentTab',
     'defaultOpen'
   ],
@@ -159,6 +163,7 @@ export default {
         //lazy: true,
         //lazyLoad:this.lazyLoad
       },
+      intervalMap: new Map()
     };
   },
   computed: {
@@ -236,15 +241,17 @@ export default {
         return false;
       }
 
-      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-
+      let user = JSON.parse(localStorage.getItem(TokenKey));
       this.tableData.push({
         name: file.name,
-        size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
-        type: type.toUpperCase(),
+        size: byteToSize(file.size),
         updateTime: new Date().getTime(),
+        percentage: 0,
+        status: 0,
+        creator: user.name
       });
 
+      this.handleProcess(file);
       return true;
     },
     handleUpload(uploadResources) {
@@ -290,6 +297,17 @@ export default {
         }
       });
     },
+    handleCancel(file, index) {
+      this.fileList.splice(index, 1);
+      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
+      if (i > -1) {
+        this.uploadList.splice(i, 1);
+      }
+      let cancelFile = this.tableData.filter(f => f.name === file.name)[0];
+      clearInterval(this.intervalMap.get(cancelFile.name));
+      cancelFile.percentage = 100;
+      cancelFile.status = this.$t('notice.result.EXECUTE_FAILED');
+    },
     _handleDelete(file, index) {
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
@@ -301,6 +319,21 @@ export default {
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
     },
+    handleProcess(file) {
+      let currentUploadFile = this.tableData.filter(f => f.name === file.name)[0];
+      const interval = setInterval(() => {
+        let randomNum = Math.floor(Math.random() * 10);
+        if (currentUploadFile.percentage + randomNum > 100) {
+          clearInterval(interval)
+          currentUploadFile.percentage = 100;
+          currentUploadFile.status = this.$t('notice.result.EXECUTE_COMPLETED')
+          return
+        }
+        currentUploadFile.percentage += randomNum;
+        currentUploadFile.status += randomNum;
+      }, file.size > 1024 * 1024 ? 200 : 100)
+      this.intervalMap.set(currentUploadFile.name, interval);
+    },
     getFileMetaData(id) {
       this.$emit("update:isClickAttachmentTab", true);
       // 保存用例后传入用例id，刷新文件列表，可以预览和下载
@@ -310,9 +343,14 @@ export default {
       this.fileList = [];
       this.tableData = [];
       this.uploadList = [];
-      let testCaseId = id ? id : this.caseId;
+      let testCaseId;
+      if (this.isCopy) {
+        testCaseId = this.copyCaseId
+      } else {
+        testCaseId = id ? id : this.caseId;
+      }
       if (testCaseId) {
-        this.result = this.$get("test/case/file/metadata/" + testCaseId, response => {
+        this.result = this.$get("test/case/file/attachmentMetadata/" + testCaseId, response => {
           let files = response.data;
 
           if (!files) {
@@ -322,7 +360,9 @@ export default {
           this.fileList = JSON.parse(JSON.stringify(files));
           this.tableData = JSON.parse(JSON.stringify(files));
           this.tableData.map(f => {
-            f.size = f.size + ' Bytes';
+            f.size = byteToSize(f.size);
+            f.status = this.$t('notice.result.EXECUTE_COMPLETED');
+            f.percentage = 100
           });
         });
       }

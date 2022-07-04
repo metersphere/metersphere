@@ -104,6 +104,7 @@
 
               <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                          :is-copy="currentTestCaseInfo.isCopy"
+                                         :copy-case-id="copyCaseId"
                                          :label-width="formLabelWidth" :case-id="form.id"
                                          :type="type" :comments.sync="comments"
                                          @openComment="openComment"
@@ -141,6 +142,7 @@
 import {TokenKey} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter';
 import {
+  byteToSize,
   getCurrentProjectID,
   getCurrentUser,
   getNodePath,
@@ -287,6 +289,7 @@ export default {
         {value: 'manual', label: this.$t('test_track.case.manual')}
       ],
       testCase: {},
+      copyCaseId: "",
       showInputTag: true,
       tableType: "",
       stepFilter: new STEP,
@@ -302,7 +305,7 @@ export default {
       selectedOtherInfo: null,
       currentProjectId: "",
       casePublic: false,
-      isClickAttachmentTab: false,
+      isClickAttachmentTab: false
     };
   },
   props: {
@@ -599,10 +602,12 @@ export default {
       if (testCase) {
         //修改
         this.operationType = 'edit';
+        this.copyCaseId = '';
         //复制
         if (this.type === 'copy') {
           this.showInputTag = false;
           this.operationType = 'add';
+          this.copyCaseId = testCase.copyId;
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
@@ -623,6 +628,7 @@ export default {
           }
         }
         let user = JSON.parse(localStorage.getItem(TokenKey));
+        this.copyCaseId = '';
         this.form.priority = 'P3';
         this.form.type = 'functional';
         this.form.method = 'manual';
@@ -776,6 +782,7 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
+      param.copyCaseId = this.copyCaseId
       if (!this.publicEnable) {
         param.nodePath = getNodePath(this.form.module, this.moduleOptions);
         if (this.projectId) {

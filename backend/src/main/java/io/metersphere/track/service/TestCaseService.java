@@ -176,6 +176,8 @@ public class TestCaseService {
     @Lazy
     @Resource
     private TestReviewTestCaseService testReviewTestCaseService;
+    @Resource
+    private FileAttachmentMetadataMapper fileAttachmentMetadataMapper;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
     private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
@@ -607,6 +609,16 @@ public class TestCaseService {
         deleteFollows(testCaseId);
         customFieldTestCaseService.deleteByResourceId(testCaseId); // 删除自定义字段关联关系
         functionCaseExecutionInfoService.deleteBySourceId(testCaseId);
+        // 删除用例附件关联数据, 附件内容
+        TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+        testCaseFileExample.createCriteria().andCaseIdEqualTo(testCaseId);
+        List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(testCaseFileExample);
+        List<String> fileIds = testCaseFiles.stream().map(TestCaseFile::getFileId).collect(Collectors.toList());
+        FileAttachmentMetadataExample fileAttachmentMetadataExample = new FileAttachmentMetadataExample();
+        fileAttachmentMetadataExample.createCriteria().andIdIn(fileIds);
+        fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
+        testCaseFileMapper.deleteByExample(testCaseFileExample);
+        fileService.deleteAttachment(AttachmentType.TEST_CASE.type(), testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -1958,6 +1970,39 @@ public class TestCaseService {
         return testCaseWithBLOBs;
     }
 
+    public TestCase refactorSave(EditTestCaseRequest request, List<MultipartFile> files) {
+        final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
+
+        // 复制用例时复制对应附件数据
+        if (StringUtils.isNotEmpty(request.getCopyCaseId())) {
+            TestCaseFileExample example = new TestCaseFileExample();
+            example.createCriteria().andCaseIdEqualTo(request.getCopyCaseId());
+            List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(example);
+            if (testCaseFiles != null) {
+                testCaseFiles.forEach(testCaseFile -> {
+                    FileAttachmentMetadata fileAttachmentMetadata = fileService.copyAttachment(testCaseFile.getFileId(), AttachmentType.TEST_CASE.type(), testCaseWithBLOBs.getId());
+                    TestCaseFile newTestCaseFile = new TestCaseFile();
+                    newTestCaseFile.setCaseId(testCaseWithBLOBs.getId());
+                    newTestCaseFile.setFileId(fileAttachmentMetadata.getId());
+                    testCaseFileMapper.insert(newTestCaseFile);
+                });
+            }
+        }
+
+        // 新的附件
+        if (files != null) {
+            files.forEach(file -> {
+                FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.TEST_CASE.type(),  request.getId());
+                TestCaseFile testCaseFile = new TestCaseFile();
+                testCaseFile.setFileId(fileAttachmentMetadata.getId());
+                testCaseFile.setCaseId(request.getId());
+                testCaseFileMapper.insert(testCaseFile);
+            });
+        }
+
+        return testCaseWithBLOBs;
+    }
+
     public TestCase edit(EditTestCaseRequest request, List<MultipartFile> files) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
         request.setNum(testCaseWithBLOBs.getNum());
@@ -1986,6 +2031,49 @@ public class TestCaseService {
                     final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
                     TestCaseFile testCaseFile = new TestCaseFile();
                     testCaseFile.setFileId(fileMetadata.getId());
+                    testCaseFile.setCaseId(request.getId());
+                    testCaseFileMapper.insert(testCaseFile);
+                });
+            }
+        }
+
+        this.setNode(request);
+        return editTestCase(request);
+    }
+
+    public TestCase refactorEdit(EditTestCaseRequest request, List<MultipartFile> files) {
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
+        request.setNum(testCaseWithBLOBs.getNum());
+        if (testCaseWithBLOBs == null) {
+            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
+        }
+
+        if (BooleanUtils.isTrue(request.isHandleAttachment())) {
+            // 新选择了一个文件，删除原来的文件
+            List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+            List<FileAttachmentMetadata> originFiles = fileService.getFileAttachmentMetadataByCaseId(request.getId());
+            List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+            List<String> originFileIds = originFiles.stream().map(FileAttachmentMetadata::getId).collect(Collectors.toList());
+            // 获得差异的附件ID
+            List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
+            // 删除差异附件记录, 目录下附件文件
+            fileService.deleteAttachment(deleteFileIds);
+            fileService.deleteFileAttachmentByIds(deleteFileIds);
+
+
+            //删除用例文件关联记录
+            if (!CollectionUtils.isEmpty(deleteFileIds)) {
+                TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+                testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
+                testCaseFileMapper.deleteByExample(testCaseFileExample);
+            }
+
+            // 保存新的附件
+            if (files != null) {
+                files.forEach(file -> {
+                    FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.TEST_CASE.type(), request.getId());
+                    TestCaseFile testCaseFile = new TestCaseFile();
+                    testCaseFile.setFileId(fileAttachmentMetadata.getId());
                     testCaseFile.setCaseId(request.getId());
                     testCaseFileMapper.insert(testCaseFile);
                 });
@@ -2503,6 +2591,45 @@ public class TestCaseService {
         ServiceUtils.initOrderField(TestCaseWithBLOBs.class, TestCaseMapper.class,
                 extTestCaseMapper::selectProjectIds,
                 extTestCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    public void initAttachment() {
+        TestCaseFileExample example = new TestCaseFileExample();
+        List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(example);
+        List<FileMetadata> allFileMeta = fileService.getAllFileMeta();
+        List<FileContent> allFileContent = fileService.getAllFileContent();
+        Map<String, List<TestCaseFile>> testCaseFileGroup = testCaseFiles.stream().collect(Collectors.groupingBy(TestCaseFile::getCaseId));
+        for(Map.Entry<String, List<TestCaseFile>> entry : testCaseFileGroup.entrySet()) {
+            final String caseId = entry.getKey();
+            final String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + AttachmentType.TEST_CASE.type() + "/" + caseId;
+            entry.getValue().stream().forEach(testCaseFile -> {
+                String filename = "";
+                List<FileMetadata> fileMetadatas = allFileMeta.stream().filter(fileMetadata -> fileMetadata.getId().equals(testCaseFile.getFileId()))
+                        .collect(Collectors.toList());
+                List<FileContent> fileContents = allFileContent.stream().filter(fileContent -> fileContent.getFileId().equals(testCaseFile.getFileId()))
+                        .collect(Collectors.toList());
+                if (fileMetadatas.size() == 1) {
+                    FileMetadata fileMetadata = fileMetadatas.get(0);
+                    filename = fileMetadata.getName();
+                    FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+                    BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
+                    fileAttachmentMetadata.setId(UUID.randomUUID().toString());
+                    fileAttachmentMetadata.setCreator("");
+                    fileAttachmentMetadata.setFilePath(uploadPath);
+                    fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
+                    TestCaseFile newTestCaseFile = new TestCaseFile();
+                    newTestCaseFile.setFileId(fileAttachmentMetadata.getId());
+                    TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+                    testCaseFileExample.createCriteria().andCaseIdEqualTo(testCaseFile.getCaseId()).andFileIdEqualTo(testCaseFile.getFileId());
+                    testCaseFileMapper.updateByExampleSelective(newTestCaseFile, testCaseFileExample);
+                }
+                if (StringUtils.isNotEmpty(filename) && fileContents.size() == 1) {
+                    byte[] bytes = fileContents.get(0).getFile();
+                    FileUtils.byteToFile(bytes, uploadPath, filename);
+                }
+            });
+        }
+
     }
 
     /**
