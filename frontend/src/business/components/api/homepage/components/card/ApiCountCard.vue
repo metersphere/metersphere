@@ -37,7 +37,7 @@
 
     <el-container class="detail-container">
       <!-- 本周新增 -->
-      <el-header style="height:20px;padding: 0px;margin-bottom: 0px;">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 0px;font-size: 14px">
         <el-row>
           <el-col>
             {{ $t('api_test.home_page.api_details_card.this_week_add') }}
@@ -57,7 +57,7 @@
 
     <!--   接口完成率   -->
     <el-container class="detail-container">
-      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;font-size: 14px">
         <el-row>
           <span style="float: left;">
             {{ $t('api_test.home_page.detail_card.rate.api_completion') + ":" }}&nbsp;&nbsp;
@@ -78,25 +78,22 @@
           <el-col :span="8">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.not_started') }}
-              {{ "\xa0\xa0" }}
               <el-link class="rows-count-number" type="info" @click="redirectPage('Prepare')" target="_blank">
                 <b>{{ apiCountData.notStartedCount }}</b>
               </el-link>
             </span>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="8" class="itemIsCenter">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.running') }}
-              {{ "\xa0\xa0" }}
               <el-link class="rows-count-number" type="info" @click="redirectPage('Underway')" target="_blank">
                 <b>{{ apiCountData.runningCount }}</b>
               </el-link>
             </span>
           </el-col>
           <el-col :span="8">
-              <span class="main-property" style="float: left">
+              <span class="main-property" style="float: right">
                 {{ $t('api_test.home_page.detail_card.finished') }}
-                {{ "\xa0\xa0" }}
                 <el-link class="rows-count-number" type="info" @click="redirectPage('Completed')" target="_blank">
                   <b>{{ apiCountData.finishedCount }}</b>
                 </el-link>
@@ -108,7 +105,7 @@
 
     <!--   接口覆蓋率   -->
     <el-container class="detail-container">
-      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;">
+      <el-header style="height:20px;padding: 0px;margin-bottom: 5px;font-size: 14px">
         <el-row>
           <span style="float: left">
             {{ $t('api_test.home_page.detail_card.rate.interface_coverage') + ":" }}&nbsp;&nbsp;
@@ -127,10 +124,9 @@
       </el-header>
       <el-main style="padding:0px">
         <el-row>
-          <el-col :span="8">
-            <span class="rows-count-number">
+          <el-col :span="12">
+            <span class="default-property">
               {{ $t('api_test.home_page.detail_card.uncoverage') }}
-              {{ "\xa0\xa0" }}
               <el-link class="rows-count-number" type="info" @click="redirectPage('notCoverate')" target="_blank">
                 <b>
                 {{ apiCoverage.notCoverate }}
@@ -138,13 +134,9 @@
               </el-link>
             </span>
           </el-col>
-          <el-col :span="8">
-            &nbsp;&nbsp;&nbsp;&nbsp;
-          </el-col>
-          <el-col :span="8">
-              <span class="main-property" style="float: left">
+          <el-col :span="12">
+              <span class="main-property" style="float: right">
                 {{ $t('api_test.home_page.detail_card.coverage') }}
-                {{ "\xa0\xa0" }}
                 <el-link class="rows-count-number" @click="redirectPage('coverate')" target="_blank">
                   <b>
                   {{ apiCoverage.coverate }}
@@ -192,7 +184,7 @@ export default {
 
 .rows-count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--count_number);
 }
 
@@ -201,12 +193,12 @@ export default {
 }
 
 .default-property {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .main-property {
   color: #F39021;
-  font-size: 12px
+  font-size: 14px
 }
 
 .el-card /deep/ .el-card__header {
@@ -224,5 +216,11 @@ export default {
 .info-tool-tip {
   position: absolute;
   top: 0;
+}
+
+.itemIsCenter {
+  display: flex;
+  justify-content: center; /*主轴上居中*/
+  align-items: center; /*侧轴上居中*/
 }
 </style>

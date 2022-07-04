@@ -1,4 +1,3 @@
-
 const TestTrack = () => import('@/business/components/track/TestTrack')
 const TrackHome = () => import('@/business/components/track/home/TrackHome')
 const TestCase = () => import('@/business/components/track/case/TestCase')
@@ -31,6 +30,11 @@ export default {
     {
       path: 'case/:projectId',
       name: 'testCase',
+      component: TestCase,
+    },
+    {
+      path: 'case/all',
+      name: 'testCaseRedirect',
       component: TestCase,
     },
     {
