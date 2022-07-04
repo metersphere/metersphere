@@ -69,6 +69,23 @@ module.exports = {
     },
   },
   chainWebpack: config => {
+    // svg rule loader
+    config.module
+      .rule('svg')
+      .exclude.add(resolve('src/assets/module'))
+      .end()
+
+    config.module
+      .rule('icons')
+      .test(/\.svg$/)
+      .include.add(resolve('src/assets/module'))
+      .end()
+      .use('svg-sprite-loader')
+      .loader('svg-sprite-loader')
+      .options({
+        symbolId: 'icon-[name]'
+      })
+
     // 报告模板打包成一个html
     config.plugin('html-planReport')
       .tap(args => {

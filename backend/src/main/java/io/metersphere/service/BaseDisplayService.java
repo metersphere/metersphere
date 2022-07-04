@@ -45,13 +45,20 @@ public class BaseDisplayService {
                 bytes = loadFileAsBytes(paramValue);
             }
         }
-
+        String logo = "/static/img/logo-default-MeterSphere.*.svg";
+        List<SystemParameter> sideThemes = getParamList("ui.sideTheme");
+        if (!CollectionUtils.isEmpty(sideThemes)) {
+            SystemParameter sp = sideThemes.get(0);
+            if (StringUtils.equals(sp.getParamValue(), "theme-light")) {
+                logo = "/static/img/logo-light-MeterSphere.*.svg";
+            }
+        }
         MediaType contentType = MediaType.parseMediaType("application/octet-stream");
         if (bytes == null) {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(getClass().getClassLoader());
             switch (imageName) {
                 case "logo":
-                    bytes = IOUtils.toByteArray(resolver.getResources("/static/img/logo-light-MeterSphere.*.svg")[0].getInputStream());
+                    bytes = IOUtils.toByteArray(resolver.getResources(logo)[0].getInputStream());
                     contentType = MediaType.valueOf("image/svg+xml");
                     break;
                 case "loginImage":

@@ -78,6 +78,7 @@
     "html-webpack-inline-source-plugin": "0.0.10",
     "less": "^3.9.0",
     "less-loader": "^7.3.0",
+    "svg-sprite-loader": "^6.0.11",
     "vue-template-compiler": "2.6.14"
   },
   "eslintConfig": {

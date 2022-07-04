@@ -520,6 +520,7 @@ export default {
     loginTitle: 'Login page prompt information',
     pageTitle: 'Page Title',
     sysTitle: 'System Name',
+    theme_style: 'Theme style set',
   },
   system_config: {
     base_config: 'Base Config',
