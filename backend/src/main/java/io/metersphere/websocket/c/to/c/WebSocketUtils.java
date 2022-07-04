@@ -17,8 +17,8 @@ public class WebSocketUtils {
         if (session == null) {
             return;
         }
-        // 设置永不超时，一直保持会话连接
-        session.setMaxIdleTimeout(-1);
+        // 替换了web容器后 jetty没有设置永久有效的参数，这里暂时设置超时时间为一天
+        session.setMaxIdleTimeout(86400000l);
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async == null) {
             return;
