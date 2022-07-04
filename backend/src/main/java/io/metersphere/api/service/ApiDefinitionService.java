@@ -547,51 +547,51 @@ public class ApiDefinitionService {
         }
     }
 
-    private List<ApiDefinitionWithBLOBs> getSameRequest(SaveApiDefinitionRequest request) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
-                    .andPathEqualTo(request.getPath())
-                    .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-        } else {
-            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
-                    .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-        }
-    }
+    /* private List<ApiDefinitionWithBLOBs> getSameRequest(SaveApiDefinitionRequest request) {
+         ApiDefinitionExample example = new ApiDefinitionExample();
+         if (request.getProtocol().equals(RequestType.HTTP)) {
+             example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
+                     .andPathEqualTo(request.getPath())
+                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+             return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+         } else {
+             example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
+                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
+                     .andIdNotEqualTo(request.getId());
+             return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+         }
+     }
 
-    private List<ApiDefinitionWithBLOBs> getSameRequestById(String id, String projectId) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andStatusNotEqualTo("Trash")
-                .andProjectIdEqualTo(projectId)
-                .andIdEqualTo(id);
-        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-    }
+     private List<ApiDefinitionWithBLOBs> getSameRequestById(String id, String projectId) {
+         ApiDefinitionExample example = new ApiDefinitionExample();
+         example.createCriteria().andStatusNotEqualTo("Trash")
+                 .andProjectIdEqualTo(projectId)
+                 .andIdEqualTo(id);
+         return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+     }
 
-    private List<ApiDefinitionWithBLOBs> getSameRequestWithName(SaveApiDefinitionRequest request) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria()
-                    .andMethodEqualTo(request.getMethod())
-                    .andStatusNotEqualTo("Trash")
-                    .andPathEqualTo(request.getPath())
-                    .andNameEqualTo(request.getName())
-                    .andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId());
-        } else {
-            example.createCriteria()
-                    .andStatusNotEqualTo("Trash")
-                    .andNameEqualTo(request.getName())
-                    .andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId());
-        }
+     private List<ApiDefinitionWithBLOBs> getSameRequestWithName(SaveApiDefinitionRequest request) {
+         ApiDefinitionExample example = new ApiDefinitionExample();
+         if (request.getProtocol().equals(RequestType.HTTP)) {
+             example.createCriteria()
+                     .andMethodEqualTo(request.getMethod())
+                     .andStatusNotEqualTo("Trash")
+                     .andPathEqualTo(request.getPath())
+                     .andNameEqualTo(request.getName())
+                     .andProjectIdEqualTo(request.getProjectId())
+                     .andIdNotEqualTo(request.getId());
+         } else {
+             example.createCriteria()
+                     .andStatusNotEqualTo("Trash")
+                     .andNameEqualTo(request.getName())
+                     .andProjectIdEqualTo(request.getProjectId())
+                     .andIdNotEqualTo(request.getId());
+         }
 
-        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+         return apiDefinitionMapper.selectByExampleWithBLOBs(example);
 
-    }
-
+     }
+ */
     private ApiDefinitionWithBLOBs updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
