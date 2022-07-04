@@ -280,6 +280,7 @@ public class ApiScenarioReportStructureService {
                         result = JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class);
                     }
                     step.setValue(result);
+                    step.setTotalStatus(reportResult.getStatus());
                     step.setErrorCode(reportResults.get(i).getErrorCode());
                     if (i > 0) {
                         dtoList.add(step);
@@ -296,7 +297,7 @@ public class ApiScenarioReportStructureService {
                 dto.setValue(new RequestResultExpandDTO(dto.getLabel(), ExecuteResult.API_SUCCESS.getValue()));
             } else if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty(((RequestResultExpandDTO) dto.getValue()).getStatus())) {
                 dto.setTotalStatus(((RequestResultExpandDTO) dto.getValue()).getStatus());
-            } else if (dto.getValue() != null) {
+            } else if (dto.getValue() != null && StringUtils.isEmpty(dto.getTotalStatus())) {
                 if (dto.getValue().getError() > 0 || BooleanUtils.isNotTrue(dto.getValue().isSuccess())) {
                     dto.setTotalStatus(ExecuteResult.FAIL.getValue());
                 } else {
@@ -383,8 +384,8 @@ public class ApiScenarioReportStructureService {
             }
             // 非正常执行结束的请求结果
             List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
-                    && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0)
-                    || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.UN_EXECUTE.toString())))
+                            && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0)
+                            || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.UN_EXECUTE.toString())))
                     .collect(Collectors.toList());
 
             // 有效数据按照时间排序
