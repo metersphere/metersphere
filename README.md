@@ -38,7 +38,7 @@ MeterSphere 是一站式开源持续测试平台, 涵盖测试跟踪、接口测
 
 ### 在线体验
 
-> 2022 年 5 月 5 日，MeterSphere 专业测试云（Beta）正式上线！
+> 2022 年 7 月 1 日，MeterSphere 专业测试云正式上线！
 
 **[免费试用](https://www.metersphere.com/)**
 
