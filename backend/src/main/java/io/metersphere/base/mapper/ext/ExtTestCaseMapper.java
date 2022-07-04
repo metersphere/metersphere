@@ -111,6 +111,10 @@ public interface ExtTestCaseMapper {
 
     List<TestCaseNodeDTO> getCountNodes(@Param("request") QueryTestCaseRequest request);
 
+    List<TestCaseNodeDTO> getTestPlanRelateCountNodes(@Param("request") QueryTestCaseRequest request);
+
+    List<TestCaseNodeDTO> getTestReviewRelateCountNodes(@Param("request") QueryTestCaseRequest request);
+
     List<TestCaseWithBLOBs> getCustomFieldsByIds(@Param("ids") List<String> ids);
 
     int deleteToGc(@Param("request") DeleteTestCaseRequest testCase);

@@ -294,17 +294,6 @@ export default {
     refresh() {
       this.close();
     },
-    getAllNodeTreeByPlanId() {
-      if (this.planId) {
-        let param = {
-          testPlanId: this.planId,
-          projectId: this.projectId
-        };
-        this.result = this.$post("/case/node/list/all/plan", param, response => {
-          this.treeNodes = response.data;
-        });
-      }
-    },
     close() {
       this.selectIds.clear();
       this.selectNodeIds = [];

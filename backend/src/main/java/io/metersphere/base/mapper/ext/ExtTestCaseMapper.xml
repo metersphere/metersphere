@@ -303,7 +303,25 @@
         from test_case
         inner join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
-        group by test_case.node_id;
+        group by test_case.node_id
+    </select>
+    <select id="getTestPlanRelateCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select tcn.id, count(*) as caseNum, test_case.project_id
+        from test_case
+        left join test_plan_test_case tptc on tptc.case_id = test_case.id and tptc.plan_id = #{request.planId}
+        inner join test_case_node tcn on test_case.node_id = tcn.id
+        <include refid="queryWhereCondition"/>
+        and tptc.case_id is null
+        group by test_case.node_id
+    </select>
+    <select id="getTestReviewRelateCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select tcn.id, count(*) as caseNum, test_case.project_id
+        from test_case
+        left join test_case_review_test_case tcrtc on tcrtc.case_id = test_case.id and tcrtc.review_id = #{request.reviewId}
+        inner join test_case_node tcn on test_case.node_id = tcn.id
+        <include refid="queryWhereCondition"/>
+        and tcrtc.case_id is null
+        group by test_case.node_id
     </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
         select load_test.id, load_test.name, load_test.project_id,'性能测试' as type, project_version.name as version_name

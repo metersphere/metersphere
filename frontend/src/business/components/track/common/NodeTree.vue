@@ -34,7 +34,7 @@
           <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
         </el-tooltip>
 
-        <span class="count-title" v-if="isDisplay !== 'relevance'">
+        <span class="count-title" v-if="data.caseNum !== null && data.caseNum !== undefined">
           <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
@@ -114,9 +114,6 @@ export default {
     };
   },
   props: {
-    isDisplay: {
-      type: String,
-    },
     type: {
       type: String,
       default: "view"

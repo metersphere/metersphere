@@ -343,27 +343,20 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return getNodeTreeWithPruningTree(testCaseNodes, dataNodeIds);
     }
 
-    public List<TestCaseNodeDTO> getAllNodeByPlanId(QueryNodeRequest request) {
-        String planId = request.getTestPlanId();
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        if (testPlan == null) {
-            return Collections.emptyList();
-        }
-        return getAllNodeByProjectId(request);
+    public List<TestCaseNodeDTO> getRelatePlanNodes(QueryTestCaseRequest request) {
+        List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestPlanRelateCountNodes(request);
+        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
+        return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
+    }
+
+    public List<TestCaseNodeDTO> getRelateReviewNodes(QueryTestCaseRequest request) {
+        List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestReviewRelateCountNodes(request);
+        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
+        return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
     }
 
     public List<TestCaseNodeDTO> getAllNodeByProjectId(QueryNodeRequest request) {
         return getNodeTreeByProjectId(request.getProjectId());
-    }
-
-    public List<TestCaseNodeDTO> getAllNodeByReviewId(QueryNodeRequest request) {
-        String reviewId = request.getReviewId();
-        String projectId = request.getProjectId();
-        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
-        if (testCaseReview == null) {
-            return Collections.emptyList();
-        }
-        return getNodeTreeByProjectId(projectId);
     }
 
     public Map<String, String> createNodeByTestCases(List<TestCaseWithBLOBs> testCases, String projectId) {

@@ -24,7 +24,6 @@
             :title="$t('test_track.switch_project')"
             @dataChange="changeProject"/>
           <node-tree class="node-tree"
-                     :is-display="openType"
                      :all-label="$t('commons.all_label.review')"
                      v-loading="result.loading"
                      local-suffix="test_case"
@@ -211,7 +210,7 @@ export default {
     },
     selectNodeIds() {
       if (this.dialogFormVisible) {
-        this.search();
+        this.getReviews();
       }
     },
     projectId() {
@@ -258,7 +257,7 @@ export default {
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
-    getReviews(flag) {
+    getReviews() {
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
       }
@@ -287,17 +286,6 @@ export default {
     },
     refresh() {
       this.close();
-    },
-    getAllNodeTreeByPlanId() {
-      if (this.reviewId) {
-        let param = {
-          reviewId: this.reviewId,
-          projectId: this.projectId
-        };
-        this.result = this.$post("/case/node/list/all/review", param, response => {
-          this.treeNodes = response.data;
-        });
-      }
     },
     close() {
       this.lineStatus = false;
@@ -347,13 +335,13 @@ export default {
     search() {
       this.currentPage = 1;
       this.testReviews = [];
-      this.getReviews(true);
+      this.getReviews();
+      this.getProjectNode(this.projectId, this.condition);
     },
     changeProject(project) {
       this.projectId = project.id;
     },
-
-    getProjectNode(projectId) {
+    getProjectNode(projectId, condition) {
       const index = this.projects.findIndex(project => project.id === projectId);
       if (index !== -1) {
         this.projectName = this.projects[index].name;
@@ -362,8 +350,8 @@ export default {
       if (projectId) {
         this.projectId = projectId;
       }
-      this.result = this.$post("/case/node/list/all/review",
-        {reviewId: this.reviewId, projectId: this.projectId}, response => {
+      this.result = this.$post("/case/node/list/review/relate",
+        {reviewId: this.reviewId, projectId: this.projectId, ...condition}, response => {
           this.treeNodes = response.data;
         });
       this.selectNodeIds = [];

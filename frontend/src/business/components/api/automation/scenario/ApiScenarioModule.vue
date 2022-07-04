@@ -4,7 +4,6 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-      :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
       :allLabel="$t('api_test.automation.all_scenario')"
@@ -86,18 +85,10 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
-    },
-    getIsRelevance() {
-      if (this.pageSource !== 'scenario') {
-        return this.openType;
-      } else {
-        return "scenario";
-      }
     }
   },
   data() {
     return {
-      openType: 'relevance',
       result: {},
       condition: {
         filterText: "",
