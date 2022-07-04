@@ -45,7 +45,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     protected List<TestCaseExcelData> excelDataList = new ArrayList<>();
 
     private Map<Integer, String> headMap;
-    private Map<String,String> excelHeadToFieldNameDic = new HashMap<>();
+    private Map<String, String> excelHeadToFieldNameDic = new HashMap<>();
 
 
     /**
@@ -66,7 +66,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private List<String> names = new LinkedList<>();
     private List<String> ids = new LinkedList<>();
 
-    Map<String,CustomFieldDao> customFieldsMap = new HashMap<>();
+    Map<String, CustomFieldDao> customFieldsMap = new HashMap<>();
 
     private TestCaseImportRequest request;
 
@@ -82,41 +82,33 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         this.request = request;
 
         List<CustomFieldDao> customFields = request.getCustomFields();
-        if(CollectionUtils.isNotEmpty(customFields)){
-            for (CustomFieldDao dto:customFields) {
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            for (CustomFieldDao dto : customFields) {
                 String name = dto.getName();
-                if(StringUtils.isNotEmpty(name)){
+                if (StringUtils.isNotEmpty(name)) {
                     name = name.trim();
                 }
-                if(StringUtils.equalsAny(name,"责任人","維護人","Maintainer")){
-                    customFieldsMap.put("maintainer",dto);
-                }else if(StringUtils.equalsAny(name,"用例等级","用例等級","Priority")){
-                    customFieldsMap.put("priority",dto);
-                }else if(StringUtils.equalsAny(name,"用例状态","用例狀態","Case status")){
-                    customFieldsMap.put("status",dto);
-                }else {
-                    customFieldsMap.put(name,dto);
+                if (StringUtils.equalsAny(name, "责任人", "維護人", "Maintainer")) {
+                    customFieldsMap.put("maintainer", dto);
+                } else if (StringUtils.equalsAny(name, "用例等级", "用例等級", "Priority")) {
+                    customFieldsMap.put("priority", dto);
+                } else if (StringUtils.equalsAny(name, "用例状态", "用例狀態", "Case status")) {
+                    customFieldsMap.put("status", dto);
+                } else {
+                    customFieldsMap.put(name, dto);
                 }
             }
         }
     }
 
     @Override
-    public void invokeHeadMap(Map <Integer, String> headMap, AnalysisContext context) {
+    public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
         this.headMap = headMap;
-//        if (excelDataClass != null) {
-            try {
-                this.genExcelHeadToFieldNameDicAndGetNotRequiredFields();
-//                Collection<String> values = headMap.values();
-//                for (String key : fieldNameSet) {
-//                    if (!values.contains(key)) {
-//                        throw new ExcelAnalysisException(Translator.get("missing_header_information") + ":" + key);
-//                    }
-//                }
-            } catch (NoSuchFieldException e) {
-                LogUtil.error(e);
-            }
-//        }
+        try {
+            this.genExcelHeadToFieldNameDicAndGetNotRequiredFields();
+        } catch (NoSuchFieldException e) {
+            LogUtil.error(e);
+        }
         this.formatHeadMap();
         super.invokeHeadMap(headMap, context);
     }
@@ -210,16 +202,16 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             String customName = customEntry.getKey();
             CustomFieldDao field = customEntry.getValue();
 
-            if(field.getRequired()){
+            if (field.getRequired()) {
                 String value = null;
                 if (StringUtils.equals(customName, "status")) {
                     value = data.getStatus();
-                    if (!checkCaseStatus(value)){
+                    if (!checkCaseStatus(value)) {
                         stringBuilder.append(Translator.get("case_status_not_exist") + "; ");
                     }
-                }else if (StringUtils.equals(customName, "priority")) {
+                } else if (StringUtils.equals(customName, "priority")) {
                     value = data.getPriority();
-                }else if (StringUtils.equals(customName, "maintainer")) {
+                } else if (StringUtils.equals(customName, "maintainer")) {
                     value = data.getMaintainer();
                     //校验维护人
                     if (StringUtils.isBlank(data.getMaintainer())) {
@@ -234,7 +226,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     value = data.getCustomDatas().get(customName);
                 }
                 if (StringUtils.isEmpty(value)) {
-                    stringBuilder.append(field.getName()+" "+Translator.get("required")+"; ");
+                    stringBuilder.append(field.getName() + " " + Translator.get("required") + "; ");
                 }
             }
         }
@@ -343,7 +335,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
 
         if (!(list.size() == 0)) {
-            Collections.reverse(list);  //因为saveImportData里面是先分配最大的ID，这个ID应该先发给list中最后的数据，所以要reverse
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
@@ -368,10 +359,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     /**
      * 检验导入功能用例的状态
+     *
      * @param status
      * @return
      */
-    private boolean checkCaseStatus(String status){
+    private boolean checkCaseStatus(String status) {
         if (StringUtils.equalsAnyIgnoreCase(status, "Underway", "进行中", "進行中")) {
             return true;
         } else if (StringUtils.equalsAnyIgnoreCase(status, "Prepare", "未开始", "未開始")) {
@@ -413,7 +405,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             caseStatusValue = "Underway";
         } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare", "未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed","已完成", "已完成")) {
+        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed", "已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);
@@ -462,9 +454,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway","进行中", "進行中")) {
+        if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway", "进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare","未开始", "未開始")) {
+        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare", "未开始", "未開始")) {
             caseStatusValue = "Prepare";
         } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed", "已完成", "已完成")) {
             caseStatusValue = "Completed";
@@ -528,7 +520,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
             int rowIndex = 1;
             for (String row : stepDesc) {
-                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row,rowIndex);
+                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row, rowIndex);
                 stepDescList.add(rowInfo.rowInfo);
                 rowNums.add(rowIndex++);
             }
@@ -540,7 +532,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             String[] stepRes = data.getStepResult().split("\r|\n|\r\n");
             int lastStepIndex = 1;
             for (String row : stepRes) {
-                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row,lastStepIndex);
+                TestCaseNoModelDataListener.RowInfo rowInfo = this.parseIndexInRow(row, lastStepIndex);
                 String rowMessage = rowInfo.rowInfo;
                 stepResList.add(rowMessage);
                 lastStepIndex++;
@@ -573,7 +565,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         return jsonArray.toJSONString();
     }
 
-    private RowInfo parseIndexInRow(String row,int rowIndex) {
+    private RowInfo parseIndexInRow(String row, int rowIndex) {
         RowInfo rowInfo = new RowInfo();
         String parseString = row;
 
@@ -588,7 +580,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 String[] rowSplit = StringUtils.split(parseString, splitChar);
                 if (rowSplit.length > 0) {
                     String indexString = rowSplit[0];
-                    if (StringUtils.isNumeric(indexString)&&indexString.equals(String.valueOf(rowIndex))) {
+                    if (StringUtils.isNumeric(indexString) && indexString.equals(String.valueOf(rowIndex))) {
                         try {
                             index = Integer.parseInt(indexString);
                             rowMessage = StringUtils.substring(parseString, indexString.length() + splitChar.length());
@@ -614,55 +606,55 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     private TestCaseExcelData parseDataToModel(Map<Integer, String> row) {
         TestCaseExcelData data = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
-        for (Map.Entry<Integer,String> headEntry: headMap.entrySet()) {
+        for (Map.Entry<Integer, String> headEntry : headMap.entrySet()) {
             Integer index = headEntry.getKey();
             String field = headEntry.getValue();
-            String value = StringUtils.isEmpty(row.get(index))?"":row.get(index);
+            String value = StringUtils.isEmpty(row.get(index)) ? "" : row.get(index);
 
-            if(excelHeadToFieldNameDic.containsKey(field)){
+            if (excelHeadToFieldNameDic.containsKey(field)) {
                 field = excelHeadToFieldNameDic.get(field);
             }
 
-            if(StringUtils.equals(field,"id")){
+            if (StringUtils.equals(field, "id")) {
                 data.setId(value);
-            } else if(StringUtils.equals(field,"num")){
+            } else if (StringUtils.equals(field, "num")) {
                 try {
                     data.setNum(Integer.parseInt(value));
-                }catch (Exception e){
-                    MSException.throwException("[ID]"+value+"格式化异常");
+                } catch (Exception e) {
+                    MSException.throwException("[ID]" + value + "格式化异常");
                 }
-            } else if(StringUtils.equals(field,"customNum")){
+            } else if (StringUtils.equals(field, "customNum")) {
                 data.setCustomNum(value);
-            } else if(StringUtils.equals(field,"name")){
+            } else if (StringUtils.equals(field, "name")) {
                 data.setName(value);
-            } else if(StringUtils.equals(field,"nodePath")){
+            } else if (StringUtils.equals(field, "nodePath")) {
                 data.setNodePath(value);
-            } else if(StringUtils.equals(field,"tags")){
+            } else if (StringUtils.equals(field, "tags")) {
                 data.setTags(value);
-            } else if(StringUtils.equals(field,"prerequisite")){
+            } else if (StringUtils.equals(field, "prerequisite")) {
                 data.setPrerequisite(value);
-            } else if(StringUtils.equals(field,"remark")){
+            } else if (StringUtils.equals(field, "remark")) {
                 data.setRemark(value);
-            } else if(StringUtils.equals(field,"stepDesc")){
+            } else if (StringUtils.equals(field, "stepDesc")) {
                 data.setStepDesc(value);
-            } else if(StringUtils.equals(field,"stepResult")){
+            } else if (StringUtils.equals(field, "stepResult")) {
                 data.setStepResult(value);
-            } else if(StringUtils.equals(field,"stepModel")){
+            } else if (StringUtils.equals(field, "stepModel")) {
                 data.setStepModel(value);
-            } else if(StringUtils.equals(field,"status")){
+            } else if (StringUtils.equals(field, "status")) {
                 data.setStatus(value);
-            } else if(StringUtils.equals(field,"maintainer")){
+            } else if (StringUtils.equals(field, "maintainer")) {
                 data.setMaintainer(value);
-            } else if(StringUtils.equals(field,"priority")){
+            } else if (StringUtils.equals(field, "priority")) {
                 data.setPriority(value);
-            } else{
-                data.getCustomDatas().put(field,value);
+            } else {
+                data.getCustomDatas().put(field, value);
             }
         }
         return data;
     }
 
-    public List<ExcelErrData<TestCaseExcelData>> getErrList(){
+    public List<ExcelErrData<TestCaseExcelData>> getErrList() {
         return this.errList;
     }
 
@@ -675,8 +667,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private void formatHeadMap() {
         for (Integer key : headMap.keySet()) {
             String name = headMap.get(key);
-            if(excelHeadToFieldNameDic.containsKey(name)){
-                headMap.put(key,excelHeadToFieldNameDic.get(name));
+            if (excelHeadToFieldNameDic.containsKey(name)) {
+                headMap.put(key, excelHeadToFieldNameDic.get(name));
             }
         }
     }
@@ -690,9 +682,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             String value = null;
             if (StringUtils.equals(customName, "status")) {
                 value = data.getStatus();
-            }else if (StringUtils.equals(customName, "priority")) {
+            } else if (StringUtils.equals(customName, "priority")) {
                 value = data.getPriority();
-            }else if (StringUtils.equals(customName, "maintainer")) {
+            } else if (StringUtils.equals(customName, "maintainer")) {
                 value = data.getMaintainer();
             } else {
                 value = data.getCustomDatas().get(customName);
@@ -756,7 +748,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 for (String v : excelProperty.value()) {
                     value.append(v);
                 }
-                excelHeadToFieldNameDic.put(value.toString(),field.getName());
+                excelHeadToFieldNameDic.put(value.toString(), field.getName());
                 // 检查是否必有的头部信息
                 if (field.getAnnotation(NotRequired.class) != null) {
                     result.add(value.toString());
