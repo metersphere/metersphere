@@ -6,10 +6,7 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.base.domain.FileMetadata;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCase;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -224,7 +221,7 @@ public class TestCaseController {
         } else {
             //复制，前端生成 id
         }
-        return testCaseService.save(request, files);
+        return testCaseService.refactorSave(request, files);
     }
 
     @PostMapping("/edit/order")
@@ -238,7 +235,7 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.id)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
     public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        return testCaseService.edit(request, files);
+        return testCaseService.refactorEdit(request, files);
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
@@ -374,6 +371,11 @@ public class TestCaseController {
         return fileService.getFileMetadataByCaseId(caseId);
     }
 
+    @GetMapping("/file/attachmentMetadata/{caseId}")
+    public List<FileAttachmentMetadata> getFileAttachmentMetadataByCaseId(@PathVariable String caseId) {
+        return fileService.getFileAttachmentMetadataByCaseId(caseId);
+    }
+
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
@@ -383,9 +385,27 @@ public class TestCaseController {
                 .body(bytes);
     }
 
+    @PostMapping("/attachment/download")
+    public ResponseEntity<byte[]> attachmentDownload(@RequestBody FileOperationRequest fileOperationRequest) {
+        byte[] bytes = fileService.getAttachmentBytes(fileOperationRequest.getId());
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileOperationRequest.getName(), StandardCharsets.UTF_8) + "\"")
+                .body(bytes);
+    }
+
     @GetMapping("/file/preview/{fileId}")
     public ResponseEntity<byte[]> preview(@PathVariable String fileId) {
         byte[] bytes = fileService.loadFileAsBytes(fileId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
+                .body(bytes);
+    }
+
+    @GetMapping("/attachment/preview/{fileId}")
+    public ResponseEntity<byte[]> attachmentPreview(@PathVariable String fileId) {
+        byte[] bytes = fileService.getAttachmentBytes(fileId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
