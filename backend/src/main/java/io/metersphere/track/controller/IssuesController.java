@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.FileAttachmentMetadata;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
@@ -14,6 +15,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.service.FileService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -27,6 +29,7 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -37,6 +40,8 @@ public class IssuesController {
 
     @Resource
     private IssuesService issuesService;
+    @Resource
+    private FileService fileService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
@@ -59,22 +64,27 @@ public class IssuesController {
         return PageUtils.setPageInfo(page, issuesService.relateList(request));
     }
 
-    @PostMapping("/add")
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
-    public IssuesWithBLOBs addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
-        return issuesService.addIssues(issuesRequest);
+    public IssuesWithBLOBs addIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+        return issuesService.addIssuesRefactor(issuesRequest, files);
     }
 
-    @PostMapping("/update")
+    @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
-    public void updateIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
-        issuesService.updateIssues(issuesRequest);
+    public void updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+        issuesService.updateIssuesRefactor(issuesRequest, files);
+    }
+
+    @GetMapping("/file/attachmentMetadata/{issueId}")
+    public List<FileAttachmentMetadata> getFileAttachmentMetadataByIssueId(@PathVariable String issueId) {
+        return fileService.getFileAttachmentMetadataByIssueId(issueId);
     }
 
     @GetMapping("/get/case/{refType}/{id}")
