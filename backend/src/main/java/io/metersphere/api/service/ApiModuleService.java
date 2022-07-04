@@ -670,7 +670,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             //处理模块
             setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionData, chooseModule);
             //系统内重复的数据
-            List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = getRepeatBLOBsList(projectId, versionSet, chooseModule, optionData);
+            List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = getRepeatBLOBsList(projectId, versionSet, chooseModule, optionData, urlRepeat);
             //处理数据
             if (urlRepeat) {
                 moduleMap = getRepeatApiModuleMap(fullCoverage, fullCoverageApi, moduleMap, toUpdateList, idPathMap, chooseModule, optionData, repeatApiDefinitionWithBLOBs);
@@ -689,7 +689,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
             //获取系统内重复数据
             List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol, versionSet);
-            
+
             Map<String, ApiDefinitionWithBLOBs> repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
             Map<String, ApiDefinitionWithBLOBs> nameModuleMap = getNameApiMap(idPathMap, chooseModule, optionData, repeatApiDefinitionWithBLOBs);
 
@@ -731,9 +731,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return nameModuleMap;
     }
 
-    private List<ApiDefinitionWithBLOBs> getRepeatBLOBsList(String projectId, Set<String> versionSet, ApiModuleDTO chooseModule, List<ApiDefinitionWithBLOBs> optionData) {
+    private List<ApiDefinitionWithBLOBs> getRepeatBLOBsList(String projectId, Set<String> versionSet, ApiModuleDTO chooseModule, List<ApiDefinitionWithBLOBs> optionData, boolean urlRepeat) {
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs;
-        if (chooseModule != null) {
+        
+        if (chooseModule != null && urlRepeat) {
             repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), versionSet);
         } else {
             repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionData, projectId, versionSet);
@@ -807,13 +808,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getMethod() + t.getPath()));
 
         //按照原来的顺序
-        if (chooseModule != null) {
-            String chooseModuleParentId = getChooseModuleParentId(chooseModule);
-            String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
-            methodPathMap = optionData.stream().collect(Collectors.toMap(t -> t.getMethod() + chooseModulePath, api -> api));
-        } else {
-            methodPathMap = optionData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), api -> api));
-        }
+        methodPathMap = optionData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), api -> api));
 
         if (fullCoverage) {
             if (fullCoverageApi) {
