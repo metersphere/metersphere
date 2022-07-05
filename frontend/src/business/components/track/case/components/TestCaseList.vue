@@ -49,19 +49,6 @@
         min-width="120"/>
 
       <span v-for="(item, index) in fields" :key="index">
-        <ms-table-column
-          v-if="item.id === 'lastExecResult'"
-          prop="lastExecuteResult"
-          min-width="100px"
-          :label="$t('test_track.plan_view.execute_result')">
-        <template v-slot:default="scope">
-          <span @click.stop="clickt = 'stop'">
-              <span class="el-dropdown-link">
-                  <status-table-item :value="scope.row.lastExecuteResult ? scope.row.lastExecuteResult : 'Prepare'"/>
-              </span>
-            </span>
-        </template>
-      </ms-table-column>
 
        <ms-table-column
          prop="projectName"
@@ -110,18 +97,14 @@
           :label="$t('commons.create_user')"
           min-width="120"/>
 
-        <ms-table-column
-          prop="reviewStatus"
-          min-width="120px"
+        <test-case-review-status-table-item
           :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.case.status')">
-          <template v-slot:default="scope">
-            <span class="el-dropdown-link">
-              <review-status :value="scope.row.reviewStatus"/>
-            </span>
-          </template>
-        </ms-table-column>
+          :fields-width="fieldsWidth"/>
+
+        <test-plan-case-status-table-item
+          prop="lastExecuteResult"
+          :field="item"
+          :fields-width="fieldsWidth"/>
 
         <ms-table-column
           prop="tags"
@@ -287,6 +270,8 @@ import ListItemDeleteConfirm from "@/business/components/common/components/ListI
 import {getAdvSearchCustomField} from "@/business/components/common/components/search/custom-component";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
 import RelateDemand from "@/business/components/track/case/components/RelateDemand";
+import TestCaseReviewStatusTableItem from "@/business/components/track/common/tableItems/TestCaseReviewStatusTableItem";
+import TestPlanCaseStatusTableItem from "@/business/components/track/common/tableItems/TestPlanCaseStatusTableItem";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -294,6 +279,8 @@ const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComp
 export default {
   name: "TestCaseList",
   components: {
+    TestPlanCaseStatusTableItem,
+    TestCaseReviewStatusTableItem,
     RelateDemand,
     MsSearch,
     ListItemDeleteConfirm,

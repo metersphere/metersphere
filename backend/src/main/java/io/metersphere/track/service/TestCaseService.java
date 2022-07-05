@@ -784,19 +784,7 @@ public class TestCaseService {
                 testCaseIdList.add(item.getId());
             });
 
-            List<TestCaseDTO> testCaseDTOList = extTestCaseMapper.getLastExecStatusByIdList(testCaseIdList);
-            Map<String, String> testCaseStatusMap = new HashMap<>();
-            testCaseDTOList.forEach(item -> {
-                testCaseStatusMap.put(item.getId(), item.getStatus());
-            });
-
             for (TestCaseDTO data : returnList) {
-                String lastStatus = testCaseStatusMap.get(data.getId());
-                if (StringUtils.isNotEmpty(lastStatus)) {
-                    data.setLastExecuteResult(lastStatus);
-                } else {
-                    data.setLastExecuteResult(null);
-                }
                 String dataStatus = excelData.parseStatus(data.getStatus());
                 if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Trash")) {
                     try {
@@ -2647,6 +2635,38 @@ public class TestCaseService {
                 extTestCaseMapper::getPreOrder,
                 extTestCaseMapper::getLastOrder,
                 testCaseMapper::updateByPrimaryKeySelective);
+    }
+
+    public void updateLastExecuteStatus(List<String> ids, String status) {
+        if (CollectionUtils.isNotEmpty(ids) && StringUtils.isNotBlank(status)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            testCase.setLastExecuteResult(status);
+            testCaseMapper.updateByExampleSelective(testCase, example);
+        }
+    }
+
+    public void updateLastExecuteStatus(String id, String status) {
+        if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(status)) {
+            this.updateLastExecuteStatus(Arrays.asList(id), status);
+        }
+    }
+
+    public void updateReviewStatus(List<String> ids, String status) {
+        if (CollectionUtils.isNotEmpty(ids) && StringUtils.isNotBlank(status)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            testCase.setReviewStatus(status);
+            testCaseMapper.updateByExampleSelective(testCase, example);
+        }
+    }
+
+    public void updateReviewStatus(String id, String status) {
+        if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(status)) {
+            this.updateReviewStatus(Arrays.asList(id), status);
+        }
     }
 
     public Pager<List<TestCaseDTO>> getRelationshipRelateList(QueryTestCaseRequest request, int goPage, int pageSize) {

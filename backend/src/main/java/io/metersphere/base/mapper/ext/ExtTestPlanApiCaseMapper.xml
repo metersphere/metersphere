@@ -119,27 +119,19 @@
           <choose>
             <when test="key == 'priority'">
               and c.priority in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
+              <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
             </when>
             <when test="key == 'user_id'">
               and c.create_user_id in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
-            </when>
-            <when test="key == 'priority'">
-              and a.priority in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
+              <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
             </when>
             <when test="key == 'version_id'">
               and a.version_id in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
+              <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+            </when>
+            <when test="key == 'exec_result'">
+              and t.status in
+              <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
             </when>
           </choose>
         </if>
