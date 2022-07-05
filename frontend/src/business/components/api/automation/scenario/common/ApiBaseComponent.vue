@@ -2,26 +2,35 @@
   <el-card :style="{'border-color':colorStyle}" class="ms-base-card">
     <div class="ms-base-header" @click="active(data)">
       <slot name="beforeHeaderLeft">
-        <div v-if="data.index" class="el-step__icon is-text" :style="{'color': color, 'background-color': backgroundColor}">
+        <div v-if="data.index" class="el-step__icon is-text"
+             :style="{'color': color, 'background-color': backgroundColor}">
           <div class="el-step__icon-inner" :key="$store.state.forceRerenderIndex">{{ data.index }}</div>
         </div>
-        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
+        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{
+            title
+          }}
+        </el-tag>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
       </slot>
 
       <span v-show="!isMax">
         <slot name="headerLeft">
-          <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}" @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
+          <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}" @click="active(data)"
+             v-if="data.type!='scenario' && !isMax " @click.stop/>
           <span @click.stop v-if="isShowInput && isShowNameInput">
             <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input" @focus="active(data)"
-                      @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
+                      @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"
+                      :disabled="data.disabled"/>
           </span>
 
-          <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout" @mouseenter="enter($event)" @mouseleave="leave($event)" v-else>
+          <span :class="showVersion?'scenario-unscroll':'scenario-version'" id="moveout" @mouseenter="enter($event)"
+                @mouseleave="leave($event)" v-else>
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
                v-show="data.referenced!='REF' && !data.disabled"/>
               <span>{{ data.name }}</span>
-            <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{ getMethod() }}</el-tag>
+            <el-tag size="mini" v-if="data.method && !data.pluginId" style="margin-left: 1rem">{{
+                getMethod()
+              }}</el-tag>
             <slot name="afterTitle"/>
           </span>
         </slot>
@@ -276,9 +285,10 @@ export default {
   margin-left: 0px;
 }
 
-.ms-base-header{
+.ms-base-header {
   min-height: 26px;
 }
+
 .header-right {
   margin-top: 1px;
   float: right;
@@ -417,10 +427,12 @@ fieldset {
   white-space: nowrap;
   width: 130px;
 }
-.ms-base-card{
+
+.ms-base-card {
   min-height: 36px;
 }
-.is-text{
+
+.is-text {
   margin-right: 5px;
 }
 </style>
