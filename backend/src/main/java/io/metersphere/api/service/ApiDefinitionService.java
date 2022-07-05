@@ -1490,6 +1490,11 @@ public class ApiDefinitionService {
     public void editApiByParam(ApiBatchRequest request) {
         //name在这里只是查询参数
         request.setName(null);
+        //如果移动模块，需要重新设置模块路径
+        if (request.getModuleId() != null) {
+            ApiModule apiModule = apiModuleMapper.selectByPrimaryKey(request.getModuleId());
+            request.setModulePath("/" + apiModule.getName());
+        }
         ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
