@@ -182,6 +182,8 @@ public class TestPlanService {
     private TestPlanExecutionQueueService testPlanExecutionQueueService;
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
+    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1412,18 +1414,31 @@ public class TestPlanService {
 
     public void buildApiResponse(List<TestPlanFailureApiDTO> cases) {
         if (!CollectionUtils.isEmpty(cases)) {
-            List<String> reportIds = cases.stream().map(TestPlanFailureApiDTO::getReportId).collect(Collectors.toList());
-            ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
-            example.createCriteria().andIdIn(reportIds);
-            List<ApiDefinitionExecResult> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
-            // 格式化数据结果
-            Map<String, ApiDefinitionExecResult> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
-            cases.forEach(item -> {
-                if (resultMap.get(item.getReportId()) != null &&
-                        StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
-                    item.setResponse(resultMap.get(item.getReportId()).getContent());
+            List<String> reportIds = new ArrayList<>();
+            for (TestPlanFailureApiDTO apiCase : cases) {
+                if (StringUtils.isEmpty(apiCase.getReportId())) {
+                    ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(apiCase.getId(), "API_PLAN");
+                    if (result != null && StringUtils.isNotBlank(result.getContent())) {
+                        apiCase.setReportId(result.getId());
+                        apiCase.setResponse(result.getContent());
+                    }
+                } else {
+                    reportIds.add(apiCase.getReportId());
                 }
-            });
+            }
+            if (CollectionUtils.isNotEmpty(reportIds)) {
+                ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+                example.createCriteria().andIdIn(reportIds);
+                List<ApiDefinitionExecResult> results = apiDefinitionExecResultMapper.selectByExampleWithBLOBs(example);
+                // 格式化数据结果
+                Map<String, ApiDefinitionExecResult> resultMap = results.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, item -> item, (k, v) -> k));
+                cases.forEach(item -> {
+                    if (resultMap.get(item.getReportId()) != null &&
+                            StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
+                        item.setResponse(resultMap.get(item.getReportId()).getContent());
+                    }
+                });
+            }
         }
     }
 
@@ -1563,9 +1578,9 @@ public class TestPlanService {
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
             if (checkReportConfig(config, "api", "all")) {
                 // 接口
-                apiAllCases = testPlanApiCaseService.getByApiExecReportIds(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap(),testPlanExecuteReportDTO.getApiCaseInfoDTOMap());
+                apiAllCases = testPlanApiCaseService.getByApiExecReportIds(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap(), testPlanExecuteReportDTO.getApiCaseInfoDTOMap());
                 //场景
-                scenarioAllCases = testPlanScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap(),testPlanExecuteReportDTO.getScenarioInfoDTOMap());
+                scenarioAllCases = testPlanScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap(), testPlanExecuteReportDTO.getScenarioInfoDTOMap());
                 this.checkApiCaseCreatorName(apiAllCases, scenarioAllCases);
                 report.setApiAllCases(apiAllCases);
                 report.setScenarioAllCases(scenarioAllCases);
