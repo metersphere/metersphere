@@ -139,7 +139,6 @@ public class ApiScenarioSerialService {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
             // 开始执行
-            LoggerUtil.info(new MsTestPlan().getJmx(runRequest.getHashTree()));
             jMeterService.run(runRequest);
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);

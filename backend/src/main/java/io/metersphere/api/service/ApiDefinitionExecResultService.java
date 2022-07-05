@@ -8,7 +8,6 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.RequestResult;
@@ -47,8 +46,6 @@ public class ApiDefinitionExecResultService {
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
-    @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private TestCaseReviewApiCaseService testCaseReviewApiCaseService;
@@ -73,10 +70,27 @@ public class ApiDefinitionExecResultService {
     @Resource
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
 
+    /**
+     * API/CASE 重试结果保留一条
+     *
+     * @param dto
+     */
+    private void mergeRetryResults(ResultDTO dto) {
+        List<RequestResult> requestResults = new LinkedList<>();
+        if (dto.isRetryEnable() && CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+            Map<String, List<RequestResult>> resultMap = dto.getRequestResults().stream().collect(Collectors.groupingBy(RequestResult::getResourceId));
+            resultMap.forEach((k, v) -> {
+                if (CollectionUtils.isNotEmpty(v)) {
+                    requestResults.add(v.get(v.size() - 1));
+                }
+            });
+            dto.setRequestResults(requestResults);
+        }
+    }
 
     public void saveApiResult(ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】条");
-
+        this.mergeRetryResults(dto);
         for (RequestResult item : dto.getRequestResults()) {
             if (item.getResponseResult() != null && item.getResponseResult().getResponseTime() <= 0) {
                 item.getResponseResult().setResponseTime((item.getEndTime() - item.getStartTime()));
@@ -118,6 +132,7 @@ public class ApiDefinitionExecResultService {
         ApiTestCaseMapper batchApiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
         for (ResultDTO dto : resultDTOS) {
+            this.mergeRetryResults(dto);
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                 for (RequestResult item : dto.getRequestResults()) {
                     if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
