@@ -86,6 +86,7 @@ export default {
     this.initSessionTimer();
     if (!hasLicense()) {
       setDefaultTheme();
+      setCustomizeColor();
       this.color = ORIGIN_COLOR;
     } else {
       this.$get('/system/theme', res => {
@@ -93,7 +94,7 @@ export default {
         setColor(this.color, this.color, this.color, this.color, this.color);
         this.$store.commit('setTheme', res.data);
       });
-      this.query();
+      this.getDisplayInfo();
     }
     // OIDC redirect 之后不跳转
     if (window.location.href.endsWith('#/refresh')) {
@@ -147,25 +148,29 @@ export default {
     };
   },
   methods: {
-    query() {
+    getDisplayInfo() {
       this.result = this.$get("/display/info", response => {
         let theme = "";
         if (response.data && response.data[5] && response.data[5].paramValue) {
           theme = response.data[5].paramValue;
         }
         if (response.data && response.data[7] && response.data[7].paramValue) {
-          this.setAsideTheme(response.data[7].paramValue, theme);
+          this.sideTheme = response.data[7].paramValue;
         }
+        this.setAsideTheme(theme);
       })
     },
-    setAsideTheme(sideTheme, theme) {
-      this.sideTheme = sideTheme;
-      if (sideTheme === "theme-light") {
-        setLightColor();
-      } else if (sideTheme === "theme-default") {
-        setAsideColor();
-      } else {
-        setCustomizeColor(theme);
+    setAsideTheme(theme) {
+      switch (this.sideTheme) {
+        case "theme-light":
+          setLightColor();
+          break;
+        case "theme-default":
+          setAsideColor();
+          break;
+        default:
+          setCustomizeColor(theme);
+          break;
       }
     },
     fixedChange(isFixed) {
