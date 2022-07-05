@@ -530,23 +530,41 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         setModule(optionData, moduleMap, pidChildrenMap, idPathMap, idModuleMap, chooseModule);
 
         //系统内重复的数据
-        List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs;
-        if (chooseModule != null) {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, chooseModule.getId(), versionSet);
-        } else {
-            repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(optionData, projectId, versionSet);
+        List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(optionData, projectId, versionSet);
+
+        moduleMap = getApiScenarioModuleMap(fullCoverage, fullCoverageScenario, moduleMap, toUpdateList, chooseModuleId, idPathMap, chooseModule, optionData, repeatApiScenarioWithBLOBs);
+
+        if (!repeatApiScenarioWithBLOBs.isEmpty()) {
+            Map<String, ApiScenarioWithBLOBs> repeatMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+            Map<String, ApiScenarioWithBLOBs> optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+            if (fullCoverage) {
+                startCover(toUpdateList, optionMap, repeatMap);
+            } else {
+                //不覆盖,同一接口不做更新
+                removeRepeat(optionData, optionMap, repeatMap);
+            }
         }
 
+        UpdateScenarioModuleDTO updateScenarioModuleDTO = new UpdateScenarioModuleDTO();
+        updateScenarioModuleDTO.setModuleList(new ArrayList<>(moduleMap.values()));
+        updateScenarioModuleDTO.setNeedUpdateList(toUpdateList);
+        updateScenarioModuleDTO.setApiScenarioWithBLOBsList(optionData);
+        return updateScenarioModuleDTO;
+    }
+
+    private Map<String, ApiScenarioModule> getApiScenarioModuleMap(Boolean fullCoverage, Boolean fullCoverageScenario, Map<String, ApiScenarioModule> moduleMap, List<ApiScenarioWithBLOBs> toUpdateList, String chooseModuleId, Map<String, String> idPathMap, ApiScenarioModuleDTO chooseModule, List<ApiScenarioWithBLOBs> optionData, List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs) {
         Map<String, ApiScenarioWithBLOBs> nameModuleMap = null;
-        Map<String, ApiScenarioWithBLOBs> repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+        Map<String, ApiScenarioWithBLOBs> repeatDataMap = null;
         if (chooseModule != null) {
             if (!repeatApiScenarioWithBLOBs.isEmpty()) {
                 String chooseModuleParentId = getChooseModuleParentId(chooseModule);
                 String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
                 nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + chooseModulePath, scenario -> scenario));
+                repeatDataMap = repeatApiScenarioWithBLOBs.stream().filter(t -> t.getApiScenarioModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
             }
         } else {
             nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), scenario -> scenario));
+            repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
         }
         //处理数据
         if (fullCoverage) {
@@ -564,12 +582,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             //不覆盖
             removeRepeat(optionData, nameModuleMap, repeatDataMap);
         }
-
-        UpdateScenarioModuleDTO updateScenarioModuleDTO = new UpdateScenarioModuleDTO();
-        updateScenarioModuleDTO.setModuleList(new ArrayList<>(moduleMap.values()));
-        updateScenarioModuleDTO.setNeedUpdateList(toUpdateList);
-        updateScenarioModuleDTO.setApiScenarioWithBLOBsList(optionData);
-        return updateScenarioModuleDTO;
+        return moduleMap;
     }
 
     private void setFullVersionSet(ApiTestImportRequest request, Set<String> versionSet) {
