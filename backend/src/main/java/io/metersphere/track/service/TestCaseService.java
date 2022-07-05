@@ -178,6 +178,10 @@ public class TestCaseService {
     private TestReviewTestCaseService testReviewTestCaseService;
     @Resource
     private FileAttachmentMetadataMapper fileAttachmentMetadataMapper;
+    @Resource
+    private FileMetadataMapper fileMetadataMapper;
+    @Resource
+    private FileContentMapper fileContentMapper;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
     private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
@@ -2620,10 +2624,12 @@ public class TestCaseService {
                     TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
                     testCaseFileExample.createCriteria().andCaseIdEqualTo(testCaseFile.getCaseId()).andFileIdEqualTo(testCaseFile.getFileId());
                     testCaseFileMapper.updateByExampleSelective(newTestCaseFile, testCaseFileExample);
+                    fileMetadataMapper.deleteByPrimaryKey(fileMetadata.getId());
                 }
                 if (StringUtils.isNotEmpty(filename) && fileContents.size() == 1) {
                     byte[] bytes = fileContents.get(0).getFile();
                     FileUtils.byteToFile(bytes, uploadPath, filename);
+                    fileContentMapper.deleteByPrimaryKey(fileContents.get(0).getFileId());
                 }
             });
         }
