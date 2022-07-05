@@ -283,7 +283,6 @@ export default {
       });
     },
     redirectPage(page, dataType, selectType, title) {
-      //api页面跳转
       //传入UUID是为了进行页面重新加载判断
       let uuid = getUUID();
       let redirectObj = {
@@ -296,10 +295,22 @@ export default {
             params: {paramObj: redirectObj}
           });
           break;
+        case "apiWithQuery":
+          this.$router.push({
+            name: 'ApiDefinitionWithQuery',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
+          });
+          break;
         case "scenario":
           this.$router.push({
             name: 'ApiAutomation',
             params: {paramObj: redirectObj}
+          });
+          break;
+        case "scenarioWithQuery":
+          this.$router.push({
+            name: 'ApiAutomationWithQuery',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
           });
           break;
         case "testPlanEdit":

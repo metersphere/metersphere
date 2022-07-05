@@ -33,6 +33,16 @@ export default {
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
+      path: "definition/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:type?/:workspaceId?",
+      name: "ApiDefinitionWithQuery",
+      component: () => import('@/business/components/api/definition/ApiDefinition'),
+    },
+    {
+      path: "automation/:redirectID?/:dataType?/:dataSelectRange?/:projectId?/:workspaceId?",
+      name: "ApiAutomationWithQuery",
+      component: () => import('@/business/components/api/automation/ApiAutomation'),
+    },
+    {
       path: "automation",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),

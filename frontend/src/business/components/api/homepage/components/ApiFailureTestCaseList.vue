@@ -94,8 +94,16 @@ export default {
                   if (param.protocol === 'dubbo://') {
                     param.protocol = 'DUBBO'
                   }
+                  let paramObj = {
+                    redirectID: getUUID(),
+                    dataType: "apiTestCase",
+                    dataSelectRange: 'single:' + param.id,
+                    projectId: getCurrentProjectID(),
+                    type: api.protocol,
+                    workspaceId: getCurrentWorkspaceId(),
+                  };
                   definitionData = this.$router.resolve({
-                    name: 'ApiDefinition',
+                    name: 'ApiDefinitionWithQuery',
                     params: {
                       redirectID: getUUID(),
                       dataType: "apiTestCase",
@@ -112,7 +120,7 @@ export default {
           });
           break;
         case "scenario":
-          this.$emit('redirectPage', 'scenario', 'scenario', 'edit:' + param.id);
+          this.$emit('redirectPage', 'scenarioWithQuery', 'scenario', 'edit:' + param.id);
           break;
       }
     }

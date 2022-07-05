@@ -513,7 +513,7 @@ export default {
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
-        if(!response.data){
+        if (!response.data) {
           this.$error(this.$t('api_test.case_jump_message'));
           return;
         }
@@ -1133,6 +1133,12 @@ export default {
       if (routeParamObj) {
         let routeParam = routeParamObj.dataSelectRange;
         let dataType = routeParamObj.dataType;
+        if (dataType === 'apiTestCase') {
+          this.selectDataRange = routeParam;
+        }
+      } else {
+        let routeParam = this.$route.params.dataSelectRange;
+        let dataType = this.$route.params.dataType;
         if (dataType === 'apiTestCase') {
           this.selectDataRange = routeParam;
         }
