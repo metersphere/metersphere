@@ -11,6 +11,7 @@ import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -32,7 +33,9 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         String testStr = getApiTestStr(source);
         JSONObject testObject = JSONObject.parseObject(testStr, Feature.DisableSpecialKeyDetect);
         this.projectId = request.getProjectId();
-
+        if (this.projectId == null) {
+            MSException.throwException("wrong format");
+        }
         if (testObject.get("projectName") != null || testObject.get("projectId") != null) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
         } else {    //  chrome 插件录制格式导入
@@ -154,5 +157,5 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             return null;
         }
     }
-    
+
 }
