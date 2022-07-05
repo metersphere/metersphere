@@ -1328,9 +1328,24 @@ public class ApiDefinitionService {
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
         //通过platform，获取对应的导入解析类型。
+        String originalFilename = file.getOriginalFilename();
+        String suffixName = originalFilename.substring(originalFilename.indexOf("."));
+        if (suffixName.equalsIgnoreCase("jmx")) {
+            if (!request.getPlatform().equalsIgnoreCase("JMeter")) {
+                MSException.throwException("文件格式不符合要求");
+            }
+        }
+        if (suffixName.equalsIgnoreCase("har")) {
+            if (!request.getPlatform().equalsIgnoreCase("Har")) {
+                MSException.throwException("文件格式不符合要求");
+            }
+        }
         ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+            if (!request.getPlatform().equalsIgnoreCase("Swagger2")) {
+                MSException.throwException("文件格式不符合要求");
+            }
             if (!UrlTestUtils.testUrlWithTimeOut(request.getSwaggerUrl(), 30000)) {
                 MSException.throwException(Translator.get("connection_timeout"));
             }
@@ -1350,7 +1365,11 @@ public class ApiDefinitionService {
             if (StringUtils.contains(returnThrowException, "模块树最大深度为")) {
                 MSException.throwException(returnThrowException);
             } else {
-                MSException.throwException(Translator.get("parse_data_error"));
+                if (returnThrowException.equals("wrong format")) {
+                    MSException.throwException("文件格式不符合要求");
+                } else {
+                    MSException.throwException(Translator.get("parse_data_error"));
+                }
             }
             // 发送通知
             if (StringUtils.equals(request.getType(), "schedule")) {
@@ -1708,11 +1727,6 @@ public class ApiDefinitionService {
                 (query) -> extApiDefinitionMapper.selectIds(query));
 
         this.removeToGc(request.getIds());
-//        ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
-//        example.createCriteria().andIdIn(request.getIds());
-//        example.setOperator(SessionUtils.getUserId());
-//        example.setOperationTime(System.currentTimeMillis());
-//        extApiDefinitionMapper.removeToGcByExample(example);
     }
 
     public Pager<List<ApiDefinitionResult>> listRelevance(ApiDefinitionRequest request, int goPage, int pageSize) {

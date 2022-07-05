@@ -46,7 +46,7 @@ public class HarParser extends HarAbstractParser {
             MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
         }
-        if (ObjectUtils.isEmpty(har)) {
+        if (ObjectUtils.isEmpty(har) || har.log == null) {
             MSException.throwException("解析失败，请确认选择的是 Har 格式！");
         }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
