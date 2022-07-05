@@ -59,12 +59,8 @@ export default {
   },
   watch: {
     activeName() {
-      let url = new URL(window.location.href);
-      if (this.isTemplate) {
-        window.location.href = window.location.href.split('#')[0] + '#' + this.activeName;
-      } else {
-        window.location.href = url.origin + '#' + this.activeName;
-      }
+      let target = document.getElementById(this.activeName);
+      target.parentNode.parentNode.parentNode.scrollTop = target.offsetTop - 100;
     },
     overviewEnable() {
       this.setData();
