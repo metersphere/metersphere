@@ -1376,7 +1376,6 @@ public class ApiAutomationService {
         }
 
         for (int i = 0; i < data.size(); i++) {
-
             ApiScenarioWithBLOBs item = data.get(i);
             List<ApiScenarioWithBLOBs> sameList = needUpdateList.stream().filter(t -> t.getId().equals(item.getId())).collect(toList());
             if (StringUtils.isBlank(item.getCreateUser())) {

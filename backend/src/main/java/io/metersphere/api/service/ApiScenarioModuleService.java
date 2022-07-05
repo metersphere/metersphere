@@ -528,9 +528,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
         //处理模块
         setModule(optionData, moduleMap, pidChildrenMap, idPathMap, idModuleMap, chooseModule);
-
+        List<String> names = optionData.stream().map(ApiScenario::getName).collect(Collectors.toList());
         //系统内重复的数据
-        List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(optionData, projectId, versionSet);
+        List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(names, projectId, versionSet);
 
         moduleMap = getApiScenarioModuleMap(fullCoverage, fullCoverageScenario, moduleMap, toUpdateList, chooseModuleId, idPathMap, chooseModule, optionData, repeatApiScenarioWithBLOBs);
 
