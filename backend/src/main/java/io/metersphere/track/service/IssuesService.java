@@ -180,7 +180,7 @@ public class IssuesService {
         issuesRequest.setWorkspaceId(project.getWorkspaceId());
         issuesRequest.setProjectId(issuesWithBLOBs.getProjectId());
         issuesRequest.setUserId(issuesWithBLOBs.getCreator());
-        if (StringUtils.equals(issuesWithBLOBs.getPlatform(),IssuesManagePlatform.Tapd.name() )) {
+        if (StringUtils.equals(issuesWithBLOBs.getPlatform(), IssuesManagePlatform.Tapd.name())) {
             TapdPlatform tapdPlatform = (TapdPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Tapd.name(), issuesRequest);
             List<String> tapdUsers = tapdPlatform.getTapdUsers(issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getPlatformId());
             issuesWithBLOBs.setTapdUsers(tapdUsers);
@@ -366,7 +366,7 @@ public class IssuesService {
             }
 
             Set<String> caseIdSet = caseSetMap.get(item.getId());
-            if(caseIdSet==null){
+            if (caseIdSet == null) {
                 caseIdSet = new HashSet<>();
             }
             item.setCaseIds(new ArrayList<>(caseIdSet));
@@ -407,7 +407,7 @@ public class IssuesService {
 
         List<TestPlan> testPlans = testPlanService.getTestPlanByIds(resourceIds);
         Map<String, String> planMap = new HashMap<>();
-        if(testPlans!=null){
+        if (testPlans != null) {
             planMap = testPlans.stream()
                     .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
         }
@@ -423,26 +423,39 @@ public class IssuesService {
 
     private Map<String, Set<String>> getCaseSetMap(List<IssuesDao> issues) {
         List<String> ids = issues.stream().map(Issues::getId).collect(Collectors.toList());
-        Map<String,Set<String>>map = new HashMap<>();
-        if(ids.size()==0){
-            return  map;
+        Map<String, Set<String>> map = new HashMap<>();
+        if (ids.size() == 0) {
+            return map;
         }
         TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andIssuesIdIn(ids);
+        example.createCriteria()
+                .andIssuesIdIn(ids);
         List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
-        testCaseIssues.forEach(i -> {
-            Set<String> caseIdSet = new HashSet<>();
-            if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
-                caseIdSet.add(i.getRefId());
-            } else {
-                caseIdSet.add(i.getResourceId());
-            }
-            if(map.get(i.getIssuesId())!=null){
-                map.get(i.getIssuesId()).addAll(caseIdSet);
-            }else{
-                map.put(i.getIssuesId(),caseIdSet);
-            }
-        });
+
+        List<String> caseIds = testCaseIssues.stream().map(x ->
+                x.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? x.getRefId() : x.getResourceId())
+                .collect(Collectors.toList());
+
+        List<TestCaseDTO> notInTrashCase = testCaseService.getTestCaseByIds(caseIds);
+
+        if (CollectionUtils.isNotEmpty(notInTrashCase)) {
+            Set<String> notInTrashCaseSet = notInTrashCase.stream()
+                    .map(TestCaseDTO::getId)
+                    .collect(Collectors.toSet());
+
+            testCaseIssues.forEach(i -> {
+                Set<String> caseIdSet = new HashSet<>();
+                String caseId = i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? i.getRefId() : i.getResourceId();
+                if (notInTrashCaseSet.contains(caseId)) {
+                    caseIdSet.add(caseId);
+                }
+                if (map.get(i.getIssuesId()) != null) {
+                    map.get(i.getIssuesId()).addAll(caseIdSet);
+                } else {
+                    map.put(i.getIssuesId(), caseIdSet);
+                }
+            });
+        }
         return map;
     }
 
@@ -802,7 +815,7 @@ public class IssuesService {
         return platform.getDemandList(projectId);
     }
 
-    public  List<IssuesDao> listByWorkspaceId(IssuesRequest request) {
+    public List<IssuesDao> listByWorkspaceId(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         return extIssuesMapper.getIssues(request);
     }

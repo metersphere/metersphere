@@ -859,6 +859,7 @@
             <foreach collection="ids" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
+            and test_case.status != 'Trash'
         </where>
     </select>
     <select id="selectRelateIdsByQuery" resultType="java.lang.String">
