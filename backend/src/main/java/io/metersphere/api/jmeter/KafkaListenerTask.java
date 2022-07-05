@@ -18,7 +18,7 @@ import java.util.*;
 
 @Data
 public class KafkaListenerTask implements Runnable {
-    private List<ConsumerRecord<?, String>> records;
+    private ConsumerRecord<?, String> record;
     private ApiExecutionQueueService apiExecutionQueueService;
     private TestResultService testResultService;
     private ObjectMapper mapper;
@@ -49,30 +49,27 @@ public class KafkaListenerTask implements Runnable {
             // 分三类存储
             Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
             List<ResultDTO> resultDTOS = new LinkedList<>();
-
-            records.forEach(record -> {
-                ResultDTO testResult = this.formatResult(record.value());
-
-                LoggerUtil.info("KAFKA消费结果处理：【" + testResult.getReportId() + "】", testResult.getArbitraryData() != null ? testResult.getArbitraryData().get("TEST_END") : false);
-                if (testResult != null) {
-                    if (testResult.getArbitraryData() != null && testResult.getArbitraryData().containsKey("TEST_END")
-                            && (Boolean) testResult.getArbitraryData().get("TEST_END")) {
-                        resultDTOS.add(testResult);
-                    }
-                    // 携带结果
-                    if (CollectionUtils.isNotEmpty(testResult.getRequestResults())) {
-                        String key = RUN_MODE_MAP.get(testResult.getRunMode());
-                        if (assortMap.containsKey(key)) {
-                            assortMap.get(key).add(testResult);
-                        } else {
-                            assortMap.put(key, new LinkedList<ResultDTO>() {{
-                                this.add(testResult);
-                            }});
-                        }
-                    }
+            LoggerUtil.info("报告【" + record.key() + "】开始解析结果");
+            ResultDTO dto = this.formatResult();
+            if (dto == null) {
+                return;
+            }
+            if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TEST_END")
+                    && (Boolean) dto.getArbitraryData().get("TEST_END")) {
+                resultDTOS.add(dto);
+                LoggerUtil.info("KAFKA消费结果处理：【" + record.key() + "】结果状态：" + dto.getArbitraryData().get("TEST_END"));
+            }
+            // 携带结果
+            if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+                String key = RUN_MODE_MAP.get(dto.getRunMode());
+                if (assortMap.containsKey(key)) {
+                    assortMap.get(key).add(dto);
+                } else {
+                    assortMap.put(key, new LinkedList<ResultDTO>() {{
+                        this.add(dto);
+                    }});
                 }
-            });
-
+            }
             if (MapUtils.isNotEmpty(assortMap)) {
                 LoggerUtil.info("KAFKA消费执行内容存储开始");
                 testResultService.batchSaveResults(assortMap);
@@ -95,19 +92,19 @@ public class KafkaListenerTask implements Runnable {
                 });
             }
         } catch (Exception e) {
-            LoggerUtil.error("KAFKA消费失败：", e);
+            LoggerUtil.error("报告【" + record.key() + "】KAFKA消费失败：", e);
         }
     }
 
-    private ResultDTO formatResult(String result) {
+    private ResultDTO formatResult() {
         try {
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-            if (StringUtils.isNotEmpty(result)) {
-                return mapper.readValue(result, new TypeReference<ResultDTO>() {
+            if (StringUtils.isNotEmpty(record.value())) {
+                return mapper.readValue(record.value(), new TypeReference<ResultDTO>() {
                 });
             }
         } catch (Exception e) {
-            LoggerUtil.error("formatResult 格式化数据失败：", e);
+            LoggerUtil.error("报告【" + record.key() + "】格式化数据失败：", e);
         }
         return null;
     }
