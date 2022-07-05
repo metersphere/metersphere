@@ -178,6 +178,18 @@ export default {
         case "testPlanEdit":
           this.$router.push('/track/plan/view/' + selectType)
           break;
+        case "scenarioWithQuery":
+          this.$router.push({
+            name: 'ApiAutomationWithQuery',
+            params: {redirectID: uuid, dataType: dataType, dataSelectRange: selectType}
+          });
+          break;
+        case "api":
+          this.$router.push({
+            name: 'ApiDefinition',
+            params: {paramObj: redirectObj}
+          });
+          break;
       }
     }
   }

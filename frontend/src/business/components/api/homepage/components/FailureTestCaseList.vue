@@ -92,7 +92,7 @@ export default {
           this.$emit('redirectPage', 'api', 'apiTestCase', 'single:' + param);
           break;
         case "scenario":
-          this.$emit('redirectPage', 'scenario', 'scenario', 'edit:' + param);
+          this.$emit('redirectPage', 'scenarioWithQuery', 'scenario', 'edit:' + param);
           break;
       }
     }

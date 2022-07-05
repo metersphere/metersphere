@@ -204,7 +204,7 @@ export default {
       switch (pageType) {
         case "api":
           resolve = this.$router.resolve({
-            name: 'ApiDefinition',
+            name: 'ApiDefinitionWithQuery',
             params: {
               redirectID: getUUID(),
               dataType: "api",
