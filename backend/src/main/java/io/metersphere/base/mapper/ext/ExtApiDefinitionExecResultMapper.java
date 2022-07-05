@@ -52,4 +52,6 @@ public interface ExtApiDefinitionExecResultMapper {
     List<String> selectDistinctStatusByReportId(String reportId);
 
     String selectResourceId(String id);
+
+    List<ApiDefinitionExecResultWithBLOBs> selectRerunResult(@Param("reportId") String reportId);
 }
