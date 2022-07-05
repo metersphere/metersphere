@@ -7,13 +7,13 @@ import Performance from "@/business/components/performance/router";
 import Track from "@/business/components/track/router";
 import ReportStatistics from "@/business/components/reportstatistics/router";
 import Project from "@/business/components/project/router";
-import {getCurrentUserId, hasPermissions} from "@/common/js/utils";
+import {getCurrentUser, getCurrentUserId, hasPermissions} from "@/common/js/utils";
 
 Vue.use(VueRouter);
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const router = new VueRouter({
   routes: [
-    {path: "/", redirect: '/setting'},
+    {path: "/", redirect: '/setting/personsetting'},
     {
       path: "/sidebar",
       components: {
@@ -32,14 +32,8 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-
-  redirectLoginPath(to.fullPath);
-
-  //解决localStorage清空，cookie没失效导致的卡死问题
-  if (!localStorage.getItem('Admin-Token')) {
-    localStorage.setItem('Admin-Token', "{}");
-    window.location.href = "/login";
-    next();
+  if (getCurrentUser() && getCurrentUser().id) {
+    redirectLoginPath(to.fullPath, next);
   } else {
     next();
   }
@@ -53,7 +47,7 @@ VueRouter.prototype.push = function push(location) {
 
 
 // 登入后跳转至原路径
-function redirectLoginPath(originPath) {
+function redirectLoginPath(originPath, next) {
   let redirectUrl = sessionStorage.getItem('redirectUrl');
   let loginSuccess = sessionStorage.getItem('loginSuccess');
 
@@ -69,13 +63,17 @@ function redirectLoginPath(originPath) {
     }
   }
 
-  if (redirectUrl && loginSuccess) {
-    sessionStorage.removeItem('loginSuccess');
-    router.push(redirectUrl);
-  }
   sessionStorage.setItem('lastUser', getCurrentUserId());
   sessionStorage.setItem('redirectUrl', originPath);
   sessionStorage.removeItem('loginSuccess');
+
+  if (redirectUrl && loginSuccess) {
+    sessionStorage.removeItem('loginSuccess');
+    // router.push(redirectUrl);
+    next({path: redirectUrl});
+  } else {
+    next();
+  }
 }
 
 
