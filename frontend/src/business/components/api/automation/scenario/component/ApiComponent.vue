@@ -276,6 +276,9 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
+    if (this.request.requestResult && this.request.requestResult.length > 0) {
+      this.response = this.request.requestResult[0];
+    }
   },
   watch: {
     message() {
