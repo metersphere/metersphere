@@ -25,7 +25,7 @@
             <ms-select-tree size="small" :data="moduleOptions" :defaultKey="formData.moduleId" @getValue="setModule"
                             :obj="moduleObj" clearable checkStrictly/>
           </el-form-item>
-          <el-form-item v-if="!isHar" :label="$t('commons.import_mode')">
+          <el-form-item :label="$t('commons.import_mode')" prop="modeId">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
@@ -173,7 +173,11 @@ export default {
         moduleId: '',
         coverModule: false
       },
-      rules: {},
+      rules: {
+        modeId: [
+          {required: true, message: this.$t('commons.please_select_import_mode'), trigger: 'change'},
+        ],
+      },
       currentModule: {},
       fileList: [],
       moduleObj: {
@@ -203,9 +207,6 @@ export default {
     }
   },
   computed: {
-    isHar() {
-      return this.selectedPlatformValue === 'Har';
-    },
     projectId() {
       return getCurrentProjectID();
     },

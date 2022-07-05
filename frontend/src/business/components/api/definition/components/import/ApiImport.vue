@@ -56,10 +56,9 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="showTemplate">
-            <el-link type="primary" class="download-template"
-                     @click="downloadTemplate"
-            >{{ $t('test_track.case.import.download_template') }}
-            </el-link>
+            <el-button type="small" @click="downloadTemplate">
+              {{ $t('test_track.case.import.download_template') }}
+            </el-button>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
             <el-switch
@@ -341,7 +340,7 @@ export default {
       return this.selectedPlatformValue === 'Swagger2';
     },
     showImportModel() {
-      return this.selectedPlatformValue !== 'Har' && this.selectedPlatformValue !== 'ESB';
+      return this.selectedPlatformValue !== 'ESB';
     },
     showTemplate() {
       return this.selectedPlatformValue === 'ESB';
