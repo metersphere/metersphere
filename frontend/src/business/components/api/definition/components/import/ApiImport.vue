@@ -303,6 +303,7 @@ export default {
       }
       if (this.selectedPlatformValue === 'Har' || this.selectedPlatformValue === 'ESB') {
         this.formData.modeId = 'fullCoverage';
+        this.$refs.form.clearValidate();
       }
     },
     protocol() {
@@ -340,7 +341,7 @@ export default {
       return this.selectedPlatformValue === 'Swagger2';
     },
     showImportModel() {
-      return this.selectedPlatformValue != 'Har' && this.selectedPlatformValue != 'ESB';
+      return this.selectedPlatformValue !== 'Har' && this.selectedPlatformValue !== 'ESB';
     },
     showTemplate() {
       return this.selectedPlatformValue === 'ESB';
@@ -464,6 +465,8 @@ export default {
         swaggerUrl: '',
         modeId: this.formData.modeId,
       };
+      this.swaggerUrlEnable = false;
+      this.selectedPlatformValue = 'Metersphere';
       this.fileList = [];
       removeGoBackListener(this.close);
       this.visible = false;
