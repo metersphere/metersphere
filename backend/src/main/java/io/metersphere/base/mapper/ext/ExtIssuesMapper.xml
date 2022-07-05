@@ -127,6 +127,20 @@
         from issues
         where id = #{id,jdbcType=VARCHAR}
     </select>
+    <select id="getIssueCustomField" resultType="io.metersphere.dto.CustomFieldItemDTO">
+        select cfi.field_id           as id,
+               cf.type,
+               cft.custom_data,
+               cf.name,
+               case cf.type
+                   when 'richText' then cfi.text_value
+                   when 'textarea' then cfi.text_value
+                   else cfi.value end as value
+        from custom_field_issues cfi
+                 join custom_field_template cft on cfi.field_id = cft.field_id
+                 join custom_field cf on cf.id = cft.field_id
+        where cfi.resource_id = #{id}
+    </select>
 
     <sql id="queryWhereCondition">
         <where>

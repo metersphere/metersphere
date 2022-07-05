@@ -22,7 +22,7 @@
     <select id="lisSimple" resultType="io.metersphere.dto.CustomFieldDao">
         select
         template_id, required, default_value, custom_data,
-        cft.id as id,
+        cf.id as id,
         cf.name as name, cf.type as type
         from custom_field_template cft
         inner join custom_field cf

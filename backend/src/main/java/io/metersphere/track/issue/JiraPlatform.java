@@ -368,7 +368,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     private void parseCustomFiled(IssuesUpdateRequest issuesRequest, JSONObject fields) {
-        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
+        List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
 
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
@@ -390,7 +390,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                         } else if (StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
                             JSONArray attrs = new JSONArray();
                             if (item.getValue() != null) {
-                                JSONArray values = (JSONArray)item.getValue();
+                                JSONArray values = JSONArray.parseArray((String) item.getValue());
                                 values.forEach(v -> {
                                     JSONObject param = new JSONObject();
                                     param.put("id", v);
@@ -402,7 +402,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                             if (item.getValue() != null) {
                                 JSONObject attr = new JSONObject();
                                 if (item.getValue() instanceof JSONArray) {
-                                    JSONArray values = (JSONArray) item.getValue();
+                                    JSONArray values = JSONArray.parseArray((String) item.getValue());
                                     if (CollectionUtils.isNotEmpty(values)) {
                                         if (values.size() > 0) {
                                             attr.put("id", values.get(0));
@@ -418,7 +418,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                 }
                                 fields.put(fieldName, attr);
                             }
-                        } else if (StringUtils.equalsAny(item.getType(),  "richText")) {
+                        } else if (StringUtils.equalsAny(item.getType(), "richText")) {
                             fields.put(fieldName, removeImage(item.getValue().toString()));
                             if (fieldName.equals("description")) {
                                 issuesRequest.setDescription(item.getValue().toString());
@@ -521,7 +521,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 getUpdateIssue(item, jiraClientV2.getIssues(item.getPlatformId()));
                 String customFields = item.getCustomFields();
                 // 把自定义字段存入新表
-                List<CustomFieldResource> customFieldResource = customFieldService.getJiraCustomFieldResource(customFields, project.getId());
+                List<CustomFieldResource> customFieldResource = customFieldService.getCustomFieldResource(customFields);
                 customFieldIssuesService.addFields(item.getId(), customFieldResource);
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {

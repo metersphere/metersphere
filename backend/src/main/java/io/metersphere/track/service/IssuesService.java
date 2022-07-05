@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.AttachmentType;
@@ -116,7 +117,9 @@ public class IssuesService {
             });
         }
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
-        customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
+        List<CustomFieldResource> addFields = issuesRequest.getAddFields();
+        addFields.addAll(issuesRequest.getEditFields());
+        customFieldIssuesService.addFields(issuesRequest.getId(), addFields);
         return issues;
     }
 

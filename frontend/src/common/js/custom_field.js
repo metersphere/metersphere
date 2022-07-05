@@ -105,6 +105,7 @@ export function buildCustomFields(data, param, template) {
 
     let addFields = [];
     let editFields = [];
+    let requestFields = [];
 
     template.customFields.forEach(item => {
       let customField = {fieldId: item.id};
@@ -118,9 +119,20 @@ export function buildCustomFields(data, param, template) {
       } else {
         addFields.push(customField);
       }
+      let fieldValue = (item.defaultValue instanceof Array && item.type !== 'multipleInput') ?
+        JSON.stringify(item.defaultValue) : (item.defaultValue || "");
+      let requestField = {
+        id: item.id,
+        name: item.name,
+        customData: item.customData,
+        type: item.type,
+        value: fieldValue
+      }
+      requestFields.push(requestField);
     });
     param.addFields = addFields;
     param.editFields = editFields;
+    param.requestFields = requestFields;
   }
 }
 

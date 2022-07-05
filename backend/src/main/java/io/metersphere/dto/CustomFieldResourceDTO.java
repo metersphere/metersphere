@@ -12,5 +12,6 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 public class CustomFieldResourceDTO extends CustomFieldResource implements Serializable {
     private String name;
+    private String type;
     private static final long serialVersionUID = 1L;
 }
