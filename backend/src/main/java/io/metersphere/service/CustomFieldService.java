@@ -237,23 +237,9 @@ public class CustomFieldService {
         List<CustomFieldResource> list = new ArrayList<>();
         if (StringUtils.isNotBlank(customFieldsStr)) {
             if (JSONObject.parse(customFieldsStr) instanceof JSONArray) {
-                List<CustomFieldItemDTO> fieldItems = JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
-                for (CustomFieldItemDTO dto : fieldItems) {
-                    // customFieldItemDTO里的id是模版ID
-                    CustomFieldResource resource = new CustomFieldResource();
-                    CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(dto.getId());
-                    if (customFieldTemplate == null) {
-                        continue;
-                    } else {
-                        resource.setFieldId(customFieldTemplate.getFieldId());
-                    }
-                    if (StringUtils.isNotBlank(dto.getType())
-                            && StringUtils.equalsAny(CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
-                        resource.setTextValue(dto.getValue().toString());
-                    } else {
-                        resource.setValue(JSONObject.toJSONString(dto.getValue()));
-                    }
-                    list.add(resource);
+                List<CustomFieldItemDTO> items = JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
+                for (CustomFieldItemDTO item : items) {
+                    list.add(constructorCustomFieldResource(item));
                 }
                 return list;
             }
@@ -261,50 +247,15 @@ public class CustomFieldService {
         return new ArrayList<>();
     }
 
-    public List<CustomFieldResource> getJiraCustomFieldResource(String customFieldsStr, String projectId) {
-        List<CustomFieldResource> list = new ArrayList<>();
-        if (StringUtils.isNotBlank(customFieldsStr)) {
-            if (JSONObject.parse(customFieldsStr) instanceof JSONArray) {
-                List<CustomFieldItemDTO> fieldItems = JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
-                for (CustomFieldItemDTO dto : fieldItems) {
-                    CustomFieldResource resource = new CustomFieldResource();
-                    // customFieldItemDTO里的id是模版ID
-                    CustomFieldTemplate customFieldTemplate = customFieldTemplateMapper.selectByPrimaryKey(dto.getId());
-                    if (customFieldTemplate == null) {
-                        CustomField customField = customFieldMapper.selectByPrimaryKey(dto.getId());
-                        if (customField == null) {
-                            CustomField field = new CustomField();
-                            field.setId(dto.getId());
-                            field.setUpdateTime(System.currentTimeMillis());
-                            field.setCreateTime(System.currentTimeMillis());
-                            field.setGlobal(false);
-                            field.setSystem(false);
-                            field.setName(dto.getName());
-                            field.setScene(TemplateConstants.FieldTemplateScene.ISSUE.name());
-                            field.setThirdPart(true);
-                            field.setType(dto.getType());
-                            field.setProjectId(projectId);
-                            if (StringUtils.isNotBlank(SessionUtils.getUserId())) {
-                                field.setCreateUser(SessionUtils.getUserId());
-                            }
-                            customFieldMapper.insert(field);
-                        }
-                        resource.setFieldId(dto.getId());
-                    } else {
-                        resource.setFieldId(customFieldTemplate.getFieldId());
-                    }
-                    if (StringUtils.isNotBlank(dto.getType())
-                            && StringUtils.equalsAny(CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
-                        resource.setTextValue(dto.getValue().toString());
-                    } else {
-                        resource.setValue(JSONObject.toJSONString(dto.getValue()));
-                    }
-                    list.add(resource);
-                }
-                return list;
-            }
+    private CustomFieldResource constructorCustomFieldResource(CustomFieldItemDTO dto) {
+        CustomFieldResource resource = new CustomFieldResource();
+        resource.setFieldId(dto.getId());
+        if (StringUtils.isNotBlank(dto.getType()) && StringUtils.equalsAny(CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+            resource.setTextValue(dto.getValue().toString());
+        } else {
+            resource.setValue(JSONObject.toJSONString(dto.getValue()));
         }
-        return new ArrayList<>();
+        return resource;
     }
 
     public List<CustomField> getByProjectId(String projectId) {

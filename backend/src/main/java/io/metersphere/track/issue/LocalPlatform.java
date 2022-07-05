@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -43,7 +44,9 @@ public class LocalPlatform extends LocalAbstractPlatform {
     public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
         String issueStatus = "new";
         if (StringUtils.isNotBlank(issuesRequest.getCustomFields())) {
-            List<TestCaseBatchRequest.CustomFiledRequest> fields = JSONObject.parseArray(issuesRequest.getCustomFields(), TestCaseBatchRequest.CustomFiledRequest.class);
+            List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
+            String customFieldStr = JSONObject.toJSONString(customFields);
+            List<TestCaseBatchRequest.CustomFiledRequest> fields = JSONObject.parseArray(customFieldStr, TestCaseBatchRequest.CustomFiledRequest.class);
             for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
                 if (StringUtils.equals("状态", field.getName())) {
                     issueStatus = (String) field.getValue();

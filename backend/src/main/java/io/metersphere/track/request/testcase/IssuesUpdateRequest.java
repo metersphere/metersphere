@@ -3,6 +3,7 @@ package io.metersphere.track.request.testcase;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.track.dto.PlatformStatusDTO;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private List<String> tapdUsers;
     private List<CustomFieldResource> addFields;
     private List<CustomFieldResource> editFields;
+    private List<CustomFieldItemDTO> requestFields;
     /**
      * zentao bug 处理人
      */

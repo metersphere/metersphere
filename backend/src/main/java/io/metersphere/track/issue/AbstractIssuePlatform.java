@@ -1,5 +1,6 @@
 package io.metersphere.track.issue;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
@@ -372,7 +373,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected void addCustomFields(IssuesUpdateRequest issuesRequest, MultiValueMap<String, Object> paramMap) {
-        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
+        List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
         customFields.forEach(item -> {
             if (StringUtils.isNotBlank(item.getCustomData())) {
                 if (item.getValue() instanceof String) {
@@ -417,18 +418,28 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             String fieldName = item.getCustomData();
             Object value = issue.get(fieldName);
             if (value != null) {
-               if (value instanceof JSONObject) {
-                   item.setValue(getSyncJsonParamValue(value));
+                if (value instanceof JSONObject) {
+                    item.setValue(getSyncJsonParamValue(value));
                 } else if (value instanceof JSONArray) {
-                    List<Object> values = new ArrayList<>();
-                    ((JSONArray)value).forEach(attr -> {
-                        if (attr instanceof JSONObject) {
-                            values.add(getSyncJsonParamValue(attr));
-                        } else {
-                            values.add(attr);
+                    // Sprint 是单选 同步回来是 JSONArray
+                    if (StringUtils.equals(item.getType(), "select")) {
+                        if (((JSONArray) value).size() > 0) {
+                            Object o = ((JSONArray) value).get(0);
+                            if (o instanceof JSONObject) {
+                                item.setValue(getSyncJsonParamValue(o));
+                            }
                         }
-                    });
-                    item.setValue(values);
+                    } else {
+                        List<Object> values = new ArrayList<>();
+                        ((JSONArray) value).forEach(attr -> {
+                            if (attr instanceof JSONObject) {
+                                values.add(getSyncJsonParamValue(attr));
+                            } else {
+                                values.add(attr);
+                            }
+                        });
+                        item.setValue(values);
+                    }
                 } else {
                     item.setValue(value);
                 }
@@ -487,9 +498,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected void mergeCustomField(IssuesWithBLOBs issues, String defaultCustomField) {
         if (StringUtils.isNotBlank(defaultCustomField)) {
-            String issuesCustomFields = issues.getCustomFields();
-            if (StringUtils.isBlank(issuesCustomFields) || issuesCustomFields.startsWith("{")) issuesCustomFields = "[]";
-            JSONArray issueFields = JSONArray.parseArray(issuesCustomFields);
+            List<CustomFieldItemDTO> customFields = extIssuesMapper.getIssueCustomField(issues.getId());
+            JSONArray issueFields = JSONArray.parseArray(JSON.toJSONString(customFields));
             Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
             JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
             defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
