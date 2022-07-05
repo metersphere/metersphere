@@ -1189,7 +1189,7 @@ public class ApiDefinitionService {
         if (sameCase == null) {
             apiTestCase.setId(UUID.randomUUID().toString());
             apiTestCase.setStatus("");
-            apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum()));
+            apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum(), apiDefinition.getProjectId()));
             apiTestCase.setCreateTime(System.currentTimeMillis());
             apiTestCase.setUpdateTime(System.currentTimeMillis());
             apiTestCase.setCreateUserId(SessionUtils.getUserId());

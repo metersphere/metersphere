@@ -271,7 +271,7 @@ public class ApiScenarioImportUtil {
         apiTestCase.setUpdateTime(System.currentTimeMillis());
         apiTestCase.setVersionId(apiDefinition.getVersionId());
         apiTestCase.setPriority("P0");
-        apiTestCase.setNum(testCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum() + i));
+        apiTestCase.setNum(testCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum() + i, projectId));
         object.put("id", apiTestCase.getId());
         object.put("resourceId", apiTestCase.getId());
         object.put("projectId", projectId);
