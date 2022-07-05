@@ -46,6 +46,12 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         } else {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
+            JSONObject jsonObject = JSONObject.parseObject(sourceStr);
+            if (jsonObject.get("swagger") == null || jsonObject.get("swagger") == "null" || jsonObject.get("swagger") == " ") {
+                if (jsonObject.get("openapi") == null || jsonObject.get("openapi") == "null" || jsonObject.get("openapi") == " ") {
+                    MSException.throwException("wrong format");
+                }
+            }
             swagger = new SwaggerParser().readWithInfo(sourceStr, false).getSwagger();
         }
         if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
@@ -114,15 +120,6 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        /*ApiModule selectModule = null;
-        String selectModulePath = null;
-        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
-            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
-            if (selectModule != null) {
-                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
-            }
-        }*/
-
         String basePath = swagger.getBasePath();
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
@@ -141,9 +138,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 }
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
-/*
-                buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
-*/
+
                 buildModulePath(apiDefinition, operation.getTags());
                 if (operation.isDeprecated() != null && operation.isDeprecated()) {
                     apiDefinition.setTags("[\"Deleted\"]");
@@ -163,6 +158,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     }
 
     private String getModulePath(List<String> tagTree, StringBuilder modulePath) {
+        if (tagTree == null) {
+            return "";
+        }
         for (String s : tagTree) {
             if (s.contains("/")) {
                 String[] split = s.split("/");

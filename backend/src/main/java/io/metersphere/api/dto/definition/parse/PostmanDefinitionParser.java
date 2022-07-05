@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.parse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -14,6 +15,7 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.ProjectConfig;
@@ -25,24 +27,25 @@ import java.util.*;
 
 public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefinitionImport> {
 
-    /*private ApiModule selectModule;
-
-    private String selectModulePath;*/
-
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         this.projectId = request.getProjectId();
+        JSONObject jsonObject = JSON.parseObject(testStr);
+        Object info = jsonObject.get("info");
+        if (info == null) {
+            MSException.throwException("wrong format");
+        } else {
+            JSONObject jsonObject1 = JSON.parseObject(info.toString());
+            if (jsonObject1.get("_postman_id") == null) {
+                MSException.throwException("wrong format");
+            }
+        }
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class, Feature.DisableSpecialKeyDetect);
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
-        /*this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
-        if (this.selectModule != null) {
-            this.selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
-        }
 
-        ApiModule apiModule = ApiDefinitionImportUtil.buildModule(this.selectModule, postmanCollection.getInfo().getName(), this.projectId);*/
         String modulePath = null;
         if (StringUtils.isNotBlank(postmanCollection.getInfo().getName())) {
             modulePath = "/" + postmanCollection.getInfo().getName();
@@ -68,8 +71,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
-                /*ApiModule module = null;
-                module = ApiDefinitionImportUtil.buildModule(parentModule, item.getName(), this.projectId);*/
+
                 if (StringUtils.isNotBlank(modulePath) && StringUtils.isNotBlank(item.getName())) {
                     modulePath = modulePath + "/" + item.getName();
                 }
@@ -82,14 +84,7 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                 request.setPath(msHTTPSamplerProxy.getPath());
                 request.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
                 request.setResponse(JSON.toJSONString(response));
-                /*if (parentModule != null) {
-                    request.setModuleId(parentModule.getId());
-                    if (StringUtils.isNotBlank(this.selectModulePath)) {
-                        request.setModulePath(this.selectModulePath + "/" + path);
-                    } else {
-                        request.setModulePath("/" + path);
-                    }
-                }*/
+
                 if (StringUtils.isNotBlank(modulePath)) {
                     request.setModulePath(modulePath);
                 }

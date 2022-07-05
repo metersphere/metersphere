@@ -89,13 +89,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put("status", list);
         request.setFilters(filters);
-//        apiModules.forEach(node -> {
-//            List<String> moduleIds = new ArrayList<>();
-//            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
-//            moduleIds.add(node.getId());
-//            request.setModuleIds(moduleIds);
-//            node.setCaseNum(extApiDefinitionMapper.moduleCount(request));
-//        });
 
         //优化： 所有统计SQL一次查询出来
         List<String> allModuleIdList = new ArrayList<>();
@@ -786,6 +779,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     apiDefinitionWithBLOBs.setVersionId(v.getVersionId());
                     apiDefinitionWithBLOBs.setModuleId(v.getModuleId());
                     apiDefinitionWithBLOBs.setModulePath(v.getModulePath());
+                    apiDefinitionWithBLOBs.setNum(v.getNum());
+                    apiDefinitionWithBLOBs.setStatus(v.getStatus());
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });
@@ -801,6 +796,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 if (apiDefinitionWithBLOBs != null) {
                     apiDefinitionWithBLOBs.setId(v.getId());
                     apiDefinitionWithBLOBs.setVersionId(v.getVersionId());
+                    apiDefinitionWithBLOBs.setNum(v.getNum());
+                    apiDefinitionWithBLOBs.setStatus(v.getStatus());
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });
@@ -964,6 +961,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     api.setOrder(definitionWithBLOBs.getOrder());
                     api.setRefId(apiDefinitionWithBLOBs.getRefId());
                     api.setLatest(apiDefinitionWithBLOBs.getLatest());
+                    api.setNum(definitionWithBLOBs.getNum());
+                    api.setStatus(definitionWithBLOBs.getStatus());
                     coverApiList.add(api);
                 }
                 optionData.remove(apiDefinitionWithBLOBs);
@@ -981,6 +980,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     ApiDefinitionWithBLOBs api = new ApiDefinitionWithBLOBs();
                     BeanUtils.copyBean(api, apiDefinitionWithBLOBs);
                     api.setId(definitionWithBLOBs.getId());
+                    api.setNum(definitionWithBLOBs.getNum());
+                    api.setStatus(definitionWithBLOBs.getStatus());
                     api.setVersionId(definitionWithBLOBs.getVersionId());
                     api.setModuleId(definitionWithBLOBs.getModuleId());
                     api.setModulePath(definitionWithBLOBs.getModulePath());

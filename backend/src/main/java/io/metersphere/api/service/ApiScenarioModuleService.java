@@ -621,6 +621,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 apiScenarioWithBLOBs.setVersionId(v.getVersionId());
                 apiScenarioWithBLOBs.setApiScenarioModuleId(v.getApiScenarioModuleId());
                 apiScenarioWithBLOBs.setModulePath(v.getModulePath());
+                apiScenarioWithBLOBs.setNum(v.getNum());
+                apiScenarioWithBLOBs.setStatus(v.getStatus());
                 toUpdateList.add(apiScenarioWithBLOBs);
             }
         });
@@ -640,6 +642,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 if (apiScenarioWithBLOBs != null) {
                     apiScenarioWithBLOBs.setId(v.getId());
                     apiScenarioWithBLOBs.setVersionId(v.getVersionId());
+                    apiScenarioWithBLOBs.setNum(v.getNum());
+                    apiScenarioWithBLOBs.setStatus(v.getStatus());
                     toUpdateList.add(apiScenarioWithBLOBs);
                 }
             });
