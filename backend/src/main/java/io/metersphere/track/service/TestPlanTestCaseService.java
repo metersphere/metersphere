@@ -155,6 +155,7 @@ public class TestPlanTestCaseService {
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
         testPlanTestCase.setRemark(null);
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
+        testCaseService.updateLastExecuteStatus(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
     }
 
     public int deleteTestCase(String id) {
@@ -187,6 +188,11 @@ public class TestPlanTestCaseService {
         testPlanTestCaseMapper.updateByExampleSelective(
                 testPlanTestCase,
                 testPlanTestCaseExample);
+
+        if (StringUtils.isNotBlank(request.getStatus())) {
+            List<String> caseIds = extTestPlanTestCaseMapper.getCaseIdsByIds(request.getIds());
+            testCaseService.updateLastExecuteStatus(caseIds, request.getStatus());
+        }
     }
 
     public TestPlanTestCaseExample getBatchExample(TestPlanCaseBatchRequest request) {
@@ -341,6 +347,8 @@ public class TestPlanTestCaseService {
                     item.setStatus(status);
                     testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
 
+                    testCaseService.updateLastExecuteStatus(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
+
                     SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
                     saveCommentRequest.setCaseId(testPlanTestCase.getCaseId());
                     saveCommentRequest.setId(UUID.randomUUID().toString());
@@ -377,6 +385,7 @@ public class TestPlanTestCaseService {
         testPlanTestCases.forEach(item -> {
             item.setUpdateTime(System.currentTimeMillis());
             testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
+            testCaseService.updateLastExecuteStatus(item.getCaseId(), item.getStatus());
         });
     }
 

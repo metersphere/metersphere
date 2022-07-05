@@ -183,18 +183,18 @@
                   <status-table-item :value="scope.row.status"/>
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :disabled="!hasEditPermission" :command="{id: scope.row.id, status: 'Pass'}">
+                  <el-dropdown-item :disabled="!hasEditPermission" :command="{id: scope.row.id, caseId: scope.row.caseId, status: 'Pass'}">
                     {{ $t('test_track.plan_view.pass') }}
                   </el-dropdown-item>
                   <el-dropdown-item :disabled="!hasEditPermission"
-                                    :command="{id: scope.row.id, status: 'Failure'}">
+                                    :command="{id: scope.row.id, caseId: scope.row.caseId, status: 'Failure'}">
                     {{ $t('test_track.plan_view.failure') }}
                   </el-dropdown-item>
                   <el-dropdown-item :disabled="!hasEditPermission"
-                                    :command="{id: scope.row.id, status: 'Blocking'}">
+                                    :command="{id: scope.row.id, caseId: scope.row.caseId, status: 'Blocking'}">
                     {{ $t('test_track.plan_view.blocking') }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!hasEditPermission" :command="{id: scope.row.id, status: 'Skip'}">
+                  <el-dropdown-item :disabled="!hasEditPermission" :command="{id: scope.row.id, caseId: scope.row.caseId, status: 'Skip'}">
                     {{ $t('test_track.plan_view.skip') }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -357,8 +357,7 @@ export default {
         {text: this.$t('test_track.plan_view.pass'), value: 'Pass'},
         {text: this.$t('test_track.plan_view.failure'), value: 'Failure'},
         {text: this.$t('test_track.plan_view.blocking'), value: 'Blocking'},
-        {text: this.$t('test_track.plan_view.skip'), value: 'Skip'},
-        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: this.$t('test_track.plan_view.skip'), value: 'Skip'}
       ],
       executorFilters: [],
       maintainerFilters: [],

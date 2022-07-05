@@ -22,7 +22,7 @@
         </if>
     </sql>
 
-<sql id="condition">
+    <sql id="condition">
         <choose>
             <when test='${object}.operator == "like"'>
                 like CONCAT('%', #{${object}.value},'%')
@@ -66,4 +66,15 @@
         </choose>
     </sql>
 
+    <sql id="filterInWrapper">
+        <foreach collection="values" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </sql>
+
+    <sql id="idsInWrapper">
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </sql>
 </mapper>

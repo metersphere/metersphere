@@ -2193,6 +2193,76 @@ public class TestCaseExample {
             addCriterion("latest not between", value1, value2, "latest");
             return (Criteria) this;
         }
+
+        public Criteria andLastExecuteResultIsNull() {
+            addCriterion("last_execute_result is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultIsNotNull() {
+            addCriterion("last_execute_result is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultEqualTo(String value) {
+            addCriterion("last_execute_result =", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultNotEqualTo(String value) {
+            addCriterion("last_execute_result <>", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultGreaterThan(String value) {
+            addCriterion("last_execute_result >", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultGreaterThanOrEqualTo(String value) {
+            addCriterion("last_execute_result >=", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultLessThan(String value) {
+            addCriterion("last_execute_result <", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultLessThanOrEqualTo(String value) {
+            addCriterion("last_execute_result <=", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultLike(String value) {
+            addCriterion("last_execute_result like", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultNotLike(String value) {
+            addCriterion("last_execute_result not like", value, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultIn(List<String> values) {
+            addCriterion("last_execute_result in", values, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultNotIn(List<String> values) {
+            addCriterion("last_execute_result not in", values, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultBetween(String value1, String value2) {
+            addCriterion("last_execute_result between", value1, value2, "lastExecuteResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastExecuteResultNotBetween(String value1, String value2) {
+            addCriterion("last_execute_result not between", value1, value2, "lastExecuteResult");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class TestReviewTestCaseService {
     @Resource
-    private TestCaseTestMapper testCaseTestMapper;
-    @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
@@ -57,6 +55,8 @@ public class TestReviewTestCaseService {
     TestCaseReviewService testCaseReviewService;
     @Resource
     TestCaseMapper testCaseMapper;
+    @Resource
+    TestCaseService testCaseService;
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
 
@@ -159,11 +159,7 @@ public class TestReviewTestCaseService {
         testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(testCaseReviewTestCase);
 
         // 修改用例评审状态
-        String caseId = testCaseReviewTestCase.getCaseId();
-        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-        testCase.setId(caseId);
-        testCase.setReviewStatus(testCaseReviewTestCase.getStatus());
-        testCaseMapper.updateByPrimaryKeySelective(testCase);
+        testCaseService.updateReviewStatus(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getStatus());
     }
 
     public TestReviewCaseDTO get(String reviewId) {
@@ -223,11 +219,8 @@ public class TestReviewTestCaseService {
 
         // 更新状态{TestCase, TestCaseReviewTestCase}
         if (StringUtils.isNotBlank(request.getStatus())) {
-            TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andIdIn(ids);
-            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-            testCase.setReviewStatus(request.getStatus());
-            testCaseMapper.updateByExampleSelective(testCase, example);
+            testCaseService.updateReviewStatus(ids, request.getStatus());
+
             TestCaseReviewTestCaseExample caseReviewTestCaseExample = new TestCaseReviewTestCaseExample();
             caseReviewTestCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdIn(ids);
             TestCaseReviewTestCase testCaseReviewTestCase = new TestCaseReviewTestCase();
@@ -250,17 +243,11 @@ public class TestReviewTestCaseService {
     public void editTestCaseForMinder(String reviewId, List<TestCaseReviewTestCase> testCaseReviewTestCases) {
         checkReviewCase(reviewId);
         if (!CollectionUtils.isEmpty(testCaseReviewTestCases)) {
-            List<TestCaseWithBLOBs> testCaseList = new ArrayList<>();
             testCaseReviewTestCases.forEach((item) -> {
-                TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-                testCase.setId(item.getCaseId());
-                testCase.setReviewStatus(item.getStatus());
-                testCaseList.add(testCase);
-                testCase.setUpdateTime(System.currentTimeMillis());
                 item.setUpdateTime(System.currentTimeMillis());
                 testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(item);
+                testCaseService.updateReviewStatus(item.getCaseId(), item.getStatus());
             });
-            testCaseList.forEach(testCaseMapper::updateByPrimaryKeySelective);
         }
     }
 

@@ -310,6 +310,7 @@ export default {
     saveCase(next, noTip) {
       let param = {};
       param.id = this.testCase.id;
+      param.caseId = this.testCase.caseId;
       param.status = this.testCase.status;
       param.results = [];
       param.remark = this.testCase.remark;

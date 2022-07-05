@@ -145,8 +145,6 @@ public interface ExtTestCaseMapper {
 
     String getLastExecStatusById(String id);
 
-    List<TestCaseDTO> getLastExecStatusByIdList(@Param("ids") List<String> idList);
-
     int countByWorkSpaceId(String workSpaceId);
 
     long trashCount(@Param("projectId") String projectId);

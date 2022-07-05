@@ -125,6 +125,7 @@
 
           <ms-table-column :field="item"
                            prop="execResult"
+                           :filters="execResultFilters"
                            :fields-width="fieldsWidth"
                            :label="$t('test_track.plan.execute_result')" min-width="150" align="center">
             <template v-slot:default="scope">
@@ -372,6 +373,16 @@ export default {
     },
     editTestPlanApiCaseOrder() {
       return editTestPlanApiCaseOrder;
+    },
+    execResultFilters() {
+      let execResultFilters = [];
+      for (let key of RESULT_MAP.keys()) {
+        execResultFilters.push({
+          text: RESULT_MAP.get(key),
+          value: key
+        });
+      }
+      return execResultFilters;
     }
   },
   methods: {

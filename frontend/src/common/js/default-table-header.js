@@ -213,7 +213,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createName', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
-    {id: 'lastExecResult', key: '0', label: 'test_track.plan_view.execute_result'},
+    {id: 'lastExecuteResult', key: '0', label: 'test_track.plan_view.execute_result'},
   ],
   // 公共用例库
   TRACK_PUBLIC_TEST_CASE: [
@@ -227,7 +227,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'createName', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
-    {id: 'lastExecResult', key: '0', label: 'test_track.plan_view.execute_result'},
+    {id: 'lastExecuteResult', key: '0', label: 'test_track.plan_view.execute_result'},
   ],
   // 测试报告
   TRACK_REPORT_TABLE: [

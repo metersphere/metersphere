@@ -74,6 +74,10 @@
         </template>
       </ms-table-column>
 
+      <test-plan-case-status-table-item prop="lastExecuteResult"/>
+
+      <test-case-review-status-table-item/>
+
       <ms-table-column prop="tags" :label="$t('commons.tag')" width="90px">
         <template v-slot:default="scope">
           <ms-tag v-for="(itemName, index)  in scope.row.tags" :key="index" type="success" effect="plain"
@@ -109,6 +113,10 @@ import MsTag from "@/business/components/common/components/MsTag";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import {getVersionFilters} from "@/network/project";
+import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
+import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
+import TestCaseReviewStatusTableItem from "@/business/components/track/common/tableItems/TestCaseReviewStatusTableItem";
+import TestPlanCaseStatusTableItem from "@/business/components/track/common/tableItems/TestPlanCaseStatusTableItem";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -116,6 +124,10 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "FunctionalRelevance",
   components: {
+    TestPlanCaseStatusTableItem,
+    TestCaseReviewStatusTableItem,
+    ReviewStatus,
+    StatusTableItem,
     MsUpdateTimeColumn,
     MsCreateTimeColumn,
     MsTag,

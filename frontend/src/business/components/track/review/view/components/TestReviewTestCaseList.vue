@@ -108,19 +108,9 @@
           :label="$t('test_track.review.reviewer')"
           min-width="120px"/>
 
-        <ms-table-column
-          prop="reviewStatus"
+        <test-case-review-status-table-item
           :field="item"
-          :fields-width="fieldsWidth"
-          :filters="statusFilters"
-          min-width="120px"
-          :label="$t('test_track.review_view.execute_result')">
-            <template v-slot:default="scope">
-              <span class="el-dropdown-link">
-                <review-status :value="scope.row.reviewStatus"/>
-              </span>
-            </template>
-          </ms-table-column>
+          :fields-width="fieldsWidth"/>
 
         <ms-table-column
           sortable
@@ -200,10 +190,12 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/network/testCase";
 import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import TestCaseReviewStatusTableItem from "@/business/components/track/common/tableItems/TestCaseReviewStatusTableItem";
 
 export default {
   name: "TestReviewTestCaseList",
   components: {
+    TestCaseReviewStatusTableItem,
     HeaderLabelOperate,
     HeaderCustom,
     MsTableOperatorButton, MsTableOperator, MethodTableItem, TypeTableItem,
@@ -251,11 +243,6 @@ export default {
         {text: this.$t('commons.functional'), value: 'functional'},
         {text: this.$t('commons.performance'), value: 'performance'},
         {text: this.$t('commons.api'), value: 'api'}
-      ],
-      statusFilters: [
-        {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.review.pass'), value: 'Pass'},
-        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
       ],
       showMore: false,
       buttons: [

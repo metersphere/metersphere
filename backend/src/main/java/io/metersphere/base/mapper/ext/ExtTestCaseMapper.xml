@@ -188,6 +188,7 @@
     <select id="getTestCaseByNotInPlan" resultType="io.metersphere.track.dto.TestCaseDTO">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
         test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time,
+        test_case.last_execute_result,
         test_case.update_time,
         project_version.name versionName, test_case.version_id versionId
         from test_case
@@ -236,6 +237,7 @@
         test_case.delete_user_id ,test_case.delete_time,
         project_version.name as versionName,
         project_version.id as versionId,
+        test_case.last_execute_result,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
@@ -260,6 +262,7 @@
        select
         project_version.name as versionName,
         project_version.id as versionId,
+        test_case.last_execute_result,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
@@ -543,47 +546,37 @@
                     <choose>
                         <when test="key=='priority'">
                             and test_case.priority in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='type'">
                             and test_case.type in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='review_status'">
                             and test_case.review_status in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='last_execute_result'">
+                            and test_case.last_execute_result in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='status'">
                             and test_case.status in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='method'">
                             and test_case.method in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='version_id'">
                             and test_case.version_id in
-                            <foreach collection="values" open="(" close=")" separator="," item="value">
-                                #{value}
-                            </foreach>
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key.startsWith('custom')">
                             and test_case.id in (
                                 select resource_id from custom_field_test_case where concat('custom',field_id) = #{key}
                                 and trim(both '"' from value) in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
+                                <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                             )
                         </when>
                     </choose>
@@ -1021,16 +1014,6 @@
         WHERE case_id = #{0}
         ORDER BY update_time DESC limit 1;
     </select>
-
-    <select id="getLastExecStatusByIdList" resultType="io.metersphere.track.dto.TestCaseDTO">
-        SELECT `status`, case_id as id
-        FROM test_plan_test_case
-        WHERE case_id IN
-        <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </select>
-
     <select id="countByWorkSpaceId" resultType="java.lang.Integer">
         select count(distinct ref_id)
         from test_case
