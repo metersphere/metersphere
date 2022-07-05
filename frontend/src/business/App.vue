@@ -45,7 +45,15 @@ import MsAsideMenus from "./components/layout/AsideMenus";
 import MsAsideHeader from "./components/layout/AsideHeader";
 import MsAsideFooter from "./components/layout/AsideFooter";
 import MsView from "./components/common/router/View";
-import {hasLicense, saveLocalStorage, setAsideColor, setColor, setCustomizeColor, setDefaultTheme, setLightColor} from "@/common/js/utils";
+import {
+  hasLicense,
+  saveLocalStorage,
+  setAsideColor,
+  setColor,
+  setCustomizeColor,
+  setDefaultTheme,
+  setLightColor
+} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
 
@@ -96,13 +104,7 @@ export default {
       });
       this.getDisplayInfo();
     }
-    // OIDC redirect 之后不跳转
-    if (window.location.href.endsWith('#/refresh')) {
-      window.location.replace("/#/setting/personsetting");
-      setTimeout(() => {
-        window.location.reload();
-      }, 200);
-    }
+
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("store", JSON.stringify(this.$store.state));
     });
@@ -124,6 +126,11 @@ export default {
         if (display.default !== undefined) {
           display.default.showHome(this);
         }
+
+        if (window.location.href.endsWith('/#/login')) {
+          window.location.replace("/#/setting/personsetting");
+        }
+
         if (localStorage.getItem("store")) {
           this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))));
           this.$get("/project/listAll", response => {
@@ -158,7 +165,7 @@ export default {
           this.sideTheme = response.data[7].paramValue;
         }
         this.setAsideTheme(theme);
-      })
+      });
     },
     setAsideTheme(theme) {
       switch (this.sideTheme) {
