@@ -362,8 +362,22 @@ export default {
     open(module) {
       this.currentModule = module;
       this.visible = true;
+      this.formData.moduleId = this.rememberModuleId();
       listenGoBack(this.close);
 
+    },
+    rememberModuleId() {
+      if (localStorage.getItem('tcp') || localStorage.getItem('http') || localStorage.getItem('sql') || localStorage.getItem('dubbo')) {
+        if (this.protocol === 'TCP') {
+          return localStorage.getItem('tcp');
+        } else if (this.protocol === 'HTTP') {
+          return localStorage.getItem('http');
+        } else if (this.protocol === 'SQL') {
+          return localStorage.getItem('sql');
+        } else if (this.protocol === 'DUBBO') {
+          return localStorage.getItem('dubbo');
+        }
+      }
     },
     upload(file) {
       this.formData.file = file.file;
@@ -391,7 +405,19 @@ export default {
       }
       return true;
     },
+    saveModule() {
+      if (this.protocol === 'TCP') {
+        localStorage.setItem('tcp', this.formData.moduleId);
+      } else if (this.protocol === 'HTTP') {
+        localStorage.setItem('http', this.formData.moduleId);
+      } else if (this.protocol === 'SQL') {
+        localStorage.setItem('sql', this.formData.moduleId);
+      } else if (this.protocol === 'DUBBO') {
+        localStorage.setItem('dubbo', this.formData.moduleId);
+      }
+    },
     save() {
+      this.saveModule();
       this.$refs.form.validate(valid => {
         if (valid) {
           if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEnable)) && !this.formData.file) {
@@ -440,6 +466,9 @@ export default {
       if (this.currentModule) {
         param.modeId = this.formData.modeId
       }
+      if (this.formData.moduleId.length === 0) {
+        param.moduleId = ''
+      }
       param.projectId = this.projectId;
       param.protocol = this.protocol;
       if (!this.swaggerUrlEnable) {
@@ -459,6 +488,7 @@ export default {
       return param;
     },
     close() {
+      this.saveModule();
       this.formData = {
         file: undefined,
         swaggerUrl: '',
