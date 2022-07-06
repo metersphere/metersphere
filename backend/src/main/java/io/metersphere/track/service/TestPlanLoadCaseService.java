@@ -3,7 +3,7 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.exec.utils.NamedThreadFactory;
+import io.metersphere.api.exec.perf.PerfExecService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
@@ -13,11 +13,10 @@ import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.constants.TestPlanStatus;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
-import io.metersphere.constants.RunModeConstants;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.LoadTestDTO;
@@ -30,8 +29,6 @@ import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.RunBatchTestPlanRequest;
-import io.metersphere.track.service.utils.ParallelExecTask;
-import io.metersphere.track.service.utils.SerialExecTask;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -44,9 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,6 +67,8 @@ public class TestPlanLoadCaseService {
     private TestPlanService testPlanService;
     @Resource
     private ExtLoadTestMapper extLoadTestMapper;
+    @Resource
+    private PerfExecService perfExecService;
 
     public Pager<List<LoadTestDTO>> relevanceList(LoadCaseRequest request, int goPage, int pageSize) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
@@ -83,7 +79,7 @@ public class TestPlanLoadCaseService {
         }
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
-            return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList <>());
+            return PageUtils.setPageInfo(PageHelper.startPage(goPage, pageSize, true), new ArrayList<>());
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         QueryTestPlanRequest newRequest = new QueryTestPlanRequest();
@@ -172,38 +168,9 @@ public class TestPlanLoadCaseService {
     }
 
     public void runBatch(RunBatchTestPlanRequest request) {
-        try {
-            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                serialRun(request);
-            } else {
-                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(), new NamedThreadFactory("TestPlanLoadCaseService"));
-                request.getRequests().forEach(item -> {
-                    executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
-                });
-            }
-        } catch (Exception e) {
-            if (StringUtils.isNotEmpty(e.getMessage())) {
-                MSException.throwException("测试正在运行, 请等待！");
-            } else {
-                MSException.throwException("请求参数错误，请刷新后执行！");
-            }
-        }
-    }
-
-    private void serialRun(RunBatchTestPlanRequest request) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size(), new NamedThreadFactory("TestPlanLoadCaseService-serial"));
-        for (RunTestPlanRequest runTestPlanRequest : request.getRequests()) {
-            Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest));
-            LoadTestReportWithBLOBs report = future.get();
-            // 如果开启失败结束执行，则判断返回结果状态
-            if (request.getConfig().isOnSampleError()) {
-                TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
-                example.createCriteria().andLoadReportIdEqualTo(report.getId());
-                List<TestPlanLoadCase> cases = testPlanLoadCaseMapper.selectByExample(example);
-                if (CollectionUtils.isEmpty(cases) || !cases.get(0).getStatus().equals(TestPlanLoadCaseStatus.success.name())) {
-                    break;
-                }
-            }
+        if (request != null && CollectionUtils.isNotEmpty(request.getRequests())) {
+            Map<String, String> reqMap = request.getRequests().stream().collect(Collectors.toMap(RunTestPlanRequest::getTestPlanLoadId, a -> a.getId(), (k1, k2) -> k1));
+            perfExecService.run(null, request.getConfig(), ReportTriggerMode.BATCH.name(), reqMap);
         }
     }
 
@@ -429,12 +396,9 @@ public class TestPlanLoadCaseService {
     }
 
     public List<TestPlanLoadCaseDTO> buildCases(List<TestPlanLoadCaseDTO> cases) {
-//        Map<String, Project> projectMap = ServiceUtils.getProjectMap(
-//                failureCases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
         Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
                 cases.stream().map(TestPlanLoadCaseDTO::getCreateUser).collect(Collectors.toList()));
         cases.forEach(item -> {
-//            item.setProjectName(projectMap.get(item.getProjectId()).getName());
             item.setUserName(userNameMap.get(item.getCreateUser()));
         });
         return cases;

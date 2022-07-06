@@ -201,4 +201,8 @@
         WHERE report_id = #{reportId}
         ORDER BY sort
     </select>
+
+    <select id="selectReportIdByTestId" resultType="string">
+        SELECT id FROM load_test_report WHERE test_id = #{testId} AND `status` !='Completed'
+    </select>
 </mapper>

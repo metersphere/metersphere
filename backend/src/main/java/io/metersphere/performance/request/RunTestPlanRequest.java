@@ -20,4 +20,8 @@ public class RunTestPlanRequest extends TestPlanRequest {
      * 资源池ID
      */
     private String ownTestPoolId;
+    /**
+     * 测试计划中生成的报告ID
+     */
+    private String reportId;
 }

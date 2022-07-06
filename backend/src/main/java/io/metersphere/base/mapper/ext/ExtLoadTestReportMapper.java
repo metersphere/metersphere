@@ -27,7 +27,10 @@ public interface ExtLoadTestReportMapper {
 
     List<PlanReportCaseDTO> selectForPlanReport(@Param("ids") List<String> reportIds);
 
-    int updateReportVumStatus(String reportId,String reportKey ,String nextStatus, String preStatus);
+    int updateReportVumStatus(String reportId, String reportKey, String nextStatus, String preStatus);
 
     List<FileMetadata> getFileMetadataById(@Param("reportId") String reportId);
+
+    List<String> selectReportIdByTestId(@Param("testId") String testId);
+
 }

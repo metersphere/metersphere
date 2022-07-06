@@ -1,7 +1,7 @@
 package io.metersphere.performance.notice;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.service.ApiExecutionQueueService;
+import io.metersphere.api.exec.perf.PerfQueueService;
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.LogUtil;
@@ -13,12 +13,12 @@ import javax.annotation.Resource;
 @Component
 public class PerformanceQueueEvent implements LoadTestFinishEvent {
     @Resource
-    ApiExecutionQueueService apiExecutionQueueService;
+    private PerfQueueService perfQueueService;
 
     public void sendNotice(LoadTestReport loadTestReport) {
         //删除性能测试在执行队列中的数据 （在测试计划执行中会将性能测试执行添加到执行队列，用于判断整个测试计划到执行进度）
         try {
-            apiExecutionQueueService.checkExecutionQueueByLoadTest(loadTestReport);
+            perfQueueService.queueNext(loadTestReport);
         } catch (Exception e) {
             LogUtil.error("PerformanceQueueEvent error. id:" + loadTestReport.getId());
         }

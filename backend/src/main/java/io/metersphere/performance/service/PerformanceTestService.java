@@ -445,7 +445,7 @@ public class PerformanceTestService {
 
 
         LoadTestReportWithBLOBs testReport = new LoadTestReportWithBLOBs();
-        testReport.setId(UUID.randomUUID().toString());
+        testReport.setId(StringUtils.isNotEmpty(request.getReportId()) ? request.getReportId() : UUID.randomUUID().toString());
         testReport.setCreateTime(System.currentTimeMillis());
         testReport.setUpdateTime(System.currentTimeMillis());
         testReport.setTestId(loadTest.getId());
