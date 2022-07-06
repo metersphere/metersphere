@@ -16,13 +16,14 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
+
 import java.util.List;
 
 public class SwaggerUrlImportJob extends MsScheduleJob {
     private ApiDefinitionService apiDefinitionService;
 
     public SwaggerUrlImportJob() {
-         apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+        apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
     }
 
     @Override
@@ -37,6 +38,8 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         request.setProjectId(swaggerUrlProject.getProjectId());
         request.setSwaggerUrl(swaggerUrlProject.getSwaggerUrl());
         request.setModuleId(swaggerUrlProject.getModuleId());
+        request.setModeId(swaggerUrlProject.getModeId());
+        request.setCoverModule(swaggerUrlProject.getCoverModule());
         request.setPlatform("Swagger2");
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("schedule");
@@ -53,20 +56,20 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         return new TriggerKey(resourceId, ScheduleGroup.SWAGGER_IMPORT.name());
     }
 
-    public void setAuthInfo(String config, ApiTestImportRequest request){
+    public void setAuthInfo(String config, ApiTestImportRequest request) {
         // 获取鉴权设置
-        if(StringUtils.isNotBlank(config)){
+        if (StringUtils.isNotBlank(config)) {
             JSONObject configObj = JSON.parseObject(config, Feature.DisableSpecialKeyDetect);
             List<KeyValue> headers = JSONObject.parseArray(configObj.getString("headers"), KeyValue.class);
-            if(CollectionUtils.isNotEmpty(headers)){
+            if (CollectionUtils.isNotEmpty(headers)) {
                 request.setHeaders(headers);
             }
             List<KeyValue> arguments = JSONObject.parseArray(configObj.getString("arguments"), KeyValue.class);
-            if(CollectionUtils.isNotEmpty(arguments)){
+            if (CollectionUtils.isNotEmpty(arguments)) {
                 request.setArguments(arguments);
             }
             MsAuthManager msAuthManager = JSONObject.parseObject(configObj.getString("authManager"), MsAuthManager.class);
-            if(msAuthManager != null){
+            if (msAuthManager != null) {
                 request.setAuthManager(msAuthManager);
             }
         }
