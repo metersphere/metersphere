@@ -21,13 +21,16 @@
                            :defaultKey="formData.moduleId"
                            @getValue="setModule"
                            :obj="moduleObj" clearable checkStrictly ref="selectTree"/>
-              <!--              <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"-->
-              <!--                              @getValue="setModule" clearable checkStrictly size="small"/>-->
+
             </el-form-item>
             <el-form-item :label-width="labelWith" :label="$t('commons.import_mode')" prop="modeId">
               <el-select size="small" v-model="formData.modeId" clearable>
                 <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
               </el-select>
+              <el-checkbox size="mini" v-if="formData.modeId === 'fullCoverage'" v-model="formData.coverModule"
+                           style="padding-left: 10px">
+                {{ this.$t('commons.cover_api') }}
+              </el-checkbox>
             </el-form-item>
           </el-col>
 
@@ -130,7 +133,7 @@ import MsApiVariable from "../ApiVariable";
 import MsApiAuthConfig from "../auth/ApiAuthConfig";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import {KeyValue} from "../../model/ApiTestModel";
-import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiSchedule",
@@ -204,7 +207,8 @@ export default {
         swaggerUrl: '',
         modeId: this.$t('commons.not_cover'),
         moduleId: '',
-        rule: ''
+        rule: '',
+        coverModule: false
       },
       modeOptions: [
         {
@@ -328,7 +332,7 @@ export default {
         this.clear();
       });
     },
-    searchTaskList(){
+    searchTaskList() {
       this.$refs.taskList.search();
     },
     intervalValidate() {
