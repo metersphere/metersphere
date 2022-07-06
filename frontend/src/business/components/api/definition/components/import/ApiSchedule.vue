@@ -205,7 +205,7 @@ export default {
       },
       formData: {
         swaggerUrl: '',
-        modeId: this.$t('commons.not_cover'),
+        modeId: 'incrementalMerge',
         moduleId: '',
         rule: '',
         coverModule: false

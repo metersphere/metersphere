@@ -732,7 +732,9 @@ export default {
           }
         });
       }
-      this.$refs.caseTable.clearSelection();
+      if (this.$refs.caseTable) {
+        this.$refs.caseTable.clearSelection();
+      }
     },
     setRunning(id) {
       this.tableData.forEach(item => {

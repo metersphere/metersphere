@@ -774,7 +774,9 @@ export default {
             }
           });
           this.$emit('getTrashCase');
-          this.$refs.scenarioTable.clearSelection();
+          if (this.$refs.scenarioTable) {
+            this.$refs.scenarioTable.clearSelection();
+          }
         });
       }
     },
