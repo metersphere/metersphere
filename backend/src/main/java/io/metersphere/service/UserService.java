@@ -1411,11 +1411,7 @@ public class UserService {
     }
 
     public boolean checkWhetherChangePasswordOrNot(LoginRequest request) {
-        // 首次登录需要提示
-        if (extOperatingLogMapper.isNewInstallation()) {
-            return true;
-        }
-
+        // 只验证admin
         // 升级之后 admin 还使用弱密码也提示修改
         if (StringUtils.equals("admin", request.getUsername())) {
             UserExample example = new UserExample();

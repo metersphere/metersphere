@@ -110,9 +110,6 @@
         order by tt.oper_time desc
     </select>
 
-    <select id="isNewInstallation" resultType="boolean">
-       SELECT count(1) = 0 from operating_log limit 1
-    </select>
     <select id="findSourceIdByLogIds" resultType="io.metersphere.log.vo.OperatingLogDTO">
         select * from operating_log_resource where operating_log_id in
         <foreach collection="ids" item="id" index="index"
