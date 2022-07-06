@@ -15,8 +15,6 @@ import java.util.Set;
 public interface ExtTestPlanMapper {
     List<TestPlanDTOWithMetric> list(@Param("request") QueryTestPlanRequest params);
 
-    List<TestPlanDTOWithMetric> listRelate(@Param("request") QueryTestPlanRequest params);
-
     List<TestPlanDTO> planList(@Param("request") QueryTestPlanRequest params);
 
     List<TestPlanDTO> selectByIds(@Param("list") List<String> ids);

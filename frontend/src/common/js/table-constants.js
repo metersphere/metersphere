@@ -3,20 +3,20 @@ import i18n from "@/i18n/i18n";
 import {AZURE_DEVOPS, JIRA, LOCAL, TAPD, ZEN_TAO} from "@/common/js/constants";
 
 export const CUSTOM_FIELD_TYPE_OPTION = [
-  {value: 'input',text: 'workspace.custom_filed.input'},
-  {value: 'textarea',text: 'workspace.custom_filed.textarea'},
-  {value: 'select',text: 'workspace.custom_filed.select'},
-  {value: 'multipleSelect',text: 'workspace.custom_filed.multipleSelect'},
-  {value: 'radio',text: 'workspace.custom_filed.radio'},
-  {value: 'checkbox',text: 'workspace.custom_filed.checkbox'},
-  {value: 'member',text: 'workspace.custom_filed.member'},
-  {value: 'multipleMember',text: 'workspace.custom_filed.multipleMember'},
-  {value: 'date',text: 'workspace.custom_filed.date'},
-  {value: 'datetime',text: 'workspace.custom_filed.datetime'},
-  {value: 'richText',text: 'workspace.custom_filed.richText'},
-  {value: 'int',text: 'workspace.custom_filed.int'},
-  {value: 'float',text: 'workspace.custom_filed.float'},
-  {value: 'multipleInput',text: 'workspace.custom_filed.multipleInput'}
+  {value: 'input', text: 'workspace.custom_filed.input'},
+  {value: 'textarea', text: 'workspace.custom_filed.textarea'},
+  {value: 'select', text: 'workspace.custom_filed.select', hasOption: true},
+  {value: 'multipleSelect', text: 'workspace.custom_filed.multipleSelect', hasOption: true},
+  {value: 'radio', text: 'workspace.custom_filed.radio', hasOption: true},
+  {value: 'checkbox', text: 'workspace.custom_filed.checkbox', hasOption: true},
+  {value: 'member', text: 'workspace.custom_filed.member', hasOption: true},
+  {value: 'multipleMember', text: 'workspace.custom_filed.multipleMember', hasOption: true},
+  {value: 'date', text: 'workspace.custom_filed.date'},
+  {value: 'datetime', text: 'workspace.custom_filed.datetime'},
+  {value: 'richText', text: 'workspace.custom_filed.richText'},
+  {value: 'int', text: 'workspace.custom_filed.int'},
+  {value: 'float', text: 'workspace.custom_filed.float'},
+  {value: 'multipleInput', text: 'workspace.custom_filed.multipleInput'}
 ];
 
 export function CUSTOM_FIELD_TYPE_FILTERS(_this) {
@@ -53,11 +53,11 @@ export const UI_ELEMENT_LOCATION_TYPE_OPTION = [
 ];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
-  {value: 'TEST_CASE',text: 'workspace.case_template_manage'},
-  {value: 'ISSUE',text: 'workspace.issue_template_manage'},
+  {value: 'TEST_CASE', text: 'workspace.case_template_manage'},
+  {value: 'ISSUE', text: 'workspace.issue_template_manage'},
 ];
 
-export function CASE_TYPE_OPTION(){
+export function CASE_TYPE_OPTION() {
   return [
     {value: 'functional', text: i18n.t('api_test.home_page.failed_case_list.table_value.case_type.functional')},
   ];
@@ -115,7 +115,7 @@ export const ISSUE_STATUS_MAP = {
   'resolved': i18n.t('test_track.issue.status_resolved'),
   'active': i18n.t('test_track.issue.status_active'),
   'delete': i18n.t('test_track.issue.status_delete'),
-  'created':i18n.t('test_track.issue.status_new')
+  'created': i18n.t('test_track.issue.status_new')
 }
 
 export const TAPD_ISSUE_STATUS_MAP = {
@@ -124,11 +124,11 @@ export const TAPD_ISSUE_STATUS_MAP = {
   'reopened': i18n.t('test_track.issue.tapd_status_reopened'),
   'rejected': i18n.t('test_track.issue.tapd_status_rejected'),
   'verified': i18n.t('test_track.issue.tapd_status_verified'),
-  'closed':i18n.t('test_track.issue.tapd_status_closed'),
-  'resolved':i18n.t('test_track.issue.tapd_status_resolved')
+  'closed': i18n.t('test_track.issue.tapd_status_closed'),
+  'resolved': i18n.t('test_track.issue.tapd_status_resolved')
 }
 
-export function API_SCENARIO_FILTERS () {
+export function API_SCENARIO_FILTERS() {
   return {
     STATUS_FILTERS: [
       {text: i18n.t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
@@ -168,7 +168,6 @@ export function API_SCENARIO_FILTERS () {
     {text: i18n.t('test_track.plan.plan_status_trash'), value: 'Trash'},
   ],*/
 }
-
 
 
 export const USER_GROUP_SCOPE = {

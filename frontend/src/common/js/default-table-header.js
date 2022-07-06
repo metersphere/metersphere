@@ -1,5 +1,3 @@
-import i18n from "@/i18n/i18n";
-
 export const TEST_CASE_LIST = 'test_case_list';
 
 export const CUSTOM_FIELD_LIST = new Set([

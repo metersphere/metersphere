@@ -180,67 +180,7 @@
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
             </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='stage'">
-                                and test_plan.stage in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                                and test_plan.status != 'Archived'
-                            </when>
-                            <when test="key=='status'">
-                                <choose>
-                                    <when test="request.executorOrPrincipal != null">
-                                        AND (( test_plan_principal.principal_id =
-                                        '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
-                                        test_plan.status in
-                                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                                            #{value}
-                                        </foreach>
-                                        )
-                                        or
-                                        (test_plan_test_case.executor =
-                                        '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
-                                        test_plan_test_case.status in
-                                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                                            #{value}
-                                        </foreach>
-                                        ))
-                                        AND test_plan.status != 'Archived'
-                                    </when>
-                                    <otherwise>
-                                        and test_plan.status in
-                                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                                            #{value}
-                                        </foreach>
-                                    </otherwise>
-                                </choose>
-                            </when>
-                            <when test="key=='schedule_status'">
-                                and
-                                <foreach collection="values" item="value" separator="or" open="(" close=")">
-                                    <if test="value == 'OPEN'">
-                                        schedule.`enable` = 1
-                                    </if>
-                                    <if test="value == 'SHUT'">
-                                        schedule.`enable` = 0
-                                    </if>
-                                    <if test="value == 'NOTSET' ">
-                                        schedule.id is null
-                                    </if>
-                                </foreach>
-                                and test_plan.status != 'Archived'
-                            </when>
-                        </choose>
-                    </if>
-                    <if test="(values == null or values.size() == 0) and request.filters.get('status') == null">
-                        and test_plan.status != 'Archived'
-                    </if>
-                </foreach>
-            </if>
+           <include refid="filter"/>
             <if test="(request.filters == null or request.filters.size() == 0) and request.byFilter != true ">
                 and test_plan.status != 'Archived'
             </if>
@@ -258,9 +198,71 @@
                 test_plan.${order.name} ${order.type}
             </foreach>
         </if>
-
-
     </select>
+
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            <choose>
+                                <when test="request.executorOrPrincipal != null">
+                                    AND (( test_plan_principal.principal_id =
+                                    '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                    test_plan.status in
+                                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                    )
+                                    or
+                                    (test_plan_test_case.executor =
+                                    '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                    test_plan_test_case.status in
+                                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                    ))
+                                    AND test_plan.status != 'Archived'
+                                </when>
+                                <otherwise>
+                                    and test_plan.status in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                </otherwise>
+                            </choose>
+                        </when>
+                        <otherwise>
+                            <choose>
+                                <when test="key=='stage'">
+                                    and test_plan.stage in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                </when>
+                                <when test="key=='create_user'">
+                                    and test_plan.creator in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                </when>
+                                <when test="key=='schedule_status'">
+                                    and
+                                    <foreach collection="values" item="value" separator="or" open="(" close=")">
+                                        <if test="value == 'OPEN'">
+                                            schedule.`enable` = 1
+                                        </if>
+                                        <if test="value == 'SHUT'">
+                                            schedule.`enable` = 0
+                                        </if>
+                                        <if test="value == 'NOTSET' ">
+                                            schedule.id is null
+                                        </if>
+                                    </foreach>
+                                </when>
+                            </choose>
+                            and test_plan.status != 'Archived'
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="(values == null or values.size() == 0) and request.filters.get('status') == null">
+                    and test_plan.status != 'Archived'
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
     <select id="planList" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
@@ -272,25 +274,6 @@
                 AND t.project_id = #{request.projectId}
             </if>
         </where>
-    </select>
-
-    <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
-        select distinct test_plan.* from test_plan
-        <where>
-            test_plan.workspace_id = #{request.workspaceId}
-            <if test="request.projectId != null">
-                and test_plan.project_id = #{request.projectId}
-            </if>
-            and (test_plan.principal = #{request.principal}
-            <if test="request.planIds != null and request.planIds.size() > 0">
-                or test_plan.id in
-                <foreach collection="request.planIds" item="planId" open="(" close=")" separator=",">
-                    #{planId}
-                </foreach>
-            </if>
-            )
-        </where>
-        order by test_plan.update_time desc
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap" parameterType="java.util.List">
