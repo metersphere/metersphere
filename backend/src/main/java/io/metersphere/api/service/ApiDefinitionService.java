@@ -1262,17 +1262,10 @@ public class ApiDefinitionService {
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
         //通过platform，获取对应的导入解析类型。
-        String originalFilename = file.getOriginalFilename();
-        String suffixName = originalFilename.substring(originalFilename.indexOf("."));
-        if (suffixName.equalsIgnoreCase("jmx")) {
-            if (!request.getPlatform().equalsIgnoreCase("JMeter")) {
-                MSException.throwException("文件格式不符合要求");
-            }
-        }
-        if (suffixName.equalsIgnoreCase("har")) {
-            if (!request.getPlatform().equalsIgnoreCase("Har")) {
-                MSException.throwException("文件格式不符合要求");
-            }
+        if (file != null) {
+            String originalFilename = file.getOriginalFilename();
+            String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
+            checkFileSuffixName(request, suffixName);
         }
         ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
@@ -1352,6 +1345,24 @@ public class ApiDefinitionService {
             MSException.throwException(Translator.get("user_import_format_wrong"));
         }
         return apiImport;
+    }
+
+    private void checkFileSuffixName(ApiTestImportRequest request, String suffixName) {
+        if (suffixName.equalsIgnoreCase("jmx")) {
+            if (!request.getPlatform().equalsIgnoreCase("JMeter")) {
+                MSException.throwException("文件格式不符合要求");
+            }
+        }
+        if (suffixName.equalsIgnoreCase("har")) {
+            if (!request.getPlatform().equalsIgnoreCase("Har")) {
+                MSException.throwException("文件格式不符合要求");
+            }
+        }
+        if (suffixName.equalsIgnoreCase("json")) {
+            if (request.getPlatform().equalsIgnoreCase("Har") || request.getPlatform().equalsIgnoreCase("Jmeter")) {
+                MSException.throwException("文件格式不符合要求");
+            }
+        }
     }
 
     private void importApi(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
