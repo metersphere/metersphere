@@ -41,7 +41,7 @@
 
             <el-tab-pane :label="$t('commons.api')" name="api">
               <el-row :gutter="20">
-                <el-col :span="8">
+                <el-col :span="8" class="commons-api-enable">
                   <el-row style="margin-top: 10px">
                     <span style="font-weight:bold">{{ $t('commons.enable_settings') }}</span>
                   </el-row>
@@ -80,7 +80,7 @@
                                  :title="$t('report.report_sharing_link')"/>
                   </el-row>
                 </el-col>
-                <el-col :span="8" :offset="4">
+                <el-col :span="8" class="commons-view-setting">
                   <el-row style="margin-top: 10px">
                     <span style="font-weight:bold">{{ $t('commons.view_settings') }}</span>
                   </el-row>
@@ -276,5 +276,14 @@ export default {
 </script>
 
 <style scoped>
-
+@media only screen and (max-width: 1425px) {
+  .commons-api-enable {
+    width: 100%;
+  }
+}
+@media only screen and (min-width: 1426px) {
+  .commons-view-setting {
+    margin-left: 200px;
+  }
+}
 </style>
