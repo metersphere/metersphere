@@ -521,7 +521,7 @@ export default {
         if (tab.name === targetName) {
           this.diff(tab);
           if (tab && this.isSave) {
-            message += tab.currentScenario.name ? tab.currentScenario.name : this.$t('api_test.automation.add_scenario') + "，";
+            message += tab.currentScenario.name ? tab.currentScenario.name : this.$t('api_test.automation.add_scenario');
           }
         }
       })
@@ -707,7 +707,13 @@ export default {
     gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({
         name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
+        params: {
+          redirectID: getUUID(),
+          dataType: "scenario",
+          dataSelectRange: 'edit:' + resource.id,
+          projectId: resource.projectId,
+          workspaceId: workspaceId
+        }
       });
       if (isTurnSpace) {
         window.open(automationData.href, '_blank');

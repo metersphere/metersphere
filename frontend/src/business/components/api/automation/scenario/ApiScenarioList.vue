@@ -308,7 +308,15 @@
 </template>
 
 <script>
-import {downloadFile, getCurrentProjectID, getUUID, hasLicense, hasPermission, objToStrMap, strMapToObj} from "@/common/js/utils";
+import {
+  downloadFile,
+  getCurrentProjectID,
+  getUUID,
+  hasLicense,
+  hasPermission,
+  objToStrMap,
+  strMapToObj
+} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
@@ -753,6 +761,7 @@ export default {
             }
           });
           this.$emit('getTrashCase');
+          this.$refs.scenarioTable.clearSelection();
         });
       }
     },
