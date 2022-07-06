@@ -26,7 +26,7 @@ public class IndexWebSocket {
         if (async != null) {
             async.sendText("CONN_SUCCEEDED");
         }
-        LoggerUtil.info("客户端: [" + reportId + "] : 连接成功！" + WebSocketUtils.ONLINE_USER_SESSIONS.size());
+        LoggerUtil.info("客户端: [" + reportId + "] : 连接成功！" + WebSocketUtils.ONLINE_USER_SESSIONS.size(), reportId);
     }
 
     /**

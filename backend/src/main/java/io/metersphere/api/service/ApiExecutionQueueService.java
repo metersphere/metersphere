@@ -74,7 +74,7 @@ public class ApiExecutionQueueService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
-        LoggerUtil.info("开始生成执行链");
+        LoggerUtil.info("开始生成执行链", reportId);
 
         ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, reportId, reportType, runMode, config);
         queueMapper.insert(executionQueue);
@@ -139,7 +139,7 @@ public class ApiExecutionQueueService {
         }
         resQueue.setDetailMap(detailMap);
 
-        LoggerUtil.info("生成执行链结束");
+        LoggerUtil.info("生成执行链结束", reportId);
         return resQueue;
     }
 
@@ -169,7 +169,7 @@ public class ApiExecutionQueueService {
     }
 
     private boolean failure(DBTestQueue executionQueue, ResultDTO dto) {
-        LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
+        LoggerUtil.info("进入失败停止处理：" + executionQueue.getId(), dto.getReportId());
         boolean isError = false;
         if (StringUtils.contains(dto.getRunMode(), ApiRunMode.SCENARIO.name())) {
             if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
@@ -244,15 +244,15 @@ public class ApiExecutionQueueService {
                 if (CollectionUtils.isNotEmpty(queues)) {
                     queue.setQueue(queues.get(0));
                 } else {
-                    LoggerUtil.info("execution complete,clear queue：【" + id + "】");
+                    LoggerUtil.info("execution complete,clear queue：【" + id + "】", queue.getReportId());
                     queueMapper.deleteByPrimaryKey(id);
                 }
             } else {
-                LoggerUtil.info("execution complete,clear queue：【" + id + "】");
+                LoggerUtil.info("execution complete,clear queue：【" + id + "】", queue.getReportId());
                 queueMapper.deleteByPrimaryKey(id);
             }
         } else {
-            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】");
+            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】", queue.getReportId());
         }
         return queue;
     }
@@ -283,7 +283,7 @@ public class ApiExecutionQueueService {
     }
 
     public void queueNext(ResultDTO dto) {
-        LoggerUtil.info("开始处理队列：" + dto.getReportId() + "QID：" + dto.getQueueId());
+        LoggerUtil.info("开始处理队列：" + dto.getQueueId(), dto.getReportId());
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString())) {
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
@@ -314,7 +314,7 @@ public class ApiExecutionQueueService {
                     return;
                 }
             }
-            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId() + "报告ID：" + dto.getReportId());
+            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId(), dto.getReportId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
                     LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getQueue()));
@@ -338,14 +338,14 @@ public class ApiExecutionQueueService {
                     apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
                 }
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
-                LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
+                LoggerUtil.info("Queue execution ends：" + dto.getQueueId(), dto.getReportId());
             }
 
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
             executionQueueDetailMapper.deleteByExample(example);
         }
-        LoggerUtil.info("处理队列结束：" + dto.getReportId() + "QID：" + dto.getQueueId());
+        LoggerUtil.info("处理队列结束：" + dto.getQueueId(), dto.getReportId());
     }
 
     public void defendQueue() {
@@ -398,7 +398,7 @@ public class ApiExecutionQueueService {
                         // 删除串行资源锁
                         redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
 
-                        LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
+                        LoggerUtil.info("超时处理报告处理，进入下一个执行", report.getId());
                         dto.setTestPlanReportId(queue.getReportId());
                         dto.setReportId(queue.getReportId());
                         dto.setRunMode(queue.getRunMode());

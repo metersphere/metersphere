@@ -3,6 +3,7 @@ package io.metersphere.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -67,7 +68,7 @@ public class WebConfig implements WebMvcConfigurer {
             if (exception instanceof ConnectTimeoutException ||
                     exception instanceof NoHttpResponseException ||
                     exception instanceof ConnectException) {
-                LogUtil.error("重试次数: " + curRetryCount);
+                LoggerUtil.info("重试次数: " + curRetryCount);
                 return true;
             }
             return false;
