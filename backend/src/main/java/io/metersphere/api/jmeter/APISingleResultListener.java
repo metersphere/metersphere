@@ -34,6 +34,7 @@ public class APISingleResultListener implements MsExecListener {
 
     @Override
     public void handleTeardownTest(List<SampleResult> results, ResultDTO dto, Map<String, Object> kafkaConfig) {
+        LoggerUtil.info("接收到执行结果：" + results.size(), dto.getReportId());
         LoggerUtil.info("接收到执行结果开始处理报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
         queues.addAll(results);
     }
@@ -69,8 +70,9 @@ public class APISingleResultListener implements MsExecListener {
                 LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
                 apiExecutionQueueService.testPlanReportTestEnded(dto.getTestPlanReportId());
             }
+            LoggerUtil.info("TEST-END处理结果集完成", dto.getReportId());
         } catch (Exception e) {
-            LoggerUtil.error(e);
+            LoggerUtil.error("结果集处理异常", dto.getReportId(), e);
         } finally {
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
