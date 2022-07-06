@@ -208,10 +208,10 @@ import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import {
-  hasLicense,
   getCurrentProjectID,
   getCurrentWorkspaceId,
   getUUID,
+  hasLicense,
   hasPermission,
   setCurTabId
 } from "@/common/js/utils";
@@ -266,7 +266,7 @@ export default {
       currentTrashVersion: null,
       versionEnable: false,
       isAsideHidden: true,
-      ignoreTreeNodes:false,
+      ignoreTreeNodes: false,
     };
   },
   created() {
@@ -528,13 +528,13 @@ export default {
       let t = this.tabs.filter(tab => tab.name === targetName);
       let message = "";
       if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 0) {
-        message += t[0].testCaseInfo.name + "，";
+        message += t[0].testCaseInfo.name;
       }
       if (t[0].label === this.$t('test_track.case.create')) {
-        message += this.$t('test_track.case.create') + "，";
+        message += this.$t('test_track.case.create');
       }
       if (t[0].testCaseInfo.isCopy) {
-        message += t[0].testCaseInfo.name + "，";
+        message += t[0].testCaseInfo.name;
       }
       if (message !== "") {
         this.$alert(this.$t('commons.track') + " [ " + message + " ] " + this.$t('commons.confirm_info'), '', {

@@ -774,6 +774,7 @@ export default {
             }
           });
           this.$emit('getTrashCase');
+          this.$refs.scenarioTable.clearSelection();
         });
       }
     },
