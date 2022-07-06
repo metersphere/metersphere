@@ -989,20 +989,28 @@ public class ApiDefinitionService {
         if (exApiRequest == null || apiRequest == null) {
             return false;
         }
-        if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
-            return true;
+        if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
+            if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
+                return true;
+            }
         }
 
-        if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
-            return true;
+        if (exApiRequest.get("arguments") != null && apiRequest.get("arguments") != null) {
+            if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
+                return true;
+            }
         }
 
-        if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
-            return true;
+        if (exApiRequest.get("rest") != null && apiRequest.get("rest") != null) {
+            if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
+                return true;
+            }
         }
 
-        if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-            return true;
+        if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
+            if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
+                return true;
+            }
         }
 
         return false;
