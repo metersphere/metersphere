@@ -693,7 +693,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     tagTree = getTagTree(chooseModulePath + modulePath);
 
                     ApiScenarioModule chooseModuleOne = JSON.parseObject(JSON.toJSONString(chooseModule), ApiScenarioModule.class);
-                    ApiScenarioModule minModule = getMinModule(tagTree, parentModuleList, chooseModuleOne, pidChildrenMap, map, idPathMap, idModuleMap);
+                    ApiScenarioModule minModule = getChooseMinModule(tagTree, chooseModuleOne, pidChildrenMap, map, idPathMap);
                     String id = minModule.getId();
                     datum.setApiScenarioModuleId(id);
                     datum.setModulePath(idPathMap.get(id));
@@ -794,6 +794,25 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         return returnModule;
     }
 
+
+    private ApiScenarioModule getChooseMinModule(String[] tagTree, ApiScenarioModule parentModule, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, ApiScenarioModule> moduleMap
+            , Map<String, String> idPathMap) {
+        //如果parentModule==null 则证明需要创建根目录同级的模块
+        ApiScenarioModule returnModule = null;
+        for (int i = 0; i < tagTree.length; i++) {
+            int finalI = i;
+            //在选择的模块下建模块，查看选择的模块下有没有同名的模块
+            List<ApiScenarioModule> moduleList = pidChildrenMap.get(parentModule.getId());
+            List<ApiScenarioModule> collect1 = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            if (collect1.isEmpty()) {
+                return createModule(tagTree, i, parentModule, moduleMap, pidChildrenMap, idPathMap);
+            } else {
+                returnModule = collect1.get(0);
+                parentModule = collect1.get(0);
+            }
+        }
+        return returnModule;
+    }
 
     private ApiScenarioModule createModule(String[] tagTree, int i, ApiScenarioModule parentModule, Map<String, ApiScenarioModule> map, Map<String, List<ApiScenarioModule>> pidChildrenMap, Map<String, String> idPathMap) {
 
