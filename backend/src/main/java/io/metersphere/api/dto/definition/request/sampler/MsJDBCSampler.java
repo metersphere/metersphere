@@ -95,7 +95,7 @@ public class MsJDBCSampler extends MsTestElement {
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
-                LoggerUtil.debug("引用对象已经被删除：" + this.getId());
+                LoggerUtil.error("引用对象已经被删除：" + this.getId());
                 return;
             }
             hashTree = this.getHashTree();

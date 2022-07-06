@@ -144,7 +144,7 @@ public class ApiScenarioExecuteService {
             return responseDTOS;
         }
         if (GenerateHashTreeUtil.isSetReport(request.getConfig())) {
-            LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：" + serialReportId);
+            LoggerUtil.info("Scenario run-执行脚本装载-初始化集成报告：", serialReportId);
             request.getConfig().setReportId(UUID.randomUUID().toString());
             String reportScenarioIds = generateScenarioIds(scenarioIds);
 
@@ -273,7 +273,7 @@ public class ApiScenarioExecuteService {
             }
 
             APIScenarioReportResult report = apiScenarioReportService.init(reportId, testPlanScenarioId, scenario.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig());
+                    request.getExecuteType(), projectId, request.getReportUserID(), request.getConfig());
             if (report == null) {
                 return;
             }
@@ -363,7 +363,7 @@ public class ApiScenarioExecuteService {
             hashTree = request.getTestElement().generateHashTree(config);
             LogUtil.info(request.getTestElement().getJmx(hashTree));
         } catch (Exception e) {
-            LoggerUtil.error(e);
+            LoggerUtil.error("调试失败", request.getReportId(), e);
             MSException.throwException(e.getMessage());
         }
         if (request.isSaved()) {

@@ -110,7 +110,7 @@ public class RemakeReportService {
             } else if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.UI_SCENARIO_PLAN.name(),
                     request.getRunMode(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name())) {
                 remarkUiScenarioPlan(request);
-            }else {
+            } else {
                 ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setStatus(APITestStatus.Error.name());
@@ -178,10 +178,10 @@ public class RemakeReportService {
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());
             }
-            LoggerUtil.info("进入异常结果处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
+            LoggerUtil.info("进入异常结果处理：" + dto.getRunMode() + " 整体处理完成", dto.getReportId());
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
-            String consoleMsg = FixedCapacityUtils.getJmeterLogger(dto.getReportId(),true);
+            String consoleMsg = FixedCapacityUtils.getJmeterLogger(dto.getReportId(), true);
             dto.setConsole(consoleMsg + "\n" + errorMsg);
             // 整体执行结束更新资源状态
             CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
@@ -191,11 +191,11 @@ public class RemakeReportService {
             }
             // 更新测试计划报告
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
+                LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId(), dto.getReportId());
                 CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(dto.getTestPlanReportId());
             }
         } catch (Exception e) {
-            LoggerUtil.error(e);
+            LoggerUtil.error("回归报告异常", request.getReportId(), e);
         }
     }
 }
