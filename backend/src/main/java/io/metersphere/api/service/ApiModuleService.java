@@ -781,6 +781,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     apiDefinitionWithBLOBs.setModulePath(v.getModulePath());
                     apiDefinitionWithBLOBs.setNum(v.getNum());
                     apiDefinitionWithBLOBs.setStatus(v.getStatus());
+                    apiDefinitionWithBLOBs.setOrder(v.getOrder());
+                    apiDefinitionWithBLOBs.setRefId(v.getRefId());
+                    apiDefinitionWithBLOBs.setLatest(v.getLatest());
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });
@@ -798,6 +801,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     apiDefinitionWithBLOBs.setVersionId(v.getVersionId());
                     apiDefinitionWithBLOBs.setNum(v.getNum());
                     apiDefinitionWithBLOBs.setStatus(v.getStatus());
+                    apiDefinitionWithBLOBs.setOrder(v.getOrder());
+                    apiDefinitionWithBLOBs.setRefId(v.getRefId());
+                    apiDefinitionWithBLOBs.setLatest(v.getLatest());
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });

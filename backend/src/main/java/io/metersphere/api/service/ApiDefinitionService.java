@@ -893,9 +893,11 @@ public class ApiDefinitionService {
                     apiDefinition.setUserId(existApi.getUserId());
                 }
                 //Check whether the content has changed, if not, do not change the creation time
-                Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
-                if (!toChangeTime) {
-                    apiDefinition.setUpdateTime(existApi.getUpdateTime());
+                if (apiDefinition.getProtocol().equals("HTTP")) {
+                    Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
+                    if (!toChangeTime) {
+                        apiDefinition.setUpdateTime(existApi.getUpdateTime());
+                    }
                 }
                 // case 设置版本
                 cases.forEach(c -> {
