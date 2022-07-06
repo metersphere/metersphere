@@ -35,7 +35,6 @@ public class APISingleResultListener implements MsExecListener {
     @Override
     public void handleTeardownTest(List<SampleResult> results, ResultDTO dto, Map<String, Object> kafkaConfig) {
         LoggerUtil.info("接收到执行结果：" + results.size(), dto.getReportId());
-        LoggerUtil.info("接收到执行结果开始处理报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
         queues.addAll(results);
     }
 

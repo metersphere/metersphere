@@ -1,5 +1,5 @@
 <template>
-  <el-menu menu-trigger="click" :default-active="$route.path" router class="setting">
+  <el-menu menu-trigger="click" :default-active="$route.path" :default-openeds="opends" router class="setting">
     <el-submenu index="1" v-permission="systemPermission">
       <template v-slot:title>
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
@@ -48,6 +48,7 @@ export default {
       return menus;
     };
     return {
+      opends: ['0','1','2'],
       systems: getMenus('system'),
       workspaces: getMenus('workspace'),
       project: getMenus('project'),
