@@ -32,6 +32,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,14 +73,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put("status", list);
         request.setFilters(filters);
-        //优化：所有SQL统一查出来
-//        nodes.forEach(node -> {
-//            List<String> scenarioNodes = new ArrayList<>();
-//            scenarioNodes = this.nodeList(nodes, node.getId(), scenarioNodes);
-//            scenarioNodes.add(node.getId());
-//            request.setModuleIds(scenarioNodes);
-//            node.setCaseNum(extApiScenarioMapper.listModule(request));
-//        });
         List<String> allModuleIdList = new ArrayList<>();
         for (ApiScenarioModuleDTO node : nodes) {
             List<String> moduleIds = new ArrayList<>();
@@ -629,8 +622,18 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     private Map<String, ApiScenarioModule> judgeModuleMap(Map<String, ApiScenarioModule> moduleMap, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
+        AtomicBoolean remove = new AtomicBoolean(true);
+
         if (repeatDataMap.size() >= nameModuleMap.size()) {
-            moduleMap = new HashMap<>();
+            repeatDataMap.forEach((k, v) -> {
+                ApiScenarioWithBLOBs scenario = nameModuleMap.get(k);
+                if (scenario == null) {
+                    remove.set(false);
+                }
+            });
+            if (remove.get()) {
+                moduleMap = new HashMap<>();
+            }
         }
         return moduleMap;
     }
