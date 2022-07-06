@@ -3,45 +3,45 @@
     <ms-container v-if="renderComponent">
       <ms-aside-container>
         <ms-api-module
-            :show-operator="true"
-            @nodeSelectEvent="nodeChange"
-            @protocolChange="handleProtocolChange"
-            @refreshTable="refresh"
-            @exportAPI="exportAPI"
-            @debug="debug"
-            @saveAsEdit="editApi"
-            @setModuleOptions="setModuleOptions"
-            @setNodeTree="setNodeTree"
-            @enableTrash="enableTrash"
-            @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
-            :type="'edit'"
-            page-source="definition"
-            :total='total'
-            :current-version="currentVersion"
-            ref="nodeTree"/>
+          :show-operator="true"
+          @nodeSelectEvent="nodeChange"
+          @protocolChange="handleProtocolChange"
+          @refreshTable="refresh"
+          @exportAPI="exportAPI"
+          @debug="debug"
+          @saveAsEdit="editApi"
+          @setModuleOptions="setModuleOptions"
+          @setNodeTree="setNodeTree"
+          @enableTrash="enableTrash"
+          @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
+          :type="'edit'"
+          page-source="definition"
+          :total='total'
+          :current-version="currentVersion"
+          ref="nodeTree"/>
       </ms-aside-container>
 
       <ms-main-container>
         <ms-environment-select
-            :project-id="projectId"
-            :is-read-only="false"
-            :useEnvironment='useEnvironment'
-            @setEnvironment="setEnvironment"
-            class="ms-api-button"
-            ref="environmentSelect"/>
+          :project-id="projectId"
+          :is-read-only="false"
+          :useEnvironment='useEnvironment'
+          @setEnvironment="setEnvironment"
+          class="ms-api-button"
+          ref="environmentSelect"/>
         <!-- 主框架列表 -->
         <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab">
           <el-tab-pane
-              name="trash"
-              :label="$t('commons.trash')" v-if="trashEnable">
+            name="trash"
+            :label="$t('commons.trash')" v-if="trashEnable">
             <ms-tab-button
-                v-if="this.trashTabInfo.type === 'list'"
-                :active-dom.sync="trashActiveDom"
-                :left-tip="$t('api_test.definition.api_title')"
-                :right-tip="$t('api_test.definition.case_title')"
-                :middle-button-enable="false"
-                left-content="API"
-                right-content="CASE"
+              v-if="this.trashTabInfo.type === 'list'"
+              :active-dom.sync="trashActiveDom"
+              :left-tip="$t('api_test.definition.api_title')"
+              :right-tip="$t('api_test.definition.case_title')"
+              :middle-button-enable="false"
+              left-content="API"
+              right-content="CASE"
             >
               <template v-slot:version>
                 <version-select v-xpack :project-id="projectId" :version-id="trashVersion"
@@ -49,43 +49,43 @@
               </template>
               <!-- 列表集合 -->
               <ms-api-list
-                  v-if="trashActiveDom==='left'"
-                  @runTest="runTest"
-                  @refreshTree="refreshTree"
-                  @getTrashApi="getTrashApi"
-                  :module-tree="nodeTree"
-                  :module-options="moduleOptions"
-                  :current-protocol="currentProtocol"
-                  :current-version="currentVersion"
-                  :visible="visible"
-                  :currentRow="currentRow"
-                  :select-node-ids="selectNodeIds"
-                  :trash-enable="true"
-                  :selectDataRange="selectDataRange"
-                  :is-read-only="isReadOnly"
-                  @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                  @editApi="editApi"
-                  @handleCase="handleCase"
-                  @showExecResult="showExecResult"
-                  @refreshTable="refresh"
-                  :init-api-table-opretion="initApiTableOpretion"
-                  @updateInitApiTableOpretion="updateInitApiTableOpretion"
-                  ref="trashApiList"/>
+                v-if="trashActiveDom==='left'"
+                @runTest="runTest"
+                @refreshTree="refreshTree"
+                @getTrashApi="getTrashApi"
+                :module-tree="nodeTree"
+                :module-options="moduleOptions"
+                :current-protocol="currentProtocol"
+                :current-version="currentVersion"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="true"
+                :selectDataRange="selectDataRange"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @editApi="editApi"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
+                @refreshTable="refresh"
+                :init-api-table-opretion="initApiTableOpretion"
+                @updateInitApiTableOpretion="updateInitApiTableOpretion"
+                ref="trashApiList"/>
               <!--测试用例列表-->
               <api-case-simple-list
-                  v-if="trashActiveDom==='right'"
-                  :current-protocol="currentProtocol"
-                  :current-version="currentVersion"
-                  :visible="visible"
-                  :currentRow="currentRow"
-                  :select-node-ids="selectNodeIds"
-                  :trash-enable="true"
-                  :is-read-only="isReadOnly"
-                  @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                  @handleCase="handleCase"
-                  @refreshTable="refresh"
-                  @showExecResult="showExecResult"
-                  ref="trashCaseList"/>
+                v-if="trashActiveDom==='right'"
+                :current-protocol="currentProtocol"
+                :current-version="currentVersion"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="true"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @handleCase="handleCase"
+                @refreshTable="refresh"
+                @showExecResult="showExecResult"
+                ref="trashCaseList"/>
             </ms-tab-button>
           </el-tab-pane>
 
@@ -95,117 +95,117 @@
                        :closable="item.closable"
                        :name="item.name">
             <ms-tab-button
-                v-if="item.type === 'list'"
-                :active-dom.sync="activeDom"
-                :left-tip="$t('api_test.definition.api_title')"
-                :right-tip="$t('api_test.definition.doc_title')"
-                :middle-tip="$t('api_test.definition.case_title')"
-                left-content="API"
-                middle-content="CASE"
-                :right-content="$t('api_test.definition.doc_title')"
-                :right-button-enable="currentProtocol === 'HTTP' "
+              v-if="item.type === 'list'"
+              :active-dom.sync="activeDom"
+              :left-tip="$t('api_test.definition.api_title')"
+              :right-tip="$t('api_test.definition.doc_title')"
+              :middle-tip="$t('api_test.definition.case_title')"
+              left-content="API"
+              middle-content="CASE"
+              :right-content="$t('api_test.definition.doc_title')"
+              :right-button-enable="currentProtocol === 'HTTP' "
             >
               <template v-slot:version>
                 <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion"/>
               </template>
               <!-- 列表集合 -->
               <ms-api-list
-                  v-if="activeDom==='left'"
-                  @getTrashApi="getTrashApi"
-                  :module-tree="nodeTree"
-                  :module-options="moduleOptions"
-                  :current-protocol="currentProtocol"
-                  :current-version="currentVersion"
-                  :visible="visible"
-                  :currentRow="currentRow"
-                  :select-node-ids="selectNodeIds"
-                  :trash-enable="false"
-                  :selectDataRange="selectDataRange"
-                  :is-read-only="isReadOnly"
-                  @runTest="runTest"
-                  @handleTestCase="handleTestCase"
-                  @refreshTree="refreshTree"
-                  @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                  @editApi="editApi"
-                  @copyApi="copyApi"
-                  @handleCase="handleCase"
-                  @showExecResult="showExecResult"
-                  @refreshTable="refresh"
-                  :init-api-table-opretion="initApiTableOpretion"
-                  @updateInitApiTableOpretion="updateInitApiTableOpretion"
-                  ref="apiDefList"/>
+                v-if="activeDom==='left'"
+                @getTrashApi="getTrashApi"
+                :module-tree="nodeTree"
+                :module-options="moduleOptions"
+                :current-protocol="currentProtocol"
+                :current-version="currentVersion"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="false"
+                :selectDataRange="selectDataRange"
+                :is-read-only="isReadOnly"
+                @runTest="runTest"
+                @handleTestCase="handleTestCase"
+                @refreshTree="refreshTree"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @editApi="editApi"
+                @copyApi="copyApi"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
+                @refreshTable="refresh"
+                :init-api-table-opretion="initApiTableOpretion"
+                @updateInitApiTableOpretion="updateInitApiTableOpretion"
+                ref="apiDefList"/>
               <!--测试用例列表-->
               <api-case-simple-list
-                  v-if="activeDom==='middle'"
-                  :current-protocol="currentProtocol"
-                  :current-version="currentVersion"
-                  :visible="visible"
-                  :currentRow="currentRow"
-                  :select-node-ids="selectNodeIds"
-                  :trash-enable="false"
-                  :is-read-only="isReadOnly"
-                  @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                  @handleCase="handleCase"
-                  @refreshTable="refresh"
-                  @showExecResult="showExecResult"
-                  ref="caseList"/>
+                v-if="activeDom==='middle'"
+                :current-protocol="currentProtocol"
+                :current-version="currentVersion"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="false"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @handleCase="handleCase"
+                @refreshTable="refresh"
+                @showExecResult="showExecResult"
+                ref="caseList"/>
               <api-documents-page
-                  class="api-doc-page"
-                  v-if="activeDom==='right' && currentProtocol==='HTTP'"
-                  :project-id="projectId"
-                  :trash-enable="trashEnable"
-                  :version-id="currentVersion"
-                  :module-ids="selectNodeIds"
-                  ref="documentsPage"/>
+                class="api-doc-page"
+                v-if="activeDom==='right' && currentProtocol==='HTTP'"
+                :project-id="projectId"
+                :trash-enable="trashEnable"
+                :version-id="currentVersion"
+                :module-ids="selectNodeIds"
+                ref="documentsPage"/>
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
             <div v-if="item.type=== 'ADD' ||item.type === 'TEST'" class="ms-api-div">
               <ms-edit-complete-container
-                  :syncTabs="syncTabs"
-                  @runTest="runTest"
-                  @saveApi="saveApi"
-                  @createRootModel="createRootModel"
-                  @editApi="editApi"
-                  @refresh="refresh"
-                  :current-api="item.api"
-                  :project-id="projectId"
-                  :currentProtocol="currentProtocol"
-                  :moduleOptions="moduleOptions"
-                  :activeDom="activeTab"
-                  @changeSelectDataRangeAll="changeSelectDataRangeAll"
-                  @handleCase="handleCase"
-                  @showExecResult="showExecResult"
+                :syncTabs="syncTabs"
+                @runTest="runTest"
+                @saveApi="saveApi"
+                @createRootModel="createRootModel"
+                @editApi="editApi"
+                @refresh="refresh"
+                :current-api="item.api"
+                :project-id="projectId"
+                :currentProtocol="currentProtocol"
+                :moduleOptions="moduleOptions"
+                :activeDom="activeTab"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
 
-                  ref="apiConfig"
+                ref="apiConfig"
               />
             </div>
             <!-- 快捷调试 -->
             <div v-else-if="item.type=== 'debug'" class="ms-api-div">
               <ms-debug-http-page
-                  :currentProtocol="currentProtocol"
-                  :testCase="item.api"
-                  @saveAs="editApi"
-                  @refreshModule="refreshModule"
-                  v-if="currentProtocol==='HTTP'"/>
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='HTTP'"/>
               <ms-debug-jdbc-page
-                  :currentProtocol="currentProtocol"
-                  :testCase="item.api"
-                  @saveAs="editApi"
-                  @refreshModule="refreshModule"
-                  v-if="currentProtocol==='SQL'"/>
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='SQL'"/>
               <ms-debug-tcp-page
-                  :currentProtocol="currentProtocol"
-                  :testCase="item.api"
-                  :scenario="false"
-                  @saveAs="editApi"
-                  @refreshModule="refreshModule"
-                  v-if="currentProtocol==='TCP'"/>
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                :scenario="false"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='TCP'"/>
               <ms-debug-dubbo-page
-                  :currentProtocol="currentProtocol"
-                  :testCase="item.api"
-                  @saveAs="editApi"
-                  @refreshModule="refreshModule"
-                  v-if="currentProtocol==='DUBBO'"/>
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='DUBBO'"/>
             </div>
 
             <!-- 定时任务 -->
@@ -595,7 +595,7 @@ export default {
       let tab = this.apiTabs;
       tab.forEach(t => {
         if (t.type === 'ADD' && t.api && this.$store.state.apiMap.has(t.api.id) && (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
-            this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
+          this.$store.state.apiMap.get(t.api.id).get("fromChange") === true)) {
           message += t.api.name + "，";
         } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
           message += this.$t('api_test.definition.request.title') + "，";
@@ -632,16 +632,16 @@ export default {
           if (t.api && this.$store.state.apiMap.size > 0 && this.$store.state.apiMap.has(t.api.id)) {
             id = t.api.id;
             if (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
-                this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
-              message += t.api.name + "，";
+              this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
+              message += t.api.name;
               id = t.api.id;
             }
           } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
-            message += this.$t('api_test.definition.request.title') + "，";
+            message += this.$t('api_test.definition.request.title');
             id = t.api.id;
           }
           if (t.type === 'ADD' && t.isCopy) {
-            message += t.api.name + "，";
+            message += t.api.name;
             id = t.api.id;
           }
         }
@@ -777,7 +777,7 @@ export default {
         this.activeTab = "api";
         if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
           if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-              && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+            && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
             row.tags = JSON.parse(row.tags);
           }
         }
@@ -795,7 +795,7 @@ export default {
       this.activeTab = "api";
       if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
         if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-            && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
           row.tags = JSON.parse(row.tags);
         }
       }
@@ -866,7 +866,7 @@ export default {
       }
       if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
         if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
-            && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
           row.tags = JSON.parse(row.tags);
         }
       }

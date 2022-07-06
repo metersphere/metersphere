@@ -657,6 +657,7 @@ export default {
             item.caseTotal = parseInt(item.caseTotal);
           });
           this.$emit('getTrashApi');
+          this.$refs.table.clearSelection();
         });
       }
       if (this.needRefreshModule()) {
