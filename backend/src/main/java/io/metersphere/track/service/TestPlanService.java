@@ -12,7 +12,11 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.ParamsDTO;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.service.*;
+import io.metersphere.api.exec.perf.PerfExecService;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -30,7 +34,6 @@ import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
 import io.metersphere.performance.dto.Monitor;
-import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -58,8 +61,6 @@ import org.quartz.CronExpression;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.TriggerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -80,8 +81,6 @@ import java.util.stream.Stream;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService {
-    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
-
     @Resource
     ExtScheduleMapper extScheduleMapper;
     @Resource
@@ -132,8 +131,6 @@ public class TestPlanService {
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
-    private ApiExecutionQueueService apiExecutionQueueService;
-    @Resource
     private PerformanceTestService performanceTestService;
     @Resource
     private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
@@ -157,7 +154,7 @@ public class TestPlanService {
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
-    private ApiDefinitionService apiDefinitionService;
+    private PerfExecService perfExecService;
     @Resource
     private PerformanceReportService performanceReportService;
     @Resource
@@ -184,6 +181,8 @@ public class TestPlanService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1002,7 +1001,7 @@ public class TestPlanService {
         if (reportInfoDTO.getPerformanceIdMap() != null) {
             //执行性能测试任务
             LoggerUtil.info("开始执行测试计划性能用例 " + planReportId);
-            loadCaseReportMap = this.executeLoadCaseTask(planReportId, runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
+            loadCaseReportMap = perfExecService.run(planReportId, runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
         }
         if (apiCaseReportMap != null && scenarioReportMap != null && loadCaseReportMap != null) {
             LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
@@ -1065,54 +1064,6 @@ public class TestPlanService {
             });
         }
         return returnMap;
-    }
-
-    private Map<String, String> executeLoadCaseTask(String planReportId, RunModeConfigDTO runModeConfig, String triggerMode, Map<String, String> performanceIdMap) {
-        Map<String, String> loadCaseReportMap = new HashMap<>();
-        for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
-            String id = entry.getKey();
-            String caseID = entry.getValue();
-            RunTestPlanRequest performanceRequest = new RunTestPlanRequest();
-            performanceRequest.setId(caseID);
-            performanceRequest.setTestPlanLoadId(id);
-            if (StringUtils.isNotBlank(runModeConfig.getResourcePoolId())) {
-                performanceRequest.setTestResourcePoolId(runModeConfig.getResourcePoolId());
-            }
-            if (StringUtils.equals(ReportTriggerMode.API.name(), triggerMode)) {
-                performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_API.name());
-            } else {
-                performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
-            }
-            String reportId = null;
-            try {
-                reportId = performanceTestService.run(performanceRequest);
-                if (reportId != null) {
-                    loadCaseReportMap.put(id, reportId);
-                    //更新关联处的报告
-                    TestPlanLoadCaseWithBLOBs loadCase = new TestPlanLoadCaseDTO();
-                    loadCase.setId(id);
-                    loadCase.setLoadReportId(reportId);
-                    loadCase.setStatus(TestPlanLoadCaseStatus.run.name());
-                    testPlanLoadCaseService.update(loadCase);
-                }
-            } catch (Exception e) {
-                TestPlanLoadCaseWithBLOBs testPlanLoadCase = new TestPlanLoadCaseWithBLOBs();
-                testPlanLoadCase.setId(id);
-                testPlanLoadCase.setLoadReportId(reportId);
-                testPlanLoadCase.setStatus(TestPlanLoadCaseStatus.error.name());
-                testPlanLoadCaseService.update(testPlanLoadCase);
-                LogUtil.error(e);
-            }
-
-        }
-        if (MapUtils.isNotEmpty(loadCaseReportMap)) {
-            //将性能测试加入到队列中
-            apiExecutionQueueService.add(loadCaseReportMap, null, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name(),
-                    planReportId, null, null, new RunModeConfigDTO());
-        }
-
-
-        return loadCaseReportMap;
     }
 
     public String getLogDetails(String id) {

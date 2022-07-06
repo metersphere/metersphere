@@ -370,11 +370,13 @@ export default {
       });
     },
     refreshStatus() {
-      this.refreshScheduler = setInterval(() => {
-        // 如果有状态不是最终状态则定时查询
-        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error' && data.status !== 'Saved');
-        arr.length > 0 ? this.initTable() : clearInterval(this.refreshScheduler);
-      }, 8000);
+      // 暂时保留，试运行后再看是否还需要
+      // this.refreshScheduler = setInterval(() => {
+      //   // 如果有状态不是最终状态则定时查询
+      //   let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error' && data.status !== 'Saved');
+      //   arr.length > 0 ? this.initTable() : clearInterval(this.refreshScheduler);
+      // }, 8000);
+      this.initTable();
     },
     handleDeleteBatch() {
       this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {

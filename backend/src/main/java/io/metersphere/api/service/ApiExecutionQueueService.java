@@ -28,7 +28,6 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -67,86 +66,97 @@ public class ApiExecutionQueueService {
     protected ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
-    @Lazy
-    @Resource
-    private TestPlanReportService testPlanReportService;
-
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
-        LoggerUtil.info("开始生成执行链", reportId);
-
+        LoggerUtil.info("报告【" + reportId + "】开始生成执行链");
+        if (config.getEnvMap() == null) {
+            config.setEnvMap(new LinkedHashMap<>());
+        }
         ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, reportId, reportType, runMode, config);
         queueMapper.insert(executionQueue);
         DBTestQueue resQueue = new DBTestQueue();
         BeanUtils.copyBean(resQueue, executionQueue);
+
         Map<String, String> detailMap = new HashMap<>();
         List<ApiExecutionQueueDetail> queueDetails = new LinkedList<>();
+        // 初始化API/用例队列
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
-            final int[] sort = {0};
             Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
-            if (config.getEnvMap() == null) {
-                config.setEnvMap(new LinkedHashMap<>());
-            }
-            String envStr = JSON.toJSONString(config.getEnvMap());
-            runMap.forEach((k, v) -> {
-                ApiExecutionQueueDetail queue = detail(v.getId(), k, config.getMode(), sort[0], executionQueue.getId(), envStr);
-                if (sort[0] == 0) {
-                    resQueue.setQueue(queue);
-                }
-                sort[0]++;
-                queue.setRetryEnable(config.isRetryEnable());
-                queue.setRetryNumber(config.getRetryNum());
-                queueDetails.add(queue);
-                detailMap.put(k, queue.getId());
-            });
-        } else if (StringUtils.equalsIgnoreCase(type, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name())) {
-            final int[] sort = {0};
-            Map<String, String> runMap = (Map<String, String>) runObj;
-            if (config.getEnvMap() == null) {
-                config.setEnvMap(new LinkedHashMap<>());
-            }
-            String envStr = JSON.toJSONString(config.getEnvMap());
-            runMap.forEach((k, v) -> {
-                ApiExecutionQueueDetail queue = detail(v, k, "loadTest", sort[0], executionQueue.getId(), envStr);
-                if (sort[0] == 0) {
-                    resQueue.setQueue(queue);
-                }
-                sort[0]++;
-                queue.setRetryEnable(config.isRetryEnable());
-                queue.setRetryNumber(config.getRetryNum());
-                queueDetails.add(queue);
-                detailMap.put(k, queue.getId());
-            });
-        } else {
+            initApi(runMap, resQueue, config, detailMap, queueDetails);
+        }
+        // 初始化性能测试执行链
+        else if (StringUtils.equalsIgnoreCase(type, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name())) {
+            Map<String, String> requests = (Map<String, String>) runObj;
+            initPerf(requests, resQueue, config, detailMap, queueDetails);
+        }
+        // 初始化场景/UI执行链
+        else {
             Map<String, RunModeDataDTO> runMap = (Map<String, RunModeDataDTO>) runObj;
-            final int[] sort = {0};
-            runMap.forEach((k, v) -> {
-                String envMap = JSON.toJSONString(v.getPlanEnvMap());
-                if (StringUtils.startsWith(type, "UI_")) {
-                    UiExecutionQueueParam param = new UiExecutionQueueParam();
-                    BeanUtils.copyBean(param, config);
-                    envMap = JSONObject.toJSONString(param);
-                }
-                ApiExecutionQueueDetail queue = detail(k, v.getTestId(), config.getMode(), sort[0], executionQueue.getId(), envMap);
-                queue.setSort(sort[0]);
-                if (sort[0] == 0) {
-                    resQueue.setQueue(queue);
-                }
-                sort[0]++;
-                queue.setRetryEnable(config.isRetryEnable());
-                queue.setRetryNumber(config.getRetryNum());
-                queueDetails.add(queue);
-                detailMap.put(k, queue.getId());
-            });
+            initScenario(runMap, resQueue, config, type, detailMap, queueDetails);
         }
         if (CollectionUtils.isNotEmpty(queueDetails)) {
             extApiExecutionQueueMapper.sqlInsert(queueDetails);
         }
         resQueue.setDetailMap(detailMap);
-
-        LoggerUtil.info("生成执行链结束", reportId);
+        LoggerUtil.info("报告【" + reportId + "】生成执行链结束");
         return resQueue;
+    }
+
+    private void initScenario(Map<String, RunModeDataDTO> runMap, DBTestQueue resQueue,
+                              RunModeConfigDTO config, String type, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
+        final int[] sort = {0};
+        runMap.forEach((k, v) -> {
+            String envMap = JSON.toJSONString(v.getPlanEnvMap());
+            if (StringUtils.startsWith(type, "UI_")) {
+                UiExecutionQueueParam param = new UiExecutionQueueParam();
+                BeanUtils.copyBean(param, config);
+                envMap = JSONObject.toJSONString(param);
+            }
+            ApiExecutionQueueDetail queue = detail(k, v.getTestId(), config.getMode(), sort[0], resQueue.getId(), envMap);
+            queue.setSort(sort[0]);
+            if (sort[0] == 0) {
+                resQueue.setQueue(queue);
+            }
+            sort[0]++;
+            queue.setRetryEnable(config.isRetryEnable());
+            queue.setRetryNumber(config.getRetryNum());
+            queueDetails.add(queue);
+            detailMap.put(k, queue.getId());
+        });
+    }
+
+    private void initApi(Map<String, ApiDefinitionExecResult> runMap,
+                         DBTestQueue resQueue, RunModeConfigDTO config, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
+        int sort = 0;
+        String envStr = JSON.toJSONString(config.getEnvMap());
+        for (String k : runMap.keySet()) {
+            ApiExecutionQueueDetail queue = detail(runMap.get(k).getId(), k, config.getMode(), sort++, resQueue.getId(), envStr);
+            if (sort == 0) {
+                resQueue.setQueue(queue);
+            }
+            queue.setRetryEnable(config.isRetryEnable());
+            queue.setRetryNumber(config.getRetryNum());
+            queueDetails.add(queue);
+            detailMap.put(k, queue.getId());
+        }
+        resQueue.setDetailMap(detailMap);
+    }
+
+    private void initPerf(Map<String, String> requests,
+                          DBTestQueue resQueue, RunModeConfigDTO config, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
+        String envStr = JSON.toJSONString(config.getEnvMap());
+        int i = 0;
+        for (String testId : requests.keySet()) {
+            ApiExecutionQueueDetail queue = detail(requests.get(testId), testId, config.getMode(), i++, resQueue.getId(), envStr);
+            if (i == 0) {
+                resQueue.setQueue(queue);
+            }
+            queue.setRetryEnable(config.isRetryEnable());
+            queue.setRetryNumber(config.getRetryNum());
+            queueDetails.add(queue);
+            detailMap.put(testId, queue.getId());
+        }
     }
 
     protected ApiExecutionQueue getApiExecutionQueue(String poolId, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -175,7 +185,7 @@ public class ApiExecutionQueueService {
     }
 
     private boolean failure(DBTestQueue executionQueue, ResultDTO dto) {
-        LoggerUtil.info("进入失败停止处理：" + executionQueue.getId(), dto.getReportId());
+        LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
         boolean isError = false;
         if (StringUtils.contains(dto.getRunMode(), ApiRunMode.SCENARIO.name())) {
             if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
@@ -250,15 +260,15 @@ public class ApiExecutionQueueService {
                 if (CollectionUtils.isNotEmpty(queues)) {
                     queue.setQueue(queues.get(0));
                 } else {
-                    LoggerUtil.info("execution complete,clear queue：【" + id + "】", queue.getReportId());
+                    LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                     queueMapper.deleteByPrimaryKey(id);
                 }
             } else {
-                LoggerUtil.info("execution complete,clear queue：【" + id + "】", queue.getReportId());
+                LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                 queueMapper.deleteByPrimaryKey(id);
             }
         } else {
-            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】", queue.getReportId());
+            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】");
         }
         return queue;
     }
@@ -289,7 +299,7 @@ public class ApiExecutionQueueService {
     }
 
     public void queueNext(ResultDTO dto) {
-        LoggerUtil.info("开始处理队列：" + dto.getQueueId(), dto.getReportId());
+        LoggerUtil.info("开始处理队列：" + dto.getReportId() + "QID：" + dto.getQueueId());
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.PARALLEL.toString())) {
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
@@ -320,7 +330,7 @@ public class ApiExecutionQueueService {
                     return;
                 }
             }
-            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId(), dto.getReportId());
+            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId() + "报告ID：" + dto.getReportId());
             if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
                     LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getQueue()));
@@ -344,14 +354,14 @@ public class ApiExecutionQueueService {
                     apiScenarioReportService.margeReport(reportId, dto.getRunMode(), dto.getConsole());
                 }
                 queueMapper.deleteByPrimaryKey(dto.getQueueId());
-                LoggerUtil.info("Queue execution ends：" + dto.getQueueId(), dto.getReportId());
+                LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
             }
 
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
             executionQueueDetailMapper.deleteByExample(example);
         }
-        LoggerUtil.info("处理队列结束：" + dto.getQueueId(), dto.getReportId());
+        LoggerUtil.info("处理队列结束：" + dto.getReportId() + "QID：" + dto.getQueueId());
     }
 
     public void defendQueue() {
@@ -404,7 +414,7 @@ public class ApiExecutionQueueService {
                         // 删除串行资源锁
                         redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
 
-                        LoggerUtil.info("超时处理报告处理，进入下一个执行", report.getId());
+                        LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
                         dto.setTestPlanReportId(queue.getReportId());
                         dto.setReportId(queue.getReportId());
                         dto.setRunMode(queue.getRunMode());
@@ -505,22 +515,6 @@ public class ApiExecutionQueueService {
                 CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(queue.getReportId(), "Stopped");
                 queueMapper.deleteByPrimaryKey(queueId);
             }
-        }
-    }
-
-
-    /**
-     * 性能测试监听检查
-     *
-     * @param loadTestReport
-     */
-    public void checkExecutionQueueByLoadTest(LoadTestReport loadTestReport) {
-        ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
-        detailExample.createCriteria().andReportIdEqualTo(loadTestReport.getId());
-        executionQueueDetailMapper.deleteByExample(detailExample);
-        List<String> testPlanReportIdList = testPlanReportService.getTestPlanReportIdsByLoadTestReportId(loadTestReport.getId());
-        for (String testPlanReportId : testPlanReportIdList) {
-            this.testPlanReportTestEnded(testPlanReportId);
         }
     }
 }
