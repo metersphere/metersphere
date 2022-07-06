@@ -77,8 +77,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionService {
@@ -561,51 +559,6 @@ public class ApiDefinitionService {
         }
     }
 
-    private List<ApiDefinitionWithBLOBs> getSameRequest(SaveApiDefinitionRequest request) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
-                    .andPathEqualTo(request.getPath())
-                    .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-        } else {
-            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
-                    .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId());
-            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-        }
-    }
-
-    private List<ApiDefinitionWithBLOBs> getSameRequestById(String id, String projectId) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andStatusNotEqualTo("Trash")
-                .andProjectIdEqualTo(projectId)
-                .andIdEqualTo(id);
-        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-    }
-
-    private List<ApiDefinitionWithBLOBs> getSameRequestWithName(SaveApiDefinitionRequest request) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria()
-                    .andMethodEqualTo(request.getMethod())
-                    .andStatusNotEqualTo("Trash")
-                    .andPathEqualTo(request.getPath())
-                    .andNameEqualTo(request.getName())
-                    .andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId());
-        } else {
-            example.createCriteria()
-                    .andStatusNotEqualTo("Trash")
-                    .andNameEqualTo(request.getName())
-                    .andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId());
-        }
-
-        return apiDefinitionMapper.selectByExampleWithBLOBs(example);
-
-    }
-
     private ApiDefinitionWithBLOBs updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
@@ -713,7 +666,7 @@ public class ApiDefinitionService {
         // 创建新版是否关联依赖关系
         if (request.isNewVersionDeps()) {
             List<RelationshipEdgeDTO> pre = this.getRelationshipApi(oldApi.getId(), "PRE");
-            List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(toList());
+            List<String> targetIds = pre.stream().map(RelationshipEdgeKey::getTargetId).collect(Collectors.toList());
             RelationshipEdgeRequest req = new RelationshipEdgeRequest();
             req.setTargetIds(targetIds);
             req.setType("API");
@@ -721,7 +674,7 @@ public class ApiDefinitionService {
             relationshipEdgeService.saveBatch(req);
 
             List<RelationshipEdgeDTO> post = this.getRelationshipApi(oldApi.getId(), "POST");
-            List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(toList());
+            List<String> sourceIds = post.stream().map(RelationshipEdgeKey::getSourceId).collect(Collectors.toList());
             RelationshipEdgeRequest req2 = new RelationshipEdgeRequest();
             req2.setSourceIds(sourceIds);
             req2.setType("API");
@@ -828,7 +781,7 @@ public class ApiDefinitionService {
             apiDefinition.setUserId(apiDefinition.getUserId());
         }
         apiDefinition.setDescription(apiDefinition.getDescription());
-        List<ApiDefinitionWithBLOBs> collect = updateList.stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(toList());
+        List<ApiDefinitionWithBLOBs> collect = updateList.stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(Collectors.toList());
 
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             _importCreate(collect, batchMapper, apiTestCaseMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
@@ -1061,24 +1014,32 @@ public class ApiDefinitionService {
         if (exApiRequest == null || apiRequest == null) {
             return false;
         }
-        if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
-            apiDefinition.setToBeUpdated(true);
-            return true;
+        if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
+            if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
         }
 
-        if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
-            apiDefinition.setToBeUpdated(true);
-            return true;
+        if (exApiRequest.get("arguments") != null && apiRequest.get("arguments") != null) {
+            if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
         }
 
-        if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
-            apiDefinition.setToBeUpdated(true);
-            return true;
+        if (exApiRequest.get("rest") != null && apiRequest.get("rest") != null) {
+            if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
         }
 
-        if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-            apiDefinition.setToBeUpdated(true);
-            return true;
+        if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
+            if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
+                apiDefinition.setToBeUpdated(true);
+                return true;
+            }
         }
 
         return false;
@@ -1140,7 +1101,7 @@ public class ApiDefinitionService {
             for (int i = 0; i < cases.size(); i++) {
                 ApiTestCaseWithBLOBs item = cases.get(i);
                 List<ApiDefinitionWithBLOBs> data = apiImport.getData();
-                List<ApiDefinitionWithBLOBs> collect = data.stream().filter(t -> t.getId().equals(item.getApiDefinitionId())).collect(toList());
+                List<ApiDefinitionWithBLOBs> collect = data.stream().filter(t -> t.getId().equals(item.getApiDefinitionId())).collect(Collectors.toList());
                 if (collect.isEmpty()) {
                     continue;
                 }
@@ -1223,7 +1184,7 @@ public class ApiDefinitionService {
         apiTestFileMapper.deleteByExample(apiTestFileExample);
 
         if (!CollectionUtils.isEmpty(ApiTestFiles)) {
-            final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(toList());
+            final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());
             fileService.deleteFileByIds(fileIds);
         }
     }
@@ -1394,9 +1355,9 @@ public class ApiDefinitionService {
         try {
             importApi(request, apiImport);
             if (CollectionUtils.isNotEmpty(apiImport.getData())) {
-                List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(toList());
+                List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
                 request.setName(String.join(",", names));
-                List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(toList());
+                List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
                 request.setId(JSON.toJSONString(ids));
             }
             // 发送通知
@@ -1434,7 +1395,7 @@ public class ApiDefinitionService {
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
         boolean urlRepeat = config.getUrlRepeatable();
         //过滤(一次只导入一个协议)
-        List<ApiDefinitionWithBLOBs> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(toList());
+        List<ApiDefinitionWithBLOBs> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
         if (filterData.isEmpty()) {
             return;
         }
@@ -1691,7 +1652,7 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andRefIdEqualTo(api.getRefId());
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(toList());
+            List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
             //删除Api、ApiCase中resourceID被删除了的执行记录
             apiExecutionInfoService.deleteByApiIdList(apiIds);
             apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(apiIds);
@@ -1719,8 +1680,8 @@ public class ApiDefinitionService {
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         List<String> ids = new ArrayList<>(0);
         if (!resList.isEmpty()) {
-            List<String> allIds = resList.stream().map(ApiDefinitionResult::getId).collect(toList());
-            ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(toList());
+            List<String> allIds = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
         }
         return ids;
     }
@@ -1764,7 +1725,7 @@ public class ApiDefinitionService {
                 String count = String.valueOf(scenarioList.size());
                 res.setScenarioTotal(count);
                 String[] strings = new String[scenarioList.size()];
-                String[] ids2 = scenarioList.stream().map(Scenario::getId).collect(toList()).toArray(strings);
+                String[] ids2 = scenarioList.stream().map(Scenario::getId).collect(Collectors.toList()).toArray(strings);
                 res.setIds(ids2);
                 res.setScenarioType("scenario");
             });
@@ -1773,7 +1734,7 @@ public class ApiDefinitionService {
 
     public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
-            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(toList());
+            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
             List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
@@ -1951,9 +1912,9 @@ public class ApiDefinitionService {
             ((MsApiExportResult) apiExportResult).setProjectId(request.getProjectId());
             ((MsApiExportResult) apiExportResult).setVersion(System.getenv("MS_VERSION"));
             if (CollectionUtils.isNotEmpty(((MsApiExportResult) apiExportResult).getData())) {
-                List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(toList());
+                List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
                 request.setName(String.join(",", names));
-                List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(toList());
+                List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
                 request.setId(JSON.toJSONString(ids));
             }
         } else { //  导出为 Swagger 格式
@@ -2062,7 +2023,7 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(ids);
             List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
-            List<String> names = definitions.stream().map(ApiDefinition::getName).collect(toList());
+            List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
@@ -2096,7 +2057,7 @@ public class ApiDefinitionService {
                         columns.add(column);
                     });
                 }
-                List<String> names = definitions.stream().map(ApiDefinition::getName).collect(toList());
+                List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
                 OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), columns);
                 return JSON.toJSONString(details);
             }
@@ -2109,7 +2070,7 @@ public class ApiDefinitionService {
         example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
-            List<String> names = apiTestCases.stream().map(ApiTestCase::getName).collect(toList());
+            List<String> names = apiTestCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getSelectIds()), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
             return JSON.toJSONString(details);
@@ -2201,7 +2162,7 @@ public class ApiDefinitionService {
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
             Map<String, ApiDefinition> apiMap = apiDefinitions.stream().collect(Collectors.toMap(ApiDefinition::getId, i -> i));
             List<RelationshipEdgeDTO> results = new ArrayList<>();
-            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(apiDefinitions.stream().map(ApiDefinition::getUserId).collect(toList()));
+            Map<String, String> userNameMap = ServiceUtils.getUserNameMap(apiDefinitions.stream().map(ApiDefinition::getUserId).collect(Collectors.toList()));
             for (RelationshipEdge relationshipEdge : relationshipEdges) {
                 RelationshipEdgeDTO relationshipEdgeDTO = new RelationshipEdgeDTO();
                 BeanUtils.copyBean(relationshipEdgeDTO, relationshipEdge);
@@ -2233,7 +2194,7 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andRefIdEqualTo(currentApi.getRefId());
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-        List<String> sameApiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(toList());
+        List<String> sameApiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
         sameApiIds.addAll(relationshipIds);
         request.setNotInIds(sameApiIds);
@@ -2250,7 +2211,7 @@ public class ApiDefinitionService {
         ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
         example.createCriteria().andDefinitionIdEqualTo(definitionId);
         List<ApiDefinitionFollow> follows = apiDefinitionFollowMapper.selectByExample(example);
-        return follows.stream().map(ApiDefinitionFollow::getFollowId).distinct().collect(toList());
+        return follows.stream().map(ApiDefinitionFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 
     public List<DocumentElement> getDocument(String id, String type) {
@@ -2307,7 +2268,7 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-        List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(toList());
+        List<String> ids = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         //删除Api、ApiCase中resourceID被删除了的执行记录
         apiExecutionInfoService.deleteByApiIdList(ids);
         apiCaseExecutionInfoService.deleteByApiDefeinitionIdList(ids);
