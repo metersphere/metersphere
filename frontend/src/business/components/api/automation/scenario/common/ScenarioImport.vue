@@ -227,6 +227,9 @@ export default {
     },
     open(module) {
       this.currentModule = module;
+      if (localStorage.getItem('scenarioModule')) {
+        this.formData.moduleId = localStorage.getItem('scenarioModule');
+      }
       this.visible = true;
       listenGoBack(this.close);
     },
@@ -252,6 +255,7 @@ export default {
       return true;
     },
     save() {
+      localStorage.setItem('scenarioModule', this.formData.moduleId);
       if (!this.formData.file) {
         this.$warning("请添加一个文件");
         return;
@@ -289,6 +293,9 @@ export default {
         })
         param.modeId = this.formData.modeId
       }
+      if (this.formData.moduleId.length === 0) {
+        param.moduleId = ''
+      }
       param.projectId = this.projectId;
       if (!this.swaggerUrlEable) {
         param.swaggerUrl = undefined;
@@ -296,6 +303,7 @@ export default {
       return param;
     },
     close() {
+      localStorage.setItem('scenarioModule', this.formData.moduleId);
       this.formData = {
         file: undefined,
         swaggerUrl: '',
