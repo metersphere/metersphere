@@ -465,6 +465,7 @@ public class ApiDefinitionService {
                     apiDefinitionRequest.setPath(apiDefinition.getPath());
                     apiDefinitionRequest.setName(apiDefinition.getName());
                     apiDefinitionRequest.setId(apiDefinition.getId());
+                    apiDefinitionRequest.setModuleId(apiDefinition.getModuleId());
                     apiDefinitionRequest.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
                     checkNameExist(apiDefinitionRequest);
 
