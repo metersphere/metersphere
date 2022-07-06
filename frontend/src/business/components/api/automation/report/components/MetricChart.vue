@@ -10,12 +10,17 @@
           </el-row>
 
           <div v-if="isExport">
-             <span class="ms-req ms-req-error" v-if="content.error && content.error>0">
-                <span class="ms-req-span"> {{ content.success + content.error }}  {{isUi ? '指令' :  $t('api_report.request')}}</span>
-           </span>
+             <span class="ms-req ms-req-error"
+                   v-if="(content.error && content.error>0 )|| (content.errorCode && content.errorCode>0)|| (content.unExecute && content.unExecute>0)">
+                <span class="ms-req-span"> {{ content.success + content.error + content.errorCode + content.unExecute }}  {{
+                    isUi ? '指令' : $t('api_report.request')
+                  }}</span>
+             </span>
             <span class="ms-req ms-req-success" v-else>
-                <span class="ms-req-span">  {{ content.success ? content.success + content.error : 0 }}  {{isUi ? '指令' :  $t('api_report.request')}}</span>
-           </span>
+                <span class="ms-req-span">  {{
+                    content.success ? content.success + content.error : 0
+                  }}  {{ isUi ? '指令' : $t('api_report.request') }}</span>
+            </span>
           </div>
           <ms-chart id="chart" ref="chart" :options="options" :height="220" style="margin-right: 10px"
                     :autoresize="true" v-else/>
@@ -46,7 +51,7 @@
               <el-divider v-if="content.unExecute > 0"></el-divider>
               <div class="metric-icon-box" style="height: 26px" v-if="content.unExecute > 0">
                 <span class="ms-point-unexecute" style="margin: 7px;float: left;"/>
-                <div class="metric-box" >
+                <div class="metric-box">
                   <div class="value" style="font-size: 12px">{{ content.unExecute }}
                     {{ $t('api_test.home_page.detail_card.unexecute') }}
                   </div>
@@ -92,7 +97,9 @@
           <el-row type="flex" justify="center" align="middle">
             <div class="metric-box">
               <div class="value">{{ content.scenarioStepTotal ? content.scenarioStepTotal : 0 }}</div>
-              <div class="name" v-if="report.reportType === 'API_INTEGRATED'">{{$t('api_test.definition.request.case')}}</div>
+              <div class="name" v-if="report.reportType === 'API_INTEGRATED'">
+                {{ $t('api_test.definition.request.case') }}
+              </div>
               <div class="name" v-else>{{ $t('test_track.plan_view.step') }}</div>
             </div>
             <span class="ms-point-success"/>
@@ -216,18 +223,18 @@ export default {
     },
   },
   computed: {
-    totalCount(){
+    totalCount() {
       let total = 0;
-      if(this.content.success){
+      if (this.content.success) {
         total += this.content.success;
       }
-      if(this.content.error){
+      if (this.content.error) {
         total += this.content.error;
       }
-      if(this.content.errorCode){
+      if (this.content.errorCode) {
         total += this.content.errorCode;
       }
-      if(this.content.unExecute){
+      if (this.content.unExecute) {
         total += this.content.unExecute;
       }
       return total;
@@ -278,10 +285,10 @@ export default {
               show: false
             },
             data: [
-              {value: this.content.success, name:this.$t('api_report.success')},
-              {value: this.content.error, name:this.$t('api_report.fail')},
-              {value: this.content.errorCode, name:this.$t('error_report_library.option.name')},
-              {value: this.content.unExecute, name:this.$t('api_test.home_page.detail_card.unexecute')},
+              {value: this.content.success, name: this.$t('api_report.success')},
+              {value: this.content.error, name: this.$t('api_report.fail')},
+              {value: this.content.errorCode, name: this.$t('error_report_library.option.name')},
+              {value: this.content.unExecute, name: this.$t('api_test.home_page.detail_card.unexecute')},
             ]
           }
         ]
