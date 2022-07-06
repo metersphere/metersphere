@@ -523,6 +523,66 @@ public class SwaggerUrlProjectExample {
             addCriterion("mode_id not between", value1, value2, "modeId");
             return (Criteria) this;
         }
+
+        public Criteria andCoverModuleIsNull() {
+            addCriterion("cover_module is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleIsNotNull() {
+            addCriterion("cover_module is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleEqualTo(Boolean value) {
+            addCriterion("cover_module =", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleNotEqualTo(Boolean value) {
+            addCriterion("cover_module <>", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleGreaterThan(Boolean value) {
+            addCriterion("cover_module >", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("cover_module >=", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleLessThan(Boolean value) {
+            addCriterion("cover_module <", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleLessThanOrEqualTo(Boolean value) {
+            addCriterion("cover_module <=", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleIn(List<Boolean> values) {
+            addCriterion("cover_module in", values, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleNotIn(List<Boolean> values) {
+            addCriterion("cover_module not in", values, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleBetween(Boolean value1, Boolean value2) {
+            addCriterion("cover_module between", value1, value2, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("cover_module not between", value1, value2, "coverModule");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
