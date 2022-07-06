@@ -36,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -698,6 +699,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
             moduleMap = getOtherApiModuleMap(fullCoverage, fullCoverageApi, chooseModuleId, moduleMap, toUpdateList, idPathMap, chooseModule, optionData, repeatApiDefinitionWithBLOBs);
 
+            //系统内检查重复
             if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
                 Map<String, ApiDefinitionWithBLOBs> repeatMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
                 Map<String, ApiDefinitionWithBLOBs> optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
@@ -767,10 +769,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private Map<String, ApiModule> cover(Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList, Map<String, ApiDefinitionWithBLOBs> nameModuleMap, Map<String, ApiDefinitionWithBLOBs> repeatDataMap) {
         //覆盖但不覆盖模块
         if (nameModuleMap != null) {
-            //导入文件没有新增场景无需创建接口模块
-            if (repeatDataMap.size() >= nameModuleMap.size()) {
-                moduleMap = new HashMap<>();
-            }
+            //导入文件没有新增接口无需创建接口模块
+            moduleMap = judgeModule(moduleMap, nameModuleMap, repeatDataMap);
             Map<String, ApiDefinitionWithBLOBs> finalNameModuleMap = nameModuleMap;
             repeatDataMap.forEach((k, v) -> {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = finalNameModuleMap.get(k);
@@ -787,6 +787,23 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });
+        }
+        return moduleMap;
+    }
+
+    private Map<String, ApiModule> judgeModule(Map<String, ApiModule> moduleMap, Map<String, ApiDefinitionWithBLOBs> nameModuleMap, Map<String, ApiDefinitionWithBLOBs> repeatDataMap) {
+        AtomicBoolean remove = new AtomicBoolean(true);
+
+        if (repeatDataMap.size() >= nameModuleMap.size()) {
+            repeatDataMap.forEach((k, v) -> {
+                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
+                if (apiDefinitionWithBLOBs == null) {
+                    remove.set(false);
+                }
+            });
+            if (remove.get()) {
+                moduleMap = new HashMap<>();
+            }
         }
         return moduleMap;
     }
