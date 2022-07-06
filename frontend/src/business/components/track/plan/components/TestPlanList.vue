@@ -47,6 +47,7 @@
         <ms-table-column
           prop="createUser"
           :field="item"
+          :filters="userFilter"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
           min-width="200px">
@@ -173,18 +174,11 @@
           :label="$t('test_track.plan.plan_project')"
           min-width="200px">
         </ms-table-column>
-        <ms-table-column
-          prop="tags"
+
+        <ms-tags-column
           :field="item"
-          :fields-width="fieldsWidth"
-          sortable
-          :label="$t('api_test.automation.tag')"
-          min-width="200px">
-          <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
-          </template>
-        </ms-table-column>
+          :fields-width="fieldsWidth"/>
+
         <ms-table-column
           prop="testPlanTestCaseCount"
           :field="item"
@@ -369,11 +363,14 @@ import {getPlanStageOption} from "@/network/test-plan";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTestPlanScheduleBatchSwitch from "@/business/components/track/plan/components/ScheduleBatchSwitch";
+import MsTagsColumn from "@/business/components/common/components/table/MsTagsColumn";
+import {getProjectMemberUserFilter} from "@/network/user";
 
 
 export default {
   name: "TestPlanList",
   components: {
+    MsTagsColumn,
     TestPlanReportReview,
     MsTag,
     HeaderLabelOperate,
@@ -433,6 +430,7 @@ export default {
       stageOption: [],
       operators: [],
       batchButtons: [],
+      userFilter: [],
       publicButtons: [
         {
           name: this.$t('test_track.plan.test_plan_batch_switch'),
@@ -489,6 +487,9 @@ export default {
           }
         })
       }
+    });
+    getProjectMemberUserFilter((data) => {
+      this.userFilter = data;
     });
     this.initTableData();
   },

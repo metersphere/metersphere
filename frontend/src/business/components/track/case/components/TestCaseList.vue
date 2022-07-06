@@ -91,11 +91,13 @@
         </ms-table-column>
 
         <ms-table-column
+          sortable
           prop="createName"
+          min-width="120"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
-          min-width="120"/>
+          :filters="userFilter"/>
 
         <test-case-review-status-table-item
           :field="item"
@@ -175,10 +177,10 @@
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
                 <priority-table-item
-                  :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+                  :value="getCustomFieldValue(scope.row, field, scope.row.priority)"/>
             </span>
             <span v-else-if="field.name === '用例状态'">
-                {{ getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.status }}
+                {{ getCustomFieldValue(scope.row, field, scope.row.status)}}
             </span>
             <span v-else>
               {{ getCustomFieldValue(scope.row, field) }}
@@ -236,7 +238,7 @@ import ApiStatus from "@/business/components/api/definition/components/list/ApiS
 import {
   buildBatchParam,
   deepClone,
-  getCustomFieldBatchEditOption,
+  getCustomFieldBatchEditOption, getCustomFieldFilter,
   getCustomFieldValue,
   getCustomTableHeader,
   getCustomTableWidth,
@@ -257,7 +259,7 @@ import {
   parseTag
 } from "@/common/js/utils";
 import {getTestTemplate} from "@/network/custom-field-template";
-import {getProjectMember} from "@/network/user";
+import {getProjectMember, getProjectMemberUserFilter} from "@/network/user";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import BatchMove from "@/business/components/track/case/components/BatchMove";
@@ -479,7 +481,8 @@ export default {
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
       memberMap: new Map(),
       rowCase: {},
-      rowCaseResult: {}
+      rowCaseResult: {},
+      userFilter: []
     };
   },
   props: {
@@ -531,6 +534,9 @@ export default {
     this.getTemplateField();
     this.$emit('setCondition', this.condition);
     this.initTableData();
+    getProjectMemberUserFilter((data) => {
+      this.userFilter = data;
+    });
 
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
@@ -668,7 +674,7 @@ export default {
       });
       this.$store.commit('setTestCaseDefaultValue', testCaseDefaultValue);
     },
-    getCustomFieldValue(row, field) {
+    getCustomFieldValue(row, field, defaultVal = '') {
       let value = getCustomFieldValue(row, field, this.members);
       if (field.name === '用例等级') {
         return row.priority;
@@ -677,14 +683,20 @@ export default {
       } else if (field.name === '用例状态') {
         return row.status;
       }
-      return value ? value : '';
+      return value ? value : defaultVal;
     },
     getCustomFieldFilter(field) {
-      if (field.type === 'multipleMember' || field.name === '用例状态') {
-        return null;
+      if (field.name === '用例状态') {
+        let option = [];
+        field.options.forEach((item) => {
+          option.push({
+            text: this.$t(item.text),
+            value: item.value
+          })
+        });
+        return option;
       }
-      return Array.isArray(field.options) ?
-        (field.options.length > 0 ? field.options : null) : null;
+      return getCustomFieldFilter(field, this.userFilter);
     },
     checkRedirectEditPage(redirectParam) {
       if (redirectParam != null) {

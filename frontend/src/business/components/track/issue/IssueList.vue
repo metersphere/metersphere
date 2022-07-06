@@ -27,12 +27,12 @@
           :show-select-all="false"
           :screen-height="screenHeight"
           :remember-order="true"
-          @handlePageChange="getIssues"
           :fields.sync="fields"
           :field-key="tableHeaderKey"
-          @order="getIssues"
-          @filter="search"
           :custom-fields="issueTemplate.customFields"
+          @filter="search"
+          @order="getIssues"
+          @handlePageChange="getIssues"
           ref="table"
         >
     <span v-for="(item) in fields" :key="item.key">
@@ -189,7 +189,7 @@ import {checkSyncIssues, getIssuePartTemplateWithProject, getIssues, syncIssues}
 import {
   getCustomFieldValue,
   getCustomTableWidth,
-  getPageInfo, getTableHeaderWithCustomFields, getLastTableSortField
+  getPageInfo, getTableHeaderWithCustomFields, getLastTableSortField, getCustomFieldFilter
 } from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -238,6 +238,7 @@ export default {
       ],
       issueTemplate: {},
       members: [],
+      userFilter: [],
       isThirdPart: false,
       creatorFilters: [],
     };
@@ -254,6 +255,9 @@ export default {
       window.addEventListener('resize', this.tableDoLayout);
       getProjectMember((data) => {
         this.members = data;
+        this.userFilter = data.map(u => {
+          return {text: u.name, value: u.id};
+        });
       });
       getIssuePartTemplateWithProject((template) => {
         this.initFields(template);
@@ -294,18 +298,16 @@ export default {
       return value ? value : defaultVal;
     },
     getCustomFieldFilter(field) {
-      if (field.type === 'multipleMember') {
-        return null;
-      }
-      return Array.isArray(field.options) ?
-        (field.options.length > 0 ? field.options : null) : null;
+      return getCustomFieldFilter(field, this.userFilter);
     },
     i18nCustomStatus(options) {
       let i18ns = [];
-      options.forEach(option => {
-        option.text = this.$t(option.text);
-        i18ns.push(option);
-      })
+      if (options) {
+        options.forEach(option => {
+          option.text = this.$t(option.text);
+          i18ns.push(option);
+        });
+      }
       return i18ns;
     },
     initFields(template) {

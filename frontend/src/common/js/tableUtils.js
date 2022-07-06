@@ -4,6 +4,7 @@ import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
 import Sortable from 'sortablejs'
 import {timestampFormatDate} from "@/common/js/filter";
+import {CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -665,4 +666,20 @@ export function handleRowDrop(data, callback) {
       }
     });
   }, 100);
+}
+
+export function getCustomFieldFilter(field, userFilter) {
+  if (field.type === 'multipleMember') {
+    return null;
+  }
+  if (field.type === 'member' && userFilter) {
+    return userFilter;
+  }
+
+  let optionTypes = CUSTOM_FIELD_TYPE_OPTION
+        .filter(x => x.hasOption)
+        .map(x => x.value);
+
+  return optionTypes.indexOf(field.type) > -1 && Array.isArray(field.options) ?
+    (field.options.length > 0 ? field.options : null) : null;
 }
