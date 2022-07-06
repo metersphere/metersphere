@@ -1081,14 +1081,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private void dealChooseModuleData(Map<String, ApiModule> moduleMap, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap, ApiModuleDTO chooseModule, ApiDefinitionWithBLOBs datum, String modulePath) {
         String[] pathTree;
         String chooseModuleParentId = getChooseModuleParentId(chooseModule);
-        String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
         //导入时选了模块，且接口有模块的
         if (StringUtils.isNotBlank(modulePath)) {
             List<ApiModule> moduleList = pidChildrenMap.get(chooseModuleParentId);
-            pathTree = getPathTree(chooseModulePath + modulePath);
-
+            pathTree = getPathTree(modulePath);
             ApiModule chooseModuleOne = JSON.parseObject(JSON.toJSONString(chooseModule), ApiModule.class);
-            ApiModule minModule = getMinModule(pathTree, moduleList, chooseModuleOne, pidChildrenMap, moduleMap, idPathMap, idModuleMap);
+            ApiModule minModule = getChooseMinModule(pathTree, chooseModuleOne, pidChildrenMap, moduleMap, idPathMap);
             String id = minModule.getId();
             datum.setModuleId(id);
             datum.setModulePath(idPathMap.get(id));
@@ -1104,7 +1102,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (chooseModuleParentId.equals("root")) {
             s = "/" + chooseModule.getName();
         } else {
-            s = idPathMap.get(chooseModuleParentId);
+            s = idPathMap.get(chooseModule.getId());
         }
         return s;
     }
@@ -1157,6 +1155,25 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 returnModule = collect.get(0);
                 parentModule = collect.get(0);
                 parentModuleList = pidChildrenMap.get(collect.get(0).getId());
+            }
+        }
+        return returnModule;
+    }
+
+    private ApiModule getChooseMinModule(String[] tagTree, ApiModule parentModule, Map<String, List<ApiModule>> pidChildrenMap, Map<String, ApiModule> moduleMap
+            , Map<String, String> idPathMap) {
+        //如果parentModule==null 则证明需要创建根目录同级的模块
+        ApiModule returnModule = null;
+        for (int i = 0; i < tagTree.length; i++) {
+            int finalI = i;
+            //在选择的模块下建模块，查看选择的模块下有没有同名的模块
+            List<ApiModule> moduleList = pidChildrenMap.get(parentModule.getId());
+            List<ApiModule> collect1 = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            if (collect1.isEmpty()) {
+                return createModule(tagTree, i, parentModule, moduleMap, pidChildrenMap, idPathMap);
+            } else {
+                returnModule = collect1.get(0);
+                parentModule = collect1.get(0);
             }
         }
         return returnModule;
