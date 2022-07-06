@@ -175,10 +175,10 @@ public class GenerateHashTreeUtil {
             config.setReportType(runRequest.getReportType());
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
 
-            LoggerUtil.info("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本JMX成功");
+            LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
         } catch (Exception ex) {
             remakeException(runRequest);
-            LoggerUtil.error("报告ID" + runRequest.getReportId() + " 场景资源：" + item.getName() + ", 生成执行脚本失败", ex);
+            LoggerUtil.error("场景资源：" + item.getName() + ", 生成执行脚本失败", runRequest.getReportId(), ex);
         }
 
         LogUtil.info(testPlan.getJmx(jmeterHashTree));

@@ -922,7 +922,7 @@ public class ApiScenarioReportService {
         }
 
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
-            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
+            LoggerUtil.info("资源 " + dto.getTestId() + " 执行超时", dto.getReportId());
             status = ScenarioStatus.Timeout.name();
         }
         return status;

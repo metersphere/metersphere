@@ -49,7 +49,7 @@ public class KafkaListenerTask implements Runnable {
             // 分三类存储
             Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
             List<ResultDTO> resultDTOS = new LinkedList<>();
-            LoggerUtil.info("报告【" + record.key() + "】开始解析结果");
+            LoggerUtil.info("KAFKA解析结果任务开始解析结果", String.valueOf(record.key()));
             ResultDTO dto = this.formatResult();
             if (dto == null) {
                 return;
@@ -57,7 +57,7 @@ public class KafkaListenerTask implements Runnable {
             if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TEST_END")
                     && (Boolean) dto.getArbitraryData().get("TEST_END")) {
                 resultDTOS.add(dto);
-                LoggerUtil.info("KAFKA消费结果处理：【" + record.key() + "】结果状态：" + dto.getArbitraryData().get("TEST_END"));
+                LoggerUtil.info("KAFKA消费结果处理状态：" + dto.getArbitraryData().get("TEST_END"), String.valueOf(record.key()));
             }
             // 携带结果
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
@@ -71,28 +71,28 @@ public class KafkaListenerTask implements Runnable {
                 }
             }
             if (MapUtils.isNotEmpty(assortMap)) {
-                LoggerUtil.info("KAFKA消费执行内容存储开始");
+                LoggerUtil.info("KAFKA消费执行内容存储开始", String.valueOf(record.key()));
                 testResultService.batchSaveResults(assortMap);
-                LoggerUtil.info("KAFKA消费执行内容存储结束");
+                LoggerUtil.info("KAFKA消费执行内容存储结束", String.valueOf(record.key()));
             }
             // 更新执行结果
             if (CollectionUtils.isNotEmpty(resultDTOS)) {
                 resultDTOS.forEach(testResult -> {
-                    LoggerUtil.info("报告 【 " + testResult.getReportId() + " 】资源 " + testResult.getTestId() + " 整体执行完成");
+                    LoggerUtil.info("资源 " + testResult.getTestId() + " 整体执行完成", testResult.getReportId());
                     testResultService.testEnded(testResult);
-                    LoggerUtil.info("执行队列处理：" + testResult.getQueueId());
+                    LoggerUtil.info("执行队列处理：" + testResult.getQueueId(), testResult.getReportId());
                     apiExecutionQueueService.queueNext(testResult);
                     // 全局并发队列
                     PoolExecBlockingQueueUtil.offer(testResult.getReportId());
                     // 更新测试计划报告
                     if (StringUtils.isNotEmpty(testResult.getTestPlanReportId())) {
-                        LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId());
+                        LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId(), testResult.getReportId());
                         apiExecutionQueueService.testPlanReportTestEnded(testResult.getTestPlanReportId());
                     }
                 });
             }
         } catch (Exception e) {
-            LoggerUtil.error("报告【" + record.key() + "】KAFKA消费失败：", e);
+            LoggerUtil.error("KAFKA消费失败：", String.valueOf(record.key()), e);
         }
     }
 
@@ -104,7 +104,7 @@ public class KafkaListenerTask implements Runnable {
                 });
             }
         } catch (Exception e) {
-            LoggerUtil.error("报告【" + record.key() + "】格式化数据失败：", e);
+            LoggerUtil.error("结果数据格式化失败：", String.valueOf(record.key()), e);
         }
         return null;
     }

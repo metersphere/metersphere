@@ -381,7 +381,7 @@ public class ApiScenarioExecuteService {
             hashTree = request.getTestElement().generateHashTree(config);
             LogUtil.info(request.getTestElement().getJmx(hashTree));
         } catch (Exception e) {
-            LoggerUtil.error(e);
+            LoggerUtil.error("调试失败", request.getReportId(), e);
             MSException.throwException(e.getMessage());
         }
         if (request.isSaved()) {

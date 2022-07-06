@@ -112,7 +112,7 @@ public class ApiExecuteService {
             //通过测试计划id查询环境
             request.setReportId(request.getTestPlanId());
         }
-        LoggerUtil.info("开始执行单条用例【 " + testCaseWithBLOBs.getId() + " 】");
+        LoggerUtil.info("开始执行单条用例【 " + testCaseWithBLOBs.getId() + " 】", request.getReportId());
 
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
