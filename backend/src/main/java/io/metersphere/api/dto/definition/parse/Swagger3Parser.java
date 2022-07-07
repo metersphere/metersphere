@@ -144,6 +144,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 Operation operation = operationsMap.get(method);
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
+                    request.setFollowRedirects(true);
                     ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
                     apiDefinition.setDescription(operation.getDescription());
                     parseParameters(operation, request);
