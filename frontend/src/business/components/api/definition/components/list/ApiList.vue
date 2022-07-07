@@ -243,7 +243,7 @@ import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/se
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
-  buildBatchParam,
+  buildBatchParam, deepClone,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
@@ -952,12 +952,43 @@ export default {
         let obj = response.data;
         if (type == 'MS') {
           obj.protocol = this.currentProtocol;
-          obj.nodeTree = nodeTree;
+          obj.nodeTree = this.getExportNodeTree(nodeTree, obj.data);
           downloadFile("Metersphere_Api_" + this.projectName + ".json", JSON.stringify(obj));
         } else {
           downloadFile("Swagger_Api_" + this.projectName + ".json", JSON.stringify(obj));
         }
       });
+    },
+    getExportNodeTree(nodeTree, apis) {
+      let idSet = new Set();
+      apis.forEach((item) => {
+        idSet.add(item.moduleId);
+      });
+      let exportTree = deepClone(nodeTree);
+      for (let i = exportTree.length - 1; i >= 0; i--) {
+        if (!this.cutDownTree(exportTree[i], idSet)) {
+          exportTree.splice(i, 1);
+        }
+      }
+      return  exportTree;
+    },
+    // 去掉没有数据的模块再导出
+    cutDownTree(nodeTree, nodeIdSet) {
+      let hasData = false;
+      if (nodeIdSet.has(nodeTree.id)) {
+        hasData = true;
+      }
+      let children = nodeTree.children;
+      if (children) {
+        for (let i = children.length - 1; i >= 0; i--) {
+          if (!this.cutDownTree(children[i], nodeIdSet)) {
+            children.splice(i, 1);
+          } else {
+            hasData = true;
+          }
+        }
+      }
+      return hasData;
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;
