@@ -201,9 +201,6 @@ export default {
           break;
         }
       }
-      if (this.selectedPlatformValue === 'Har') {
-        this.formData.modeId = 'fullCoverage';
-      }
     }
   },
   computed: {
