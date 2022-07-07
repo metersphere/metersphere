@@ -263,7 +263,7 @@ public class ApiAutomationService {
             msScenario.setHashTree(new LinkedList<>());
             request.setScenarioDefinition(msScenario);
         }
-        checkNameExist(request);
+        checkNameExist(request, false);
         int nextNum = getNextNum(request.getProjectId());
         if (StringUtils.isBlank(request.getCustomNum())) {
             request.setCustomNum(String.valueOf(nextNum));
@@ -365,7 +365,7 @@ public class ApiAutomationService {
     }
 
     public ApiScenario update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
-        checkNameExist(request);
+        checkNameExist(request, false);
         checkScenarioNum(request);
 
         //检查场景的请求步骤。如果含有ESB请求步骤的话，要做参数计算处理。
@@ -641,8 +641,23 @@ public class ApiAutomationService {
             example.createCriteria().andIdIn(scenarioIds);
             List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
             Map<String, List<ApiScenario>> nodeMap = new HashMap<>();
+            ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
             for (ApiScenario api : scenarioList) {
+                //检查是否同名
+                SaveApiScenarioRequest apiScenarioRequest = new SaveApiScenarioRequest();
+                apiScenarioRequest.setProjectId(api.getProjectId());
+                apiScenarioRequest.setName(api.getName());
+                apiScenarioRequest.setId(api.getId());
+                apiScenarioRequest.setApiScenarioModuleId(api.getApiScenarioModuleId());
+                apiScenarioRequest.setModulePath(api.getModulePath());
+                apiScenarioRequest.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
                 String moduleId = api.getApiScenarioModuleId();
+                long nodeCount = apiScenarioModuleService.countById(moduleId);
+                if (nodeCount <= 0) {
+                    checkNameExist(apiScenarioRequest, true);
+                } else {
+                    checkNameExist(apiScenarioRequest, false);
+                }
                 if (StringUtils.isEmpty(moduleId)) {
                     moduleId = "";
                 }
@@ -654,7 +669,6 @@ public class ApiAutomationService {
                     nodeMap.put(moduleId, list);
                 }
             }
-            ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
             for (Map.Entry<String, List<ApiScenario>> entry : nodeMap.entrySet()) {
                 String nodeId = entry.getKey();
                 List<ApiScenario> scenariosListItem = entry.getValue();
@@ -681,20 +695,26 @@ public class ApiAutomationService {
         });
     }
 
-    private void checkNameExist(SaveApiScenarioRequest request) {
+    private void checkNameExist(SaveApiScenarioRequest request, Boolean moduleIdNotExist) {
         if (StringUtils.isEmpty(request.getVersionId())) {
             request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
         }
 
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andNameEqualTo(request.getName())
+        ApiScenarioExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(request.getName())
                 .andProjectIdEqualTo(request.getProjectId())
                 .andStatusNotEqualTo("Trash")
                 .andIdNotEqualTo(request.getId())
                 .andVersionIdEqualTo(request.getVersionId())
                 .andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId());
+        if (moduleIdNotExist) {
+            criteria.andModulePathEqualTo(request.getModulePath());
+        } else {
+            criteria.andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId());
+        }
         if (apiScenarioMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("automation_name_already_exists"));
+            MSException.throwException(Translator.get("automation_name_already_exists") + " :" + Translator.get("api_definition_module") + request.getModulePath() + " ," + Translator.get("automation_name") + " :" + request.getName());
         }
     }
 
