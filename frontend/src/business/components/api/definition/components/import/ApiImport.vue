@@ -300,7 +300,7 @@ export default {
           break;
         }
       }
-      if (this.selectedPlatformValue === 'Har' || this.selectedPlatformValue === 'ESB') {
+      if (this.selectedPlatformValue === 'ESB') {
         this.formData.modeId = 'fullCoverage';
         this.$refs.form.clearValidate();
       }
