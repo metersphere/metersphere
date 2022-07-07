@@ -803,17 +803,21 @@ public class ApiDefinitionService {
             _importCreate(collect, batchMapper, apiTestCaseMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(collect)) {
-                //postman 可能含有前置脚本，接口定义去掉脚本
-                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 String originId = apiDefinition.getId();
+                //postman 可能含有前置脚本，接口定义去掉脚本
+                if (apiDefinition.getVersionId() == null || apiDefinition.getVersionId().equals("new")) {
+                    apiDefinition.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
+                } else {
+                    apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+                    apiDefinition.setRefId(apiDefinition.getId());
+                    apiDefinition.setLatest(true); // 新增的接口 latest = true
+                }
                 apiDefinition.setId(UUID.randomUUID().toString());
-                apiDefinition.setRefId(apiDefinition.getId());
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                apiDefinition.setLatest(true); // 新增的接口 latest = true
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
 
@@ -917,7 +921,6 @@ public class ApiDefinitionService {
                 apiDefinition.setOriginalState(existApi.getOriginalState());
                 apiDefinition.setCaseStatus(existApi.getCaseStatus());
                 apiDefinition.setNum(existApi.getNum()); //id 不变
-                apiDefinition.setRefId(existApi.getRefId());
                 if (existApi.getRefId() != null) {
                     apiDefinition.setRefId(existApi.getRefId());
                 } else {
@@ -1416,6 +1419,9 @@ public class ApiDefinitionService {
         currentApiOrder.remove();
         String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
         request.setDefaultVersion(defaultVersion);
+        if (request.getVersionId() == null) {
+            request.setVersionId(defaultVersion);
+        }
         List<ApiDefinitionWithBLOBs> initData = apiImport.getData();
 
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
@@ -1446,14 +1452,20 @@ public class ApiDefinitionService {
                 apiModuleMapper.insert(apiModule);
             }
         }
-
+        //如果需要导入的数据为空。此时清空mock信息
+        if (data.isEmpty()) {
+            apiImport.getMocks().clear();
+        }
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             this.setModule(item);
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
             }
-            item.setNum(num++);
+            //如果是创建版本数据，则num和其他版本数据一致
+            if (item.getVersionId() == null || !item.getVersionId().equals("new")) {
+                item.setNum(num++);
+            }
             //如果EsbData需要存储,则需要进行接口是否更新的判断
             if (apiImport.getEsbApiParamsMap() != null) {
                 String apiId = item.getId();
