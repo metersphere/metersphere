@@ -1907,34 +1907,32 @@ public class ApiDefinitionService {
     }
 
     public ApiExportResult export(ApiBatchRequest request, String type) {
-        ApiExportResult apiExportResult;
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(request.getIds());
+
+        List<ApiDefinitionWithBLOBs> apiDefinitions = getByIds(request.getIds());
 
         if (StringUtils.equals(type, "MS")) { //  导出为 Metersphere 格式
             MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
-            apiExportResult = new MsApiExportResult();
-            ((MsApiExportResult) apiExportResult).setData(apiDefinitionMapper.selectByExampleWithBLOBs(example));
-            ((MsApiExportResult) apiExportResult).setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
-            ((MsApiExportResult) apiExportResult).setMocks(mockConfigService.selectMockExpectConfigByApiIdIn(request.getIds()));
-            ((MsApiExportResult) apiExportResult).setProjectName(request.getProjectId());
-            ((MsApiExportResult) apiExportResult).setProtocol(request.getProtocol());
-            ((MsApiExportResult) apiExportResult).setProjectId(request.getProjectId());
-            ((MsApiExportResult) apiExportResult).setVersion(System.getenv("MS_VERSION"));
-            if (CollectionUtils.isNotEmpty(((MsApiExportResult) apiExportResult).getData())) {
-                List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+            MsApiExportResult msApiExportResult = new MsApiExportResult();
+            msApiExportResult.setData(apiDefinitions);
+            msApiExportResult.setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
+            msApiExportResult.setMocks(mockConfigService.selectMockExpectConfigByApiIdIn(request.getIds()));
+            msApiExportResult.setProjectName(request.getProjectId());
+            msApiExportResult.setProtocol(request.getProtocol());
+            msApiExportResult.setProjectId(request.getProjectId());
+            msApiExportResult.setVersion(System.getenv("MS_VERSION"));
+            if (CollectionUtils.isNotEmpty((msApiExportResult).getData())) {
+                List<String> names = (msApiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
                 request.setName(String.join(",", names));
-                List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+                List<String> ids = msApiExportResult.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
                 request.setId(JSON.toJSONString(ids));
             }
+            return msApiExportResult;
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
-            apiExportResult = swagger3Parser.swagger3Export(apiDefinitionMapper.selectByExampleWithBLOBs(example));
+            return swagger3Parser.swagger3Export(apiDefinitions);
         }
-
-        return apiExportResult;
     }
 
     public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId) {
