@@ -77,8 +77,31 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject fields = jiraIssue.getFields();
         String status = getStatus(fields);
 
-        String description = dealWithDescription(fields.getString("description"), fields.getJSONArray("attachment"));
+        Map<String, String> fileContentMap = getContextMap(fields.getJSONArray("attachment"));
+
+        // 先转换下desc的图片
+        String description = dealWithDescription(fields.getString("description"), fileContentMap);
         fields.put("description", description);
+        CustomFieldItemDTO descItem = null;
+        List<CustomFieldItemDTO> customFieldItems = syncIssueCustomFieldList(issue.getCustomFields(), jiraIssue.getFields());
+
+        // 其他自定义里有富文本框的也转换下图片
+        for (CustomFieldItemDTO item : customFieldItems) {
+            if (StringUtils.equals("description", item.getId())) {
+                // desc转过了，跳过
+                descItem = item;
+            } else {
+                if (StringUtils.equals(CustomFieldType.RICH_TEXT.getValue(), item.getType())) {
+                    item.setValue(dealWithDescription((String) item.getValue(), fileContentMap));
+                }
+            }
+        }
+
+        // 剩下的附件就是非富文本框的附件
+        description = appendMoreImage(description, fileContentMap);
+        if (descItem != null) {
+            descItem.setValue(description);
+        }
 
         JSONObject assignee = (JSONObject) fields.get("assignee");
         issue.setTitle(fields.getString("summary"));
@@ -88,32 +111,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issue.setDescription(description);
         issue.setPlatformStatus(status);
         issue.setPlatform(key);
-        issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), jiraIssue.getFields()));
+        issue.setCustomFields(JSONObject.toJSONString(customFieldItems));
         return issue;
     }
 
-    private String dealWithDescription(String description, JSONArray attachments) {
+    private String dealWithDescription(String description, Map<String, String> fileContentMap) {
         if (StringUtils.isBlank(description)) {
             return description;
-        }
-
-        // 附件处理
-        Map<String, String> fileContentMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(attachments)) {
-            for (int i = 0; i < attachments.size(); i++) {
-                JSONObject attachment = attachments.getJSONObject(i);
-                String filename = attachment.getString("filename");
-                String content = attachment.getString("content");
-                content = "/resource/md/get/url?platform=Jira&url=" + URLEncoder.encode(content, StandardCharsets.UTF_8);
-
-                if (StringUtils.contains(attachment.getString("mimeType"), "image")) {
-                    String contentUrl = "![" + filename + "](" + content + ")";
-                    fileContentMap.put(filename, contentUrl);
-                } else {
-                    String contentUrl = "附件[" + filename + "]下载地址:" + content;
-                    fileContentMap.put(filename, contentUrl);
-                }
-            }
         }
 
         String[] splitStrs = description.split("\\n\\n");
@@ -138,12 +142,37 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 }
             }
         }
+        return description;
+    }
 
+    private String appendMoreImage(String description, Map<String, String> fileContentMap) {
         for (String key: fileContentMap.keySet()) {
             // 同步jira上传的附件
             description += "\n" + fileContentMap.get(key);
         }
         return description;
+    }
+
+    private Map<String, String> getContextMap(JSONArray attachments) {
+        // 附件处理
+        Map<String, String> fileContentMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(attachments)) {
+            for (int i = 0; i < attachments.size(); i++) {
+                JSONObject attachment = attachments.getJSONObject(i);
+                String filename = attachment.getString("filename");
+                String content = attachment.getString("content");
+                content = "/resource/md/get/url?platform=Jira&url=" + URLEncoder.encode(content, StandardCharsets.UTF_8);
+
+                if (StringUtils.contains(attachment.getString("mimeType"), "image")) {
+                    String contentUrl = "![" + filename + "](" + content + ")";
+                    fileContentMap.put(filename, contentUrl);
+                } else {
+                    String contentUrl = "附件[" + filename + "]下载地址:" + content;
+                    fileContentMap.put(filename, contentUrl);
+                }
+            }
+        }
+        return fileContentMap;
     }
 
     private String getStatus(JSONObject fields) {
