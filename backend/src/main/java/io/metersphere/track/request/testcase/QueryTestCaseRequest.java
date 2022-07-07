@@ -58,4 +58,9 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     //操作时间
     private Long operationTime;
     private boolean casePublic;
+    private long scheduleCreateTime;
+    private String stepTotal;
+    private Boolean toBeUpdated;
+    private String apiCoverage;
+    private String scenarioCoverage;
 }
