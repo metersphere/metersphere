@@ -23,7 +23,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
 
-    List<ApiDefinitionResult> weekList(@Param("request") ApiDefinitionRequest request , @Param("startTimestamp") long startTimestamp );
+    List<ApiDefinitionResult> weekList(@Param("request") ApiDefinitionRequest request, @Param("startTimestamp") long startTimestamp);
 
     List<Scenario> scenarioList(@Param("apiDefinitionId") String apiDefinitionId);
 
@@ -91,10 +91,10 @@ public interface ExtApiDefinitionMapper {
 
     String selectNameById(String testId);
 
-    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBs(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("versionIds") Set<String> versionIds);
+    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBs(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId);
 
-    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId, @Param("versionIds") Set<String> versionIds);
+    List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId);
 
-    List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol, @Param("versionIds") Set<String> versionIds);
+    List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol);
 
 }
