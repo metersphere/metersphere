@@ -762,10 +762,6 @@
         </foreach>
         and status != 'Trash'
         and project_id = #{projectId}
-        and version_id in
-        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
-            #{versionId}
-        </foreach>
     </select>
 
 </mapper>
