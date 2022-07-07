@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -677,7 +678,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     } else {
                         //不覆盖,同一接口不做更新
                         if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                            removeSameData(repeatMap, optionMap, optionData);
+                            removeSameData(repeatMap, optionMap, optionData, moduleMap);
                         }
                     }
                 }
@@ -707,7 +708,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     cover(moduleMap, toUpdateList, optionMap, repeatMap);
                 } else {
                     //不覆盖,同一接口不做更新
-                    removeRepeat(optionData, optionMap, repeatMap);
+                    removeRepeat(optionData, optionMap, repeatMap, moduleMap);
                 }
             }
         }
@@ -740,7 +741,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             }
         } else {
             //不覆盖
-            removeRepeat(optionData, nameModuleMap, repeatDataMap);
+            removeRepeat(optionData, nameModuleMap, repeatDataMap, moduleMap);
         }
         return moduleMap;
     }
@@ -754,12 +755,21 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return updateApiModuleDTO;
     }
 
-    private void removeRepeat(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> nameModuleMap, Map<String, ApiDefinitionWithBLOBs> repeatDataMap) {
+    private void removeRepeat(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> nameModuleMap, Map<String, ApiDefinitionWithBLOBs> repeatDataMap, Map<String, ApiModule> moduleMap) {
         if (nameModuleMap != null) {
+            Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
             Map<String, ApiDefinitionWithBLOBs> finalNameModuleMap = nameModuleMap;
             repeatDataMap.forEach((k, v) -> {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = finalNameModuleMap.get(k);
                 if (apiDefinitionWithBLOBs != null) {
+                    String modulePath = apiDefinitionWithBLOBs.getModulePath();
+                    List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
+                    if (moduleDatas != null) {
+                        if (moduleDatas.size() <= 1) {
+                            moduleMap.remove(modulePath);
+                            removeModulePath(moduleMap, moduleOptionData, modulePath);
+                        }
+                    }
                     optionData.remove(apiDefinitionWithBLOBs);
                 }
             });
@@ -865,7 +875,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         } else {
             //不覆盖,同一接口不做更新
             if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                removeSameData(repeatDataMap, methodPathMap, optionData);
+                removeSameData(repeatDataMap, methodPathMap, optionData, moduleMap);
             }
         }
         return moduleMap;
@@ -903,7 +913,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         } else {
             //不覆盖,同一接口不做更新
             if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                removeSameData(repeatDataMap, methodPathMap, optionData);
+                removeSameData(repeatDataMap, methodPathMap, optionData, moduleMap);
             }
         }
         return moduleMap;
@@ -962,13 +972,37 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return updateVersionId;
     }
 
-    private void removeSameData(Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, List<ApiDefinitionWithBLOBs> optionData) {
-        repeatDataMap.forEach((k, v) -> {
+    private void removeSameData(Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap) {
+        Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
+        BiConsumer<String, List<ApiDefinitionWithBLOBs>> stringListBiConsumer = (k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
             if (apiDefinitionWithBLOBs != null) {
+                String modulePath = apiDefinitionWithBLOBs.getModulePath();
+                List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
+                if (moduleDatas != null) {
+                    if (moduleDatas.size() <= 1) {
+                        moduleMap.remove(modulePath);
+                        removeModulePath(moduleMap, moduleOptionData, modulePath);
+                    }
+                }
                 optionData.remove(apiDefinitionWithBLOBs);
             }
-        });
+        };
+        repeatDataMap.forEach(stringListBiConsumer);
+    }
+
+    private void removeModulePath(Map<String, ApiModule> moduleMap, Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData, String modulePath) {
+        if (StringUtils.isBlank(modulePath)) {
+            return;
+        }
+        String[] pathTree = getPathTree(modulePath);
+        String lastPath = pathTree[pathTree.length - 1];
+        String substring = modulePath.substring(0, modulePath.indexOf("/" + lastPath));
+        if (moduleOptionData.get(substring) == null || moduleOptionData.get(substring).size() == 0) {
+            moduleMap.remove(substring);
+            removeModulePath(moduleMap, moduleOptionData, substring);
+        }
+
     }
 
     private void startCoverModule(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap) {
