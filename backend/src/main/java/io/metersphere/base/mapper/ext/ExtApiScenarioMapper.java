@@ -91,7 +91,7 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> selectByStatusIsNotTrash();
 
-    List<ApiScenarioWithBLOBs> selectRepeatByBLOBs(@Param("names") List<String> names, @Param("projectId") String projectId, @Param("versionIds") Set<String> versionIds);
+    List<ApiScenarioWithBLOBs> selectRepeatByBLOBs(@Param("names") List<String> names, @Param("projectId") String projectId);
 
 
 }
