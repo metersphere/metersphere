@@ -86,6 +86,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         System.setProperty("jmeter.home", jmeterHome);
 
+        pluginService.loadPlugins();
         // 设置并发队列核心数
         BaseSystemConfigDTO dto = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         if (StringUtils.isNotEmpty(dto.getConcurrency())) {
@@ -101,8 +102,6 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         projectService.initMockTcpService();
 
         initOnceOperate();
-
-        pluginService.loadPlugins();
 
         try {
             Thread.sleep(1 * 60 * 1000);
