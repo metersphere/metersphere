@@ -128,6 +128,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             for (HttpMethod method : httpMethods) {
                 Operation operation = operationMap.get(method);
                 MsHTTPSamplerProxy request = buildRequest(operation, pathName, method.name());
+                request.setFollowRedirects(true);
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(), importRequest);
                 parseParameters(operation, request);
                 addBodyHeader(request);
