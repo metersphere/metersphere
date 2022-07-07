@@ -78,6 +78,7 @@ public class HarParser extends HarAbstractParser {
                     url = url.split("\\?")[0];
                 }
             } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
             }
 
             //默认取路径的最后一块
