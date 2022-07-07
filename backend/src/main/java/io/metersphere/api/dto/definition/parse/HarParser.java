@@ -64,7 +64,6 @@ public class HarParser extends HarAbstractParser {
             harEntryList = har.log.entries;
         }
 
-        List<String> savedUrl = new ArrayList<>();
 
         for (HarEntry entry : harEntryList) {
             HarRequest harRequest = entry.request;
@@ -79,12 +78,6 @@ public class HarParser extends HarAbstractParser {
                     url = url.split("\\?")[0];
                 }
             } catch (Exception e) {
-            }
-
-            if (savedUrl.contains(harRequest.url)) {
-                continue;
-            } else {
-                savedUrl.add(harRequest.url);
             }
 
             //默认取路径的最后一块

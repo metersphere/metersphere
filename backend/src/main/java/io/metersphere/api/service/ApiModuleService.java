@@ -769,6 +769,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                             moduleMap.remove(modulePath);
                             removeModulePath(moduleMap, moduleOptionData, modulePath);
                         }
+                        moduleDatas.remove(apiDefinitionWithBLOBs);
                     }
                     optionData.remove(apiDefinitionWithBLOBs);
                 }
@@ -984,7 +985,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                         moduleMap.remove(modulePath);
                         removeModulePath(moduleMap, moduleOptionData, modulePath);
                     }
+                    moduleDatas.remove(apiDefinitionWithBLOBs);
                 }
+
                 optionData.remove(apiDefinitionWithBLOBs);
             }
         };
