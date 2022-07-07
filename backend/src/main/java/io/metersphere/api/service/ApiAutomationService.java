@@ -1315,15 +1315,19 @@ public class ApiAutomationService {
             _importCreate(sameList, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest, apiTestCaseMapper, apiDefinitionMapper);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameList)) {
-                scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
+                if (scenarioWithBLOBs.getVersionId() == null || scenarioWithBLOBs.getVersionId().equals("new")) {
+                    scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
+                } else {
+                    scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
+                    scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+                    scenarioWithBLOBs.setLatest(true);
+                }
                 scenarioWithBLOBs.setId(UUID.randomUUID().toString());
-                scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                scenarioWithBLOBs.setLatest(true);
                 checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
                 batchMapper.insert(scenarioWithBLOBs);
                 // 存储依赖关系
@@ -1355,6 +1359,9 @@ public class ApiAutomationService {
 
         String defaultVersion = extProjectVersionMapper.getDefaultVersion(request.getProjectId());
         request.setDefaultVersion(defaultVersion);
+        if (request.getVersionId() == null) {
+            request.setVersionId(defaultVersion);
+        }
 
         UpdateScenarioModuleDTO updateScenarioModuleDTO = apiScenarioModuleService.checkScenarioModule(request, initData, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule());
         List<ApiScenarioModule> moduleList = updateScenarioModuleDTO.getModuleList();
@@ -1384,7 +1391,9 @@ public class ApiAutomationService {
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
             }
-            item.setNum(num);
+            if (item.getVersionId() == null || !item.getVersionId().equals("new")) {
+                item.setNum(num);
+            }
             if (BooleanUtils.isFalse(request.getOpenCustomNum())) {
                 // 如果未开启，即使有自定值也直接覆盖
                 item.setCustomNum(String.valueOf(num));
