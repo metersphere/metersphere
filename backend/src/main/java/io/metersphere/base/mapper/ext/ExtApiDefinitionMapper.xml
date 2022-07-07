@@ -1087,10 +1087,6 @@
         <include refid="Same_Where_Clause"/>
         and status != 'Trash'
         and project_id = #{projectId}
-        and version_id in
-        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
-            #{versionId}
-        </foreach>
     </select>
     <select id="selectRepeatByBLOBsSameUrl" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition
@@ -1098,20 +1094,12 @@
         and status != 'TRASH'
         and project_id = #{projectId}
         and module_id = #{moduleId}
-        and version_id in
-        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
-            #{versionId}
-        </foreach>
     </select>
     <select id="selectRepeatByProtocol" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition
         where name in
         <foreach collection="names" item="name" separator="," open="(" close=")">
             #{name}
-        </foreach>
-        and version_id in
-        <foreach collection="versionIds" item="versionId" separator="," open="(" close=")">
-            #{versionId}
         </foreach>
         and protocol = #{protocol}
         and status != 'Trash'
