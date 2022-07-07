@@ -534,7 +534,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 startCover(toUpdateList, optionMap, repeatMap);
             } else {
                 //不覆盖,同一接口不做更新
-                removeRepeat(optionData, optionMap, repeatMap);
+                removeRepeat(optionData, optionMap, repeatMap, moduleMap);
             }
         }
 
@@ -573,7 +573,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             }
         } else {
             //不覆盖
-            removeRepeat(optionData, nameModuleMap, repeatDataMap);
+            removeRepeat(optionData, nameModuleMap, repeatDataMap, moduleMap);
         }
         return moduleMap;
     }
@@ -595,15 +595,40 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         versionSet.add(updateVersionId);
     }
 
-    private void removeRepeat(List<ApiScenarioWithBLOBs> optionData, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
+    private void removeRepeat(List<ApiScenarioWithBLOBs> optionData, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap, Map<String, ApiScenarioModule> moduleMap) {
         if (repeatDataMap != null) {
+            Map<String, List<ApiScenarioWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiScenario::getModulePath));
             repeatDataMap.forEach((k, v) -> {
                 ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
                 if (apiScenarioWithBLOBs != null) {
+                    if (apiScenarioWithBLOBs != null) {
+                        String modulePath = apiScenarioWithBLOBs.getModulePath();
+                        List<ApiScenarioWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
+                        if (moduleDatas != null) {
+                            if (moduleDatas.size() <= 1) {
+                                moduleMap.remove(modulePath);
+                                removeModulePath(moduleMap, moduleOptionData, modulePath);
+                            }
+                        }
+                    }
                     optionData.remove(apiScenarioWithBLOBs);
                 }
             });
         }
+    }
+
+    private void removeModulePath(Map<String, ApiScenarioModule> moduleMap, Map<String, List<ApiScenarioWithBLOBs>> moduleOptionData, String modulePath) {
+        if (StringUtils.isBlank(modulePath)) {
+            return;
+        }
+        String[] pathTree = getTagTree(modulePath);
+        String lastPath = pathTree[pathTree.length - 1];
+        String substring = modulePath.substring(0, modulePath.indexOf("/" + lastPath));
+        if (moduleOptionData.get(substring) == null || moduleOptionData.get(substring).size() == 0) {
+            moduleMap.remove(substring);
+            removeModulePath(moduleMap, moduleOptionData, substring);
+        }
+
     }
 
     private void startCover(List<ApiScenarioWithBLOBs> toUpdateList, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
