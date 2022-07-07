@@ -603,13 +603,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 if (apiScenarioWithBLOBs != null) {
                     String modulePath = apiScenarioWithBLOBs.getModulePath();
                     List<ApiScenarioWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
-                    if (moduleDatas != null) {
-                        if (moduleDatas.size() <= 1) {
-                            moduleMap.remove(modulePath);
-                            removeModulePath(moduleMap, moduleOptionData, modulePath);
-                        }
+                    if (moduleDatas != null && moduleDatas.size() <= 1) {
+                        moduleMap.remove(modulePath);
+                        removeModulePath(moduleMap, moduleOptionData, modulePath);
                         moduleDatas.remove(apiScenarioWithBLOBs);
-
                     }
                     optionData.remove(apiScenarioWithBLOBs);
                 }

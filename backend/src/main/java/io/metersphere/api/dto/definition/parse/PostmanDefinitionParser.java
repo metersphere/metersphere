@@ -73,14 +73,12 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                 if (StringUtils.isNotBlank(modulePath)) {
                     request.setModulePath(modulePath);
                 }
-                if (request != null) {
-                    results.add(request);
-                    ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
-                    BeanUtils.copyBean(apiTestCase, request);
-                    apiTestCase.setApiDefinitionId(request.getId());
-                    apiTestCase.setPriority("P0");
-                    cases.add(apiTestCase);
-                }
+                results.add(request);
+                ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+                BeanUtils.copyBean(apiTestCase, request);
+                apiTestCase.setApiDefinitionId(request.getId());
+                apiTestCase.setPriority("P0");
+                cases.add(apiTestCase);
             }
         }
     }
