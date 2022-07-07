@@ -429,10 +429,15 @@
         FROM api_definition_exec_result
         WHERE id = #{0}
     </select>
+
     <select id="selectRerunResult" resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
-        SELECT * FROM api_definition_exec_result
+        SELECT
+            *
+        FROM
+            api_definition_exec_result
         WHERE
-            status != 'success' AND id = #{reportId} order by create_time asc
+            status != 'success'
+            AND integrated_report_id = #{reportId} order by create_time asc
     </select>
 
 </mapper>
