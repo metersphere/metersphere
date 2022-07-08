@@ -927,9 +927,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         if (body != null) { //  将请求体转换成相应的格式导出
             String bodyType = body.getString("type");
-            if (bodyType == null) {
-
-            } else if (bodyType.equalsIgnoreCase("JSON")) {
+            if (StringUtils.isNotBlank(bodyType) && bodyType.equalsIgnoreCase("JSON")) {
                 try {
                     if (StringUtils.equals(body.getString("format"), "JSON-SCHEMA")) {
                         String jsonSchema = body.getString("jsonSchema");
@@ -977,14 +975,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
 
-        String type = respOrReq.getJSONObject("body").getString("type");
+        String type = null;
+        if (respOrReq.getJSONObject("body") != null) {
+            type = respOrReq.getJSONObject("body").getString("type");
+        }
         JSONObject content = new JSONObject();
         Object schema = bodyInfo;   //  请求体部分
         JSONObject typeName = new JSONObject();
         if (schema != null) {
             typeName.put("schema", schema);//schema.getJSONObject("properties").size() == 0? "" :
         }
-        if (type != null && StringUtils.isNotBlank(type)) {
+        if (StringUtils.isNotBlank(type)) {
             content.put(typeMap.get(type), typeName);
         }
         return content;
