@@ -97,7 +97,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId);
 
-    List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol);
+    List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol, @Param("projectId") String projectId);
 
     int countById(String id);
 }

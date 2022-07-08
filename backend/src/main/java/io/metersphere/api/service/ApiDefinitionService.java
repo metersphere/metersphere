@@ -804,6 +804,7 @@ public class ApiDefinitionService {
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(collect)) {
                 String originId = apiDefinition.getId();
+                apiDefinition.setId(UUID.randomUUID().toString());
                 //postman 可能含有前置脚本，接口定义去掉脚本
                 if (apiDefinition.getVersionId() != null && apiDefinition.getVersionId().equals("new")) {
                     apiDefinition.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
@@ -812,7 +813,6 @@ public class ApiDefinitionService {
                     apiDefinition.setRefId(apiDefinition.getId());
                     apiDefinition.setLatest(true); // 新增的接口 latest = true
                 }
-                apiDefinition.setId(UUID.randomUUID().toString());
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
@@ -820,7 +820,6 @@ public class ApiDefinitionService {
                 }
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
-
                 // case 设置版本
                 cases.forEach(c -> {
                     c.setVersionId(apiDefinition.getVersionId());
