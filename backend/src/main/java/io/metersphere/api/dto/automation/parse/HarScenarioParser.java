@@ -53,30 +53,13 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
 
         // 生成场景对象
         List<ApiScenarioWithBLOBs> scenarioWithBLOBs = new LinkedList<>();
-        parseScenarioWithBLOBs(scenarioWithBLOBs, msScenario, request);
+        parseScenarioWithBLOBs(scenarioWithBLOBs, msScenario);
         scenarioImport.setData(scenarioWithBLOBs);
         return scenarioImport;
     }
 
-    private void parseScenarioWithBLOBs(List<ApiScenarioWithBLOBs> scenarioWithBLOBsList, MsScenario msScenario, ApiTestImportRequest request) {
-/*
-        ApiScenarioModule selectModule = null;
-*/
-        /*if (StringUtils.isNotBlank(request.getModuleId())) {
-            selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
-        }
-        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);*/
+    private void parseScenarioWithBLOBs(List<ApiScenarioWithBLOBs> scenarioWithBLOBsList, MsScenario msScenario) {
         ApiScenarioWithBLOBs scenarioWithBLOBs = parseScenario(msScenario);
-        /*if (module != null) {
-            scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-            if (selectModule != null) {
-                String selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
-                scenarioWithBLOBs.setModulePath(selectModulePath + "/" + module.getName());
-            } else {
-                scenarioWithBLOBs.setModulePath("/" + module.getName());
-            }
-        }*/
-        scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 
