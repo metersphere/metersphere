@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -28,10 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TapdPlatform extends AbstractIssuePlatform {
@@ -201,6 +199,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(ids)) return;
+        HashMap<String, List<CustomFieldResource>> customFieldMap = new HashMap<>();
 
         Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
 
@@ -218,7 +217,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 IssuesWithBLOBs updateIssue = getUpdateIssue(issuesMapper.selectByPrimaryKey(id), bug, statusMap);
                 updateIssue.setId(id);
                 updateIssue.setCustomFields(syncIssueCustomField(updateIssue.getCustomFields(), bug));
-                customFieldIssuesService.addFields(id, customFieldService.getCustomFieldResource(updateIssue.getCustomFields()));
+                customFieldMap.put(id, customFieldService.getCustomFieldResource(updateIssue.getCustomFields()));
                 issuesMapper.updateByPrimaryKeySelective(updateIssue);
                 ids.remove(platformId);
             });
@@ -233,6 +232,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 issuesMapper.updateByPrimaryKeySelective(issuesDao);
             }
         });
+        customFieldIssuesService.batchEditFields(customFieldMap);
     }
 
     protected IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JSONObject bug, Map<String, String> statusMap) {

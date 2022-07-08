@@ -8,6 +8,7 @@ import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesExample;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.constants.ZentaoIssuePlatformStatus;
@@ -377,14 +378,17 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
+        HashMap<String, List<CustomFieldResource>> customFieldMap = new HashMap<>();
+
         issues.forEach(item -> {
             IssuesWithBLOBs issue = issuesMapper.selectByPrimaryKey(item.getId());
             JSONObject bug = zentaoClient.getBugById(item.getPlatformId());
             issue = getUpdateIssues(issue, bug);
-            customFieldIssuesService.addFields(item.getId(), customFieldService.getCustomFieldResource(issue.getCustomFields()));
+            customFieldMap.put(item.getId(), customFieldService.getCustomFieldResource(issue.getCustomFields()));
             issue.setId(item.getId());
             issuesMapper.updateByPrimaryKeySelective(issue);
         });
+        customFieldIssuesService.batchEditFields(customFieldMap);
     }
 
     public List<ZentaoBuild> getBuilds() {
