@@ -7,7 +7,8 @@
           <el-tabs v-model="activeName" class="request-tabs">
             <!-- 请求头-->
             <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')"
+                          placement="top-start" slot="label">
               <span>{{ $t('api_test.request.headers') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.headers.length>1">
                   <div class="el-step__icon-inner">{{ request.headers.length - 1 }}</div>
@@ -15,29 +16,38 @@
               </span>
               </el-tooltip>
               <el-row>
-                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+                <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color);">
+                  {{ $t("commons.batch_add") }}
+                </el-link>
               </el-row>
-              <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+              <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly"
+                                :isShowEnable="isShowEnable"
                                 :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
             </el-tab-pane>
 
             <!--query 参数-->
             <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')"
+                          placement="top-start" slot="label">
               <span>{{ $t('api_test.definition.request.query_param') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.arguments.length>1">
                   <div class="el-step__icon-inner">{{ request.arguments.length - 1 }}</div>
                 </div></span>
               </el-tooltip>
               <el-row>
-                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+                <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color);">
+                  {{ $t("commons.batch_add") }}
+                </el-link>
               </el-row>
-              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.query" :parameters="request.arguments"/>
+              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly"
+                                          :is-show-enable="isShowEnable" :suggestions="apiParams.query"
+                                          :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
             <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')"
+                          placement="top-start" slot="label">
               <span>
                 {{ $t('api_test.definition.request.rest_param') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.rest.length>1">
@@ -46,9 +56,13 @@
               </span>
               </el-tooltip>
               <el-row>
-                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+                <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color);">
+                  {{ $t("commons.batch_add") }}
+                </el-link>
               </el-row>
-              <mock-combination-condition :is-rest="true" :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.rest" :parameters="request.rest"/>
+              <mock-combination-condition :is-rest="true" :filter-type-object="request" :is-read-only="isReadOnly"
+                                          :is-show-enable="isShowEnable" :suggestions="apiParams.rest"
+                                          :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
@@ -59,9 +73,13 @@
                              :isShowEnable="isShowEnable"
                              :headers="request.headers" :body="request.body"/>
             </el-tab-pane>
-            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">
+            <el-tab-pane name="create"
+                         v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">
               <template v-slot:label>
-                <el-button size="mini" type="primary" @click.stop @click="generate">{{ $t('commons.generate_test_data') }}</el-button>
+                <el-button size="mini" type="primary" @click.stop @click="generate">{{
+                    $t('commons.generate_test_data')
+                  }}
+                </el-button>
               </template>
             </el-tab-pane>
           </el-tabs>
@@ -80,12 +98,12 @@ import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsApiAssertions from "@/business/components/api/definition/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/definition/components/extract/ApiExtract";
 import {Body, KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
-import {hasLicense, getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import MsApiAdvancedConfig from "@/business/components/api/definition/components/request/http/ApiAdvancedConfig";
 import MsJsr233Processor from "@/business/components/api/automation/scenario/component/Jsr233Processor";
-import ApiDefinitionStepButton from "@/business/components/api/definition/components/request/components/ApiDefinitionStepButton";
-import {hasPermission} from '@/common/js/utils';
+import ApiDefinitionStepButton
+  from "@/business/components/api/definition/components/request/components/ApiDefinitionStepButton";
 import Convert from "@/business/components/common/json-schema/convert/convert";
 import MockApiBody from "@/business/components/api/definition/components/mock/Components/MockApiBody";
 import MockCombinationCondition

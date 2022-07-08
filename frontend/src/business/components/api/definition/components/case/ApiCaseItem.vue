@@ -58,7 +58,7 @@
                 <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow"
                             :disabled="true">
                   <i class="el-icon-star-off"
-                     style="color: #783987; font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer "
+                     style="color: var(--primary_color); font-size: 25px; margin-top: 2px; margin-right: 15px;cursor: pointer "
                      @click="saveFollow"/>
                 </el-tooltip>
                 <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow"

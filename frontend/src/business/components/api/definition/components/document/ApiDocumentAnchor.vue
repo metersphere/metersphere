@@ -100,9 +100,7 @@
 <script>
 import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/JsonData";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
-import {formatJson,} from "@/common/js/format-utils";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
-import {calculate} from "@/business/components/api/definition/model/ApiTestModel";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import Api from "@/business/components/api/router";
 import {generateApiDocumentShareInfo} from "@/network/share";
@@ -624,6 +622,7 @@ export default {
 
 /deep/ .el-step__icon-inner {
   font-size: 12px;
+  border-top-color: var(--primary_color);
 }
 
 /deep/ .el-step.is-vertical .el-step__line {

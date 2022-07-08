@@ -12,7 +12,8 @@
               <div class="el-step__icon-inner">1</div>
             </div>
             <span>{{ $t('schedule.edit_timer_task') }}</span>
-            <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;" class="ms-el-form-item__error">
+            <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;"
+                     class="ms-el-form-item__error">
               <el-form-item :label="$t('commons.schedule_cron_title')"
                             prop="cronValue" style="height: 50px">
                 <el-row :gutter="20">
@@ -104,11 +105,11 @@
                     <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
                                size="mini">
                       <el-option
-                          v-for="item in resourcePools"
-                          :key="item.id"
-                          :label="item.name"
-                          :disabled="!item.api"
-                          :value="item.id">
+                        v-for="item in resourcePools"
+                        :key="item.id"
+                        :label="item.name"
+                        :disabled="!item.api"
+                        :value="item.id">
                       </el-option>
                     </el-select>
                   </div>
@@ -184,12 +185,12 @@
 
 <script>
 import {
-  hasLicense,
   getCurrentProjectID,
   getCurrentUser,
   getCurrentWorkspaceId,
-  listenGoBack, objToStrMap,
-  removeGoBackListener, strMapToObj
+  hasLicense,
+  listenGoBack,
+  removeGoBackListener
 } from "@/common/js/utils";
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
@@ -252,13 +253,12 @@ export default {
         callback(new Error(this.$t('commons.input_content')));
       } else if (!cronValidate(cronValue)) {
         callback(new Error(this.$t('schedule.cron_expression_format_error')));
-      }else if(!this.intervalValidate()){
+      } else if (!this.intervalValidate()) {
         callback(new Error(this.$t('schedule.cron_expression_interval_error')));
-      }
-      else if (!customValidate.pass) {
+      } else if (!customValidate.pass) {
         callback(new Error(customValidate.info));
       } else {
-        if (!this.schedule.id){
+        if (!this.schedule.id) {
           this.schedule.enable = true;
         }
         callback();
@@ -422,7 +422,7 @@ export default {
       //确定后回传的值
       this.form.cronValue = value;
       // 如果是第一次设置定时任务规则，则默认开启定时任务
-      if (!this.schedule.id){
+      if (!this.schedule.id) {
         this.schedule.enable = true;
       }
       this.$refs.crontabResult.resultList = resultList;
@@ -573,8 +573,8 @@ export default {
 }
 
 .head {
-  border-bottom: 1px solid #7C3985;
-  color: #7C3985;
+  border-bottom: 1px solid var(--primary_color);
+  color: var(--primary_color);
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   font-size: 13px;
   cursor: pointer;
@@ -585,7 +585,7 @@ export default {
   /* display: inline-flex; */
 }
 
-.ms-el-form-item__error >>> .el-form-item__error{
+.ms-el-form-item__error >>> .el-form-item__error {
   left: -42px;
   padding-top: 0px;
 }

@@ -7,12 +7,12 @@
         <div style="float: right;margin-right: 20px" class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i class="el-icon-star-off"
-               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+               style="color: var(--primary_color); font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
             <i class="el-icon-star-on"
-               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+               style="color: var(--primary_color); font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="httpForm.id">
