@@ -2,7 +2,6 @@ package io.metersphere.api.parse;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.parse.postman.*;
@@ -12,17 +11,14 @@ import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractParser<T> {
 
@@ -47,7 +43,6 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         request.setArguments(parseKeyValue(url == null ? new ArrayList<>() : url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
         addBodyHeader(request);
-        addPreScript(request, requestItem.getEvent());
         return request;
     }
 
@@ -108,37 +103,6 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
             LogUtil.error(e.getMessage(), e);
         }
         return value;
-    }
-
-    private void addPreScript(MsHTTPSamplerProxy request, List<PostmanEvent> event) {
-        if (request != null && CollectionUtils.isNotEmpty(event)) {
-            StringBuilder scriptStr = new StringBuilder();
-            event = event.stream()
-                    .filter(item -> item.getScript() != null)
-                    .collect(Collectors.toList());
-            event.forEach(item -> {
-                PostmanScript script = item.getScript();
-                if (script != null && item.getListen().contains("prerequest")) {
-                    List<String> exec = script.getExec();
-                    if (CollectionUtils.isNotEmpty(exec)) {
-                        exec.forEach(col -> {
-                            if (StringUtils.isNotEmpty(col)) {
-                                scriptStr.append(col + "\n");
-                            }
-                        });
-                    }
-                }
-            });
-            if (StringUtils.isNotBlank(scriptStr)) {
-                MsJSR223PreProcessor jsr223PreProcessor = new MsJSR223PreProcessor();
-                jsr223PreProcessor.setName("JSR223PreProcessor");
-                jsr223PreProcessor.setScriptLanguage("rhino");
-                jsr223PreProcessor.setScript(parseVariable(scriptStr.toString()));
-                LinkedList<MsTestElement> hashTree = new LinkedList<>();
-                hashTree.add(jsr223PreProcessor);
-                request.setHashTree(hashTree);
-            }
-        }
     }
 
     private List<KeyValue> parseKeyValue(List<PostmanKeyValue> postmanKeyValues) {
