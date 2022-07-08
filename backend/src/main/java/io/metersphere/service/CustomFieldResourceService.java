@@ -108,6 +108,35 @@ public class CustomFieldResourceService {
         }
     }
 
+
+    protected void batchEditFields(String tableName, HashMap<String, List<CustomFieldResource>> customFieldMap) {
+        if (customFieldMap == null || customFieldMap.size() == 0) {
+            return;
+        }
+        this.checkInit();
+        for (String resourceId : customFieldMap.keySet()) {
+            SqlSession sqlSession = ServiceUtils.getBatchSqlSession();
+            ExtCustomFieldResourceMapper batchMapper = sqlSession.getMapper(ExtCustomFieldResourceMapper.class);
+            List<CustomFieldResource> list = customFieldMap.get(resourceId);
+            if (CollectionUtils.isEmpty(list)) {
+                continue;
+            }
+            for (CustomFieldResource customFieldResource : list) {
+                long count = extCustomFieldResourceMapper.countFieldResource(tableName, resourceId, customFieldResource.getFieldId());
+                if (count > 0) {
+                    batchMapper.updateByPrimaryKeySelective(tableName, customFieldResource);
+                } else {
+                    customFieldResource.setResourceId(resourceId);
+                    batchMapper.insert(tableName, customFieldResource);
+                }
+            }
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+    }
+
     private void createOrUpdateFields(String tableName, String resourceId, CustomFieldResource field) {
         long count = extCustomFieldResourceMapper.countFieldResource(tableName, resourceId, field.getFieldId());
         field.setResourceId(resourceId);
