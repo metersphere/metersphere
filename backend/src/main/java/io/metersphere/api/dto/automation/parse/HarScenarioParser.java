@@ -60,7 +60,6 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
 
     private void parseScenarioWithBLOBs(List<ApiScenarioWithBLOBs> scenarioWithBLOBsList, MsScenario msScenario) {
         ApiScenarioWithBLOBs scenarioWithBLOBs = parseScenario(msScenario);
-        scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 

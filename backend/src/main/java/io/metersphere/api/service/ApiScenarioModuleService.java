@@ -516,7 +516,11 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         setModule(optionData, moduleMap, pidChildrenMap, idPathMap, idModuleMap, chooseModule);
         List<String> names = optionData.stream().map(ApiScenario::getName).collect(Collectors.toList());
         //系统内重复的数据
-        List<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(names, projectId);
+        List<ApiScenarioWithBLOBs> repeatAllScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(names, projectId);
+        ArrayList<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs = repeatAllScenarioWithBLOBs.stream().collect(
+                Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(t -> t.getName() + t.getModulePath()))), ArrayList::new)
+        );
 
         Map<String, ApiScenarioWithBLOBs> nameModuleMap = null;
         Map<String, ApiScenarioWithBLOBs> repeatDataMap = null;
@@ -559,6 +563,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             }
         }
 
+        if (optionData.isEmpty()) {
+            moduleMap = new HashMap<>();
+        }
         UpdateScenarioModuleDTO updateScenarioModuleDTO = new UpdateScenarioModuleDTO();
         updateScenarioModuleDTO.setModuleList(new ArrayList<>(moduleMap.values()));
         updateScenarioModuleDTO.setNeedUpdateList(toUpdateList);
