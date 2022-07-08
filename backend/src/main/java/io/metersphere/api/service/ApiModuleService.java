@@ -790,6 +790,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             }
         }
 
+        if (optionData.isEmpty()) {
+            moduleMap = new HashMap<>();
+        }
         return getUpdateApiModuleDTO(moduleMap, toUpdateList, optionData);
     }
 
