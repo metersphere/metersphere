@@ -471,17 +471,22 @@ public class ApiDefinitionService {
                 for (ApiDefinition apiDefinition : reductionCaseList) {
                     //检查是否同名
                     SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
-                    apiDefinitionRequest.setProjectId(request.getProjectId());
+                    apiDefinitionRequest.setProjectId(apiDefinition.getProjectId());
                     apiDefinitionRequest.setMethod(apiDefinition.getMethod());
                     apiDefinitionRequest.setProtocol(apiDefinition.getProtocol());
                     apiDefinitionRequest.setPath(apiDefinition.getPath());
                     apiDefinitionRequest.setName(apiDefinition.getName());
                     apiDefinitionRequest.setId(apiDefinition.getId());
                     apiDefinitionRequest.setModuleId(apiDefinition.getModuleId());
-                    apiDefinitionRequest.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
-                    checkNameExist(apiDefinitionRequest);
-
+                    apiDefinitionRequest.setModulePath(apiDefinition.getModulePath());
                     String moduleId = apiDefinition.getModuleId();
+                    long nodeCount = apiModuleService.countById(moduleId);
+                    if (nodeCount <= 0) {
+                        checkNameExist(apiDefinitionRequest, true);
+                    } else {
+                        checkNameExist(apiDefinitionRequest, false);
+                    }
+
                     if (StringUtils.isEmpty(moduleId)) {
                         moduleId = "";
                     }
@@ -526,42 +531,52 @@ public class ApiDefinitionService {
         }
     }
 
-    private void checkNameExist(SaveApiDefinitionRequest request) {
+    private void checkNameExist(SaveApiDefinitionRequest request, Boolean moduleIdNotExist) {
         if (StringUtils.isEmpty(request.getVersionId())) {
             request.setVersionId(extProjectVersionMapper.getDefaultVersion(request.getProjectId()));
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
+        ApiDefinitionExample.Criteria criteria = example.createCriteria();
         if (StringUtils.isNotEmpty(request.getProtocol()) && request.getProtocol().equals(RequestType.HTTP)) {
-            ApiDefinitionExample.Criteria criteria = example.createCriteria();
             criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId())
-                    .andVersionIdEqualTo(request.getVersionId()).andModuleIdEqualTo(request.getModuleId());
+                    .andVersionIdEqualTo(request.getVersionId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
             boolean urlRepeat = config.getUrlRepeatable();
+            if (moduleIdNotExist) {
+                criteria.andModulePathEqualTo(request.getModulePath());
+            } else {
+                criteria.andModuleIdEqualTo(request.getModuleId());
+            }
             if (project != null && urlRepeat) {
                 criteria.andNameEqualTo(request.getName());
                 if (apiDefinitionMapper.countByExample(example) > 0) {
-                    MSException.throwException(Translator.get("api_definition_name_not_repeating"));
+                    MSException.throwException(Translator.get("api_definition_name_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName() + "-" + request.getPath());
                 }
             } else {
                 if (apiDefinitionMapper.countByExample(example) > 0) {
-                    MSException.throwException(Translator.get("api_definition_url_not_repeating"));
+                    MSException.throwException(Translator.get("api_definition_url_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
                 }
             }
         } else {
-            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
+            criteria.andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId()).andVersionIdEqualTo(request.getVersionId()).andModuleIdEqualTo(request.getModuleId());
+                    .andIdNotEqualTo(request.getId()).andVersionIdEqualTo(request.getVersionId());
+            if (moduleIdNotExist) {
+                criteria.andModulePathEqualTo(request.getModulePath());
+            } else {
+                criteria.andModuleIdEqualTo(request.getModuleId());
+            }
             if (apiDefinitionMapper.countByExample(example) > 0) {
-                MSException.throwException(Translator.get("load_test_already_exists"));
+                MSException.throwException(Translator.get("api_definition_name_already_exists") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
             }
         }
     }
 
     private ApiDefinitionWithBLOBs updateTest(SaveApiDefinitionRequest request) {
-        checkNameExist(request);
+        checkNameExist(request, false);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.handleEsbRequest(request);
@@ -707,7 +722,7 @@ public class ApiDefinitionService {
     }
 
     private ApiDefinitionResult createTest(SaveApiDefinitionRequest request) {
-        checkNameExist(request);
+        checkNameExist(request, false);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.handleEsbRequest(request);
