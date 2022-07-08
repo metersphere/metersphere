@@ -1335,7 +1335,7 @@ public class ApiAutomationService {
             _importCreate(sameList, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest, apiTestCaseMapper, apiDefinitionMapper);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameList)) {
-                if (scenarioWithBLOBs.getVersionId() == null || scenarioWithBLOBs.getVersionId().equals("new")) {
+                if (scenarioWithBLOBs.getVersionId() != null && scenarioWithBLOBs.getVersionId().equals("new")) {
                     scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
                 } else {
                     scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));

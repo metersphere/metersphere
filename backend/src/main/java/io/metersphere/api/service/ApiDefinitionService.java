@@ -805,7 +805,7 @@ public class ApiDefinitionService {
             if (CollectionUtils.isEmpty(collect)) {
                 String originId = apiDefinition.getId();
                 //postman 可能含有前置脚本，接口定义去掉脚本
-                if (apiDefinition.getVersionId() == null || apiDefinition.getVersionId().equals("new")) {
+                if (apiDefinition.getVersionId() != null && apiDefinition.getVersionId().equals("new")) {
                     apiDefinition.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
                 } else {
                     apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
