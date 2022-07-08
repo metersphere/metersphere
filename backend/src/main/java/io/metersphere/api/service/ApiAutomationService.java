@@ -1289,6 +1289,7 @@ public class ApiAutomationService {
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             _importCreate(sameList, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest, apiTestCaseMapper, apiDefinitionMapper);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
+            scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             if (CollectionUtils.isEmpty(sameList)) {
                 if (scenarioWithBLOBs.getVersionId() != null && scenarioWithBLOBs.getVersionId().equals("new")) {
                     scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
@@ -1297,7 +1298,6 @@ public class ApiAutomationService {
                     scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
                     scenarioWithBLOBs.setLatest(true);
                 }
-                scenarioWithBLOBs.setId(UUID.randomUUID().toString());
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
                 } else {

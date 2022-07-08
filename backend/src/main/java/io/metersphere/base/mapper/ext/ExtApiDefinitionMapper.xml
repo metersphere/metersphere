@@ -1010,6 +1010,7 @@
             #{name}
         </foreach>
         and protocol = #{protocol}
+        and project_id = #{projectId}
         and status != 'Trash'
     </select>
     <sql id="Same_Where_Clause">
