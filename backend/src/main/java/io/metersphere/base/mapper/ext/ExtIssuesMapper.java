@@ -20,7 +20,7 @@ public interface ExtIssuesMapper {
 
     Issues getNextNum(String projectId);
 
-    List<IssuesDao> getIssueForSync(String projectId);
+    List<IssuesDao> getIssueForSync(@Param("projectId") String projectId, @Param("platform") String platform);
 
     List<PlanReportIssueDTO> selectForPlanReport(String planId);
 

@@ -819,6 +819,10 @@ public class ProjectService {
         return extProjectMapper.getProjectIds();
     }
 
+    public List<String> getThirdPartProjectIds() {
+        return extProjectMapper.getThirdPartProjectIds();
+    }
+
     public Map<String, Project> queryNameByIds(List<String> ids) {
         return extProjectMapper.queryNameByIds(ids);
     }
