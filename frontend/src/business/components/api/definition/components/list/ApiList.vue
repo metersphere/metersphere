@@ -243,7 +243,8 @@ import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/se
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
-  buildBatchParam, deepClone,
+  buildBatchParam,
+  deepClone,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
@@ -970,7 +971,7 @@ export default {
           exportTree.splice(i, 1);
         }
       }
-      return  exportTree;
+      return exportTree;
     },
     // 去掉没有数据的模块再导出
     cutDownTree(nodeTree, nodeIdSet) {
