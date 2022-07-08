@@ -749,7 +749,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             List<String> nameList = optionData.stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
 
             //获取系统内重复数据
-            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol);
+            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol, projectId);
 
             Map<String, ApiDefinitionWithBLOBs> repeatDataMap = null;
 
