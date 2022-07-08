@@ -59,7 +59,7 @@
                            ref="envPopover" class="env-popover"/>
             </div>
             <div class="ms-mode-div">
-                  <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
+              <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
               <el-checkbox v-model="runConfig.runWithinResourcePool">
                 {{ $t('run_mode.run_with_resource_pool') }}
               </el-checkbox>
@@ -96,9 +96,12 @@
 <script>
 import {
   getCurrentProjectID,
-  getCurrentUser, getCurrentWorkspaceId,
-  listenGoBack, objToStrMap,
-  removeGoBackListener, strMapToObj
+  getCurrentUser,
+  getCurrentWorkspaceId,
+  listenGoBack,
+  objToStrMap,
+  removeGoBackListener,
+  strMapToObj
 } from "@/common/js/utils";
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
@@ -157,10 +160,9 @@ export default {
         callback(new Error(this.$t('commons.input_content')));
       } else if (!cronValidate(cronValue)) {
         callback(new Error(this.$t('schedule.cron_expression_format_error')));
-      } else if(!this.intervalValidate()){
+      } else if (!this.intervalValidate()) {
         callback(new Error(this.$t('schedule.cron_expression_interval_error')));
-      }
-      else if (!customValidate.pass) {
+      } else if (!customValidate.pass) {
         callback(new Error(customValidate.info));
       } else {
         callback();
@@ -353,7 +355,7 @@ export default {
       //确定后回传的值
       this.form.cronValue = value;
       // 如果是第一次设置定时任务规则，则默认开启定时任务
-      if (!this.schedule.id){
+      if (!this.schedule.id) {
         this.schedule.enable = true;
       }
       this.$refs.crontabResult.resultList = resultList;
@@ -498,8 +500,8 @@ export default {
 }
 
 .head {
-  border-bottom: 1px solid #7C3985;
-  color: #7C3985;
+  border-bottom: 1px solid var(--primary_color);
+  color: var(--primary_color);
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   font-size: 13px;
   cursor: pointer;
@@ -520,7 +522,8 @@ export default {
   margin-right: 4px;
   margin-left: 10px;
 }
-.ms-el-form-item__error >>> .el-form-item__error{
+
+.ms-el-form-item__error >>> .el-form-item__error {
   left: -42px;
   padding-top: 0px;
 }

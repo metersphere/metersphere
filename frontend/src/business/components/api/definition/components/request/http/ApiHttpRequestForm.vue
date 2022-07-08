@@ -5,7 +5,8 @@
       <el-tabs v-model="activeName" class="request-tabs ms-tabs__nav-scroll" @tab-click="tabClick">
         <!-- 请求头-->
         <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
+                      slot="label">
               <span>{{ $t('api_test.request.headers') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length>1">
                   <div class="el-step__icon-inner">{{ headers.length - 1 }}</div>
@@ -13,22 +14,25 @@
               </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+            <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color);">
+              {{ $t("commons.batch_add") }}
+            </el-link>
           </el-row>
           <ms-api-key-value
-            @editScenarioAdvance="editScenarioAdvance"
-            :scenario-definition="scenarioDefinition"
-            :show-desc="true"
-            :is-read-only="isReadOnly"
-            :isShowEnable="isShowEnable"
-            :suggestions="headerSuggestions"
-            :items="headers"
-            :need-mock="true" v-if="activeName === 'headers'"/>
+              @editScenarioAdvance="editScenarioAdvance"
+              :scenario-definition="scenarioDefinition"
+              :show-desc="true"
+              :is-read-only="isReadOnly"
+              :isShowEnable="isShowEnable"
+              :suggestions="headerSuggestions"
+              :items="headers"
+              :need-mock="true" v-if="activeName === 'headers'"/>
         </el-tab-pane>
 
         <!--query 参数-->
         <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')"
+                      placement="top-start" slot="label">
               <span>{{ $t('api_test.definition.request.query_param') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.arguments.length>1">
                   <div class="el-step__icon-inner">{{ request.arguments.length - 1 }}</div>
@@ -36,22 +40,25 @@
               </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+            <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color);">
+              {{ $t("commons.batch_add") }}
+            </el-link>
           </el-row>
           <ms-api-variable
-            @editScenarioAdvance="editScenarioAdvance"
-            :scenario-definition="scenarioDefinition"
-            :with-mor-setting="true"
-            :is-read-only="isReadOnly"
-            :isShowEnable="isShowEnable"
-            :parameters="request.arguments"
-            v-if="activeName === 'parameters'"
+              @editScenarioAdvance="editScenarioAdvance"
+              :scenario-definition="scenarioDefinition"
+              :with-mor-setting="true"
+              :is-read-only="isReadOnly"
+              :isShowEnable="isShowEnable"
+              :parameters="request.arguments"
+              v-if="activeName === 'parameters'"
           />
         </el-tab-pane>
 
         <!--REST 参数-->
         <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')"
+                      placement="top-start" slot="label">
               <span>
                 {{ $t('api_test.definition.request.rest_param') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.rest.length>1">
@@ -60,51 +67,54 @@
               </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+            <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color);">
+              {{ $t("commons.batch_add") }}
+            </el-link>
           </el-row>
           <ms-api-variable
-            @editScenarioAdvance="editScenarioAdvance"
-            :scenario-definition="scenarioDefinition"
-            :with-mor-setting="true"
-            :is-read-only="isReadOnly"
-            :isShowEnable="isShowEnable"
-            :parameters="request.rest"
-            v-if="activeName === 'rest'"
+              @editScenarioAdvance="editScenarioAdvance"
+              :scenario-definition="scenarioDefinition"
+              :with-mor-setting="true"
+              :is-read-only="isReadOnly"
+              :isShowEnable="isShowEnable"
+              :parameters="request.rest"
+              v-if="activeName === 'rest'"
           />
         </el-tab-pane>
 
         <!--请求体-->
         <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body">
           <ms-api-body
-            @editScenarioAdvance="editScenarioAdvance"
-            :scenario-definition="scenarioDefinition"
-            @headersChange="reloadBody"
-            :is-read-only="isReadOnly"
-            :isShowEnable="isShowEnable"
-            :headers="headers"
-            :body="request.body"
-            v-if="activeName === 'body'"
+              @editScenarioAdvance="editScenarioAdvance"
+              :scenario-definition="scenarioDefinition"
+              @headersChange="reloadBody"
+              :is-read-only="isReadOnly"
+              :isShowEnable="isShowEnable"
+              :headers="headers"
+              :body="request.body"
+              v-if="activeName === 'body'"
           />
         </el-tab-pane>
 
         <!-- 认证配置 -->
         <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
-          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')" placement="top-start" slot="label">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')"
+                      placement="top-start" slot="label">
             <span>{{ $t('api_test.definition.request.auth_config') }}</span>
           </el-tooltip>
 
           <ms-api-auth-config
-            :is-read-only="isReadOnly"
-            :request="request"
-            v-if="activeName === 'authConfig'"
+              :is-read-only="isReadOnly"
+              :request="request"
+              v-if="activeName === 'authConfig'"
           />
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
           <ms-api-advanced-config
-            :is-read-only="isReadOnly"
-            :request="request"
-            v-if="activeName === 'advancedConfig'"
+              :is-read-only="isReadOnly"
+              :request="request"
+              v-if="activeName === 'advancedConfig'"
           />
         </el-tab-pane>
 
@@ -117,13 +127,13 @@
             </div>
           </span>
           <ms-jmx-step
-            :request="request"
-            :apiId="request.id"
-            :response="response"
-            :tab-type="'pre'"
-            :scenarioId="scenarioId"
-            ref="preStep"
-            v-if="activeName === 'preOperate'"
+              :request="request"
+              :apiId="request.id"
+              :response="response"
+              :tab-type="'pre'"
+              :scenarioId="scenarioId"
+              ref="preStep"
+              v-if="activeName === 'preOperate'"
           />
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate" v-if="showScript">
@@ -134,13 +144,13 @@
             </div>
           </span>
           <ms-jmx-step
-            :request="request"
-            :apiId="request.id"
-            :response="response"
-            :tab-type="'post'"
-            :scenarioId="scenarioId"
-            ref="postStep"
-            v-if="activeName === 'postOperate'"
+              :request="request"
+              :apiId="request.id"
+              :response="response"
+              :tab-type="'post'"
+              :scenarioId="scenarioId"
+              ref="postStep"
+              v-if="activeName === 'postOperate'"
           />
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule" v-if="showScript">
@@ -151,14 +161,14 @@
             </div>
           </span>
           <ms-jmx-step
-            :request="request"
-            :apiId="request.id"
-            :scenarioId="scenarioId"
-            :response="response"
-            @reload="reloadBody"
-            :tab-type="'assertionsRule'"
-            ref="assertionsRule"
-            v-if="activeName === 'assertionsRule'"/>
+              :request="request"
+              :apiId="request.id"
+              :scenarioId="scenarioId"
+              :response="response"
+              @reload="reloadBody"
+              :tab-type="'assertionsRule'"
+              ref="assertionsRule"
+              v-if="activeName === 'assertionsRule'"/>
         </el-tab-pane>
 
       </el-tabs>
@@ -177,13 +187,12 @@ import MsApiVariable from "../../ApiVariable";
 import MsApiAssertions from "../../assertion/ApiAssertions";
 import MsApiExtract from "../../extract/ApiExtract";
 import {Body, KeyValue} from "../../../model/ApiTestModel";
-import {hasLicense, getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
 import BatchAddParameter from "../../basis/BatchAddParameter";
 import MsApiAdvancedConfig from "./ApiAdvancedConfig";
 import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
-import {hasPermission} from '@/common/js/utils';
 import Convert from "@/business/components/common/json-schema/convert/convert";
-import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, stepCompute} from "@/business/components/api/definition/api-definition";
 
 export default {
   name: "MsApiHttpRequestForm",
@@ -559,6 +568,10 @@ export default {
 
 .ms-tabs__nav-scroll >>> .el-tabs__nav-scroll {
   width: 100%;
+}
+
+/deep/ .el-step__icon-inner {
+  border-top-color: var(--primary_color);
 }
 
 </style>

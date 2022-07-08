@@ -18,109 +18,111 @@
           :value="item.id">
         </el-option>
       </el-select>
-      <el-button size="mini" @click="add" type="primary" v-if="tabType !== 'assertionsRule'">
+      <el-button size="mini" @click="add" type="primary" v-if="tabType !== 'assertionsRule'"
+                 style="background-color: var(--primary_color); border-color:var(--primary_color);">
         {{ $t('api_test.request.assertions.add') }}
       </el-button>
     </p>
     <!-- HTTP 请求参数 -->
-    <el-tree node-key="resourceId"
+    <el-tree node-key=" resourceId
+      "
              :props="props"
              :data="request.hashTree"
              :allow-drop="allowDrop"
              :filter-node-method="filterNode"
              @node-drag-end="allowDrag"
              draggable ref="generalSteps" class="ms-step-tree-cell">
-       <span class="custom-tree-node father" slot-scope="{node,data}" style="width: calc(100% - 20px);">
+      <span class="custom-tree-node father" slot-scope="{node,data}" style="width: calc(100% - 20px);">
         <!--前置脚本-->
-         <div v-if="tabType === 'pre'">
-           <ms-jsr233-processor
-             v-if="data.type==='JSR223PreProcessor'"
-             @remove="remove"
-             @copyRow="copyRow"
-             :protocol="protocol"
-             :draggable="true"
-             :title="$t('api_test.definition.request.pre_script')"
-             :jsr223-processor="data"
-             color="#B8741A"
-             background-color="#F9F1EA"/>
-           <!--前置SQL-->
-          <ms-jdbc-processor
-            v-if="data.type ==='JDBCPreProcessor'"
-            @copyRow="copyRow"
-            @remove="remove"
-            :title="$t('api_test.definition.request.pre_sql')"
-            :is-read-only="false"
-            :scenarioId="scenarioId"
-            :request="data"
-            :jdbc-processor="data"
-            :draggable="true"
-            color="#B8741A"
-            background-color="#F9F1EA"/>
+    <div v-if="tabType === 'pre'">
+      <ms-jsr233-processor
+        v-if="data.type==='JSR223PreProcessor'"
+        @remove="remove"
+        @copyRow="copyRow"
+        :protocol="protocol"
+        :draggable="true"
+        :title="$t('api_test.definition.request.pre_script')"
+        :jsr223-processor="data"
+        color="#B8741A"
+        background-color="#F9F1EA"/>
+      <!--前置SQL-->
+      <ms-jdbc-processor
+        v-if="data.type ==='JDBCPreProcessor'"
+        @copyRow="copyRow"
+        @remove="remove"
+        :title="$t('api_test.definition.request.pre_sql')"
+        :is-read-only="false"
+        :scenarioId="scenarioId"
+        :request="data"
+        :jdbc-processor="data"
+        :draggable="true"
+        color="#B8741A"
+        background-color="#F9F1EA"/>
 
-           <ms-constant-timer
-             :inner-step="true"
-             :timer="data"
-             :node="node"
-             :draggable="true"
-             @remove="remove"
-             @copyRow="copyRow"
-             v-if="data.type ==='ConstantTimer'"
-           />
+      <ms-constant-timer
+        :inner-step="true"
+        :timer="data"
+        :node="node"
+        :draggable="true"
+        @remove="remove"
+        @copyRow="copyRow"
+        v-if="data.type ==='ConstantTimer'"
+      />
 
-         </div>
-        <div v-if="tabType ==='post'">
-           <!--后置脚本-->
-          <ms-jsr233-processor
-            v-if="data.type ==='JSR223PostProcessor'"
-            @copyRow="copyRow"
-            @remove="remove"
-            :protocol="protocol"
-            :is-read-only="false"
-            :title="$t('api_test.definition.request.post_script')"
-            :jsr223-processor="data"
-            :draggable="true"
-            color="#783887"
-            background-color="#F2ECF3"/>
+    </div>
+    <div v-if="tabType ==='post'">
+      <!--后置脚本-->
+      <ms-jsr233-processor
+        v-if="data.type ==='JSR223PostProcessor'"
+        @copyRow="copyRow"
+        @remove="remove"
+        :protocol="protocol"
+        :is-read-only="false"
+        :title="$t('api_test.definition.request.post_script')"
+        :jsr223-processor="data"
+        :draggable="true"
+        color="#783887"
+        background-color="#F2ECF3"/>
 
-          <!--后置SQL-->
-          <ms-jdbc-processor
-            v-if="data.type ==='JDBCPostProcessor'"
-            @copyRow="copyRow"
-            @remove="remove"
-            :title="$t('api_test.definition.request.post_sql')"
-            :is-read-only="false"
-            :request="data"
-            :scenarioId="scenarioId"
-            :jdbc-processor="data"
-            :draggable="true"
-            color="#783887"
-            background-color="#F2ECF3"/>
-          <!--提取规则-->
-           <ms-api-extract
-             :response="response"
-             :is-read-only="data.disabled"
-             :extract="data"
-             :draggable="true"
-             @copyRow="copyRow"
-             @remove="remove"
-             v-if="data.type==='Extract'"
-           />
-          </div>
-         <div v-if="tabType === 'assertionsRule'">
-         <!--断言规则-->
-          <ms-api-assertions
-            v-if="data.type==='Assertions'"
-            @copyRow="copyRow"
-            @remove="remove"
-            @reload="reloadRule"
-            :response="response"
-            :request="request"
-            :apiId="apiId"
-            :draggable="true"
-            :is-read-only="data.disabled"
-            :assertions="data"/>
-         </div>
-       </span>
+      <!--后置SQL-->
+      <ms-jdbc-processor
+        v-if="data.type ==='JDBCPostProcessor'"
+        @copyRow="copyRow"
+        @remove="remove"
+        :title="$t('api_test.definition.request.post_sql')"
+        :is-read-only="false"
+        :request="data"
+        :scenarioId="scenarioId"
+        :jdbc-processor="data"
+        :draggable="true"
+        color="#783887"
+        background-color="#F2ECF3"/>
+      <!--提取规则-->
+      <ms-api-extract
+        :response="response"
+        :is-read-only="data.disabled"
+        :extract="data"
+        :draggable="true"
+        @copyRow="copyRow"
+        @remove="remove"
+        v-if="data.type==='Extract'"
+      />
+    </div>
+    <div v-if="tabType === 'assertionsRule'">
+      <!--断言规则-->
+      <ms-api-assertions
+        v-if="data.type==='Assertions'"
+        @copyRow="copyRow"
+        @remove="remove"
+        @reload="reloadRule"
+        :response="response"
+        :request="request"
+        :apiId="apiId"
+        :draggable="true"
+        :is-read-only="data.disabled"
+        :assertions="data"/>
+    </div>
+    </span>
     </el-tree>
   </div>
 </template>
