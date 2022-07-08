@@ -131,7 +131,7 @@
       <div>
         <span>
           {{ $t('api_test.api_import.import_tip') }} : <br/>
-          {{ $t('api_test.api_import.import_tip1') }} <br/>
+          <span class="ms-import">{{ $t('api_test.api_import.import_tip1') }} <br/></span>
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip2') }} <br/>
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $t('api_test.api_import.import_tip3') }} <br/>
           {{ $t('api_test.api_import.cover_tip') }} :<br/>
@@ -597,6 +597,10 @@ export default {
 
 .el-divider {
   height: 200px;
+}
+
+.ms-import {
+  color: #ff0000 !important;
 }
 
 </style>
