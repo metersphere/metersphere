@@ -539,6 +539,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public void syncIssues(Project project, List<IssuesDao> issues) {
         super.isThirdPartTemplate = isThirdPartTemplate();
+        HashMap<String, List<CustomFieldResource>> customFieldMap = new HashMap<>();
 
         IssuesService issuesService = CommonBeanFactory.getBean(IssuesService.class);
         if (project.getThirdPartTemplate()) {
@@ -551,7 +552,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 String customFields = item.getCustomFields();
                 // 把自定义字段存入新表
                 List<CustomFieldResource> customFieldResource = customFieldService.getCustomFieldResource(customFields);
-                customFieldIssuesService.addFields(item.getId(), customFieldResource);
+                customFieldMap.put(item.getId(), customFieldResource);
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
@@ -563,6 +564,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 LogUtil.error(e);
             }
         });
+        customFieldIssuesService.batchEditFields(customFieldMap);
     }
 
     @Override

@@ -2,8 +2,11 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.CustomField;
+import io.metersphere.base.domain.CustomFieldIssues;
+import io.metersphere.base.domain.CustomFieldIssuesExample;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.base.mapper.CustomFieldIssuesMapper;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.ext.ExtBaseMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldResourceMapper;
@@ -33,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -67,6 +71,9 @@ public class CustomFieldResourceService {
     @Lazy
     @Resource
     SystemParameterService systemParameterService;
+
+    @Resource
+    CustomFieldIssuesMapper customFieldIssuesMapper;
 
     private int initCount = 0;
 
@@ -105,6 +112,50 @@ public class CustomFieldResourceService {
             if (sqlSession != null && sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
+        }
+    }
+
+
+    protected void batchEditFields(String tableName, HashMap<String, List<CustomFieldResource>> customFieldMap) {
+        if (customFieldMap == null || customFieldMap.size() == 0) {
+            return;
+        }
+        this.checkInit();
+        SqlSession sqlSession = ServiceUtils.getBatchSqlSession();
+        ExtCustomFieldResourceMapper batchMapper = sqlSession.getMapper(ExtCustomFieldResourceMapper.class);
+        List<CustomFieldResource> addList = new ArrayList<>();
+        List<CustomFieldResource> updateList = new ArrayList<>();
+
+        Set<String> set = customFieldMap.keySet();
+        if (CollectionUtils.isEmpty(set)) {
+            return;
+        }
+        CustomFieldIssuesExample example = new CustomFieldIssuesExample();
+        example.createCriteria().andResourceIdIn(new ArrayList<>(set));
+        List<CustomFieldIssues> customFieldIssues = customFieldIssuesMapper.selectByExample(example);
+        Map<String, List<String>> resourceFieldMap = customFieldIssues.stream()
+                .collect(Collectors.groupingBy(CustomFieldIssues::getResourceId, Collectors.mapping(CustomFieldIssues::getFieldId, Collectors.toList())));
+
+        for (String resourceId : customFieldMap.keySet()) {
+            List<CustomFieldResource> list = customFieldMap.get(resourceId);
+            if (CollectionUtils.isEmpty(list)) {
+                continue;
+            }
+            List<String> fieldIds = resourceFieldMap.get(resourceId);
+            for (CustomFieldResource customFieldResource : list) {
+                if (CollectionUtils.isEmpty(fieldIds) || !fieldIds.contains(customFieldResource.getFieldId())) {
+                    customFieldResource.setResourceId(resourceId);
+                    addList.add(customFieldResource);
+                } else {
+                    updateList.add(customFieldResource);
+                }
+            }
+        }
+        addList.forEach(l -> batchMapper.insert(tableName, l));
+        updateList.forEach(l -> batchMapper.updateByPrimaryKeySelective(tableName, l));
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 

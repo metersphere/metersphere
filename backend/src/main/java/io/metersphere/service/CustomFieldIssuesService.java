@@ -5,6 +5,7 @@ import io.metersphere.dto.CustomFieldDao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,10 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
 
     public void batchEditFields(String resourceId, List<CustomFieldResource> fields) {
         super.batchEditFields(TABLE_NAME, resourceId, fields);
+    }
+
+    public void batchEditFields(HashMap<String, List<CustomFieldResource>> customFieldMap) {
+        super.batchEditFields(TABLE_NAME, customFieldMap);
     }
 
     public int updateByPrimaryKeySelective(CustomFieldResource field) {
