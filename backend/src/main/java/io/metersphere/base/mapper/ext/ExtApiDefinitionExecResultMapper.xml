@@ -432,12 +432,16 @@
 
     <select id="selectRerunResult" resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
         SELECT
-            *
+            r.*
         FROM
-            api_definition_exec_result
+            api_definition_exec_result r
+            INNER JOIN api_test_case c ON r.resource_id = c.id
+            AND c.`status` != 'Trash'
         WHERE
-            status != 'success'
-            AND integrated_report_id = #{reportId} order by create_time asc
+            r.STATUS != 'success'
+            AND r.integrated_report_id = #{reportId}
+        ORDER BY
+            r.create_time ASC
     </select>
 
 </mapper>
