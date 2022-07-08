@@ -2,10 +2,10 @@
   <div style="margin-bottom: 50px;border-bottom-width: 2px" ref="baseDiv">
     <div style="font-size: 17px">
       <el-popover
-          v-if="projectId"
-          placement="right"
-          width="260"
-          @show="shareApiDocument('false')">
+        v-if="projectId"
+        placement="right"
+        width="260"
+        @show="shareApiDocument('false')">
         <p>{{ shareUrl }}</p>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini"
@@ -280,6 +280,7 @@ export default {
 
 /deep/ .el-step__icon-inner {
   font-size: 12px;
+  border-top-color: var(--primary_color);
 }
 
 /deep/ .el-step.is-vertical .el-step__line {

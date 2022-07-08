@@ -7,12 +7,12 @@
         <div style="float: right;margin-right: 20px;margin-top: 20px" class="ms-opt-btn">
           <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!showFollow">
             <i class="el-icon-star-off"
-               style="color: #783987; font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+               style="color: var(--primary_color); font-size: 25px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="showFollow">
             <i class="el-icon-star-on"
-               style="color: #783987; font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
+               style="color: var(--primary_color); font-size: 28px; margin-right: 5px; position: relative; top: 5px; cursor: pointer "
                @click="saveFollow"/>
           </el-tooltip>
           <el-link type="primary" style="margin-right: 5px" @click="openHis" v-if="basisData.id">
@@ -171,8 +171,8 @@ export default {
       this.getVersionHistory();
     }
 
-    if(!this.request.environmentId){
-      this.request.environmentId =  this.$store.state.useEnvironment;
+    if (!this.request.environmentId) {
+      this.request.environmentId = this.$store.state.useEnvironment;
     }
   },
   methods: {
@@ -254,7 +254,7 @@ export default {
     },
     compare(row) {
       this.basisData.createTime = this.$refs.versionHistory.versionOptions.filter(v => v.id === this.basisData.versionId)[0].createTime;
-      this.$get('/api/definition/get/' +  row.id+"/"+this.basisData.refId, response => {
+      this.$get('/api/definition/get/' + row.id + "/" + this.basisData.refId, response => {
         this.$get('/api/definition/get/' + response.data.id, res => {
           if (res.data) {
             this.newData = res.data;
@@ -289,14 +289,14 @@ export default {
       }
       return false;
     },
-    dealWithTag(api){
-      if(api.tags){
-        if(Object.prototype.toString.call(api.tags)==="[object String]"){
+    dealWithTag(api) {
+      if (api.tags) {
+        if (Object.prototype.toString.call(api.tags) === "[object String]") {
           api.tags = JSON.parse(api.tags);
         }
       }
-      if(this.basisData.tags){
-        if(Object.prototype.toString.call(this.basisData.tags)==="[object String]"){
+      if (this.basisData.tags) {
+        if (Object.prototype.toString.call(this.basisData.tags) === "[object String]") {
           this.basisData.tags = JSON.parse(this.basisData.tags);
         }
       }
