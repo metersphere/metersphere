@@ -75,7 +75,7 @@ export default {
     };
   },
   created() {
-    this.showRerunBtn = hasLicense();
+    this.showRerunBtn = !this.isShare && hasLicense();
   },
   props: [
     'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'isDb'
