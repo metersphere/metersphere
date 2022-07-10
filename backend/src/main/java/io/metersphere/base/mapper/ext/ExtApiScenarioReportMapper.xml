@@ -213,7 +213,7 @@
                                     #{value}
                                 </foreach>
                             </when>
-                            <when test="key=='user_name'">
+                            <when test="key=='user_name' || key=='create_user'">
                                 and s_r.user_id in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
