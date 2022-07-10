@@ -142,7 +142,7 @@ public class ApiScenarioSerialService {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            LoggerUtil.error("执行队列[" + queue.getId() + "报告[" + queue.getReportId() + "入队列失败：", e);
+            LoggerUtil.error("执行队列[" + queue.getId() + "]入队列失败：", queue.getReportId(), e);
         }
     }
 
@@ -155,7 +155,7 @@ public class ApiScenarioSerialService {
             execResult.setStartTime(System.currentTimeMillis());
             execResult.setStatus(APITestStatus.Running.name());
             apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
-            LoggerUtil.info("进入串行模式，准备执行资源：[" + execResult.getName() + " ], 报告ID [" + execResult.getId() + "]");
+            LoggerUtil.info("进入串行模式，准备执行资源：[" + execResult.getName() + " ]", execResult.getId());
         }
     }
 
@@ -169,7 +169,7 @@ public class ApiScenarioSerialService {
                 this.put("userId", report.getCreateUser());
             }});
             apiScenarioReportMapper.updateByPrimaryKey(report);
-            LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ], 报告ID [ " + report.getId() + " ]");
+            LoggerUtil.info("进入串行模式，准备执行资源：[ " + report.getName() + " ]", report.getId());
         }
     }
 
@@ -211,7 +211,7 @@ public class ApiScenarioSerialService {
                 testPlan.getHashTree().add(group);
                 testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
 
-                LoggerUtil.info("报告ID" + runRequest.getReportId() + " 用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功");
+                LoggerUtil.info("用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
                 return jmeterHashTree;
             }
         } catch (Exception ex) {
@@ -220,7 +220,7 @@ public class ApiScenarioSerialService {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, runRequest);
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            LoggerUtil.error("报告ID" + runRequest.getReportId() + " 用例资源：" + testId + ", 生成执行脚本失败", ex);
+            LoggerUtil.error("用例资源：" + testId + ", 生成执行脚本失败", runRequest.getReportId(), ex);
         }
         return null;
     }

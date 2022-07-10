@@ -35,7 +35,7 @@ public class APISingleResultListener implements MsExecListener {
 
     @Override
     public void handleTeardownTest(List<SampleResult> results, ResultDTO dto, Map<String, Object> kafkaConfig) {
-        LoggerUtil.info("接收到执行结果开始处理报告【" + dto.getReportId() + " 】,资源【 " + dto.getTestId() + " 】");
+        LoggerUtil.info("接收到执行结果：" + results.size(), dto.getReportId());
         // 暂时保留
         // dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId()));
         // JMeterBase.resultFormatting(results, dto);
@@ -47,14 +47,11 @@ public class APISingleResultListener implements MsExecListener {
     @Override
     public void testEnded(ResultDTO dto, Map<String, Object> kafkaConfig) {
         try {
-
+            LoggerUtil.info("进入TEST-END处理结果集开始", dto.getReportId());
             JMeterBase.resultFormatting(queues, dto);
-
             dto.setConsole(FixedCapacityUtils.getJmeterLogger(dto.getReportId(), !StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())));
             // 入库存储
             CommonBeanFactory.getBean(TestResultService.class).saveResults(dto);
-
-            LoggerUtil.info("进入TEST-END处理报告【" + dto.getReportId() + " 】" + dto.getRunMode() + " 整体执行完成");
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
             // 整体执行结束更新资源状态
@@ -71,8 +68,9 @@ public class APISingleResultListener implements MsExecListener {
                 LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
                 apiExecutionQueueService.testPlanReportTestEnded(dto.getTestPlanReportId());
             }
+            LoggerUtil.info("TEST-END处理结果集完成", dto.getReportId());
         } catch (Exception e) {
-            LoggerUtil.error(e);
+            LoggerUtil.error("结果集处理异常", dto.getReportId(), e);
         } finally {
             if (JMeterEngineCache.runningEngine.containsKey(dto.getReportId())) {
                 JMeterEngineCache.runningEngine.remove(dto.getReportId());

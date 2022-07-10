@@ -96,6 +96,13 @@
       });
     },
     data() {
+      let validateModuleId = (rule, value, callback) => {
+        if (this.basicForm.moduleId.length === 0 || !this.basicForm.moduleId) {
+          callback(this.$t('test_track.case.input_module'));
+        } else {
+          callback();
+        }
+      };
       return {
         basicForm: {},
         httpVisible: false,
@@ -108,7 +115,7 @@
             {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
           ],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+          moduleId: [{required: true, validator: validateModuleId, trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
         value: API_STATUS[0].id,

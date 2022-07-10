@@ -151,7 +151,11 @@ export default {
     infoDb: Boolean,
     debug: Boolean,
     scenario: {},
-    scenarioId: String
+    scenarioId: String,
+    isUi: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
     initTree() {
@@ -300,7 +304,12 @@ export default {
       }
       const uri = protocol + window.location.host + "/ws/" + this.reportId;
       this.messageWebSocket = new WebSocket(uri);
+      //初始化心跳 目前ui的机制容易使得 ws 超时
+      if (this.isUi) {
+        this.initHeartBeat();
+      }
       this.messageWebSocket.onmessage = this.onMessage;
+      this.messageWebSocket.onerror  = this.cleanHeartBeat;
     },
     getReport() {
       let url = "/api/scenario/report/get/" + this.reportId;
@@ -458,6 +467,7 @@ export default {
       if (e.data && e.data.indexOf("MS_TEST_END") !== -1) {
         this.getReport();
         this.messageWebSocket.close();
+        this.cleanHeartBeat();
         this.$EventBus.$emit('hide', this.scenarioId);
         this.$emit('refresh', this.debugResult);
       }
@@ -490,6 +500,33 @@ export default {
           }
         }
       }
+    },
+    websocketKey(){
+      return "ui_ws_" + this.reportId;
+    },
+    initHeartBeat() {
+      if (!window.localStorage.getItem(this.websocketKey())) {
+        window.localStorage.setItem(this.websocketKey(), this.reportId);
+        window.heartBeatHandle = setInterval(this.heartBeat, 30000);
+      } else {
+        this.cleanHeartBeat();
+        this.initHeartBeat();
+      }
+    },
+    cleanHeartBeat() {
+      if (window.heartBeatHandle) {
+        clearInterval(window.heartBeatHandle);
+        if (window.localStorage.getItem(this.websocketKey())) {
+          window.localStorage.removeItem(this.websocketKey());
+        }
+      }
+    },
+    heartBeat() {
+      let msg = {
+        reportId: this.reportId,
+        content: "i'm alive"
+      };
+      this.messageWebSocket.send(JSON.stringify(msg));
     }
   },
   computed: {

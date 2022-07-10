@@ -308,7 +308,15 @@
 </template>
 
 <script>
-import {downloadFile, getCurrentProjectID, getUUID, hasLicense, hasPermission, objToStrMap, strMapToObj} from "@/common/js/utils";
+import {
+  downloadFile,
+  getCurrentProjectID,
+  getUUID,
+  hasLicense,
+  hasPermission,
+  objToStrMap,
+  strMapToObj
+} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
@@ -330,6 +338,7 @@ import MsTableSearchBar from "@/business/components/common/components/MsTableSea
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import {Message} from "element-ui";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -662,7 +671,14 @@ export default {
     },
     editApiScenarioCaseOrder() {
       return editApiScenarioCaseOrder;
-    }
+    },
+    moduleOptionsNew() {
+      let moduleOptions = [];
+      this.moduleOptions.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      return moduleOptions;
+    },
   },
   methods: {
     generateGraph() {
@@ -745,6 +761,9 @@ export default {
             }
           });
           this.$emit('getTrashCase');
+          if (this.$refs.scenarioTable) {
+            this.$refs.scenarioTable.clearSelection();
+          }
         });
       }
     },
@@ -783,11 +802,11 @@ export default {
     },
     handleBatchMove() {
       this.isMoveBatch = true;
-      this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);
+      this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptionsNew);
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
-      this.$refs.testBatchMove.open(this.moduleTree, this.$refs.scenarioTable.selectIds, this.moduleOptions);
+      this.$refs.testBatchMove.open(this.moduleTree, this.$refs.scenarioTable.selectIds, this.moduleOptionsNew);
     },
     moveSave(param) {
       this.buildBatchParam(param);

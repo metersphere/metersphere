@@ -103,9 +103,10 @@
             parameterType="io.metersphere.performance.request.QueryTestPlanRequest">
         SELECT load_test.*, project.name AS project_name, user.name AS user_name, project_version.name as version_name
         FROM load_test
-                     LEFT JOIN project ON load_test.project_id = project.id
-                     LEFT JOIN user ON load_test.user_id = user.id
-        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id = load_test.version_id
+        LEFT JOIN project ON load_test.project_id = project.id
+        LEFT JOIN user ON load_test.user_id = user.id
+        LEFT JOIN project_version on project.id = project_version.project_id AND project_version.id =
+        load_test.version_id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -191,7 +192,7 @@
     <select id="checkLoadTestOwner" resultType="int">
         SELECT COUNT(1)
         FROM load_test
-                     LEFT JOIN project ON load_test.project_id = project.id
+        LEFT JOIN project ON load_test.project_id = project.id
         <where>
             <if test="testId != null">
                 and load_test.id = #{testId}
@@ -205,7 +206,10 @@
         </where>
     </select>
     <select id="getNextNum" resultType="io.metersphere.base.domain.LoadTest">
-        select * from load_test lt where lt.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
+        select *
+        from load_test lt
+        where lt.project_id = #{projectId}
+        ORDER BY num DESC LIMIT 1;
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
@@ -271,7 +275,7 @@
             </foreach>
         </if>
     </sql>
-    
+
     <sql id="queryWhereCondition">
         <where>
             <if test="request.combine != null">
@@ -316,7 +320,6 @@
     </sql>
 
 
-
     <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
         SELECT file_metadata.*
         FROM file_metadata
@@ -332,10 +335,14 @@
     </select>
 
     <select id="selectProjectIds" resultType="java.lang.String">
-        select DISTINCT project_id from load_test;
+        select DISTINCT project_id
+        from load_test;
     </select>
     <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
-        select id from load_test where project_id = #{projectId} order by update_time ASC;
+        select id
+        from load_test
+        where project_id = #{projectId}
+        order by update_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">
@@ -368,62 +375,61 @@
 
     <update id="addLatestVersion">
         UPDATE load_test
-                INNER JOIN ((
-                                    SELECT tmp.id
-                                    FROM load_test tmp
-                                                 JOIN project_version
-                                            ON tmp.project_id = project_version.project_id AND
-                                               tmp.version_id = project_version.id AND project_version.latest = TRUE
-                                    WHERE ref_id = #{refId,jdbcType=VARCHAR}
-                                    LIMIT 1
-                                    )
-                            UNION ALL
-                            (
-                                    SELECT tmp.id
-                                    FROM load_test tmp
-                                                 JOIN project_version
-                                            ON tmp.project_id = project_version.project_id AND
-                                               tmp.version_id = project_version.id
-                                                    AND NOT EXISTS(SELECT ref_id
-                                                                   FROM load_test tmp2
-                                                                                JOIN project_version
-                                                                           ON tmp2.project_id =
-                                                                              project_version.project_id AND
-                                                                              version_id =
-                                                                              project_version.id AND
-                                                                              project_version.latest = TRUE
-                                                                   WHERE tmp.ref_id = tmp2.ref_id)
-                                    WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
-                                    ORDER BY tmp.update_time DESC
-                                    LIMIT 1)) AS t ON load_test.id = t.id
-        SET load_test.latest = TRUE
+            INNER JOIN ((
+            SELECT tmp.id
+            FROM load_test tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id AND project_version.latest = TRUE
+            WHERE ref_id = #{refId,jdbcType=VARCHAR}
+            LIMIT 1
+            )
+            UNION ALL
+            (
+            SELECT tmp.id
+            FROM load_test tmp
+            JOIN project_version
+            ON tmp.project_id = project_version.project_id AND
+            tmp.version_id = project_version.id
+            AND NOT EXISTS (SELECT ref_id
+            FROM load_test tmp2
+            JOIN project_version
+            ON tmp2.project_id =
+            project_version.project_id AND
+            version_id =
+            project_version.id AND
+            project_version.latest = TRUE
+            WHERE tmp.ref_id = tmp2.ref_id)
+            WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
+            ORDER BY tmp.update_time DESC
+            LIMIT 1)) AS t
+        ON load_test.id = t.id
+            SET load_test.latest = TRUE
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
     <update id="clearLatestVersion">
         UPDATE load_test
         SET latest = 0
-        <where>
-            <if test="refId != null">
-                and ref_id = #{refId}
-            </if>
-        </where>
+        where ref_id = #{refId}
     </update>
 
     <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
         SELECT DISTINCT ref_id
         FROM load_test
         WHERE ref_id NOT IN (
-        SELECT DISTINCT ref_id
-        FROM load_test
-        WHERE version_id = #{versionId} AND project_id = #{projectId}
-        ) AND project_id = #{projectId}
+            SELECT DISTINCT ref_id
+            FROM load_test
+            WHERE version_id = #{versionId}
+              AND project_id = #{projectId}
+        )
+          AND project_id = #{projectId}
     </select>
 
     <select id="getFileMetadataByIds" resultType="io.metersphere.base.domain.FileMetadata">
         SELECT file_metadata.*
         FROM load_test_file
-                     JOIN file_metadata ON file_id = file_metadata.id
+                 JOIN file_metadata ON file_id = file_metadata.id
         WHERE test_id = #{testId}
         ORDER BY sort
     </select>

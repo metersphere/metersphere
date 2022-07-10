@@ -618,15 +618,15 @@ export default {
             id = t.api.id;
             if (this.$store.state.apiMap.get(t.api.id).get("responseChange") === true || this.$store.state.apiMap.get(t.api.id).get("requestChange") === true ||
               this.$store.state.apiMap.get(t.api.id).get("fromChange") === true) {
-              message += t.api.name + "，";
+              message += t.api.name;
               id = t.api.id;
             }
           } else if (t.type === 'ADD' && t.title === this.$t('api_test.definition.request.title')) {
-            message += this.$t('api_test.definition.request.title') + "，";
+            message += this.$t('api_test.definition.request.title');
             id = t.api.id;
           }
           if (t.type === 'ADD' && t.isCopy) {
-            message += t.api.name + "，";
+            message += t.api.name;
             id = t.api.id;
           }
         }

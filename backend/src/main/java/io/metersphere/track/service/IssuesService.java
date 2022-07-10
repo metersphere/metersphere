@@ -6,7 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.IssueFollowMapper;
+import io.metersphere.base.mapper.IssuesMapper;
+import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
@@ -44,7 +47,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -176,7 +178,7 @@ public class IssuesService {
         issuesRequest.setWorkspaceId(project.getWorkspaceId());
         issuesRequest.setProjectId(issuesWithBLOBs.getProjectId());
         issuesRequest.setUserId(issuesWithBLOBs.getCreator());
-        if (StringUtils.equals(issuesWithBLOBs.getPlatform(),IssuesManagePlatform.Tapd.name() )) {
+        if (StringUtils.equals(issuesWithBLOBs.getPlatform(), IssuesManagePlatform.Tapd.name())) {
             TapdPlatform tapdPlatform = (TapdPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Tapd.name(), issuesRequest);
             List<String> tapdUsers = tapdPlatform.getTapdUsers(issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getPlatformId());
             issuesWithBLOBs.setTapdUsers(tapdUsers);
@@ -384,7 +386,7 @@ public class IssuesService {
             }
 
             Set<String> caseIdSet = caseSetMap.get(item.getId());
-            if(caseIdSet==null){
+            if (caseIdSet == null) {
                 caseIdSet = new HashSet<>();
             }
             item.setCaseIds(new ArrayList<>(caseIdSet));
@@ -400,7 +402,7 @@ public class IssuesService {
 
         List<TestPlan> testPlans = testPlanService.getTestPlanByIds(resourceIds);
         Map<String, String> planMap = new HashMap<>();
-        if(testPlans!=null){
+        if (testPlans != null) {
             planMap = testPlans.stream()
                     .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
         }
@@ -416,26 +418,39 @@ public class IssuesService {
 
     private Map<String, Set<String>> getCaseSetMap(List<IssuesDao> issues) {
         List<String> ids = issues.stream().map(Issues::getId).collect(Collectors.toList());
-        Map<String,Set<String>>map = new HashMap<>();
-        if(ids.size()==0){
-            return  map;
+        Map<String, Set<String>> map = new HashMap<>();
+        if (ids.size() == 0) {
+            return map;
         }
         TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andIssuesIdIn(ids);
+        example.createCriteria()
+                .andIssuesIdIn(ids);
         List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
-        testCaseIssues.forEach(i -> {
-            Set<String> caseIdSet = new HashSet<>();
-            if (i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name())) {
-                caseIdSet.add(i.getRefId());
-            } else {
-                caseIdSet.add(i.getResourceId());
-            }
-            if(map.get(i.getIssuesId())!=null){
-                map.get(i.getIssuesId()).addAll(caseIdSet);
-            }else{
-                map.put(i.getIssuesId(),caseIdSet);
-            }
-        });
+
+        List<String> caseIds = testCaseIssues.stream().map(x ->
+                x.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? x.getRefId() : x.getResourceId())
+                .collect(Collectors.toList());
+
+        List<TestCaseDTO> notInTrashCase = testCaseService.getTestCaseByIds(caseIds);
+
+        if (CollectionUtils.isNotEmpty(notInTrashCase)) {
+            Set<String> notInTrashCaseSet = notInTrashCase.stream()
+                    .map(TestCaseDTO::getId)
+                    .collect(Collectors.toSet());
+
+            testCaseIssues.forEach(i -> {
+                Set<String> caseIdSet = new HashSet<>();
+                String caseId = i.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? i.getRefId() : i.getResourceId();
+                if (notInTrashCaseSet.contains(caseId)) {
+                    caseIdSet.add(caseId);
+                }
+                if (map.get(i.getIssuesId()) != null) {
+                    map.get(i.getIssuesId()).addAll(caseIdSet);
+                } else {
+                    map.put(i.getIssuesId(), caseIdSet);
+                }
+            });
+        }
         return map;
     }
 
@@ -465,7 +480,7 @@ public class IssuesService {
     }
 
     public void syncThirdPartyIssues() {
-        List<String> projectIds = projectService.getProjectIds();
+        List<String> projectIds = projectService.getThirdPartProjectIds();
         projectIds.forEach(id -> {
             try {
                 syncThirdPartyIssues(id);
@@ -517,59 +532,32 @@ public class IssuesService {
             if (StringUtils.isNotEmpty(syncValue)) {
                 return false;
             }
+
             setSyncKey(projectId);
+
             Project project = projectService.getProjectById(projectId);
-            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId);
+            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId, project.getPlatform());
 
             if (CollectionUtils.isEmpty(issues)) {
                 return true;
             }
 
-            List<IssuesDao> tapdIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Tapd.name()))
-                    .collect(Collectors.toList());
-            List<IssuesDao> jiraIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Jira.name()))
-                    .collect(Collectors.toList());
-            List<IssuesDao> zentaoIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Zentao.name()))
-                    .collect(Collectors.toList());
-            List<IssuesDao> azureDevopsIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.AzureDevops.name()))
-                    .collect(Collectors.toList());
-
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
-            if (!projectService.isThirdPartTemplate(project)) {
-                String defaultCustomFields = getDefaultCustomFields(projectId);
-                issuesRequest.setDefaultCustomFields(defaultCustomFields);
-            }
 
-            if (CollectionUtils.isNotEmpty(tapdIssues)) {
-                TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
-                syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
-            }
-            if (CollectionUtils.isNotEmpty(jiraIssues)) {
-                JiraPlatform jiraPlatform = new JiraPlatform(issuesRequest);
-                syncThirdPartyIssues(jiraPlatform::syncIssues, project, jiraIssues);
-            }
-            if (CollectionUtils.isNotEmpty(zentaoIssues)) {
-                ZentaoPlatform zentaoPlatform = new ZentaoPlatform(issuesRequest);
-                syncThirdPartyIssues(zentaoPlatform::syncIssues, project, zentaoIssues);
-            }
-            if (CollectionUtils.isNotEmpty(azureDevopsIssues)) {
-                ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                try {
-                    Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
-                    Constructor cons = clazz.getDeclaredConstructor(new Class[]{IssuesRequest.class});
-                    AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
-                    syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
-                } catch (Throwable e) {
-                    LogUtil.error(e);
+            try {
+                if (!projectService.isThirdPartTemplate(project)) {
+                    String defaultCustomFields = getDefaultCustomFields(projectId);
+                    issuesRequest.setDefaultCustomFields(defaultCustomFields);
                 }
+                AbstractIssuePlatform platform = IssueFactory.createPlatform(project.getPlatform(), issuesRequest);
+                syncThirdPartyIssues(platform::syncIssues, project, issues);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                deleteSyncKey(projectId);
             }
-            deleteSyncKey(projectId);
         }
         return true;
     }
@@ -795,7 +783,7 @@ public class IssuesService {
         return platform.getDemandList(projectId);
     }
 
-    public  List<IssuesDao> listByWorkspaceId(IssuesRequest request) {
+    public List<IssuesDao> listByWorkspaceId(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         return extIssuesMapper.getIssues(request);
     }

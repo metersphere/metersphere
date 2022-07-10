@@ -19,7 +19,6 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.*;
-import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
@@ -30,7 +29,6 @@ import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.track.dto.TestPlanApiResultReportDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -133,7 +131,20 @@ public class TestPlanApiCaseService {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
                 .andIdEqualTo(id);
+        return testPlanApiCaseMapper.deleteByExample(example);
+    }
 
+    public int deleteByCaseId(String caseId) {
+       return this.deleteByCaseIds(Arrays.asList(caseId));
+    }
+
+    public int deleteByCaseIds(List<String> caseIds) {
+        if (CollectionUtils.isEmpty(caseIds)) {
+            return 0;
+        }
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria()
+                .andApiCaseIdIn(caseIds);
         return testPlanApiCaseMapper.deleteByExample(example);
     }
 

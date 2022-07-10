@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.SwaggerApiExportResult;
 import io.metersphere.api.dto.definition.parse.swagger.SwaggerApiInfo;
 import io.metersphere.api.dto.definition.parse.swagger.SwaggerInfo;
@@ -16,11 +15,8 @@ import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
-import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
 import io.swagger.parser.OpenAPIParser;
@@ -131,15 +127,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule selectModule = null;
-        String selectModulePath = null;
-        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
-            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
-            if (selectModule != null) {
-                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
-            }
-        }
-
         for (String pathName : pathNames) {
             PathItem pathItem = paths.get(pathName);
 
@@ -157,6 +144,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 Operation operation = operationsMap.get(method);
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
+                    request.setFollowRedirects(true);
                     ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
                     apiDefinition.setDescription(operation.getDescription());
                     parseParameters(operation, request);
@@ -167,7 +155,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     }   //  有数据的话，去掉 Kvs 里初始化的第一个全 null 的数据，否则有空行
                     apiDefinition.setRequest(JSON.toJSONString(request));
                     apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
-                    buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
+                    buildModulePath(apiDefinition, operation.getTags());
                     if (operation.getDeprecated() != null && operation.getDeprecated()) {
                         apiDefinition.setTags("[\"Deleted\"]");
                     }
@@ -177,6 +165,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
 
         return results;
+    }
+
+    private void buildModulePath(ApiDefinitionWithBLOBs apiDefinition, List<String> tags) {
+        StringBuilder modulePathBuilder = new StringBuilder();
+        String modulePath = getModulePath(tags, modulePathBuilder);
+        apiDefinition.setModulePath(modulePath);
     }
 
     private ApiDefinitionWithBLOBs buildApiDefinition(String id, Operation operation, String path, String method, ApiTestImportRequest importRequest) {
@@ -588,15 +582,20 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             SwaggerApiInfo swaggerApiInfo = new SwaggerApiInfo();   //  {tags:, summary:, description:, parameters:}
             swaggerApiInfo.setSummary(apiDefinition.getName());
             //  设置导入后的模块名 （根据 api 的 moduleID 查库获得所属模块，作为导出的模块名）
-            ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-            String moduleName = "";
-            if (apiDefinition.getModuleId() != null) {   //  module_id 可能为空
-                ApiModuleDTO node = apiModuleService.getNode(apiDefinition.getModuleId());
-                if (node != null) {
-                    moduleName = node.getName();
+            //直接导出完整路径
+            if (apiDefinition.getModulePath() != null) {
+                String[] split = new String[0];
+                String modulePath = apiDefinition.getModulePath();
+                String substring = modulePath.substring(0, 1);
+                if (substring.equals("/")) {
+                    modulePath = modulePath.substring(1);
                 }
+                if (modulePath.contains("/")) {
+                    split = modulePath.split("/");
+                }
+                swaggerApiInfo.setTags(Arrays.asList(split));
             }
-            swaggerApiInfo.setTags(Arrays.asList(moduleName));
+
             //  设置请求体
             JSONObject requestObject = JSON.parseObject(apiDefinition.getRequest(), Feature.DisableSpecialKeyDetect);    //  将api的request属性转换成JSON对象以便获得参数
             JSONObject requestBody = buildRequestBody(requestObject);
@@ -928,9 +927,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         if (body != null) { //  将请求体转换成相应的格式导出
             String bodyType = body.getString("type");
-            if (bodyType == null) {
-
-            } else if (bodyType.equalsIgnoreCase("JSON")) {
+            if (StringUtils.isNotBlank(bodyType) && bodyType.equalsIgnoreCase("JSON")) {
                 try {
                     if (StringUtils.equals(body.getString("format"), "JSON-SCHEMA")) {
                         String jsonSchema = body.getString("jsonSchema");
@@ -978,16 +975,36 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
 
-        String type = respOrReq.getJSONObject("body").getString("type");
+        String type = null;
+        if (respOrReq.getJSONObject("body") != null) {
+            type = respOrReq.getJSONObject("body").getString("type");
+        }
         JSONObject content = new JSONObject();
         Object schema = bodyInfo;   //  请求体部分
         JSONObject typeName = new JSONObject();
         if (schema != null) {
             typeName.put("schema", schema);//schema.getJSONObject("properties").size() == 0? "" :
         }
-        if (type != null && StringUtils.isNotBlank(type)) {
+        if (StringUtils.isNotBlank(type)) {
             content.put(typeMap.get(type), typeName);
         }
         return content;
     }
+
+    private String getModulePath(List<String> tagTree, StringBuilder modulePath) {
+        for (String s : tagTree) {
+            if (s.contains("/")) {
+                String[] split = s.split("/");
+                if (split.length > 0) {
+                    getModulePath(List.of(split), modulePath);
+                }
+            } else {
+                if (StringUtils.isNotBlank(s)) {
+                    modulePath.append("/").append(s);
+                }
+            }
+        }
+        return modulePath.toString();
+    }
+
 }

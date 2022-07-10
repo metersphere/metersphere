@@ -599,6 +599,16 @@ public class TestCaseService {
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
+    public int deleteTestCaseTestByTestId(String testId) {
+        return deleteTestCaseTestByTestIds(Arrays.asList(testId));
+    }
+
+    public int deleteTestCaseTestByTestIds(List<String> testIds) {
+        TestCaseTestExample examples = new TestCaseTestExample();
+        examples.createCriteria().andTestIdIn(testIds);
+        return testCaseTestMapper.deleteByExample(examples);
+    }
+
     public int deleteTestCaseBySameVersion(String testCaseId) {
         TestCase testCase = testCaseMapper.selectByPrimaryKey(testCaseId);
         if (testCase == null) {
@@ -1053,9 +1063,7 @@ public class TestCaseService {
             if (!testCases.isEmpty()) {
                 Integer num = importCreateNum.get();
                 Integer beforeInsertId = beforeImportCreateNum.get();
-
-                for (int i = testCases.size() - 1; i > -1; i--) { // 反向遍历，保持和文件顺序一致
-                    TestCaseWithBLOBs testCase = testCases.get(i);
+                for (TestCaseWithBLOBs testCase : testCases) {
                     testCase.setId(UUID.randomUUID().toString());
                     testCase.setCreateUser(SessionUtils.getUserId());
                     testCase.setCreateTime(System.currentTimeMillis());
@@ -2381,13 +2389,13 @@ public class TestCaseService {
         Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
                 .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
         List<ApiTestCase> apiCases = apiTestCaseService.getApiCaseByIds(
-                getTestIds(testCaseTests, "testcase")
+                getTestIds(testCaseTests, TestCaseTestType.testcase.name())
         );
         List<ApiScenario> apiScenarios = apiAutomationService.getScenarioCaseByIds(
-                getTestIds(testCaseTests, "automation")
+                getTestIds(testCaseTests, TestCaseTestType.automation.name())
         );
         List<LoadTest> apiLoadTests = performanceTestService.getLoadCaseByIds(
-                getTestIds(testCaseTests, "performance")
+                getTestIds(testCaseTests, TestCaseTestType.performance.name())
         );
         List<String> projectIds = apiCases.stream().map(c -> c.getProjectId()).collect(Collectors.toList());
         projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
@@ -2419,15 +2427,15 @@ public class TestCaseService {
 
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
         apiCases.forEach(item -> {
-            getTestCaseTestDaoList("testcase", item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+            getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiScenarios.forEach(item -> {
-            getTestCaseTestDaoList("automation", item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+            getTestCaseTestDaoList(TestCaseTestType.automation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiLoadTests.forEach(item -> {
-            getTestCaseTestDaoList("performance", item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
+            getTestCaseTestDaoList(TestCaseTestType.performance.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), verisonNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         return testCaseTestList;

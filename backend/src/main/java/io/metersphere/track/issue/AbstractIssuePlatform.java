@@ -407,14 +407,19 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     protected String syncIssueCustomField(String customFieldsStr, JSONObject issue) {
+        List<CustomFieldItemDTO> customFieldItemDTOList = syncIssueCustomFieldList(customFieldsStr, issue);
+        return JSONObject.toJSONString(customFieldItemDTOList);
+    }
+
+    protected List<CustomFieldItemDTO> syncIssueCustomFieldList(String customFieldsStr, JSONObject issue) {
         List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(customFieldsStr);
         Set<String> names = issue.keySet();
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             Object value = issue.get(fieldName);
             if (value != null) {
-               if (value instanceof JSONObject) {
-                   item.setValue(getSyncJsonParamValue(value));
+                if (value instanceof JSONObject) {
+                    item.setValue(getSyncJsonParamValue(value));
                 } else if (value instanceof JSONArray) {
                     List<Object> values = new ArrayList<>();
                     ((JSONArray)value).forEach(attr -> {
@@ -436,7 +441,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                 }
             }
         });
-        return JSONObject.toJSONString(customFields);
+        return customFields;
     }
 
     @Override

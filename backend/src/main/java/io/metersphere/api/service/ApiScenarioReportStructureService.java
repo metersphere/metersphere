@@ -258,17 +258,20 @@ public class ApiScenarioReportStructureService {
                                 dto.setValue(requestResultExpandDTO);
                                 dto.setErrorCode(reportResults.get(0).getErrorCode());
                             }
+                            dto.setTotalStatus(reportResult.getStatus());
                         } else {
                             if (reportResult.getContent() != null) {
                                 StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
                                 step.setValue(JSON.parseObject(new String(reportResults.get(i).getContent(), StandardCharsets.UTF_8), RequestResult.class));
                                 step.setErrorCode(reportResults.get(i).getErrorCode());
+                                step.setTotalStatus(reportResults.get(i).getStatus());
                                 dtoList.add(step);
                             } else {
                                 StepTreeDTO step = new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
                                 RequestResultExpandDTO requestResultExpandDTO = new RequestResultExpandDTO(reportResult);
                                 step.setValue(requestResultExpandDTO);
                                 step.setErrorCode(reportResults.get(i).getErrorCode());
+                                step.setTotalStatus(reportResults.get(i).getStatus());
                                 dtoList.add(step);
                             }
                         }
@@ -286,6 +289,7 @@ public class ApiScenarioReportStructureService {
                         dto.setErrorCode(reportResults.get(0).getErrorCode());
                         dto.setTotalStatus(requestResultExpandDTO.getStatus());
                     }
+                    dto.setTotalStatus(reportResult.getStatus());
                 }
             }
             if (StringUtils.isNotEmpty(dto.getType()) && requests.contains(dto.getType()) && dto.getValue() == null || isUiUnExecuteCommand(dto)) {
@@ -303,7 +307,7 @@ public class ApiScenarioReportStructureService {
             } else {
                 if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty(((RequestResultExpandDTO) dto.getValue()).getStatus())) {
                     dto.setTotalStatus(((RequestResultExpandDTO) dto.getValue()).getStatus());
-                } else if (dto.getValue() != null) {
+                } else if (dto.getValue() != null && StringUtils.isEmpty(dto.getTotalStatus())) {
                     if (dto.getValue().getError() > 0 || BooleanUtils.isNotTrue(dto.getValue().isSuccess())) {
                         dto.setTotalStatus("fail");
                     } else {

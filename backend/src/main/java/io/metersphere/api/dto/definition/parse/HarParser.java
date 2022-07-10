@@ -11,7 +11,6 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
@@ -47,7 +46,7 @@ public class HarParser extends HarAbstractParser {
             MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
         }
-        if (ObjectUtils.isEmpty(har)) {
+        if (ObjectUtils.isEmpty(har) || har.log == null) {
             MSException.throwException("解析失败，请确认选择的是 Har 格式！");
         }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
@@ -60,22 +59,11 @@ public class HarParser extends HarAbstractParser {
     private List<ApiDefinitionWithBLOBs> parseRequests(Har har, ApiTestImportRequest importRequest) {
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule selectModule = null;
-        String selectModulePath = null;
-        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
-            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
-            if (selectModule != null) {
-                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
-            }
-        }
-
-
         List<HarEntry> harEntryList = new ArrayList<>();
         if (har.log != null && har.log.entries != null) {
             harEntryList = har.log.entries;
         }
 
-        List<String> savedUrl = new ArrayList<>();
 
         for (HarEntry entry : harEntryList) {
             HarRequest harRequest = entry.request;
@@ -90,12 +78,7 @@ public class HarParser extends HarAbstractParser {
                     url = url.split("\\?")[0];
                 }
             } catch (Exception e) {
-            }
-
-            if (savedUrl.contains(harRequest.url)) {
-                continue;
-            } else {
-                savedUrl.add(harRequest.url);
+                LogUtil.error(e.getMessage(), e);
             }
 
             //默认取路径的最后一块
@@ -107,23 +90,13 @@ public class HarParser extends HarAbstractParser {
 
             if (harRequest != null) {
                 MsHTTPSamplerProxy request = super.buildRequest(reqName, url, harRequest.method, null);
+                request.setFollowRedirects(true);
                 ApiDefinitionWithBLOBs apiDefinition = super.buildApiDefinition(request.getId(), reqName, url, harRequest.method, importRequest);
                 parseParameters(harRequest, request);
                 parseRequestBody(harRequest, request.getBody());
                 addBodyHeader(request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(entry.response)));
-                if (selectModule == null) {
-                    apiDefinition.setModuleId("default-module");
-
-                } else {
-                    apiDefinition.setModuleId(selectModule.getId());
-                }
-                if (StringUtils.isNotBlank(selectModulePath)) {
-                    apiDefinition.setModulePath(selectModulePath);
-                } else {
-                    apiDefinition.setModulePath("/未规划接口");
-                }
                 results.add(apiDefinition);
             }
         }

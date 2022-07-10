@@ -127,7 +127,7 @@ public class JMeterService {
             JMeterBase.addBackendListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
         }
 
-        LoggerUtil.info("报告：[" + request.getReportId() + "] 资源：[" + request.getTestId() + "] 加入JMETER中开始执行");
+        LoggerUtil.info("资源：[" + request.getTestId() + "] 加入JMETER中开始执行", request.getReportId());
         LocalRunner runner = new LocalRunner(request.getHashTree());
         runner.run(request.getReportId());
     }
@@ -137,20 +137,20 @@ public class JMeterService {
         // 如果是K8S调用
         if (request.getPool().isK8s()) {
             try {
-                LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行");
+                LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
                 RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 apiScenarioReportService.testEnded(request, e.getMessage());
-                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ],报告：[" + request.getReportId() + "] 失败：", e);
+                LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
         } else {
             this.send(request);
         }
     }
 
-    private synchronized void send(JmeterRunRequestDTO request) {
+    private void send(JmeterRunRequestDTO request) {
         try {
             if (redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()) != null) {
                 long index = Long.parseLong(redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()).toString());
@@ -161,26 +161,25 @@ public class JMeterService {
                 config = SmoothWeighted.getResource(request.getPoolId());
             }
             if (config == null) {
-                LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
+                LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】", request.getReportId());
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(request);
                 return;
             }
             request.setCorePoolSize(config.getCorePoolSize());
             request.setEnable(config.isEnable());
-            LoggerUtil.info("开始发送请求【 " + request.getReportId() + " 】,资源【 " + request.getTestId() + " 】" + config.getUrl() + " 节点执行");
+            LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + config.getUrl() + " 节点执行", request.getReportId());
             ResponseEntity<String> result = restTemplate.postForEntity(config.getUrl(), request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
                 RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
                 remakeReportService.remake(request);
-                LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败");
+                LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败", request.getReportId());
                 LoggerUtil.info(result.getBody());
             }
         } catch (Exception e) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
             remakeReportService.remake(request);
-            LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败：", e);
-            LoggerUtil.error(e);
+            LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
         }
     }
 

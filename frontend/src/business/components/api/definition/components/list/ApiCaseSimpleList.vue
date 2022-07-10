@@ -504,7 +504,7 @@ export default {
     // 通知过来的数据跳转到编辑
     if (this.$route.query.caseId) {
       this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
-        if(!response.data){
+        if (!response.data) {
           this.$error(this.$t('api_test.case_jump_message'));
           return;
         }
@@ -716,6 +716,9 @@ export default {
             this.refreshStatus();
           }
         });
+      }
+      if (this.$refs.caseTable) {
+        this.$refs.caseTable.clearSelection();
       }
     },
     setRunning(id) {

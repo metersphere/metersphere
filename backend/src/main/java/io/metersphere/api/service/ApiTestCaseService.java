@@ -19,6 +19,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
@@ -34,6 +35,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.FileService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
@@ -84,6 +86,9 @@ public class ApiTestCaseService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private EsbApiParamService esbApiParamService;
+    @Lazy
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
     @Resource
@@ -106,6 +111,8 @@ public class ApiTestCaseService {
     private TcpApiParamService tcpApiParamService;
     @Resource
     private ObjectMapper mapper;
+    @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -290,6 +297,7 @@ public class ApiTestCaseService {
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         esbApiParamService.deleteByResourceId(testId);
+        testPlanApiCaseService.deleteByCaseId(testId);
         deleteBodyFiles(testId);
         deleteFollows(testId);
     }
@@ -465,25 +473,43 @@ public class ApiTestCaseService {
 
     public int getNextNum(String definitionId) {
         ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
+        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(definitionId);
         if (apiTestCase == null) {
-            int n = apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum();
+            int n = apiDefinitionWithBLOBs.getNum();
             return n * 1000 + 1;
         } else {
             return Optional.of(apiTestCase.getNum() + 1)
-                    .orElse(apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1);
+                    .orElse(apiDefinitionWithBLOBs.getNum() * 1000 + 1);
         }
     }
 
-    public int getNextNum(String definitionId, Integer definitionNum) {
+    public int getNextNum(String definitionId, Integer definitionNum, String projectId) {
         ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
+        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(definitionId);
+        int apiDefinitionNum;
+        if (apiDefinitionWithBLOBs != null && apiDefinitionWithBLOBs.getNum() != null) {
+            apiDefinitionNum = apiDefinitionWithBLOBs.getNum() * 1000 + 1;
+        } else {
+            apiDefinitionNum = getNextNumByProjectId(projectId);
+        }
         if (apiTestCase == null) {
             if (definitionNum == null) {
-                return apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1;
+                return apiDefinitionNum;
+
             }
             return definitionNum * 1000 + 1;
         } else {
             return Optional.of(apiTestCase.getNum() + 1)
-                    .orElse(apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1);
+                    .orElse(apiDefinitionNum);
+        }
+    }
+
+    public int getNextNumByProjectId(String projectId) {
+        ApiDefinition apiDefinition = extApiDefinitionMapper.getNextNum(projectId);
+        if (apiDefinition == null || apiDefinition.getNum() == null) {
+            return 100001;
+        } else {
+            return Optional.of(apiDefinition.getNum() + 1).orElse(100001);
         }
     }
 
@@ -530,9 +556,7 @@ public class ApiTestCaseService {
         apiTestCaseMapper.deleteByExample(example);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         List<String> caseIds = apiTestCases.stream().map(ApiTestCase::getId).collect(Collectors.toList());
-        for (String testId : caseIds) {
-            extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
-        }
+        testPlanApiCaseService.deleteByCaseIds(caseIds);
     }
 
     public void relevanceByApi(ApiCaseRelevanceRequest request) {
@@ -1033,7 +1057,9 @@ public class ApiTestCaseService {
     public List<ApiTestCase> getApiCaseByIds(List<String> apiCaseIds) {
         if (CollectionUtils.isNotEmpty(apiCaseIds)) {
             ApiTestCaseExample example = new ApiTestCaseExample();
-            example.createCriteria().andIdIn(apiCaseIds);
+            example.createCriteria()
+                    .andIdIn(apiCaseIds)
+                    .andStatusNotEqualTo(CommonConstants.TrashStatus);
             return apiTestCaseMapper.selectByExample(example);
         }
         return new ArrayList<>();

@@ -178,12 +178,12 @@ public class ApiScenarioReportService {
         return list;
     }
 
-    public QueryAPIReportRequest initRequest(QueryAPIReportRequest request){
-        if(request != null){
+    public QueryAPIReportRequest initRequest(QueryAPIReportRequest request) {
+        if (request != null) {
             //初始化triggerMode的查询条件： 如果查询API的话，增加 JENKINS_RUN_TEST_PLAN(jenkins调用测试计划时执行的场景) 查询条件
-            if(MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode")
+            if (MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("trigger_mode")
                     && CollectionUtils.isNotEmpty(request.getFilters().get("trigger_mode"))
-                    && request.getFilters().get("trigger_mode").contains("API") && !request.getFilters().get("trigger_mode").contains(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())){
+                    && request.getFilters().get("trigger_mode").contains("API") && !request.getFilters().get("trigger_mode").contains(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name())) {
                 request.getFilters().get("trigger_mode").add(ReportTriggerMode.JENKINS_RUN_TEST_PLAN.name());
             }
         }
@@ -251,8 +251,8 @@ public class ApiScenarioReportService {
             report.setTriggerMode(TriggerMode.MANUAL.name());
         }
         // UI 调试类型报告不记录更新状态
-        if(report.getExecuteType().equals(ExecuteType.Debug.name()) &&
-        report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())){
+        if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
+                report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
             return report;
         }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
@@ -378,7 +378,7 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isEmpty(reportStatus)) {
             //查不到任何结果，按照未执行来处理
             hasUnExecute = true;
-        }else {
+        } else {
             for (String status : reportStatus) {
                 if (StringUtils.equalsIgnoreCase(status, ExecuteResult.SCENARIO_ERROR.toString())) {
                     hasError = true;
@@ -503,8 +503,8 @@ public class ApiScenarioReportService {
             }
             scenario.setExecuteTimes(executeTimes + 1);
             // 针对 UI 调试类型的不需要更新
-            if(report.getExecuteType().equals(ExecuteType.Debug.name()) &&
-                    report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())){
+            if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
+                    report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
                 return report;
             }
             uiScenarioMapper.updateByPrimaryKey(scenario);
@@ -906,7 +906,7 @@ public class ApiScenarioReportService {
         }
 
         if (dto != null && dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("TIMEOUT") && (Boolean) dto.getArbitraryData().get("TIMEOUT")) {
-            LoggerUtil.info("报告 【 " + dto.getReportId() + " 】资源 " + dto.getTestId() + " 执行超时");
+            LoggerUtil.info("资源 " + dto.getTestId() + " 执行超时", dto.getReportId());
             status = ScenarioStatus.Timeout.name();
         }
         return status;

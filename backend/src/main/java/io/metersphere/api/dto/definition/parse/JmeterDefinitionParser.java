@@ -16,8 +16,6 @@ import io.metersphere.api.dto.definition.request.extract.MsExtractRegex;
 import io.metersphere.api.dto.definition.request.extract.MsExtractXPath;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
@@ -35,11 +33,16 @@ import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironmentExample;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
@@ -72,9 +75,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
     private ImportPoolsDTO dataPools;
     private final String ENV_NAME = "导入数据环境";
 
-    private ApiModule selectModule;
-    private ApiModule apiModule;
-    private String selectModulePath;
+
     private String planName = "default";
     private static final Integer GROUP_GLOBAL = 1;
 
@@ -92,12 +93,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             List<ApiTestCaseWithBLOBs> definitionCases = new ArrayList<>();
 
             jmeterHashTree(testPlan, scenario);
-
-            this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
-            if (this.selectModule != null) {
-                this.selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
-            }
-            this.apiModule = ApiDefinitionImportUtil.buildModule(this.selectModule, this.planName, this.projectId);
 
             LinkedList<MsTestElement> elements = scenario.getHashTree();
             LinkedList<MsTestElement> results = new LinkedList<>();
@@ -279,14 +274,8 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
         apiDefinition.setName(element.getName());
         apiDefinition.setProjectId(this.projectId);
         apiDefinition.setRequest(JSON.toJSONString(element));
-        if (this.apiModule != null) {
-            apiDefinition.setModuleId(this.apiModule.getId());
-            if (StringUtils.isNotBlank(this.selectModulePath)) {
-                apiDefinition.setModulePath(this.selectModulePath + "/" + this.apiModule.getName());
-            } else {
-                apiDefinition.setModulePath("/" + this.apiModule.getName());
-            }
-        }
+       
+        apiDefinition.setModulePath("/" + this.planName);
         // todo 除HTTP协议外，其它协议设置默认模块
         apiDefinition.setStatus("Prepare");
         apiDefinition.setProtocol(protocol);
@@ -638,7 +627,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             });
         }
         elementNode.setAttachmentArgs(attachmentArgs);
-        if(StringUtils.isEmpty(elementNode.getMethod())){
+        if (StringUtils.isEmpty(elementNode.getMethod())) {
             elementNode.setMethod(elementNode.getProtocol());
         }
     }
