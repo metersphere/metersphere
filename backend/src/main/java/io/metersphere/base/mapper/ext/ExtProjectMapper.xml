@@ -307,8 +307,9 @@
             #{id}
         </foreach>
     </select>
-
-
+    <select id="getThirdPartProjectIds" resultType="java.lang.String">
+        select id from project where platform != 'Local';
+    </select>
     <insert id="setDefaultMessageTask">
         INSERT INTO message_task (id, type, event, user_id, task_type, webhook, identification, is_set, project_id,
         test_id, create_time, template)

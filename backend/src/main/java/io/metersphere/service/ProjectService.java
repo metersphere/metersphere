@@ -835,6 +835,10 @@ public class ProjectService {
         return extProjectMapper.getProjectForCustomField(workspaceId);
     }
 
+    public List<String> getThirdPartProjectIds() {
+        return extProjectMapper.getThirdPartProjectIds();
+    }
+
     public Map<String, Project> queryNameByIds(List<String> ids) {
         return extProjectMapper.queryNameByIds(ids);
     }

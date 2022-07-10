@@ -8,6 +8,10 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.IssueFollowMapper;
+import io.metersphere.base.mapper.IssuesMapper;
+import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.AttachmentType;
 import io.metersphere.commons.constants.IssueRefType;
@@ -45,7 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -591,7 +594,7 @@ public class IssuesService {
     }
 
     public void syncThirdPartyIssues() {
-        List<String> projectIds = projectService.getProjectIds();
+        List<String> projectIds = projectService.getThirdPartProjectIds();
         projectIds.forEach(id -> {
             try {
                 syncThirdPartyIssues(id);
@@ -643,59 +646,32 @@ public class IssuesService {
             if (StringUtils.isNotEmpty(syncValue)) {
                 return false;
             }
+
             setSyncKey(projectId);
+
             Project project = projectService.getProjectById(projectId);
-            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId);
+            List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId, project.getPlatform());
 
             if (CollectionUtils.isEmpty(issues)) {
                 return true;
             }
 
-            List<IssuesDao> tapdIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Tapd.name()))
-                    .collect(Collectors.toList());
-            List<IssuesDao> jiraIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Jira.name()))
-                    .collect(Collectors.toList());
-            List<IssuesDao> zentaoIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Zentao.name()))
-                    .collect(Collectors.toList());
-            List<IssuesDao> azureDevopsIssues = issues.stream()
-                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.AzureDevops.name()))
-                    .collect(Collectors.toList());
-
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
             issuesRequest.setWorkspaceId(project.getWorkspaceId());
-            if (!projectService.isThirdPartTemplate(project)) {
-                String defaultCustomFields = getDefaultCustomFields(projectId);
-                issuesRequest.setDefaultCustomFields(defaultCustomFields);
-            }
 
-            if (CollectionUtils.isNotEmpty(tapdIssues)) {
-                TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
-                syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
-            }
-            if (CollectionUtils.isNotEmpty(jiraIssues)) {
-                JiraPlatform jiraPlatform = new JiraPlatform(issuesRequest);
-                syncThirdPartyIssues(jiraPlatform::syncIssues, project, jiraIssues);
-            }
-            if (CollectionUtils.isNotEmpty(zentaoIssues)) {
-                ZentaoPlatform zentaoPlatform = new ZentaoPlatform(issuesRequest);
-                syncThirdPartyIssues(zentaoPlatform::syncIssues, project, zentaoIssues);
-            }
-            if (CollectionUtils.isNotEmpty(azureDevopsIssues)) {
-                ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                try {
-                    Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
-                    Constructor cons = clazz.getDeclaredConstructor(new Class[]{IssuesRequest.class});
-                    AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
-                    syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
-                } catch (Throwable e) {
-                    LogUtil.error(e);
+            try {
+                if (!projectService.isThirdPartTemplate(project)) {
+                    String defaultCustomFields = getDefaultCustomFields(projectId);
+                    issuesRequest.setDefaultCustomFields(defaultCustomFields);
                 }
+                AbstractIssuePlatform platform = IssueFactory.createPlatform(project.getPlatform(), issuesRequest);
+                syncThirdPartyIssues(platform::syncIssues, project, issues);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                deleteSyncKey(projectId);
             }
-            deleteSyncKey(projectId);
         }
         return true;
     }
