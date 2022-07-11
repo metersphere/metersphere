@@ -117,6 +117,7 @@ import StatusTableItem from "@/business/components/track/common/tableItems/planv
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import TestCaseReviewStatusTableItem from "@/business/components/track/common/tableItems/TestCaseReviewStatusTableItem";
 import TestPlanCaseStatusTableItem from "@/business/components/track/common/tableItems/TestPlanCaseStatusTableItem";
+import {TEST_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -208,7 +209,7 @@ export default {
   },
   methods: {
     open() {
-      this.page.condition = {};
+      this.page.condition = {components: TEST_CASE_CONFIGS};
       this.isSaving = false;
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
