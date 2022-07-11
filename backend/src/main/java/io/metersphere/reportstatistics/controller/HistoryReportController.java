@@ -1,9 +1,7 @@
 package io.metersphere.reportstatistics.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import io.metersphere.base.domain.ReportStatistics;
 import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.reportstatistics.dto.ReportStatisticsSaveRequest;
 import io.metersphere.reportstatistics.service.ReportStatisticsService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,13 +30,19 @@ public class HistoryReportController {
     }
 
     @PostMapping("/saveReport")
-    public ReportStatisticsWithBLOBs saveReport(@RequestBody ReportStatisticsSaveRequest request){
+    public ReportStatisticsWithBLOBs saveReport(@RequestBody ReportStatisticsSaveRequest request) {
         ReportStatisticsWithBLOBs returnData = reportStatisticsService.saveByRequest(request);
         return returnData;
     }
 
+    @PostMapping("/update")
+    public ReportStatisticsWithBLOBs update(@RequestBody ReportStatisticsSaveRequest request) {
+        ReportStatisticsWithBLOBs returnData = reportStatisticsService.update(request);
+        return returnData;
+    }
+
     @PostMapping("/updateReport")
-    public ReportStatisticsWithBLOBs updateReport(@RequestBody ReportStatisticsSaveRequest request){
+    public ReportStatisticsWithBLOBs updateReport(@RequestBody ReportStatisticsSaveRequest request) {
         ReportStatisticsWithBLOBs returnData = reportStatisticsService.updateByRequest(request);
         return returnData;
     }
