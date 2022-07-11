@@ -688,7 +688,6 @@ public class ElementUtil {
                     list.get(i).setIndex(String.valueOf(i));
                 }
             }
-            return list.stream().sorted(Comparator.comparing(MsTestElement::getIndex)).collect(Collectors.toList());
         }
         return list;
     }
