@@ -47,5 +47,5 @@ public interface ExtApiScenarioReportMapper {
 
     List<ApiScenarioReport> findByProjectIds(@Param("request") TaskCenterRequest request);
 
-
+    List<String> selectByProjectIdAndLessThanTime(@Param("projectId") String projectId, @Param("time") long time);
 }

@@ -735,7 +735,7 @@ public class ApiScenarioReportService {
         reportRequest.setIds(myList);
         //为预防数量太多，调用删除方法时引起SQL过长的Bug，此处采取分批执行的方式。
         //每次处理的数据数量
-        int handleCount = 7000;
+        int handleCount = 5000;
         //每次处理的集合
         while (ids.size() > handleCount) {
             List<String> handleIdList = new ArrayList<>(handleCount);
@@ -917,16 +917,8 @@ public class ApiScenarioReportService {
     }
 
     public void cleanUpReport(long time, String projectId) {
-        ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
-        List<ApiScenarioReport> apiScenarioReports = apiScenarioReportMapper.selectByExample(example);
-        List<String> ids = apiScenarioReports.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
-
-        ApiDefinitionExecResultExample definitionExecResultExample = new ApiDefinitionExecResultExample();
-        definitionExecResultExample.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
-        List<ApiDefinitionExecResult> apiDefinitionExecResults = definitionExecResultMapper.selectByExample(definitionExecResultExample);
-        List<String> definitionExecIds = apiDefinitionExecResults.stream().map(ApiDefinitionExecResult::getId).collect(Collectors.toList());
-
+        List<String> ids = extApiScenarioReportMapper.selectByProjectIdAndLessThanTime(projectId, time);
+        List<String> definitionExecIds = extApiDefinitionExecResultMapper.selectByProjectIdAndLessThanTime(projectId, time);
         ids.addAll(definitionExecIds);
         if (CollectionUtils.isNotEmpty(ids)) {
             APIReportBatchRequest request = new APIReportBatchRequest();
