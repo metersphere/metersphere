@@ -132,7 +132,7 @@ export default {
       if (selectTableData) {
         this.tableData = selectTableData;
       }
-      this.$refs.analysisChart.setPieOptionAndBarOption(this.loadOption,this.pieOption);
+      this.$refs.analysisChart.setPieOptionAndBarOption(this.loadOption, this.pieOption);
       this.loading = false;
       this.$refs.analysisChart.generateOption(this.chartType);
     },
@@ -142,6 +142,24 @@ export default {
     orderCharts(order) {
       this.options.order = order;
       this.filterCharts(this.options);
+    },
+    updateReport(reportId) {
+      let obj = {};
+      obj.id = reportId;
+      obj.projectId = getCurrentProjectID();
+      obj.selectOption = JSON.stringify(this.options);
+      let dataOptionObj = {
+        loadOption: this.loadOption,
+        pieOption: this.pieOption,
+        tableData: this.tableData,
+        chartType: this.chartType,
+      };
+      obj.dataOption = JSON.stringify(dataOptionObj);
+      obj.reportType = 'TEST_CASE_COUNT';
+      this.$post("/history/report/update", obj, response => {
+        this.$alert(this.$t('commons.save_success'));
+        this.$refs.historyReport.initReportData();
+      });
     },
     saveReport(reportName) {
       let obj = {};

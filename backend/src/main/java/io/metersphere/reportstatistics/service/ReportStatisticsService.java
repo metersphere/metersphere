@@ -65,6 +65,11 @@ public class ReportStatisticsService {
         return model;
     }
 
+    public ReportStatisticsWithBLOBs update(ReportStatisticsSaveRequest request) {
+        reportStatisticsMapper.updateByPrimaryKeySelective(request);
+        return request;
+    }
+
     public int deleteById(String id) {
         return reportStatisticsMapper.deleteByPrimaryKey(id);
     }
