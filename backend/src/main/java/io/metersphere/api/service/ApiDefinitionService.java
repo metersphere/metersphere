@@ -821,6 +821,12 @@ public class ApiDefinitionService {
         for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : caseList) {
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
             apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
+            if (apiTestCaseWithBLOBs.getCreateTime() == null) {
+                apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
+            }
+            if (apiTestCaseWithBLOBs.getUpdateTime() == null) {
+                apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+            }
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
             } else {

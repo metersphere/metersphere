@@ -897,7 +897,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     apiDefinitionWithBLOBs.setLatest(v.getLatest());
                     apiDefinitionWithBLOBs.setCreateTime(v.getCreateTime());
                     //组合case
-                    buildCaseList(oldCaseMap, caseNameMap, v);
+                    if (caseNameMap != null) {
+                        buildCaseList(oldCaseMap, caseNameMap, v);
+                    }
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });
@@ -934,7 +936,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     apiDefinitionWithBLOBs.setId(v.getId());
                     setApiParam(apiDefinitionWithBLOBs, updateVersionId, v);
                     //组合case
-                    buildCaseList(oldCaseMap, caseNameMap, v);
+                    if (caseNameMap != null) {
+                        buildCaseList(oldCaseMap, caseNameMap, v);
+                    }
                     toUpdateList.add(apiDefinitionWithBLOBs);
                 }
             });
@@ -1076,7 +1080,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 //循环系统内重复接口
                 for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
                     //组合case
-                    buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs);
+                    if (caseNameMap != null) {
+                        buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs);
+                    }
 
                     ApiDefinitionWithBLOBs api = new ApiDefinitionWithBLOBs();
                     BeanUtils.copyBean(api, apiDefinitionWithBLOBs);
@@ -1111,7 +1117,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = oldCaseNameMap.get(name);
                 if (apiTestCaseWithBLOBs1 != null) {
                     caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
-                    caseWithBLOBs1.setVersion(apiTestCaseWithBLOBs1.getVersion() == null ? 0 : caseWithBLOBs1.getVersion() + 1);
+                    caseWithBLOBs1.setVersion(apiTestCaseWithBLOBs1.getVersion() == null ? 0 : apiTestCaseWithBLOBs1.getVersion() + 1);
                     oldCaseNameMap.remove(name);
                 } else {
                     caseWithBLOBs1.setVersion(0);
@@ -1124,7 +1130,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private Map<String, ApiTestCaseWithBLOBs> getDistinctCaseNameMap(Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp, ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = definitionIdCaseMAp.get(apiDefinitionWithBLOBs.getId());
-        return caseWithBLOBs.stream().collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
+        if (caseWithBLOBs != null) {
+            return caseWithBLOBs.stream().collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
+        } else {
+            return null;
+        }
     }
 
     private void startCover(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData,
@@ -1139,7 +1149,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                 for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
                     //组合case
-                    buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs);
+                    if (caseNameMap != null) {
+                        buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs);
+                    }
 
                     ApiDefinitionWithBLOBs api = new ApiDefinitionWithBLOBs();
                     BeanUtils.copyBean(api, apiDefinitionWithBLOBs);
