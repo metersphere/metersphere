@@ -5,10 +5,14 @@
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
         <test-plan-overview-report v-if="overviewEnable" :report="report"/>
-        <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
-        <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :plan-id="planId" :report="report"/>
-        <test-plan-api-report v-if="apiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
-        <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare"
+                                  :report="report" :plan-id="planId"/>
+        <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                                     :is-template="isTemplate" :plan-id="planId" :report="report"/>
+        <test-plan-api-report v-if="apiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                              :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                               :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
     </ms-main-container>
     <test-plan-report-navigation-bar
@@ -25,7 +29,6 @@
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
 import {
-  getExportReport,
   getShareTestPlanReport,
   getShareTestPlanReportContent,
   getTestPlanReport,
@@ -43,6 +46,7 @@ import TestPlanReportNavigationBar
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportNavigationBar";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+
 export default {
   name: "TestPlanReportContent",
   components: {
@@ -58,7 +62,7 @@ export default {
     TestPlanFunctionalReport,
   },
   props: {
-    planId:String,
+    planId: String,
     isShare: Boolean,
     isTemplate: Boolean,
     isDb: Boolean,
@@ -102,15 +106,16 @@ export default {
     functionalEnable() {
       let disable = this.report.config && this.report.config.functional.enable === false;
       return !disable && this.report.functionResult
-        && this.report.functionResult.caseData && this.report.functionResult.caseData.length > 0 ;
+        && this.report.functionResult.caseData && this.report.functionResult.caseData.length > 0;
     },
     apiEnable() {
       let disable = this.report.config && this.report.config.api.enable === false;
-      return !disable && this.report.apiResult &&
+      return !disable && ((this.report.apiResult &&
         (
-          (this.report.apiResult.apiCaseData && this.report.apiResult.apiCaseData.length  > 0)
+          (this.report.apiResult.apiCaseData && this.report.apiResult.apiCaseData.length > 0)
           || (this.report.apiResult.apiScenarioData && this.report.apiResult.apiScenarioData.length > 0)
-        );
+        )) || (this.report.apiAllCases && this.report.apiAllCases.length > 0) || (this.report.scenarioAllCases && this.report.scenarioAllCases.length > 0));
+
     },
     loadEnable() {
       let disable = this.report.config && this.report.config.load.enable === false;
@@ -126,7 +131,7 @@ export default {
           this.$setLang(this.report.lang);
         }
         this.report.config = this.getDefaultConfig(this.report);
-      }  else if (this.isDb) {
+      } else if (this.isDb) {
         if (this.isShare) {
           //持久化的报告分享
           this.result = getShareTestPlanReportContent(this.shareId, this.reportId, (data) => {
@@ -159,7 +164,7 @@ export default {
           dbConfig = JSON.parse(configStr);
         }
       }
-      let config =  {
+      let config = {
         overview: {
           enable: true,
           name: this.$t('test_track.report.overview')

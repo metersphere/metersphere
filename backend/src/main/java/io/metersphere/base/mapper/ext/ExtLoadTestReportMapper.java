@@ -33,4 +33,6 @@ public interface ExtLoadTestReportMapper {
 
     List<String> selectReportIdByTestId(@Param("testId") String testId);
 
+    String selectStatusById(String id);
+
 }

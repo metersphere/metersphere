@@ -28,7 +28,7 @@ public interface ExtTestPlanLoadCaseMapper {
 
     List<TestPlanLoadCaseDTO> getCases(@Param("planId") String planId, @Param("status") String status);
 
-    List<TestPlanLoadCaseDTO> getCasesByIds(@Param("ids") Collection<String> ids, @Param("reportIds") Collection<String> reportIds);
+    List<TestPlanLoadCaseDTO> getCasesByIds(@Param("ids") Collection<String> ids);
 
     List<String> selectPlanIds();
 

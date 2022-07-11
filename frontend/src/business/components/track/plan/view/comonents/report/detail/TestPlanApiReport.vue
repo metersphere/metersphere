@@ -10,7 +10,8 @@
         </template>
         <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate"
                    :plan-id="planId" @setSize="setFailureSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+        <el-button class="rerun-button" plain size="mini"
+                   v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
           {{ $t('api_test.automation.rerun') }}
         </el-button>
       </el-tab-pane>
@@ -20,7 +21,8 @@
         </template>
         <api-cases :is-db="isDb" :is-error-report="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setErrorReportSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+        <el-button class="rerun-button" plain size="mini"
+                   v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
           {{ $t('api_test.automation.rerun') }}
         </el-button>
 
@@ -32,7 +34,8 @@
         <api-cases :is-db="isDb" :is-un-execute="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setUnExecuteSize"/>
 
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+        <el-button class="rerun-button" plain size="mini"
+                   v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
           {{ $t('api_test.automation.rerun') }}
         </el-button>
       </el-tab-pane>
@@ -43,7 +46,8 @@
         </template>
         <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report"
                    :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
+        <el-button class="rerun-button" plain size="mini"
+                   v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
           {{ $t('api_test.automation.rerun') }}
         </el-button>
 
@@ -83,7 +87,10 @@ export default {
   computed: {
     resultEnable() {
       let disable = this.report.config && this.report.config.api.children.result.enable === false;
-      return !disable;
+      return !disable && this.report.apiResult && (
+        (this.report.apiResult.apiCaseData && this.report.apiResult.apiCaseData.length > 0)
+        || (this.report.apiResult.apiScenarioData && this.report.apiResult.apiScenarioData.length > 0)
+      );
     },
     failureEnable() {
       let disable = this.report.config && this.report.config.api.children.failure.enable === false;
