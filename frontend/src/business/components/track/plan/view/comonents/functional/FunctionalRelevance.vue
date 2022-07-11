@@ -107,10 +107,10 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import {getVersionFilters} from "@/network/project";
+import {TEST_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -198,7 +198,7 @@ export default {
   },
   methods: {
     open() {
-      this.page.condition = {};
+      this.page.condition = {components: TEST_CASE_CONFIGS};
       this.isSaving = false;
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
