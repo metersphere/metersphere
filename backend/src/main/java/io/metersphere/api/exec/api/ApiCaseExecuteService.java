@@ -8,7 +8,6 @@ import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
-import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.service.ApiCaseResultService;
@@ -51,7 +50,7 @@ public class ApiCaseExecuteService {
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
-    private ApiScenarioSerialService apiScenarioSerialService;
+    private ApiCaseSerialService apiCaseSerialService;
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
@@ -149,13 +148,13 @@ public class ApiCaseExecuteService {
         DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig());
 
         // 开始选择执行模式
-        if (deQueue != null && deQueue.getQueue() != null) {
+        if (deQueue != null && deQueue.getDetail() != null) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Thread.currentThread().setName("PLAN-CASE：" + request.getPlanReportId());
                     if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                        apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
+                        apiCaseSerialService.serial(deQueue);
                     } else {
                         apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, runMode);
                     }
@@ -277,7 +276,7 @@ public class ApiCaseExecuteService {
             if (MapUtils.isEmpty(config.getEnvMap())) {
                 RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
                 BeanUtils.copyBean(runModeConfig, request.getConfig());
-                this.setExecutionEnvironmen(runModeConfig, testCaseEnvMap);
+                this.setExecutionEnvironment(runModeConfig, testCaseEnvMap);
                 config = runModeConfig;
             }
             ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(null, APITestStatus.Running.name(), serialReportId, config);
@@ -341,17 +340,17 @@ public class ApiCaseExecuteService {
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), serialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
+        DBTestQueue queue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), serialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
-        if (deQueue != null && deQueue.getQueue() != null) {
+        if (queue != null && queue.getDetail() != null) {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     Thread.currentThread().setName("API-CASE-RUN");
                     if (request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-                        apiScenarioSerialService.serial(deQueue, deQueue.getQueue());
+                        apiCaseSerialService.serial(queue);
                     } else {
-                        apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), deQueue, ApiRunMode.DEFINITION.name());
+                        apiCaseParallelExecuteService.parallel(executeQueue, request.getConfig(), queue, ApiRunMode.DEFINITION.name());
                     }
                 }
             });
@@ -360,7 +359,7 @@ public class ApiCaseExecuteService {
         return responseDTOS;
     }
 
-    public void setExecutionEnvironmen(RunModeConfigWithEnvironmentDTO config, Map<String, List<String>> projectEnvMap) {
+    public void setExecutionEnvironment(RunModeConfigWithEnvironmentDTO config, Map<String, List<String>> projectEnvMap) {
         if (MapUtils.isNotEmpty(projectEnvMap) && config != null) {
             config.setExecutionEnvironmentMap(projectEnvMap);
         }

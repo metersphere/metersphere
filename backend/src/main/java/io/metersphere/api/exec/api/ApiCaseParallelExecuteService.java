@@ -1,7 +1,6 @@
 package io.metersphere.api.exec.api;
 
 import io.metersphere.api.exec.queue.DBTestQueue;
-import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
@@ -26,7 +25,7 @@ import java.util.Map;
 @Service
 public class ApiCaseParallelExecuteService {
     @Resource
-    private ApiScenarioSerialService apiScenarioSerialService;
+    private ApiCaseSerialService apiCaseSerialService;
     @Resource
     private JMeterService jMeterService;
     @Resource
@@ -64,7 +63,7 @@ public class ApiCaseParallelExecuteService {
                 runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
             }
             if (!pool.isPool()) {
-                HashTree hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
+                HashTree hashTree = apiCaseSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
                 runRequest.setHashTree(hashTree);
             }
 

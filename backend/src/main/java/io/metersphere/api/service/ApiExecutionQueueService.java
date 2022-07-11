@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.UiExecutionQueueParam;
 import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.exec.api.ApiCaseSerialService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
@@ -66,6 +67,8 @@ public class ApiExecutionQueueService {
     protected ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
+    @Resource
+    private ApiCaseSerialService apiCaseSerialService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -116,7 +119,7 @@ public class ApiExecutionQueueService {
             ApiExecutionQueueDetail queue = detail(k, v.getTestId(), config.getMode(), sort[0], resQueue.getId(), envMap);
             queue.setSort(sort[0]);
             if (sort[0] == 0) {
-                resQueue.setQueue(queue);
+                resQueue.setDetail(queue);
             }
             sort[0]++;
             queue.setRetryEnable(config.isRetryEnable());
@@ -132,8 +135,8 @@ public class ApiExecutionQueueService {
         String envStr = JSON.toJSONString(config.getEnvMap());
         for (String k : runMap.keySet()) {
             ApiExecutionQueueDetail queue = detail(runMap.get(k).getId(), k, config.getMode(), sort++, resQueue.getId(), envStr);
-            if (sort == 0) {
-                resQueue.setQueue(queue);
+            if (sort == 1) {
+                resQueue.setDetail(queue);
             }
             queue.setRetryEnable(config.isRetryEnable());
             queue.setRetryNumber(config.getRetryNum());
@@ -149,8 +152,8 @@ public class ApiExecutionQueueService {
         int i = 0;
         for (String testId : requests.keySet()) {
             ApiExecutionQueueDetail queue = detail(requests.get(testId), testId, config.getMode(), i++, resQueue.getId(), envStr);
-            if (i == 0) {
-                resQueue.setQueue(queue);
+            if (i == 1) {
+                resQueue.setDetail(queue);
             }
             queue.setRetryEnable(config.isRetryEnable());
             queue.setRetryNumber(config.getRetryNum());
@@ -258,7 +261,7 @@ public class ApiExecutionQueueService {
                 }
                 // 取出下一个要执行的节点
                 if (CollectionUtils.isNotEmpty(queues)) {
-                    queue.setQueue(queues.get(0));
+                    queue.setDetail(queues.get(0));
                 } else {
                     LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                     queueMapper.deleteByPrimaryKey(id);
@@ -331,22 +334,30 @@ public class ApiExecutionQueueService {
                 }
             }
             LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId() + "报告ID：" + dto.getReportId());
-            if (executionQueue.getQueue() != null && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId())) {
+            if (executionQueue.getDetail() != null && StringUtils.isNotEmpty(executionQueue.getDetail().getTestId())) {
                 if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
-                    LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getQueue()));
+                    LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getDetail()));
                     // 防止重复执行
-                    boolean isNext = redisTemplate.opsForValue().setIfAbsent(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), executionQueue.getQueue().getQueueId());
-                    if (isNext) {
-                        redisTemplate.expire(RunModeConstants.SERIAL.name() + "_" + executionQueue.getQueue().getReportId(), 60, TimeUnit.MINUTES);
-                        if (StringUtils.startsWith(executionQueue.getRunMode(), "UI")) {
-                            uiScenarioSerialServiceProxy.serial(executionQueue, executionQueue.getQueue());
-                        } else {
-                            apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
-                        }
+                    boolean isNext = redisTemplate.opsForValue().setIfAbsent(RunModeConstants.SERIAL.name() + "_" + executionQueue.getDetail().getReportId(), executionQueue.getDetail().getQueueId());
+                    if (!isNext) {
+                        return;
+                    }
+                    redisTemplate.expire(RunModeConstants.SERIAL.name() + "_" + executionQueue.getDetail().getReportId(), 60, TimeUnit.MINUTES);
+                    if (StringUtils.startsWith(executionQueue.getRunMode(), "UI")) {
+                        uiScenarioSerialServiceProxy.serial(executionQueue, executionQueue.getDetail());
+                    } else if (StringUtils.equalsAny(executionQueue.getRunMode(),
+                            ApiRunMode.SCENARIO.name(),
+                            ApiRunMode.SCENARIO_PLAN.name(),
+                            ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                            ApiRunMode.SCHEDULE_SCENARIO.name(),
+                            ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                        apiScenarioSerialService.serial(executionQueue);
+                    } else {
+                        apiCaseSerialService.serial(executionQueue);
                     }
                 }
             } else {
-                if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                if (StringUtils.equalsIgnoreCase(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                     String reportId = dto.getReportId();
                     if (StringUtils.equalsIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name())) {
                         reportId = dto.getTestPlanReportId();

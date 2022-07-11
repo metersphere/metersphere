@@ -165,7 +165,7 @@ public class ApiScenarioExecuteService {
                     RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
                     BeanUtils.copyBean(runModeConfig, request.getConfig());
                     Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
-                    apiCaseExecuteService.setExecutionEnvironmen(runModeConfig, projectEnvMap);
+                    apiCaseExecuteService.setExecutionEnvironment(runModeConfig, projectEnvMap);
                     request.setConfig(runModeConfig);
                 }
                 APIScenarioReportResult report = getApiScenarioReportResult(request, serialReportId, scenarioNames, reportScenarioIds);
@@ -199,7 +199,7 @@ public class ApiScenarioExecuteService {
         {
             Thread.currentThread().setName("SCENARIO-THREAD");
             if (isSerial(request)) {
-                apiScenarioSerialService.serial(executionQueue, executionQueue.getQueue());
+                apiScenarioSerialService.serial(executionQueue);
             } else {
                 apiScenarioParallelService.parallel(executeQueue, request, finalSerialReportId, executionQueue);
             }
