@@ -47,4 +47,6 @@ public interface ExtApiDefinitionExecResultMapper {
     List<ApiDefinitionExecResult> findByProjectIds(@Param("request") TaskCenterRequest request);
 
     List<String> selectDistinctStatusByReportId(String reportId);
+
+    List<String> selectByProjectIdAndLessThanTime(@Param("projectId") String projectId, @Param("time") long time);
 }

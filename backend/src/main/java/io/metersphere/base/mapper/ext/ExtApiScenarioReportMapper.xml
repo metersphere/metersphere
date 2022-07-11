@@ -461,5 +461,8 @@
             #{id}
         </foreach>
     </select>
+    <select id="selectByProjectIdAndLessThanTime" resultType="java.lang.String">
+        select id from api_scenario_report where create_time &lt; #{time} and project_id = #{projectId}
+    </select>
 
 </mapper>
