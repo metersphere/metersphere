@@ -761,10 +761,10 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinition importCreate(ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionMapper batchMapper, ApiTestCaseMapper apiTestCaseMapper,
+    private ApiDefinition importCreate(ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionMapper batchMapper,
                                        ExtApiDefinitionMapper extApiDefinitionMapper,
-                                       ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks,
-                                       List<ApiDefinitionWithBLOBs> updateList) {
+                                       ApiTestImportRequest apiTestImportRequest, List<MockConfigImportDTO> mocks,
+                                       List<ApiDefinitionWithBLOBs> updateList, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
@@ -781,7 +781,7 @@ public class ApiDefinitionService {
         List<ApiDefinitionWithBLOBs> collect = updateList.stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(Collectors.toList());
 
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            _importCreate(collect, batchMapper, apiTestCaseMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
+            _importCreate(collect, batchMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, mocks, apiTestCaseMapper, caseList);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(collect)) {
                 String originId = apiDefinition.getId();
@@ -801,23 +801,33 @@ public class ApiDefinitionService {
                 }
                 batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
-                // case 设置版本
-                cases.forEach(c -> {
-                    c.setVersionId(apiDefinition.getVersionId());
-                });
-                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
+
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
-                importApiCase(apiDefinition, apiTestImportRequest, apiTestCaseMapper);
+
+                importCase(apiDefinition, apiTestCaseMapper, caseList);
             } else {
                 //不覆盖的接口，如果没有sameRequest则不导入。此时清空mock信息
                 mocks.clear();
             }
         } else {
-            _importCreate(collect, batchMapper, apiTestCaseMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, cases, mocks);
+            _importCreate(collect, batchMapper, apiDefinition, extApiDefinitionMapper, apiTestImportRequest, mocks, apiTestCaseMapper, caseList);
         }
 
         return apiDefinition;
+    }
+
+    private void importCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
+        for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : caseList) {
+            apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
+            apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
+            if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
+                apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
+            } else {
+                apiTestCaseWithBLOBs.setId(UUID.randomUUID().toString());
+                apiTestCaseMapper.insert(apiTestCaseWithBLOBs);
+            }
+        }
     }
 
     public Long getImportNextOrder(String projectId) {
@@ -840,9 +850,9 @@ public class ApiDefinitionService {
         return order;
     }
 
-    private void _importCreate(List<ApiDefinitionWithBLOBs> sameRequest, ApiDefinitionMapper batchMapper, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionWithBLOBs apiDefinition,
+    private void _importCreate(List<ApiDefinitionWithBLOBs> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
                                ExtApiDefinitionMapper extApiDefinitionMapper,
-                               ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases, List<MockConfigImportDTO> mocks) {
+                               ApiTestImportRequest apiTestImportRequest, List<MockConfigImportDTO> mocks, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
         String originId = apiDefinition.getId();
 
         if (CollectionUtils.isEmpty(sameRequest)) { // 没有这个接口 新增
@@ -854,25 +864,19 @@ public class ApiDefinitionService {
                 apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
             }
             apiDefinition.setLatest(true); // 新增接口 latest = true
-            // case 设置版本
-            cases.forEach(c -> {
-                c.setVersionId(apiDefinition.getVersionId());
-            });
             apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
-            reSetImportCasesApiId(cases, originId, apiDefinition.getId());
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 batchMapper.insert(apiDefinition);
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
-                importApiCase(apiDefinition, apiTestImportRequest, apiTestCaseMapper);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
                 }
                 batchMapper.insert(apiDefinition);
             }
-
+            importCase(apiDefinition, apiTestCaseMapper, caseList);
         } else { //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
                 apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
@@ -895,6 +899,7 @@ public class ApiDefinitionService {
                     apiDefinition.setUserId(sameRequest.get(0).getUserId());
                 }
                 batchMapper.insert(apiDefinition);
+                importCase(apiDefinition, apiTestCaseMapper, caseList);
             } else {
                 ApiDefinitionWithBLOBs existApi = apiOp.get();
                 apiDefinition.setStatus(existApi.getStatus());
@@ -917,10 +922,7 @@ public class ApiDefinitionService {
                         apiDefinition.setUpdateTime(existApi.getUpdateTime());
                     }
                 }
-                // case 设置版本
-                cases.forEach(c -> {
-                    c.setVersionId(apiDefinition.getVersionId());
-                });
+
                 if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
                     apiDefinition.setTags(existApi.getTags()); // 其他格式 tag 不变，MS 格式替换
                 }
@@ -931,19 +933,17 @@ public class ApiDefinitionService {
                     apiDefinition.setOrder(existApi.getOrder());
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                     apiDefinition.setRequest(request);
-                    reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
-                    importApiCase(apiDefinition, apiTestImportRequest, apiTestCaseMapper);
                 } else {
                     apiDefinition.setId(existApi.getId());
                     if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                         setImportTCPHashTree(apiDefinition);
                     }
                     apiDefinition.setOrder(existApi.getOrder());
-                    reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 }
+                importCase(apiDefinition, apiTestCaseMapper, caseList);
             }
             extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
             extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
@@ -1406,6 +1406,8 @@ public class ApiDefinitionService {
         List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
         List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
         List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
+        List<ApiTestCaseWithBLOBs> caseWithBLOBs = updateApiModuleDTO.getCaseWithBLOBs();
+        Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
 
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
@@ -1428,6 +1430,7 @@ public class ApiDefinitionService {
         }
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
+            List<ApiTestCaseWithBLOBs> caseList = apiIdCaseMap.get(item.getId());
             this.setModule(item);
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
@@ -1441,14 +1444,14 @@ public class ApiDefinitionService {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
                 request.setModeId("fullCoverage");//标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), updateList);
+                importCreate(item, batchMapper, extApiDefinitionMapper, request, apiImport.getMocks(), updateList, apiTestCaseMapper, caseList);
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, extApiDefinitionMapper, request, apiImport.getCases(), apiImport.getMocks(), updateList);
+                importCreate(item, batchMapper, extApiDefinitionMapper, request, apiImport.getMocks(), updateList, apiTestCaseMapper, caseList);
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
@@ -1476,9 +1479,6 @@ public class ApiDefinitionService {
             mockConfigService.importMock(apiImport, sqlSession, request);
         }
 
-        if (!CollectionUtils.isEmpty(apiImport.getCases())) {
-            importMsCase(apiImport, sqlSession, request, apiTestCaseMapper);
-        }
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
