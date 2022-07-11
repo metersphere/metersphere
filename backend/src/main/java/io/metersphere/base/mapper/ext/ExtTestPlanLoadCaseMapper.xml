@@ -17,13 +17,14 @@
         select load_test.id
         from load_test
         where load_test.project_id = #{request.projectId}
-          <if test="!request.repeatCase">
-              and load_test.id not in (
-              select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
-              )
-          </if>
+        <if test="!request.repeatCase">
+            and load_test.id not in (
+            select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
+            )
+        </if>
         <if test="request.name != null and request.name != ''">
-            and (load_test.name like CONCAT('%', #{request.name},'%') OR load_test.num like CONCAT('%', #{request.name},'%'))
+            and (load_test.name like CONCAT('%', #{request.name},'%') OR load_test.num like CONCAT('%',
+            #{request.name},'%'))
         </if>
         <if test="request.versionId != null">
             and load_test.version_id = #{request.versionId}
@@ -282,45 +283,47 @@
         </if>
     </select>
     <select id="getStatusByTestPlanId" resultType="java.lang.String">
-        select status from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
+        select status
+        from test_plan_load_case tplc
+        where tplc.test_plan_id = #{planId}
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
-        select tplc.id,tplc.status from test_plan_load_case tplc
-        inner join load_test lt on tplc.load_case_id = lt.id
+        select tplc.id, tplc.status
+        from test_plan_load_case tplc
+                 inner join load_test lt on tplc.load_case_id = lt.id
         where tplc.test_plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id, lt.id as caseId, lt.name, lt.num, lt.project_id,
-               tplc.status ,tplc.create_user, tplc.load_report_id
+        tplc.status ,tplc.create_user, tplc.load_report_id
         from test_plan_load_case tplc
         inner join load_test lt on tplc.load_case_id = lt.id
-           <if test="status != null">
-               and tplc.status = 'error'
-           </if>
+        <if test="status != null">
+            and tplc.status = 'error'
+        </if>
         where tplc.test_plan_id = #{planId} ORDER BY tplc.order DESC
     </select>
 
     <select id="getCasesByIds" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id, lt.id as caseId, lt.name, lt.num, lt.project_id,
-        ltr.status ,tplc.create_user, tplc.load_report_id,ltr.id AS reportId
+        tplc.create_user, tplc.load_report_id
         from test_plan_load_case tplc
         inner join load_test lt on tplc.load_case_id = lt.id
-        inner join load_test_report ltr ON ltr.test_id = lt.id
         where tplc.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-        and ltr.id IN
-        <foreach collection="reportIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
     </select>
 
     <select id="selectPlanIds" resultType="java.lang.String">
-        select DISTINCT test_plan_id from test_plan_load_case;
+        select DISTINCT test_plan_id
+        from test_plan_load_case;
     </select>
     <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
-        select id from test_plan_load_case where test_plan_id = #{planId} order by update_time ASC;
+        select id
+        from test_plan_load_case
+        where test_plan_id = #{planId}
+        order by update_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">
@@ -340,8 +343,10 @@
     </select>
 
     <select id="selectIdByLoadCaseReportIdAndStatusIsRun" resultType="java.lang.String">
-        select `id` from test_plan_load_case where load_report_id = #{planId}
-        and `status` = 'run'
+        select `id`
+        from test_plan_load_case
+        where load_report_id = #{planId}
+          and `status` = 'run'
     </select>
     <update id="updateStatusNullById">
         update test_plan_load_case tplc

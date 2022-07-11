@@ -20,6 +20,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.performance.request.QueryTestPlanRequest;
 import io.metersphere.performance.request.RunTestPlanRequest;
@@ -385,8 +386,21 @@ public class TestPlanLoadCaseService {
         return buildCases(cases);
     }
 
-    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids, Collection<String> reportIds) {
-        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids, reportIds);
+    public List<TestPlanLoadCaseDTO> getAllCases(Map<String, String> loadCaseReportMap) {
+        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(loadCaseReportMap.keySet());
+        for (TestPlanLoadCaseDTO loadCaseDTO : cases) {
+            String reportID = loadCaseReportMap.get(loadCaseDTO.getId());
+            String status = null;
+            if (StringUtils.isNoneEmpty(reportID)) {
+                status = extLoadTestReportMapper.selectStatusById(reportID);
+            }
+            if (StringUtils.isEmpty(status)) {
+                status = Translator.get("not_execute");
+            }
+            loadCaseDTO.setReportId(reportID);
+            loadCaseDTO.setLoadReportId(reportID);
+            loadCaseDTO.setStatus(status);
+        }
         return buildCases(cases);
     }
 

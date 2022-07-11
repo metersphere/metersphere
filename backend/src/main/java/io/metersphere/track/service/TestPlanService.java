@@ -1650,7 +1650,7 @@ public class TestPlanService {
         if (checkReportConfig(config, "load")) {
             List<TestPlanLoadCaseDTO> allCases = null;
             if (checkReportConfig(config, "load", "all")) {
-                allCases = testPlanLoadCaseService.getAllCases(loadCaseReportMap.keySet(), loadCaseReportMap.values());
+                allCases = testPlanLoadCaseService.getAllCases(loadCaseReportMap);
                 if (saveResponse) {
                     buildLoadResponse(allCases);
                 }
