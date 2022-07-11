@@ -14,8 +14,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -135,6 +134,38 @@ public class FileService {
         fileAttachmentMetadata.setFilePath(uploadPath);
         fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
         return fileAttachmentMetadata;
+    }
+
+    public FileAttachmentMetadata saveAttachmentByBytes(byte[] bytes, String attachmentType, String belongId, String attachmentName) {
+        String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
+        File parentFile = new File(uploadPath);
+        if (!parentFile.exists()) {
+            parentFile.mkdir();
+        }
+        try (OutputStream os = new FileOutputStream(uploadPath + "/" + attachmentName)){
+            InputStream in = new ByteArrayInputStream(bytes);
+            int len = 0;
+            byte[] buf = new byte[1024];
+            while ((len = in.read(buf)) != -1) {
+                os.write(buf, 0, len);
+            }
+            os.flush();
+
+            final FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+            fileAttachmentMetadata.setId(UUID.randomUUID().toString());
+            fileAttachmentMetadata.setName(attachmentName);
+            fileAttachmentMetadata.setType(getFileType(attachmentName).name());
+            fileAttachmentMetadata.setSize(Integer.valueOf(bytes.length).longValue());
+            fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
+            fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
+            fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());
+            fileAttachmentMetadata.setFilePath(uploadPath);
+            fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
+            return fileAttachmentMetadata;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void deleteAttachment(List<String> ids) {

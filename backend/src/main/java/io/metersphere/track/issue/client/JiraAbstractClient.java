@@ -257,6 +257,14 @@ public abstract class JiraAbstractClient extends BaseClient {
         return  (JiraIssueListResponse)getResultForObject(JiraIssueListResponse.class, responseEntity);
     }
 
+    public byte[] getAttachmentContent(String contentId) {
+        ResponseEntity<byte[]> responseEntity;
+        String url = getBaseUrl() + "/attachment/content/{1}";
+        responseEntity = restTemplate.exchange(url,
+                HttpMethod.GET, getAuthHttpEntity(), byte[].class, contentId);
+        return responseEntity.getBody();
+    }
+
     public JiraIssueListResponse getProjectIssuesAttachment(int startAt, int maxResults, String projectKey, String issueType) {
         return getProjectIssues(startAt, maxResults, projectKey, issueType, "attachment");
 

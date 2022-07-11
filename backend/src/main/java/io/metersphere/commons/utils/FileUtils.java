@@ -27,8 +27,7 @@ public class FileUtils {
     public static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
     public static final String UI_IMAGE_DIR = "/opt/metersphere/data/image/ui/screenshots";
     public static final String ATTACHMENT_DIR = "/opt/metersphere/data/attachment";
-    public static final String TEST_CASE_ATTACHMENT_DIR = "/opt/metersphere/data/attachment/testcase";
-    public static final String ISSUE_ATTACHMENT_DIR = "/opt/metersphere/data/attachment/issue";
+    public static final String ATTACHMENT_TMP_DIR = "/opt/metersphere/data/attachment/tmp";
 
 
     public static byte[] listBytesToZip(Map<String, byte[]> mapReport) {

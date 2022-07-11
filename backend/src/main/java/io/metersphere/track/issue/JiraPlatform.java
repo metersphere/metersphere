@@ -2,15 +2,15 @@ package io.metersphere.track.issue;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.IssuesDao;
-import io.metersphere.base.domain.IssuesWithBLOBs;
-import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.commons.constants.AttachmentType;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldItemDTO;
@@ -31,8 +31,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -225,7 +227,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
 
         setUserConfig();
         Project project = getProject();
@@ -237,6 +239,20 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         // 上传附件
         imageFiles.forEach(img -> jiraClientV2.uploadAttachment(result.getKey(), img));
+        if (files != null) {
+            files.forEach(multipartFile -> {
+                try {
+                    File file = new File(FileUtils.ATTACHMENT_TMP_DIR + "/" + multipartFile.getOriginalFilename());
+                    org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+                    jiraClientV2.uploadAttachment(result.getKey(), file);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                } catch (IOException e) {
+                    LogUtil.error(e);
+                }
+            });
+        }
 
         String status = getStatus(issues.getFields());
         issuesRequest.setPlatformStatus(status);
@@ -463,7 +479,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void updateIssue(IssuesUpdateRequest request) {
+    public void updateIssue(IssuesUpdateRequest request, List<MultipartFile> files) {
         setUserConfig();
         Project project = getProject();
         List<File> imageFiles = getImageFiles(request);
@@ -471,18 +487,27 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
 
+        List<FileMetadata> updatedFiles = request.getUpdatedFileList();
+        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        List<FileAttachmentMetadata> originFiles = fileService.getFileAttachmentMetadataByIssueId(request.getId());
+        List<String> deleteAttachmentNames = new ArrayList<String>();
+        originFiles.forEach(originFile -> {
+           if (!updatedFileIds.contains(originFile.getId())) {
+               deleteAttachmentNames.add(originFile.getName());
+           }
+        });
         Set<String> attachmentNames = new HashSet<>();
         // 更新附件
         JiraIssue jiraIssue = jiraClientV2.getIssues(request.getPlatformId());
         JSONObject fields = jiraIssue.getFields();
         JSONArray attachments = fields.getJSONArray("attachment");
         if (!attachments.isEmpty() && attachments.size() > 0) {
-            // 删除旧附件，若缺陷描述中存在则不删除
+            // 删除旧附件，若缺陷描述中不存在且附件上传的删除列表中存在则删除
             for (int i = 0; i < attachments.size(); i++) {
                 JSONObject attachment = attachments.getJSONObject(i);
                 String filename = attachment.getString("filename");
                 attachmentNames.add(filename);
-                if (!request.getDescription().contains(filename)) {
+                if (!request.getDescription().contains(filename) && deleteAttachmentNames.contains(filename)) {
                     String fileId = attachment.getString("id");
                     jiraClientV2.deleteAttachment(fileId);
                 }
@@ -496,6 +521,20 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 jiraClientV2.uploadAttachment(request.getPlatformId(), img);
             }
         });
+        if (files != null) {
+            files.forEach(multipartFile -> {
+                try {
+                    File file = new File(FileUtils.ATTACHMENT_TMP_DIR + "/" + multipartFile.getOriginalFilename());
+                    org.apache.commons.io.FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+                    jiraClientV2.uploadAttachment(request.getPlatformId(), file);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                } catch (IOException e) {
+                    LogUtil.error(e);
+                }
+            });
+        }
 
         if (request.getTransitions() != null) {
             try {
@@ -554,6 +593,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 List<CustomFieldResource> customFieldResource = customFieldService.getCustomFieldResource(customFields);
                 customFieldMap.put(item.getId(), customFieldResource);
                 issuesMapper.updateByPrimaryKeySelective(item);
+                // 同步第三方平台系统附件字段
+                syncJiraIssueAttachments(item, jiraClientV2.getIssues(item.getPlatformId()));
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
                     // 标记成删除
@@ -853,5 +894,24 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     public ResponseEntity proxyForGet(String url, Class responseEntityClazz) {
         return jiraClientV2.proxyForGet(url, responseEntityClazz);
+    }
+
+    public void syncJiraIssueAttachments(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
+        issuesService.deleteIssueAttachments(issue.getId());
+        JSONArray attachments = jiraIssue.getFields().getJSONArray("attachment");
+        if (CollectionUtils.isEmpty(attachments)) {
+            return;
+        }
+        for (int i = 0; i < attachments.size(); i++) {
+            JSONObject attachment = attachments.getJSONObject(i);
+            String id = attachment.getString("id");
+            byte[] content = jiraClientV2.getAttachmentContent(id);
+            String filename = attachment.getString("filename");
+            FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
+            IssueFile issueFile = new IssueFile();
+            issueFile.setIssueId(issue.getId());
+            issueFile.setFileId(fileAttachmentMetadata.getId());
+            issueFileMapper.insert(issueFile);
+        }
     }
 }

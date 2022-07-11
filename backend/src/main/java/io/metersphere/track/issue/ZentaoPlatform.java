@@ -37,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -197,7 +198,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
         setUserConfig();
 
         MultiValueMap<String, Object> param = buildUpdateParam(issuesRequest);
@@ -228,7 +229,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void updateIssue(IssuesUpdateRequest request) {
+    public void updateIssue(IssuesUpdateRequest request, List<MultipartFile> files) {
         setUserConfig();
         MultiValueMap<String, Object> param = buildUpdateParam(request);
         if (request.getTransitions() != null) {

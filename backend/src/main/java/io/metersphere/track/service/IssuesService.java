@@ -112,7 +112,7 @@ public class IssuesService {
         List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
         IssuesWithBLOBs issues = null;
         for (AbstractIssuePlatform platform : platformList) {
-            issues = platform.addIssue(issuesRequest);
+            issues = platform.addIssue(issuesRequest, null);
         }
         if (issuesRequest.getIsPlanEdit()) {
             issuesRequest.getAddResourceIds().forEach(l -> {
@@ -131,7 +131,7 @@ public class IssuesService {
         issuesRequest.getId();
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
-            platform.updateIssue(issuesRequest);
+            platform.updateIssue(issuesRequest, null);
         });
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
@@ -142,7 +142,7 @@ public class IssuesService {
         List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
         IssuesWithBLOBs issues = null;
         for (AbstractIssuePlatform platform : platformList) {
-            issues = platform.addIssue(issuesRequest);
+            issues = platform.addIssue(issuesRequest, files);
         }
         if (issuesRequest.getIsPlanEdit()) {
             issuesRequest.getAddResourceIds().forEach(l -> {
@@ -187,7 +187,7 @@ public class IssuesService {
         issuesRequest.getId();
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
-            platform.updateIssue(issuesRequest);
+            platform.updateIssue(issuesRequest, files);
         });
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
@@ -928,5 +928,18 @@ public class IssuesService {
         }
 
         return platformStatusDTOS;
+    }
+
+    public void deleteIssueAttachments(String issueId) {
+        fileService.deleteAttachment(AttachmentType.ISSUE.type(), issueId);
+        IssueFileExample example = new IssueFileExample();
+        example.createCriteria().andIssueIdEqualTo(issueId);
+        List<IssueFile> issueFiles = issueFileMapper.selectByExample(example);
+        if (issueFiles.size() == 0) {
+            return;
+        }
+        List<String> ids = issueFiles.stream().map(IssueFile::getFileId).collect(Collectors.toList());
+        fileService.deleteFileAttachmentByIds(ids);
+        issueFileMapper.deleteByExample(example);
     }
 }
