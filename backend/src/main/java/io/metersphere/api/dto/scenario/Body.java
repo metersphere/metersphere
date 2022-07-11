@@ -11,6 +11,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
@@ -96,7 +97,7 @@ public class Body {
         if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
             if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
                     && "JSON-SCHEMA".equals(this.format)) {
-                this.raw = JSONSchemaRunTest.getJson(JSON.toJSONString(this.getJsonSchema()));
+                this.raw = StringEscapeUtils.unescapeJava(JSONSchemaRunTest.getJson(JSON.toJSONString(this.getJsonSchema())));
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
