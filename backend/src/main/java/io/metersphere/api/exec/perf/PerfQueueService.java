@@ -77,14 +77,14 @@ public class PerfQueueService {
             }
             // 获取串行下一个执行节点
             DBTestQueue executionQueue = apiExecutionQueueService.handleQueue(detail.getQueueId(), detail.getTestId());
-            if (executionQueue != null && executionQueue.getQueue() != null
-                    && StringUtils.isNotEmpty(executionQueue.getQueue().getTestId()) &&
+            if (executionQueue != null && executionQueue.getDetail() != null
+                    && StringUtils.isNotEmpty(executionQueue.getDetail().getTestId()) &&
                     StringUtils.equals(executionQueue.getRunMode(), RunModeConstants.SERIAL.toString())) {
 
-                LoggerUtil.info("获取下一个执行资源：" + executionQueue.getQueue().getTestId(), loadTestReport.getId());
+                LoggerUtil.info("获取下一个执行资源：" + executionQueue.getDetail().getTestId(), loadTestReport.getId());
                 RunTestPlanRequest request = new RunTestPlanRequest();
-                request.setTestPlanLoadId(executionQueue.getQueue().getTestId());
-                request.setReportId(executionQueue.getQueue().getReportId());
+                request.setTestPlanLoadId(executionQueue.getDetail().getTestId());
+                request.setReportId(executionQueue.getDetail().getReportId());
                 try {
                     perfModeExecService.serial(request);
                 } catch (Exception e) {
@@ -92,10 +92,10 @@ public class PerfQueueService {
                         LoggerUtil.info("失败停止处理：" + request.getId(), request.getReportId());
                         continue;
                     }
-                    LoggerUtil.error("执行异常", executionQueue.getQueue().getTestId(), e);
+                    LoggerUtil.error("执行异常", executionQueue.getDetail().getTestId(), e);
                     executionQueueDetailMapper.deleteByExample(detailExample);
                     // 异常执行下一个
-                    DBTestQueue next = apiExecutionQueueService.handleQueue(executionQueue.getId(), executionQueue.getQueue().getTestId());
+                    DBTestQueue next = apiExecutionQueueService.handleQueue(executionQueue.getId(), executionQueue.getDetail().getTestId());
                     if (next != null) {
                         LoadTestReport report = new LoadTestReport();
                         report.setId(next.getReportId());
