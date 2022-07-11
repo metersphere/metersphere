@@ -32,9 +32,20 @@
         @filter="search"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
-          <ms-table-column :field="item" prop="num"
+          <ms-table-column :field="item"
                            :fields-width="fieldsWidth"
-                           sortable label="ID" min-width="80"/>
+                           sortable
+                           label="ID"
+                           prop="num"
+                           min-width="80">
+             <template v-slot:default="scope">
+               <el-link @click="openApiById(scope.row)">
+                  <span>
+                    {{ scope.row.num }}
+                  </span>
+               </el-link>
+            </template>
+          </ms-table-column>
 
           <ms-table-column :field="item" :fields-width="fieldsWidth" prop="name" sortable min-width="120"
                            :label="$t('test_track.case.name')"/>
@@ -188,7 +199,7 @@ import MsContainer from "../../../../../common/components/MsContainer";
 import MsBottomContainer from "../../../../../api/definition/components/BottomContainer";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, hasLicense, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense, strMapToObj} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getUUID} from "../../../../../../../common/js/utils";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
@@ -675,6 +686,20 @@ export default {
           });
         });
       }
+    },
+    openApiById(item) {
+      let definitionData = this.$router.resolve({
+        name: 'ApiDefinitionWithQuery',
+        params: {
+          redirectID: getUUID(),
+          dataType: "apiTestCase",
+          dataSelectRange: 'single:' + item.caseId,
+          projectId: getCurrentProjectID(),
+          type: item.protocol,
+          workspaceId: getCurrentWorkspaceId(),
+        }
+      });
+      window.open(definitionData.href, '_blank');
     },
   },
 };

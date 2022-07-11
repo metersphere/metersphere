@@ -37,7 +37,16 @@
             prop="num"
             sortable
             min-width="80"
-            label="ID"/>
+            label="ID">
+             <template v-slot:default="scope">
+               <el-link @click="openById(scope.row)">
+                  <span>
+                    {{ scope.row.num }}
+                  </span>
+               </el-link>
+            </template>
+          </ms-table-column>
+
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
@@ -144,7 +153,14 @@ import {
   buildBatchParam, getCustomTableHeader, getCustomTableWidth
 } from "@/common/js/tableUtils";
 import {TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, hasLicense} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+  getUUID,
+  hasLicense
+} from "@/common/js/utils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -486,6 +502,15 @@ export default {
           });
         });
       }
+    },
+    openById(item) {
+      let loadData = this.$router.resolve({
+        name: 'editPerTest',
+        params: {
+          testId: item.loadCaseId,
+        }
+      });
+      window.open(loadData.href, '_blank');
     },
   },
   beforeDestroy() {
