@@ -443,5 +443,8 @@
         ORDER BY
             r.create_time ASC
     </select>
+    <select id="selectByProjectIdAndLessThanTime" resultType="java.lang.String">
+        select id from api_definition_exec_result where project_id = #{projectId} and create_time &lt; #{time}
+    </select>
 
 </mapper>
