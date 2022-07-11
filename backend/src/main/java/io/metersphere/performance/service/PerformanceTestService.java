@@ -575,6 +575,7 @@ public class PerformanceTestService {
                 lock.unlock();
             }
         } else {
+            engine.start();
             LogUtil.error("check load test quota fail, quotaService is null.");
         }
     }
