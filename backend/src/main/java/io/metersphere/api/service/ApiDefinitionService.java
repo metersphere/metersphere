@@ -818,6 +818,9 @@ public class ApiDefinitionService {
     }
 
     private void importCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
+        if (caseList == null || caseList.isEmpty()) {
+            return;
+        }
         for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : caseList) {
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
             apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
