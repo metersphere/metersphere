@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.utils.ResultParseUtil;
 import io.metersphere.api.service.vo.ApiDefinitionExecResultVo;
 import io.metersphere.base.domain.*;
@@ -70,6 +71,9 @@ public class ApiScenarioReportStructureService {
     private ProjectService projectService;
     @Resource
     private ApiTestEnvironmentService apiTestEnvironmentService;
+    @Lazy
+    @Resource
+    private ApiScenarioEnvService apiScenarioEnvService;
 
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
@@ -563,24 +567,7 @@ public class ApiScenarioReportStructureService {
                 LogUtil.error("解析RunModeConfig失败!参数：" + envConfig, e);
             }
 
-            LinkedHashMap<String, List<String>> projectEnvMap = new LinkedHashMap<>();
-
-            if (MapUtils.isNotEmpty(envMapByExecution)) {
-                for (Map.Entry<String, List<String>> entry : envMapByExecution.entrySet()) {
-                    String projectId = entry.getKey();
-                    List<String> envIdList = entry.getValue();
-                    String projectName = projectService.selectNameById(projectId);
-                    List<String> envNameList = apiTestEnvironmentService.selectNameByIds(envIdList);
-                    if (CollectionUtils.isNotEmpty(envNameList) && StringUtils.isNotEmpty(projectName)) {
-                        projectEnvMap.put(projectName, new ArrayList<>() {{
-                            this.addAll(envNameList);
-                        }});
-                    }
-                }
-                if (MapUtils.isNotEmpty(projectEnvMap)) {
-                    dto.setProjectEnvMap(projectEnvMap);
-                }
-            }
+            LinkedHashMap<String, List<String>> projectEnvMap = apiScenarioEnvService.selectProjectNameAndEnvName(envMapByExecution);
 
             if (MapUtils.isNotEmpty(envMapByRunConfig)) {
                 for (Map.Entry<String, String> entry : envMapByRunConfig.entrySet()) {
@@ -600,6 +587,7 @@ public class ApiScenarioReportStructureService {
             }
         }
     }
+
 
     private ApiScenarioReportDTO getReport(String reportId, boolean selectContent) {
         List<ApiScenarioReportResultWithBLOBs> reportResults = null;

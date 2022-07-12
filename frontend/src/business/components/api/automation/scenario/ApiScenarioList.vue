@@ -1336,7 +1336,10 @@ export default {
             let param = {};
             this.buildBatchParam(param);
             this.$post('/api/automation/batchGenPerformanceTestJmx/', param, response => {
-              let returnDataList = response.data;
+
+              let returnDTO = response.data;
+              let projectEnvMap = returnDTO.projectEnvMap;
+              let returnDataList = returnDTO.jmxInfoDTOList;
               let jmxObjList = [];
               returnDataList.forEach(item => {
                 let jmxObj = {};
@@ -1350,7 +1353,8 @@ export default {
               });
               this.$store.commit('setScenarioJmxs', {
                 name: 'Scenarios',
-                jmxs: jmxObjList
+                jmxs: jmxObjList,
+                projectEnvMap: projectEnvMap,
               });
               this.$router.push({
                 path: "/performance/test/create"

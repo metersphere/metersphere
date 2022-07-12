@@ -11,6 +11,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ApiScenarioImportUtil;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
+import io.metersphere.api.dto.automation.parse.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.response.CoverageDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
@@ -1093,7 +1094,8 @@ public class ApiAutomationService {
 
     }
 
-    public JmxInfoDTO genPerformanceTestJmx(GenScenarioRequest request) {
+    public ScenarioToPerformanceInfoDTO genPerformanceTestJmx(GenScenarioRequest request) {
+        ScenarioToPerformanceInfoDTO returnDTO = new ScenarioToPerformanceInfoDTO();
         List<String> ids = request.getIds();
         List<ApiScenarioDTO> apiScenarios = extApiScenarioMapper.selectIds(ids);
         String id = "";
@@ -1103,15 +1105,17 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(apiScenarios)) {
             return null;
         }
+        Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         ApiScenarioDTO scenario = apiScenarios.get(0);
-        JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(scenario), scenario.getProjectId(), true);
-
+        JmxInfoDTO jmxInfo = apiTestService.updateJmxString(generateJmx(scenario), scenario.getProjectId(), true);
         String name = request.getName() + ".jmx";
-        dto.setName(name);
-        dto.setId(id);
-        return dto;
+        jmxInfo.setName(name);
+        jmxInfo.setId(id);
+        returnDTO.setJmxInfoDTO(jmxInfo);
+        returnDTO.setProjectEnvMap(projectEnvMap);
+        return returnDTO;
     }
 
     public void bathEdit(ApiScenarioBatchRequest request) {
@@ -1543,12 +1547,13 @@ public class ApiAutomationService {
         }
     }
 
-    public List<ApiScenarioExportJmxDTO> exportJmx(ApiScenarioBatchRequest request) {
+    public ScenarioToPerformanceInfoDTO exportJmx(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
         //检查运行环境
         checkExportEnv(apiScenarioWithBLOBs);
         // 生成jmx
         List<ApiScenarioExportJmxDTO> resList = new ArrayList<>();
+
         apiScenarioWithBLOBs.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
@@ -1559,6 +1564,10 @@ public class ApiAutomationService {
                     scenariosExportJmx.setVersion(item.getVersion());
                     //扫描需要哪些文件
                     scenariosExportJmx.setFileMetadataList(dto.getFileMetadataList());
+                    Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(new ArrayList<>() {{
+                        this.add(item);
+                    }});
+                    scenariosExportJmx.setProjectEnvMap(projectEnvMap);
                     resList.add(scenariosExportJmx);
                 }
             }
@@ -1569,7 +1578,10 @@ public class ApiAutomationService {
             List<String> ids = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
             request.setId(JSON.toJSONString(ids));
         }
-        return resList;
+
+        ScenarioToPerformanceInfoDTO returnDTO = new ScenarioToPerformanceInfoDTO();
+        returnDTO.setScenarioJmxList(resList);
+        return returnDTO;
     }
 
     public byte[] exportZip(ApiScenarioBatchRequest request) {
@@ -1880,16 +1892,19 @@ public class ApiAutomationService {
         LogUtil.info("Reset apiScenarioReferenceId is end.");
     }
 
-    public List<JmxInfoDTO> batchGenPerformanceTestJmx(ApiScenarioBatchRequest request) {
+    public ScenarioToPerformanceInfoDTO batchGenPerformanceTestJmx(ApiScenarioBatchRequest request) {
+        ScenarioToPerformanceInfoDTO returnDTO = new ScenarioToPerformanceInfoDTO();
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-        List<JmxInfoDTO> returnList = new ArrayList<>();
+        List<JmxInfoDTO> jmxInfoList = new ArrayList<>();
 
         List<String> ids = request.getIds();
         List<ApiScenarioDTO> apiScenarioList = extApiScenarioMapper.selectIds(ids);
         if (CollectionUtils.isEmpty(apiScenarioList)) {
-            return returnList;
+            returnDTO.setScenarioJmxList(new ArrayList<>());
+            return returnDTO;
         } else {
+            Map<String, List<String>> projectEnvironments = apiScenarioEnvService.selectApiScenarioEnv(apiScenarioList);
             apiScenarioList.forEach(item -> {
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
@@ -1897,9 +1912,13 @@ public class ApiAutomationService {
                 String name = item.getName() + ".jmx";
                 dto.setId(item.getId());
                 dto.setName(name);
-                returnList.add(dto);
+                jmxInfoList.add(dto);
             });
-            return returnList;
+            if (MapUtils.isNotEmpty(projectEnvironments)) {
+                returnDTO.setProjectEnvMap(projectEnvironments);
+            }
+            returnDTO.setJmxInfoDTOList(jmxInfoList);
+            return returnDTO;
         }
     }
 

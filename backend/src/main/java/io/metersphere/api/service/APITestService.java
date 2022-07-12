@@ -5,6 +5,9 @@ import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
+import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
@@ -31,6 +34,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
@@ -639,5 +643,44 @@ public class APITestService {
         JmxInfoDTO dto = updateJmxString(jmxString, runRequest.getProjectId(), true);
         dto.setName(runRequest.getName() + ".jmx");
         return dto;
+    }
+
+    public Map<String, List<String>> selectEnvironmentByHashTree(String projectId, MsTestElement testElement) {
+        Map<String, List<String>> projectEnvMap = new HashMap<>();
+        if (testElement != null) {
+            List<String> envIdList = this.getEnvIdByHashTree(testElement);
+            projectEnvMap.put(projectId, envIdList);
+        }
+        return projectEnvMap;
+    }
+
+    private List<String> getEnvIdByHashTree(MsTestElement testElement) {
+        List<String> envIdList = new ArrayList<>();
+        if (testElement instanceof MsHTTPSamplerProxy) {
+            String envId = ((MsHTTPSamplerProxy) testElement).getUseEnvironment();
+            if (StringUtils.isNotEmpty(envId)) {
+                envIdList.add(envId);
+            }
+        } else if (testElement instanceof MsTCPSampler) {
+            String envId = ((MsTCPSampler) testElement).getUseEnvironment();
+            if (StringUtils.isNotEmpty(envId)) {
+                envIdList.add(envId);
+            }
+        } else if (testElement instanceof MsJDBCSampler) {
+            String envId = ((MsJDBCSampler) testElement).getUseEnvironment();
+            if (StringUtils.isNotEmpty(envId)) {
+                envIdList.add(envId);
+            }
+        } else if (CollectionUtils.isNotEmpty(testElement.getHashTree())) {
+            for (MsTestElement child : testElement.getHashTree()) {
+                List<String> childEnvId = this.getEnvIdByHashTree(child);
+                childEnvId.forEach(envId -> {
+                    if (StringUtils.isNotEmpty(envId) && !envIdList.contains(envId)) {
+                        envIdList.add(envId);
+                    }
+                });
+            }
+        }
+        return envIdList;
     }
 }

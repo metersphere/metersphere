@@ -13,5 +13,7 @@ public class LoadTestWithBLOBs extends LoadTest implements Serializable {
 
     private String advancedConfiguration;
 
+    private String envInfo;
+
     private static final long serialVersionUID = 1L;
 }

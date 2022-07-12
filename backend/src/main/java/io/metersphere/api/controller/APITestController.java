@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.automation.parse.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
@@ -444,8 +445,13 @@ public class APITestController {
     }
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
-    public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) throws Exception {
-        return apiTestService.getJmxInfoDTO(runRequest, bodyFiles);
+    public ScenarioToPerformanceInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) throws Exception {
+        JmxInfoDTO jmxInfoDTO = apiTestService.getJmxInfoDTO(runRequest, bodyFiles);
+        ScenarioToPerformanceInfoDTO returnDTO = new ScenarioToPerformanceInfoDTO();
+        returnDTO.setJmxInfoDTO(jmxInfoDTO);
+        Map<String, List<String>> projectEnvMap = apiTestService.selectEnvironmentByHashTree(runRequest.getProjectId(), runRequest.getTestElement());
+        returnDTO.setProjectEnvMap(projectEnvMap);
+        return returnDTO;
     }
 
 

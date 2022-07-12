@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class LoadTest implements Serializable {
@@ -34,9 +33,9 @@ public class LoadTest implements Serializable {
 
     private Long order;
 
-    private String refId;
-
     private String versionId;
+
+    private String refId;
 
     private Boolean latest;
 

@@ -16,13 +16,14 @@
     <result column="scenario_version" jdbcType="INTEGER" property="scenarioVersion" />
     <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
     <result column="order" jdbcType="BIGINT" property="order" />
-    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="latest" jdbcType="BIT" property="latest" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
     <result column="advanced_configuration" jdbcType="LONGVARCHAR" property="advancedConfiguration" />
+    <result column="env_info" jdbcType="LONGVARCHAR" property="envInfo" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -84,11 +85,11 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, description, create_time, update_time, `status`, test_resource_pool_id, 
-    user_id, num, create_user, scenario_version, scenario_id, `order`, ref_id, version_id, 
+    user_id, num, create_user, scenario_version, scenario_id, `order`, version_id, ref_id, 
     latest
   </sql>
   <sql id="Blob_Column_List">
-    load_configuration, advanced_configuration
+    load_configuration, advanced_configuration, env_info
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestExample" resultMap="ResultMapWithBLOBs">
     select
@@ -139,20 +140,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
-    INSERT INTO load_test (id, project_id, `name`,
+    insert into load_test (id, project_id, `name`, 
       description, create_time, update_time, 
       `status`, test_resource_pool_id, user_id, 
       num, create_user, scenario_version, 
-      scenario_id, `order`, ref_id, 
-      version_id, latest, load_configuration, 
-      advanced_configuration)
-    VALUES (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+      scenario_id, `order`, version_id, 
+      ref_id, latest, load_configuration, 
+      advanced_configuration, env_info)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
       #{num,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{scenarioVersion,jdbcType=INTEGER}, 
-      #{scenarioId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{refId,jdbcType=VARCHAR}, 
-      #{versionId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
-      #{advancedConfiguration,jdbcType=LONGVARCHAR})
+      #{scenarioId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
+      #{refId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
+      #{advancedConfiguration,jdbcType=LONGVARCHAR}, #{envInfo,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -199,11 +200,11 @@
       <if test="order != null">
         `order`,
       </if>
-      <if test="refId != null">
-        ref_id,
-      </if>
       <if test="versionId != null">
         version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
       </if>
       <if test="latest != null">
         latest,
@@ -213,6 +214,9 @@
       </if>
       <if test="advancedConfiguration != null">
         advanced_configuration,
+      </if>
+      <if test="envInfo != null">
+        env_info,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -258,11 +262,11 @@
       <if test="order != null">
         #{order,jdbcType=BIGINT},
       </if>
-      <if test="refId != null">
-        #{refId,jdbcType=VARCHAR},
-      </if>
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
       </if>
       <if test="latest != null">
         #{latest,jdbcType=BIT},
@@ -272,6 +276,9 @@
       </if>
       <if test="advancedConfiguration != null">
         #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="envInfo != null">
+        #{envInfo,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -326,11 +333,11 @@
       <if test="record.order != null">
         `order` = #{record.order,jdbcType=BIGINT},
       </if>
-      <if test="record.refId != null">
-        ref_id = #{record.refId,jdbcType=VARCHAR},
-      </if>
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
       </if>
       <if test="record.latest != null">
         latest = #{record.latest,jdbcType=BIT},
@@ -340,6 +347,9 @@
       </if>
       <if test="record.advancedConfiguration != null">
         advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.envInfo != null">
+        env_info = #{record.envInfo,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -362,11 +372,12 @@
       scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
-      ref_id = #{record.refId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
+      env_info = #{record.envInfo,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -387,8 +398,8 @@
       scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       `order` = #{record.order,jdbcType=BIGINT},
-      ref_id = #{record.refId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -436,11 +447,11 @@
       <if test="order != null">
         `order` = #{order,jdbcType=BIGINT},
       </if>
-      <if test="refId != null">
-        ref_id = #{refId,jdbcType=VARCHAR},
-      </if>
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
       </if>
       <if test="latest != null">
         latest = #{latest,jdbcType=BIT},
@@ -450,6 +461,9 @@
       </if>
       <if test="advancedConfiguration != null">
         advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="envInfo != null">
+        env_info = #{envInfo,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -469,11 +483,12 @@
       scenario_version = #{scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
-      ref_id = #{refId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      env_info = #{envInfo,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTest">
@@ -491,8 +506,8 @@
       scenario_version = #{scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
       `order` = #{order,jdbcType=BIGINT},
-      ref_id = #{refId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
