@@ -31,7 +31,8 @@
       <el-row>
         <div class="chart-style">
           <ms-chart ref="chart1" v-if="!loading" :options="dataOption"
-                    :style="{width: chartWidthNumber+'px', height: (h-70) + 'px'}" class="chart-config" :autoresize="true"
+                    :style="{width: chartWidthNumber+'px', height: (h-70) + 'px'}" class="chart-config"
+                    :autoresize="true"
                     id="picChart"/>
         </div>
       </el-row>
@@ -40,7 +41,6 @@
 </template>
 
 <script>
-import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
 
 export default {
@@ -75,7 +75,10 @@ export default {
         {id: 'pie', name: this.$t('commons.report_statistics.pie')}
       ],
       order: "",
-      orders: [{id: '', name: this.$t('commons.sort_default')}, {id: 'desc', name: this.$t('commons.report_statistics.desc')}, {
+      orders: [{id: '', name: this.$t('commons.sort_default')}, {
+        id: 'desc',
+        name: this.$t('commons.report_statistics.desc')
+      }, {
         id: 'asc',
         name: this.$t('commons.report_statistics.asc')
       }],
@@ -120,12 +123,14 @@ export default {
       } else {
         this.dataOption = this.loadOption;
       }
-      this.dataOption.series.forEach(item => {
-        item.type = this.chartType;
-      });
+      if (this.dataOption.series) {
+        this.dataOption.series.forEach(item => {
+          item.type = this.chartType;
+        });
+      }
       this.reload();
     },
-    setPieOptionAndBarOption(barOption,pieOption) {
+    setPieOptionAndBarOption(barOption, pieOption) {
       if (barOption) {
         this.loadOption = barOption;
       }
@@ -233,9 +238,10 @@ export default {
   height: calc(100vh / 1.95);
 }
 
-.chart-style{
+.chart-style {
   overflow: auto;
 }
+
 .tip {
   float: left;
   font-size: 14px;

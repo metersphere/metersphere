@@ -19,6 +19,7 @@
                :is-show-close="false" style="overflow: hidden">
       <template v-slot:header>
         <report-header :title="$t('commons.report_statistics.test_case_analysis')" :history-report-id="historyReportId"
+                       :history-report-name="historyReportName"
                        @closePage="close" @updateReport="updateReport"
                        @selectAndSaveReport="openSaveReportDialog('saveAs')"/>
       </template>
@@ -31,6 +32,7 @@
       <template v-slot:header>
         <report-header :title="$t('commons.report_statistics.test_case_count')" :history-report-id="historyReportId"
                        @closePage="close"
+                       :history-report-name="historyReportName"
                        @updateReport="updateReport"
                        @selectAndSaveReport="openSaveReportDialog('saveAs')"/>
       </template>
@@ -74,6 +76,7 @@ export default {
       testCaseTrendDrawer: false,
       testCaseCountDrawer: false,
       historyReportId: "",
+      historyReportName: "",
       reportTypes: [{id: 'track', name: this.$t('test_track.test_track')}],
       dialogFormVisible: false,
       form: {
@@ -129,8 +132,9 @@ export default {
         }
       });
     },
-    initHistoryReportId(reportId) {
+    initHistoryReportId(reportId, reportName) {
       this.historyReportId = reportId;
+      this.historyReportName = reportName;
     },
     handleCloseSaveReportDialog() {
       this.form.reportName = "";
