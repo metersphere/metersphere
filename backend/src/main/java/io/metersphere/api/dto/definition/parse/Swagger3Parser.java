@@ -9,6 +9,7 @@ import io.metersphere.api.dto.definition.SwaggerApiExportResult;
 import io.metersphere.api.dto.definition.parse.swagger.SwaggerApiInfo;
 import io.metersphere.api.dto.definition.parse.swagger.SwaggerInfo;
 import io.metersphere.api.dto.definition.parse.swagger.SwaggerParams;
+import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
@@ -80,7 +81,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (request.getAuthManager() != null
                 && StringUtils.isNotBlank(request.getAuthManager().getUsername())
                 && StringUtils.isNotBlank(request.getAuthManager().getPassword())
-                && request.getAuthManager().getVerification().equals("Basic Auth")) {
+                && MsAuthManager.mechanismMap.containsKey(request.getAuthManager().getVerification())) {
             AuthorizationValue authorizationValue = new AuthorizationValue();
             authorizationValue.setType("header");
             authorizationValue.setKeyName("Authorization");
