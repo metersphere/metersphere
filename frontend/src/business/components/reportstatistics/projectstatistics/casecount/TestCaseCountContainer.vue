@@ -125,9 +125,11 @@ export default {
           this.pieOption.width = pieData.width;
           this.chartWidth = pieData.width;
         }
-        this.pieOption.series.forEach(item => {
-          item.type = this.$refs.analysisChart.chartType;
-        });
+        if (this.pieOption.series) {
+          this.pieOption.series.forEach(item => {
+            item.type = this.$refs.analysisChart.chartType;
+          });
+        }
       }
       if (selectTableData) {
         this.tableData = selectTableData;
@@ -180,6 +182,7 @@ export default {
       });
     },
     selectReport(selectId) {
+      let selectName = "";
       if (selectId) {
         this.loading = true;
         let paramObj = {
@@ -188,6 +191,7 @@ export default {
         this.$post('/history/report/selectById', paramObj, response => {
           let reportData = response.data;
           if (reportData) {
+            selectName = reportData.name;
             if (reportData.dataOption) {
               let dataOptionObj = JSON.parse(reportData.dataOption);
               if (dataOptionObj.chartType) {
@@ -203,14 +207,15 @@ export default {
             }
             this.loading = false;
           }
+          this.$emit('initHistoryReportId', selectId, selectName);
         }, (error) => {
           this.loading = false;
+          this.removeHistoryReportId();
         });
-        this.$emit('initHistoryReportId', selectId);
       }
     },
     removeHistoryReportId() {
-      this.$emit('initHistoryReportId', "");
+      this.$emit('initHistoryReportId', "", "");
     },
     getGroupNameStr(groupName) {
       if (groupName === 'creator') {

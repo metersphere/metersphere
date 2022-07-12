@@ -1,7 +1,11 @@
 <template>
   <div class="ms-header">
     <el-row>
-      <div class="ms-div">{{ title }}</div>
+      <div class="ms-div">{{ title }}
+        <span v-if="historyReportName" class="history-report-name">
+          {{ historyReportName }}
+        </span>
+      </div>
       <div class="ms-header-right">
         <el-button type="primary" v-if="isSaveAsButtonShow" size="mini" @click="handleSaveAs" :disabled="readOnly">
           {{ $t('commons.save_as') }}<i class="el-icon-files el-icon--right"></i></el-button>
@@ -29,6 +33,11 @@ export default {
   props: {
     title: String,
     historyReportId: String,
+    historyReportName: String,
+  },
+  watch: {
+    historyReportName() {
+    }
   },
   created() {
   },
@@ -118,5 +127,10 @@ export default {
   color: black;
   cursor: pointer;
   font-size: 18px;
+}
+
+.history-report-name {
+  margin-left: 20px;
+  color: var(--primary_color);
 }
 </style>

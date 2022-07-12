@@ -140,6 +140,7 @@ export default {
       this.loading = false;
     },
     selectReport(selectId) {
+      let selectName = "";
       if (selectId) {
         this.loading = true;
         let paramObj = {
@@ -148,6 +149,7 @@ export default {
         this.$post('/history/report/selectById', paramObj, response => {
           let reportData = response.data;
           if (reportData) {
+            selectName = reportData.name;
             if (reportData.dataOption) {
               let dataOptionObj = JSON.parse(reportData.dataOption);
               this.initPic(dataOptionObj.loadOption, dataOptionObj.pieOption, dataOptionObj.tableData);
@@ -157,15 +159,17 @@ export default {
               this.$refs.analysisFilter.initSelectOption(selectOptionObj);
             }
           }
+          this.$emit('initHistoryReportId', selectId, selectName);
           this.loading = false;
         }, (error) => {
           this.loading = false;
+          this.removeHistoryReportId();
         });
-        this.$emit('initHistoryReportId', selectId);
+
       }
     },
     removeHistoryReportId() {
-      this.$emit('initHistoryReportId', "");
+      this.$emit('initHistoryReportId', "", "");
     },
     selectAndSaveReport(reportName) {
       let opt = this.$refs.analysisFilter.getOption();
