@@ -7,12 +7,12 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.xpack.ui.service.UiScenarioReportStructureService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.function.BiConsumer;
@@ -24,7 +24,6 @@ public class CleanUpReportJob extends MsScheduleJob {
 
     private final ProjectService projectService;
     private final ProjectApplicationService projectApplicationService;
-    private final UiScenarioReportStructureService uiScenarioReportStructureService;
     private static final String UNIT_DAY = "D";
     private static final String UNIT_MONTH = "M";
     private static final String UNIT_YEAR = "Y";
@@ -33,7 +32,6 @@ public class CleanUpReportJob extends MsScheduleJob {
     public CleanUpReportJob() {
         projectService = CommonBeanFactory.getBean(ProjectService.class);
         projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
-        uiScenarioReportStructureService = CommonBeanFactory.getBean(UiScenarioReportStructureService.class);
         localDate = LocalDate.now();
     }
 
