@@ -854,18 +854,20 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
                     if (v.getVersionId().equals(versionId)) {
                         optionData.remove(apiDefinitionWithBLOBs);
-                        distinctNameCases.forEach(optionDataCases::remove);
+                        if (distinctNameCases != null && !distinctNameCases.isEmpty()) {
+                            distinctNameCases.forEach(optionDataCases::remove);
+                        }
                     } else {
                         //这里是为了标识当前数据是需要创建版本的，不是全新增的数据
-                        addNewVersionApi(apiDefinitionWithBLOBs, v);
+                        addNewVersionApi(apiDefinitionWithBLOBs, v, "new");
                     }
                 }
             });
         }
     }
 
-    private void addNewVersionApi(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs, ApiDefinitionWithBLOBs v) {
-        apiDefinitionWithBLOBs.setVersionId("new");
+    private void addNewVersionApi(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs, ApiDefinitionWithBLOBs v, String version) {
+        apiDefinitionWithBLOBs.setVersionId(version);
         apiDefinitionWithBLOBs.setNum(v.getNum());
         apiDefinitionWithBLOBs.setStatus(v.getStatus());
         apiDefinitionWithBLOBs.setOrder(v.getOrder());
@@ -884,6 +886,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             repeatDataMap.forEach((k, v) -> {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
                 if (apiDefinitionWithBLOBs != null) {
+                    //系统内重复的数据的版本如果不是选择的数据更新版本，则在数据更新版本新增，否则更新这个版本的数据
+                    if (!v.getVersionId().equals(updateVersionId)) {
+                        addNewVersionApi(apiDefinitionWithBLOBs, v, "update");
+                        return;
+                    }
                     //该接口的case
                     Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                     apiDefinitionWithBLOBs.setId(v.getId());
@@ -896,6 +903,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     apiDefinitionWithBLOBs.setRefId(v.getRefId());
                     apiDefinitionWithBLOBs.setLatest(v.getLatest());
                     apiDefinitionWithBLOBs.setCreateTime(v.getCreateTime());
+                    apiDefinitionWithBLOBs.setUpdateTime(v.getUpdateTime());
                     //组合case
                     if (caseNameMap != null) {
                         buildCaseList(oldCaseMap, caseNameMap, v);
@@ -931,6 +939,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             repeatDataMap.forEach((k, v) -> {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
                 if (apiDefinitionWithBLOBs != null) {
+                    //系统内重复的数据的版本如果不是选择的数据更新版本，则在数据更新版本新增，否则更新这个版本的数据
+                    if (!v.getVersionId().equals(updateVersionId)) {
+                        addNewVersionApi(apiDefinitionWithBLOBs, v, "update");
+                        return;
+                    }
                     //该接口的case
                     Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                     apiDefinitionWithBLOBs.setId(v.getId());
@@ -1024,10 +1037,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 List<ApiDefinitionWithBLOBs> sameVersionList = v.stream().filter(t -> t.getVersionId().equals(versionId)).collect(Collectors.toList());
                 if (!sameVersionList.isEmpty()) {
                     optionData.remove(apiDefinitionWithBLOBs);
-                    distinctNameCases.forEach(optionDataCases::remove);
+                    if (distinctNameCases != null && !distinctNameCases.isEmpty()) {
+                        distinctNameCases.forEach(optionDataCases::remove);
+                    }
                 } else {
                     for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
-                        addNewVersionApi(apiDefinitionWithBLOBs, definitionWithBLOBs);
+                        addNewVersionApi(apiDefinitionWithBLOBs, definitionWithBLOBs, "new");
                     }
                 }
             }
@@ -1050,6 +1065,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         apiDefinitionWithBLOBs.setRefId(definitionWithBLOBs.getRefId());
         apiDefinitionWithBLOBs.setLatest(definitionWithBLOBs.getLatest());
         apiDefinitionWithBLOBs.setCreateTime(definitionWithBLOBs.getCreateTime());
+        apiDefinitionWithBLOBs.setUpdateTime(definitionWithBLOBs.getUpdateTime());
     }
 
     private void removeModulePath(Map<String, ApiModule> moduleMap, Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData, String modulePath) {
@@ -1078,7 +1094,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 //该接口的case
                 Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                 //循环系统内重复接口
+                int i = 0;
                 for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
+                    if (!definitionWithBLOBs.getVersionId().equals(updateVersionId)) {
+                        i += 1;
+                        continue;
+                    }
                     //组合case
                     if (caseNameMap != null) {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs);
@@ -1094,9 +1115,16 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     api.setNum(definitionWithBLOBs.getNum());
                     api.setStatus(definitionWithBLOBs.getStatus());
                     api.setCreateTime(definitionWithBLOBs.getCreateTime());
+                    api.setUpdateTime(definitionWithBLOBs.getUpdateTime());
                     coverApiList.add(api);
                 }
-                optionData.remove(apiDefinitionWithBLOBs);
+                if (i == v.size()) {
+                    //如果系统内的所有版本都不是当前选择的数据更新版本，则在数据更新版本这里新建数据
+                    addNewVersionApi(apiDefinitionWithBLOBs, v.get(0), "update");
+
+                } else {
+                    optionData.remove(apiDefinitionWithBLOBs);
+                }
             }
         });
         buildOtherParam(toUpdateList, optionData, coverApiList);
@@ -1110,7 +1138,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, ApiTestCaseWithBLOBs> oldCaseNameMap;
         if (apiTestCases != null && !apiTestCases.isEmpty()) {
             oldCaseNameMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
-
             caseNameMap.forEach((name, caseWithBLOBs1) -> {
                 //如果导入的有重名，覆盖，接口ID替换成系统内的
                 caseWithBLOBs1.setApiDefinitionId(definitionWithBLOBs.getId());
@@ -1147,7 +1174,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             if (apiDefinitionWithBLOBs != null) {
                 //该接口的case
                 Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
+                int i = 0;
                 for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
+                    if (!definitionWithBLOBs.getVersionId().equals(updateVersionId)) {
+                        i += 1;
+                        continue;
+                    }
                     //组合case
                     if (caseNameMap != null) {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs);
@@ -1165,9 +1197,16 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     api.setRefId(apiDefinitionWithBLOBs.getRefId());
                     api.setLatest(apiDefinitionWithBLOBs.getLatest());
                     api.setCreateTime(definitionWithBLOBs.getCreateTime());
+                    api.setUpdateTime(definitionWithBLOBs.getUpdateTime());
                     coverApiList.add(api);
                 }
-                optionData.remove(apiDefinitionWithBLOBs);
+                if (i == v.size()) {
+                    //如果系统内的所有版本都不是当前选择的数据更新版本，则在数据更新版本这里新建数据
+                    addNewVersionApi(apiDefinitionWithBLOBs, v.get(0), "update");
+
+                } else {
+                    optionData.remove(apiDefinitionWithBLOBs);
+                }
             }
         });
         buildOtherParam(toUpdateList, optionData, coverApiList);
