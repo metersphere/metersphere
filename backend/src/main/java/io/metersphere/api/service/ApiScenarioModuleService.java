@@ -592,17 +592,21 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     if (v.getVersionId().equals(versionId)) {
                         optionData.remove(apiScenarioWithBLOBs);
                     } else {
-                        apiScenarioWithBLOBs.setVersionId("new");
-                        apiScenarioWithBLOBs.setNum(v.getNum());
-                        apiScenarioWithBLOBs.setStatus(v.getStatus());
-                        apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
-                        apiScenarioWithBLOBs.setRefId(v.getRefId());
-                        apiScenarioWithBLOBs.setOrder(v.getOrder());
-                        apiScenarioWithBLOBs.setLatest(v.getLatest());
+                        addNewVersionScenario(apiScenarioWithBLOBs, v, "new");
                     }
                 }
             });
         }
+    }
+
+    private void addNewVersionScenario(ApiScenarioWithBLOBs apiScenarioWithBLOBs, ApiScenarioWithBLOBs v, String version) {
+        apiScenarioWithBLOBs.setVersionId(version);
+        apiScenarioWithBLOBs.setNum(v.getNum());
+        apiScenarioWithBLOBs.setStatus(v.getStatus());
+        apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
+        apiScenarioWithBLOBs.setRefId(v.getRefId());
+        apiScenarioWithBLOBs.setOrder(v.getOrder());
+        apiScenarioWithBLOBs.setLatest(v.getLatest());
     }
 
     private void removeModulePath(Map<String, ApiScenarioModule> moduleMap, Map<String, List<ApiScenarioWithBLOBs>> moduleOptionData, String modulePath) {
@@ -623,6 +627,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         repeatDataMap.forEach((k, v) -> {
             ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
             if (apiScenarioWithBLOBs != null) {
+                if (!v.getVersionId().equals(updateVersionId)) {
+                    addNewVersionScenario(apiScenarioWithBLOBs, v, "update");
+                    return;
+                }
                 apiScenarioWithBLOBs.setId(v.getId());
                 apiScenarioWithBLOBs.setVersionId(updateVersionId);
                 apiScenarioWithBLOBs.setApiScenarioModuleId(v.getApiScenarioModuleId());
@@ -633,6 +641,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 apiScenarioWithBLOBs.setRefId(v.getRefId());
                 apiScenarioWithBLOBs.setOrder(v.getOrder());
                 apiScenarioWithBLOBs.setLatest(v.getLatest());
+                apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
                 toUpdateList.add(apiScenarioWithBLOBs);
             }
         });
@@ -661,6 +670,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             repeatDataMap.forEach((k, v) -> {
                 ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
                 if (apiScenarioWithBLOBs != null) {
+                    if (!v.getVersionId().equals(updateVersionId)) {
+                        addNewVersionScenario(apiScenarioWithBLOBs, v, "update");
+                        return;
+                    }
                     apiScenarioWithBLOBs.setId(v.getId());
                     apiScenarioWithBLOBs.setVersionId(updateVersionId);
                     apiScenarioWithBLOBs.setNum(v.getNum());
@@ -669,6 +682,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                     apiScenarioWithBLOBs.setRefId(v.getRefId());
                     apiScenarioWithBLOBs.setOrder(v.getOrder());
                     apiScenarioWithBLOBs.setLatest(v.getLatest());
+                    apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
                     toUpdateList.add(apiScenarioWithBLOBs);
                 }
             });
