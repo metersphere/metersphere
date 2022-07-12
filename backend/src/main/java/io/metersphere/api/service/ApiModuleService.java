@@ -1108,7 +1108,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         //找出每个接口的case
         List<ApiTestCaseWithBLOBs> apiTestCases = oldCaseMap.get(definitionWithBLOBs.getId());
         Map<String, ApiTestCaseWithBLOBs> oldCaseNameMap;
-        if (!apiTestCases.isEmpty()) {
+        if (apiTestCases != null && !apiTestCases.isEmpty()) {
             oldCaseNameMap = apiTestCases.stream().collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
 
             caseNameMap.forEach((name, caseWithBLOBs1) -> {
