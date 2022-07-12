@@ -859,6 +859,12 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setId(UUID.randomUUID().toString());
                 apiTestCaseMapper.insert(apiTestCaseWithBLOBs);
             }
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getStatus())) {
+                apiTestCaseWithBLOBs.setStatus(APITestStatus.Underway.name());
+            }
+            if (apiTestCaseWithBLOBs.getOrder() == null) {
+                apiTestCaseWithBLOBs.setOrder(getImportNextCaseOrder(apiDefinition.getProjectId()));
+            }
         }
     }
 
