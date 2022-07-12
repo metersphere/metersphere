@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.modifiers.UserParameters;
+import org.apache.jmeter.protocol.tcp.sampler.MsTCPClientImpl;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -46,7 +47,6 @@ import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -159,7 +159,7 @@ public class MsTCPSampler extends MsTestElement {
         }
         if (config.getConfig() == null) {
             // 单独接口执行
-            if(StringUtils.isNotEmpty(config.getProjectId())) {
+            if (StringUtils.isNotEmpty(config.getProjectId())) {
                 this.setProjectId(config.getProjectId());
             }
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(this.getEnvironmentId()) ? this.getEnvironmentId() : useEnvironment, this.getProjectId(), this.isMockEnvironment()));
@@ -294,11 +294,15 @@ public class MsTCPSampler extends MsTestElement {
         ElementUtil.setBaseParams(tcpSampler, this.getParent(), config, this.getId(), this.getIndex());
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
-        if(StringUtils.isEmpty(this.getClassname())){
+        if (StringUtils.isEmpty(this.getClassname())) {
             tcpSampler.setClassname("TCPClientImpl");
-        }else{
+        } else {
             tcpSampler.setClassname(this.getClassname());
         }
+        if (StringUtils.equals("TCPClientImpl", this.getClassname())) {
+            tcpSampler.setClassname(MsTCPClientImpl.class.getCanonicalName());
+        }
+        tcpSampler.setCharset(this.getConnectEncoding());
         tcpSampler.setServer(this.getServer());
         tcpSampler.setPort(this.getPort());
         tcpSampler.setConnectTimeout(this.getCtimeout());
@@ -322,22 +326,7 @@ public class MsTCPSampler extends MsTestElement {
         }
 
         String value = this.getRequest();
-        if (StringUtils.isNotEmpty(this.getConnectEncoding())) {
-            if (StringUtils.equalsIgnoreCase("utf-8", this.getConnectEncoding())) {
-                try {
-                    value = new String(value.getBytes(), StandardCharsets.UTF_8);
-                } catch (Exception e) {
-                }
-            } else if (StringUtils.equalsIgnoreCase("gbk", this.getConnectEncoding())) {
-                try {
-                    value = new String(value.getBytes(), "GBK");
-                } catch (Exception e) {
-                }
-
-            }
-        }
         tcpSampler.setRequestData(value);
-
         tcpSampler.setProperty(ConfigTestElement.USERNAME, this.getUsername());
         tcpSampler.setProperty(ConfigTestElement.PASSWORD, this.getPassword());
         return tcpSampler;
@@ -358,19 +347,6 @@ public class MsTCPSampler extends MsTestElement {
                 String value = item.getValue();
                 if (StringUtils.isNotEmpty(value)) {
                     value = this.formatMockValue(value);
-                    if (StringUtils.isNotEmpty(this.getConnectEncoding())) {
-                        if (StringUtils.equalsIgnoreCase("utf-8", this.getConnectEncoding())) {
-                            try {
-                                value = new String(value.getBytes(), StandardCharsets.UTF_8);
-                            } catch (Exception e) {
-                            }
-                        } else if (StringUtils.equalsIgnoreCase("gbk", this.getConnectEncoding())) {
-                            try {
-                                value = new String(value.getBytes(), "GBK");
-                            } catch (Exception e) {
-                            }
-                        }
-                    }
                     threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), value));
                 }
             });
