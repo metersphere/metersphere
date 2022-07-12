@@ -8,10 +8,10 @@
           <el-select v-model="authConfig.verification" @change="change" :disabled="isReadOnly"
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
             <el-option
-                v-for="item in options"
-                :key="item.name"
-                :label="item.name"
-                :value="item.name">
+              v-for="item in options"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name">
             </el-option>
           </el-select>
 
@@ -43,10 +43,10 @@
           <el-select v-model="authConfig.encrypt" :disabled="isReadOnly"
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
             <el-option
-                v-for="item in encryptOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
+              v-for="item in encryptOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -79,7 +79,7 @@ export default {
   },
   data() {
     return {
-      options: [{name: "No Auth"}, {name: "Basic Auth"}],
+      options: [{name: "No Auth"}, {name: "Basic Auth"}, {name: "Digest Auth"}],
       encryptOptions: [{id: false, name: this.$t('commons.encrypted')}],
       activeName: "verified",
       rule: {},
@@ -88,9 +88,9 @@ export default {
   },
   methods: {
     change() {
-      if (this.authConfig.verification === "Basic Auth") {
+      if (this.authConfig.verification === "Basic Auth" || this.authConfig.verification === "Digest Auth") {
         let authManager = createComponent("AuthManager");
-        authManager.verification = "Basic Auth";
+        authManager.verification = this.authConfig.verification;
         authManager.environment = this.request.useEnvironment;
         if (this.request.hashTree == undefined) {
           this.request.hashTree = [];

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
@@ -72,7 +73,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (request.getAuthManager() != null
                 && StringUtils.isNotBlank(request.getAuthManager().getUsername())
                 && StringUtils.isNotBlank(request.getAuthManager().getPassword())
-                && request.getAuthManager().getVerification().equals("Basic Auth")) {
+                && MsAuthManager.mechanismMap.containsKey(request.getAuthManager().getVerification())) {
             AuthorizationValue authorizationValue = new AuthorizationValue();
             authorizationValue.setType("header");
             authorizationValue.setKeyName("Authorization");
