@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
+import io.metersphere.api.dto.automation.parse.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
@@ -291,13 +292,13 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/genPerformanceTestJmx")
-    public JmxInfoDTO genPerformanceTestJmx(@RequestBody GenScenarioRequest runRequest) throws Exception {
+    public ScenarioToPerformanceInfoDTO genPerformanceTestJmx(@RequestBody GenScenarioRequest runRequest) throws Exception {
         runRequest.setExecuteType(ExecuteType.Completed.name());
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
 
     @PostMapping("/batchGenPerformanceTestJmx")
-    public List<JmxInfoDTO> batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
+    public ScenarioToPerformanceInfoDTO batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.batchGenPerformanceTestJmx(request);
     }
 
@@ -366,7 +367,7 @@ public class ApiAutomationController {
     @PostMapping(value = "/export/jmx")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
-    public List<ApiScenarioExportJmxDTO> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
+    public ScenarioToPerformanceInfoDTO exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
     }
 

@@ -64,20 +64,25 @@ export default {
       run.id = getUUID();
       run.name = row.name;
       this.$post(url, run, response => {
-        let jmxObj = {};
-        jmxObj.name = response.data.name;
-        jmxObj.xml = response.data.xml;
-        jmxObj.attachFiles = response.data.attachFiles;
-        jmxObj.attachByteFiles = response.data.attachByteFiles;
-        jmxObj.scenarioId = row.id;
-        jmxObj.version = row.version;
-        this.$store.commit('setTest', {
-          name: row.name,
-          jmx: jmxObj
-        });
-        this.$router.push({
-          path: "/performance/test/create"
-        });
+        let jmxInfo = response.data.jmxInfoDTO;
+        if (jmxInfo) {
+          let projectEnvMap = response.data.projectEnvMap;
+          let jmxObj = {};
+          jmxObj.name = jmxInfo.name;
+          jmxObj.xml = jmxInfo.xml;
+          jmxObj.attachFiles = jmxInfo.attachFiles;
+          jmxObj.attachByteFiles = jmxInfo.attachByteFiles;
+          jmxObj.scenarioId = row.id;
+          jmxObj.version = row.version;
+          jmxObj.projectEnvMap = projectEnvMap;
+          this.$store.commit('setTest', {
+            name: row.name,
+            jmx: jmxObj
+          });
+          this.$router.push({
+            path: "/performance/test/create"
+          });
+        }
       });
     },
     openScenario(item) {

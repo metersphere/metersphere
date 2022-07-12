@@ -58,7 +58,7 @@ import MsSearch from "@/business/components/common/components/search/MsSearch";
 
 export default {
   name: "ExistScenarios",
-  components: {MsTag, MsTablePagination, MsDialogFooter,MsTableSearchBar, MsSearch},
+  components: {MsTag, MsTablePagination, MsDialogFooter, MsTableSearchBar, MsSearch},
   props: {
     fileList: Array,
     tableData: Array,
@@ -74,6 +74,7 @@ export default {
       total: 0,
       apiScenarios: [],
       selectIds: new Set,
+      environment: {},
       condition: {
         projectId: getCurrentProjectID(),
         filters: {status: ["Prepare", "Underway", "Completed"]}
@@ -138,7 +139,8 @@ export default {
         ids: [...this.selectIds],
       };
       this.projectLoadingResult = this.$post('api/automation/export/jmx', condition, response => {
-        let data = response.data;
+        let returnData = response.data;
+        let data = returnData.scenarioJmxList;
         data.forEach(d => {
           let jmxName = d.name + "_" + new Date().getTime() + ".jmx";
           let threadGroups = findThreadGroup(d.jmx, jmxName);
@@ -169,7 +171,6 @@ export default {
             });
           });
         });
-
         this.$emit('fileChange', this.scenarios);
         this.$success(this.$t('test_track.case.import.success'));
         this.loadApiAutomationVisible = false;

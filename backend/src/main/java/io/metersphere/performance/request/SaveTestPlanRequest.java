@@ -15,4 +15,5 @@ public class SaveTestPlanRequest extends TestPlanRequest {
     private Map<String, Integer> fileSorts;
     private List<String> conversionFileIdList;
     private List<ApiLoadTest> apiList;
+    private Map<String, List<String>> projectEnvMap;
 }

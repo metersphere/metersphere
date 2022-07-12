@@ -2,6 +2,7 @@ package io.metersphere.performance.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFileContentMapper;
@@ -9,10 +10,12 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.dto.LoadTestReportInfoDTO;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.i18n.Translator;
@@ -32,11 +35,13 @@ import io.metersphere.service.QuotaService;
 import io.metersphere.service.TestResourceService;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,6 +89,9 @@ public class PerformanceReportService {
     private ProjectMapper projectMapper;
     @Resource
     private LoadTestReportFileMapper loadTestReportFileMapper;
+    @Lazy
+    @Resource
+    private ApiScenarioEnvService apiScenarioEnvService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -317,8 +325,27 @@ public class PerformanceReportService {
         return StringUtils.equals(PerformanceTestStatus.Error.name(), reportStatus);
     }
 
-    public LoadTestReportWithBLOBs getLoadTestReport(String id) {
-        return loadTestReportMapper.selectByPrimaryKey(id);
+    public LoadTestReportInfoDTO getLoadTestReport(String id) {
+        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(id);
+        LoadTestReportInfoDTO returnDTO = new LoadTestReportInfoDTO();
+        BeanUtils.copyBean(returnDTO, loadTestReport);
+        this.parseRunEnvironment(returnDTO);
+        return returnDTO;
+    }
+
+    private void parseRunEnvironment(LoadTestReportInfoDTO loadTestReportInfoDTO) {
+        if (loadTestReportInfoDTO != null && StringUtils.isNotEmpty(loadTestReportInfoDTO.getEnvInfo())) {
+            Map<String, List<String>> projectEnvIdMap = new HashMap<>();
+            try {
+                projectEnvIdMap = JSONObject.parseObject(loadTestReportInfoDTO.getEnvInfo(), Map.class);
+                LinkedHashMap<String, List<String>> projectEnvNameMap = apiScenarioEnvService.selectProjectNameAndEnvName(projectEnvIdMap);
+                if (MapUtils.isNotEmpty(projectEnvNameMap)) {
+                    loadTestReportInfoDTO.setProjectEnvMap(projectEnvNameMap);
+                }
+            } catch (Exception e) {
+                LogUtil.error("性能测试报告解析运行环境信息失败!解析参数:" + loadTestReportInfoDTO.getEnvInfo(), e);
+            }
+        }
     }
 
     public List<LogDetailDTO> getReportLogResource(String reportId) {

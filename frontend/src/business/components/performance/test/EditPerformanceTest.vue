@@ -160,6 +160,7 @@ export default {
       }],
       maintainerOptions: [],
       versionData: [],
+      projectEnvMap: {},
     };
   },
   watch: {
@@ -191,7 +192,7 @@ export default {
     }
     this.$EventBus.$on('projectChange', this.handleProjectChange);
   },
-  destroyed () {
+  destroyed() {
     this.$EventBus.$off('projectChange', this.handleProjectChange);
   },
   mounted() {
@@ -214,6 +215,9 @@ export default {
       let apiTest = this.$store.state.test;
       if (apiTest && apiTest.name) {
         this.$set(this.test, "name", apiTest.name);
+        if (apiTest.jmx.projectEnvMap) {
+          this.projectEnvMap = apiTest.jmx.projectEnvMap;
+        }
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
           this.$refs.basicConfig.handleUpload();
@@ -241,9 +245,6 @@ export default {
           for (let fileID in apiTest.jmx.attachFiles) {
             attachFiles.push(fileID);
           }
-          // if (attachFiles.length > 0) {
-          // this.$refs.basicConfig.selectAttachFileById(attachFiles);
-          // }
         }
         this.active = '1';
         this.$store.commit("clearTest");
@@ -252,6 +253,9 @@ export default {
         if (scenarioJmxs && scenarioJmxs.name) {
           this.$set(this.test, "name", scenarioJmxs.name);
           let relateApiList = [];
+          if (scenarioJmxs.projectEnvMap) {
+            this.projectEnvMap = scenarioJmxs.projectEnvMap;
+          }
           if (scenarioJmxs.jmxs) {
             scenarioJmxs.jmxs.forEach(item => {
               if (item.scenarioId) {
@@ -271,9 +275,6 @@ export default {
                 for (let fileID in item.attachFiles) {
                   attachFiles.push(fileID);
                 }
-                // if (attachFiles.length > 0) {
-                //   this.$refs.basicConfig.selectAttachFileById(attachFiles);
-                // }
               }
               this.$set(this.test, "apiList", relateApiList);
             });
@@ -293,6 +294,13 @@ export default {
             this.test = response.data;
             if (!this.test.schedule) {
               this.test.schedule = {};
+            }
+            if (this.test.envInfo) {
+              try {
+                this.projectEnvMap = JSON.parse(this.test.envInfo);
+              } catch (e) {
+                this.projectEnvMap = null;
+              }
             }
             this.getDefaultFollow(testId);
           }
@@ -373,12 +381,11 @@ export default {
       this.test.testResourcePoolId = this.$refs.pressureConfig.resourcePool;
       // 高级配置
       this.test.advancedConfiguration = JSON.stringify(this.$refs.advancedConfig.configurations());
-
+      this.test.projectEnvMap = this.projectEnvMap;
       // file属性不需要json化
       let requestJson = JSON.stringify(this.test, function (key, value) {
         return key === "file" ? undefined : value;
       });
-
       formData.append('request', new Blob([requestJson], {
         type: "application/json"
       }));

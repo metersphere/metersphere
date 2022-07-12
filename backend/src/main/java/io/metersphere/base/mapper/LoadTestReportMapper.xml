@@ -27,6 +27,7 @@
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
     <result column="jmx_content" jdbcType="LONGVARCHAR" property="jmxContent" />
     <result column="advanced_configuration" jdbcType="LONGVARCHAR" property="advancedConfiguration" />
+    <result column="env_info" jdbcType="LONGVARCHAR" property="envInfo" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -92,7 +93,7 @@
     test_start_time, test_end_time, test_duration, version_id
   </sql>
   <sql id="Blob_Column_List">
-    description, load_configuration, jmx_content, advanced_configuration
+    description, load_configuration, jmx_content, advanced_configuration, env_info
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="ResultMapWithBLOBs">
     select
@@ -150,8 +151,8 @@
       project_id, test_name, test_resource_pool_id, 
       test_start_time, test_end_time, test_duration, 
       version_id, description, load_configuration, 
-      jmx_content, advanced_configuration
-      )
+      jmx_content, advanced_configuration, 
+      env_info)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
@@ -159,8 +160,8 @@
       #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
       #{testStartTime,jdbcType=BIGINT}, #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, 
       #{versionId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
-      #{jmxContent,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
-      )
+      #{jmxContent,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
+      #{envInfo,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     insert into load_test_report
@@ -234,6 +235,9 @@
       <if test="advancedConfiguration != null">
         advanced_configuration,
       </if>
+      <if test="envInfo != null">
+        env_info,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -304,6 +308,9 @@
       </if>
       <if test="advancedConfiguration != null">
         #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="envInfo != null">
+        #{envInfo,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -385,6 +392,9 @@
       <if test="record.advancedConfiguration != null">
         advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.envInfo != null">
+        env_info = #{record.envInfo,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -414,7 +424,8 @@
       description = #{record.description,jdbcType=LONGVARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
+      env_info = #{record.envInfo,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -513,6 +524,9 @@
       <if test="advancedConfiguration != null">
         advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
+      <if test="envInfo != null">
+        env_info = #{envInfo,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -539,7 +553,8 @@
       description = #{description,jdbcType=LONGVARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
+      env_info = #{envInfo,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReport">

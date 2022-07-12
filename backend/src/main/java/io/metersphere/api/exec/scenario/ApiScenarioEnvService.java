@@ -24,8 +24,11 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.service.ProjectService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -48,6 +51,11 @@ public class ApiScenarioEnvService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Lazy
+    @Resource
+    private ProjectService projectService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     public ScenarioEnv getApiScenarioEnv(String definition) {
         ScenarioEnv env = new ScenarioEnv();
@@ -314,7 +322,7 @@ public class ApiScenarioEnvService {
         return projectEnvMap;
     }
 
-    public Map<String, List<String>> selectApiScenarioEnv(List<ApiScenarioWithBLOBs> list) {
+    public Map<String, List<String>> selectApiScenarioEnv(List<? extends ApiScenarioWithBLOBs> list) {
         Map<String, List<String>> projectEnvMap = new LinkedHashMap<>();
         for (int i = 0; i < list.size(); i++) {
             try {
@@ -444,5 +452,23 @@ public class ApiScenarioEnvService {
             planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
         }
         return planEnvMap;
+    }
+
+    public LinkedHashMap<String, List<String>> selectProjectNameAndEnvName(Map<String, List<String>> projectEnvIdMap) {
+        LinkedHashMap<String, List<String>> returnMap = new LinkedHashMap<>();
+        if (MapUtils.isNotEmpty(projectEnvIdMap)) {
+            for (Map.Entry<String, List<String>> entry : projectEnvIdMap.entrySet()) {
+                String projectId = entry.getKey();
+                List<String> envIdList = entry.getValue();
+                String projectName = projectService.selectNameById(projectId);
+                List<String> envNameList = apiTestEnvironmentService.selectNameByIds(envIdList);
+                if (CollectionUtils.isNotEmpty(envNameList) && StringUtils.isNotEmpty(projectName)) {
+                    returnMap.put(projectName, new ArrayList<>() {{
+                        this.addAll(envNameList);
+                    }});
+                }
+            }
+        }
+        return returnMap;
     }
 }

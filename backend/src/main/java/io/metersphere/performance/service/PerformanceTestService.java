@@ -49,6 +49,7 @@ import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -290,6 +291,9 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
+        if (MapUtils.isNotEmpty(request.getProjectEnvMap())) {
+            loadTest.setEnvInfo(JSONObject.toJSONString(request.getProjectEnvMap()));
+        }
         loadTest.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extLoadTestMapper::getLastOrder));
         loadTest.setVersionId(request.getVersionId());
         loadTest.setRefId(request.getId());
@@ -487,6 +491,7 @@ public class PerformanceTestService {
             testReport.setStatus(PerformanceTestStatus.Starting.name());
             testReport.setProjectId(loadTest.getProjectId());
             testReport.setTestName(loadTest.getName());
+            testReport.setEnvInfo(loadTest.getEnvInfo());
             loadTestReportMapper.insertSelective(testReport);
 
             // engine
@@ -883,7 +888,7 @@ public class PerformanceTestService {
         if (!CollectionUtils.isEmpty(scenarioIds)) {
             ApiScenarioBatchRequest scenarioRequest = new ApiScenarioBatchRequest();
             scenarioRequest.setIds(scenarioIds);
-            List<ApiScenarioExportJmxDTO> apiScenrioExportJmxes = apiAutomationService.exportJmx(scenarioRequest);
+            List<ApiScenarioExportJmxDTO> apiScenrioExportJmxes = apiAutomationService.exportJmx(scenarioRequest).getScenarioJmxList();
 
             deleteLoadTestFiles(loadTest.getId());
 

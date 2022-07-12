@@ -43,6 +43,11 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    public RestTemplate restTemplateWithTimeOut() {
+        return setTemplate();
+    }
+
+    @Bean
     public HttpClient httpClient() {
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())

@@ -17,5 +17,7 @@ public class LoadTestReportWithBLOBs extends LoadTestReport implements Serializa
 
     private String advancedConfiguration;
 
+    private String envInfo;
+
     private static final long serialVersionUID = 1L;
 }

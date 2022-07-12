@@ -1274,21 +1274,26 @@ export default {
       let url = "/api/genPerformanceTestXml";
 
       this.$fileUpload(url, null, bodyFiles, reqObj, response => {
-        let jmxObj = {};
-        jmxObj.name = response.data.name;
-        jmxObj.xml = response.data.xml;
-        jmxObj.attachFiles = response.data.attachFiles;
-        jmxObj.attachByteFiles = response.data.attachByteFiles;
-        jmxObj.caseId = reqObj.id;
-        jmxObj.version = row.version;
-        jmxObj.envId = environment.id;
-        this.$store.commit('setTest', {
-          name: row.name,
-          jmx: jmxObj
-        });
-        this.$router.push({
-          path: "/performance/test/create"
-        });
+        let jmxInfo = response.data.jmxInfoDTO;
+        if (jmxInfo) {
+          let projectEnvMap = response.data.projectEnvMap;
+          let jmxObj = {};
+          jmxObj.name = jmxInfo.name;
+          jmxObj.xml = jmxInfo.xml;
+          jmxObj.attachFiles = jmxInfo.attachFiles;
+          jmxObj.attachByteFiles = jmxInfo.attachByteFiles;
+          jmxObj.caseId = reqObj.id;
+          jmxObj.version = row.version;
+          jmxObj.envId = environment.id;
+          jmxObj.projectEnvMap = projectEnvMap;
+          this.$store.commit('setTest', {
+            name: row.name,
+            jmx: jmxObj
+          });
+          this.$router.push({
+            path: "/performance/test/create"
+          });
+        }
       }, erro => {
         this.$emit('runRefresh', {});
       });
