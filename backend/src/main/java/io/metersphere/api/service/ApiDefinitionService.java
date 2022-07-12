@@ -767,8 +767,7 @@ public class ApiDefinitionService {
                                        List<ApiDefinitionWithBLOBs> updateList, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, apiDefinition);
-        apiDefinition.setCreateTime(System.currentTimeMillis());
-        apiDefinition.setUpdateTime(System.currentTimeMillis());
+
         if (StringUtils.isEmpty(apiDefinition.getStatus())) {
             apiDefinition.setStatus(APITestStatus.Underway.name());
         }
@@ -786,6 +785,8 @@ public class ApiDefinitionService {
             if (CollectionUtils.isEmpty(collect)) {
                 String originId = apiDefinition.getId();
                 apiDefinition.setId(UUID.randomUUID().toString());
+                apiDefinition.setCreateTime(System.currentTimeMillis());
+                apiDefinition.setUpdateTime(System.currentTimeMillis());
                 //postman 可能含有前置脚本，接口定义去掉脚本
                 if (apiDefinition.getVersionId() != null && apiDefinition.getVersionId().equals("new")) {
                     apiDefinition.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
@@ -827,9 +828,7 @@ public class ApiDefinitionService {
             if (apiTestCaseWithBLOBs.getCreateTime() == null) {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
             }
-            if (apiTestCaseWithBLOBs.getUpdateTime() == null) {
-                apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-            }
+            apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
             } else {
@@ -872,14 +871,27 @@ public class ApiDefinitionService {
 
         if (CollectionUtils.isEmpty(sameRequest)) { // 没有这个接口 新增
             apiDefinition.setId(UUID.randomUUID().toString());
-            apiDefinition.setRefId(apiDefinition.getId());
-            if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
-                apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
+
+            apiDefinition.setCreateTime(System.currentTimeMillis());
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            if (apiDefinition.getVersionId().equals("update")) {
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getUpdateVersionId())) {
+                    apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
+                } else {
+                    apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
+                }
+                apiDefinition.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
             } else {
-                apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
+                apiDefinition.setRefId(apiDefinition.getId());
+                apiDefinition.setLatest(true); // 新增接口 latest = true
+                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                    apiDefinition.setVersionId(apiTestImportRequest.getVersionId());
+                } else {
+                    apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
+                }
             }
-            apiDefinition.setLatest(true); // 新增接口 latest = true
-            apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 batchMapper.insert(apiDefinition);
@@ -902,14 +914,20 @@ public class ApiDefinitionService {
 
             if (!apiOp.isPresent()) {
                 apiDefinition.setId(UUID.randomUUID().toString());
-                if (sameRequest.get(0).getRefId() != null) {
-                    apiDefinition.setRefId(sameRequest.get(0).getRefId());
-                } else {
-                    apiDefinition.setRefId(apiDefinition.getId());
+                apiDefinition.setCreateTime(System.currentTimeMillis());
+                apiDefinition.setUpdateTime(System.currentTimeMillis());
+                if (!apiDefinition.getVersionId().equals("update")) {
+                    if (sameRequest.get(0).getRefId() != null) {
+                        apiDefinition.setRefId(sameRequest.get(0).getRefId());
+                    } else {
+                        apiDefinition.setRefId(apiDefinition.getId());
+                    }
+                    apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
+                    apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 }
+                apiDefinition.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
                 apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
-                apiDefinition.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
-                apiDefinition.setOrder(sameRequest.get(0).getOrder());
+
                 if (sameRequest.get(0).getUserId() != null) {
                     apiDefinition.setUserId(sameRequest.get(0).getUserId());
                 }
@@ -933,9 +951,11 @@ public class ApiDefinitionService {
                 //Check whether the content has changed, if not, do not change the creation time
                 if (apiDefinition.getProtocol().equals("HTTP")) {
                     Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
-                    if (!toChangeTime) {
-                        apiDefinition.setUpdateTime(existApi.getUpdateTime());
+                    if (toChangeTime) {
+                        apiDefinition.setUpdateTime(System.currentTimeMillis());
                     }
+                } else {
+                    apiDefinition.setUpdateTime(System.currentTimeMillis());
                 }
 
                 if (!StringUtils.equalsIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Metersphere.name())) {
@@ -1451,7 +1471,7 @@ public class ApiDefinitionService {
                 item.setName(item.getName().substring(0, 255));
             }
             //如果是创建版本数据，则num和其他版本数据一致
-            if (item.getVersionId() == null || !item.getVersionId().equals("new")) {
+            if (item.getVersionId() == null || (!item.getVersionId().equals("new") && !item.getVersionId().equals("update"))) {
                 item.setNum(num++);
             }
             //如果EsbData需要存储,则需要进行接口是否更新的判断
