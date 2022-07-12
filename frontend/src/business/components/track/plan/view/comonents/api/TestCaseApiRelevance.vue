@@ -13,6 +13,7 @@
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
+        :show-case-num="false"
         :is-read-only="true"
         ref="nodeTree"/>
     </template>

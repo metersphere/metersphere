@@ -34,7 +34,7 @@
           <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
         </el-tooltip>
 
-        <span class="count-title" v-if="data.caseNum !== null && data.caseNum !== undefined">
+        <span class="count-title" v-if="showCaseNum && data.caseNum !== null && data.caseNum !== undefined">
           <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
@@ -146,6 +146,12 @@ export default {
       }
     },
     showRemoveTip: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    },
+    showCaseNum: {
       type: Boolean,
       default() {
         return true;
@@ -372,7 +378,7 @@ export default {
         this.getChildNodeId(node.data, nodeIds);
         this.$emit('remove', nodeIds, data);
       }
-     
+
     },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       if (dropType === "none" || dropType === undefined) {

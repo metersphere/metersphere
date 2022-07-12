@@ -13,6 +13,7 @@
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
       :default-label="$t('api_test.automation.unplanned_scenario')"
       local-suffix="api_scenario"
+      :show-case-num="showCaseNum"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -75,6 +76,12 @@ export default {
     planId: String,
     pageSource: String,
     total: Number,
+    showCaseNum: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    }
   },
   computed: {
     isPlanModel() {

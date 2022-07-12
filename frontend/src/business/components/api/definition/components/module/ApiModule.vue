@@ -16,6 +16,7 @@
         @remove="remove"
         @refresh="list"
         @filter="filter"
+        :show-case-num="showCaseNum"
         :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
         :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
         :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
@@ -81,6 +82,12 @@ export default {
         type: Boolean,
         default() {
           return false;
+        }
+      },
+      showCaseNum: {
+        type: Boolean,
+        default() {
+          return true;
         }
       },
       showOperator: Boolean,

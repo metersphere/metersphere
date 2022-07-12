@@ -13,6 +13,7 @@
         @setModuleOptions="setModuleOptions"
         @enableTrash="false"
         :is-read-only="true"
+        :show-case-num="false"
         ref="nodeTree"/>
     </template>
 
