@@ -2,6 +2,7 @@
   <span>
     <span>
       <ms-search
+        v-if="visibleSearch"
         :condition.sync="condition"
         :base-search-tip="$t('commons.search_by_id_name_tag_path')"
         :base-search-width="260"
@@ -431,6 +432,7 @@ export default {
       projectName: "",
       versionEnable: false,
       isFirstInitTable: true,
+      visibleSearch: true
     };
   },
   props: {
@@ -517,6 +519,7 @@ export default {
         this.editApi(response.data);
       });
     }
+    this.setAdvSearchParam();
   },
   watch: {
     selectNodeIds() {
@@ -535,6 +538,9 @@ export default {
       initCondition(this.condition, false);
       this.closeCaseModel();
       this.initTable(true);
+      this.visibleSearch = false;
+      this.$nextTick(() => (this.visibleSearch = true));
+      this.setAdvSearchParam();
     },
     currentVersion() {
       this.condition.versionId = this.currentVersion;
@@ -557,6 +563,12 @@ export default {
     },
   },
   methods: {
+    setAdvSearchParam() {
+      let comp = this.condition.components.find(c => c.key === 'moduleIds');
+      if (comp) {
+        comp.options.params = {protocol: this.currentProtocol};
+      }
+    },
     getProtocolFilter() {
       this.methodFilters = getProtocolFilter(this.currentProtocol);
     },

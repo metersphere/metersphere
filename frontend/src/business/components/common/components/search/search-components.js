@@ -5,6 +5,7 @@ import MsTableSearchSelect from "./MsTableSearchSelect";
 import MsTableSearchInputNumber from "@/business/components/common/components/search/MsTableSearchInputNumber";
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableSearchMix from "@/business/components/common/components/search/MsTableSearchMix";
+import MsTableSearchNodeTree from "@/business/components/common/components/search/MsTableSearchNodeTree";
 
 export default {
   MsTableSearchInput,
@@ -12,7 +13,8 @@ export default {
   MsTableSearchDateTimePicker,
   MsTableSearchSelect,
   MsTableSearchInputNumber,
-  MsTableSearchMix
+  MsTableSearchMix,
+  MsTableSearchNodeTree
 }
 
 export const OPERATORS = {
@@ -665,6 +667,44 @@ export const ID = {
   }
 }
 
+function _getModuleTree(options) {
+  return {
+    key: "moduleIds",
+    name: 'MsTableSearchNodeTree',
+    label: "test_track.case.module",
+    operator: {
+      value: OPERATORS.IN.value,
+      options: [OPERATORS.IN, OPERATORS.NOT_IN]
+    },
+    options: options,
+    init: undefined // 高级搜索框非首次打开时会执行该函数，在组件首次created时给其赋值
+  }
+}
+
+export const TEST_CASE_MODULE_TREE = _getModuleTree({
+  url: "/case/node/list/" + getCurrentProjectID(),
+  type: "POST",
+  params: {} // 赋值时注意顺序
+})
+
+export const API_MODULE_TREE = _getModuleTree({
+  url: "/api/module/list/" + getCurrentProjectID(),
+  type: "GET",
+  params: {}
+})
+
+export const SCENARIO_MODULE_TREE = _getModuleTree({
+  url: "/api/automation/module/list/" + getCurrentProjectID(),
+  type: "GET",
+  params: {}
+})
+
+export const UI_MODULE_TREE = _getModuleTree({
+  url: "/ui/scenario/module/list/" + getCurrentProjectID(),
+  type: "GET",
+  params: {}
+})
+
 export const TEST_CONFIGS = [ID, NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR, FOLLOW_PEOPLE];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
@@ -673,21 +713,21 @@ export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TR
 
 export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE];
+export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE, UI_MODULE_TREE];
 
 // 测试跟踪-测试用例 列表
-export const TEST_CASE_CONFIGS = [ID, NAME, TAGS, MODULE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE, CASE_DEMAND];
+export const TEST_CASE_CONFIGS = [ID, NAME, TAGS, TEST_CASE_MODULE_TREE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE, CASE_DEMAND];
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE, TAGS, FOLLOW_PEOPLE, ACTUAL_START_TIME, ACTUAL_END_TIME, PLAN_START_TIME, PLAN_END_TIME];
 
 // 测试跟踪 测试评审列表
 export const TEST_REVIEW = [NAME, CREATOR, TAGS, TEST_PLAN_STATUS, FOLLOW_PEOPLE, CREATE_TIME, UPDATE_TIME, END_TIME];
 
-export const API_DEFINITION_CONFIGS = [ID, NAME, API_METHOD, API_PATH, API_STATUS, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, ISREFERENCE, MODULE, FOLLOW_PEOPLE, CASE_COUNT];
+export const API_DEFINITION_CONFIGS = [ID, NAME, API_METHOD, API_PATH, API_STATUS, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, ISREFERENCE, API_MODULE_TREE, FOLLOW_PEOPLE, CASE_COUNT];
 
 export const API_CASE_CONFIGS = [ID, NAME, PRIORITY, TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, ISREFERENCE, FOLLOW_PEOPLE, API_PATH];
 
-export const API_SCENARIO_CONFIGS = [ID, NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, FOLLOW_PEOPLE, STEP_COUNT, MODULE, API_STATUS];
+export const API_SCENARIO_CONFIGS = [ID, NAME, PRIORITY, TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, FOLLOW_PEOPLE, STEP_COUNT, SCENARIO_MODULE_TREE, API_STATUS];
 
 export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME, CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_REPORT_STATUS];
 
