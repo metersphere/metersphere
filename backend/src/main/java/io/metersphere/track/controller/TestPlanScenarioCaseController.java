@@ -3,6 +3,7 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
@@ -14,6 +15,7 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
+import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +66,12 @@ public class TestPlanScenarioCaseController {
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         return testPlanScenarioCaseService.relevanceList(request, goPage, pageSize);
+    }
+
+    @PostMapping("/relevance")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiAutomationService.class)
+    public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
+        testPlanScenarioCaseService.relevance(request);
     }
 
     @GetMapping("/delete/{id}")

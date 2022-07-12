@@ -187,6 +187,12 @@ public class ApiAutomationService {
         return list;
     }
 
+    public void buildApiCaseRelevanceRequest(ApiCaseRelevanceRequest request) {
+        this.initRequest(request.getCondition(), true, true);
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectRelevanceIdsByQuery(query));
+    }
+
     public List<ApiScenarioDTO> listAll(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery(query));
@@ -1008,45 +1014,6 @@ public class ApiAutomationService {
 
     public List<ApiDataCountResult> countRunResultByProjectID(String projectId) {
         return extApiScenarioMapper.countRunResultByProjectID(projectId);
-    }
-
-    public void relevance(ApiCaseRelevanceRequest request) {
-        Map<String, List<String>> mapping = request.getMapping();
-        Map<String, String> envMap = request.getEnvMap();
-        Set<String> set = mapping.keySet();
-        List<String> relevanceIds = request.getSelectIds();
-        Collections.reverse(relevanceIds);
-        String envType = request.getEnvironmentType();
-        String envGroupId = request.getEnvGroupId();
-        if (set.isEmpty()) {
-            return;
-        }
-        Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
-        for (String id : relevanceIds) {
-            Map<String, String> newEnvMap = new HashMap<>(16);
-            List<String> list = mapping.get(id);
-            list.forEach(l -> newEnvMap.put(l, envMap == null ? "" : envMap.getOrDefault(l, "")));
-            TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
-            testPlanApiScenario.setId(UUID.randomUUID().toString());
-            testPlanApiScenario.setCreateUser(SessionUtils.getUserId());
-            testPlanApiScenario.setApiScenarioId(id);
-            testPlanApiScenario.setTestPlanId(request.getPlanId());
-            testPlanApiScenario.setCreateTime(System.currentTimeMillis());
-            testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
-            String environmentJson = JSON.toJSONString(newEnvMap);
-            if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
-                testPlanApiScenario.setEnvironment(environmentJson);
-                testPlanApiScenario.setEnvironmentType(EnvironmentType.JSON.name());
-            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name())) {
-                testPlanApiScenario.setEnvironmentType(EnvironmentType.GROUP.name());
-                testPlanApiScenario.setEnvironmentGroupId(envGroupId);
-                // JSON类型环境中也保存最新值
-                testPlanApiScenario.setEnvironment(environmentJson);
-            }
-            testPlanApiScenario.setOrder(nextOrder);
-            nextOrder += ServiceUtils.ORDER_STEP;
-            testPlanApiScenarioMapper.insert(testPlanApiScenario);
-        }
     }
 
     public void relevanceReview(ApiCaseRelevanceRequest request) {
@@ -2263,7 +2230,7 @@ public class ApiAutomationService {
             e.printStackTrace();
         }
 
-        //Compare the basic information of the APIScenario. 
+        //Compare the basic information of the APIScenario.
 
         if (!StringUtils.equals(exScenario.getName(), scenario.getName())) {
             return true;

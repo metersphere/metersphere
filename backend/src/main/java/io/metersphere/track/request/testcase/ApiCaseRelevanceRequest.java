@@ -1,5 +1,6 @@
 package io.metersphere.track.request.testcase;
 
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,11 +17,6 @@ public class ApiCaseRelevanceRequest {
     private String planId;
 
     private String environmentId;
-
-    /**
-     * 当选择关联全部用例时把加载条件送到后台，从后台查询
-     */
-//    private QueryTestCaseRequest request;
 
     /**
      * 具体要关联的用例
@@ -42,5 +38,10 @@ public class ApiCaseRelevanceRequest {
     private String reviewId;
 
     private String environmentType;
+
     private String envGroupId;
+
+    private List<String> ids;
+
+    private ApiScenarioRequest condition;
 }

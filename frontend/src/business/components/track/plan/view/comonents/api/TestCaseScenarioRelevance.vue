@@ -58,7 +58,6 @@ export default {
       selectNodeIds: [],
       moduleOptions: {},
       trashEnable: false,
-      condition: {},
       currentRow: {},
       projectId: ""
     };
@@ -70,14 +69,6 @@ export default {
     versionEnable: {
       type: Boolean,
       default: false
-    }
-  },
-  watch: {
-    planId() {
-      this.condition.planId = this.planId;
-    },
-    projectId() {
-      this.getVersionOptions();
     }
   },
   methods: {
@@ -107,7 +98,7 @@ export default {
     },
 
     postRelevance() {
-      let url = '/api/automation/relevance';
+      let url = '/test/plan/scenario/case/relevance';
       const envMap = this.$refs.apiScenarioList.projectEnvMap;
       let envType = this.$refs.apiScenarioList.environmentType;
       let map = this.$refs.apiScenarioList.map;
@@ -141,7 +132,7 @@ export default {
         return false;
       }
       let selectIds = [];
-      let url = '/api/automation/relevance';
+      let url = '/test/plan/scenario/case/relevance';
       let selectRows = this.$refs.apiScenarioList.selectRows;
       const envMap = this.$refs.apiScenarioList.projectEnvMap;
       let envType = this.$refs.apiScenarioList.environmentType;
@@ -164,7 +155,8 @@ export default {
       param.envMap = strMapToObj(envMap);
       param.environmentType = envType;
       param.envGroupId = envGroupId;
-      param.selectIds = selectIds;
+      param.ids = selectIds;
+      param.condition = this.$refs.apiScenarioList.condition;
 
       this.result = this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));

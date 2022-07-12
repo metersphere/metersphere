@@ -266,75 +266,7 @@
                     </foreach>
                 </when>
             </choose>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='status'">
-                                and api_scenario.status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='user_id'">
-                                and api_scenario.user_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='level'">
-                                and api_scenario.level in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='last_result'">
-                                and api_scenario.last_result in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='project_id'">
-                                and api_scenario.project_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='principal'">
-                                and api_scenario.principal in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='principal_name'">
-                                and api_scenario.principal in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='user_name'">
-                                and api_scenario.user_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='creator' or key=='creator_name'">
-                                and api_scenario.create_user in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-
-                            <when test="key=='version_id'">
-                                and api_scenario.version_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
+            <include refid="filter"/>
             <if test="request.filters == null || request.filters.size() == 0 ">
                 and (api_scenario.status is null or api_scenario.status != 'Trash')
             </if>
@@ -385,6 +317,78 @@
                 <property name="versionTable" value="api_scenario"/>
             </include>
         </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and api_scenario.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_id'">
+                            and api_scenario.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='level'">
+                            and api_scenario.level in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='last_result'">
+                            and api_scenario.last_result in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='project_id'">
+                            and api_scenario.project_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='principal'">
+                            and api_scenario.principal in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='principal_name'">
+                            and api_scenario.principal in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_name'">
+                            and api_scenario.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='creator' or key=='creator_name'">
+                            and api_scenario.create_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+
+                        <when test="key=='version_id'">
+                            and api_scenario.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
     </sql>
 
     <select id="selectByTagId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
@@ -439,17 +443,6 @@
             and scenario_definition like CONCAT('%', #{request.id},'%') and id != #{request.id}
         </where>
     </select>
-
-    <update id="removeToGc">
-        update api_scenario
-        set original_state=status,
-        status = 'Trash'
-        where id in
-        <foreach collection="ids" item="v" separator="," open="(" close=")">
-            #{v}
-        </foreach>
-    </update>
-
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
         update api_scenario
         set original_state=status,
@@ -458,7 +451,6 @@
             <include refid="Example_Where_Clause"/>
         </if>
     </update>
-
     <update id="reduction">
         update api_scenario
         set
@@ -494,12 +486,6 @@
         FROM api_scenario
         WHERE project_id = #{0}
           AND status != 'Trash' AND latest = 1
-    </select>
-    <select id="selectIdAndScenarioByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        SELECT id, scenario_definition
-        FROM api_scenario
-        WHERE project_id = #{0}
-          AND status != 'Trash'
     </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
@@ -829,6 +815,11 @@
         and status != 'Trash'
         and project_id = #{projectId}
     </select>
-
+    <select id="selectRelevanceIdsByQuery" resultType="java.lang.String">
+        select api_scenario.id
+        from api_scenario
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
 </mapper>
 
