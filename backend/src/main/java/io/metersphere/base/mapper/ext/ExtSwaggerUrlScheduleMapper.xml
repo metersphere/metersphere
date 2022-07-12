@@ -10,6 +10,7 @@
                sup.module_id,
                sup.project_id,
                sup.config,
+               sup.cover_module,
                sch.value as rule,
                sch.enable,
                sch.id    as taskId
