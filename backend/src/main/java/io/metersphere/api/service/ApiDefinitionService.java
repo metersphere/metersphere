@@ -549,12 +549,12 @@ public class ApiDefinitionService {
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
             boolean urlRepeat = config.getUrlRepeatable();
-            if (moduleIdNotExist) {
-                criteria.andModulePathEqualTo(request.getModulePath());
-            } else {
-                criteria.andModuleIdEqualTo(request.getModuleId());
-            }
             if (project != null && urlRepeat) {
+                if (moduleIdNotExist) {
+                    criteria.andModulePathEqualTo(request.getModulePath());
+                } else {
+                    criteria.andModuleIdEqualTo(request.getModuleId());
+                }
                 criteria.andNameEqualTo(request.getName());
                 if (apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_name_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName() + "-" + request.getPath());
