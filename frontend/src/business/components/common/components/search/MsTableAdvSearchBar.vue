@@ -172,7 +172,14 @@ export default {
       if (!this.isInit) {
         this.isInit = true;
         this.init();
+      } else {
+        this.refreshComponentOption();
       }
+    },
+    refreshComponentOption() {
+      // 当前已存在的搜索子组件中是否有需要进行刷新数据选项的
+      let comps = this.optional.components.filter(cp => cp.init && cp.init instanceof Function);
+      comps.forEach(comp => comp.init());
     },
     addFilter() {
       const index = _findIndexByKey(this.optional.components, this.nullFilterKey);

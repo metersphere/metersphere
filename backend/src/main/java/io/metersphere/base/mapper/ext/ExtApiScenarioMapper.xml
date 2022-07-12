@@ -162,6 +162,12 @@
                 <property name="object" value="${condition}.module"/>
             </include>
         </if>
+        <if test="${condition}.moduleIds != null">
+            and api_scenario.api_scenario_module_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.moduleIds"/>
+            </include>
+        </if>
         <if test="${condition}.stepCount != null">
             and api_scenario.step_total
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
