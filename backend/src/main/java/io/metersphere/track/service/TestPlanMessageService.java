@@ -52,6 +52,9 @@ public class TestPlanMessageService {
 
     @Async
     public void checkTestPlanStatusAndSendMessage(TestPlanReport report, TestPlanReportContentWithBLOBs testPlanReportContent, boolean sendMessage) {
+        if (report == null) {
+            return;
+        }
         if (testPlanReportContent != null) {
             report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
         }
