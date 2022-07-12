@@ -34,7 +34,6 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -238,7 +237,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()), httpConfig);
         }
 
-        if (this.authManager != null && StringUtils.equals(this.authManager.getVerification(), "Basic Auth")) {
+        if (this.authManager != null && MsAuthManager.mechanismMap.containsKey(this.authManager.getVerification())) {
             this.authManager.setAuth(httpSamplerTree, this.authManager, sampler);
         }
 
@@ -665,28 +664,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         list.stream().
                 filter(KeyValue::isValid).
                 filter(KeyValue::isEnable).forEach(keyValue -> {
-                            try {
-                                String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                                HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
-                                if (keyValue.getValue() == null) {
-                                    httpArgument.setValue("");
-                                }
-                                httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
-                                if (StringUtils.isNotBlank(keyValue.getContentType())) {
-                                    httpArgument.setContentType(keyValue.getContentType());
-                                }
-                                if (StringUtils.equalsIgnoreCase(this.method, "get")) {
-                                    if (StringUtils.isNotEmpty(httpArgument.getValue())) {
-                                        arguments.addArgument(httpArgument);
-                                    }
-                                } else {
-                                    arguments.addArgument(httpArgument);
-                                }
-                            } catch (Exception e) {
-
-                            }
+                    try {
+                        String value = StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
+                        HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), value);
+                        if (keyValue.getValue() == null) {
+                            httpArgument.setValue("");
                         }
-                );
+                        httpArgument.setAlwaysEncoded(keyValue.isUrlEncode());
+                        if (StringUtils.isNotBlank(keyValue.getContentType())) {
+                            httpArgument.setContentType(keyValue.getContentType());
+                        }
+                        if (StringUtils.equalsIgnoreCase(this.method, "get")) {
+                            if (StringUtils.isNotEmpty(httpArgument.getValue())) {
+                                arguments.addArgument(httpArgument);
+                            }
+                        } else {
+                            arguments.addArgument(httpArgument);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+        );
         return arguments;
     }
 
