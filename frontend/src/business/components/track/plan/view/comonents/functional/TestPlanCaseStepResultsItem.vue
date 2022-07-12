@@ -8,7 +8,7 @@
       :border="true"
       :default-sort="{prop: 'num', order: 'ascending'}"
       highlight-current-row>
-      <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"></el-table-column>
+      <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"/>
 
       <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
         <template v-slot:default="scope">
@@ -49,17 +49,15 @@
           <el-select
             :disabled="isReadOnly"
             v-model="scope.row.executeResult"
-            @change="stepResultChange()"
+            @change="stepResultChange(scope)"
             filterable
-            size="mini">
-            <el-option :label="$t('test_track.plan_view.pass')" value="Pass"
-                       style="color: #7ebf50;"></el-option>
-            <el-option :label="$t('test_track.plan_view.failure')" value="Failure"
-                       style="color: #e57471;"></el-option>
-            <el-option :label="$t('test_track.plan_view.blocking')" value="Blocking"
-                       style="color: #dda451;"></el-option>
-            <el-option :label="$t('test_track.plan_view.skip')" value="Skip"
-                       style="color: #919399;"></el-option>
+            size="mini"
+            :ref="'stepResultSelect' + scope.$index">
+            <el-option v-for="item in executeResultOption"
+                       :key="item.value"
+                       :style="{color: item.color}"
+                       :value="item.value"
+                       :label="item.label"/>
           </el-select>
         </template>
       </el-table-column>
@@ -75,18 +73,41 @@ export default {
   props: ['testCase', 'isReadOnly', 'labelWidth'],
   data() {
     return {
-      visible: true
+      visible: true,
+      executeResultOption: [
+        {
+          value: 'Pass',
+          label: this.$t('test_track.plan_view.pass'),
+          color: '#7ebf50'
+        },        {
+          value: 'Failure',
+          label: this.$t('test_track.plan_view.failure'),
+          color: '#e57471'
+        },        {
+          value: 'Blocking',
+          label: this.$t('test_track.plan_view.blocking'),
+          color: '#dda451'
+        },        {
+          value: 'Skip',
+          label: this.$t('test_track.plan_view.skip'),
+          color: '#919399'
+        },
+      ]
     }
   },
   watch: {
     'testCase.steptResults.length'() {
       this.$nextTick(() => {
         this.resizeTextarea();
+        for (let i = 0; i < this.testCase.steptResults.length; i++) {
+          let item = this.testCase.steptResults[i];
+          this.changeTextColor(item.executeResult, i);
+        }
       });
     }
   },
   methods: {
-    stepResultChange() {
+    stepResultChange(scope) {
       if (this.testCase.method === 'manual' || !this.testCase.method) {
         this.isFailure = this.testCase.steptResults.filter(s => {
           return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
@@ -94,10 +115,22 @@ export default {
       } else {
         this.isFailure = false;
       }
+
+      this.changeTextColor(scope.row.executeResult, scope.$index);
     },
     // 同一行文本框高度保持一致
     resizeTextarea(scope) {
       resizeTextarea(3, scope ? scope.$index : null);
+    },
+    changeTextColor(val, index) {
+      this.executeResultOption.forEach(item => {
+        if (item.value === val) {
+          let name = 'stepResultSelect' + index;
+          // 改变下拉框颜色值
+          this.$refs[name].$el.children[0].children[0].style.color = item.color;
+          return;
+        }
+      });
     }
   }
 }
