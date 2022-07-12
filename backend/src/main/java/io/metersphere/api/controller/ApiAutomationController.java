@@ -273,12 +273,6 @@ public class ApiAutomationController {
         return apiAutomationService.addScenarioToPlan(request);
     }
 
-    @PostMapping("/relevance")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiAutomationService.class)
-    public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
-        apiAutomationService.relevance(request);
-    }
-
     @PostMapping("/relevance/review")
     public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiAutomationService.relevanceReview(request);

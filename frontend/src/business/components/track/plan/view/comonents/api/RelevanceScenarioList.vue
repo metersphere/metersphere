@@ -32,7 +32,6 @@
               @order="search"
               @filter="filterSearch"
               :disable-header-config="true"
-              :show-select-all="false"
               @selectCountChange="selectCountChange">
 
       <el-table-column v-if="!customNum" prop="num" label="ID" sortable="custom"
@@ -150,7 +149,6 @@ export default {
       },
       currentScenario: {},
       schedule: {},
-      selectAll: false,
       tableData: [],
       currentPage: 1,
       pageSize: 10,
