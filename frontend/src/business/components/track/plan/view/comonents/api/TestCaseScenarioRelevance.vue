@@ -11,6 +11,7 @@
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
+        :show-case-num="false"
         :relevance-project-id="projectId"
         :is-read-only="true"
         ref="nodeTree"/>
