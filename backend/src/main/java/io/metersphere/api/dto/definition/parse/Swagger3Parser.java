@@ -477,14 +477,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (schema instanceof ObjectSchema) {
             item.setType("object");
             item.setProperties(parseSchemaProperties(schema, refSet));
-        } else if (schema instanceof StringSchema) {
-            item.setType("string");
-        } else if (schema instanceof IntegerSchema) {
-            item.setType("integer");
-        } else if (schema instanceof NumberSchema) {
-            item.setType("number");
-        } else if (schema instanceof BooleanSchema) {
-            item.setType("boolean");
         } else {
             return null;
         }
