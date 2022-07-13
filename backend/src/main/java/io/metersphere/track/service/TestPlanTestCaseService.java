@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.constants.TestCaseCommentType;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -26,6 +27,7 @@ import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
 import io.metersphere.track.request.testplancase.TestPlanFuncCaseConditions;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseEditRequest;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -144,10 +146,8 @@ public class TestPlanTestCaseService {
         return list;
     }
 
-    public void editTestCase(TestPlanTestCaseWithBLOBs testPlanTestCase) {
-        if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
-            testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
-        } else {
+    public void editTestCase(TestPlanFuncCaseEditRequest testPlanTestCase) {
+        if (!StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             //记录功能用例执行信息
             functionCaseExecutionInfoService.insertExecutionInfo(testPlanTestCase.getId(), testPlanTestCase.getStatus());
         }
@@ -156,6 +156,19 @@ public class TestPlanTestCaseService {
         testPlanTestCase.setRemark(null);
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
         testCaseService.updateLastExecuteStatus(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
+
+        saveComment(testPlanTestCase);
+    }
+
+    private void saveComment(TestPlanFuncCaseEditRequest testPlanTestCase) {
+        if (StringUtils.isNotEmpty(testPlanTestCase.getComment())) {
+            SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
+            saveCommentRequest.setCaseId(testPlanTestCase.getCaseId());
+            saveCommentRequest.setDescription(testPlanTestCase.getComment());
+            saveCommentRequest.setStatus(testPlanTestCase.getStatus());
+            saveCommentRequest.setType(TestCaseCommentType.PLAN.name());
+            testCaseCommentService.saveComment(saveCommentRequest);
+        }
     }
 
     public int deleteTestCase(String id) {
@@ -351,7 +364,7 @@ public class TestPlanTestCaseService {
 
                     SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
                     saveCommentRequest.setCaseId(testPlanTestCase.getCaseId());
-                    saveCommentRequest.setId(UUID.randomUUID().toString());
+                    saveCommentRequest.setType(TestCaseCommentType.PLAN.name());
                     saveCommentRequest.setDescription("关联的测试：[" + testName + "]" + tip);
                     testCaseCommentService.saveComment(saveCommentRequest);
                 });
@@ -458,7 +471,6 @@ public class TestPlanTestCaseService {
 
         TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Blocking.name());
         TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Skip.name());
-        TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Underway.name());
         functionResult.setCaseData(statusResult);
     }
 

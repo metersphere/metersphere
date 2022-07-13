@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.UUID;
 
 @RequestMapping("/test/case/comment")
 @RestController
@@ -31,13 +30,17 @@ public class TestCaseCommentController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.caseId)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.COMMENT, subject = "测试用例通知")
     public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
-        request.setId(UUID.randomUUID().toString());
         return testCaseCommentService.saveComment(request);
+    }
+
+    @GetMapping("/list/{caseId}/{type}")
+    public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId, @PathVariable String type) {
+        return testCaseCommentService.getCaseComments(caseId, type);
     }
 
     @GetMapping("/list/{caseId}")
     public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId) {
-        return testCaseCommentService.getCaseComments(caseId);
+        return testCaseCommentService.getCaseComments(caseId, null);
     }
 
     @GetMapping("/delete/{commentId}")

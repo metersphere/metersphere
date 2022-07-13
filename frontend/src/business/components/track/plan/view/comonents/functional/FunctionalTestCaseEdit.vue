@@ -34,11 +34,8 @@
                           :next-page-data="nextPageData"
                           :pre-page-data="prePageData"
                           @pre="handlePre"
-                          @next="saveCase(true, true)"
+                          @next="handleNext"
                           :list="testCases"/>
-                        <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
-                          {{$t('test_track.save')}} & {{$t('test_track.next')}}
-                        </el-button>
                       </el-col>
 
                     </el-row>
@@ -71,10 +68,9 @@
                           </el-form-item >
                         </el-col>
                         <el-col :span="10">
-                          <test-plan-test-case-status-button class="status-button"
-                                                             @statusChange="statusChange"
-                                                             :is-read-only="statusReadOnly"
-                                                             :status="testCase.status"/>
+                          <el-form-item :label="$t('test_track.plan.load_case.execution_status')" :label-width="formLabelWidth">
+                            <status-table-item :value="originalStatus"/>
+                          </el-form-item >
                         </el-col>
                       </el-row>
 
@@ -124,15 +120,15 @@
           </el-col>
           <el-col :span="7">
             <div class="comment-card">
-            <el-card>
-              <template slot="header">
-                <span style="font-size: 15px; color: #1E90FF">{{ $t('test_track.review.comment') }}</span>
-                <i class="el-icon-refresh" @click="getComments(testCase)"
-                   style="margin-left:10px;font-size: 14px; cursor: pointer"/>
-              </template>
-              <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
-                              @getComments="getComments"/>
-            </el-card>
+              <test-plan-functional-execute
+                :test-case="testCase"
+                :is-read-only="isReadOnly"
+                :origin-status="originalStatus"
+                @saveCase="saveCase()"/>
+              <review-comment
+                default-type="PLAN"
+                :case-id="testCase.caseId"
+                ref="comment"/>
             </div>
           </el-col>
       </el-row>
@@ -163,10 +159,15 @@ import StepChangeItem from "@/business/components/track/case/components/StepChan
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
 import TestPlanCaseStepResultsItem
   from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
+import TestPlanFunctionalExecute
+  from "@/business/components/track/plan/view/comonents/functional/TestPlanFunctionalExecute";
+import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 
 export default {
   name: "FunctionalTestCaseEdit",
   components: {
+    StatusTableItem,
+    TestPlanFunctionalExecute,
     TestPlanCaseStepResultsItem,
     TestCaseStepItem,
     StepChangeItem,
@@ -192,10 +193,6 @@ export default {
       testCase: {},
       index: 0,
       editor: ClassicEditor,
-      editorConfig: {
-        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
-      },
-      readConfig: {toolbar: []},
       test: {},
       activeTab: 'detail',
       users: [],
@@ -208,12 +205,12 @@ export default {
       tableData: [],
       comments: [],
       testCaseTemplate: {},
-      formLabelWidth: "100px",
+      formLabelWidth: '100px',
       isCustomFiledActive: false,
       otherInfoActive: true,
       isReadOnly: false,
       testCases: [],
-      originalStatus: ""
+      originalStatus: ''
     };
   },
   props: {
@@ -238,25 +235,11 @@ export default {
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
     },
-    statusReadOnly() {
-      return !hasPermission('PROJECT_TRACK_PLAN:READ+RUN');
-    },
     pageTotal() {
       return Math.ceil(this.total / this.pageSize);
     }
   },
   methods: {
-    getComments(testCase) {
-      let id = '';
-      if (testCase) {
-        id = testCase.caseId;
-      } else {
-        id = this.testCase.caseId;
-      }
-      this.result = this.$get('/test/case/comment/list/' + id, res => {
-        this.comments = res.data;
-      })
-    },
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.showDialog = false;
@@ -266,11 +249,6 @@ export default {
     cancel() {
       this.handleClose();
       this.$emit('refreshTable');
-    },
-    statusChange(status) {
-      this.originalStatus = this.testCase.status;
-      this.testCase.status = status;
-      this.saveCase(true);
     },
     getOption(param) {
       let formData = new FormData();
@@ -307,7 +285,7 @@ export default {
         }
       };
     },
-    saveCase(next, noTip) {
+    saveCase() {
       let param = {};
       param.id = this.testCase.id;
       param.caseId = this.testCase.caseId;
@@ -318,6 +296,7 @@ export default {
       param.nodeId = this.testCase.nodeId;
       param.demandId = this.testCase.demandId;
       param.name = this.testCase.name;
+      param.comment = this.testCase.comment;
       let option = this.getOption(param);
       for (let i = 0; i < this.testCase.steptResults.length; i++) {
         let result = {};
@@ -341,18 +320,17 @@ export default {
         this.$request(option, (response) => {
 
         });
-        if (!noTip) {
-          if (!this.isLastData()) {
-            this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
-          } else {
-            this.$success(this.$t('commons.save_success'));
-          }
-        }
+
+        this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
-        if (next) {
-          this.handleNext();
+
+        if (this.testCase.comment) {
+          this.$refs.comment.getComments();
+          this.testCase.comment = '';
         }
+
+        this.originalStatus = this.testCase.status;
       });
     },
     updateTestCases(param) {
@@ -437,13 +415,13 @@ export default {
           }
         }
         this.testCase = item;
+        this.originalStatus = this.testCase.status;
         parseCustomField(this.testCase, this.testCaseTemplate, null, buildTestCaseOldFields(this.testCase));
         this.isCustomFiledActive = true;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
-        this.getComments(item);
       });
     },
     openTestCaseEdit(testCase, tableData) {
@@ -452,6 +430,7 @@ export default {
       this.hasTapdId = false;
       this.hasZentaoId = false;
       this.isReadOnly = !hasPermission('PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL');
+      this.originalStatus = testCase.status;
 
       if (tableData) {
         this.testCases = tableData;
@@ -537,11 +516,6 @@ export default {
   color: dimgray;
 }
 
-.status-button {
-  padding-left: 4%;
-  padding-right: 4%;
-}
-
 .head-right {
   text-align: right;
 }
@@ -552,10 +526,6 @@ export default {
 
 .issues-edit >>> p {
   line-height: 16px;
-}
-
-.status-button {
-  float: right;
 }
 
 .el-scrollbar {
@@ -606,11 +576,6 @@ p {
   height: 550px;
   overflow: auto;
 }
-
-.save-btn {
-  margin-left: 10px;
-}
-
 
 .el-divider__text {
   line-height: normal;

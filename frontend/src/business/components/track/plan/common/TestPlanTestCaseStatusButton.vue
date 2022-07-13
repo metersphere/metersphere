@@ -1,27 +1,15 @@
 <template>
   <el-row type="flex" justify="start" :gutter="20" class="status-button">
-    <el-col>
-      <el-button :disabled="isReadOnly" type="success" round size="mini"
-                 :icon="status == 'Pass' ? 'el-icon-check' : ''"
-                 @click="setStatus('Pass')"> {{$t('test_track.plan_view.pass')}}
-      </el-button>
-    </el-col>
-    <el-col>
-      <el-button :disabled="isReadOnly" type="danger" round size="mini"
-                 :icon="status == 'Failure' ? 'el-icon-check' : ''"
-                 @click="setStatus('Failure')"> {{$t('test_track.plan_view.failure')}}
-      </el-button>
-    </el-col>
-    <el-col>
-      <el-button :disabled="isReadOnly" type="warning" round size="mini"
-                 :icon="status == 'Blocking' ? 'el-icon-check' : ''"
-                 @click="setStatus('Blocking')"> {{$t('test_track.plan_view.blocking')}}
-      </el-button>
-    </el-col>
-    <el-col>
-      <el-button :disabled="isReadOnly" type="info" round size="mini"
-                 :icon="status == 'Skip' ? 'el-icon-check' : ''"
-                 @click="setStatus('Skip')"> {{$t('test_track.plan_view.skip')}}
+    <el-col v-for="item in statusButtons"
+            :key="item.value">
+      <el-button
+        size="mini"
+        :disabled="isReadOnly"
+        :type="item.type"
+        :icon="status == item.value ? 'el-icon-check' : ''"
+        :style="item.style"
+        @click="setStatus(item.value)">
+        {{item.label}}
       </el-button>
     </el-col>
   </el-row>
@@ -37,6 +25,38 @@
       isReadOnly: {
         type: Boolean,
         default: false
+      }
+    },
+    data() {
+      return {
+        statusButtons: [
+          {
+            type: 'success',
+            value: 'Pass',
+            label: this.$t('test_track.plan_view.pass')
+          },
+          {
+            type: 'danger',
+            value: 'Failure',
+            label: this.$t('test_track.plan_view.failure')
+          },
+          {
+            type: 'warning',
+            value: 'Blocking',
+            label: this.$t('test_track.plan_view.blocking')
+          },
+          {
+            type: 'info',
+            value: 'Skip',
+            label: this.$t('test_track.plan_view.skip')
+          },
+          {
+            type: 'info',
+            value: 'Prepare',
+            label: this.$t('test_track.plan.plan_status_prepare'),
+            style: "background-color: #D7D7D7; border-color: #D7D7D7"
+          },
+        ]
       }
     },
     methods: {

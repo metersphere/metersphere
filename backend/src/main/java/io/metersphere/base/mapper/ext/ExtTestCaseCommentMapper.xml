@@ -6,9 +6,10 @@
             parameterType="java.lang.String">
         select *, user.name as authorName from test_case_comment, user
         where test_case_comment.author = user.id and case_id = #{caseId}
+        <if test="type != null and type != ''">
+            and test_case_comment.type = #{type}
+        </if>
         order by test_case_comment.update_time desc
     </select>
-
-
 
 </mapper>

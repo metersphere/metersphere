@@ -11,12 +11,7 @@
         {{ comment.createTime | timestampFormatDate }}
       </span>
       <span>
-        <el-button v-if="comment.status === 'UnPass'" type="danger" size="mini" round>
-         {{ $t('test_track.review.un_pass') }}
-         </el-button>
-         <el-button v-if="comment.status === 'Pass'" type="success" size="mini">
-                        {{ $t('test_track.review.pass') }}
-         </el-button>
+         <status-table-item v-if="comment.status" :value="comment.status"/>
       </span>
       <span class="comment-delete">
         <el-link icon="el-icon-edit" style="font-size: 9px;margin-right: 6px;" @click="openEdit" :disabled="readOnly"/>
@@ -66,17 +61,17 @@
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {getCurrentUser} from "@/common/js/utils";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
+import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 
 export default {
   name: "ReviewCommentItem",
-  components: {MsDialogFooter, MsMarkDownText},
+  components: {StatusTableItem, MsDialogFooter, MsMarkDownText},
   props: {
     comment: Object,
     readOnly: {
       type: Boolean,
       default: false
     },
-    reviewStatus: String,
     apiUrl: String
   },
   data() {
