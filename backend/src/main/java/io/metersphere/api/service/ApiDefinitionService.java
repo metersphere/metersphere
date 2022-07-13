@@ -1651,6 +1651,28 @@ public class ApiDefinitionService {
         ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        if (request != null && (request.getIds() != null || !request.getIds().isEmpty())) {
+            request.getIds().forEach(apiId -> {
+                ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
+                if (api == null) {
+                    return;
+                }
+                //检查是否同名
+                SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
+                apiDefinitionRequest.setProjectId(api.getProjectId());
+                apiDefinitionRequest.setMethod(api.getMethod());
+                apiDefinitionRequest.setProtocol(api.getProtocol());
+                apiDefinitionRequest.setPath(api.getPath());
+                apiDefinitionRequest.setName(api.getName());
+                apiDefinitionRequest.setId(api.getId());
+                apiDefinitionRequest.setModuleId(request.getModuleId());
+                apiDefinitionRequest.setModulePath(request.getModulePath());
+                apiDefinitionRequest.setVersionId(api.getVersionId());
+                checkNameExist(apiDefinitionRequest, false);
+            });
+        }
         apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
     }
 
