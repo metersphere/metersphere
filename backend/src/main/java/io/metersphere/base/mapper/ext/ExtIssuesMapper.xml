@@ -139,7 +139,33 @@
         from custom_field_issues cfi
                  join custom_field_template cft on cfi.field_id = cft.field_id
                  join custom_field cf on cf.id = cft.field_id
-        where cfi.resource_id = #{id}
+                 join project on project.id = cf.project_id and project.issue_template_id = cft.template_id
+        where cfi.resource_id = #{issueId}
+    </select>
+    <select id="getPlatformIssueByIds" resultType="io.metersphere.base.domain.IssuesDao">
+        select * from issues where platform_id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
+    <select id="getIssueCustomFields" resultType="io.metersphere.base.domain.IssuesDao">
+        select cfi.field_id           as fieldId,
+               cf.type fieldType,
+               cft.custom_data,
+               cf.name as fieldName,
+               cfi.resource_id as id,
+               case cf.type
+                   when 'richText' then cfi.text_value
+                   when 'textarea' then cfi.text_value
+                   else cfi.value end as fieldValue
+        from custom_field_issues cfi
+                 join custom_field_template cft on cfi.field_id = cft.field_id
+                 join custom_field cf on cf.id = cft.field_id
+                 join project on project.id = cf.project_id and project.issue_template_id = cft.template_id
+        where cfi.resource_id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
     </select>
 
     <sql id="queryWhereCondition">

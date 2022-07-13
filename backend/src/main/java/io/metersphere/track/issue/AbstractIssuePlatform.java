@@ -528,6 +528,27 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         }
     }
 
+    // 缺陷对象带有自定义字段数据
+    protected void mergeIfIssueWithCustomField(IssuesWithBLOBs issue, String defaultCustomField) {
+        if (StringUtils.isBlank(defaultCustomFields)) {
+            return;
+        }
+        JSONArray fields = JSONArray.parseArray(issue.getCustomFields());
+        Set<String> ids = fields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
+        JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
+        defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
+            String id = ((JSONObject) item).getString("id");
+            if (StringUtils.isBlank(id)) {
+                id = ((JSONObject) item).getString("key");
+                ((JSONObject) item).put("id", id);
+            }
+            if (!ids.contains(id)) {
+                fields.add(item);
+            }
+        });
+        issue.setCustomFields(fields.toJSONString());
+    }
+
     public <T> T getConfig(String platform, Class<T> clazz) {
         String config = getPlatformConfig(platform);
         if (StringUtils.isBlank(config)) {
