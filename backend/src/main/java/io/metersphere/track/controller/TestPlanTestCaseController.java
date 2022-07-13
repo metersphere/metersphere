@@ -13,6 +13,7 @@ import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseEditRequest;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,7 +107,7 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/edit")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
-    public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase) {
+    public void editTestCase(@RequestBody TestPlanFuncCaseEditRequest testPlanTestCase) {
         testPlanTestCaseService.editTestCase(testPlanTestCase);
     }
 

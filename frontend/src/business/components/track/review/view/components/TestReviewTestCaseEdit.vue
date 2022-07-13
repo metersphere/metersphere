@@ -11,8 +11,8 @@
 
     <template v-slot:default="scope">
       <el-row :gutter="10">
-        <div class="container">
-          <el-col :span="17">
+        <el-col :span="17">
+          <div class="container">
             <el-card>
               <el-scrollbar>
 
@@ -40,20 +40,6 @@
                         :list="testCases"
                         @pre="handlePre"
                         @next="handleNext"/>
-
-                      <el-divider direction="vertical"></el-divider>
-
-                      <el-button type="success" size="mini"
-                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''"
-                                 @click="saveCase('Pass')">
-                        {{ $t('test_track.review.pass') }}
-                      </el-button>
-                      <el-button type="danger" size="mini"
-                                 :disabled="isReadOnly"
-                                 :icon="testCase.reviewStatus === 'UnPass' ? 'el-icon-check' : ''"
-                                 @click="saveCase('UnPass')">
-                        {{ $t('test_track.review.un_pass') }}
-                      </el-button>
                     </el-col>
 
                   </el-row>
@@ -62,9 +48,9 @@
                     <el-col>
                       <el-divider content-position="left">
                         <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">
-                          <span class="title-link" :title="testCase.name">
-                            {{ testCase.num }}-{{ testCase.name }}
-                          </span>
+                        <span class="title-link" :title="testCase.name">
+                          {{ testCase.num }}-{{ testCase.name }}
+                        </span>
                         </el-button>
                       </el-divider>
                     </el-col>
@@ -87,6 +73,11 @@
                                       :label-width="formLabelWidth">
                           {{ testCase.projectName }}
                         </el-form-item>
+                      </el-col>
+                      <el-col :span="10">
+                        <el-form-item :label="$t('评审状态')" :label-width="formLabelWidth">
+                          <status-table-item :value="oldReviewStatus"/>
+                        </el-form-item >
                       </el-col>
                     </el-row>
 
@@ -130,21 +121,23 @@
 
               </el-scrollbar>
             </el-card>
+          </div>
+        </el-col>
+        <el-col :span="7">
+            <div class="comment-card">
+              <test-review-test-case-execute
+                :test-case="testCase"
+                :is-read-only="isReadOnly"
+                :origin-status="oldReviewStatus"
+                @saveCase="saveCase()"/>
+
+              <review-comment
+                default-type="REVIEW"
+                :case-id="testCase.caseId"
+                @saveCaseReview="saveCaseReview"
+                ref="comment"/>
+            </div>
           </el-col>
-          <el-col :span="7">
-            <el-card class="comment-card">
-              <template slot="header">
-                <span style="font-size: 15px; color: #1E90FF">{{ $t('test_track.review.comment') }}</span>
-                <i class="el-icon-refresh" @click="getComments(testCase)"
-                   style="margin-left:10px;font-size: 14px; cursor: pointer"/>
-              </template>
-              <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
-                              :oldReviewStatus="oldReviewStatus"
-                              @getComments="getComments" :review-status="testCase.reviewStatus" ref="reviewComment"
-                              @saveCaseReview="saveCaseReview"/>
-            </el-card>
-          </el-col>
-        </div>
       </el-row>
 
     </template>
@@ -173,10 +166,14 @@ import CustomFiledComponent from "@/business/components/project/template/CustomF
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
 import MsPreviousNextButton from "@/business/components/common/components/MsPreviousNextButton";
+import TestReviewTestCaseExecute from "@/business/components/track/review/components/TestReviewTestCaseExecute";
+import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 
 export default {
   name: "TestReviewTestCaseEdit",
   components: {
+    StatusTableItem,
+    TestReviewTestCaseExecute,
     MsPreviousNextButton,
     TestCaseStepItem,
     StepChangeItem,
@@ -218,7 +215,7 @@ export default {
       hasZentaoId: false,
       formLabelWidth: '100px',
       isCustomFiledActive: false,
-      oldReviewStatus: 'Prepare'
+      oldReviewStatus: ''
     };
   },
   props: {
@@ -289,49 +286,27 @@ export default {
       this.handleClose();
       this.$emit('refreshTable');
     },
-    saveCase(status) {
+    saveCase() {
       let param = {};
       param.id = this.testCase.id;
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
-      param.status = status;
-      if (status === 'UnPass') {
-        this.testCase.reviewStatus = 'UnPass';
-        // 第一种情况，第一次评审，用户直接点击未通过，需要提醒未评论
-        if (this.oldReviewStatus === 'Prepare' && this.comments.length < 1) {
-          this.$refs.reviewComment.inputLight();
-          this.$warning(this.$t('test_track.comment.description_is_null'));
-        } else if (this.$refs.reviewComment.form.description.length > 0) {
-          // 第二种情况，当前状态为未通过，但是评论区内还有内容未提交
-          this.$refs.reviewComment.inputLight();
-          this.$warning(this.$t('test_track.comment.submit_description'));
-        } else if (this.oldReviewStatus === 'Pass') {
-          // 第三种情况，从通过状态切换未通过状态，需要重新提交新的评论，才能切换
-          this.$refs.reviewComment.inputLight();
-          this.$warning(this.$t('test_track.comment.description_is_null'));
-        } else {
-          // 第四种情况，未通过状态直接点击未通过
-          this._saveCase(param, status);
-        }
-      } else {
-        this._saveCase(param, status);
-      }
-    },
-    _saveCase(param, status) {
+      param.comment = this.testCase.comment;
+      param.status = this.testCase.reviewStatus;
       this.$post('/test/review/case/edit', param, () => {
-        if (!this.isLastData()) {
-          this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
-        } else {
-          this.$success(this.$t('commons.save_success'));
-        }
+        this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setReviewStatus(this.testCase.reviewId);
-        this.testCase.reviewStatus = status;
+
         // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = status;
-        this.handleNext();
+        this.testCases[this.index].reviewStatus = this.testCase.reviewStatus;
         // 切换状态后需要修改旧的状态
-        this.oldReviewStatus = status;
+        this.oldReviewStatus = this.testCase.reviewStatus;
+
+        if (this.testCase.comment) {
+          this.$refs.comment.getComments();
+          this.testCase.comment = '';
+        }
       });
     },
     saveCaseReview() {
@@ -411,8 +386,6 @@ export default {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
-        this.getComments(item);
-        this.$refs.reviewComment.resetInputLight();
       })
 
     },
@@ -434,7 +407,6 @@ export default {
       // 一开始加载时候需要保存用例评审旧的状态
       this.oldReviewStatus = testCase.reviewStatus;
       this.activeTab = 'detail';
-      this.getComments(testCase);
       this.hasTapdId = false;
       this.hasZentaoId = false;
       listenGoBack(this.handleClose);
@@ -456,22 +428,6 @@ export default {
           this.testCaseTemplate = template;
           initFuc(testCase.id);
         });
-    },
-
-    getComments(testCase) {
-      let id = '';
-      if (testCase) {
-        id = testCase.caseId;
-      } else {
-        id = this.testCase.caseId;
-      }
-      this.result = this.$get('/test/case/comment/list/' + id, res => {
-        if (res.data) {
-          this.comments = null;
-          this.comments = res.data;
-        }
-
-      })
     },
     openTestTestCase(item) {
       let testCaseData = this.$router.resolve(
@@ -520,10 +476,6 @@ export default {
   color: dimgray;
 }
 
-.status-button {
-  padding-left: 4%;
-}
-
 .head-right {
   text-align: right;
   margin-top: 30px;
@@ -535,14 +487,6 @@ export default {
 
 .issues-edit >>> p {
   line-height: 16px;
-}
-
-.status-button {
-  float: right;
-}
-
-.head-right-tip {
-  color: darkgrey;
 }
 
 .el-scrollbar {
@@ -569,12 +513,14 @@ export default {
   height: calc(100vh - 50px);
 }
 
-.comment-card >>> .el-card__header {
-  padding: 0 20px;
+.comment-card {
+  padding-left: 0;
+  padding-right: 15px;
+  padding-top: 15px;
 }
 
-.comment-card >>> .el-card__body {
-  height: calc(100vh - 100px);
+.comment-card >>> .el-card__header {
+  padding: 0 20px;
 }
 
 .tb-edit >>> .el-textarea__inner {
@@ -596,15 +542,6 @@ export default {
   overflow: hidden;
   word-break: break-all;
   margin-right: 5px;
-}
-
-.step-info {
-  padding-left: 40px;
-  padding-right: 15px;
-}
-
-.el-divider__text {
-  line-height: normal;
 }
 
 /deep/ .el-drawer__body {

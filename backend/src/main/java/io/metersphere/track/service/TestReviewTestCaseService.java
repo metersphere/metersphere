@@ -20,6 +20,7 @@ import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
+import io.metersphere.track.request.testreview.TestCaseReviewTestCaseEditRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,8 @@ public class TestReviewTestCaseService {
     TestCaseService testCaseService;
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+    @Resource
+    TestCaseCommentService testCaseCommentService;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -149,7 +152,7 @@ public class TestReviewTestCaseService {
         testCaseReviewTestCaseMapper.deleteByExample(example);
     }
 
-    public void editTestCase(TestCaseReviewTestCase testCaseReviewTestCase) {
+    public void editTestCase(TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
         checkReviewCase(testCaseReviewTestCase.getReviewId());
 
         // 记录测试用例评审状态变更
@@ -160,6 +163,11 @@ public class TestReviewTestCaseService {
 
         // 修改用例评审状态
         testCaseService.updateReviewStatus(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getStatus());
+
+        if (StringUtils.isNotEmpty(testCaseReviewTestCase.getComment())) {
+            // 走Spring的代理对象，防止发送通知操作记录等操作失效
+            testCaseCommentService.saveComment(testCaseReviewTestCase);
+        }
     }
 
     public TestReviewCaseDTO get(String reviewId) {

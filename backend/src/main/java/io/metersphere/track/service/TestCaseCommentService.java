@@ -6,16 +6,21 @@ import io.metersphere.base.mapper.TestCaseCommentMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseCommentMapper;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReviewReference;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
+import io.metersphere.track.request.testreview.TestCaseReviewTestCaseEditRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +28,7 @@ import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,20 +43,41 @@ public class TestCaseCommentService {
     private UserMapper userMapper;
 
     public TestCaseComment saveComment(SaveCommentRequest request) {
-        TestCaseComment testCaseComment = new TestCaseComment();
-        testCaseComment.setId(request.getId());
-        testCaseComment.setAuthor(SessionUtils.getUser().getId());
-        testCaseComment.setCaseId(request.getCaseId());
-        testCaseComment.setCreateTime(System.currentTimeMillis());
-        testCaseComment.setUpdateTime(System.currentTimeMillis());
-        testCaseComment.setDescription(request.getDescription());
-        testCaseComment.setStatus(request.getStatus());
-        testCaseCommentMapper.insert(testCaseComment);
-        return testCaseComment;
+        request.setId(UUID.randomUUID().toString());
+        request.setAuthor(SessionUtils.getUser().getId());
+        request.setCreateTime(System.currentTimeMillis());
+        request.setUpdateTime(System.currentTimeMillis());
+        if (StringUtils.isBlank(request.getType())) {
+            request.setType(TestCaseCommentType.CASE.name());
+        }
+        testCaseCommentMapper.insert(request);
+        return request;
+    }
+
+    /**
+     * 放 TestReviewTestCaseService 通知等会失效
+     * 需要走 Spring 的代理对象
+     * @param request
+     */
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#request.reviewId)", targetClass = TestCaseReviewService.class,
+            event = NoticeConstants.Event.COMMENT, subject = "测试评审通知")
+    public void saveComment(TestCaseReviewTestCaseEditRequest request) {
+        SaveCommentRequest saveCommentRequest = new SaveCommentRequest();
+        saveCommentRequest.setCaseId(request.getCaseId());
+        saveCommentRequest.setDescription(request.getComment());
+        saveCommentRequest.setStatus(request.getStatus());
+        saveCommentRequest.setType(TestCaseCommentType.REVIEW.name());
+        saveComment(saveCommentRequest);
+    }
+
+    public List<TestCaseCommentDTO> getCaseComments(String caseId, String type) {
+        return extTestCaseCommentMapper.getCaseComments(caseId, type);
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId) {
-        return extTestCaseCommentMapper.getCaseComments(caseId);
+        return this.getCaseComments(caseId, null);
     }
 
     public void deleteCaseComment(String caseId) {

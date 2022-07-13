@@ -1,6 +1,6 @@
 <template>
     <span>
-      <ms-tag v-if="value == 'Prepare'" type="info" :content="$t('test_track.plan.plan_status_prepare')"/>
+      <ms-tag v-if="value == 'Prepare'" type="info" :content="$t('test_track.plan.plan_status_prepare')" style="background-color: #D7D7D7; border-color: #D7D7D7"/>
       <ms-tag v-else-if="value == 'Underway'" type="primary" :content="$t('test_track.plan.plan_status_running')"/>
       <ms-tag v-else-if="value == 'Pass'" type="success" :content="$t('test_track.plan_view.pass')"/>
       <ms-tag v-else-if="value == 'UnPass'" type="danger" :content="$t('test_track.plan_view.not_pass')"/>

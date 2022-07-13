@@ -13,6 +13,7 @@ import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
+import io.metersphere.track.request.testreview.TestCaseReviewTestCaseEditRequest;
 import io.metersphere.track.service.TestReviewTestCaseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,7 +70,7 @@ public class TestReviewTestCaseController {
 
     @PostMapping("/edit")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.REVIEW, content = "#msClass.getLogDetails(#testCaseReviewTestCase)", msClass = TestReviewTestCaseService.class)
-    public void editTestCase(@RequestBody TestCaseReviewTestCase testCaseReviewTestCase) {
+    public void editTestCase(@RequestBody TestCaseReviewTestCaseEditRequest testCaseReviewTestCase) {
         testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
 

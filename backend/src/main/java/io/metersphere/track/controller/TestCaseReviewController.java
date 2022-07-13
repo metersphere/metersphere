@@ -3,7 +3,6 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCaseComment;
 import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -152,15 +151,4 @@ public class TestCaseReviewController {
     public void editTestFollows(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         testCaseReviewService.editCaseRevieweFollow(testCaseReview);
     }
-
-    @PostMapping("/comment/save")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#request.reviewId)", targetClass = TestCaseReviewService.class,
-            event = NoticeConstants.Event.COMMENT, subject = "测试评审通知")
-    public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
-        request.setId(UUID.randomUUID().toString());
-        return testCaseCommentService.saveComment(request);
-    }
-
 }
