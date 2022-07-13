@@ -705,7 +705,7 @@
             JOIN project_version
             ON tmp.project_id = project_version.project_id AND
             tmp.version_id = project_version.id AND project_version.latest = TRUE
-            WHERE ref_id = #{refId,jdbcType=VARCHAR}
+            WHERE ref_id = #{refId,jdbcType=VARCHAR} and tmp.status != 'Trash'
             LIMIT 1
             )
             UNION ALL
