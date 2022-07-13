@@ -19,7 +19,8 @@
                      type="body"
                      v-if="body.isKV()"/>
     <div class="body-raw" v-if="body.type == 'Raw'">
-      <ms-code-edit v-if="isCodeEditAlive" :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
+      <ms-code-edit v-if="isCodeEditAlive" :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw"
+                    :modes="modes" ref="codeEdit"/>
     </div>
 
   </div>
@@ -72,11 +73,13 @@ export default {
     if (!this.body.format) {
       this.body.format = BODY_FORMAT.TEXT;
     }
-    this.body.kvs.forEach(param => {
-      if (!param.type) {
-        param.type = 'text';
-      }
-    });
+    if (this.body.kvs) {
+      this.body.kvs.forEach(param => {
+        if (!param.type) {
+          param.type = 'text';
+        }
+      });
+    }
   }
 }
 </script>

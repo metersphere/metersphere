@@ -71,203 +71,209 @@
 </template>
 
 <script>
-  import {KeyValue} from "../model/ApiTestModel";
-  import Vue from 'vue';
-  import MsApiVariableAdvance from "./ApiVariableAdvance";
-  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
+import {KeyValue} from "../model/ApiTestModel";
+import Vue from 'vue';
+import MsApiVariableAdvance from "./ApiVariableAdvance";
+import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
 
-  export default {
-    name: "MsApiKeyValue",
-    components: {MsApiVariableAdvance},
-    props: {
-      keyPlaceholder: String,
-      valuePlaceholder: String,
-      isShowEnable: {
-        type: Boolean,
-      },
-      unShowSelect: {
-        type: Boolean,
-        default: false
-      },
-      description: String,
-      items: Array,
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      suggestions: Array,
-      needMock: {
-        type: Boolean,
-        default: false
-      },
-      showDesc: Boolean,
-      appendToBody: {
-        type: Boolean,
-        default() {
-          return false;
-        }
-      },
-      scenarioDefinition: Array
+export default {
+  name: "MsApiKeyValue",
+  components: {MsApiVariableAdvance},
+  props: {
+    keyPlaceholder: String,
+    valuePlaceholder: String,
+    isShowEnable: {
+      type: Boolean,
     },
-    data() {
-      return {
-        keyValues: [],
-        loading: false,
-        currentItem: {},
-        isSelectAll: true
+    unShowSelect: {
+      type: Boolean,
+      default: false
+    },
+    description: String,
+    items: {
+      type: Array,
+      default() {
+        return [];
       }
     },
-    computed: {
-      keyText() {
-        return this.keyPlaceholder || this.$t("api_test.key");
-      },
-      valueText() {
-        return this.valuePlaceholder || this.$t("api_test.value");
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    suggestions: Array,
+    needMock: {
+      type: Boolean,
+      default: false
+    },
+    showDesc: Boolean,
+    appendToBody: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
-    watch: {
-      isSelectAll: function (to, from) {
-        if (from == false && to == true) {
-          this.selectAll();
-        } else if (from == true && to == false) {
-          this.invertSelect();
-        }
+    scenarioDefinition: Array
+  },
+  data() {
+    return {
+      keyValues: [],
+      loading: false,
+      currentItem: {},
+      isSelectAll: true
+    }
+  },
+  computed: {
+    keyText() {
+      return this.keyPlaceholder || this.$t("api_test.key");
+    },
+    valueText() {
+      return this.valuePlaceholder || this.$t("api_test.value");
+    }
+  },
+  watch: {
+    isSelectAll: function (to, from) {
+      if (from == false && to == true) {
+        this.selectAll();
+      } else if (from == true && to == false) {
+        this.invertSelect();
+      }
+    }
+  },
+  methods: {
+    advanced(item) {
+      this.currentItem = item;
+      // 冒泡到父组件，调用父组件的参数设置打开方法
+      if (this.scenarioDefinition != undefined) {
+        this.$emit('editScenarioAdvance', this.currentItem);
+      } else {
+        this.$refs.variableAdvance.open();
       }
     },
-    methods: {
-      advanced(item) {
-        this.currentItem = item;
-        // 冒泡到父组件，调用父组件的参数设置打开方法
-        if (this.scenarioDefinition != undefined) {
-          this.$emit('editScenarioAdvance', this.currentItem);
-        } else {
-          this.$refs.variableAdvance.open();
-        }
-      },
-      funcFilter(queryString) {
-        return (func) => {
-          return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
-        };
-      },
-      funcSearch(queryString, cb) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
-        // 调用 callback 返回建议列表的数据
-        cb(results);
-      },
-      moveBottom(index) {
-        if (this.items.length < 2 || index === this.items.length - 2) {
-          return;
-        }
-        this.change();
-        let thisRow = this.items[index];
-        let nextRow = this.items[index + 1];
-        Vue.set(this.items, index + 1, thisRow);
-        Vue.set(this.items, index, nextRow)
-      },
-      moveTop(index) {
-        if (index === 0) {
-          return;
-        }
-        this.change();
-        let thisRow = this.items[index];
-        let lastRow = this.items[index - 1];
-        Vue.set(this.items, index - 1, thisRow);
-        Vue.set(this.items, index, lastRow)
-      },
-      reload() {
-        this.loading = true
-        this.$nextTick(() => {
-          this.loading = false
-        })
-      },
-      remove: function (index) {
-        // 移除整行输入控件及内容
-        this.items.splice(index, 1);
-        this.$emit('change', this.items);
-      },
-      change: function () {
-        let isNeedCreate = true;
-        let removeIndex = -1;
-        this.items.forEach((item, index) => {
-          if (!item.name && !item.value) {
-            // 多余的空行
-            if (index !== this.items.length - 1) {
-              removeIndex = index;
-            }
-            // 没有空行，需要创建空行
-            isNeedCreate = false;
+    funcFilter(queryString) {
+      return (func) => {
+        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+      };
+    },
+    funcSearch(queryString, cb) {
+      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    moveBottom(index) {
+      if (this.items.length < 2 || index === this.items.length - 2) {
+        return;
+      }
+      this.change();
+      let thisRow = this.items[index];
+      let nextRow = this.items[index + 1];
+      Vue.set(this.items, index + 1, thisRow);
+      Vue.set(this.items, index, nextRow)
+    },
+    moveTop(index) {
+      if (index === 0) {
+        return;
+      }
+      this.change();
+      let thisRow = this.items[index];
+      let lastRow = this.items[index - 1];
+      Vue.set(this.items, index - 1, thisRow);
+      Vue.set(this.items, index, lastRow)
+    },
+    reload() {
+      this.loading = true
+      this.$nextTick(() => {
+        this.loading = false
+      })
+    },
+    remove: function (index) {
+      // 移除整行输入控件及内容
+      this.items.splice(index, 1);
+      this.$emit('change', this.items);
+    },
+    change: function () {
+      let isNeedCreate = true;
+      let removeIndex = -1;
+      this.items.forEach((item, index) => {
+        if (!item.name && !item.value) {
+          // 多余的空行
+          if (index !== this.items.length - 1) {
+            removeIndex = index;
           }
-        });
-        if (isNeedCreate) {
-          this.items.push(new KeyValue({enable: true}));
+          // 没有空行，需要创建空行
+          isNeedCreate = false;
         }
-        this.$emit('change', this.items);
-        // TODO 检查key重复
-      },
-      isDisable: function (index) {
-        return this.items.length - 1 === index;
-      },
-      querySearch(queryString, cb) {
-        let suggestions = this.suggestions;
-        let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
-        cb(results);
-      },
-      createFilter(queryString) {
-        return (restaurant) => {
-          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-        };
-      },
-      selectAll() {
-        this.items.forEach(item => {
-          item.enable = true;
-        });
-      },
-      invertSelect() {
-        this.items.forEach(item => {
-          item.enable = false;
-        });
-      },
+      });
+      if (isNeedCreate) {
+        this.items.push(new KeyValue({enable: true}));
+      }
+      this.$emit('change', this.items);
+      // TODO 检查key重复
     },
-    created() {
-      if (this.items) {
-        for (let i = 0; i < this.items.length; i++) {
-          if (!this.items[i]) {
-            this.items.splice(i, 1);
-          }
+    isDisable: function (index) {
+      return this.items.length - 1 === index;
+    },
+    querySearch(queryString, cb) {
+      let suggestions = this.suggestions;
+      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
+      cb(results);
+    },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    selectAll() {
+      this.items.forEach(item => {
+        item.enable = true;
+      });
+    },
+    invertSelect() {
+      this.items.forEach(item => {
+        item.enable = false;
+      });
+    },
+  },
+  created() {
+    if (this.items) {
+      for (let i = 0; i < this.items.length; i++) {
+        if (!this.items[i]) {
+          this.items.splice(i, 1);
         }
       }
       if (this.items.length === 0 || this.items[this.items.length - 1].name) {
         this.items.push(new KeyValue({enable: true, name: '', value: ''}));
       }
     }
+
   }
+}
 </script>
 
 <style scoped>
-  .kv-description {
-    font-size: 13px;
-  }
+.kv-description {
+  font-size: 13px;
+}
 
-  .kv-row {
-    margin-top: 10px;
-  }
+.kv-row {
+  margin-top: 10px;
+}
 
-  .kv-checkbox {
-    width: 20px;
-    margin-right: 10px;
-  }
+.kv-checkbox {
+  width: 20px;
+  margin-right: 10px;
+}
 
-  .kv-delete {
-    width: 60px;
-  }
+.kv-delete {
+  width: 60px;
+}
 
-  .el-autocomplete {
-    width: 100%;
-  }
+.el-autocomplete {
+  width: 100%;
+}
 
-  i:hover {
-    color: #783887;
-  }
+i:hover {
+  color: #783887;
+}
 </style>

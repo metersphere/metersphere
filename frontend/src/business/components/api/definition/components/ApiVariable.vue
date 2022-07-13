@@ -89,7 +89,7 @@
     <ms-api-variable-json :append-to-body="appendDialogToBody" ref="variableJson" @callback="callback"/>
 
     <api-variable-setting :append-to-body="appendDialogToBody" :suggestions="suggestions"
-      ref="apiVariableSetting"/>
+                          ref="apiVariableSetting"/>
 
   </div>
 </template>
@@ -107,14 +107,19 @@ export default {
   name: "MsApiVariable",
   components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance, MsApiVariableJson},
   props: {
-    urlEncode:  {
+    urlEncode: {
       type: Boolean,
       default: false
     },
     keyPlaceholder: String,
     valuePlaceholder: String,
     description: String,
-    parameters: Array,
+    parameters: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
     rest: Array,
     environment: Object,
     scenario: Scenario,
@@ -197,19 +202,19 @@ export default {
       let isNeedCreate = true;
       let removeIndexArr = [];
       this.parameters.forEach((item, index) => {
-        if ((!item.name || item.name === '' ) && (!item.value || item.value === '') && (!item.files || item.files.length === 0)) {
+        if ((!item.name || item.name === '') && (!item.value || item.value === '') && (!item.files || item.files.length === 0)) {
           // 多余的空行
           removeIndexArr.push(index);
         }
       });
-      if(removeIndexArr.length > 0){
-        for(let i = removeIndexArr.length-1; i>=0; i--){
+      if (removeIndexArr.length > 0) {
+        for (let i = removeIndexArr.length - 1; i >= 0; i--) {
           this.remove(removeIndexArr[i]);
         }
       }
       let removeIndex = -1;
       this.parameters.forEach((item, index) => {
-        if ((!item.name || item.name === '' ) && (!item.value || item.value === '') && (!item.files || item.files.length === 0)) {
+        if ((!item.name || item.name === '') && (!item.value || item.value === '') && (!item.files || item.files.length === 0)) {
           // 多余的空行
           if (index !== this.parameters.length - 1) {
             removeIndex = index;
@@ -267,9 +272,9 @@ export default {
       } else {
         this.currentItem = item;
         // 场景编辑参数设置冒泡，调用父组件的参数设置打开方法
-        if(this.scenarioDefinition != undefined){
+        if (this.scenarioDefinition != undefined) {
           this.$emit('editScenarioAdvance', this.currentItem);
-        }else{
+        } else {
           this.$refs.variableAdvance.open();
         }
       }
