@@ -1233,6 +1233,8 @@ public class ApiAutomationService {
             checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
+            extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
+            extApiScenarioMapper.addLatestVersion(scenarioWithBLOBs.getRefId());
         } else {
             //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
@@ -1342,6 +1344,8 @@ public class ApiAutomationService {
                     relationshipEdgeService.initRelationshipEdge(null, scenarioWithBLOBs);
                 }
                 apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
+                extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
+                extApiScenarioMapper.addLatestVersion(scenarioWithBLOBs.getRefId());
             }
 
         } else {

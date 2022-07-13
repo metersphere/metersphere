@@ -830,6 +830,8 @@ public class ApiDefinitionService {
                 apiDefinition.setRequest(requestStr);
 
                 importCase(apiDefinition, apiTestCaseMapper, caseList);
+                extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
+                extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
             } else {
                 //不覆盖的接口，如果没有sameRequest则不导入。此时清空mock信息
                 mocks.clear();
@@ -936,6 +938,8 @@ public class ApiDefinitionService {
                 batchMapper.insert(apiDefinition);
             }
             importCase(apiDefinition, apiTestCaseMapper, caseList);
+            extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
+            extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         } else { //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
                 apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
