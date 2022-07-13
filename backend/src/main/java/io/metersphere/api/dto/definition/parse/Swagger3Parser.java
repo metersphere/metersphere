@@ -586,6 +586,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 if (modulePath.contains("/")) {
                     split = modulePath.split("/");
                 }
+                if (split.length == 0 && StringUtils.isNotBlank(modulePath)) {
+                    split = new String[]{modulePath};
+                }
                 swaggerApiInfo.setTags(Arrays.asList(split));
             }
 
