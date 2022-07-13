@@ -852,17 +852,17 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
             }
             apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-            if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
-                apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
-            } else {
-                apiTestCaseWithBLOBs.setId(UUID.randomUUID().toString());
-                apiTestCaseMapper.insert(apiTestCaseWithBLOBs);
-            }
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getStatus())) {
                 apiTestCaseWithBLOBs.setStatus(APITestStatus.Underway.name());
             }
             if (apiTestCaseWithBLOBs.getOrder() == null) {
                 apiTestCaseWithBLOBs.setOrder(getImportNextCaseOrder(apiDefinition.getProjectId()));
+            }
+            if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
+                apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
+            } else {
+                apiTestCaseWithBLOBs.setId(UUID.randomUUID().toString());
+                apiTestCaseMapper.insert(apiTestCaseWithBLOBs);
             }
         }
     }
