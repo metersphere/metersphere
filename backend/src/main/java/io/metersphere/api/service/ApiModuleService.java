@@ -908,7 +908,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     if (caseNameMap != null) {
                         buildCaseList(oldCaseMap, caseNameMap, v);
                     }
-                    toUpdateList.add(apiDefinitionWithBLOBs);
+                    toUpdateList.add(v);
                 }
             });
         }
@@ -952,7 +952,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     if (caseNameMap != null) {
                         buildCaseList(oldCaseMap, caseNameMap, v);
                     }
-                    toUpdateList.add(apiDefinitionWithBLOBs);
+                    toUpdateList.add(v);
                 }
             });
         }
@@ -1087,6 +1087,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                                   String updateVersionId, Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp,
                                   Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
         List<ApiDefinitionWithBLOBs> coverApiList = new ArrayList<>();
+        List<ApiDefinitionWithBLOBs> updateApiList = new ArrayList<>();
         repeatDataMap.forEach((k, v) -> {
             //导入的与系统是相同接口的数据
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
@@ -1117,6 +1118,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     api.setCreateTime(definitionWithBLOBs.getCreateTime());
                     api.setUpdateTime(definitionWithBLOBs.getUpdateTime());
                     coverApiList.add(api);
+                    updateApiList.add(definitionWithBLOBs);
                 }
                 if (i == v.size()) {
                     //如果系统内的所有版本都不是当前选择的数据更新版本，则在数据更新版本这里新建数据
@@ -1127,7 +1129,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 }
             }
         });
-        buildOtherParam(toUpdateList, optionData, coverApiList);
+        buildOtherParam(toUpdateList, optionData, coverApiList, updateApiList);
     }
 
     private void buildCaseList(Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap,
@@ -1169,6 +1171,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                             String updateVersionId, Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp,
                             Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
         List<ApiDefinitionWithBLOBs> coverApiList = new ArrayList<>();
+        List<ApiDefinitionWithBLOBs> updateApiList = new ArrayList<>();
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
             if (apiDefinitionWithBLOBs != null) {
@@ -1199,6 +1202,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     api.setCreateTime(definitionWithBLOBs.getCreateTime());
                     api.setUpdateTime(definitionWithBLOBs.getUpdateTime());
                     coverApiList.add(api);
+                    updateApiList.add(definitionWithBLOBs);
                 }
                 if (i == v.size()) {
                     //如果系统内的所有版本都不是当前选择的数据更新版本，则在数据更新版本这里新建数据
@@ -1209,7 +1213,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 }
             }
         });
-        buildOtherParam(toUpdateList, optionData, coverApiList);
+        buildOtherParam(toUpdateList, optionData, coverApiList, updateApiList);
     }
 
     private Map<String, ApiModule> judgeModuleMap(Map<String, ApiModule> moduleMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap) {
@@ -1225,9 +1229,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return moduleMap;
     }
 
-    private void buildOtherParam(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData, List<ApiDefinitionWithBLOBs> coverApiList) {
+    private void buildOtherParam(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData, List<ApiDefinitionWithBLOBs> coverApiList, List<ApiDefinitionWithBLOBs> updateApiList) {
         optionData.addAll(coverApiList);
-        toUpdateList.addAll(coverApiList);
+        toUpdateList.addAll(updateApiList);
 
     }
 
