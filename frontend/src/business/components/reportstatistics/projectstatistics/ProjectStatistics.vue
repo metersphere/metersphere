@@ -93,6 +93,8 @@ export default {
   },
   methods: {
     openCard(type) {
+      this.historyReportName = "";
+      this.historyReportId = "";
       if (type === 'trackTestCase') {
         this.testCaseTrendDrawer = true;
       } else if (type === 'countTestCase') {
@@ -100,6 +102,8 @@ export default {
       }
     },
     close() {
+      this.historyReportName = "";
+      this.historyReportId = "";
       this.testCaseTrendDrawer = false;
       this.testCaseCountDrawer = false;
     },
