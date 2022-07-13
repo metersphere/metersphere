@@ -1,5 +1,6 @@
 package io.metersphere.track.issue;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
@@ -12,6 +13,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
@@ -242,6 +244,25 @@ public class TapdPlatform extends AbstractIssuePlatform {
             issue.setCustomFields(defaultCustomFields);
         } else {
             mergeCustomField(issue, defaultCustomFields);
+        }
+        TapdBug bugObj = JSONObject.parseObject(bug.toJSONString(), TapdBug.class);
+        BeanUtils.copyBean(issue, bugObj);
+        issue.setPlatformStatus(bugObj.getStatus());
+        issue.setDescription(htmlDesc2MsDesc(issue.getDescription()));
+        issue.setCustomFields(syncIssueCustomField(issue.getCustomFields(), bug));
+        issue.setPlatform(key);
+        issue.setCreateTime(bug.getLong("created"));
+        issue.setUpdateTime(bug.getLong("modified"));
+        return issue;
+    }
+
+    protected IssuesWithBLOBs getUpdateIssue(IssuesWithBLOBs issue, JSONObject bug, List<CustomFieldItemDTO> customField) {
+        if (issue == null) {
+            issue = new IssuesWithBLOBs();
+            issue.setCustomFields(defaultCustomFields);
+        } else {
+            issue.setCustomFields(JSON.toJSONString(customField));
+            mergeIfIssueWithCustomField(issue, defaultCustomFields);
         }
         TapdBug bugObj = JSONObject.parseObject(bug.toJSONString(), TapdBug.class);
         BeanUtils.copyBean(issue, bugObj);

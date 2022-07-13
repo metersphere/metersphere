@@ -39,4 +39,8 @@ public interface ExtIssuesMapper {
     IssuesDao selectByPrimaryKey(String id);
 
     List<CustomFieldItemDTO> getIssueCustomField(String id);
+
+    List<IssuesDao> getIssueCustomFields(List<String> ids);
+
+    List<IssuesDao> getPlatformIssueByIds(@Param("ids") List<String> ids);
 }

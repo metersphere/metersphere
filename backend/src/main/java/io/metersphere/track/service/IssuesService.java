@@ -8,10 +8,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.IssueFollowMapper;
-import io.metersphere.base.mapper.IssuesMapper;
-import io.metersphere.base.mapper.TestCaseIssuesMapper;
-import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.AttachmentType;
 import io.metersphere.commons.constants.IssueRefType;
@@ -425,9 +421,11 @@ public class IssuesService {
         issueFileExample.createCriteria().andIssueIdEqualTo(id);
         List<IssueFile> issueFiles = issueFileMapper.selectByExample(issueFileExample);
         List<String> fileIds = issueFiles.stream().map(IssueFile::getFileId).collect(Collectors.toList());
-        FileAttachmentMetadataExample fileAttachmentMetadataExample = new FileAttachmentMetadataExample();
-        fileAttachmentMetadataExample.createCriteria().andIdIn(fileIds);
-        fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
+        if (CollectionUtils.isNotEmpty(fileIds)) {
+            FileAttachmentMetadataExample fileAttachmentMetadataExample = new FileAttachmentMetadataExample();
+            fileAttachmentMetadataExample.createCriteria().andIdIn(fileIds);
+            fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
+        }
         issueFileMapper.deleteByExample(issueFileExample);
         fileService.deleteAttachment(AttachmentType.ISSUE.type(), id);
     }
