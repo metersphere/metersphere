@@ -955,17 +955,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                         ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
                     }
                 }
-            } else if (bodyType.equalsIgnoreCase("RAW")) {
+            } else if (bodyType != null && bodyType.equalsIgnoreCase("RAW")) {
                 bodyInfo = new JSONObject();
                 ((JSONObject) bodyInfo).put("type", "string");
                 if (body != null && body.get("raw") != null) {
                     ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
                 }
-            } else if (bodyType.equalsIgnoreCase("XML")) {
+            } else if (bodyType != null && bodyType.equalsIgnoreCase("XML")) {
                 String xmlText = body.getString("raw");
                 JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
                 bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
-            } else if (bodyType.equalsIgnoreCase("WWW_FORM") || bodyType.equalsIgnoreCase("Form Data") || bodyType.equalsIgnoreCase("BINARY")) {    //  key-value 类格式
+            } else if (bodyType != null && (bodyType.equalsIgnoreCase("WWW_FORM") || bodyType.equalsIgnoreCase("Form Data") || bodyType.equalsIgnoreCase("BINARY"))) {    //  key-value 类格式
                 JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
                 bodyInfo = buildFormDataSchema(formData);
             }
