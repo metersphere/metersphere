@@ -1153,6 +1153,23 @@ public class ApiAutomationService {
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(apiScenarioWithBLOBs, request);
         apiScenarioWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        if (request != null && (request.getIds() != null || !request.getIds().isEmpty())) {
+            request.getIds().forEach(apiId -> {
+                ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(apiId);
+                if (scenario == null) {
+                    return;
+                }
+                //检查是否同名
+                SaveApiScenarioRequest scenarioRequest = new SaveApiScenarioRequest();
+                scenarioRequest.setProjectId(scenario.getProjectId());
+                scenarioRequest.setName(scenario.getName());
+                scenarioRequest.setId(scenario.getId());
+                scenarioRequest.setApiScenarioModuleId(request.getApiScenarioModuleId());
+                scenarioRequest.setModulePath(request.getModulePath());
+                scenarioRequest.setVersionId(scenario.getVersionId());
+                checkNameExist(scenarioRequest, false);
+            });
+        }
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
