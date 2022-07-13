@@ -466,7 +466,7 @@ export default {
       if (this.currentModule) {
         param.modeId = this.formData.modeId
       }
-      if (this.formData.moduleId.length === 0) {
+      if (this.formData.moduleId && this.formData.moduleId.length === 0) {
         param.moduleId = ''
       }
       param.projectId = this.projectId;
