@@ -112,7 +112,20 @@ export default {
     BatchAddParameter
   },
   props: {
-    body: {},
+    body: {
+      type: Object,
+      default() {
+        return {
+          json: true,
+          kV: false,
+          kvs: [],
+          oldKV: false,
+          type: "JSON",
+          valid: false,
+          xml: false
+        }
+      }
+    },
     headers: Array,
     isReadOnly: {
       type: Boolean,
@@ -131,7 +144,7 @@ export default {
       jsonSchema: "JSON",
       codeEditActive: true,
       hasOwnProperty: Object.prototype.hasOwnProperty,
-      propIsEnumerable: Object.prototype.propertyIsEnumerable
+      propIsEnumerable: Object.prototype.propertyIsEnumerable,
     };
   },
 
@@ -209,7 +222,7 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw && !this.body.jsonSchema) {
           this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
-        }else{
+        } else {
           let data = MsConvert.format(JSON.parse(this.body.raw));
           this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
         }
@@ -250,7 +263,7 @@ export default {
           isType = true;
         }
       })
-      if(this.body && this.body.kvs && value === "application/x-www-form-urlencoded") {
+      if (this.body && this.body.kvs && value === "application/x-www-form-urlencoded") {
         this.body.kvs.forEach(item => {
           item.urlEncode = true;
         });

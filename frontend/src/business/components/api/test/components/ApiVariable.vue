@@ -16,7 +16,8 @@
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change" :placeholder="keyText" show-word-limit>
             <template v-slot:prepend>
-              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type" @change="typeChange(item)">
+              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
+                         @change="typeChange(item)">
                 <el-option value="text"/>
                 <el-option value="file"/>
               </el-select>
@@ -67,164 +68,169 @@
 </template>
 
 <script>
-  import {KeyValue, Scenario} from "../model/ScenarioModel";
-  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
-  import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
-  import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
+import {KeyValue, Scenario} from "../model/ScenarioModel";
+import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
+import MsApiVariableAdvance from "@/business/components/api/test/components/ApiVariableAdvance";
+import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
 
-  export default {
-    name: "MsApiVariable",
-    components: {MsApiBodyFileUpload, MsApiVariableAdvance},
-    props: {
-      keyPlaceholder: String,
-      valuePlaceholder: String,
-      description: String,
-      parameters: Array,
-      environment: Object,
-      scenario: Scenario,
-      type: {
-        type: String,
-        default: ''
-      },
-      appendDialogToBody: {
-        type: Boolean,
-        default() {
-          return false;
-        }
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      suggestions: Array
-    },
-    data() {
-      return {
-        currentItem: null,
+export default {
+  name: "MsApiVariable",
+  components: {MsApiBodyFileUpload, MsApiVariableAdvance},
+  props: {
+    keyPlaceholder: String,
+    valuePlaceholder: String,
+    description: String,
+    parameters: {
+      type: Array,
+      default() {
+        return [];
       }
     },
-    computed: {
-      keyText() {
-        return this.keyPlaceholder || this.$t("api_test.key");
-      },
-      valueText() {
-        return this.valuePlaceholder || this.$t("api_test.value");
+    environment: Object,
+    scenario: Scenario,
+    type: {
+      type: String,
+      default: ''
+    },
+    appendDialogToBody: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
-    methods: {
-      remove: function (index) {
-        // 移除整行输入控件及内容
-        this.parameters.splice(index, 1);
-        this.$emit('change', this.parameters);
-      },
-      change: function () {
-        let isNeedCreate = true;
-        let removeIndex = -1;
-        this.parameters.forEach((item, index) => {
-          if (!item.name && !item.value) {
-            // 多余的空行
-            if (index !== this.parameters.length - 1) {
-              removeIndex = index;
-            }
-            // 没有空行，需要创建空行
-            isNeedCreate = false;
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    suggestions: Array
+  },
+  data() {
+    return {
+      currentItem: null,
+    }
+  },
+  computed: {
+    keyText() {
+      return this.keyPlaceholder || this.$t("api_test.key");
+    },
+    valueText() {
+      return this.valuePlaceholder || this.$t("api_test.value");
+    }
+  },
+  methods: {
+    remove: function (index) {
+      // 移除整行输入控件及内容
+      this.parameters.splice(index, 1);
+      this.$emit('change', this.parameters);
+    },
+    change: function () {
+      let isNeedCreate = true;
+      let removeIndex = -1;
+      this.parameters.forEach((item, index) => {
+        if (!item.name && !item.value) {
+          // 多余的空行
+          if (index !== this.parameters.length - 1) {
+            removeIndex = index;
           }
-        });
-        if (isNeedCreate) {
-          this.parameters.push(new KeyValue({type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
+          // 没有空行，需要创建空行
+          isNeedCreate = false;
         }
-        this.$emit('change', this.parameters);
-        // TODO 检查key重复
-      },
-      isDisable: function (index) {
-        return this.parameters.length - 1 === index;
-      },
-      querySearch(queryString, cb) {
-        let suggestions = this.suggestions;
-        let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
-        cb(results);
-      },
-      createFilter(queryString) {
-        return (restaurant) => {
-          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-        };
-      },
-      funcSearch(queryString, cb) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
-        // 调用 callback 返回建议列表的数据
-        cb(results);
-      },
-      funcFilter(queryString) {
-        return (func) => {
-          return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
-        };
-      },
-      uuid: function () {
-        return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
-      },
-      advanced(item) {
-        this.$refs.variableAdvance.open();
-        this.currentItem = item;
-      },
-      typeChange(item) {
-        if (item.type === 'file') {
-          item.contentType = 'application/octet-stream';
-        } else {
-          item.contentType = 'text/plain';
-        }
-      },
-      reload() {
-        this.isActive = false;
-        this.$nextTick(() => {
-          this.isActive = true;
-        });
-      },
-    },
-    created() {
-      if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
-        this.parameters.push(new KeyValue( {type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
+      });
+      if (isNeedCreate) {
+        this.parameters.push(new KeyValue({type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
       }
+      this.$emit('change', this.parameters);
+      // TODO 检查key重复
+    },
+    isDisable: function (index) {
+      return this.parameters.length - 1 === index;
+    },
+    querySearch(queryString, cb) {
+      let suggestions = this.suggestions;
+      let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
+      cb(results);
+    },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    funcSearch(queryString, cb) {
+      let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+      let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    funcFilter(queryString) {
+      return (func) => {
+        return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+      };
+    },
+    uuid: function () {
+      return (((1 + Math.random()) * 0x100000) | 0).toString(16).substring(1);
+    },
+    advanced(item) {
+      this.$refs.variableAdvance.open();
+      this.currentItem = item;
+    },
+    typeChange(item) {
+      if (item.type === 'file') {
+        item.contentType = 'application/octet-stream';
+      } else {
+        item.contentType = 'text/plain';
+      }
+    },
+    reload() {
+      this.isActive = false;
+      this.$nextTick(() => {
+        this.isActive = true;
+      });
+    },
+  },
+  created() {
+    if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
+      this.parameters.push(new KeyValue({type: 'text', enable: true, uuid: this.uuid(), contentType: 'text/plain'}));
     }
   }
+}
 </script>
 
 <style scoped>
-  .kv-description {
-    font-size: 13px;
-  }
+.kv-description {
+  font-size: 13px;
+}
 
-  .kv-row {
-    margin-top: 10px;
-  }
+.kv-row {
+  margin-top: 10px;
+}
 
-  .kv-delete {
-    width: 60px;
-  }
+.kv-delete {
+  width: 60px;
+}
 
-  .el-autocomplete {
-    width: 100%;
-  }
+.el-autocomplete {
+  width: 100%;
+}
 
-  .kv-checkbox {
-    width: 20px;
-    margin-right: 10px;
-  }
+.kv-checkbox {
+  width: 20px;
+  margin-right: 10px;
+}
 
-  .advanced-item-value >>> .el-dialog__body {
-    padding: 15px 25px;
-  }
+.advanced-item-value >>> .el-dialog__body {
+  padding: 15px 25px;
+}
 
-  .el-row {
-    margin-bottom: 5px;
-  }
+.el-row {
+  margin-bottom: 5px;
+}
 
-  .kv-type {
-    width: 70px;
-  }
+.kv-type {
+  width: 70px;
+}
 
-  .pointer {
-    cursor: pointer;
-    color: #1E90FF;
-  }
+.pointer {
+  cursor: pointer;
+  color: #1E90FF;
+}
 </style>
