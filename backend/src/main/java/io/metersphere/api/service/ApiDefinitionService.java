@@ -874,7 +874,7 @@ public class ApiDefinitionService {
 
             apiDefinition.setCreateTime(System.currentTimeMillis());
             apiDefinition.setUpdateTime(System.currentTimeMillis());
-            if (apiDefinition.getVersionId().equals("update")) {
+            if (apiDefinition.getVersionId() != null && apiDefinition.getVersionId().equals("update")) {
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getUpdateVersionId())) {
                     apiDefinition.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 } else {
