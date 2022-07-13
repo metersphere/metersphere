@@ -830,10 +830,19 @@ public class ApiDefinitionService {
             }
             apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getStatus())) {
-                apiTestCaseWithBLOBs.setStatus(APITestStatus.Underway.name());
+                apiTestCaseWithBLOBs.setStatus(APITestStatus.Prepare.name());
+            }
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getCaseStatus())) {
+                apiTestCaseWithBLOBs.setCaseStatus(APITestStatus.Prepare.name());
+            }
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getCreateUserId())) {
+                apiTestCaseWithBLOBs.setCreateUserId(apiDefinition.getUserId());
             }
             if (apiTestCaseWithBLOBs.getOrder() == null) {
                 apiTestCaseWithBLOBs.setOrder(getImportNextCaseOrder(apiDefinition.getProjectId()));
+            }
+            if (apiTestCaseWithBLOBs.getNum() == null) {
+                apiTestCaseWithBLOBs.setNum(testCaseService.getNextNum(apiDefinition.getId()));
             }
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);

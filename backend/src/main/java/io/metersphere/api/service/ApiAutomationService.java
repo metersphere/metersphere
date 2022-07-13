@@ -1195,7 +1195,7 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(sameRequest)) {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
-            if (!scenarioWithBLOBs.getVersionId().equals("update")) {
+            if (scenarioWithBLOBs.getVersionId() != null && !scenarioWithBLOBs.getVersionId().equals("update")) {
                 scenarioWithBLOBs.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 // 导入时设置版本
                 scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
@@ -1232,7 +1232,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
-                if (!scenarioWithBLOBs.getVersionId().equals("update")) {
+                if (scenarioWithBLOBs.getVersionId() != null && !scenarioWithBLOBs.getVersionId().equals("update")) {
                     scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId());
                     scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                     scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
