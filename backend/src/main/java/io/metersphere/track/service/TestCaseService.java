@@ -1904,7 +1904,7 @@ public class TestCaseService {
      *
      * @return
      */
-    private int getNextNum(String projectId) {
+    public int getNextNum(String projectId) {
         TestCase testCase = extTestCaseMapper.getMaxNumByProjectId(projectId);
         if (testCase == null || testCase.getNum() == null) {
             return 100001;
