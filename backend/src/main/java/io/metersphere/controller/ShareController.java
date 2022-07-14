@@ -93,16 +93,11 @@ public class ShareController {
         testPlanService.exportPlanReport(planId, lang, response);
     }
 
-    @GetMapping("/test/plan/case/list/failure/{shareId}/{planId}")
-    public List<TestPlanCaseDTO> getFailureCases(@PathVariable String shareId, @PathVariable String planId) {
+    @PostMapping("/test/plan/case/list/all/{shareId}/{planId}")
+    public List<TestPlanCaseDTO> getAllCases(@PathVariable String shareId, @PathVariable String planId,
+                                             @RequestBody(required = false) List<String> statusList) {
         shareInfoService.validate(shareId, planId);
-        return testPlanTestCaseService.getFailureCases(planId);
-    }
-
-    @GetMapping("/test/plan/case/list/all/{shareId}/{planId}")
-    public List<TestPlanCaseDTO> getAllCases(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
-        return testPlanTestCaseService.getAllCases(planId);
+        return testPlanTestCaseService.getAllCasesByStatusList(planId, statusList);
     }
 
     @GetMapping("/test/plan/load/case/list/failure/{shareId}/{planId}")

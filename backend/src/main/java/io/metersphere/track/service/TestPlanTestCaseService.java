@@ -480,14 +480,12 @@ public class TestPlanTestCaseService {
         functionResult.setCaseData(statusResult);
     }
 
-    public List<TestPlanCaseDTO> getFailureCases(String planId) {
-        List<TestPlanCaseDTO> allCases = extTestPlanTestCaseMapper.getCases(planId, "Failure");
-        return buildCaseInfo(allCases);
+    public List<TestPlanCaseDTO> getAllCasesByStatusList(String planId, List<String> statusList) {
+        return buildCaseInfo(extTestPlanTestCaseMapper.getCasesByStatusList(planId, statusList));
     }
 
     public List<TestPlanCaseDTO> getAllCases(String planId) {
-        List<TestPlanCaseDTO> allCases = extTestPlanTestCaseMapper.getCases(planId, null);
-        return buildCaseInfo(allCases);
+        return buildCaseInfo(this.getAllCasesByStatusList(planId, null));
     }
 
     public List<TestPlanCaseDTO> buildCaseInfo(List<TestPlanCaseDTO> cases) {

@@ -485,7 +485,7 @@
                             on tc.id = tptc.case_id and tc.status != 'Trash'
         where tptc.plan_id = #{planId};
     </select>
-    <select id="getCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+    <select id="getCasesByStatusList" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select tptc.id, tc.id as caseId, tc.name, tc.priority, tc.num, tc.custom_num, tc.project_id,
         tc.node_id, tc.tags, tptc.actual_result,
         tptc.update_time, tptc.create_time,
@@ -493,11 +493,15 @@
         tptc.plan_id, tptc.executor
         from test_plan_test_case tptc
         inner join test_case tc on tptc.case_id = tc.id
-        <if test="status != null">
-            and tptc.status = 'Failure'
-        </if>
+        where tptc.plan_id = #{planId}
+          <if test="statusList != null and statusList.size() > 0">
+              and tptc.status in
+              <foreach collection="statusList" open="(" close=")" item="status" separator=",">
+                  #{status}
+              </foreach>
+          </if>
         and (tc.status != 'Trash' or tc.status is null)
-        where tptc.plan_id = #{planId} order by tptc.`order` desc
+        order by tptc.`order` desc
     </select>
     <update id="updateTestCaseStates" parameterType="java.lang.String">
         update test_plan_test_case

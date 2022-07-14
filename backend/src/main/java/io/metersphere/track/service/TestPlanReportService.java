@@ -636,9 +636,6 @@ public class TestPlanReportService {
         if (reportDTO.getFunctionAllCases() != null) {
             testPlanReportContentWithBLOBs.setFunctionAllCases(JSONObject.toJSONString(reportDTO.getFunctionAllCases()));
         }
-        if (reportDTO.getFunctionFailureCases() != null) {
-            testPlanReportContentWithBLOBs.setFunctionFailureCases(JSONObject.toJSONString(reportDTO.getFunctionFailureCases()));
-        }
         if (reportDTO.getIssueList() != null) {
             testPlanReportContentWithBLOBs.setIssueList(JSONObject.toJSONString(reportDTO.getIssueList()));
         }
@@ -699,7 +696,7 @@ public class TestPlanReportService {
                 if (reportDTO != null) {
                     status = TestPlanReportStatus.SUCCESS.name();
                     try {
-                        if (CollectionUtils.isNotEmpty(reportDTO.getFunctionFailureCases())
+                        if (hasFunctionFailedCases(reportDTO.getFunctionAllCases())
                                 || CollectionUtils.isNotEmpty(reportDTO.getApiFailureCases())
                                 || CollectionUtils.isNotEmpty(reportDTO.getScenarioFailureCases())
                                 || CollectionUtils.isNotEmpty(reportDTO.getLoadFailureCases())) {
@@ -715,6 +712,18 @@ public class TestPlanReportService {
             }
         }
         return status;
+    }
+
+    private boolean hasFunctionFailedCases(List<TestPlanCaseDTO> functionAllCases) {
+        if (functionAllCases == null) {
+            return false;
+        }
+        for (TestPlanCaseDTO functionAllCase : functionAllCases) {
+            if (StringUtils.equals(functionAllCase.getStatus(), TestPlanTestCaseStatus.Failure.name())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public TestPlanReport getTestPlanReport(String planId) {
@@ -896,9 +905,6 @@ public class TestPlanReportService {
         }
         if (StringUtils.isNotBlank(testPlanReportContent.getFunctionAllCases())) {
             testPlanReportDTO.setFunctionAllCases(JSONObject.parseArray(testPlanReportContent.getFunctionAllCases(), TestPlanCaseDTO.class));
-        }
-        if (StringUtils.isNotBlank(testPlanReportContent.getFunctionFailureCases())) {
-            testPlanReportDTO.setFunctionFailureCases(JSONObject.parseArray(testPlanReportContent.getFunctionFailureCases(), TestPlanCaseDTO.class));
         }
         if (StringUtils.isNotBlank(testPlanReportContent.getIssueList())) {
             testPlanReportDTO.setIssueList(JSONObject.parseArray(testPlanReportContent.getIssueList(), IssuesDao.class));

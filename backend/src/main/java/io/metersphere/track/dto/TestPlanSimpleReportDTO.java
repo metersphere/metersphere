@@ -40,7 +40,6 @@ public class TestPlanSimpleReportDTO extends TestPlanReportContent {
     private TestPlanApiResultReportDTO apiResult;
     private TestPlanLoadResultReportDTO loadResult;
 
-    List<TestPlanCaseDTO> functionFailureCases;
     List<TestPlanCaseDTO> functionAllCases;
     List<IssuesDao> issueList;
     List<TestPlanFailureApiDTO> apiFailureCases;

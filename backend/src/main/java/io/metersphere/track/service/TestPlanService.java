@@ -1316,27 +1316,39 @@ public class TestPlanService {
     public void buildFunctionalReport(TestPlanSimpleReportDTO report, JSONObject config, String planId) {
         if (checkReportConfig(config, "functional")) {
             List<TestPlanCaseDTO> allCases = null;
+            List<String> statusList = getFunctionalReportStatusList(config);
+            if (statusList != null) {
+                allCases = testPlanTestCaseService.getAllCasesByStatusList(planId, statusList);
+                report.setFunctionAllCases(allCases);
+            }
+
             if (checkReportConfig(config, "functional", "all")) {
                 allCases = testPlanTestCaseService.getAllCases(planId);
                 report.setFunctionAllCases(allCases);
             }
-            if (checkReportConfig(config, "functional", "failure")) {
-                List<TestPlanCaseDTO> failureCases = null;
-                if (!CollectionUtils.isEmpty(allCases)) {
-                    failureCases = allCases.stream()
-                            .filter(i -> StringUtils.isNotBlank(i.getStatus())
-                                    && i.getStatus().equals("Failure"))
-                            .collect(Collectors.toList());
-                } else {
-                    failureCases = testPlanTestCaseService.getFailureCases(planId);
-                }
-                report.setFunctionFailureCases(failureCases);
-            }
+
             if (checkReportConfig(config, "functional", "issue")) {
                 List<IssuesDao> issueList = issuesService.getIssuesByPlanId(planId);
                 report.setIssueList(issueList);
             }
         }
+    }
+
+    public List<String> getFunctionalReportStatusList(JSONObject config) {
+        List<String> statusList = new ArrayList<>();
+        if (checkReportConfig(config, "functional", "all")) {
+            return statusList;
+        }
+        if (checkReportConfig(config, "functional", "failure")) {
+            statusList.add(TestPlanTestCaseStatus.Failure.name());
+        }
+        if (checkReportConfig(config, "functional", "blocking")) {
+            statusList.add(TestPlanTestCaseStatus.Blocking.name());
+        }
+        if (checkReportConfig(config, "functional", "skip")) {
+            statusList.add(TestPlanTestCaseStatus.Skip.name());
+        }
+        return statusList.size() > 0 ? statusList : null;
     }
 
     public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, String planId, boolean saveResponse) {
