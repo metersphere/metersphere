@@ -326,7 +326,8 @@ import {
   buildBatchParam,
   getCustomTableHeader,
   getCustomTableWidth,
-  getLastTableSortField
+  getLastTableSortField,
+  getSelectDataCounts
 } from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -688,6 +689,10 @@ export default {
   },
   methods: {
     generateGraph() {
+      if (getSelectDataCounts(this.condition, this.total, this.selectRows) > 100) {
+        this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
+        return;
+      }
       getGraphByCondition('API_SCENARIO', buildBatchParam(this, this.$refs.scenarioTable.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
