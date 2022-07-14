@@ -165,7 +165,7 @@ public class MsExtract extends MsTestElement {
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPostProcessorGui"));
         extractor.setRefNames(extractJSONPath.getVariable());
         extractor.setJsonPathExpressions(extractJSONPath.getExpression());
-        extractor.setComputeConcatenation(true);
+        extractor.setComputeConcatenation(extractJSONPath.isMultipleMatching());
         if (extractJSONPath.isMultipleMatching()) {
             extractor.setMatchNumbers("-1");
         }
