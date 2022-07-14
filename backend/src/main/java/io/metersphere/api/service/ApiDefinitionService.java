@@ -1913,8 +1913,6 @@ public class ApiDefinitionService {
                     res.setCasePassingRate("-");
                     res.setCaseStatus("-");
                 }
-
-                apiDefinitionMapper.updateByPrimaryKeySelective(res);
                 if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
                     esbApiParamService.handleApiEsbParams(res);
                 }
