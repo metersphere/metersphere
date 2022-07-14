@@ -145,7 +145,13 @@ public class TestPlanTestCaseService {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
         }
-        testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
+        if (StringUtils.isNotBlank(testPlanTestCase.getStatus())) {
+            TestPlanTestCaseWithBLOBs originData = testPlanTestCaseMapper.selectByPrimaryKey(testPlanTestCase.getId());
+            if (!StringUtils.equals(originData.getStatus(), testPlanTestCase.getStatus())) {
+                // 更新了状态才更新执行人
+                testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
+            }
+        }
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
         testPlanTestCase.setRemark(null);
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
