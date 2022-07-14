@@ -180,7 +180,7 @@
                   :value="getCustomFieldValue(scope.row, field, scope.row.priority)"/>
             </span>
             <span v-else-if="field.name === '用例状态'">
-                {{ getCustomFieldValue(scope.row, field, scope.row.status)}}
+                {{ getCustomFieldValue(scope.row, field, scope.row.status) }}
             </span>
             <span v-else>
               {{ getCustomFieldValue(scope.row, field) }}
@@ -238,12 +238,14 @@ import ApiStatus from "@/business/components/api/definition/components/list/ApiS
 import {
   buildBatchParam,
   deepClone,
-  getCustomFieldBatchEditOption, getCustomFieldFilter,
+  getCustomFieldBatchEditOption,
+  getCustomFieldFilter,
   getCustomFieldValue,
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
   getPageInfo,
+  getSelectDataCounts,
   getTableHeaderWithCustomFields,
   initCondition,
   parseCustomFilesForList,
@@ -967,6 +969,10 @@ export default {
       });
     },
     generateGraph() {
+      if (getSelectDataCounts(this.condition, this.total, this.selectRows) > 100) {
+        this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
+        return;
+      }
       getGraphByCondition('TEST_CASE', buildBatchParam(this, this.$refs.table.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
