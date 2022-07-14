@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.domain.TestPlanApiScenarioExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface TestPlanApiScenarioMapper {
     long countByExample(TestPlanApiScenarioExample example);
@@ -33,4 +34,6 @@ public interface TestPlanApiScenarioMapper {
     int updateByPrimaryKeyWithBLOBs(TestPlanApiScenario record);
 
     int updateByPrimaryKey(TestPlanApiScenario record);
+
+    List<String> selectReportEnvConfByResourceIds(@Param("ids") List<String> resourceIds);
 }

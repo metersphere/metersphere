@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
+import io.metersphere.api.dto.ApiScenarioReportDTO;
+import io.metersphere.api.dto.RequestResultExpandDTO;
+import io.metersphere.api.dto.StepTreeDTO;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.utils.ResultParseUtil;
 import io.metersphere.api.service.vo.ApiDefinitionExecResultVo;
@@ -20,7 +23,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RequestResult;
-import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.ProjectService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -398,8 +400,8 @@ public class ApiScenarioReportStructureService {
             }
             // 非正常执行结束的请求结果
             List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
-                    && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0)
-                    || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.UN_EXECUTE.toString())))
+                            && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0)
+                            || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.UN_EXECUTE.toString())))
                     .collect(Collectors.toList());
 
             // 有效数据按照时间排序
@@ -545,45 +547,9 @@ public class ApiScenarioReportStructureService {
 
     public void initProjectEnvironmentByEnvConfig(ApiScenarioReportDTO dto, String envConfig) {
         if (StringUtils.isNotEmpty(envConfig)) {
-            //运行设置中选择的环境信息（批量执行时在前台选择了执行信息）
-            Map<String, String> envMapByRunConfig = null;
-            //执行时选择的环境信息 （一般在集合报告中会记录）
-            Map<String, List<String>> envMapByExecution = null;
-
-            try {
-                JSONObject jsonObject = JSONObject.parseObject(envConfig);
-                if (jsonObject.containsKey("executionEnvironmentMap")) {
-                    RunModeConfigWithEnvironmentDTO configWithEnvironment = JSONObject.parseObject(envConfig, RunModeConfigWithEnvironmentDTO.class);
-                    if (MapUtils.isNotEmpty(configWithEnvironment.getExecutionEnvironmentMap())) {
-                        envMapByExecution = configWithEnvironment.getExecutionEnvironmentMap();
-                    } else {
-                        envMapByRunConfig = configWithEnvironment.getEnvMap();
-                    }
-                } else {
-                    RunModeConfigDTO config = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
-                    envMapByRunConfig = config.getEnvMap();
-                }
-            } catch (Exception e) {
-                LogUtil.error("解析RunModeConfig失败!参数：" + envConfig, e);
-            }
-
-            LinkedHashMap<String, List<String>> projectEnvMap = apiScenarioEnvService.selectProjectNameAndEnvName(envMapByExecution);
-
-            if (MapUtils.isNotEmpty(envMapByRunConfig)) {
-                for (Map.Entry<String, String> entry : envMapByRunConfig.entrySet()) {
-                    String projectId = entry.getKey();
-                    String envId = entry.getValue();
-                    String projectName = projectService.selectNameById(projectId);
-                    String envName = apiTestEnvironmentService.selectNameById(envId);
-                    if (StringUtils.isNoneEmpty(projectName, envName)) {
-                        projectEnvMap.put(projectName, new ArrayList<>() {{
-                            this.add(envName);
-                        }});
-                    }
-                }
-                if (MapUtils.isNotEmpty(projectEnvMap)) {
-                    dto.setProjectEnvMap(projectEnvMap);
-                }
+            LinkedHashMap<String, List<String>> projectEnvMap = apiScenarioEnvService.getProjectEnvMapByEnvConfig(envConfig);
+            if (MapUtils.isNotEmpty(projectEnvMap)) {
+                dto.setProjectEnvMap(projectEnvMap);
             }
         }
     }

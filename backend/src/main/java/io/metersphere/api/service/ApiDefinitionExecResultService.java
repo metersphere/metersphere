@@ -523,4 +523,12 @@ public class ApiDefinitionExecResultService {
         });
         return list;
     }
+
+    public List<ApiDefinitionExecResultWithBLOBs> selectByResourceIdsAndMaxCreateTime(List<String> resourceIds) {
+        if (CollectionUtils.isNotEmpty(resourceIds)) {
+            return extApiDefinitionExecResultMapper.selectByResourceIdsAndMaxCreateTime(resourceIds);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }

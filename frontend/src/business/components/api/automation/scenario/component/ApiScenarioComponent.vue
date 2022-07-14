@@ -32,9 +32,14 @@
     </template>
 
     <template v-slot:behindHeaderLeft>
-      <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
+      <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">
+        {{ $t('api_test.automation.reference_deleted') }}
+      </el-tag>
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-      <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+      <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='REF'">{{
+          $t('api_test.scenario.reference')
+        }}
+      </el-tag>
       <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
     </template>
     <template v-slot:debugStepCode>
@@ -42,16 +47,19 @@
          <i class="el-icon-loading" style="font-size: 16px"/>
          {{ $t('commons.testing') }}
        </span>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug && !node.data.testing">
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'"
+            v-if="!loading && node.data.debug && !node.data.testing">
         {{ getCode() }}
       </span>
     </template>
     <template v-slot:button v-if="!ifFromVariableAdvance">
       <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!scenario.run">
-        <el-button :disabled="!scenario.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+        <el-button :disabled="!scenario.enable" @click="run" icon="el-icon-video-play" style="padding: 5px"
+                   class="ms-btn" size="mini" circle/>
       </el-tooltip>
       <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-        <el-button :disabled="!scenario.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+        <el-button :disabled="!scenario.enable" @click.once="stop" size="mini"
+                   style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
           <div style="transform: scale(0.66)">
             <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
           </div>
@@ -286,8 +294,14 @@ export default {
     },
     gotoTurn(resource, workspaceId, isTurnSpace) {
       let automationData = this.$router.resolve({
-        name: 'ApiAutomation',
-        params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + resource.id, projectId: resource.projectId, workspaceId: workspaceId}
+        name: 'ApiAutomationWithQuery',
+        params: {
+          redirectID: getUUID(),
+          dataType: "scenario",
+          dataSelectRange: 'edit:' + resource.id,
+          projectId: resource.projectId,
+          workspaceId: workspaceId
+        }
       });
       if (isTurnSpace) {
         window.open(automationData.href, '_blank');

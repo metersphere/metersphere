@@ -56,4 +56,6 @@ public interface ExtApiDefinitionExecResultMapper {
     List<ApiDefinitionExecResultWithBLOBs> selectRerunResult(@Param("reportId") String reportId);
 
     List<String> selectByProjectIdAndLessThanTime(@Param("projectId") String projectId, @Param("time") long time);
+
+    List<ApiDefinitionExecResultWithBLOBs> selectByResourceIdsAndMaxCreateTime(@Param("ids") List<String> resourceIds);
 }
