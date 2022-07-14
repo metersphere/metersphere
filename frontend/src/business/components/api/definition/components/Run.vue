@@ -56,7 +56,7 @@ export default {
     },
     onError() {
       this.$emit('runRefresh', "");
-      this.$error("The connection is abnormal, please check the environment configuration");
+      this.$error(this.$t('api_test.automation.rerun_warning'));
     },
     onMessages(e) {
       // 确认连接建立成功，开始执行
