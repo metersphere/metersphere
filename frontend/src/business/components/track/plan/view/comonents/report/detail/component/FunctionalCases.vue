@@ -25,12 +25,6 @@
           </template>
         </el-table-column>
 
-<!--        <el-table-column-->
-<!--          prop="nodePath"-->
-<!--          :label="$t('test_track.case.module')"-->
-<!--          show-overflow-tooltip>-->
-<!--        </el-table-column>-->
-
         <el-table-column
           prop="projectName"
           :label="$t('test_track.case.project_name')"
@@ -71,7 +65,6 @@ import MethodTableItem from "../../../../../../common/tableItems/planview/Method
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
 import {
   getPlanFunctionAllCase,
-  getPlanFunctionFailureCase,
   getSharePlanFunctionAllCase,
   getSharePlanFunctionFailureCase
 } from "@/network/test-plan";
@@ -85,7 +78,14 @@ export default {
     report: {},
     shareId: String,
     isAll: Boolean,
-    isDb: Boolean
+    isDb: Boolean,
+    filterStatus: String,
+    allTestCase: {
+      type: Array,
+      default() {
+        return [];
+      }
+    }
   },
   data() {
     return {
@@ -100,36 +100,22 @@ export default {
       if (this.testCases) {
         this.$emit('setSize', this.testCases.length);
       }
+    },
+    allTestCase() {
+      this.getFunctionalTestCase();
     }
   },
   methods: {
     getFunctionalTestCase() {
-      if (this.isTemplate || this.isDb) {
-        if (this.isAll) {
-          this.testCases = this.report.functionAllCases ? this.report.functionAllCases : [];
-        } else {
-          this.testCases = this.report.functionFailureCases ? this.report.functionFailureCases : [];
-        }
-      } else if (this.isShare) {
-        if (this.isAll) {
-          getSharePlanFunctionAllCase(this.shareId, this.planId, (data) => {
-            this.testCases = data;
-          });
-        } else {
-          getSharePlanFunctionFailureCase(this.shareId, this.planId, (data) => {
-            this.testCases = data;
-          });
-        }
+      this.testCases = [];
+      if (this.filterStatus) {
+        this.allTestCase.forEach(item => {
+          if (item.status === this.filterStatus) {
+            this.testCases.push(item);
+          }
+        });
       } else {
-        if (this.isAll) {
-          getPlanFunctionAllCase(this.planId, (data) => {
-            this.testCases = data;
-          });
-        } else {
-          getPlanFunctionFailureCase(this.planId, (data) => {
-            this.testCases = data;
-          });
-        }
+        this.testCases = this.allTestCase;
       }
     }
   }

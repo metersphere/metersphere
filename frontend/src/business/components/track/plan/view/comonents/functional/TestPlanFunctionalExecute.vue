@@ -41,12 +41,7 @@ export default {
       this.testCase.status = status;
     },
     saveCase() {
-      // 从其他状态改成失败才需要写评论
-      if (this.testCase.status === 'Failure' && this.originStatus !== 'Failure' && !this.testCase.comment) {
-        this.$refs.comment.inputLight();
-      } else {
-        this.$emit('saveCase');
-      }
+      this.$emit('saveCase');
     }
   }
 }

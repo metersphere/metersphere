@@ -87,7 +87,7 @@ export default {
       if (this.planReportTemplate) {
         this.init();
       }
-    }
+    },
   },
   created() {
     this.getReport();
@@ -181,10 +181,6 @@ export default {
               enable: true,
               name: this.$t('test_track.report.test_result'),
             },
-            failure: {
-              enable: true,
-              name: this.$t('test_track.report.fail_case'),
-            },
             issue: {
               enable: true,
               name: this.$t('test_track.report.issue_list'),
@@ -192,7 +188,19 @@ export default {
             all: {
               enable: true,
               name: this.$t('test_track.report.all_case'),
-            }
+            },
+            failure: {
+              enable: true,
+              name: this.$t('test_track.report.fail_case'),
+            },
+            blocking: {
+              enable: true,
+              name: this.$t('test_track.plan_view.blocking') + this.$t('commons.track'),
+            },
+            skip: {
+              enable: true,
+              name: this.$t('test_track.plan_view.skip') + this.$t('commons.track'),
+            },
           }
         },
         api: {
