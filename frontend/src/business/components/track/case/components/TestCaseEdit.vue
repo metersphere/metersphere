@@ -829,24 +829,6 @@ export default {
     },
     getOption(param) {
       let formData = new FormData();
-      if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
-        this.$refs.otherInfo.uploadList.forEach(f => {
-          formData.append("file", f);
-        });
-      }
-
-      if (this.$refs.otherInfo && this.$refs.otherInfo.fileList) {
-        if (param.isCopy) {
-          // 如果是copy，则把文件的ID传到后台进行文件复制
-          param.fileIds = this.$refs.otherInfo.fileList.map(f => f.id);
-        }
-        param.updatedFileList = this.$refs.otherInfo.fileList;
-      } else {
-        param.fileIds = [];
-        param.updatedFileList = [];
-      }
-      param.handleAttachment = this.isClickAttachmentTab;
-
       let requestJson = JSON.stringify(param, function (key, value) {
         return key === "file" ? undefined : value
       });

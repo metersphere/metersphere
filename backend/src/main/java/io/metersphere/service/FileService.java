@@ -126,7 +126,7 @@ public class FileService {
         final FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
         fileAttachmentMetadata.setId(UUID.randomUUID().toString());
         fileAttachmentMetadata.setName(file.getOriginalFilename());
-        fileAttachmentMetadata.setType(getFileType(fileAttachmentMetadata.getName()).name());
+        fileAttachmentMetadata.setType(getFileTypeWithoutEnum(fileAttachmentMetadata.getName()));
         fileAttachmentMetadata.setSize(file.getSize());
         fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
         fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
@@ -154,7 +154,7 @@ public class FileService {
             final FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
             fileAttachmentMetadata.setId(UUID.randomUUID().toString());
             fileAttachmentMetadata.setName(attachmentName);
-            fileAttachmentMetadata.setType(getFileType(attachmentName).name());
+            fileAttachmentMetadata.setType(getFileTypeWithoutEnum(attachmentName));
             fileAttachmentMetadata.setSize(Integer.valueOf(bytes.length).longValue());
             fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
             fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
@@ -332,6 +332,15 @@ public class FileService {
         return FileType.valueOf(type.toUpperCase());
     }
 
+    private String getFileTypeWithoutEnum(String filename) {
+        if (StringUtils.isEmpty(filename)) {
+            return "";
+        }
+        int s = filename.lastIndexOf(".") + 1;
+        String type = filename.substring(s);
+        return type.toUpperCase();
+    }
+
     public List<FileMetadata> getFileMetadataByCaseId(String caseId) {
         TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
         testCaseFileExample.createCriteria().andCaseIdEqualTo(caseId);
@@ -377,7 +386,9 @@ public class FileService {
         return fileAttachmentMetadataMapper.selectByExample(example);
     }
 
-
+    public FileAttachmentMetadata getFileAttachmentMetadataByFileId(String fileId) {
+        return fileAttachmentMetadataMapper.selectByPrimaryKey(fileId);
+    }
 
     public void deleteFileById(String fileId) {
         deleteFileByIds(Collections.singletonList(fileId));

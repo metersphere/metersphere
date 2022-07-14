@@ -107,16 +107,19 @@
                 <el-row>
                   <el-col :span="22">
                     <el-upload
-                      accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx,.txt,.json,.jmx,.side,.mp4,.mov,.dcm,.zip,.rar"
-                      action="#"
+                      multiple
+                      :limit="8"
+                      action=""
+                      :auto-upload="true"
+                      :file-list="fileList"
                       :show-file-list="false"
                       :before-upload="beforeUpload"
                       :http-request="handleUpload"
                       :on-exceed="handleExceed"
-                      multiple
-                      :limit="8"
-                      :file-list="fileList">
-                      <el-button type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+                      :on-success="handleSuccess"
+                      :on-error="handleError"
+                      :disabled="type === 'add' || type === 'copy'">
+                      <el-button type="primary" :disabled="type === 'add' || type === 'copy'" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
                       <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
                     </el-upload>
                   </el-col>
@@ -197,7 +200,7 @@ import {
   getCurrentProjectID,
   getCurrentUser,
   getCurrentUserId,
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, getTypeByFileName, hasLicense,
 } from "@/common/js/utils";
 import {enableThirdPartTemplate, getIssuePartTemplateWithProject, getPlatformTransitions} from "@/network/Issue";
 import CustomFiledFormItem from "@/business/components/common/components/form/CustomFiledFormItem";
@@ -207,6 +210,7 @@ import ReviewCommentItem from "@/business/components/track/review/commom/ReviewC
 import {TokenKey} from "@/common/js/constants";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
+import axios from "axios";
 
 const {getIssuesById} = require("@/network/Issue");
 
@@ -306,12 +310,11 @@ export default {
       comments: [],
       richTextDefaultOpen: 'preview',
       tabActiveName: 'relateTestCase',
-      uploadList: [],
       fileList: [],
       tableData: [],
       readOnly: false,
       isDelete: true,
-      intervalMap: new Map()
+      cancelFileToken: [],
     };
   },
   props: {
@@ -337,6 +340,15 @@ export default {
       return enableThirdPartTemplate(this.currentProject);
     },
   },
+  watch: {
+    tabActiveName() {
+      if (this.tabActiveName === 'attachment') {
+        if (this.type === 'edit' && this.issueId) {
+          this.getFileMetaData(this.issueId);
+        }
+      }
+    },
+  },
   methods: {
     resetForm() {
       this.form = {
@@ -356,12 +368,14 @@ export default {
       }
     },
     open(data, type) {
+      this.tabActiveName = 'relateTestCase'
       this.showFollow = false;
       this.result.loading = true;
       this.type = type;
       this.richTextDefaultOpen = this.type === 'edit' ? 'preview' : 'edit';
       if (this.$refs.testCaseIssueList) {
         this.$refs.testCaseIssueList.clear();
+        this.$refs.testCaseIssueList.isXpack = hasLicense();
       }
       this.$nextTick(() => {
         getIssuePartTemplateWithProject((template, project) => {
@@ -440,7 +454,6 @@ export default {
     initEdit(data) {
       this.tableData = [];
       this.fileList = [];
-      this.uploadList = [];
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
@@ -564,21 +577,6 @@ export default {
     },
     getOption(param) {
       let formData = new FormData();
-
-      if (this.uploadList) {
-        this.uploadList.forEach(f => {
-          formData.append("file", f);
-        });
-      }
-
-      if (this.fileList) {
-        // 如果是copy，则把文件的ID传到后台进行文件复制 TODO
-        param.updatedFileList = this.fileList;
-      } else {
-        param.fileIds = [];
-        param.updatedFileList = [];
-      }
-
       let requestJson = JSON.stringify(param, function (key, value) {
         return key === "file" ? undefined : value
       });
@@ -627,12 +625,11 @@ export default {
       }
     },
     fileValidator(file) {
-      /// todo: 是否需要对文件内容和大小做限制
-      return file.size > 0;
+      return file.size < 500 * 1024 * 1024;
     },
     beforeUpload(file) {
       if (!this.fileValidator(file)) {
-        /// todo: 显示错误信息
+        this.$error(this.$t('load_test.file_size_out_of_bounds') + file.name);
         return false;
       }
 
@@ -640,22 +637,84 @@ export default {
         this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
         return false;
       }
-
+    },
+    handleUpload(e) {
+      // 表格生成上传文件数据
+      let file = e.file;
       let user = JSON.parse(localStorage.getItem(TokenKey));
       this.tableData.push({
         name: file.name,
         size: byteToSize(file.size),
         updateTime: new Date().getTime(),
-        percentage: 0,
+        progress: 0,
         status: 0,
-        creator: user.name
+        creator: user.name,
+        type: getTypeByFileName(file.name)
       });
 
-      this.handleProcess(file);
-      return true;
+      // 上传文件
+      this.uploadFile(e, (param) => {
+        this.showProgress(e.file, param)
+      })
     },
-    handleUpload(uploadResources) {
-      this.uploadList.push(uploadResources.file);
+    async uploadFile(param, progressCallback) {
+      let file = param.file;
+      let progress = 0;
+      let formData = new FormData();
+      let requestJson = JSON.stringify({"id": this.issueId});
+      formData.append("file", file);
+      formData.append('request', new Blob([requestJson], {
+        type: "application/json"
+      }));
+
+      let CancelToken = axios.CancelToken
+      let self = this;
+      axios({
+        headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+        method: 'post',
+        url: '/issues/attachment/upload',
+        data: formData,
+        cancelToken: new CancelToken(function executor(c) {
+          self.cancelFileToken.push({"name": file.name, "cancelFunc": c});
+        }),
+        onUploadProgress: progressEvent => { // 获取文件上传进度
+          progress = (progressEvent.loaded / progressEvent.total * 100) | 0
+          progressCallback({ progress, status: progress })
+        }
+      }).then(response => { // 成功回调
+        progress = 100;
+        param.onSuccess(response);
+        progressCallback({progress, status: 'success'});
+      }).catch(({error}) => { // 失败回调
+        progress = 100;
+        progressCallback({progress, status: 'error'});
+      })
+    },
+    showProgress(file, params) {
+      const { progress, status } = params
+      const arr = [...this.tableData].map(item => {
+        if (item.name === file.name) {
+          item.progress = progress
+          item.status = status
+        }
+        return item
+      })
+      this.tableData = [...arr]
+    },
+    handleExceed(files, fileList) {
+      this.$error(this.$t('load_test.file_size_limit'));
+    },
+    handleSuccess(response, file, fileList) {
+      let readyFiles = fileList.filter(item => item.status === 'success')
+      if (readyFiles.length === fileList.length ) {
+        this.getFileMetaData(this.issueId);
+      }
+    },
+    handleError(err, file, fileList) {
+      let readyFiles = fileList.filter(item => item.status === 'success')
+      if (readyFiles.length === fileList.length ) {
+        this.getFileMetaData(this.issueId);
+      }
     },
     handleDownload(file) {
       let data = {
@@ -697,51 +756,26 @@ export default {
         }
       });
     },
-    handleCancel(file, index) {
-      this.fileList.splice(index, 1);
-      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
-      if (i > -1) {
-        this.uploadList.splice(i, 1);
-      }
-      let cancelFile = this.tableData.filter(f => f.name === file.name)[0];
-      clearInterval(this.intervalMap.get(cancelFile.name));
-      cancelFile.percentage = 100;
-      cancelFile.status = this.$t('notice.result.EXECUTE_FAILED');
-    },
     _handleDelete(file, index) {
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
-      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
-      if (i > -1) {
-        this.uploadList.splice(i, 1);
-      }
+      this.$get('/issues/attachment/delete/' + file.id, () => {
+        this.$success(this.$t('commons.delete_success'));
+        this.getFileMetaData(this.issueId);
+      });
     },
-    handleExceed() {
-      this.$error(this.$t('load_test.file_size_limit'));
-    },
-    handleProcess(file) {
-      let currentUploadFile = this.tableData.filter(f => f.name === file.name)[0];
-      const interval = setInterval(() => {
-        let randomNum = Math.floor(Math.random() * 10);
-        if (currentUploadFile.percentage + randomNum > 100) {
-          clearInterval(interval)
-          currentUploadFile.percentage = 100;
-          currentUploadFile.status = this.$t('notice.result.EXECUTE_COMPLETED')
-          return
-        }
-        currentUploadFile.percentage += randomNum;
-        currentUploadFile.status += randomNum;
-      }, file.size > 1024 * 1024 ? 200 : 100)
-      this.intervalMap.set(currentUploadFile.name, interval);
+    handleCancel(file, index) {
+      this.fileList.splice(index, 1);
+      let cancelToken = this.cancelFileToken.filter(f => f.name === file.name)[0];
+      cancelToken.cancelFunc();
+      let cancelFile = this.tableData.filter(f => f.name === file.name)[0];
+      cancelFile.progress = 100;
+      cancelFile.status = 'error';
     },
     getFileMetaData(id) {
       // 保存用例后传入用例id，刷新文件列表，可以预览和下载
-      if (this.uploadList && this.uploadList.length > 0 && !id) {
-        return;
-      }
       this.fileList = [];
       this.tableData = [];
-      this.uploadList = [];
       if (id) {
         this.result = this.$get("issues/file/attachmentMetadata/" + id, response => {
           let files = response.data;
@@ -753,8 +787,8 @@ export default {
           this.tableData = JSON.parse(JSON.stringify(files));
           this.tableData.map(f => {
             f.size = byteToSize(f.size);
-            f.status = this.$t('notice.result.EXECUTE_COMPLETED');
-            f.percentage = 100
+            f.status = 'success';
+            f.progress = 100
           });
         });
       }

@@ -47,6 +47,10 @@
         prop="projectName">
       </ms-table-column>
 
+      <ms-table-column v-if="isXpack"
+        :label="$t('commons.version')"
+        prop="versionName">
+      </ms-table-column>
     </ms-table>
 
     <test-case-relate-list
@@ -64,6 +68,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "@/business/components/track/common/tableItems/planview/TypeTableItem";
 import TestCaseRelateList from "@/business/components/track/issue/TestCaseRelateList";
+import {hasLicense} from "@/common/js/utils";
 export default {
   name: "TestCaseIssueList",
   components: {TestCaseRelateList, TypeTableItem, PriorityTableItem, MsTableColumn, MsTable},
@@ -80,6 +85,7 @@ export default {
           exec: this.handleDelete
         }
       ],
+      isXpack: false,
     };
   },
   props: {

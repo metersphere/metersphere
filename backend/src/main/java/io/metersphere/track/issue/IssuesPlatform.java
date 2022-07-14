@@ -11,7 +11,6 @@ import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,13 +31,13 @@ public interface IssuesPlatform {
      *
      * @param issuesRequest issueRequest
      */
-    IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest, List<MultipartFile> files);
+    IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest);
 
     /**
      * 更新缺陷
      * @param request
      */
-    void updateIssue(IssuesUpdateRequest request, List<MultipartFile> files);
+    void updateIssue(IssuesUpdateRequest request);
 
     /**
      * 删除缺陷平台缺陷

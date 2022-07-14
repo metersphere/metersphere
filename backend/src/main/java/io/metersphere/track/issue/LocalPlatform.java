@@ -13,7 +13,6 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +41,7 @@ public class LocalPlatform extends LocalAbstractPlatform {
     }
 
     @Override
-    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
         String issueStatus = "new";
         if (StringUtils.isNotBlank(issuesRequest.getCustomFields())) {
             List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
@@ -76,7 +75,7 @@ public class LocalPlatform extends LocalAbstractPlatform {
     }
 
     @Override
-    public void updateIssue(IssuesUpdateRequest request, List<MultipartFile> files) {
+    public void updateIssue(IssuesUpdateRequest request) {
         handleIssueUpdate(request);
     }
 }

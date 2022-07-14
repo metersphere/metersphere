@@ -50,6 +50,7 @@ public class TestCaseIssueService {
         List<String> caseIds = getCaseIdsByIssuesId(request.getIssuesId());
         List<TestCaseDTO> list = testCaseService.getTestCaseByIds(caseIds);
         testCaseService.addProjectName(list);
+        testCaseService.addVersionName(list);
         return list;
     }
 

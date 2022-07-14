@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.AttachmentType;
@@ -36,7 +35,6 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -108,7 +106,7 @@ public class IssuesService {
         List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
         IssuesWithBLOBs issues = null;
         for (AbstractIssuePlatform platform : platformList) {
-            issues = platform.addIssue(issuesRequest, null);
+            issues = platform.addIssue(issuesRequest);
         }
         if (issuesRequest.getIsPlanEdit()) {
             issuesRequest.getAddResourceIds().forEach(l -> {
@@ -116,39 +114,9 @@ public class IssuesService {
             });
         }
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
-        List<CustomFieldResource> addFields = issuesRequest.getAddFields();
-        addFields.addAll(issuesRequest.getEditFields());
-        customFieldIssuesService.addFields(issuesRequest.getId(), addFields);
-        return issues;
-    }
-
-
-    public void updateIssues(IssuesUpdateRequest issuesRequest) {
-        issuesRequest.getId();
-        List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
-        platformList.forEach(platform -> {
-            platform.updateIssue(issuesRequest, null);
-        });
+        customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
-        customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
-        // todo 缺陷更新事件？
-    }
-
-    public IssuesWithBLOBs addIssuesRefactor(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
-        List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
-        IssuesWithBLOBs issues = null;
-        for (AbstractIssuePlatform platform : platformList) {
-            issues = platform.addIssue(issuesRequest, files);
-        }
-        if (issuesRequest.getIsPlanEdit()) {
-            issuesRequest.getAddResourceIds().forEach(l -> {
-                testCaseIssueService.updateIssuesCount(l);
-            });
-        }
-        saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
-        customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
-
-        // copy的附件
+        // copy附件
         if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
             final String addIssueId = issues.getId();
             IssueFileExample example = new IssueFileExample();
@@ -156,6 +124,7 @@ public class IssuesService {
             List<IssueFile> issueFiles = issueFileMapper.selectByExample(example);
             if (issueFiles != null) {
                 issueFiles.forEach(issueFile -> {
+                    // 同步MS附件
                     FileAttachmentMetadata fileAttachmentMetadata = fileService.copyAttachment(issueFile.getFileId(), AttachmentType.ISSUE.type(), addIssueId);
                     IssueFile newIssueFile = new IssueFile();
                     newIssueFile.setIssueId(addIssueId);
@@ -164,57 +133,40 @@ public class IssuesService {
                 });
             }
         }
-
-        // 新的附件
-        if (files != null) {
-            files.forEach(file -> {
-                FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.ISSUE.type(), issuesRequest.getId());
-                IssueFile issueFile = new IssueFile();
-                issueFile.setIssueId(issuesRequest.getId());
-                issueFile.setFileId(fileAttachmentMetadata.getId());
-                issueFileMapper.insert(issueFile);
-            });
-        }
         return issues;
     }
 
-
-    public void updateIssuesRefactor(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
-        issuesRequest.getId();
+    public void updateIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
-            platform.updateIssue(issuesRequest, files);
+            platform.updateIssue(issuesRequest);
         });
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
-        // todo 缺陷更新事件？
+    }
 
-        // 删除原来的文件
-        List<FileMetadata> updatedFiles = issuesRequest.getUpdatedFileList();
-        List<FileAttachmentMetadata> originFiles = fileService.getFileAttachmentMetadataByIssueId(issuesRequest.getId());
-        List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-        List<String> originFileIds = originFiles.stream().map(FileAttachmentMetadata::getId).collect(Collectors.toList());
-        // 获得差异的附件ID
-        List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
-        // 删除差异附件记录, 目录下附件文件
-        fileService.deleteAttachment(deleteFileIds);
-        fileService.deleteFileAttachmentByIds(deleteFileIds);
-        //删除用例文件关联记录
-        if (!CollectionUtils.isEmpty(deleteFileIds)) {
-            IssueFileExample issueFileExample = new IssueFileExample();
-            issueFileExample.createCriteria().andFileIdIn(deleteFileIds);
-            issueFileMapper.deleteByExample(issueFileExample);
+    public void uploadAttachment(IssuesUpdateRequest request, MultipartFile file) {
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(request.getId());
+        if (issuesWithBLOBs == null) {
+            MSException.throwException(Translator.get("issues_attachment_upload_not_found") + request.getId());
         }
+        FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.ISSUE.type(), request.getId());
+        IssueFile issueFile = new IssueFile();
+        issueFile.setIssueId(request.getId());
+        issueFile.setFileId(fileAttachmentMetadata.getId());
+        issueFileMapper.insert(issueFile);
+    }
 
-        // 保存新的附件
-        if (files != null) {
-            files.forEach(file -> {
-                FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.ISSUE.type(), issuesRequest.getId());
-                IssueFile issueFile = new IssueFile();
-                issueFile.setIssueId(issuesRequest.getId());
-                issueFile.setFileId(fileAttachmentMetadata.getId());
-                issueFileMapper.insert(issueFile);
-            });
+    public void deleteAttachment(String id) {
+        // 删除附件记录, 目录下附件文件
+        if (StringUtils.isNotEmpty(id)) {
+            List<String> ids = Arrays.asList(id);
+            fileService.deleteAttachment(ids);
+            fileService.deleteFileAttachmentByIds(ids);
+            //删除缺陷文件关联记录
+            IssueFileExample issueFileExample = new IssueFileExample();
+            issueFileExample.createCriteria().andFileIdIn(ids);
+            issueFileMapper.deleteByExample(issueFileExample);
         }
     }
 
@@ -417,6 +369,7 @@ public class IssuesService {
         AbstractIssuePlatform platform = IssueFactory.createPlatform(issuesWithBLOBs.getPlatform(), issuesRequest);
         platform.deleteIssue(id);
         // 删除缺陷对应的附件
+        fileService.deleteAttachment(AttachmentType.ISSUE.type(), id);
         IssueFileExample issueFileExample = new IssueFileExample();
         issueFileExample.createCriteria().andIssueIdEqualTo(id);
         List<IssueFile> issueFiles = issueFileMapper.selectByExample(issueFileExample);
@@ -427,7 +380,6 @@ public class IssuesService {
             fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
         }
         issueFileMapper.deleteByExample(issueFileExample);
-        fileService.deleteAttachment(AttachmentType.ISSUE.type(), id);
     }
 
     public IssuesWithBLOBs get(String id) {

@@ -9,12 +9,12 @@
             <template v-slot:default="scope">
               <el-tooltip class="item" effect="dark" :content="scope.row.name" placement="top">
                 <el-progress
-                  :color="scope.row.percentage >= 100 ? '' : uploadProgressColor"
+                  :color="scope.row.progress >= 100 ? '' : uploadProgressColor"
                   type="line"
                   :format="clearPercentage(scope.row)"
                   :stroke-width="40"
                   :text-inside="true"
-                  :percentage="scope.row.percentage >= 100 ? 100 : scope.row.percentage"
+                  :percentage="scope.row.progress >= 100 ? 100 : scope.row.progress"
                 ></el-progress>
               </el-tooltip>
             </template>
@@ -37,7 +37,7 @@
             :width="70"
             :label="$t('commons.status')">
             <template v-slot:default="scope">
-              <span :class="scope.row.status === '完成' ? 'green' : scope.row.status === '失败' ? 'red' : ''">{{ scope.row.status | formatProgressPercentage}}</span>
+              <span :class="scope.row.status === 'success' ? 'green' : scope.row.status === 'error' ? 'red' : ''">{{ scope.row.status | formatStatus}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -50,17 +50,18 @@
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
               <el-button @click="preview(scope.row)" :disabled="!scope.row.id" type="primary"
-                         v-if="scope.row.percentage === 100 && isPreview(scope.row)"
+                         v-if="scope.row.progress === 100 && isPreview(scope.row)"
                          icon="el-icon-view" size="mini" circle/>
               <el-button @click="handleDownload(scope.row)"  type="primary" :disabled="!scope.row.id"
-                         v-if="scope.row.percentage === 100"
+                         v-if="scope.row.progress === 100"
                          icon="el-icon-download" size="mini" circle/>
-              <el-button :disabled="readOnly || !isDelete || isCopy" @click="handleDelete(scope.row, scope.$index)" type="danger"
-                         v-if="scope.row.percentage === 100"
+              <el-button :disabled="readOnly || !isDelete || isCopy || !scope.row.id"
+                         @click="handleDelete(scope.row, scope.$index)" type="danger"
+                         v-if="scope.row.progress === 100"
                          icon="el-icon-delete" size="mini"
                          circle/>
               <el-button :disabled="readOnly || !isDelete" @click="handleCancel(scope.row, scope.$index)" type="danger"
-                         v-if="scope.row.percentage < 100"
+                         v-if="scope.row.progress < 100"
                          icon="el-icon-close" size="mini"
                          circle/>
             </template>
@@ -152,11 +153,11 @@ export default {
     },
   },
   filters: {
-    formatProgressPercentage(percentage) {
-      if (isNaN(percentage)) {
-        return percentage
+    formatStatus(status) {
+      if (isNaN(status)) {
+        return status === 'success' ? '完成' : '失败'
       }
-      return Math.floor(percentage * 100 / 100) + "%";
+      return Math.floor(status * 100 / 100) + "%";
     }
   }
 }
