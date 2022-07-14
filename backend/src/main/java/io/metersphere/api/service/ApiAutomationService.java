@@ -1219,8 +1219,8 @@ public class ApiAutomationService {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
             if (scenarioWithBLOBs.getVersionId() != null && scenarioWithBLOBs.getVersionId().equals("update")) {
-                if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
-                    scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getUpdateVersionId())) {
+                    scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 } else {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
