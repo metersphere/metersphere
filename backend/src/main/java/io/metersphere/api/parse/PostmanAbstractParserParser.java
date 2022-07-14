@@ -43,6 +43,13 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         request.setArguments(parseKeyValue(url == null ? new ArrayList<>() : url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
         addBodyHeader(request);
+        PostmanItem.ProtocolProfileBehavior protocolProfileBehavior = requestItem.getProtocolProfileBehavior();
+        if (protocolProfileBehavior != null &&
+                !protocolProfileBehavior.getFollowRedirects()) {
+            request.setFollowRedirects(false);
+        } else {
+            request.setFollowRedirects(true);
+        }
         return request;
     }
 
