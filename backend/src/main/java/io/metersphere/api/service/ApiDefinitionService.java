@@ -2088,7 +2088,7 @@ public class ApiDefinitionService {
             return new ArrayList<>();
         } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP");
+            example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash").andProtocolEqualTo("HTTP").andLatestEqualTo(true);
             List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
             List<String> apiIdList = new ArrayList<>();
             boolean urlSuffixEndEmpty = false;
