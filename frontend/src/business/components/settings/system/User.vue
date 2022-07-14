@@ -4,7 +4,7 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :create-permission="['SYSTEM_USER:READ+CREATE']" :condition.sync="condition" @search="search"
-                         @import="importUserDialogOpen" :show-import="true" :upload-permission="['SYSTEM_USER:READ+CREATE']" :import-tip="$t('commons.import_user')"
+                         @import="importUserDialogOpen" :show-import="true" :upload-permission="['SYSTEM_USER:READ+IMPORT']" :import-tip="$t('commons.import_user')"
                          :tip="$t('commons.search_by_name_or_id')" @create="create"
                          :create-tip="$t('user.create')" :title="$t('commons.user')"/>
       </template>
