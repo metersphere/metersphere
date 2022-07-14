@@ -589,3 +589,13 @@ export function byteToSize(bytes) {
   return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 }
 
+export function getTypeByFileName(filename) {
+  if (filename === '') {
+    return '';
+  }
+  let type = filename.substr(filename.lastIndexOf('.') + 1);
+  return type.toUpperCase();
+}
+
+
+

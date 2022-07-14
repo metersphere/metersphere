@@ -27,6 +27,7 @@ import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
+import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,22 +65,33 @@ public class IssuesController {
         return PageUtils.setPageInfo(page, issuesService.relateList(request));
     }
 
-    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/add")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
-    public IssuesWithBLOBs addIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        return issuesService.addIssuesRefactor(issuesRequest, files);
+    public IssuesWithBLOBs addIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
+        return issuesService.addIssues(issuesRequest);
     }
 
-    @PostMapping(value = "/update", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/update")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
-    public void updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        issuesService.updateIssuesRefactor(issuesRequest, files);
+    public void updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
+        issuesService.updateIssues(issuesRequest);
+    }
+
+    @PostMapping(value = "/attachment/upload", consumes = {"multipart/form-data"})
+    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.IMPORT, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
+    public void uploadAttachment(@RequestPart("request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) MultipartFile file) {
+        issuesService.uploadAttachment(issuesRequest, file);
+    }
+
+    @GetMapping("/attachment/delete/{fileId}")
+    public void deleteAttachment(@PathVariable String fileId) {
+        issuesService.deleteAttachment(fileId);
     }
 
     @GetMapping("/file/attachmentMetadata/{issueId}")

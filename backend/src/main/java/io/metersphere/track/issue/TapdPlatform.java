@@ -30,7 +30,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,7 +90,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
+    public IssuesWithBLOBs addIssue(IssuesUpdateRequest issuesRequest) {
 
         MultiValueMap<String, Object> param = buildUpdateParam(issuesRequest);
         TapdBug bug = tapdClient.addIssue(param);
@@ -112,7 +111,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void updateIssue(IssuesUpdateRequest request, List<MultipartFile> files) {
+    public void updateIssue(IssuesUpdateRequest request) {
         MultiValueMap<String, Object> param = buildUpdateParam(request);
         param.add("id", request.getPlatformId());
         handleIssueUpdate(request);

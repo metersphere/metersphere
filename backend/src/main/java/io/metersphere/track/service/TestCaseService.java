@@ -618,9 +618,11 @@ public class TestCaseService {
         testCaseFileExample.createCriteria().andCaseIdEqualTo(testCaseId);
         List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(testCaseFileExample);
         List<String> fileIds = testCaseFiles.stream().map(TestCaseFile::getFileId).collect(Collectors.toList());
-        FileAttachmentMetadataExample fileAttachmentMetadataExample = new FileAttachmentMetadataExample();
-        fileAttachmentMetadataExample.createCriteria().andIdIn(fileIds);
-        fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
+        if (CollectionUtils.isNotEmpty(fileIds)) {
+            FileAttachmentMetadataExample fileAttachmentMetadataExample = new FileAttachmentMetadataExample();
+            fileAttachmentMetadataExample.createCriteria().andIdIn(fileIds);
+            fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
+        }
         testCaseFileMapper.deleteByExample(testCaseFileExample);
         fileService.deleteAttachment(AttachmentType.TEST_CASE.type(), testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
@@ -867,6 +869,7 @@ public class TestCaseService {
     public List<TestCaseDTO> getTestCaseByNotInIssue(QueryTestCaseRequest request) {
         List<TestCaseDTO> list = extTestCaseMapper.getTestCaseByNotInIssue(request);
         addProjectName(list);
+        addVersionName(list);
         return list;
     }
 
@@ -881,6 +884,24 @@ public class TestCaseService {
             String projectName = projectMap.get(item.getProjectId());
             if (StringUtils.isNotBlank(projectName)) {
                 item.setProjectName(projectName);
+            }
+        });
+    }
+
+    public void addVersionName(List<TestCaseDTO> list) {
+        List<String> versionIds = list.stream().map(TestCase::getVersionId).collect(Collectors.toList());
+        List<ProjectVersion> versions = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(versionIds)) {
+            ProjectVersionExample example = new ProjectVersionExample();
+            example.createCriteria().andIdIn(versionIds);
+            versions = projectVersionMapper.selectByExample(example);
+        }
+        Map<String, String> projectVersionMap = versions.stream()
+                .collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+        list.forEach(item -> {
+            String versionName = projectVersionMap.get(item.getVersionId());
+            if (StringUtils.isNotBlank(versionName)) {
+                item.setVersionName(versionName);
             }
         });
     }
@@ -1964,7 +1985,6 @@ public class TestCaseService {
 
     public TestCase refactorSave(EditTestCaseRequest request, List<MultipartFile> files) {
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
-
         // 复制用例时复制对应附件数据
         if (StringUtils.isNotEmpty(request.getCopyCaseId())) {
             TestCaseFileExample example = new TestCaseFileExample();
@@ -1980,18 +2000,6 @@ public class TestCaseService {
                 });
             }
         }
-
-        // 新的附件
-        if (files != null) {
-            files.forEach(file -> {
-                FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.TEST_CASE.type(),  request.getId());
-                TestCaseFile testCaseFile = new TestCaseFile();
-                testCaseFile.setFileId(fileAttachmentMetadata.getId());
-                testCaseFile.setCaseId(request.getId());
-                testCaseFileMapper.insert(testCaseFile);
-            });
-        }
-
         return testCaseWithBLOBs;
     }
 
@@ -2039,39 +2047,34 @@ public class TestCaseService {
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
         }
-
-        if (BooleanUtils.isTrue(request.isHandleAttachment())) {
-            // 新选择了一个文件，删除原来的文件
-            List<FileMetadata> updatedFiles = request.getUpdatedFileList();
-            List<FileAttachmentMetadata> originFiles = fileService.getFileAttachmentMetadataByCaseId(request.getId());
-            List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-            List<String> originFileIds = originFiles.stream().map(FileAttachmentMetadata::getId).collect(Collectors.toList());
-            // 获得差异的附件ID
-            List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
-            // 删除差异附件记录, 目录下附件文件
-            fileService.deleteAttachment(deleteFileIds);
-            fileService.deleteFileAttachmentByIds(deleteFileIds);
-            //删除用例文件关联记录
-            if (!CollectionUtils.isEmpty(deleteFileIds)) {
-                TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
-                testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
-                testCaseFileMapper.deleteByExample(testCaseFileExample);
-            }
-
-            // 保存新的附件
-            if (files != null) {
-                files.forEach(file -> {
-                    FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.TEST_CASE.type(), request.getId());
-                    TestCaseFile testCaseFile = new TestCaseFile();
-                    testCaseFile.setFileId(fileAttachmentMetadata.getId());
-                    testCaseFile.setCaseId(request.getId());
-                    testCaseFileMapper.insert(testCaseFile);
-                });
-            }
-        }
-
         this.setNode(request);
         return editTestCase(request);
+    }
+
+    public void uploadAttachment(EditTestCaseRequest request, MultipartFile file) {
+        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
+        if (testCaseWithBLOBs == null) {
+            MSException.throwException(Translator.get("test_case_attachment_upload_not_found") + request.getId());
+        }
+
+        FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.TEST_CASE.type(), request.getId());
+        TestCaseFile testCaseFile = new TestCaseFile();
+        testCaseFile.setFileId(fileAttachmentMetadata.getId());
+        testCaseFile.setCaseId(request.getId());
+        testCaseFileMapper.insert(testCaseFile);
+    }
+
+    public void deleteAttachment(String id) {
+        // 删除附件记录, 目录下附件文件
+        if (StringUtils.isNotEmpty(id)) {
+            List<String> ids = Arrays.asList(id);
+            fileService.deleteAttachment(ids);
+            fileService.deleteFileAttachmentByIds(ids);
+            //删除用例文件关联记录
+            TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
+            testCaseFileExample.createCriteria().andFileIdIn(ids);
+            testCaseFileMapper.deleteByExample(testCaseFileExample);
+        }
     }
 
     public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files) {
