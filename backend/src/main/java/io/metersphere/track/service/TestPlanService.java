@@ -1864,7 +1864,7 @@ public class TestPlanService {
             report.setExecuteRate(0.0);
         }
         if (report.getPassCount() != 0 && report.getCaseCount() != null) {
-            report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getExecuteCount());
+            report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getCaseCount());
         } else {
             report.setPassRate(0.0);
         }
