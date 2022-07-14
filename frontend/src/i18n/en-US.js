@@ -1453,6 +1453,7 @@ export default {
       request_error: "error",
       generate_report: "Generate report",
       rerun: "fail and rerun",
+      rerun_warning: "The connection is abnormal, please check the environment configuration",
       rerun_success: "Rerun has already started, refresh the results later to view"
     },
     environment: {
