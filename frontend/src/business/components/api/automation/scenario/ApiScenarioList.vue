@@ -718,6 +718,10 @@ export default {
         this.condition.moduleIds = [];
       }
 
+      if (!this.condition.filters.status) {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
+
       // todo
       if (projectId != null && typeof projectId === 'string') {
         this.condition.projectId = projectId;
