@@ -1266,7 +1266,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
                 if (scenarioWithBLOBs.getVersionId() != null && !scenarioWithBLOBs.getVersionId().equals("update")) {
-                    scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId());
+                    scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId() == null ? sameRequest.get(0).getId() : sameRequest.get(0).getRefId());
                     scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                     scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
                 }
@@ -1292,6 +1292,9 @@ public class ApiAutomationService {
                 }
                 if (scenarioWithBLOBs.getNum() == null) {
                     scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
+                }
+                if (scenarioWithBLOBs.getRefId() == null) {
+                    scenarioWithBLOBs.setRefId(existScenario.getId());
                 }
                 if (scenarioWithBLOBs.getRefId() == null) {
                     scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
