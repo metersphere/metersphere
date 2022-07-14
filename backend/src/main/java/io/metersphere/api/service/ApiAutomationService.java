@@ -599,9 +599,14 @@ public class ApiAutomationService {
             if (scenario == null) {
                 return;
             }
-            ApiScenarioRequest request = new ApiScenarioRequest();
-            request.setRefId(scenario.getRefId());
-            List<String> scenarioIds = extApiScenarioMapper.selectIdsByQuery(request);
+            List<String> scenarioIds = new ArrayList<>();
+            if (StringUtils.isNotBlank(scenario.getRefId())) {
+                ApiScenarioRequest request = new ApiScenarioRequest();
+                request.setRefId(scenario.getRefId());
+                scenarioIds = extApiScenarioMapper.selectIdsByQuery(request);
+            } else {
+                scenarioIds.add(scenario.getId());
+            }
             //将这些场景的定时任务删除掉
             scenarioIds.forEach(scenarioId -> scheduleService.deleteByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name()));
             ApiScenarioExampleWithOperation example = new ApiScenarioExampleWithOperation();
@@ -1238,6 +1243,9 @@ public class ApiAutomationService {
             if (scenarioWithBLOBs.getNum() == null) {
                 scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
             }
+            if (scenarioWithBLOBs.getRefId() == null) {
+                scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+            }
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
             extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
@@ -1258,7 +1266,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
                 if (scenarioWithBLOBs.getVersionId() != null && !scenarioWithBLOBs.getVersionId().equals("update")) {
-                    scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId());
+                    scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId() == null ? sameRequest.get(0).getId() : sameRequest.get(0).getRefId());
                     scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                     scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
                 }
@@ -1267,6 +1275,9 @@ public class ApiAutomationService {
                 }
                 if (scenarioWithBLOBs.getNum() == null) {
                     scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
+                }
+                if (scenarioWithBLOBs.getRefId() == null) {
+                    scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
                 }
                 batchMapper.insert(scenarioWithBLOBs);
             } else {
@@ -1281,6 +1292,9 @@ public class ApiAutomationService {
                 }
                 if (scenarioWithBLOBs.getNum() == null) {
                     scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
+                }
+                if (scenarioWithBLOBs.getRefId() == null) {
+                    scenarioWithBLOBs.setRefId(existScenario.getId());
                 }
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
@@ -1361,6 +1375,9 @@ public class ApiAutomationService {
                 }
                 if (scenarioWithBLOBs.getNum() == null) {
                     scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
+                }
+                if (scenarioWithBLOBs.getRefId() == null) {
+                    scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
                 }
                 batchMapper.insert(scenarioWithBLOBs);
                 // 存储依赖关系
