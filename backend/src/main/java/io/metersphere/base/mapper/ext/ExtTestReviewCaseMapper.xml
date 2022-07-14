@@ -431,6 +431,7 @@
         <where>
             tcrtc.review_id = #{request.reviewId}
             and test_case.node_id = #{request.nodeId}
+            and test_case.status != 'Trash'
         </where>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
