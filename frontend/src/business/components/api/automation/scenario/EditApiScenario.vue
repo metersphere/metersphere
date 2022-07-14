@@ -1157,50 +1157,8 @@ export default {
         }
       }
     },
-    scenarioAssertion(type, plugin, isAssertions, data) {
-      let isChildren = true;
-      if (!data) {
-        data = this.scenarioDefinition;
-        isChildren = false;
-      }
-      data.forEach(item => {
-        if (item.type === type) {
-          item.active = true;
-          item.scenarioAss = true;
-          isAssertions = true;
-        }
-        if (!isChildren) {
-          this.reloadTree = getUUID();
-        }
-      })
-      if (!isAssertions) {
-        setComponent(type, this, plugin);
-        for (let i in data) {
-          if (data[i].type === "Assertions") {
-            data[i].active = true;
-            data[i].scenarioAss = true;
-            let assertions = data[i];
-            data.splice(i, 1);
-            data.unshift(assertions);
-            this.sort();
-          }
-        }
-      }
-    },
     addComponent(type, plugin) {
-      let isAssertions = false;
-      if (type === 'Assertions') {
-        if (this.selectedTreeNode !== undefined && this.selectedTreeNode.type === 'scenario' && this.selectedTreeNode.referenced === 'Copy') {
-          this.selectedTreeNode.active = true;
-          this.scenarioAssertion(type, plugin, isAssertions, this.selectedTreeNode.hashTree);
-          this.selectedNode.expanded = true;
-          this.cancelBatchProcessing();
-        } else {
-          this.scenarioAssertion(type, plugin, isAssertions);
-        }
-      } else {
-        setComponent(type, this, plugin);
-      }
+      setComponent(type, this, plugin);
     },
     nodeClick(data, node) {
       if ((data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled && this.stepFilter) || data.refType === 'CASE') {

@@ -1,5 +1,15 @@
 import {ELEMENT_TYPE} from "@/business/components/api/automation/scenario/Setting";
-import {Assertions, ConstantTimer, Extract, IfController, JSR223Processor, JDBCProcessor, LoopController, TransactionController, PluginController} from "@/business/components/api/definition/model/ApiTestModel";
+import {
+  Assertions,
+  ConstantTimer,
+  Extract,
+  IfController,
+  JDBCProcessor,
+  JSR223Processor,
+  LoopController,
+  PluginController,
+  TransactionController
+} from "@/business/components/api/definition/model/ApiTestModel";
 import {getUUID} from "@/common/js/utils";
 
 export function buttons(this_) {
@@ -145,32 +155,69 @@ export function buttons(this_) {
   ];
   return buttons.filter(btn => btn.show);
 }
-export function setNode(_this,node) {
-  if(_this.selectedTreeNode !== undefined){
-    if(_this.stepFilter.get("SpecialSteps").indexOf(_this.selectedTreeNode.type) !== -1){
-      if (_this.selectedNode.parent.data.hashTree) {
-        _this.selectedNode.parent.data.hashTree.splice(_this.selectedTreeNode.index, 0, node);
-      } else {
-        _this.scenarioDefinition.splice(_this.selectedTreeNode.index, 0, node);
-      }
-      _this.$store.state.forceRerenderIndex = getUUID();
-    }else{
-      _this.selectedTreeNode.hashTree.push(node) ;
+
+export function scenarioAssertion(data, node) {
+  node.active = false;
+  let needAdd = true;
+  data.forEach(data => {
+    if (data.type === "Assertions") {
+      data.active = true;
+      data.scenarioAss = true;
+      needAdd = false;
+      return;
     }
-  }else{
-    _this.scenarioDefinition.push(node);
+  })
+  if (needAdd) {
+    data.splice(0, 0, node);
   }
 }
+
+export function setNode(_this, node) {
+  if (_this.selectedTreeNode !== undefined) {
+    if (_this.stepFilter.get("SpecialSteps").indexOf(_this.selectedTreeNode.type) !== -1) {
+      if (_this.selectedNode.parent.data.hashTree) {
+        //同级请求添加断言，添加到父级
+        if (node.type === 'Assertions') {
+          scenarioAssertion(_this.selectedNode.parent.data.hashTree, node);
+        } else {
+          _this.selectedNode.parent.data.hashTree.splice(_this.selectedTreeNode.index, 0, node);
+        }
+      } else {
+        //没有父级的直接加到当前的置顶
+        if (node.type === 'Assertions') {
+          scenarioAssertion(_this.scenarioDefinition, node);
+        } else {
+          _this.scenarioDefinition.splice(_this.selectedTreeNode.index, 0, node);
+        }
+      }
+      _this.$store.state.forceRerenderIndex = getUUID();
+    } else {
+      //选择场景时，直接添加到当前场景
+      if (node.type === 'Assertions' && _this.selectedTreeNode.type === 'scenario' && _this.selectedTreeNode.referenced === 'Copy') {
+        scenarioAssertion(_this.selectedTreeNode.hashTree, node);
+      } else {
+        _this.selectedTreeNode.hashTree.push(node);
+      }
+    }
+  } else {
+    if (node.type === 'Assertions') {
+      scenarioAssertion(_this.scenarioDefinition, node);
+    } else {
+      _this.scenarioDefinition.push(node);
+    }
+  }
+}
+
 export function setComponent(type, _this, plugin) {
   switch (type) {
     case ELEMENT_TYPE.IfController:
-      setNode(_this,new IfController());
+      setNode(_this, new IfController());
       break;
     case ELEMENT_TYPE.ConstantTimer:
-      setNode(_this,new ConstantTimer({label: "SCENARIO-REF-STEP"}));
+      setNode(_this, new ConstantTimer({label: "SCENARIO-REF-STEP"}));
       break;
     case ELEMENT_TYPE.JSR223Processor:
-      setNode(_this,new JSR223Processor({label: "SCENARIO-REF-STEP"}));
+      setNode(_this, new JSR223Processor({label: "SCENARIO-REF-STEP"}));
       break;
     case ELEMENT_TYPE.JSR223PreProcessor:
       setNode(_this, new JSR223Processor({type: "JSR223PreProcessor", label: "SCENARIO-REF-STEP"}));
@@ -205,7 +252,11 @@ export function setComponent(type, _this, plugin) {
       _this.$refs.scenarioRelevance.open();
       break;
     default:
-      setNode(_this,new PluginController({type: plugin.jmeterClazz, stepName: plugin.name, pluginId: plugin.scriptId}));
+      setNode(_this, new PluginController({
+        type: plugin.jmeterClazz,
+        stepName: plugin.name,
+        pluginId: plugin.scriptId
+      }));
       break;
   }
   if (_this.selectedNode) {
