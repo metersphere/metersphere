@@ -10,7 +10,9 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
+import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
+import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -29,6 +31,7 @@ import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.track.dto.TestPlanApiResultReportDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -69,6 +72,11 @@ public class TestPlanApiCaseService {
     private TestPlanService testPlanService;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiScenarioEnvService apiScenarioEnvService;
+
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -135,7 +143,7 @@ public class TestPlanApiCaseService {
     }
 
     public int deleteByCaseId(String caseId) {
-       return this.deleteByCaseIds(Arrays.asList(caseId));
+        return this.deleteByCaseIds(Arrays.asList(caseId));
     }
 
     public int deleteByCaseIds(List<String> caseIds) {
@@ -368,9 +376,66 @@ public class TestPlanApiCaseService {
         return extTestPlanApiCaseMapper.getApiTestCaseById(testPlanApiCaseId);
     }
 
+    /**
+     * 计算测试计划中接口用例的相关数据
+     *
+     * @param planId
+     * @param report
+     * @return 接口用例的最新执行报告
+     */
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanApiCaseMapper.selectForPlanReport(planId);
+        //计算测试计划中接口用例的相关数据
         calculatePlanReport(report, planReportCaseDTOS);
+        //记录接口用例的运行环境信息
+        List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
+        this.initProjectEnvironment(report, idList, "ApiCase");
+    }
+
+    /**
+     * 初始化项目环境信息
+     *
+     * @param report
+     * @param resourceIds  资源ID
+     * @param resourceType 资源类型 ApiCase/Scenario
+     */
+    public void initProjectEnvironment(TestPlanSimpleReportDTO report, List<String> resourceIds, String resourceType) {
+        if (!CollectionUtils.isEmpty(resourceIds)) {
+            if (StringUtils.equalsIgnoreCase("ApiCase", resourceType)) {
+                List<ApiDefinitionExecResultWithBLOBs> execResults = apiDefinitionExecResultService.selectByResourceIdsAndMaxCreateTime(resourceIds);
+                execResults.forEach(item -> {
+                    String envConf = item.getEnvConfig();
+                    String projectId = item.getProjectId();
+                    Map<String, List<String>> projectEnvMap = apiDefinitionService.getProjectEnvNameByEnvConfig(projectId, envConf);
+                    this.setProjectEnvMap(report, projectEnvMap);
+                });
+            } else if (StringUtils.equalsIgnoreCase("Scenario", resourceType)) {
+                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectProjectEnvMapByTestPlanScenarioIds(resourceIds);
+                this.setProjectEnvMap(report, projectEnvMap);
+            }
+        }
+
+    }
+
+    private void setProjectEnvMap(TestPlanSimpleReportDTO report, Map<String, List<String>> projectEnvMap) {
+        if (report != null && MapUtils.isNotEmpty(projectEnvMap)) {
+            if (report.getProjectEnvMap() == null) {
+                report.setProjectEnvMap(new LinkedHashMap<>());
+            }
+            for (Map.Entry<String, List<String>> entry : projectEnvMap.entrySet()) {
+                String projectName = entry.getKey();
+                List<String> envNameList = entry.getValue();
+                if (report.getProjectEnvMap().containsKey(projectName)) {
+                    envNameList.forEach(envName -> {
+                        if (!report.getProjectEnvMap().get(projectName).contains(envName)) {
+                            report.getProjectEnvMap().get(projectName).add(envName);
+                        }
+                    });
+                } else {
+                    report.getProjectEnvMap().put(projectName, envNameList);
+                }
+            }
+        }
     }
 
     public void calculatePlanReport(List<String> apiReportIds, TestPlanSimpleReportDTO report) {

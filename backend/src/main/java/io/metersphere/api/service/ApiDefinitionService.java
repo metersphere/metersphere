@@ -156,6 +156,9 @@ public class ApiDefinitionService {
     private ApiModuleService apiModuleService;
     @Resource
     private ApiTestEnvironmentService apiTestEnvironmentService;
+    @Lazy
+    @Resource
+    private ProjectService projectService;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -1342,6 +1345,27 @@ public class ApiDefinitionService {
             reportResult.setContent(result.getContent());
         }
         return reportResult;
+    }
+
+    public Map<String, List<String>> getProjectEnvNameByEnvConfig(String projectId, String envConfig) {
+        Map<String, List<String>> returnMap = new HashMap<>();
+        RunModeConfigDTO runModeConfigDTO = null;
+        try {
+            runModeConfigDTO = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
+        } catch (Exception e) {
+            LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
+        }
+        if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
+            String envId = runModeConfigDTO.getEnvMap().get(projectId);
+            String envName = apiTestEnvironmentService.selectNameById(envId);
+            String projectName = projectService.selectNameById(projectId);
+            if (StringUtils.isNoneEmpty(envName, projectName)) {
+                returnMap.put(projectName, new ArrayList<>() {{
+                    this.add(envName);
+                }});
+            }
+        }
+        return returnMap;
     }
 
     public String getEnvNameByEnvConfig(String projectId, String envConfig) {

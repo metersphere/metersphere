@@ -60,7 +60,8 @@
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" class="ms-btn" size="mini"
+                     circle/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;"
@@ -167,7 +168,7 @@
 </template>
 
 <script>
-import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -645,7 +646,7 @@ export default {
           resource.protocol = 'DUBBO'
         }
         let definitionData = this.$router.resolve({
-          name: 'ApiDefinition',
+          name: 'ApiDefinitionWithQuery',
           params: {
             redirectID: getUUID(),
             dataType: "api",
