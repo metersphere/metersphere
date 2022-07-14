@@ -1215,12 +1215,10 @@ public class ApiAutomationService {
     private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioMapper batchMapper, ExtApiScenarioMapper extApiScenarioMapper,
                                ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest, ApiTestCaseMapper apiTestCaseMapper, ApiDefinitionMapper apiDefinitionMapper) {
         if (CollectionUtils.isEmpty(sameRequest)) {
+            // 没有这个场景 新增
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
-            if (scenarioWithBLOBs.getVersionId() != null && !scenarioWithBLOBs.getVersionId().equals("update")) {
-                scenarioWithBLOBs.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
-                // 导入时设置版本
-                scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+            if (scenarioWithBLOBs.getVersionId() != null && scenarioWithBLOBs.getVersionId().equals("update")) {
                 if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
@@ -1228,24 +1226,17 @@ public class ApiAutomationService {
                 }
                 scenarioWithBLOBs.setLatest(true);
             } else {
-                if (StringUtils.isNotEmpty(apiTestImportRequest.getUpdateVersionId())) {
-                    scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
+                scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
+                scenarioWithBLOBs.setLatest(true); // 新增接口 latest = true
+                scenarioWithBLOBs.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
+                if (StringUtils.isNotEmpty(apiTestImportRequest.getVersionId())) {
+                    scenarioWithBLOBs.setVersionId(apiTestImportRequest.getVersionId());
                 } else {
                     scenarioWithBLOBs.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
             }
 
             checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
-            if (scenarioWithBLOBs.getOrder() == null) {
-                scenarioWithBLOBs.setOrder(getImportNextOrder(scenarioWithBLOBs.getProjectId()));
-            }
-            if (scenarioWithBLOBs.getNum() == null) {
-                scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
-            }
-            if (scenarioWithBLOBs.getRefId() == null) {
-                scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
-            }
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
             extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
@@ -1265,20 +1256,9 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setCreateTime(System.currentTimeMillis());
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setLatest(apiTestImportRequest.getVersionId().equals(apiTestImportRequest.getDefaultVersion()));
-                if (scenarioWithBLOBs.getVersionId() != null && !scenarioWithBLOBs.getVersionId().equals("update")) {
-                    scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId() == null ? sameRequest.get(0).getId() : sameRequest.get(0).getRefId());
-                    scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
-                    scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
-                }
-                if (scenarioWithBLOBs.getOrder() == null) {
-                    scenarioWithBLOBs.setOrder(getImportNextOrder(scenarioWithBLOBs.getProjectId()));
-                }
-                if (scenarioWithBLOBs.getNum() == null) {
-                    scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
-                }
-                if (scenarioWithBLOBs.getRefId() == null) {
-                    scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
-                }
+                scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId() == null ? sameRequest.get(0).getId() : sameRequest.get(0).getRefId());
+                scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
+                scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
                 batchMapper.insert(scenarioWithBLOBs);
             } else {
                 ApiScenarioWithBLOBs existScenario = scenarioOp.get();
@@ -1287,18 +1267,6 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setOrder(existScenario.getOrder());
                 scenarioWithBLOBs.setNum(existScenario.getNum());
-                if (scenarioWithBLOBs.getOrder() == null) {
-                    scenarioWithBLOBs.setOrder(getImportNextOrder(scenarioWithBLOBs.getProjectId()));
-                }
-                if (scenarioWithBLOBs.getNum() == null) {
-                    scenarioWithBLOBs.setNum(getNextNum(scenarioWithBLOBs.getProjectId()));
-                }
-                if (scenarioWithBLOBs.getRefId() == null) {
-                    scenarioWithBLOBs.setRefId(existScenario.getId());
-                }
-                if (scenarioWithBLOBs.getRefId() == null) {
-                    scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
-                }
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
             checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
