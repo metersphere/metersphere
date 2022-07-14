@@ -169,10 +169,7 @@ import {REQUEST_HEADERS} from "@/common/js/constants";
 
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import {
-  getCustomTableWidth,
-  getCustomTableHeader
-} from "@/common/js/tableUtils";
+import {getCustomTableHeader, getCustomTableWidth} from "@/common/js/tableUtils";
 
 const jsondiffpatch = require('jsondiffpatch');
 
@@ -218,7 +215,7 @@ export default {
       total: 0,
       headerSuggestions: REQUEST_HEADERS,
       disabled: false,
-      selectType: "",
+      selectType: "CONSTANT",
       showDelete: false,
       tableHeaderKey: "VARIABLE_LIST_TABLE",
       fields: getCustomTableHeader('VARIABLE_LIST_TABLE'),
@@ -503,7 +500,7 @@ export default {
         }
       });
     },
-    onChange(){
+    onChange() {
       this.selection = [];
       this.sortParameters();
     },
