@@ -662,6 +662,9 @@ export default {
       if (currentProtocol) {
         this.condition.moduleIds = [];
       }
+      if (!this.condition.filters.status) {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
 
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
