@@ -1440,6 +1440,7 @@ export default {
       request_error: "error",
       generate_report: "Generate report",
       rerun: "fail and rerun",
+      rerun_warning: "The connection is abnormal, please check the environment configuration",
     },
     environment: {
       id: 'Environment ID',

@@ -54,13 +54,13 @@ export default {
       this.websocket.onmessage = this.onMessages;
       this.websocket.onerror = this.onError;
     },
-    onError(){
+    onError() {
       this.$emit('runRefresh', "");
-      this.$error("The connection is abnormal, please check the environment configuration");
+      this.$error(this.$t('api_test.automation.rerun_warning'));
     },
     onMessages(e) {
       // 确认连接建立成功，开始执行
-      if(e && e.data === "CONN_SUCCEEDED"){
+      if (e && e.data === "CONN_SUCCEEDED") {
         this.run();
       }
 
@@ -84,7 +84,10 @@ export default {
             stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
           }
           if (stepArray[i].type === "Assertions" && !stepArray[i].document) {
-            stepArray[i].document = {type: "JSON", data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}};
+            stepArray[i].document = {
+              type: "JSON",
+              data: {xmlFollowAPI: false, jsonFollowAPI: false, json: [], xml: []}
+            };
           }
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
@@ -122,7 +125,14 @@ export default {
       })
       this.sort(testPlan.hashTree);
       this.requestResult.reportId = this.reportId;
-      let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type), projectId: projectId, environmentMap: strMapToObj(this.envMap)};
+      let reqObj = {
+        id: this.reportId,
+        testElement: testPlan,
+        type: this.type,
+        clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type),
+        projectId: projectId,
+        environmentMap: strMapToObj(this.envMap)
+      };
       let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
       reqObj.editCaseRequest = this.editCaseRequest;
       reqObj.debug = this.debug;
