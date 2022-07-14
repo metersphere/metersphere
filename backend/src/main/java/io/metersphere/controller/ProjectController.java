@@ -46,9 +46,8 @@ public class ProjectController {
         return projectService.getProjectList(request);
     }
 
-    /*jenkins项目列表*/
     @GetMapping("/listAll/{workspaceId}")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
+    @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
     public List<ProjectDTO> listAll(@PathVariable String workspaceId) {
         ProjectRequest request = new ProjectRequest();
         request.setWorkspaceId(workspaceId);
