@@ -1445,6 +1445,7 @@ export default {
       request_error: "失败",
       generate_report: "生成报告",
       rerun: "失败重跑",
+      rerun_warning: "连接异常，请检查环境配置",
     },
     environment: {
       id: '环境ID',
