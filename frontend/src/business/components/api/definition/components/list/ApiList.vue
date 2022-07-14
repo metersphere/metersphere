@@ -247,6 +247,7 @@ import {
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
+  getSelectDataCounts,
   initCondition
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -565,6 +566,10 @@ export default {
       });
     },
     generateGraph() {
+      if (getSelectDataCounts(this.condition, this.total, this.selectRows) > 100) {
+        this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
+        return;
+      }
       getGraphByCondition('API', buildBatchParam(this, this.$refs.table.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();

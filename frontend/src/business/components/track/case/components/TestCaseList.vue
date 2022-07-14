@@ -255,10 +255,12 @@ import {
   buildBatchParam,
   deepClone,
   getCustomFieldBatchEditOption,
-  getCustomFieldValue, getCustomTableHeader,
+  getCustomFieldValue,
+  getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
   getPageInfo,
+  getSelectDataCounts,
   getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
@@ -953,6 +955,10 @@ export default {
       });
     },
     generateGraph() {
+      if (getSelectDataCounts(this.condition, this.total, this.selectRows) > 100) {
+        this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
+        return;
+      }
       getGraphByCondition('TEST_CASE', buildBatchParam(this, this.$refs.table.selectIds), (data) => {
         this.graphData = data;
         this.$refs.relationshipGraph.open();
@@ -1242,7 +1248,7 @@ export default {
   margin-left: 10px;
 }
 
-/deep/ .el-table{
+/deep/ .el-table {
   overflow: auto;
 }
 </style>
