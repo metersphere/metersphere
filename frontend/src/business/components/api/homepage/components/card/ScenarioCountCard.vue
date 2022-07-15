@@ -76,7 +76,7 @@
           <el-col :span="6">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.unexecute') }}
-               <el-link type="info" @click="redirectPage('unexecuteCount')" target="_blank" style="color: #000000">
+               <el-link type="info" class="rows-count-number" @click="redirectPage('unexecuteCount')" target="_blank">
                  <b>{{ sceneCountData.unexecuteCount }}</b>
                 </el-link>
             </span>
@@ -116,7 +116,7 @@
           <el-col :span="8">
             <span class="default-property">
               {{ $t('api_test.home_page.detail_card.unexecute') }}
-               <el-link type="info" @click="redirectPage('unexecuteCount')" target="_blank" style="color: #000000">
+               <el-link type="info" class="rows-count-number" @click="redirectPage('unexecuteCount')" target="_blank">
                  <b>{{ sceneCountData.unexecuteCount }}</b>
                 </el-link>
             </span>
@@ -234,7 +234,7 @@ export default {
 .rows-count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
   font-size: 14px;
-  color: var(--count_number);
+  color: var(--count_number) !important;
 }
 
 .detail-container {
