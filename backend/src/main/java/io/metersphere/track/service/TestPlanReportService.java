@@ -466,14 +466,31 @@ public class TestPlanReportService {
     }
 
     public TestPlanReportContentWithBLOBs updateReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
-        if (testPlanReport == null) {
+        if (testPlanReport == null || reportContent == null) {
             return null;
         }
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
-        TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
+        TestPlanReportBuildResultDTO reportBuildResult = testPlanService.buildPlanReport(testPlanReport, reportContent);
+        TestPlanSimpleReportDTO reportDTO = reportBuildResult.getTestPlanSimpleReportDTO();
         reportDTO.setStartTime(testPlanReport.getStartTime());
         reportContent = parseReportDaoToReportContent(testPlanReport.getStatus(), reportDTO, reportContent);
+        this.updatePassRateAndApiBaseInfoFromReportContent(testPlanReport.getStatus(), reportDTO, reportContent, reportBuildResult.isApiBaseInfoChanged());
         return reportContent;
+    }
+
+    private void updatePassRateAndApiBaseInfoFromReportContent(String status, TestPlanSimpleReportDTO reportDTO, TestPlanReportContentWithBLOBs reportContent, boolean apiBaseInfoChanged) {
+        // 如果报告已结束，则更新测试计划报告通过率字段 passRate
+        if (!StringUtils.equalsIgnoreCase(status, "running") && (Double.compare(reportContent.getPassRate(), reportDTO.getPassRate()) != 0 || apiBaseInfoChanged)) {
+            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+            contentExample.createCriteria().andTestPlanReportIdEqualTo(reportContent.getTestPlanReportId());
+            TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
+            content.setPassRate(reportDTO.getPassRate());
+            if (apiBaseInfoChanged) {
+                content.setApiBaseCount(reportContent.getApiBaseCount());
+            }
+            testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
+        }
+
     }
 
     public TestPlanReport finishedTestPlanReport(String testPlanReportId, String status) {
@@ -670,14 +687,6 @@ public class TestPlanReportService {
             testPlanReportContentWithBLOBs.setUnExecuteScenarios(JSONObject.toJSONString(reportDTO.getUnExecuteScenarios()));
         }
 
-        // 如果报告已结束，则更新测试计划报告通过率字段 passRate
-        if (!StringUtils.equalsIgnoreCase(testPlanReportStatus, "running")) {
-            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-            contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
-            TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
-            content.setPassRate(reportDTO.getPassRate());
-            testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
-        }
         return testPlanReportContentWithBLOBs;
     }
 
