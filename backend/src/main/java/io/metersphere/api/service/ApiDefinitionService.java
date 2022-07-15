@@ -1698,7 +1698,7 @@ public class ApiDefinitionService {
                 if (StringUtils.isEmpty(request.getModuleId())) {
                     apiDefinitionRequest.setModuleId(api.getModuleId());
                 } else {
-                    apiDefinitionRequest.setMethod((request.getModuleId()));
+                    apiDefinitionRequest.setModuleId((request.getModuleId()));
                 }
                 if (StringUtils.isEmpty(request.getModulePath())) {
                     apiDefinitionRequest.setModulePath(api.getModulePath());
