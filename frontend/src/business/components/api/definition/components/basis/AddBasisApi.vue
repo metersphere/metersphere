@@ -137,6 +137,7 @@ export default {
           let bodyFiles = [];
           let path = "/api/definition/create";
           this.setParameter();
+          this.httpForm.status = 'Underway';
           // 历史数据兼容处理
           if (this.httpForm.request) {
             this.httpForm.request.clazzName = TYPE_TO_C.get(this.httpForm.request.type);

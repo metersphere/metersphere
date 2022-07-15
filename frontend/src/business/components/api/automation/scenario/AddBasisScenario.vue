@@ -113,6 +113,8 @@ export default {
         if (valid) {
           let path = "/api/automation/create";
           this.setParameter();
+          this.scenarioForm.status = 'Underway';
+          this.scenarioForm.level = 'P0';
           if (saveAs) {
             this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
             this.$emit('saveAsEdit', this.scenarioForm);
