@@ -425,9 +425,9 @@ export default {
       if (this.scheduleTaskType === "TEST_PLAN_TEST") {
         param.scheduleFrom = "testPlan";
         //测试计划页面跳转的创建
-        url = '/schedule/create';
+        url = '/test/plan/schedule/create';
         if (param.id) {
-          url = '/schedule/update';
+          url = '/test/plan/schedule/update';
         }
       } else {
         param.scheduleFrom = "scenario";

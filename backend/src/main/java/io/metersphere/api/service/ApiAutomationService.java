@@ -1074,13 +1074,10 @@ public class ApiAutomationService {
     }
 
     public void updateSchedule(Schedule request) {
-        JobKey jobKey = null;
-        TriggerKey triggerKey = null;
-        Class clazz = null;
         scheduleService.editSchedule(request);
-        jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
-        triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
-        clazz = ApiScenarioTestJob.class;
+        JobKey jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
+        TriggerKey triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
+        Class clazz = ApiScenarioTestJob.class;
         request.setJob(ApiScenarioTestJob.class.getName());
         this.addOrUpdateApiScenarioCronJob(request);
         scheduleService.resetJob(request, jobKey, triggerKey, clazz);

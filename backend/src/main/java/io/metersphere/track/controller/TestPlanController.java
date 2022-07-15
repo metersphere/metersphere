@@ -10,6 +10,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
@@ -296,7 +297,22 @@ public class TestPlanController {
 
     @PostMapping(value = "/update/scheduleByEnable")
     public ScheduleDTO updateTestPlanBySchedule(@RequestBody ScheduleInfoRequest request) {
-        return testPlanService.updateTestPlanBySchedule(request);
+        Schedule schedule = scheduleService.getSchedule(request.getTaskID());
+        schedule.setEnable(request.isEnable());
+        testPlanService.updateSchedule(schedule);
+        return testPlanService.getNextTriggerSchedule(schedule);
+    }
+
+    @PostMapping(value = "/schedule/update")
+    public void updateSchedule(@RequestBody Schedule request) {
+        testPlanService.updateSchedule(request);
+    }
+
+    @PostMapping(value = "/schedule/create")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN_SCHEDULE, type = OperLogConstants.CREATE,
+            title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ScheduleService.class)
+    public void createSchedule(@RequestBody ScheduleRequest request) {
+        scheduleService.createSchedule(request);
     }
 
 }
