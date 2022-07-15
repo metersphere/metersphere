@@ -1682,7 +1682,14 @@ public class TestPlanService {
         }
     }
 
-    public TestPlanSimpleReportDTO buildPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+    /**
+     * @param testPlanReport                 测试计划报告
+     * @param testPlanReportContentWithBLOBs 测试计划报告内容
+     * @param isReportContenChanged          测试计划报告是否已经修改过
+     * @return
+     */
+    public TestPlanReportBuildResultDTO buildPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+        TestPlanReportBuildResultDTO returnDTO = new TestPlanReportBuildResultDTO();
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
         if (testPlan != null) {
             String reportConfig = testPlan.getReportConfig();
@@ -1691,13 +1698,31 @@ public class TestPlanService {
                 config = JSONObject.parseObject(reportConfig);
             }
             TestPlanExecuteReportDTO testPlanExecuteReportDTO = testPlanReportService.genTestPlanExecuteReportDTOByTestPlanReportContent(testPlanReportContentWithBLOBs);
-            TestPlanSimpleReportDTO report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
+            TestPlanSimpleReportDTO report = null;
+            if (StringUtils.isEmpty(testPlanReportContentWithBLOBs.getApiBaseCount())) {
+                report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
+                testPlanReportContentWithBLOBs.setApiBaseCount(JSONObject.toJSONString(report));
+                returnDTO.setApiBaseInfoChanged(true);
+            } else {
+                try {
+                    report = JSONObject.parseObject(testPlanReportContentWithBLOBs.getApiBaseCount(), TestPlanSimpleReportDTO.class);
+                } catch (Exception e) {
+                    LogUtil.info("解析接口统计数据出错！数据：" + testPlanReportContentWithBLOBs.getApiBaseCount(), e);
+                }
+                if (report == null) {
+                    report = getReport(testPlanReport.getTestPlanId(), testPlanExecuteReportDTO);
+                    testPlanReportContentWithBLOBs.setApiBaseCount(JSONObject.toJSONString(report));
+                    returnDTO.setApiBaseInfoChanged(true);
+                }
+            }
             buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
             buildApiReport(report, config, testPlanExecuteReportDTO);
             buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
-            return report;
+            returnDTO.setTestPlanSimpleReportDTO(report);
+            return returnDTO;
         } else {
-            return null;
+            returnDTO.setTestPlanSimpleReportDTO(new TestPlanSimpleReportDTO());
+            return returnDTO;
         }
     }
 
