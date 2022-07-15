@@ -4,8 +4,21 @@
       <div v-loading="result.loading">
         <el-card class="table-card">
           <el-tabs v-model="activeName" style="height: 600px">
-            <el-tab-pane :label="$t('commons.my_workstation')" name="my_workstation" :disabled="true">
-              {{ $t('commons.my_workstation') }}
+            <el-tab-pane :label="$t('commons.my_workstation')" name="my_workstation">
+              <el-row style="margin-top: 10px">
+                <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+              </el-row>
+              <el-row style="margin-top: 15px">
+                <app-manage-item
+                  :title="$t('workstation.upcoming')+'-'+$t('commons.pending_upgrade')+$t('test_track.case.list')"
+                  v-if="isXpack">
+                  <template #append>
+                    <el-button type="text" @click="openRuleSetting">
+                      {{ $t('commons.setting') + $t('commons.rule') }}
+                    </el-button>
+                  </template>
+                </app-manage-item>
+              </el-row>
             </el-tab-pane>
 
             <el-tab-pane :label="$t('test_track.test_track')" name="test_track">
@@ -144,6 +157,94 @@
 
           </el-tabs>
         </el-card>
+        <el-dialog
+          :title="$t('commons.rule') + $t('commons.setting')"
+          :visible.sync="showRuleSetting"
+          width="720px"
+        >
+          <div style="margin-top: -25px; margin-left: -20px; width:720px; height:1px; background:#DCDFE6;"></div>
+          <el-row style="margin-top: 15px">
+            <div class="timeClass">
+              <span>{{ $t('api_test.request.time') + $t('commons.setting') }}</span>
+              <el-switch v-model="config.openUpdateTime"
+                         @change="setSyncTime"></el-switch>
+            </div>
+          </el-row>
+          <el-row v-if="showSyncTimeSetting" style="margin-top: 15px">
+            <div class="setTimeClass">
+              <span>{{ $t('workstation.past') }}</span>
+              <el-select style="margin-left: 5px" v-model="pastQuantity" placeholder=" " size="mini" filterable
+                         default-first-option
+                         allow-create
+                         class="timing_select">
+                <el-option
+                  v-for="item in applyQuantityOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+              <el-select style="margin-left: 5px" v-model="pastUnit" placeholder=" " size="mini"
+                         class="timing_select">
+                <el-option
+                  v-for="item in applyUnitOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+            </div>
+          </el-row>
+          <el-row style="margin-top: 15px">
+            <span>{{
+                $t('commons.pending_upgrade') + $t('api_test.request.condition') + $t('commons.setting')
+              }}</span>
+          </el-row>
+          <div style="margin-top: 15px" class="setApiClass">
+            <span>{{ $t('workstation.api_change') + $t('commons.setting') }}</span>
+            <el-row>
+              <el-col :span="4">{{ $t('api_test.mock.base_info') + ":" }}</el-col>
+              <el-col :span="20" style="color: #783887">
+                <el-checkbox v-model="apiSyncCaseRequest.protocol">{{
+                    $t('api_report.request') + $t('api_test.request.protocol')
+                  }}
+                </el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.method">
+                  {{ $t('api_test.definition.document.request_method') + '\xa0\xa0\xa0\xa0\xa0' }}
+                </el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.path">{{ "URL" }}</el-checkbox>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="4">{{ $t('api_test.mock.req_param') + ":" }}</el-col>
+              <el-col :span="20" style="color: #783887">
+                <el-checkbox v-model="apiSyncCaseRequest.headers">{{ "Header" + '\xa0\xa0' }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.query">{{
+                    $t('api_test.definition.request.query_param')
+                  }}
+                </el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.rest">{{
+                    $t('api_test.definition.request.rest_param')
+                  }}
+                </el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.body">{{ $t('api_test.request.body') }}</el-checkbox>
+              </el-col>
+            </el-row>
+            <span>{{ $t('commons.track') + $t('commons.setting') }}</span>
+            <el-row>
+              <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
+              <el-col :span="20" style="color: #783887">
+                <el-checkbox v-model="apiSyncCaseRequest.failed">{{ $t('schedule.event_failed') }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.unExecute">{{ $t('api_test.home_page.detail_card.unexecute') }}
+                </el-checkbox>
+              </el-col>
+            </el-row>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="showRuleSetting = false">取 消</el-button>
+            <el-button type="primary" @click="saveSync">确 定</el-button>
+          </span>
+        </el-dialog>
       </div>
     </ms-main-container>
   </ms-container>
@@ -190,6 +291,12 @@ export default {
         {value: "M", label: this.$t('commons.date_unit.month')},
         {value: "Y", label: this.$t('commons.date_unit.year')},
       ],
+      applyQuantityOptions: [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+        "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+        "31"
+      ],
       config: {
         trackShareReportTime: "",
         performanceShareReportTime: "",
@@ -208,8 +315,25 @@ export default {
         cleanLoadReport: false,
         cleanLoadReportExpr: "",
         urlRepeatable: false,
-        shareReport: true
-      }
+        shareReport: true,
+        openUpdateTime: false,
+        openUpdateRuleTime: "",
+      },
+      showRuleSetting: false,
+      showSyncTimeSetting: false,
+      apiSyncCaseRequest: {
+        protocol: true,
+        method: true,
+        path: true,
+        headers: true,
+        query: true,
+        rest: true,
+        body: true,
+        failed: true,
+        unExecute: true
+      },
+      pastQuantity: '',
+      pastUnit: ''
     };
   },
   created() {
@@ -250,6 +374,9 @@ export default {
       // 后台按照顺序先校验其它数据合法性，如tcp端口合法性，合法后保存是否开启
       configs.push({projectId: this.projectId, typeValue: value, type});
       let params = {configs};
+      this.startSaveData(params)
+    },
+    startSaveData(params) {
       this.$post("/project_application/update/batch", params).then(() => {
         this.$success(this.$t('commons.save_success'));
         this.init();
@@ -270,6 +397,38 @@ export default {
           }
         }
       });
+    },
+    openRuleSetting() {
+      this.showRuleSetting = true;
+    },
+    setSyncTime() {
+      this.showSyncTimeSetting = !this.showSyncTimeSetting;
+    },
+    saveSync() {
+      let configs = [];
+      if (this.showSyncTimeSetting) {
+        if (!this.pastQuantity) {
+          this.$message.error("请选择时间")
+        }
+        if (!this.pastUnit) {
+          this.$message.error("请选择时间单位")
+        }
+        this.config.openUpdateRuleTime = this.pastQuantity + this.pastUnit;
+        configs.push({projectId: this.projectId, typeValue: 'true', type: 'OPEN_UPDATE_TIME'});
+        configs.push({
+          projectId: this.projectId,
+          typeValue: this.config.openUpdateRuleTime,
+          type: 'OPEN_UPDATE_RULE_TIME'
+        });
+      }
+      configs.push({
+        projectId: this.projectId,
+        typeValue: JSON.stringify(this.apiSyncCaseRequest),
+        type: 'TRIGGER_UPDATE'
+      });
+      let params = {configs};
+      this.startSaveData(params)
+      this.showRuleSetting = false
     }
   }
 };
@@ -281,9 +440,34 @@ export default {
     width: 100%;
   }
 }
+
 @media only screen and (min-width: 1426px) {
   .commons-view-setting {
     margin-left: 200px;
   }
+}
+
+.timeClass {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.setTimeClass {
+  border-radius: 2px;
+  width: 680px;
+  height: 35px;
+  border: 1px solid #DCDFE6;
+  padding-bottom: 6px;
+  padding-top: 10px;
+}
+
+.setApiClass {
+  border-radius: 2px;
+  width: 680px;
+  border: 1px solid #DCDFE6;
+  padding-bottom: 6px;
+  padding-top: 10px;
+  padding-left: 5px;
 }
 </style>

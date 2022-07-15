@@ -50,6 +50,7 @@ export default {
     current_workspace: "当前工作空间",
     organization: '组织',
     setting: '设置',
+    rule: '规则',
     project: '项目',
     about_us: '关于',
     current_project: '当前项目',
@@ -493,6 +494,8 @@ export default {
   workstation: {
     sync: '同步',
     ignore: '忽略',
+    past: '过去',
+    api_change: '接口变更',
     dash_board: '我的仪表盘',
     upcoming: '我的待办',
     focus: '我的关注',
