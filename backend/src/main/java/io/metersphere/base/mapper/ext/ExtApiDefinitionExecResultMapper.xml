@@ -219,7 +219,11 @@
         select *
         from api_definition_exec_result
         where resource_id = #{resourceId,jdbcType=VARCHAR}
-          and `type` = #{type, jdbcType=VARCHAR}
+        <if test="type != 'API_PLAN'.toString()">
+            and
+            `type` = #{type, jdbcType=VARCHAR}
+        </if>
+
         ORDER BY start_time DESC LIMIT 1
     </select>
 
