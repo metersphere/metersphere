@@ -1331,7 +1331,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         ApiModule returnModule = null;
         for (int i = 0; i < tagTree.length; i++) {
             int finalI = i;
-            List<ApiModule> collect = parentModuleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            List<ApiModule> collect = new ArrayList<>();
+            if (parentModuleList != null && !parentModuleList.isEmpty()) {
+                collect = parentModuleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            }
             if (collect.isEmpty()) {
                 if (i == 0) {
                     //证明需要在根目录创建，
@@ -1341,7 +1344,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     parentModule.setLevel(0);
                     parentModule.setProtocol(pidChildrenMap.get("root").get(0).getProtocol());
                 } else {
-                    if (!parentModuleList.isEmpty() && parentModule == null) {
+                    if (parentModuleList != null && !parentModuleList.isEmpty() && parentModule == null) {
                         String parentId = parentModuleList.get(0).getParentId();
                         ApiModuleDTO apiModuleDTO = idModuleMap.get(parentId);
                         parentModule = JSON.parseObject(JSON.toJSONString(apiModuleDTO), ApiModule.class);
