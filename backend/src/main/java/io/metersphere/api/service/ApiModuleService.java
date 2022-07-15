@@ -1368,7 +1368,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             int finalI = i;
             //在选择的模块下建模块，查看选择的模块下有没有同名的模块
             List<ApiModule> moduleList = pidChildrenMap.get(parentModule.getId());
-            if (moduleList != null && !moduleList.isEmpty()) {
+            if (moduleList != null) {
                 List<ApiModule> collect1 = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
                 if (collect1.isEmpty()) {
                     return createModule(tagTree, i, parentModule, moduleMap, pidChildrenMap, idPathMap);
@@ -1376,6 +1376,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     returnModule = collect1.get(0);
                     parentModule = collect1.get(0);
                 }
+            } else {
+                return createModule(tagTree, i, parentModule, moduleMap, pidChildrenMap, idPathMap);
             }
         }
         return returnModule;
