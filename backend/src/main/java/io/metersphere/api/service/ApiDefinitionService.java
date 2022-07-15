@@ -1686,13 +1686,25 @@ public class ApiDefinitionService {
                 //检查是否同名
                 SaveApiDefinitionRequest apiDefinitionRequest = new SaveApiDefinitionRequest();
                 apiDefinitionRequest.setProjectId(api.getProjectId());
-                apiDefinitionRequest.setMethod(api.getMethod());
+                if (StringUtils.isEmpty(request.getMethod())) {
+                    apiDefinitionRequest.setMethod(api.getMethod());
+                } else {
+                    apiDefinitionRequest.setMethod(request.getMethod());
+                }
                 apiDefinitionRequest.setProtocol(api.getProtocol());
                 apiDefinitionRequest.setPath(api.getPath());
                 apiDefinitionRequest.setName(api.getName());
                 apiDefinitionRequest.setId(api.getId());
-                apiDefinitionRequest.setModuleId(request.getModuleId());
-                apiDefinitionRequest.setModulePath(request.getModulePath());
+                if (StringUtils.isEmpty(request.getModuleId())) {
+                    apiDefinitionRequest.setModuleId(api.getModuleId());
+                } else {
+                    apiDefinitionRequest.setMethod((request.getModuleId()));
+                }
+                if (StringUtils.isEmpty(request.getModulePath())) {
+                    apiDefinitionRequest.setModulePath(api.getModulePath());
+                } else {
+                    apiDefinitionRequest.setModulePath(request.getModulePath());
+                }
                 apiDefinitionRequest.setVersionId(api.getVersionId());
                 checkNameExist(apiDefinitionRequest, false);
             });
