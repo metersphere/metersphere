@@ -58,85 +58,86 @@
 </template>
 
 <script>
-  import {WORKSPACE_ID} from '@/common/js/constants';
-  import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
-  import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-  import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {saveScenario} from "@/business/components/api/automation/api-automation";
 
-  export default {
-    name: "MsAddBasisScenario",
-    components: {MsDialogFooter},
-    props: {},
-    data() {
-      return {
-        scenarioForm: {follows:[]},
-        visible: false,
-        currentModule: {},
-        userOptions: [],
-        rule: {
-          name: [
-            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-            {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
-          ],
-          principal: [{
-            required: true,
-            message: this.$t('api_test.automation.scenario.select_principal'),
-            trigger: 'change'
-          }],
-        },
-      }
-    },
-    computed: {
-      projectId() {
-        return getCurrentProjectID();
+export default {
+  name: "MsAddBasisScenario",
+  components: {MsDialogFooter},
+  props: {},
+  data() {
+    return {
+      scenarioForm: {follows: []},
+      visible: false,
+      currentModule: {},
+      userOptions: [],
+      rule: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
+        ],
+        principal: [{
+          required: true,
+          message: this.$t('api_test.automation.scenario.select_principal'),
+          trigger: 'change'
+        }],
       },
+    }
+  },
+  computed: {
+    projectId() {
+      return getCurrentProjectID();
     },
-    methods: {
-      saveScenario(saveAs) {
-        this.$refs['scenarioForm'].validate((valid) => {
-          if (valid) {
-            let path = "/api/automation/create";
-            this.setParameter();
-            if (saveAs) {
-              this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
-              this.$emit('saveAsEdit', this.scenarioForm);
-              this.visible = false;
-            } else {
-              saveScenario(path, this.scenarioForm, [], this,(response) => {
-                this.$success(this.$t('commons.save_success'));
-                this.visible = false;
-                this.$emit('refresh');
-              });
-            }
+  },
+  methods: {
+    saveScenario(saveAs) {
+      this.$refs['scenarioForm'].validate((valid) => {
+        if (valid) {
+          let path = "/api/automation/create";
+          this.setParameter();
+          this.scenarioForm.status = 'Underway';
+          this.scenarioForm.level = 'P0';
+          if (saveAs) {
+            this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
+            this.$emit('saveAsEdit', this.scenarioForm);
+            this.visible = false;
           } else {
-            return false;
+            saveScenario(path, this.scenarioForm, [], this, (response) => {
+              this.$success(this.$t('commons.save_success'));
+              this.visible = false;
+              this.$emit('refresh');
+            });
           }
-        })
-      },
-      setParameter() {
-        this.scenarioForm.projectId = this.projectId;
-        this.scenarioForm.id = getUUID().substring(0, 8);
-        this.scenarioForm.protocol = this.currentProtocol;
-
-        if (this.currentModule && this.currentModule.id != "root") {
-          this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
-          this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
         } else {
-          this.scenarioForm.modulePath = this.$t("commons.module_title");
-          this.scenarioForm.apiScenarioModuleId = "default-module";
+          return false;
         }
-      },
-      getMaintainerOptions() {
-        this.$get('/user/project/member/list', response => {
-          this.userOptions = response.data;
-        });
-      },
-      open(currentModule) {
-        this.scenarioForm = {principal: getCurrentUser().id};
-        this.currentModule = currentModule;
-        this.getMaintainerOptions();
-        this.visible = true;
+      })
+    },
+    setParameter() {
+      this.scenarioForm.projectId = this.projectId;
+      this.scenarioForm.id = getUUID().substring(0, 8);
+      this.scenarioForm.protocol = this.currentProtocol;
+
+      if (this.currentModule && this.currentModule.id != "root") {
+        this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
+        this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
+      } else {
+        this.scenarioForm.modulePath = this.$t("commons.module_title");
+        this.scenarioForm.apiScenarioModuleId = "default-module";
       }
+    },
+    getMaintainerOptions() {
+      this.$get('/user/project/member/list', response => {
+        this.userOptions = response.data;
+      });
+    },
+    open(currentModule) {
+      this.scenarioForm = {principal: getCurrentUser().id};
+      this.currentModule = currentModule;
+      this.getMaintainerOptions();
+      this.visible = true;
     }
   }
+}
 </script>
