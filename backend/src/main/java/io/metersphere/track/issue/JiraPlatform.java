@@ -98,10 +98,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
         }
 
         // 剩下的附件就是非富文本框的附件
-        description = appendMoreImage(description, fileContentMap);
-        if (descItem != null) {
-            descItem.setValue(description);
-        }
+//        description = appendMoreImage(description, fileContentMap);
+//        if (descItem != null) {
+//            descItem.setValue(description);
+//        }
 
         JSONObject assignee = (JSONObject) fields.get("assignee");
         issue.setTitle(fields.getString("summary"));
@@ -576,7 +576,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 List<CustomFieldResource> customFieldResource = customFieldService.getCustomFieldResource(customFields);
                 customFieldMap.put(item.getId(), customFieldResource);
                 issuesMapper.updateByPrimaryKeySelective(item);
-                // 同步第三方平台系统附件字段
+                // 同步第三方平台附件
                 syncJiraIssueAttachments(item, jiraClientV2.getIssues(item.getPlatformId()));
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
@@ -887,14 +887,16 @@ public class JiraPlatform extends AbstractIssuePlatform {
         }
         for (int i = 0; i < attachments.size(); i++) {
             JSONObject attachment = attachments.getJSONObject(i);
-            String id = attachment.getString("id");
-            byte[] content = jiraClientV2.getAttachmentContent(id);
             String filename = attachment.getString("filename");
-            FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
-            IssueFile issueFile = new IssueFile();
-            issueFile.setIssueId(issue.getId());
-            issueFile.setFileId(fileAttachmentMetadata.getId());
-            issueFileMapper.insert(issueFile);
+            if (!issue.getDescription().contains(filename) && !issue.getCustomFields().contains(filename)) {
+                String id = attachment.getString("id");
+                byte[] content = jiraClientV2.getAttachmentContent(id);
+                FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
+                IssueFile issueFile = new IssueFile();
+                issueFile.setIssueId(issue.getId());
+                issueFile.setFileId(fileAttachmentMetadata.getId());
+                issueFileMapper.insert(issueFile);
+            }
         }
     }
 }

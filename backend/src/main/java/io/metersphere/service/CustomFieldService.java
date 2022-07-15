@@ -250,8 +250,9 @@ public class CustomFieldService {
     private CustomFieldResource constructorCustomFieldResource(CustomFieldItemDTO dto) {
         CustomFieldResource resource = new CustomFieldResource();
         resource.setFieldId(dto.getId());
-        if (StringUtils.isNotBlank(dto.getType()) && StringUtils.equalsAny(CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
-            resource.setTextValue(dto.getValue().toString());
+        if (StringUtils.isNotBlank(dto.getType()) &&
+                StringUtils.equalsAny(dto.getType(), CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
+            resource.setTextValue(dto.getValue() == null ? "" : dto.getValue().toString());
         } else {
             resource.setValue(JSONObject.toJSONString(dto.getValue()));
         }
