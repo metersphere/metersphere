@@ -258,7 +258,7 @@ export default {
 .rows-count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
   font-size: 14px;
-  color: var(--count_number);
+  color: var(--count_number) !important;
 }
 
 .detail-container {

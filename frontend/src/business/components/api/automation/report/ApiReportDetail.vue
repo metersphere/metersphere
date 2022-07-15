@@ -94,6 +94,7 @@
             <ms-api-report-export
               v-if="reportExportVisible"
               id="apiTestReport"
+              :project-env-map="projectEnvMap"
               :title="report.name"
               :content="content"
               :report="report"
