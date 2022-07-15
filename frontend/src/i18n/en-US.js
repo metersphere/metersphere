@@ -51,6 +51,7 @@ export default {
     current_workspace: "Current Workspace",
     organization: 'Organization',
     setting: 'Setting',
+    rule: 'rule',
     project: 'Project',
     about_us: 'About Us',
     current_project: 'Current Project',
@@ -491,6 +492,8 @@ export default {
   workstation: {
     sync: 'Synchronize',
     ignore: 'Ignore',
+    past: 'past',
+    api_change: 'Api Change',
     dash_board: 'My DashBoard',
     upcoming: 'My Upcoming',
     focus: 'My Focus',

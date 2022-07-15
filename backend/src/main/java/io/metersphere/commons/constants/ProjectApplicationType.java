@@ -25,7 +25,7 @@ public enum ProjectApplicationType {
      */
     API_QUICK_MENU,
     /**
-     *接口定义URL可重复
+     * 接口定义URL可重复
      */
     URL_REPEATABLE,
     /**
@@ -70,7 +70,12 @@ public enum ProjectApplicationType {
     API_SHARE_REPORT_TIME,
 
     /**
-     * 我的工作台-待更新时间限制
+     * 我的工作台-是否开启待更新时间限制
+     */
+    OPEN_UPDATE_TIME,
+
+    /**
+     * 我的工作台-待更新时间限制(Y|M|D)
      */
     OPEN_UPDATE_RULE_TIME,
 
