@@ -331,8 +331,10 @@ export default {
         this.result = this.$post('/test/case/public/case/node', {workspaceId: getCurrentWorkspaceId()}, res => {
           this.publicTreeNodes = res.data;
           this.publicTreeNodes.forEach(firstLevel => {
-            this.$refs.publicNodeTree.nodeExpand(firstLevel);
-          })
+            if (this.$refs.publicNodeTree) {
+              this.$refs.publicNodeTree.nodeExpand(firstLevel);
+            }
+          });
         })
       } else {
         this.activeName = 'default';
