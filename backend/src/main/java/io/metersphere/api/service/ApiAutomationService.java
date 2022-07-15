@@ -1153,7 +1153,16 @@ public class ApiAutomationService {
                 scenarioRequest.setProjectId(scenario.getProjectId());
                 scenarioRequest.setName(scenario.getName());
                 scenarioRequest.setId(scenario.getId());
-                scenarioRequest.setApiScenarioModuleId(request.getApiScenarioModuleId());
+                if (StringUtils.isEmpty(request.getApiScenarioModuleId())) {
+                    scenarioRequest.setApiScenarioModuleId(scenario.getApiScenarioModuleId());
+                } else {
+                    scenarioRequest.setApiScenarioModuleId(request.getApiScenarioModuleId());
+                }
+                if (StringUtils.isEmpty(request.getModulePath())) {
+                    scenarioRequest.setModulePath(scenario.getModulePath());
+                } else {
+                    scenarioRequest.setModulePath(request.getModulePath());
+                }
                 scenarioRequest.setModulePath(request.getModulePath());
                 scenarioRequest.setVersionId(scenario.getVersionId());
                 checkNameExist(scenarioRequest, false);
