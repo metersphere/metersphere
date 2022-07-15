@@ -26,6 +26,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -2085,11 +2086,15 @@ public class TestPlanService {
         return time1 == null ? 0 : time1.getTime();
     }
 
-    public ScheduleDTO updateTestPlanBySchedule(ScheduleInfoRequest request) {
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN_SCHEDULE, type = OperLogConstants.UPDATE, title = "#request.name",
+            beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = ScheduleService.class)
+    public Schedule updateSchedule(Schedule request) {
+        apiAutomationService.updateSchedule(request);
+        return request;
+    }
+
+    public ScheduleDTO getNextTriggerSchedule(Schedule schedule) {
         ScheduleDTO scheduleDTO = new ScheduleDTO();
-        Schedule schedule = scheduleService.getSchedule(request.getTaskID());
-        schedule.setEnable(request.isEnable());
-        apiAutomationService.updateSchedule(schedule);
         BeanUtils.copyBean(scheduleDTO, schedule);
         if (schedule.getEnable() != null && schedule.getEnable()) {
             scheduleDTO.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
