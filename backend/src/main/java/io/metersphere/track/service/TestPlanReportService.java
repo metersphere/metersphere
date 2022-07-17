@@ -16,6 +16,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.dto.TestPlanExecuteReportDTO;
+import io.metersphere.dto.TestPlanFailureUiScenarioDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -104,6 +105,8 @@ public class TestPlanReportService {
     private ApiTestEnvironmentService apiTestEnvironmentService;
     @Resource
     private ProjectService projectService;
+    @Resource
+    ExtTestPlanUiScenarioCaseMapper extTestPlanUiScenarioCaseMapper;
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         List<TestPlanReportDTO> list = new ArrayList<>();
@@ -223,7 +226,7 @@ public class TestPlanReportService {
     }
 
     public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String planReportId, String planId, String userId, String triggerMode, RunModeConfigDTO runModeConfigDTO) {
-        TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
+         TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
         if (testPlanReport != null) {
             returnDTO.setTestPlanReport(testPlanReport);
@@ -232,6 +235,8 @@ public class TestPlanReportService {
         Map<String, String> planScenarioIdMap = new LinkedHashMap<>();
         Map<String, String> planTestCaseIdMap = new LinkedHashMap<>();
         Map<String, String> performanceIdMap = new LinkedHashMap<>();
+        Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
+
 
         List<TestPlanApiScenarioInfoDTO> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(planId);
         for (TestPlanApiScenarioInfoDTO model : testPlanApiScenarioList) {
@@ -250,6 +255,10 @@ public class TestPlanReportService {
         List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(loadCaseRequest);
         for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
             performanceIdMap.put(dto.getId(), dto.getLoadCaseId());
+        }
+        List<TestPlanUiScenario> testPlanUiScenarioList = extTestPlanUiScenarioCaseMapper.selectLegalDataByTestPlanId(planId);
+        for (TestPlanUiScenario dto : testPlanUiScenarioList) {
+            uiScenarioIdMap.put(dto.getId(), dto.getUiScenarioId());
         }
 
         Map<String, String> apiCaseInfoMap = new HashMap<>();
@@ -275,6 +284,7 @@ public class TestPlanReportService {
         returnDTO.setPlanScenarioIdMap(planScenarioIdMap);
         returnDTO.setApiTestCaseDataMap(planTestCaseIdMap);
         returnDTO.setPerformanceIdMap(performanceIdMap);
+        returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
 
         return returnDTO;
     }
@@ -647,6 +657,9 @@ public class TestPlanReportService {
         if (reportDTO.getApiResult() != null) {
             testPlanReportContentWithBLOBs.setApiResult(JSONObject.toJSONString(reportDTO.getApiResult()));
         }
+        if (reportDTO.getUiResult() != null) {
+            testPlanReportContentWithBLOBs.setUiResult(JSONObject.toJSONString(reportDTO.getUiResult()));
+        }
         if (reportDTO.getLoadResult() != null) {
             testPlanReportContentWithBLOBs.setLoadResult(JSONObject.toJSONString(reportDTO.getLoadResult()));
         }
@@ -948,6 +961,9 @@ public class TestPlanReportService {
         if (StringUtils.isNotBlank(testPlanReportContent.getUnExecuteScenarios())) {
             testPlanReportDTO.setUnExecuteScenarios(JSONObject.parseArray(testPlanReportContent.getUnExecuteScenarios(), TestPlanFailureScenarioDTO.class));
         }
+        if (StringUtils.isNotBlank(testPlanReportContent.getUiResult())) {
+            testPlanReportDTO.setUiResult(JSONObject.parseObject(testPlanReportContent.getUiResult(), TestPlanUiResultReportDTO.class));
+        }
         testPlanReportDTO.setId(reportId);
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
@@ -1020,7 +1036,7 @@ public class TestPlanReportService {
 
     private boolean isDynamicallyGenerateReports(TestPlanReportContentWithBLOBs testPlanReportContent) {
         return testPlanReportContent != null &&
-                (StringUtils.isNotEmpty(testPlanReportContent.getPlanApiCaseReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanScenarioReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanLoadCaseReportStruct()));
+                (StringUtils.isNotEmpty(testPlanReportContent.getPlanApiCaseReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanScenarioReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanLoadCaseReportStruct()) || StringUtils.isNotEmpty(testPlanReportContent.getPlanUiScenarioReportStruct()));
     }
 
     private TestPlanReportContentWithBLOBs dynamicallyGenerateReports(TestPlanReportContentWithBLOBs testPlanReportContent) {
@@ -1029,7 +1045,7 @@ public class TestPlanReportService {
         return testPlanReportContent;
     }
 
-    public void createTestPlanReportContentReportIds(String testPlanReportID, Map<String, String> apiCaseReportMap, Map<String, String> scenarioReportIdMap, Map<String, String> loadCaseReportIdMap) {
+    public void createTestPlanReportContentReportIds(String testPlanReportID, Map<String, String> apiCaseReportMap, Map<String, String> scenarioReportIdMap, Map<String, String> loadCaseReportIdMap, Map<String, String> uiScenarioReportMap) {
         TestPlanReportContentWithBLOBs content = new TestPlanReportContentWithBLOBs();
         content.setId(UUID.randomUUID().toString());
         content.setTestPlanReportId(testPlanReportID);
@@ -1052,12 +1068,21 @@ public class TestPlanReportService {
         if (MapUtils.isNotEmpty(loadCaseReportIdMap)) {
             content.setPlanLoadCaseReportStruct(JSONObject.toJSONString(loadCaseReportIdMap));
         }
+        if (MapUtils.isNotEmpty(uiScenarioReportMap)) {
+            List<TestPlanFailureUiScenarioDTO> uiScenarios =
+                    extTestPlanUiScenarioCaseMapper.getFailureListByIds(uiScenarioReportMap.keySet(), null);
+            for (TestPlanFailureUiScenarioDTO dto : uiScenarios) {
+                dto.setReportId(uiScenarioReportMap.get(dto.getId()));
+            }
+            content.setPlanUiScenarioReportStruct(JSONObject.toJSONString(uiScenarios));
+        }
         testPlanReportContentMapper.insert(content);
     }
 
     public TestPlanExecuteReportDTO genTestPlanExecuteReportDTOByTestPlanReportContent(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
         Map<String, String> testPlanApiCaseIdAndReportIdMap = new LinkedHashMap<>();
         Map<String, String> testPlanScenarioIdAndReportIdMap = new LinkedHashMap<>();
+        Map<String, String> testPlanUiScenarioIdAndReportIdMap = new LinkedHashMap<>();
         Map<String, String> testPlanLoadCaseIdAndReportIdMap = new LinkedHashMap<>();
         Map<String, TestPlanFailureApiDTO> apiCaseInfoDTOMap = new LinkedHashMap<>();
         Map<String, TestPlanFailureScenarioDTO> scenarioInfoDTOMap = new LinkedHashMap<>();
@@ -1099,6 +1124,24 @@ public class TestPlanReportService {
                     }
                 }
             }
+            if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanUiScenarioReportStruct())) {
+                List<TestPlanFailureScenarioDTO> scenarioInfoDTOList = null;
+                try {
+                    scenarioInfoDTOList = JSONArray.parseArray(testPlanReportContentWithBLOBs.getPlanUiScenarioReportStruct(), TestPlanFailureScenarioDTO.class);
+                } catch (Exception ignored) {
+                }
+                if (scenarioInfoDTOList == null) {
+                    try {
+                        testPlanUiScenarioIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanUiScenarioReportStruct(), Map.class);
+                    } catch (Exception ignored) {
+                    }
+                } else {
+                    for (TestPlanFailureScenarioDTO item : scenarioInfoDTOList) {
+                        testPlanUiScenarioIdAndReportIdMap.put(item.getId(), item.getReportId());
+                        scenarioInfoDTOMap.put(item.getId(), item);
+                    }
+                }
+            }
             if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct())) {
                 try {
                     testPlanLoadCaseIdAndReportIdMap = JSONObject.parseObject(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct(), Map.class);
@@ -1106,7 +1149,7 @@ public class TestPlanReportService {
                 }
             }
         }
-        TestPlanExecuteReportDTO returnDTO = new TestPlanExecuteReportDTO(testPlanApiCaseIdAndReportIdMap, testPlanScenarioIdAndReportIdMap, testPlanLoadCaseIdAndReportIdMap, apiCaseInfoDTOMap, scenarioInfoDTOMap);
+        TestPlanExecuteReportDTO returnDTO = new TestPlanExecuteReportDTO(testPlanApiCaseIdAndReportIdMap, testPlanScenarioIdAndReportIdMap, testPlanUiScenarioIdAndReportIdMap, testPlanLoadCaseIdAndReportIdMap, apiCaseInfoDTOMap, scenarioInfoDTOMap);
         return returnDTO;
     }
 

@@ -53,6 +53,21 @@
                 <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
               </el-radio-group>
             </div>
+            <div style="margin-top: 10px;" v-if="haveUICase">
+              <span class="ms-mode-span">{{ $t("浏览器") }}：</span>
+              <el-select
+                size="mini"
+                v-model="runConfig.browser"
+                style="margin-right: 30px; width: 100px"
+              >
+                <el-option
+                  v-for="b in browsers"
+                  :key="b.value"
+                  :value="b.value"
+                  :label="b.label"
+                ></el-option>
+              </el-select>
+            </div>
             <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
               <el-row>
                 <el-col :span="3">
@@ -127,11 +142,25 @@
                 </el-col>
               </el-row>
             </div>
-            <div class="ms-failure-div" v-if="runConfig.mode === 'serial'">
+            <div class="ms-failure-div" v-if="runConfig.mode === 'serial'" >
               <el-row>
                 <el-col :span="18" :offset="3">
                   <div>
                     <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
+            <div v-if="haveUICase">
+              <el-row>
+                <el-col :span="3">
+                  &nbsp;
+                </el-col>
+                <el-col :span="18">
+                  <div style="margin-top: 10px">
+                    <el-checkbox v-model="runConfig.headlessEnabled">
+                      {{ $t("性能模式") }}
+                    </el-checkbox>
                   </div>
                 </el-col>
               </el-row>
@@ -197,7 +226,12 @@ export default {
       default: false
     },
     planCaseIds: [],
-    type: String
+    type: String,
+    //是否含有ui场景 有 ui 场景就要展示 浏览器选项，性能模式
+    haveUICase: {
+      type: Boolean,
+      default: false
+    }
   },
 
 
@@ -260,11 +294,23 @@ export default {
         resourcePoolId: null,
         retryEnable: false,
         retryNum: 1,
+        browser: "CHROME",
+        headlessEnabled: true
       },
       projectList: [],
       testType: 'API',
       planId: String,
       projectIds: new Set(),
+      browsers: [
+        {
+          label: this.$t("chrome"),
+          value: "CHROME",
+        },
+        {
+          label: this.$t("firefox"),
+          value: "FIREFOX",
+        }
+      ],
     };
   },
   methods: {

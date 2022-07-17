@@ -30,5 +30,9 @@ public class TestplanRunRequest {
     // 失败重试
     private boolean retryEnable;
     private long retryNum;
+
+    //ui 测试
+    private String browser;
+    private boolean headlessEnabled;
 }
 

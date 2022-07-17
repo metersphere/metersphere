@@ -171,3 +171,20 @@ export function getPlanStageOption(callback) {
 export function saveTestPlanReport(planId, callback) {
   return planId ? baseGet('/test/plan/report/saveTestPlanReport/' + planId + '/MANUAL', callback) : {};
 }
+
+
+export function getPlanUiScenarioFailureCase(planId, callback) {
+  return planId ? baseGet('/test/plan/uiScenario/case/list/failure/' + planId, callback) : {};
+}
+
+export function getPlanUiScenarioErrorReportCase(planId, callback) {
+  return planId ? baseGet('/test/plan/uiScenario/case/list/errorReport/' + planId, callback) : {};
+}
+
+export function getPlanUiScenarioUnExecuteCase(planId, callback) {
+  return planId ? baseGet('/test/plan/uiScenario/case/list/unExecute/' + planId, callback) : {};
+}
+
+export function getPlanUiScenarioAllCase(planId, callback) {
+  return planId ? baseGet('/test/plan/uiScenario/case/list/all/' + planId, callback) : {};
+}

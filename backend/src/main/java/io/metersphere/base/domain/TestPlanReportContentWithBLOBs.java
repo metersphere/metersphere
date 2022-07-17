@@ -51,6 +51,10 @@ public class TestPlanReportContentWithBLOBs extends TestPlanReportContent implem
 
     private String unExecuteScenarios;
 
+    private String planUiScenarioReportStruct;
+
+    private String uiResult;
+
     private String apiBaseCount;
 
     private static final long serialVersionUID = 1L;

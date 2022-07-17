@@ -83,7 +83,13 @@ import {
   getSharePlanScenarioAllCase,
   getSharePlanScenarioFailureCase,
   getPlanScenarioErrorReportCase,
-  getSharePlanScenarioErrorReportCase, getPlanScenarioUnExecuteCase, getSharePlanScenarioUnExecuteCase,
+  getSharePlanScenarioErrorReportCase,
+  getPlanScenarioUnExecuteCase,
+  getSharePlanScenarioUnExecuteCase,
+  getPlanUiScenarioErrorReportCase,
+  getPlanUiScenarioFailureCase,
+  getPlanUiScenarioUnExecuteCase,
+  getPlanUiScenarioAllCase,
 } from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -108,7 +114,8 @@ export default {
     isAll: Boolean,
     isErrorReport: Boolean,
     isUnExecute: Boolean,
-    isDb: Boolean
+    isDb: Boolean,
+    isUi: Boolean,
   },
   data() {
     return {
@@ -156,6 +163,24 @@ export default {
           });
         } else {
           this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        }
+      } else if (this.isUi) {
+        if (this.isErrorReport) {
+          this.result = getPlanUiScenarioErrorReportCase(this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else if (this.isUnExecute) {
+          this.result = getPlanUiScenarioUnExecuteCase(this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else if (this.isAll) {
+          this.result = getPlanUiScenarioAllCase(this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else {
+          this.result = getPlanUiScenarioFailureCase(this.planId, (data) => {
             this.scenarioCases = data;
           });
         }

@@ -19,6 +19,23 @@
                    @showPopover="showPopover"
                    ref="envPopover" class="env-popover"/>
     </div>
+
+    <div style="margin-bottom: 10px;" v-if="haveUICase">
+      <span class="ms-mode-span">{{ $t("浏览器") }}：</span>
+      <el-select
+        size="mini"
+        v-model="runConfig.browser"
+        style="margin-right: 30px; width: 100px"
+      >
+        <el-option
+          v-for="b in browsers"
+          :key="b.value"
+          :value="b.value"
+          :label="b.label"
+        ></el-option>
+      </el-select>
+    </div>
+
     <div>
       <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
       <el-radio-group v-model="runConfig.mode" @change="changeMode">
@@ -29,7 +46,7 @@
     <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
       <el-row>
         <el-col :span="6">
-          <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
+          <span class="ms-mode-pan">{{ $t("run_mode.other_config") }}：</span>
         </el-col>
         <el-col :span="18">
           <div v-if="testType === 'API'">
@@ -107,6 +124,18 @@
       </el-row>
     </div>
 
+    <div>
+      <el-row>
+        <el-col :span="18" :offset="6">
+          <div style="margin-top: 10px" v-if="haveUICase">
+            <el-checkbox v-model="runConfig.headlessEnabled">
+              {{ $t("性能模式") }}
+            </el-checkbox>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+
     <template v-slot:footer>
       <div class="dialog-footer" v-if="showSave">
         <el-button @click="close">{{ $t('commons.cancel') }}</el-button>
@@ -151,6 +180,7 @@
           environmentType: ENV_TYPE.JSON,
           retryEnable: false,
           retryNum: 1,
+          browser: "CHROME"
         },
         isHasLicense: hasLicense(),
         projectEnvListMap: {},
@@ -163,7 +193,17 @@
           value: 'save',
           label: this.$t('commons.save')
         }],
-        value: 'confirmAndRun'
+        value: 'confirmAndRun',
+        browsers: [
+          {
+            label: this.$t("chrome"),
+            value: "CHROME",
+          },
+          {
+            label: this.$t("firefox"),
+            value: "FIREFOX",
+          }
+        ],
       };
     },
     props: {
@@ -176,6 +216,11 @@
         type: Boolean,
         default: false
       },
+      //是否含有ui场景 有 ui 场景就要展示 浏览器选项，性能模式
+      haveUICase: {
+        type: Boolean,
+        default: false
+      }
     },
     methods: {
       open(testType) {

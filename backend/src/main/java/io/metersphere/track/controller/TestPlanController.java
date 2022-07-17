@@ -275,6 +275,17 @@ public class TestPlanController {
         return testPlanService.haveExecCase(id);
     }
 
+    /**
+     * 该测试计划是否包含ui场景
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/have/ui/case/{id}")
+    public boolean haveUiCase(@PathVariable String id) {
+        return testPlanService.haveUiCase(id);
+    }
+
     @GetMapping("/principal/{planId}")
     public List<User> getPlanPrincipal(@PathVariable String planId) {
         return testPlanService.getPlanPrincipal(planId);

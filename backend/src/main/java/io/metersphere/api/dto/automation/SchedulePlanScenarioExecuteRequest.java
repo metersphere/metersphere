@@ -38,4 +38,7 @@ public class SchedulePlanScenarioExecuteRequest {
     private String testPlanReportId;
 
     private RunModeConfigDTO config;
+
+    //场景的类型 api/ui
+    private String type;
 }

@@ -33,6 +33,8 @@
     <result column="error_report_scenarios" jdbcType="LONGVARCHAR" property="errorReportScenarios" />
     <result column="un_execute_cases" jdbcType="LONGVARCHAR" property="unExecuteCases" />
     <result column="un_execute_scenarios" jdbcType="LONGVARCHAR" property="unExecuteScenarios" />
+    <result column="plan_ui_scenario_report_struct" jdbcType="LONGVARCHAR" property="planUiScenarioReportStruct" />
+    <result column="ui_result" jdbcType="LONGVARCHAR" property="uiResult" />
     <result column="api_base_count" jdbcType="LONGVARCHAR" property="apiBaseCount" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -102,7 +104,7 @@
     issue_list, api_all_cases, api_failure_cases, scenario_all_cases, scenario_failure_cases, 
     load_all_Cases, load_failure_cases, plan_scenario_report_struct, plan_api_case_report_struct, 
     plan_load_case_report_struct, error_report_cases, error_report_scenarios, un_execute_cases, 
-    un_execute_scenarios, api_base_count
+    un_execute_scenarios, plan_ui_scenario_report_struct, ui_result, api_base_count
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanReportContentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -164,8 +166,8 @@
       plan_scenario_report_struct, plan_api_case_report_struct, 
       plan_load_case_report_struct, error_report_cases, 
       error_report_scenarios, un_execute_cases, 
-      un_execute_scenarios, api_base_count
-      )
+      un_execute_scenarios, plan_ui_scenario_report_struct, 
+      ui_result, api_base_count)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{caseCount,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{executeRate,jdbcType=DOUBLE}, 
       #{passRate,jdbcType=DOUBLE}, #{isThirdPartIssue,jdbcType=BIT}, #{config,jdbcType=LONGVARCHAR}, 
@@ -177,8 +179,8 @@
       #{planScenarioReportStruct,jdbcType=LONGVARCHAR}, #{planApiCaseReportStruct,jdbcType=LONGVARCHAR}, 
       #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR}, #{errorReportCases,jdbcType=LONGVARCHAR}, 
       #{errorReportScenarios,jdbcType=LONGVARCHAR}, #{unExecuteCases,jdbcType=LONGVARCHAR}, 
-      #{unExecuteScenarios,jdbcType=LONGVARCHAR}, #{apiBaseCount,jdbcType=LONGVARCHAR}
-      )
+      #{unExecuteScenarios,jdbcType=LONGVARCHAR}, #{planUiScenarioReportStruct,jdbcType=LONGVARCHAR}, 
+      #{uiResult,jdbcType=LONGVARCHAR}, #{apiBaseCount,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReportContentWithBLOBs">
     insert into test_plan_report_content
@@ -269,6 +271,12 @@
       </if>
       <if test="unExecuteScenarios != null">
         un_execute_scenarios,
+      </if>
+      <if test="planUiScenarioReportStruct != null">
+        plan_ui_scenario_report_struct,
+      </if>
+      <if test="uiResult != null">
+        ui_result,
       </if>
       <if test="apiBaseCount != null">
         api_base_count,
@@ -361,6 +369,12 @@
       </if>
       <if test="unExecuteScenarios != null">
         #{unExecuteScenarios,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="planUiScenarioReportStruct != null">
+        #{planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="uiResult != null">
+        #{uiResult,jdbcType=LONGVARCHAR},
       </if>
       <if test="apiBaseCount != null">
         #{apiBaseCount,jdbcType=LONGVARCHAR},
@@ -463,6 +477,12 @@
       <if test="record.unExecuteScenarios != null">
         un_execute_scenarios = #{record.unExecuteScenarios,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.planUiScenarioReportStruct != null">
+        plan_ui_scenario_report_struct = #{record.planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.uiResult != null">
+        ui_result = #{record.uiResult,jdbcType=LONGVARCHAR},
+      </if>
       <if test="record.apiBaseCount != null">
         api_base_count = #{record.apiBaseCount,jdbcType=LONGVARCHAR},
       </if>
@@ -502,6 +522,8 @@
       error_report_scenarios = #{record.errorReportScenarios,jdbcType=LONGVARCHAR},
       un_execute_cases = #{record.unExecuteCases,jdbcType=LONGVARCHAR},
       un_execute_scenarios = #{record.unExecuteScenarios,jdbcType=LONGVARCHAR},
+      plan_ui_scenario_report_struct = #{record.planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
+      ui_result = #{record.uiResult,jdbcType=LONGVARCHAR},
       api_base_count = #{record.apiBaseCount,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -608,6 +630,12 @@
       <if test="unExecuteScenarios != null">
         un_execute_scenarios = #{unExecuteScenarios,jdbcType=LONGVARCHAR},
       </if>
+      <if test="planUiScenarioReportStruct != null">
+        plan_ui_scenario_report_struct = #{planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="uiResult != null">
+        ui_result = #{uiResult,jdbcType=LONGVARCHAR},
+      </if>
       <if test="apiBaseCount != null">
         api_base_count = #{apiBaseCount,jdbcType=LONGVARCHAR},
       </if>
@@ -644,6 +672,8 @@
       error_report_scenarios = #{errorReportScenarios,jdbcType=LONGVARCHAR},
       un_execute_cases = #{unExecuteCases,jdbcType=LONGVARCHAR},
       un_execute_scenarios = #{unExecuteScenarios,jdbcType=LONGVARCHAR},
+      plan_ui_scenario_report_struct = #{planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
+      ui_result = #{uiResult,jdbcType=LONGVARCHAR},
       api_base_count = #{apiBaseCount,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>

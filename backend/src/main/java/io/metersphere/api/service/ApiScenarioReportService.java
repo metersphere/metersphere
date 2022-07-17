@@ -88,9 +88,10 @@ public class ApiScenarioReportService {
     private UiReportServiceProxy uiReportServiceProxy;
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
-
     @Resource
     private ScenarioExecutionInfoService scenarioExecutionInfoService;
+    @Resource
+    private TestPlanUiScenarioMapper testPlanUiScenarioMapper;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -522,6 +523,21 @@ public class ApiScenarioReportService {
                 return report;
             }
             uiScenarioMapper.updateByPrimaryKey(scenario);
+        }
+
+        TestPlanUiScenario testPlanUiScenario = testPlanUiScenarioMapper.selectByPrimaryKey(dto.getTestId());
+        if (testPlanUiScenario != null) {
+            report.setScenarioId(testPlanUiScenario.getUiScenarioId());
+            report.setEndTime(System.currentTimeMillis());
+            testPlanUiScenario.setLastResult(report.getStatus());
+            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
+            String passRate = new DecimalFormat("0%").format((float) successSize / requestResults.size());
+            testPlanUiScenario.setPassRate(passRate);
+
+            testPlanUiScenario.setReportId(report.getId());
+            report.setEndTime(System.currentTimeMillis());
+            testPlanUiScenario.setUpdateTime(System.currentTimeMillis());
+            testPlanUiScenarioMapper.updateByPrimaryKeySelective(testPlanUiScenario);
         }
 
 //        // 发送通知
