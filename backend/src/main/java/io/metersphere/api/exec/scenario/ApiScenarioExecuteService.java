@@ -260,7 +260,7 @@ public class ApiScenarioExecuteService {
     /**
      * 测试计划接口场景的预执行（生成场景报告）
      */
-    private void assemblyPlanScenario(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue, List<String> scenarioIds, StringBuilder scenarioNames) {
+    private  void assemblyPlanScenario(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, Map<String, RunModeDataDTO> executeQueue, List<String> scenarioIds, StringBuilder scenarioNames) {
         String reportId = request.getId();
         Map<String, String> planScenarioIdMap = request.getScenarioTestPlanIdMap();
         if (MapUtils.isEmpty(planScenarioIdMap)) {

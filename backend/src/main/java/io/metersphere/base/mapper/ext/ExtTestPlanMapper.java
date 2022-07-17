@@ -50,4 +50,7 @@ public interface ExtTestPlanMapper {
 
     @MapKey("id")
     Map<String, ParamsDTO> testPlanLoadCaseCount(@Param("planIds")Set<String> planIds);
+
+    @MapKey("id")
+    Map<String, ParamsDTO> testPlanUiScenarioCount(@Param("planIds")Set<String> planIds);
 }

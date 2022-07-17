@@ -17,4 +17,5 @@ public class TestPlanScheduleReportInfoDTO {
     private Map<String, String> planScenarioIdMap;
     private Map<String, String> apiTestCaseDataMap;
     private Map<String, String> performanceIdMap;
+    private Map<String, String> uiScenarioIdMap;
 }

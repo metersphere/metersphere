@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-tabs type="card">
-      <el-tab-pane>
+      <el-tab-pane v-if="!isUi">
         <template v-slot:label>
           <tab-pane-count :title="$t('commons.api_case')" :count="apiSize"/>
         </template>
@@ -12,7 +12,7 @@
         <template v-slot:label>
           <tab-pane-count :title="$t('commons.scenario_case')" :count="scenarioSize"/>
         </template>
-        <api-scenario-failure-result :is-db="isDb" :is-all="isAll" :is-error-report="isErrorReport" :is-un-execute="isUnExecute" :share-id="shareId" :is-share="isShare"
+        <api-scenario-failure-result :is-ui="isUi" :is-db="isDb" :is-all="isAll" :is-error-report="isErrorReport" :is-un-execute="isUnExecute" :share-id="shareId" :is-share="isShare"
                                      :report="report" :is-template="isTemplate" :plan-id="planId"
                                      @setSize="setScenarioSize"/>
       </el-tab-pane>
@@ -47,7 +47,8 @@ export default {
     isAll: Boolean,
     isErrorReport: Boolean,
     isUnExecute:Boolean,
-    isDb: Boolean
+    isDb: Boolean,
+    isUi: Boolean,
   },
   data() {
     return {

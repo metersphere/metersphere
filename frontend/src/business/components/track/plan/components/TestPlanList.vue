@@ -201,6 +201,13 @@
           min-width="200px">
         </ms-table-column>
         <ms-table-column
+          prop="testPlanUiScenarioCount"
+          :field="item"
+          :fields-width="fieldsWidth"
+          :label="$t('test_track.plan.test_plan_ui_scenario_count')"
+          min-width="200px">
+        </ms-table-column>
+        <ms-table-column
           prop="testPlanLoadCaseCount"
           :field="item"
           :fields-width="fieldsWidth"
@@ -302,10 +309,10 @@
       {{ $t('test_track.plan.plan_delete_tip') }}
     </ms-delete-confirm>
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData" :plan-case-ids="[]"
-                                    :type="'plan'"/>
+                                    :type="'plan'" :have-u-i-case="haveUICase"/>
     <ms-test-plan-schedule-batch-switch ref="scheduleBatchSwitch" @refresh="refresh"/>
     <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'"
-                            :plan-id="currentPlanId" :show-save="true"/>
+                            :plan-id="currentPlanId" :show-save="true" :have-u-i-case="haveUICase"/>
     <test-plan-report-review ref="testCaseReportView"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <el-dialog
@@ -457,7 +464,8 @@ export default {
           permission: ['PROJECT_TRACK_PLAN:READ+EDIT']
         },
       ],
-      batchExecuteType:"serial"
+      batchExecuteType:"serial",
+      haveUICase: false
     };
   },
   watch: {
@@ -733,8 +741,11 @@ export default {
     openReport(plan) {
       this.$refs.testCaseReportView.open(plan);
     },
-    scheduleTask(row) {
+    async scheduleTask(row) {
       row.redirectFrom = "testPlan";
+      this.currentPlanId = row.id;
+      let r = await this.haveUIScenario();
+      this.haveUICase = r.data.data;
       this.$refs.scheduleMaintain.open(row);
     },
     saveSortField(key, orders) {
@@ -758,9 +769,11 @@ export default {
     },
     handleRun(row) {
       this.currentPlanId = row.id;
-      this.$get("/test/plan/have/exec/case/" + row.id, res => {
+      this.$get("/test/plan/have/exec/case/" + row.id, async res => {
         const haveExecCase = res.data;
         if (haveExecCase) {
+          let r = await this.haveUIScenario();
+          this.haveUICase = r.data.data;
           this.$refs.runMode.open('API');
         } else {
           this.$router.push('/track/plan/view/' + row.id);
@@ -776,7 +789,9 @@ export default {
         resourcePoolId,
         envMap,
         environmentType,
-        environmentGroupId
+        environmentGroupId,
+        browser,
+        headlessEnabled
       } = config;
       let param = {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap};
       param.testPlanId = this.currentPlanId;
@@ -788,6 +803,8 @@ export default {
       param.requestOriginator = "TEST_PLAN";
       param.retryEnable = config.retryEnable;
       param.retryNum = config.retryNum;
+      param.browser = config.browser;
+      param.headlessEnabled = config.headlessEnabled;
       if(config.isRun === true){
         this.$refs.taskCenter.open();
         this.result = this.$post('test/plan/run/', param, () => {
@@ -826,6 +843,9 @@ export default {
         return
       }
 
+    },
+    haveUIScenario() {
+      return this.$get("/test/plan/have/ui/case/" + this.currentPlanId);
     }
   }
 };
