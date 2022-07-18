@@ -27,7 +27,6 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
-import io.metersphere.xpack.api.dto.MsRetryLoopController;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 
@@ -66,23 +65,6 @@ public class GenerateHashTreeUtil {
                         new TypeReference<LinkedList<ScenarioVariable>>() {
                         });
                 scenario.setVariables(variables);
-            }
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-    }
-
-    public static void parse(String retryCase, MsRetryLoopController retryObj) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            JSONObject element = JSON.parseObject(retryCase, Feature.DisableSpecialKeyDetect);
-            ElementUtil.dataFormatting(element);
-            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
-                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                        new TypeReference<LinkedList<MsTestElement>>() {
-                        });
-                retryObj.setHashTree(elements);
             }
         } catch (Exception e) {
             LogUtil.error(e);
