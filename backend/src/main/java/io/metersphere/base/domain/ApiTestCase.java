@@ -47,5 +47,7 @@ public class ApiTestCase implements Serializable {
 
     private Boolean toBeUpdated;
 
+    private Long toBeUpdateTime;
+
     private static final long serialVersionUID = 1L;
 }

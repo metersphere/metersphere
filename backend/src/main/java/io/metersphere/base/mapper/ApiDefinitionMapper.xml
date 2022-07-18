@@ -30,6 +30,7 @@
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="latest" jdbcType="BIT" property="latest" />
     <result column="to_be_updated" jdbcType="BIT" property="toBeUpdated" />
+    <result column="to_be_update_Time" jdbcType="BIGINT" property="toBeUpdateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -99,7 +100,7 @@
     id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
     module_id, user_id, create_time, update_time, protocol, `path`, num, tags, original_state, 
     create_user, case_total, case_status, case_passing_rate, delete_time, delete_user_id, 
-    `order`, ref_id, version_id, latest, to_be_updated
+    `order`, ref_id, version_id, latest, to_be_updated, to_be_update_Time
   </sql>
   <sql id="Blob_Column_List">
     description, request, response, remark
@@ -162,8 +163,9 @@
       case_total, case_status, case_passing_rate, 
       delete_time, delete_user_id, `order`, 
       ref_id, version_id, latest, 
-      to_be_updated, description, request, 
-      response, remark)
+      to_be_updated, to_be_update_Time, description, 
+      request, response, remark
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
       #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
@@ -173,8 +175,9 @@
       #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR}, 
       #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
       #{refId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
-      #{toBeUpdated,jdbcType=BIT}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, 
-      #{response,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR})
+      #{toBeUpdated,jdbcType=BIT}, #{toBeUpdateTime,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}, 
+      #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -262,6 +265,9 @@
       </if>
       <if test="toBeUpdated != null">
         to_be_updated,
+      </if>
+      <if test="toBeUpdateTime != null">
+        to_be_update_Time,
       </if>
       <if test="description != null">
         description,
@@ -360,6 +366,9 @@
       </if>
       <if test="toBeUpdated != null">
         #{toBeUpdated,jdbcType=BIT},
+      </if>
+      <if test="toBeUpdateTime != null">
+        #{toBeUpdateTime,jdbcType=BIGINT},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -468,6 +477,9 @@
       <if test="record.toBeUpdated != null">
         to_be_updated = #{record.toBeUpdated,jdbcType=BIT},
       </if>
+      <if test="record.toBeUpdateTime != null">
+        to_be_update_Time = #{record.toBeUpdateTime,jdbcType=BIGINT},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -515,6 +527,7 @@
       version_id = #{record.versionId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
       to_be_updated = #{record.toBeUpdated,jdbcType=BIT},
+      to_be_update_Time = #{record.toBeUpdateTime,jdbcType=BIGINT},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR},
@@ -552,7 +565,8 @@
       ref_id = #{record.refId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
-      to_be_updated = #{record.toBeUpdated,jdbcType=BIT}
+      to_be_updated = #{record.toBeUpdated,jdbcType=BIT},
+      to_be_update_Time = #{record.toBeUpdateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -641,6 +655,9 @@
       <if test="toBeUpdated != null">
         to_be_updated = #{toBeUpdated,jdbcType=BIT},
       </if>
+      <if test="toBeUpdateTime != null">
+        to_be_update_Time = #{toBeUpdateTime,jdbcType=BIGINT},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -685,6 +702,7 @@
       version_id = #{versionId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
       to_be_updated = #{toBeUpdated,jdbcType=BIT},
+      to_be_update_Time = #{toBeUpdateTime,jdbcType=BIGINT},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR},
@@ -719,7 +737,8 @@
       ref_id = #{refId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
-      to_be_updated = #{toBeUpdated,jdbcType=BIT}
+      to_be_updated = #{toBeUpdated,jdbcType=BIT},
+      to_be_update_Time = #{toBeUpdateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

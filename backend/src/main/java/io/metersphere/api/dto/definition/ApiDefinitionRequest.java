@@ -33,4 +33,7 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private boolean repeatCase;
     //是否进入待更新列表
     private Boolean toBeUpdated;
+
+    //当前时间减去进入待更新的时间
+    private Long toBeUpdateTime;
 }

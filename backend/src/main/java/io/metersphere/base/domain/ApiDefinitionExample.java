@@ -1993,6 +1993,66 @@ public class ApiDefinitionExample {
             addCriterion("to_be_updated not between", value1, value2, "toBeUpdated");
             return (Criteria) this;
         }
+
+        public Criteria andToBeUpdateTimeIsNull() {
+            addCriterion("to_be_update_Time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeIsNotNull() {
+            addCriterion("to_be_update_Time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeEqualTo(Long value) {
+            addCriterion("to_be_update_Time =", value, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeNotEqualTo(Long value) {
+            addCriterion("to_be_update_Time <>", value, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeGreaterThan(Long value) {
+            addCriterion("to_be_update_Time >", value, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("to_be_update_Time >=", value, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeLessThan(Long value) {
+            addCriterion("to_be_update_Time <", value, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("to_be_update_Time <=", value, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeIn(List<Long> values) {
+            addCriterion("to_be_update_Time in", values, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeNotIn(List<Long> values) {
+            addCriterion("to_be_update_Time not in", values, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeBetween(Long value1, Long value2) {
+            addCriterion("to_be_update_Time between", value1, value2, "toBeUpdateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andToBeUpdateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("to_be_update_Time not between", value1, value2, "toBeUpdateTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
