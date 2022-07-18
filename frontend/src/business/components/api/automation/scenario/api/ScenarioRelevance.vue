@@ -108,27 +108,38 @@ export default {
       this.buttonIsWorking = false;
     },
     createScenarioDefinition(scenarios, data, referenced) {
+      let emptyStepScenarios = "";
       data.forEach(item => {
-        let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-        if (scenarioDefinition && scenarioDefinition.hashTree) {
-          let obj = {
-            id: item.id,
-            name: item.name,
-            type: "scenario",
-            headers: scenarioDefinition.headers,
-            variables: scenarioDefinition.variables,
-            environmentMap: scenarioDefinition.environmentMap,
-            referenced: referenced,
-            resourceId: getUUID(),
-            hashTree: scenarioDefinition.hashTree,
-            projectId: item.projectId,
-            num: item.num,
-            versionName: item.versionName,
-            versionEnable: item.versionEnable
-          };
-          scenarios.push(obj);
+        if (!item.stepTotal || item.stepTotal == 0) {
+          emptyStepScenarios += item.name + ",";
+        } else {
+          let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+          if (scenarioDefinition && scenarioDefinition.hashTree) {
+            let obj = {
+              id: item.id,
+              name: item.name,
+              type: "scenario",
+              headers: scenarioDefinition.headers,
+              variables: scenarioDefinition.variables,
+              environmentMap: scenarioDefinition.environmentMap,
+              referenced: referenced,
+              resourceId: getUUID(),
+              hashTree: scenarioDefinition.hashTree,
+              projectId: item.projectId,
+              num: item.num,
+              versionName: item.versionName,
+              versionEnable: item.versionEnable
+            };
+            scenarios.push(obj);
+          }
         }
       });
+      if (emptyStepScenarios !== "") {
+        if (emptyStepScenarios.endsWith(",")) {
+          emptyStepScenarios = emptyStepScenarios.substring(0, emptyStepScenarios.length - 1);
+          this.$error(this.$t('api_test.scenario.scenario_step_is_empty', [emptyStepScenarios]));
+        }
+      }
     },
     getScenarioDefinition(referenced) {
       this.buttonIsWorking = true;
