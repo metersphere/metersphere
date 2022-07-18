@@ -30,7 +30,6 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanCaseRequest request) {
-        testPlanTestCaseService.wrapQueryTestPlanCaseRequest(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
@@ -96,7 +95,6 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/list/all")
     public List<TestPlanCaseDTO> getTestPlanCases(@RequestBody QueryTestPlanCaseRequest request) {
-        testPlanTestCaseService.wrapQueryTestPlanCaseRequest(request);
         return testPlanTestCaseService.list(request);
     }
 
