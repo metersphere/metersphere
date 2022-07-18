@@ -1247,6 +1247,7 @@ export default {
       api_import: "接口导入",
       check_select: "请勾选接口",
       api_project: "所属项目",
+      one_click_sync: "一键同步",
       select_comp: {
         no_data: "无数据",
         add_data: "去添加"
@@ -1510,7 +1511,7 @@ export default {
       base_url: "基础URL",
       base_url_description: "基础URL作为所有请求的URL前缀",
       scenario_step_is_empty: "场景: {0} 的步骤为空,无法导入",
-      base_scenario_step_is_empty:"原场景步骤为空",
+      base_scenario_step_is_empty: "原场景步骤为空",
       variables: "自定义变量",
       headers: "请求头",
       kv_description: "所有请求可以使用自定义变量",

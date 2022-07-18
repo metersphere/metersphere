@@ -1238,6 +1238,7 @@ export default {
       api_import: "Api Import",
       check_select: "Please check the API",
       api_project: "Project",
+      one_click_sync: "One-click sync",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
@@ -1502,7 +1503,7 @@ export default {
       base_url: "Base URL",
       base_url_description: "Base URL as URL prefix for all requests",
       scenario_step_is_empty: "Scenario: {0} has none step!",
-      base_scenario_step_is_empty:"Scenario step is empty!",
+      base_scenario_step_is_empty: "Scenario step is empty!",
       url_invalid: "Invalid URL",
       variables: "Variables",
       headers: "Headers",
