@@ -318,20 +318,11 @@ export default {
         shareReport: true,
         openUpdateTime: false,
         openUpdateRuleTime: "",
+        triggerUpdate: "",
       },
       showRuleSetting: false,
       showSyncTimeSetting: false,
-      apiSyncCaseRequest: {
-        protocol: true,
-        method: true,
-        path: true,
-        headers: true,
-        query: true,
-        rest: true,
-        body: true,
-        failed: true,
-        unExecute: true
-      },
+      apiSyncCaseRequest: {},
       pastQuantity: '',
       pastUnit: ''
     };
@@ -395,11 +386,31 @@ export default {
           if (!this.config.uiQuickMenu) {
             this.config.uiQuickMenu = "server";
           }
+          if (this.config.triggerUpdate) {
+            this.apiSyncCaseRequest = JSON.parse(this.config.triggerUpdate);
+          }
+          if (this.config.openUpdateRuleTime) {
+            this.pastUnit = this.config.openUpdateRuleTime.substring(this.config.openUpdateRuleTime.length - 1);
+            this.pastQuantity = this.config.openUpdateRuleTime.substring(0, this.config.openUpdateRuleTime.length - 1);
+          }
         }
       });
     },
     openRuleSetting() {
       this.showRuleSetting = true;
+      if (!this.apiSyncCaseRequest.protocol) {
+        this.apiSyncCaseRequest = {
+          protocol: true,
+          method: true,
+          path: true,
+          headers: true,
+          query: true,
+          rest: true,
+          body: true,
+          failed: true,
+          unExecute: true
+        }
+      }
     },
     setSyncTime() {
       this.showSyncTimeSetting = !this.showSyncTimeSetting;

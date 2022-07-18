@@ -26,4 +26,7 @@ public class ProjectConfig {
     private Boolean cleanLoadReport = false;
     private String cleanLoadReportExpr;
     private Boolean urlRepeatable = false;
+    private String triggerUpdate;
+    private Boolean openUpdateTime = false;
+    private String openUpdateRuleTime;
 }
