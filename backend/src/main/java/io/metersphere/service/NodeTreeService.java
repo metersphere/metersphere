@@ -83,18 +83,18 @@ public class NodeTreeService<T extends TreeNodeDTO> {
             return nodeTree;
         }
 
-        List<T> children = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
+        List<T> children = new ArrayList<>();
 
         lowerNodes.forEach(node -> {
             if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())) {
                 children.add(buildNodeTree(nodeLevelMap, node, countMap));
-                if (countMap != null) {
-                    Integer childrenCount = children.stream().map(TreeNodeDTO::getCaseNum).reduce(Integer::sum).get();
-                    nodeTree.setCaseNum(nodeTree.getCaseNum() + childrenCount);
-                }
                 nodeTree.setChildren(children);
             }
         });
+        if (countMap != null && CollectionUtils.isNotEmpty(children)) {
+            Integer childrenCount = children.stream().map(TreeNodeDTO::getCaseNum).reduce(Integer::sum).get();
+            nodeTree.setCaseNum(nodeTree.getCaseNum() + childrenCount);
+        }
         return nodeTree;
     }
 
