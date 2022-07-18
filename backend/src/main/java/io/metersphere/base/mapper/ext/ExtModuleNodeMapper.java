@@ -24,6 +24,8 @@ public interface ExtModuleNodeMapper {
 
     void insert(@Param("tableName") String tableName, @Param("record") ModuleNode record);
 
+    void insertWithModulePath(@Param("tableName") String tableName, @Param("record") ModuleNode record);
+
     ModuleNodeDTO get(@Param("tableName") String tableName, @Param("id") String id);
 
     void updatePos(@Param("tableName") String tableName, @Param("id") String id, @Param("pos")  Double pos);
