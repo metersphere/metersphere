@@ -525,7 +525,7 @@ export default {
     loginTitle: '登陸頁面提示信息',
     pageTitle: '頁面 Title',
     sysTitle: '系統名稱',
-    theme_style: '主題風格設置',
+    theme_style: '菜單風格設置',
   },
   system_config: {
     base_config: '基本配置',
