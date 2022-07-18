@@ -36,6 +36,10 @@
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
       <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
+      <el-tooltip v-if="(!scenario.hashTree || scenario.hashTree.length === 0) && scenario.referenced==='REF'"
+                  class="ms-num" effect="dark" :content="$t('api_test.scenario.base_scenario_step_is_empty')" placement="top" style="margin-left: 5px">
+        <i class="el-icon-warning"/>
+      </el-tooltip>
     </template>
     <template v-slot:debugStepCode>
        <span v-if="node.data.testing" class="ms-test-running">
