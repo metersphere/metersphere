@@ -1501,6 +1501,8 @@ export default {
       name: "Scenario Name",
       base_url: "Base URL",
       base_url_description: "Base URL as URL prefix for all requests",
+      scenario_step_is_empty: "Scenario: {0} has none step!",
+      base_scenario_step_is_empty:"Scenario step is empty!",
       url_invalid: "Invalid URL",
       variables: "Variables",
       headers: "Headers",
