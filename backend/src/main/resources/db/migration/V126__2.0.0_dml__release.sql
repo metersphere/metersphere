@@ -95,7 +95,7 @@ DELIMITER //
 CREATE PROCEDURE init_scenario_execution()
 BEGIN
     DECLARE done INT DEFAULT 0;
-    DECLARE id varchar(64);
+    DECLARE id varchar(255);
     DECLARE `status` varchar(64);
     DECLARE create_time bigint(13);
     DECLARE `trigger_mode` varchar(50);
@@ -117,7 +117,7 @@ BEGIN
     OPEN scenario_report;
     outer_loop:
     LOOP
-        #获取当前游标指针记录，取出值赋给自定义的变量
+        #获取当前游标指针记录取出值赋给自定义的变量
         FETCH scenario_report INTO id, `status`, create_time,`trigger_mode`;
         IF done
         THEN
