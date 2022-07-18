@@ -771,9 +771,9 @@ export default {
       this.currentPlanId = row.id;
       this.$get("/test/plan/have/exec/case/" + row.id, async res => {
         const haveExecCase = res.data;
-        if (haveExecCase) {
-          let r = await this.haveUIScenario();
-          this.haveUICase = r.data.data;
+        let r = await this.haveUIScenario();
+        this.haveUICase = r.data.data;
+        if (haveExecCase || this.haveUICase) {
           this.$refs.runMode.open('API');
         } else {
           this.$router.push('/track/plan/view/' + row.id);
