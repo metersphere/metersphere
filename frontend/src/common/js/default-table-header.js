@@ -139,9 +139,9 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'testPlanTestCaseCount', key: 'g', label: 'test_track.plan.test_plan_test_case_count'},
     {id: 'testPlanApiCaseCount', key: 'h', label: 'test_track.plan.test_plan_api_case_count'},
     {id: 'testPlanApiScenarioCount', key: 'i', label: 'test_track.plan.test_plan_api_scenario_count'},
-    {id: 'testPlanUiScenarioCount', key: 'i', label: 'test_track.plan.test_plan_ui_scenario_count'},
-    {id: 'testPlanLoadCaseCount', key: 'j', label: 'test_track.plan.test_plan_load_case_count'},
-    {id: 'principalName', key: 'k', label: 'test_track.plan.plan_principal'},
+    {id: 'testPlanUiScenarioCount', key: 'j', label: 'test_track.plan.test_plan_ui_scenario_count'},
+    {id: 'testPlanLoadCaseCount', key: 'k', label: 'test_track.plan.test_plan_load_case_count'},
+    {id: 'principalName', key: 'l', label: 'test_track.plan.plan_principal'},
   ],
   //测试计划-功能用例
   TEST_PLAN_FUNCTION_TEST_CASE: [
