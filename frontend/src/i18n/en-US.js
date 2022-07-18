@@ -3270,5 +3270,22 @@ export default {
     ui_debug_mode: 'UI debugging mode',
     ui_local_debug: 'local',
     ui_server_debug: 'server',
+    all_element: "All elements",
+    element_name: "Element name",
+    element_locator: "Element locator",
+    element_locator_type: "Locator type",
+    screenshot: "screenshot",
+    update_user: "Update user",
+    create_user: "Create user",
+    all_scenario: "All scenario",
+    scenario_list: "Scenario list",
+    log: "log",
+    performance_mode: "Performance mode",
+    error_handling: "error handling",
+    other_settings: "Other settings",
+    step_results: "Step results",
+    treatment_method: "Treatment method",
+    scenario_steps: "Scenario steps",
+    basic_information: "Basic information"
   }
 };

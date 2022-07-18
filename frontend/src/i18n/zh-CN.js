@@ -3327,5 +3327,21 @@ export default {
     ui_debug_mode: 'UI自动化调试方式',
     ui_local_debug: '本地调试',
     ui_server_debug: '后端调试',
+    all_element: "全部元素",
+    element_name: "元素名称",
+    element_locator: "元素定位",
+    element_locator_type: "定位类型",
+    screenshot: "截图",
+    update_user: "更新人",
+    create_user: "创建人",
+    all_scenario: "全部场景",
+    log: "日志",
+    performance_mode: "性能模式",
+    error_handling: "错误处理",
+    other_settings: "其他设置",
+    step_results: "步骤结果",
+    treatment_method: "处理方式",
+    scenario_steps: "场景步骤",
+    basic_information: "基础信息"
   }
 };

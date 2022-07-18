@@ -3273,5 +3273,22 @@ export default {
     ui_debug_mode: 'UI自動化調試管道',
     ui_local_debug: '本地調試',
     ui_server_debug: '後端調試',
+    all_element: "全部元素",
+    element_name: "元素名稱",
+    element_locator: "元素定位",
+    element_locator_type: "定位類型",
+    screenshot: "截圖",
+    update_user: "更新人",
+    create_user: "創建人",
+    all_scenario: "全部場景",
+    scenario_list: "場景列表",
+    log: "日誌",
+    performance_mode: "性能模式",
+    error_handling: "錯誤處理",
+    other_settings: "其他設置",
+    step_results: "步骤结果",
+    treatment_method: "處理方式",
+    scenario_steps: "場景步驟",
+    basic_information: "基礎信息"
   }
 };
