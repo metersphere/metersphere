@@ -1,16 +1,16 @@
 <template>
   <el-col :span="3" class="ms-left-cell">
-    <el-button class="ms-left-buttion" size="small" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
+    <el-button class="ms-left-button" size="small" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
     <br/>
-    <el-button class="ms-left-buttion" size="small" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
+    <el-button class="ms-left-button" size="small" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
     <br/>
-    <el-button class="ms-left-buttion" size="small" @click="addPreSql">+{{$t('api_test.definition.request.pre_sql')}}</el-button>
+    <el-button class="ms-left-button" size="small" @click="addPreSql">+{{$t('api_test.definition.request.pre_sql')}}</el-button>
     <br/>
-    <el-button class="ms-left-buttion" size="small" @click="addPostSql">+{{$t('api_test.definition.request.post_sql')}}</el-button>
+    <el-button class="ms-left-button" size="small" @click="addPostSql">+{{$t('api_test.definition.request.post_sql')}}</el-button>
     <br/>
-    <el-button class="ms-left-buttion" size="small" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+    <el-button class="ms-left-button" size="small" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
     <br/>
-    <el-button class="ms-left-buttion" size="small" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
+    <el-button class="ms-left-button" size="small" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
   </el-col>
 </template>
 
@@ -117,7 +117,7 @@
     margin-top: 30px;
   }
 
-  .ms-left-buttion {
+  .ms-left-button {
     margin: 6px 0px 8px 30px;
   }
 

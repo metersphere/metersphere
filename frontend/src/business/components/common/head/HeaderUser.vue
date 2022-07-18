@@ -17,7 +17,7 @@
 
     <about-us ref="aboutUs"/>
     <el-dialog :close-on-click-modal="false" width="80%"
-               :visible.sync="resVisible" class="api-import" destroy-on-close @close="closeDialog">
+               :visible.sync="resVisible" class="api-import" destroy-on-close @close="closeDialog" append-to-body>
       <ms-person-router @closeDialog="closeDialog"/>
     </el-dialog>
   </el-dropdown>
