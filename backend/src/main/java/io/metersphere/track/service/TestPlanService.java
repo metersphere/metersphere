@@ -718,15 +718,7 @@ public class TestPlanService {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
         request.setProjectId(testPlanMapper.selectByPrimaryKey(planId).getProjectId());
-        testPlanTestCaseService.wrapQueryTestPlanCaseRequest(request);
         return testPlanTestCaseService.list(request);
-    }
-
-    private List<TestPlanCaseDTO> listTestCaseByProjectIds(List<String> projectIds) {
-        if (CollectionUtils.isEmpty(projectIds)) {
-            return new ArrayList<>();
-        }
-        return extTestPlanTestCaseMapper.listTestCaseByProjectIds(projectIds);
     }
 
     public TestCaseReportMetricDTO getMetric(String planId) {
@@ -1751,7 +1743,6 @@ public class TestPlanService {
     /**
      * @param testPlanReport                 测试计划报告
      * @param testPlanReportContentWithBLOBs 测试计划报告内容
-     * @param isReportContenChanged          测试计划报告是否已经修改过
      * @return
      */
     public TestPlanReportBuildResultDTO buildPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {

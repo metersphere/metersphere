@@ -8,6 +8,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
+import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.ProjectVersionService;
 import io.metersphere.service.UserService;
@@ -329,19 +330,7 @@ public class ServiceUtils {
             return;
         }
 
-        List<String> versionIds = list.stream()
-                .map(i -> {
-                    Class<?> clazz = i.getClass();
-                    try {
-                        Method getVersionId = clazz.getMethod("getVersionId");
-                        return getVersionId.invoke(i).toString();
-                    } catch (Exception e) {
-                        LogUtil.error(e);
-                        return i.toString();
-                    }
-                })
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> versionIds = getFieldListByMethod(list, "getVersionId");
 
         Map<String, String> versionNameMap = projectVersionService.getProjectVersionByIds(versionIds).
                 stream()
@@ -358,5 +347,60 @@ public class ServiceUtils {
                 LogUtil.error(e);
             }
         });
+    }
+
+    public static void buildProjectInfo(List<? extends Object> list) {
+        List<String> projectIds = getFieldListByMethod(list, "getProjectId");
+
+        Map<String, String> projectNameMap = getProjectNameMap(projectIds);
+
+        list.forEach(i -> {
+            Class<?> clazz = i.getClass();
+            try {
+                Method setProjectName = clazz.getMethod("setProjectName", String.class);
+                Method getProjectId = clazz.getMethod("getProjectId");
+                Object projectId = getProjectId.invoke(i);
+                setProjectName.invoke(i, projectNameMap.get(projectId));
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        });
+    }
+
+    public static void buildCustomNumInfo(List<? extends Object> list) {
+        List<String> projectIds = getFieldListByMethod(list, "getProjectId");
+        ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
+        Map<String, String> customNumMap = projectApplicationService.getCustomNumMapByProjectIds(projectIds);
+        list.forEach(i -> {
+            Class<?> clazz = i.getClass();
+            try {
+                Method setIsCustomNum = clazz.getMethod("setCustomNum", String.class);
+                Method getNum = clazz.getMethod("getNum");
+                Method getProjectId = clazz.getMethod("getProjectId");
+                Object projectId = getProjectId.invoke(i);
+                String isCustomNum = customNumMap.get(projectId);
+                if (isCustomNum == null) {
+                    setIsCustomNum.invoke(i, String.valueOf(getNum.invoke(i)));
+                }
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        });
+    }
+
+    private static List<String> getFieldListByMethod(List<?> list, String field) {
+        return list.stream()
+                .map(i -> {
+                    Class<?> clazz = i.getClass();
+                    try {
+                        Method getField = clazz.getMethod(field);
+                        return getField.invoke(i).toString();
+                    } catch (Exception e) {
+                        LogUtil.error(e);
+                        return i.toString();
+                    }
+                })
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
