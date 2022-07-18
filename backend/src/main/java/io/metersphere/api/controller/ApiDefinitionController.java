@@ -273,7 +273,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class,
-           subject = "接口定义通知")
+            subject = "接口定义通知")
     public void editByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiByParam(request);
     }
@@ -355,6 +355,12 @@ public class ApiDefinitionController {
     @PostMapping("/update/follows/{definitionId}")
     public void saveFollows(@PathVariable String definitionId, @RequestBody List<String> follows) {
         apiDefinitionService.saveFollows(definitionId, follows);
+    }
+
+
+    @PostMapping("/delete/follows/batch")
+    public void deleteFollows(@RequestBody List<String> definitionIds) {
+        apiDefinitionService.deleteFollows(definitionIds);
     }
 
     @GetMapping("/getWorkerQueue")

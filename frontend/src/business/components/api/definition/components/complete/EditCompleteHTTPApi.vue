@@ -181,6 +181,24 @@
         </ms-dialog-footer>
       </template>
     </el-dialog>
+
+    <el-dialog :visible.sync="batchSyncApiVisible" :title="$t('commons.save')+$t('commons.setting')">
+      <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+        <div class="timeClass">
+          <span>{{ $t('api_test.definition.one_click_sync') + "case" }}</span>
+          <el-switch v-model="syncCases"></el-switch>
+        </div>
+        <span>{{ $t('workstation.batch_sync_api_tips') }}</span>
+      </el-row>
+      <span v-if="syncCases">{{ $t('workstation.sync') + $t('commons.setting') }}</span><br/>
+      <sync-settings v-if="syncCases" ref="synSetting"></sync-settings>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="batchSyncApiVisible = false">取 消</el-button>
+        <el-button type="primary" @click="batchSync()">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -202,6 +220,7 @@ import {createComponent} from ".././jmeter/components";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {getProjectMemberOption} from "@/network/user";
+import SyncSettings from "@/business/components/xpack/workstation/component/SyncSettings";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
@@ -217,7 +236,7 @@ export default {
     ApiOtherInfo,
     MsFormDivider,
     MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree, MsChangeHistory,
-    HttpApiVersionDiff
+    HttpApiVersionDiff, SyncSettings,
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -269,6 +288,8 @@ export default {
       newRequest: Sampler,
       newResponse: {},
       createNewVersionVisible: false,
+      batchSyncApiVisible: false,
+      syncCases: true,
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -473,7 +494,11 @@ export default {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
             }
           }
-          this.$emit('saveApi', this.httpForm);
+          if (hasLicense() && this.httpForm.caseTotal > 0) {
+            this.batchSyncApiVisible = true;
+          } else {
+            this.$emit('saveApi', this.httpForm);
+          }
           this.count = 0;
           this.$store.state.apiStatus.set("fromChange", false);
           this.$store.state.apiMap.set(this.httpForm.id, this.$store.state.apiStatus);
@@ -484,6 +509,15 @@ export default {
           return false;
         }
       });
+    },
+    batchSync() {
+      if (hasLicense() && this.httpForm.caseTotal > 0) {
+        if (this.$refs.synSetting && this.$refs.synSetting.fromData) {
+          let fromData = this.$refs.synSetting.fromData;
+          this.httpForm.triggerUpdate = JSON.stringify(fromData);
+        }
+        this.$emit('saveApi', this.httpForm);
+      }
     },
     createModules() {
       this.$emit("createRootModelInTree");
@@ -768,6 +802,11 @@ export default {
 </script>
 
 <style scoped>
+.timeClass {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 
 .base-info .el-form-item {
   width: 100%;

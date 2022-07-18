@@ -248,6 +248,16 @@
                :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
       <ms-request-result-tail :response="response" ref="debugResult"/>
     </el-dialog>
+
+    <el-dialog :visible.sync="batchSyncCaseVisible" :title="$t('commons.batch')+$t('workstation.sync')">
+      <span>{{ $t('workstation.sync') + $t('commons.setting') }}</span><br/>
+      <sync-settings ref="synSetting"></sync-settings>
+      <span style="color: red">{{ $t('workstation.batch_sync_api_tips') }}</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="batchSyncCaseVisible = false">取 消</el-button>
+        <el-button type="primary" @click="batchSync()">确 定</el-button>
+      </span>
+    </el-dialog>
   </span>
 
 </template>
@@ -297,6 +307,7 @@ import {editApiTestCaseOrder} from "@/network/api";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import i18n from "@/i18n/i18n";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
+import SyncSettings from "@/business/components/xpack/workstation/component/SyncSettings";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -324,6 +335,7 @@ export default {
     MsRequestResultTail,
     MsApiCaseRunModeWithEnv,
     MsSearch,
+    SyncSettings,
     PlanStatusTableItem: () => import("../../../../track/common/tableItems/plan/PlanStatusTableItem"),
     MsTaskCenter: () => import("@/business/components/task/TaskCenter"),
   },
@@ -358,6 +370,28 @@ export default {
           name: this.$t('api_test.automation.batch_execute'),
           handleClick: this.handleRunBatch,
           permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
+      ],
+      batchButtons: [
+        {
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteToGcBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_edit'),
+          handleClick: this.handleEditBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
+        },
+        {
+          name: this.$t('api_test.automation.batch_execute'),
+          handleClick: this.handleRunBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
+        {
+          name: this.$t('commons.batch') + this.$t('workstation.sync'),
+          handleClick: this.openBatchSync,
+          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
         },
       ],
       trashButtons: [
@@ -459,6 +493,7 @@ export default {
       versionEnable: false,
       userFilters: [],
       environmentsFilters: [],
+      batchSyncCaseVisible: false,
     };
   },
   props: {
@@ -499,7 +534,12 @@ export default {
       this.buttons = this.trashButtons;
     } else {
       this.operators = this.simpleOperators;
-      this.buttons = this.simpleButtons;
+      if (hasLicense()) {
+        this.buttons = this.batchButtons;
+      } else {
+        this.buttons = this.simpleButtons;
+      }
+
     }
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
@@ -1015,6 +1055,21 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.initTable();
       });
+    },
+    openBatchSync() {
+      this.batchSyncCaseVisible = true;
+    },
+    batchSync() {
+      let selectIds = this.$refs.caseTable.selectIds;
+      let fromData = this.$refs.synSetting.fromData;
+      fromData.ids = selectIds;
+      if (hasLicense()) {
+        this.$post('/api/sync/case/batch', fromData, response => {
+          this.batchSyncCaseVisible = false;
+          this.$message.success("success");
+          this.initTable();
+        });
+      }
     },
     handleDelete(apiCase) {
       this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
