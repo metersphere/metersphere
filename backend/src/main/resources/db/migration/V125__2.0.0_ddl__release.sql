@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `api_case_execution_info`
 CREATE TABLE IF NOT EXISTS `scenario_execution_info`
 (
     `id`           varchar(50) NOT NULL,
-    `source_id`    varchar(50) NOT NULL COMMENT 'api scenario id',
+    `source_id`    varchar(255) NOT NULL COMMENT 'api scenario id',
     `result`       varchar(50) NOT NULL,
     `trigger_mode` varchar(50),
     `create_time`  BIGINT(13)  NOT NULL COMMENT 'Create timestamp',
