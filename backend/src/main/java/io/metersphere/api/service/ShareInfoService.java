@@ -1,6 +1,5 @@
 package io.metersphere.api.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
@@ -17,7 +16,6 @@ import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.track.service.TestPlanApiCaseService;
@@ -33,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.*;
 
-import static io.metersphere.api.service.utils.ShareUtill.getTimeMills;
+import static io.metersphere.api.service.utils.ShareUtil.getTimeMills;
 
 /**
  * @author song.tianyang
@@ -211,12 +209,12 @@ public class ShareInfoService {
                                         }
                                     }
                                     JSONSchemaBodyDTO jsonSchemaBodyDTO = new JSONSchemaBodyDTO();
-                                    if(isJsonSchema){
+                                    if (isJsonSchema) {
                                         jsonSchemaBodyDTO.setJsonSchema(bodyObj.get("jsonSchema"));
                                         apiInfoDTO.setJsonSchemaBody(jsonSchemaBodyDTO);
-                                        String raw =JSONSchemaGenerator.getJson(JSONObject.toJSONString(bodyObj.get("jsonSchema")));
+                                        String raw = JSONSchemaGenerator.getJson(JSONObject.toJSONString(bodyObj.get("jsonSchema")));
                                         this.setPreviewData(previewJsonArray, raw);
-                                    }else {
+                                    } else {
                                         if (bodyObj.containsKey("raw")) {
                                             String raw = bodyObj.getString("raw");
                                             jsonSchemaBodyDTO.setRaw(raw);
@@ -405,9 +403,9 @@ public class ShareInfoService {
             apiInfoDTO.setRemark(apiModel.getRemark());
         }
         if (!previewJsonArray.isEmpty()) {
-            if(previewJsonArray.size() == 1){
+            if (previewJsonArray.size() == 1) {
                 apiInfoDTO.setRequestPreviewData(previewJsonArray.get(0));
-            }else {
+            } else {
                 apiInfoDTO.setRequestPreviewData(previewJsonArray);
             }
         }

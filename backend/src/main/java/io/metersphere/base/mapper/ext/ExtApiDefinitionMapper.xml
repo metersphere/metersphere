@@ -355,7 +355,7 @@
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExampleWithOperation">
         update api_definition
         set original_state=status,
-        status = 'Trash', delete_user_id = #{operator},delete_time = #{operationTime}
+        status = 'Trash', delete_user_id = #{operator},delete_time = #{operationTime}, to_be_updated = 'false'
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
@@ -753,6 +753,9 @@
             </if>
             <if test="request.toBeUpdated != null">
                 AND api_definition.to_be_updated = #{request.toBeUpdated}
+            </if>
+            <if test="request.toBeUpdateTime != null">
+                AND api_definition.to_be_update_time >= #{request.toBeUpdateTime}
             </if>
             <if test="request.notInIds != null and request.notInIds.size() > 0">
                 and api_definition.id not in

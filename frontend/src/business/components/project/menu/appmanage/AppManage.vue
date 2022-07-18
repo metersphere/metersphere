@@ -392,6 +392,7 @@ export default {
           if (this.config.openUpdateRuleTime) {
             this.pastUnit = this.config.openUpdateRuleTime.substring(this.config.openUpdateRuleTime.length - 1);
             this.pastQuantity = this.config.openUpdateRuleTime.substring(0, this.config.openUpdateRuleTime.length - 1);
+            this.showSyncTimeSetting = true;
           }
         }
       });
