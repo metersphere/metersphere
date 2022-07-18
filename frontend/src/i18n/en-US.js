@@ -523,7 +523,7 @@ export default {
     loginTitle: 'Login page prompt information',
     pageTitle: 'Page Title',
     sysTitle: 'System Name',
-    theme_style: 'Theme style set',
+    theme_style: 'Menu style settings',
   },
   system_config: {
     base_config: 'Base Config',
