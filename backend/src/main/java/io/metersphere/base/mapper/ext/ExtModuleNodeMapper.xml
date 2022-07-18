@@ -70,6 +70,16 @@
     </trim>
   </insert>
   <insert id="insert">
+    insert into ${tableName} (id, project_id, `name`,
+                                parent_id, `level`, create_time,
+                                update_time, pos, create_user
+    )
+    values (#{record.id,jdbcType=VARCHAR}, #{record.projectId,jdbcType=VARCHAR}, #{record.name,jdbcType=VARCHAR},
+            #{record.parentId,jdbcType=VARCHAR}, #{record.level,jdbcType=INTEGER}, #{record.createTime,jdbcType=BIGINT},
+            #{record.updateTime,jdbcType=BIGINT}, #{record.pos,jdbcType=DOUBLE}, #{record.createUser,jdbcType=VARCHAR}
+           )
+  </insert>
+  <insert id="insertWithModulePath">
     insert into ${tableName} (id, project_id, `name`, module_path,
                                 parent_id, `level`, create_time,
                                 update_time, pos, create_user
@@ -123,7 +133,9 @@
     update ${tableName}
     set project_id = #{record.projectId,jdbcType=VARCHAR},
         `name` = #{record.name,jdbcType=VARCHAR},
-        `module_path` = #{record.modulePath,jdbcType=VARCHAR},
+        <if test="record.modulePath != null">
+          `module_path` = #{record.modulePath,jdbcType=VARCHAR},
+        </if>
         parent_id = #{record.parentId,jdbcType=VARCHAR},
         `level` = #{record.level,jdbcType=INTEGER},
         create_time = #{record.createTime,jdbcType=BIGINT},
