@@ -352,6 +352,7 @@ export default {
 .metric-box {
   display: inline-block;
   text-align: center;
+  min-width: 62px;
 }
 
 .metric-box .value {
