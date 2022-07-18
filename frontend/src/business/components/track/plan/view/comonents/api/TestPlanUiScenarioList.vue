@@ -29,13 +29,21 @@
         @filter="filterSearch"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
-          <ms-table-column
-            v-if="item.id == 'num'"
-            :fields-width="fieldsWidth"
-            sortable
-            prop="customNum"
-            min-width="80px"
-            label="ID"/>
+            <ms-table-column
+              v-if="item.id == 'num'"
+              :fields-width="fieldsWidth"
+              sortable
+              prop="customNum"
+              min-width="80px"
+              label="ID">
+             <template v-slot:default="scope">
+               <el-link @click="openById(scope.row)">
+                  <span>
+                    {{ scope.row.customNum }}
+                  </span>
+               </el-link>
+            </template>
+          </ms-table-column>
 
           <ms-table-column :field="item"
                            :fields-width="fieldsWidth"
@@ -197,7 +205,7 @@
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "../../../../../common/components/MsTag";
-import {getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -528,6 +536,19 @@ export default {
         });
       }
       return;
+    },
+    openById(item) {
+      let automationData = this.$router.resolve({
+        name: 'uiAutomation',
+        params: {
+          redirectID: getUUID(),
+          dataType: "scenario",
+          dataSelectRange: 'edit:' + item.caseId,
+          projectId: item.projectId,
+          workspaceId: getCurrentWorkspaceId()
+        }
+      });
+      window.open(automationData.href, '_blank');
     },
     handleDeleteBatch() {
       this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {
