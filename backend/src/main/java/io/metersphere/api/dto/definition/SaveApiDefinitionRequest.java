@@ -1,8 +1,8 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.response.Response;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -70,5 +70,8 @@ public class SaveApiDefinitionRequest {
     private String sourceId;
     //是否进入待更新列表
     private Boolean toBeUpdated;
+
+    //同步的内容
+    private String triggerUpdate;
 
 }
