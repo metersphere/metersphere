@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :title="$t('commons.about_us')"
-    :visible.sync="dialogVisible" class="about-us">
+    :visible.sync="dialogVisible" class="about-us" append-to-body>
 
     <el-row>
       <el-col>
