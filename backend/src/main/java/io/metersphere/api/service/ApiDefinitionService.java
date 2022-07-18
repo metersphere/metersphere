@@ -165,6 +165,12 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
+        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
+            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
+            if (toBeUpdatedTime != null) {
+                request.setToBeUpdateTime(toBeUpdatedTime);
+            }
+        }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {
@@ -610,6 +616,7 @@ public class ApiDefinitionService {
         test.setRemark(request.getRemark());
         if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
             test.setToBeUpdated(request.getToBeUpdated());
+            test.setToBeUpdateTime(System.currentTimeMillis());
         }
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
@@ -872,6 +879,15 @@ public class ApiDefinitionService {
             if (apiTestCaseWithBLOBs.getNum() == null) {
                 apiTestCaseWithBLOBs.setNum(testCaseService.getNextNum(apiDefinition.getId()));
             }
+
+            if (apiDefinition.getToBeUpdated() != null) {
+                apiTestCaseWithBLOBs.setToBeUpdated(apiDefinition.getToBeUpdated());
+            }
+
+            if (apiDefinition.getToBeUpdateTime() != null) {
+                apiTestCaseWithBLOBs.setToBeUpdateTime(apiDefinition.getToBeUpdateTime());
+            }
+
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
             } else {
@@ -992,6 +1008,8 @@ public class ApiDefinitionService {
                     Boolean toChangeTime = checkIsSynchronize(existApi, apiDefinition);
                     if (toChangeTime) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
+                    } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
+                        apiDefinition.setUpdateTime(System.currentTimeMillis());
                     }
                 } else {
                     apiDefinition.setUpdateTime(System.currentTimeMillis());
@@ -1039,24 +1057,50 @@ public class ApiDefinitionService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
+        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+        if (apiDefinitionSyncService != null) {
+            apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(existApi.getProjectId());
+        }
+
 
         //Compare the basic information of the API. If it contains the comparison that needs to be done for the synchronization information,
         // put the data into the to-be-synchronized
         if (!StringUtils.equals(exApiString, apiString)) {
             if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getMethod()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
             if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getProtocol()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
 
             if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getPath()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
 
+        }
+
+        if (!StringUtils.equals(apiDefinition.getCreateUser(), existApi.getCreateUser())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(apiDefinition.getStatus(), existApi.getStatus())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(apiDefinition.getTags(), existApi.getTags())) {
             return true;
         }
 
@@ -1086,28 +1130,40 @@ public class ApiDefinitionService {
         }
         if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
             if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getHeaders()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
         }
 
         if (exApiRequest.get("arguments") != null && apiRequest.get("arguments") != null) {
             if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getQuery()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
         }
 
         if (exApiRequest.get("rest") != null && apiRequest.get("rest") != null) {
             if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getRest()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
         }
 
         if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
             if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-                apiDefinition.setToBeUpdated(true);
+                if (apiSyncCaseRequest.getBody()) {
+                    apiDefinition.setToBeUpdated(true);
+                    apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
+                }
                 return true;
             }
         }
