@@ -66,6 +66,14 @@ public class TestReviewTestCaseService {
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestReviewCaseDTO> list = extTestReviewCaseMapper.list(request);
+        if (CollectionUtils.isEmpty(list)) {
+            return list;
+        }
+
+        ServiceUtils.buildVersionInfo(list);
+        ServiceUtils.buildProjectInfo(list);
+        ServiceUtils.buildCustomNumInfo(list);
+
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentProjectId());
         Map<String, String> userMap = userService.getMemberList(queryMemberRequest)
