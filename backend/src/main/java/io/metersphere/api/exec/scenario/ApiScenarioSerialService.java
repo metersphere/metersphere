@@ -103,7 +103,13 @@ public class ApiScenarioSerialService {
                         ApiRunMode.SCENARIO_PLAN.name(),
                         ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
                         ApiRunMode.SCHEDULE_SCENARIO.name(),
-                        ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                        ApiRunMode.JENKINS_SCENARIO_PLAN.name(),
+                        ApiRunMode.UI_SCENARIO.name(),
+                        ApiRunMode.UI_SCENARIO_PLAN.name(),
+                        ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name(),
+                        ApiRunMode.UI_SCHEDULE_SCENARIO.name(),
+                        ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name())
+        ) {
             ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(queue.getReportId());
             if (report != null) {
                 report.setStatus(APITestStatus.Running.name());
