@@ -75,6 +75,7 @@ public class RemakeReportService {
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(apiTestCase.getApiDefinitionId());
                         if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
                             apiDefinitionWithBLOBs.setToBeUpdated(true);
+                            apiDefinitionWithBLOBs.setToBeUpdateTime(System.currentTimeMillis());
                             apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
                         }
                     }
@@ -117,7 +118,7 @@ public class RemakeReportService {
             } else if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.UI_SCENARIO_PLAN.name(),
                     request.getRunMode(), ApiRunMode.UI_SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.UI_JENKINS_SCENARIO_PLAN.name())) {
                 remarkUiScenarioPlan(request);
-            }else {
+            } else {
                 ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(request.getReportId());
                 if (report != null) {
                     report.setStatus(APITestStatus.Error.name());

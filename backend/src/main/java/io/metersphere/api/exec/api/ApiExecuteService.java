@@ -85,7 +85,7 @@ public class ApiExecuteService {
             request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
         }
         //提前生成报告
-        ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId(),Objects.requireNonNull(SessionUtils.getUser()).getId());
+        ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
         report.setName(caseWithBLOBs.getName());
         report.setTriggerMode(ApiRunMode.JENKINS.name());
         report.setType(ApiRunMode.JENKINS.name());
@@ -135,6 +135,7 @@ public class ApiExecuteService {
                     ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(caseWithBLOBs.getApiDefinitionId());
                     if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
                         apiDefinitionWithBLOBs.setToBeUpdated(true);
+                        apiDefinitionWithBLOBs.setToBeUpdateTime(System.currentTimeMillis());
                         apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
                     }
                 }

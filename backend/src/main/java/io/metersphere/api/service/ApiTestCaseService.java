@@ -19,10 +19,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
@@ -58,6 +55,8 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.metersphere.api.service.utils.ShareUtil.getTimeMills;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -117,6 +116,9 @@ public class ApiTestCaseService {
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
+
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -144,13 +146,50 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
         request = this.initRequest(request, true, true);
+        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
+            Long toBeUpdatedTime = getToBeUpdatedTime(request.getProjectId());
+            if (toBeUpdatedTime != null) {
+                request.setToBeUpdateTime(toBeUpdatedTime);
+            }
+        }
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
+
         buildUserInfo(apiTestCases, request.isSelectEnvironment());
         return apiTestCases;
     }
+
+    public Long getToBeUpdatedTime(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andTypeEqualTo(ProjectApplicationType.OPEN_UPDATE_TIME.name())
+                .andProjectIdEqualTo(projectId);
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        if (projectApplications == null || projectApplications.size() == 0) {
+            return null;
+        }
+        ProjectApplication projectApplication = projectApplications.get(0);
+        String typeValue = projectApplication.getTypeValue();
+        if (typeValue.equals("false")) {
+            return null;
+        }
+        example = new ProjectApplicationExample();
+        example.createCriteria().andTypeEqualTo(ProjectApplicationType.OPEN_UPDATE_RULE_TIME.name())
+                .andProjectIdEqualTo(projectId);
+        List<ProjectApplication> projectApplicationTimes = projectApplicationMapper.selectByExample(example);
+        if (projectApplicationTimes == null || projectApplicationTimes.size() == 0) {
+            return null;
+        }
+        ProjectApplication projectApplicationTime = projectApplicationTimes.get(0);
+        String time = projectApplicationTime.getTypeValue();
+        if (StringUtils.isNotBlank(time)) {
+            time = "-" + time;
+            return getTimeMills(System.currentTimeMillis(), time);
+        }
+        return null;
+    }
+
 
     public void setCaseEnvironment(List<ApiTestCaseDTO> apiTestCases) {
         for (ApiTestCaseDTO apiCase : apiTestCases) {
@@ -826,6 +865,9 @@ public class ApiTestCaseService {
                 apiTestCase.setRequest(requestStr);
                 if (toBeUpdated != null) {
                     apiTestCase.setToBeUpdated(toBeUpdated);
+                    if (toBeUpdated) {
+                        apiTestCase.setToBeUpdateTime(System.currentTimeMillis());
+                    }
                 }
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
             });
