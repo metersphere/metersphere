@@ -38,7 +38,6 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.xpack.api.dto.MsRetryLoopController;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -134,13 +133,6 @@ public class ApiCaseSerialService {
             }
             if (caseWithBLOBs != null) {
                 String data = caseWithBLOBs.getRequest();
-                // 失败重试
-                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
-                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), true);
-                    data = StringUtils.isNotEmpty(retryData) ? retryData : data;
-                }
-
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
@@ -151,13 +143,16 @@ public class ApiCaseSerialService {
                 group.setProjectId(caseWithBLOBs.getProjectId());
                 MsTestElement testElement = null;
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                    MsRetryLoopController controller = JSON.parseObject(data, MsRetryLoopController.class);
-                    GenerateHashTreeUtil.parse(data, controller);
-                    MsTestElement element = parse(JSON.toJSONString(controller.getHashTree().get(0)), testId, envId, caseWithBLOBs.getProjectId());
-                    controller.setHashTree(new LinkedList<>() {{
+                    // 失败重试
+                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
+                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), true);
+                    data = StringUtils.isNotEmpty(retryData) ? retryData : data;
+                    // 格式化数据
+                    testElement = apiRetryOnFailureService.retryParse(data);
+                    MsTestElement element = parse(JSON.toJSONString(testElement.getHashTree().get(0)), testId, envId, caseWithBLOBs.getProjectId());
+                    testElement.setHashTree(new LinkedList<>() {{
                         this.add(element);
                     }});
-                    testElement = controller;
                 } else {
                     testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
                 }
