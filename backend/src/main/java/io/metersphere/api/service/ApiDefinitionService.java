@@ -368,13 +368,25 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
-        // 存储依赖关系
-        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
-        if (apiDefinitionSyncService != null) {
-            apiDefinitionSyncService.syncApi(request);
+        if (StringUtils.isBlank(request.getTriggerUpdate())) {
+            // 设置是否需要进入待更新列表
+            ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+            if (apiDefinitionSyncService != null) {
+                apiDefinitionSyncService.syncApi(request);
+            }
+
         }
 
         ApiDefinitionWithBLOBs returnModel = updateTest(request);
+        if (StringUtils.isNotBlank(request.getTriggerUpdate())) {
+            //一键同步case
+            ApiSyncCaseRequest apiSyncCaseRequest = JSONObject.parseObject(request.getTriggerUpdate(), ApiSyncCaseRequest.class);
+            ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
+            if (apiCaseSyncService != null) {
+                apiCaseSyncService.oneClickSyncCase(apiSyncCaseRequest, returnModel);
+            }
+        }
+
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
@@ -614,9 +626,11 @@ public class ApiDefinitionService {
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
         test.setRemark(request.getRemark());
-        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
+        if (request.getToBeUpdated() != null) {
             test.setToBeUpdated(request.getToBeUpdated());
-            test.setToBeUpdateTime(System.currentTimeMillis());
+            if (request.getToBeUpdated()) {
+                test.setToBeUpdateTime(System.currentTimeMillis());
+            }
         }
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
@@ -2581,6 +2595,14 @@ public class ApiDefinitionService {
                 request.setSourceIds(ids);
             }
             relationshipEdgeService.saveBatch(request);
+        }
+    }
+
+    public void deleteFollows(List<String> definitionIds) {
+        if (CollectionUtils.isNotEmpty(definitionIds)) {
+            ApiDefinitionFollowExample example = new ApiDefinitionFollowExample();
+            example.createCriteria().andDefinitionIdIn(definitionIds);
+            apiDefinitionFollowMapper.deleteByExample(example);
         }
     }
 }
