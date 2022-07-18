@@ -1362,10 +1362,29 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            const parent = node.parent
-            const hashTree = parent.data.hashTree || parent.data;
-            const index = hashTree.findIndex(d => d.resourceId !== undefined && row.resourceId !== undefined && d.resourceId === row.resourceId)
+            let parent = node.parent
+            let hashTree = parent.data.hashTree || parent.data;
+            let index = hashTree.findIndex(d => d.resourceId !== undefined && row.resourceId !== undefined && d.resourceId === row.resourceId)
             hashTree.splice(index, 1);
+            //删除空步骤
+            while (
+              parent &&
+              parent.data &&
+              parent.data.hashTree &&
+              parent.data.hashTree.length <= 0 &&
+              parent.data.type === "scenario"
+              ) {
+              parent = parent.parent;
+              if (!parent) {
+                break;
+              }
+              hashTree = parent.data.hashTree || parent.data;
+              index = hashTree.findIndex(
+                (d) =>
+                  d.id != undefined && row.id != undefined && d.id === row.id
+              );
+              hashTree.splice(index, 1);
+            }
             this.sort();
             this.forceRerender();
           }
