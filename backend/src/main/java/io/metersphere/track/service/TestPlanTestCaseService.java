@@ -248,8 +248,9 @@ public class TestPlanTestCaseService {
         request.setExecutor(user.getId());
     }
 
-    public TestPlanCaseDTO get(String testplanTestCaseId) {
-        TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(testplanTestCaseId);
+    public TestPlanCaseDTO get(String id) {
+        TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(id);
+        ServiceUtils.buildCustomNumInfo(testPlanCaseDTO);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
         testCaseTestDTOS.forEach(dto -> {
             setTestName(dto);

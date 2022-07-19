@@ -1,21 +1,26 @@
 <template>
   <el-form class="comment-form clearfix">
-    <el-form-item
-    :label="'评论'">
-      <ms-mark-down-text
-        default-open="edit"
-        prop="comment"
-        custom-min-height="100"
-        :class="{inputWarning: inputWarning}"
-        :data="data"
-        :toolbars="toolbars"
-        ref="md"/>
+    <el-form-item>
+      <template v-slot:label>
+        <div class="icon-title">
+          {{ userName.substring(0, 1) }}
+        </div>
+      </template>
+        <ms-mark-down-text
+          default-open="edit"
+          prop="comment"
+          custom-min-height="100"
+          :class="{inputWarning: inputWarning}"
+          :data="data"
+          :toolbars="toolbars"
+          ref="md"/>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
+import {getCurrentUser} from "@/common/js/utils";
 export default {
   name: "TestPlanCommentInput",
   components: {MsMarkDownText},
@@ -39,6 +44,11 @@ export default {
       if (this.data.status !== 'Failure' && this.inputWarning) {
         this.inputWarning = false;
       }
+    }
+  },
+  computed: {
+    userName() {
+      return getCurrentUser().name;
     }
   },
   data() {
@@ -98,8 +108,28 @@ export default {
   margin-top: 100px;
 }
 
-.inputWarning {
-  -webkit-box-shadow: 0 0 8px rgb(205,51,43) !important;
+.inputWarning >>> .v-note-panel {
+  -webkit-box-shadow: 1px 1px 5px rgb(205,51,43) !important;
 }
 
+.comment-form >>> .v-note-wrapper .v-note-panel {
+  border: #EBEEF5 solid 2px !important;
+}
+
+.comment-form >>> .v-note-wrapper {
+  position: initial;
+  box-shadow: 0px 0px 0px 0px !important;
+}
+
+.icon-title {
+  color: #fff;
+  width: 30px;
+  background-color: #72dc91;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 30px;
+  font-size: 14px;
+  margin-top: 5px;
+}
 </style>
