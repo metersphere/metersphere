@@ -7,7 +7,8 @@
     <el-menu-item>
       <div>
         <img :src="'/display/file/logo'" class="logo" alt="">
-        <span slot="title" class="ms-title-width">{{ title }}</span>
+        <span slot="title" class="ms-logo-title ms-title-light" v-if="sideTheme ==='theme-light'">{{ title }}</span>
+        <span slot="title" class="ms-logo-title ms-title-width" v-else>{{ title }}</span>
       </div>
     </el-menu-item>
   </el-menu>
@@ -25,12 +26,16 @@ export default {
       menuKey: 0,
     };
   },
+  created() {
+    console.log(this.sideTheme)
+  },
   computed: {
     title() {
       return localStorage.getItem("sysTitle") || "MeterSphere";
     }
   },
   props: {
+    sideTheme: String,
     isCollapse: {
       type: Boolean,
       default: true,
@@ -55,17 +60,24 @@ export default {
   background: var(--aside_color) !important;
 }
 
-.ms-title-width {
+.ms-logo-title {
   font-size: 15px;
   font-weight: bold;
   margin-left: 4px;
-  color: var(--font_color) !important;
   display: inline-block;
   overflow-x: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
   width: 105px;
+}
+
+.ms-title-width {
+  color: var(--font_color) !important;
+}
+
+.ms-title-light {
+  color: #783887 !important;
 }
 
 /deep/ .el-menu-item {

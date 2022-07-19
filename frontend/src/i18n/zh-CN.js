@@ -529,6 +529,9 @@ export default {
     pageTitle: '页面 Title',
     sysTitle: '系统名称',
     theme_style: '菜单风格设置',
+    theme_default: '默认',
+    theme_light: '白色',
+    theme_follow: '跟随主题色'
   },
   system_config: {
     base_config: '基本配置',
