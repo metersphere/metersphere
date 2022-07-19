@@ -8,12 +8,11 @@
     </div>
     <!--  数值统计  -->
     <el-container>
-      <el-aside width="34%">
+      <el-aside width="120px">
         <count-rectangle-chart :content="apiCountData.allApiDataCountNumber"/>
       </el-aside>
-      <el-main style="padding-left: 0px;padding-right: 0px;">
-        <div style="width: 185px; float:right;margin:0 auto">
-
+      <el-main style="padding-left: 0px;padding-right: 0px;display: block">
+        <div style="width: 185px; float:right;margin:0 auto;overflow: auto">
           <el-row align="right">
             <el-col :span="6"
                     style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">

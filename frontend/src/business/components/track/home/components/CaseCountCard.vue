@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 5px;" style="height: 350px;margin-top: 5px">
     <div slot="header">
       <span class="title">
         {{ $t('test_track.home.case_count') }}
@@ -7,25 +7,25 @@
     </div>
     <!--数值统计-->
     <el-container>
-      <el-aside width="34%">
+      <el-aside width="120px">
         <count-rectangle-chart :content="trackCountData.allCaseCountNumber"/>
       </el-aside>
-      <el-main style="padding-left: 0px;padding-right: 0px;">
-        <div style="width: 200px;margin:0 auto">
-          <el-row align="center">
+      <el-main style="padding-left: 0px;padding-right: 0px;display: block">
+        <div style="width:200px;float:right;margin:0;overflow: auto">
+          <el-row align="right">
             <el-col :span="6"
-                    style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+                    style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="trackCountData.p0CountStr"></div>
             </el-col>
             <el-col :span="6"
-                    style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+                    style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="trackCountData.p1CountStr"></div>
             </el-col>
             <el-col :span="6"
-                    style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+                    style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="trackCountData.p2CountStr"></div>
             </el-col>
-            <el-col :span="6" style="padding: 5px;">
+            <el-col :span="6" style="">
               <div class="count-info-div" v-html="trackCountData.p3CountStr"></div>
             </el-col>
           </el-row>
@@ -132,12 +132,23 @@ export default {
 
 <style scoped>
 
+.el-aside {
+  line-height: 100px;
+  text-align: center;
+}
+
+.rows-count-number {
+  font-family: 'ArialMT', 'Arial', sans-serif;
+  font-size: 14px;
+  color: var(--count_number) !important;
+}
+
 .detail-container {
-  margin-top: 30px;
+  margin-top: 20px
 }
 
 .default-property {
-  font-size: 14px
+  font-size: 14px;
 }
 
 .main-property {
