@@ -902,6 +902,10 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setToBeUpdateTime(apiDefinition.getToBeUpdateTime());
             }
 
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getPriority())) {
+                apiTestCaseWithBLOBs.setPriority("P0");
+            }
+
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
             } else {
