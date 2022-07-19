@@ -3298,6 +3298,7 @@ export default {
     treatment_method: "處理方式",
     scenario_steps: "場景步驟",
     basic_information: "基礎信息",
-    check_element: "請勾選元素"
+    check_element: "請勾選元素",
+    check_subitem: '請選擇子分類',
   }
 };
