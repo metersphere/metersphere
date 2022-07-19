@@ -68,7 +68,7 @@
                             :project-id="currentProjectId" @refreshAfterSave="refresh">
           </environment-edit>
         </el-dialog>
-        <environment-import :project-list="projectList" @refresh="refresh" ref="envImport"></environment-import>
+        <environment-import :project-list="projectList" :to-import-project-id="currentProjectId" @refresh="refresh" ref="envImport"></environment-import>
 
         <el-dialog title="域名列表" :visible.sync="domainVisible">
           <el-table :data="conditions">
