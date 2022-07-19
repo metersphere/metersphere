@@ -524,6 +524,9 @@ export default {
     pageTitle: 'Page Title',
     sysTitle: 'System Name',
     theme_style: 'Menu style settings',
+    theme_default: 'Default',
+    theme_light: 'White',
+    theme_follow: 'Follow the theme color'
   },
   system_config: {
     base_config: 'Base Config',
