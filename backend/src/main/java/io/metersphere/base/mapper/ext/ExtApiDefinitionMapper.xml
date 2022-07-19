@@ -751,10 +751,10 @@
             <if test="request.moduleId != null">
                 AND api_definition.module_id = #{request.moduleId}
             </if>
-            <if test="request.toBeUpdated != null">
+            <if test="request.toBeUpdated != null and request.toBeUpdated==true">
                 AND api_definition.to_be_updated = #{request.toBeUpdated}
             </if>
-            <if test="request.toBeUpdateTime != null">
+            <if test="request.toBeUpdated != null and request.toBeUpdated==true and request.toBeUpdateTime != null">
                 AND api_definition.to_be_update_time >= #{request.toBeUpdateTime}
             </if>
             <if test="request.notInIds != null and request.notInIds.size() > 0">

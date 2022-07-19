@@ -505,7 +505,7 @@
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true">
             and (t1.to_be_updated = #{request.toBeUpdated} or t3.status = 'error')
         </if>
-        <if test="request.toBeUpdateTime !=null">
+        <if test="request.toBeUpdated !=null and request.toBeUpdated == true and request.toBeUpdateTime !=null">
             and (t1.to_be_update_time >= #{request.toBeUpdateTime})
         </if>
         <include refid="queryVersionCondition">
