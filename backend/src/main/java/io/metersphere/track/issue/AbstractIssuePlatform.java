@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.IssueFileMapper;
+import io.metersphere.base.mapper.AttachmentModuleRelationMapper;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
@@ -24,6 +24,7 @@ import io.metersphere.track.issue.domain.ProjectIssueConfig;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.service.AttachmentService;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseIssueService;
 import io.metersphere.track.service.TestCaseService;
@@ -67,7 +68,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected CustomFieldService customFieldService;
     protected IssuesService issuesService;
     protected FileService fileService;
-    protected IssueFileMapper issueFileMapper;
+    protected AttachmentService attachmentService;
+    protected AttachmentModuleRelationMapper attachmentModuleRelationMapper;
 
     public String getKey() {
         return key;
@@ -96,7 +98,8 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.customFieldService = CommonBeanFactory.getBean(CustomFieldService.class);
         this.issuesService = CommonBeanFactory.getBean(IssuesService.class);
         this.fileService = CommonBeanFactory.getBean(FileService.class);
-        this.issueFileMapper = CommonBeanFactory.getBean(IssueFileMapper.class);
+        this.attachmentService = CommonBeanFactory.getBean(AttachmentService.class);
+        this.attachmentModuleRelationMapper = CommonBeanFactory.getBean(AttachmentModuleRelationMapper.class);
     }
 
     protected String getPlatformConfig(String platform) {

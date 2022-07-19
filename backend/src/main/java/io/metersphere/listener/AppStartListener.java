@@ -50,6 +50,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     @Resource
     private TestCaseService testCaseService;
     @Resource
+    private AttachmentService attachmentService;
+    @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
@@ -158,6 +160,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(customFieldResourceService::compatibleData, "init.custom.field.resource");
         initOnceOperate(jarConfigService::initJarPath, "init.jar.path");
         initOnceOperate(testCaseService::initAttachment, "init.attachment.test.case");
+        initOnceOperate(attachmentService::initAttachment, "init.attachment.all");
     }
 
     /**

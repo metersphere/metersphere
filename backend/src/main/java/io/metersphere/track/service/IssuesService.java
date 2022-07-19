@@ -28,6 +28,7 @@ import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.jira.JiraIssueType;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.request.attachment.AttachmentRequest;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
@@ -40,7 +41,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -91,6 +91,8 @@ public class IssuesService {
     IssueFileMapper issueFileMapper;
     @Resource
     private FileAttachmentMetadataMapper fileAttachmentMetadataMapper;
+    @Resource
+    private AttachmentService attachmentService;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
@@ -116,22 +118,13 @@ public class IssuesService {
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
-        // copy附件
+        // 复制新增, 同步缺陷的MS附件
         if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
-            final String addIssueId = issues.getId();
-            IssueFileExample example = new IssueFileExample();
-            example.createCriteria().andIssueIdEqualTo(issuesRequest.getCopyIssueId());
-            List<IssueFile> issueFiles = issueFileMapper.selectByExample(example);
-            if (issueFiles != null) {
-                issueFiles.forEach(issueFile -> {
-                    // 同步MS附件
-                    FileAttachmentMetadata fileAttachmentMetadata = fileService.copyAttachment(issueFile.getFileId(), AttachmentType.ISSUE.type(), addIssueId);
-                    IssueFile newIssueFile = new IssueFile();
-                    newIssueFile.setIssueId(addIssueId);
-                    newIssueFile.setFileId(fileAttachmentMetadata.getId());
-                    issueFileMapper.insert(newIssueFile);
-                });
-            }
+            AttachmentRequest attachmentRequest = new AttachmentRequest();
+            attachmentRequest.setCopyBelongId(issuesRequest.getCopyIssueId());
+            attachmentRequest.setBelongId(issues.getId());
+            attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
+            attachmentService.copyAttachment(attachmentRequest);
         }
         return issues;
     }
@@ -143,31 +136,6 @@ public class IssuesService {
         });
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
-    }
-
-    public void uploadAttachment(IssuesUpdateRequest request, MultipartFile file) {
-        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(request.getId());
-        if (issuesWithBLOBs == null) {
-            MSException.throwException(Translator.get("issues_attachment_upload_not_found") + request.getId());
-        }
-        FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachment(file, AttachmentType.ISSUE.type(), request.getId());
-        IssueFile issueFile = new IssueFile();
-        issueFile.setIssueId(request.getId());
-        issueFile.setFileId(fileAttachmentMetadata.getId());
-        issueFileMapper.insert(issueFile);
-    }
-
-    public void deleteAttachment(String id) {
-        // 删除附件记录, 目录下附件文件
-        if (StringUtils.isNotEmpty(id)) {
-            List<String> ids = Arrays.asList(id);
-            fileService.deleteAttachment(ids);
-            fileService.deleteFileAttachmentByIds(ids);
-            //删除缺陷文件关联记录
-            IssueFileExample issueFileExample = new IssueFileExample();
-            issueFileExample.createCriteria().andFileIdIn(ids);
-            issueFileMapper.deleteByExample(issueFileExample);
-        }
     }
 
     public void saveFollows(String issueId, List<String> follows) {
@@ -369,17 +337,10 @@ public class IssuesService {
         AbstractIssuePlatform platform = IssueFactory.createPlatform(issuesWithBLOBs.getPlatform(), issuesRequest);
         platform.deleteIssue(id);
         // 删除缺陷对应的附件
-        fileService.deleteAttachment(AttachmentType.ISSUE.type(), id);
-        IssueFileExample issueFileExample = new IssueFileExample();
-        issueFileExample.createCriteria().andIssueIdEqualTo(id);
-        List<IssueFile> issueFiles = issueFileMapper.selectByExample(issueFileExample);
-        List<String> fileIds = issueFiles.stream().map(IssueFile::getFileId).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(fileIds)) {
-            FileAttachmentMetadataExample fileAttachmentMetadataExample = new FileAttachmentMetadataExample();
-            fileAttachmentMetadataExample.createCriteria().andIdIn(fileIds);
-            fileAttachmentMetadataMapper.deleteByExample(fileAttachmentMetadataExample);
-        }
-        issueFileMapper.deleteByExample(issueFileExample);
+        AttachmentRequest request = new AttachmentRequest();
+        request.setBelongId(id);
+        request.setBelongType(AttachmentType.ISSUE.type());
+        attachmentService.deleteAttachment(request);
     }
 
     public IssuesWithBLOBs get(String id) {

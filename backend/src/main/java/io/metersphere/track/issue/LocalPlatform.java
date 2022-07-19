@@ -3,6 +3,7 @@ package io.metersphere.track.issue;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.commons.constants.AttachmentSyncType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
@@ -14,6 +15,7 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,4 +80,10 @@ public class LocalPlatform extends LocalAbstractPlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         handleIssueUpdate(request);
     }
+
+    @Override
+    public void syncIssuesAttachment(IssuesUpdateRequest issuesRequest, File file, AttachmentSyncType syncType) {
+        // 不需要同步
+    }
+
 }

@@ -121,7 +121,7 @@ export default {
         id: file.id,
       };
       let config = {
-        url: '/test/case/attachment/download',
+        url: '/attachment/download',
         method: 'post',
         data: data,
         responseType: 'blob'
