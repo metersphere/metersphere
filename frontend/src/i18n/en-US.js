@@ -2144,6 +2144,7 @@ export default {
       batch_move_case: 'Batch move',
       batch_copy: 'Batch copy',
       batch_add_public: 'Batch add public',
+      batch_link_demand: 'Bulk Association Requirements',
       public_warning: 'The public library configuration is not enabled',
       generate_dependencies: 'Generate dependencies',
       generate_dependencies_warning: 'For a better experience, it is recommended to check the data below 100',
