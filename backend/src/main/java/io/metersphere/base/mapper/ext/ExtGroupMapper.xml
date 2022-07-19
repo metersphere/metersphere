@@ -41,6 +41,23 @@
                 </foreach>
             </if>
         </where>
+        union distinct
+        select g.*, p.name as scopeName from `group` g, project p
+        <where>
+            and g.scope_id = p.id
+            <if test="request.types != null and request.types.size() > 0">
+                AND g.type in
+                <foreach collection="request.types" item="type" separator="," open="(" close=")">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="request.scopes != null and request.scopes.size() > 0">
+                AND g.scope_id in
+                <foreach collection="request.scopes" item="scope" separator="," open="(" close=")">
+                    #{scope}
+                </foreach>
+            </if>
+        </where>
         ) temp
         <if test="request.name != null and request.name!=''">
             where temp.name like CONCAT('%', #{request.name},'%')

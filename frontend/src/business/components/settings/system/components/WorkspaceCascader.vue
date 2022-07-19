@@ -132,7 +132,7 @@ export default {
       })
     },
     getWorkspaceUserGroup() {
-      this.$post("/user/group/get", {type: GROUP_WORKSPACE}, (res) => {
+      this.$post("/user/group/get", {type: GROUP_WORKSPACE, onlyQueryGlobal: true}, (res) => {
         this.workspaceUserGroups = res.data ? res.data : [];
       })
     }
