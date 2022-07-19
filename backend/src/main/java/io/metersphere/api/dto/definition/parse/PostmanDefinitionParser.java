@@ -56,11 +56,13 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
-
+                String itemModulePath;
                 if (StringUtils.isNotBlank(modulePath) && StringUtils.isNotBlank(item.getName())) {
-                    modulePath = modulePath + "/" + item.getName();
+                    itemModulePath = modulePath + "/" + item.getName();
+                } else {
+                    itemModulePath = item.getName();
                 }
-                parseItem(childItems, modulePath, results, cases);
+                parseItem(childItems, itemModulePath, results, cases);
             } else {
                 MsHTTPSamplerProxy msHTTPSamplerProxy = parsePostman(item);
                 HttpResponse response = parsePostmanResponse(item);
