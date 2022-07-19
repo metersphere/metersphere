@@ -3346,6 +3346,7 @@ export default {
     step_results: "步骤结果",
     treatment_method: "处理方式",
     scenario_steps: "场景步骤",
-    basic_information: "基础信息"
+    basic_information: "基础信息",
+    check_element: "请勾选元素"
   }
 };

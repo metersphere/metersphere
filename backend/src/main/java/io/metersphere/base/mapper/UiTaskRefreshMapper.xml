@@ -18,4 +18,18 @@
             #{id}, #{taskKey}, #{taskStatus}, #{createTime}
         )
     </insert>
+
+    <update id="update" parameterType="io.metersphere.base.domain.UiTaskRefresh">
+       UPDATE
+           ui_task_refresh
+        <set>
+            <if test="refresh.taskKey != null">
+                task_key = #{refresh.taskKey},
+            </if>
+            <if test="refresh.taskStatus != null">
+                task_status = #{refresh.taskStatus},
+            </if>
+        </set>
+       WHERE id = #{refresh.id}
+    </update>
 </mapper>
