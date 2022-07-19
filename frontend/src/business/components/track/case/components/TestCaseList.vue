@@ -8,25 +8,26 @@
 
     <ms-table
       v-loading="page.result.loading"
+      operator-width="170px"
+      row-key="id"
       :data="page.data"
       :condition="condition"
       :total="page.total"
       :page-size.sync="page.pageSize"
       :operators="operators"
-      operator-width="170px"
       :screen-height="screenHeight"
       :batch-operators="batchButtons"
       :remember-order="true"
       :enable-order-drag="enableOrderDrag"
-      row-key="id"
       :row-order-group-id="projectId"
       :row-order-func="editTestCaseOrder"
-      @handlePageChange="initTableData"
-      @handleRowClick="handleEdit"
       :fields.sync="fields"
       :field-key="tableHeaderKey"
-      @filter="search"
       :custom-fields="testCaseTemplate.customFields"
+      @handlePageChange="initTableData"
+      @handleRowClick="handleEdit"
+      @order="initTableData"
+      @filter="search"
       ref="table">
 
       <ms-table-column
@@ -92,12 +93,16 @@
 
         <ms-table-column
           sortable
-          prop="createName"
+          prop="createUser"
           min-width="120"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
-          :filters="userFilter"/>
+          :filters="userFilter">
+           <template v-slot:default="scope">
+            {{ scope.row.createName }}
+          </template>
+        </ms-table-column>
 
         <test-case-review-status-table-item
           :field="item"
