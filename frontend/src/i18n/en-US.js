@@ -3288,6 +3288,7 @@ export default {
     step_results: "Step results",
     treatment_method: "Treatment method",
     scenario_steps: "Scenario steps",
-    basic_information: "Basic information"
+    basic_information: "Basic information",
+    check_element: "Please select the elements"
   }
 };

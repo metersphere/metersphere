@@ -8,4 +8,6 @@ public interface UiTaskRefreshMapper {
     UiTaskRefresh getByTaskKey(@Param("taskKey") String taskKey);
 
     void insert(UiTaskRefresh uiTaskRefresh);
+
+    void update(@Param("refresh") UiTaskRefresh refresh);
 }
