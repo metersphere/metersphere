@@ -73,15 +73,15 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         return module.getId();
     }
 
-    public String getModulePath(ModuleNode module){
+    public String getModulePath(ModuleNode module) {
         Integer level = module.getLevel();
-        if( level == null || level <= 1){
-            return String.format("/%s",module.getName());
+        if (level == null || level <= 1) {
+            return String.format("/%s", module.getName());
         }
         //获取父级信息
-        if(StringUtils.isNotBlank(module.getParentId())){
+        if (StringUtils.isNotBlank(module.getParentId())) {
             ModuleNode parent = extModuleNodeMapper.selectByPrimaryKey(tableName, module.getParentId());
-            return parent.getModulePath() + "/" +  module.getName();
+            return parent.getModulePath() + "/" + module.getName();
         }
         return null;
     }
@@ -166,7 +166,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
     }
 
     protected void buildNodeCount(String projectId, List<ModuleNodeDTO> moduleNodes, Function<QueryNodeRequest, List<Map<String, Object>>> getModuleCountFunc,
-                                QueryNodeRequest request) {
+                                  QueryNodeRequest request) {
         if (request == null) {
             request = new QueryNodeRequest();
         }
@@ -365,7 +365,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         moduleNode.setId(UUID.randomUUID().toString());
         double pos = getNextLevelPos(projectId, level, pId);
         moduleNode.setPos(pos);
-        extModuleNodeMapper.insert(tableName, moduleNode);
+        extModuleNodeMapper.insertWithModulePath(tableName, moduleNode);
         return moduleNode.getId();
     }
 
@@ -429,10 +429,9 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         moduleNode.setId(rootNode.getId());
         moduleNode.setLevel(level);
         moduleNode.setParentId(pId);
-        if(level <= 1 && StringUtils.isBlank(parentPath)){
+        if (level <= 1 && StringUtils.isBlank(parentPath)) {
             moduleNode.setModulePath("/" + rootNode.getName());
-        }
-        else {
+        } else {
             moduleNode.setModulePath(parentPath + "/" + rootNode.getName());
         }
         updateNodes.add(moduleNode);
@@ -612,7 +611,7 @@ public class BaseModuleService extends NodeTreeService<ModuleNodeDTO> {
         return extModuleNodeMapper.selectByExample(tableName, example);
     }
 
-    public List<ModuleNode> selectByModulePath(ModuleNode node){
+    public List<ModuleNode> selectByModulePath(ModuleNode node) {
         return extModuleNodeMapper.selectByModulePath(tableName, node.getModulePath(), node.getProjectId());
     }
 }
