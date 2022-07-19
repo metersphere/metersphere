@@ -195,7 +195,7 @@
 
   <select id="selectByPrimaryKey" resultType="io.metersphere.base.domain.ModuleNode">
     select
-    <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List" />
+     *
     from ${tableName}
     where id = #{id,jdbcType=VARCHAR}
   </select>
