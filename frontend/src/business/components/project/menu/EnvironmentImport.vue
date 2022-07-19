@@ -1,11 +1,11 @@
 <template>
   <el-dialog :visible="dialogVisible" :title="dialogTitle"
              @close="close" :close-on-click-modal="false"
-              width="50%">
+              :width="!toImportProjectId ? `50%` : `25%`">
     <el-form>
       <el-row>
         <el-col :span="6">
-          <div class="project-item">
+          <div class="project-item" v-if="!toImportProjectId">
             <div style="margin-bottom: 10px">
               {{$t('project.select')}}
             </div>
@@ -52,6 +52,12 @@ export default {
         return [];
       }
     },
+    toImportProjectId: {
+      type: String,
+      default() {
+        return "";
+      }
+    }
   },
   data() {
     return {
@@ -92,7 +98,11 @@ export default {
               try {
                 JSON.parse(fileString).map(env => {
                   //projectId为空字符串要转换为null，空字符串会被认为有projectId
-                  env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
+                  if (this.toImportProjectId) {
+                    env.projectId = this.toImportProjectId;
+                  } else {
+                    env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
+                  }
                   if (!env.projectId) {
                     this.$warning(this.$t('api_test.environment.project_warning'));
                     return;
