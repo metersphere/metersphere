@@ -2,7 +2,6 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.FileAttachmentMetadata;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
@@ -27,10 +26,8 @@ import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
-import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -81,22 +78,6 @@ public class IssuesController {
             event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
     public void updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
         issuesService.updateIssues(issuesRequest);
-    }
-
-    @PostMapping(value = "/attachment/upload", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.IMPORT, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public void uploadAttachment(@RequestPart("request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) MultipartFile file) {
-        issuesService.uploadAttachment(issuesRequest, file);
-    }
-
-    @GetMapping("/attachment/delete/{fileId}")
-    public void deleteAttachment(@PathVariable String fileId) {
-        issuesService.deleteAttachment(fileId);
-    }
-
-    @GetMapping("/file/attachmentMetadata/{issueId}")
-    public List<FileAttachmentMetadata> getFileAttachmentMetadataByIssueId(@PathVariable String issueId) {
-        return fileService.getFileAttachmentMetadataByIssueId(issueId);
     }
 
     @GetMapping("/get/case/{refType}/{id}")

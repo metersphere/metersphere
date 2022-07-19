@@ -267,7 +267,7 @@ export default {
       let file = param.file;
       let progress = 0;
       let formData = new FormData();
-      let requestJson = JSON.stringify({"id": this.caseId});
+      let requestJson = JSON.stringify({"belongId": this.caseId, "belongType": "testcase"});
       formData.append("file", file);
       formData.append('request', new Blob([requestJson], {
         type: "application/json"
@@ -278,7 +278,7 @@ export default {
       axios({
         headers: { 'Content-Type': 'application/json;charset=UTF-8' },
         method: 'post',
-        url: '/test/case/attachment/upload',
+        url: '/attachment/upload',
         data: formData,
         cancelToken: new CancelToken(function executor(c) {
           self.cancelFileToken.push({"name": file.name, "cancelFunc": c});
@@ -322,36 +322,6 @@ export default {
         this.getFileMetaData();
       }
     },
-    handleDownload(file) {
-      let data = {
-        name: file.name,
-        id: file.id,
-      };
-      let config = {
-        url: '/test/case/file/download',
-        method: 'post',
-        data: data,
-        responseType: 'blob'
-      };
-      this.result = this.$request(config).then(response => {
-        const content = response.data;
-        const blob = new Blob([content]);
-        if ("download" in document.createElement("a")) {
-          // 非IE下载
-          //  chrome/firefox
-          let aTag = document.createElement('a');
-          aTag.download = file.name;
-          aTag.href = URL.createObjectURL(blob);
-          aTag.click();
-          URL.revokeObjectURL(aTag.href);
-        } else {
-          // IE10+下载
-          navigator.msSaveBlob(blob, this.filename);
-        }
-      }).catch(e => {
-        Message.error({message: e.message, showClose: true});
-      });
-    },
     handleDelete(file, index) {
       this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
@@ -365,7 +335,7 @@ export default {
     _handleDelete(file, index) {
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
-      this.$get('/test/case/attachment/delete/' + file.id, () => {
+      this.$get('/attachment/delete/testcase/' + file.id , response => {
         this.$success(this.$t('commons.delete_success'));
         this.getFileMetaData();
       });
@@ -390,9 +360,9 @@ export default {
         testCaseId = id ? id : this.caseId;
       }
       if (testCaseId) {
-        this.result = this.$get("test/case/file/attachmentMetadata/" + testCaseId, response => {
+        let data = {'belongType': 'testcase', 'belongId': testCaseId};
+        this.result = this.$post("/attachment/metadata/list", data, response => {
           let files = response.data;
-
           if (!files) {
             return;
           }

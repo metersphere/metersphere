@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
-import io.metersphere.commons.constants.AttachmentType;
-import io.metersphere.commons.constants.CustomFieldType;
-import io.metersphere.commons.constants.IssuesManagePlatform;
-import io.metersphere.commons.constants.IssuesStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -22,6 +19,7 @@ import io.metersphere.track.issue.client.JiraClientV2;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ProjectIssueConfig;
 import io.metersphere.track.issue.domain.jira.*;
+import io.metersphere.track.request.attachment.AttachmentRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -243,15 +241,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
         // 用例与第三方缺陷平台中的缺陷关联
         handleTestCaseIssues(issuesRequest);
 
-        // 如果是复制新增, 同步附件到第三方平台
+        // 如果是复制新增, 同步MS附件到Jira
         if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
-            IssueFileExample example = new IssueFileExample();
-            example.createCriteria().andIssueIdEqualTo(issuesRequest.getCopyIssueId());
-            List<IssueFile> issueFiles = issueFileMapper.selectByExample(example);
-            if (issueFiles != null) {
-                issueFiles.forEach(issueFile -> {
-                    FileAttachmentMetadata fileAttachmentMetadata = fileService.getFileAttachmentMetadataByFileId(issueFile.getFileId());
-                    // 同步第三方平台附件
+            AttachmentRequest request = new AttachmentRequest();
+            request.setBelongId(issuesRequest.getCopyIssueId());
+            request.setBelongType(AttachmentType.ISSUE.type());
+            List<String> attachmentIds = attachmentService.getAttachmentIdsByParam(request);
+            if (CollectionUtils.isNotEmpty(attachmentIds)) {
+                attachmentIds.forEach(attachmentId -> {
+                    FileAttachmentMetadata fileAttachmentMetadata = fileService.getFileAttachmentMetadataByFileId(attachmentId);
                     File file = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
                     jiraClientV2.uploadAttachment(result.getKey(), file);
                 });
@@ -474,45 +472,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void updateIssue(IssuesUpdateRequest request) {
         setUserConfig();
         Project project = getProject();
-        List<File> imageFiles = getImageFiles(request);
-
         JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
-
-        List<FileAttachmentMetadata> newFiles = fileService.getFileAttachmentMetadataByIssueId(request.getId());
-        List<String> newFileNames = newFiles.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
-        Set<String> attachmentNames = new HashSet<>();
-        // 同步Jira平台附件
-        JiraIssue jiraIssue = jiraClientV2.getIssues(request.getPlatformId());
-        JSONObject fields = jiraIssue.getFields();
-        JSONArray attachments = fields.getJSONArray("attachment");
-        // 删除旧附件，若缺陷描述中不存在且附件上传的删除列表中存在则删除
-        if (!attachments.isEmpty() && attachments.size() > 0) {
-            for (int i = 0; i < attachments.size(); i++) {
-                JSONObject attachment = attachments.getJSONObject(i);
-                String filename = attachment.getString("filename");
-                attachmentNames.add(filename);
-                if (!request.getDescription().contains(filename) && !newFileNames.contains(filename)) {
-                    String fileId = attachment.getString("id");
-                    jiraClientV2.deleteAttachment(fileId);
-                }
-            }
-        }
-        //上传新附件
-        if (CollectionUtils.isNotEmpty(newFiles)) {
-            newFiles.forEach(file -> {
-                if (!attachmentNames.contains(file.getName())) {
-                    File newFile = new File(file.getFilePath() + "/" + file.getName());
-                    jiraClientV2.uploadAttachment(request.getPlatformId(), newFile);
-                }
-            });
-        }
-        imageFiles.forEach(img -> {
-            if (!attachmentNames.contains(img.getName())) {
-                // 旧附件没有才上传新附件
-                jiraClientV2.uploadAttachment(request.getPlatformId(), img);
-            }
-        });
 
         if (request.getTransitions() != null) {
             try {
@@ -873,8 +834,35 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return jiraClientV2.proxyForGet(url, responseEntityClazz);
     }
 
+    @Override
+    public void syncIssuesAttachment(IssuesUpdateRequest issuesRequest, File file, AttachmentSyncType syncType) {
+        // 同步缺陷MS附件到Jira
+        if ("upload".equals(syncType.syncOperateType())) {
+            // 上传附件
+            jiraClientV2.uploadAttachment(issuesRequest.getPlatformId(), file);
+        } else if ("delete".equals(syncType.syncOperateType())) {
+            // 删除附件
+            JiraIssue jiraIssue = jiraClientV2.getIssues(issuesRequest.getPlatformId());
+            JSONObject fields = jiraIssue.getFields();
+            JSONArray attachments = fields.getJSONArray("attachment");
+            if (!attachments.isEmpty() && attachments.size() > 0) {
+                for (int i = 0; i < attachments.size(); i++) {
+                    JSONObject attachment = attachments.getJSONObject(i);
+                    String filename = attachment.getString("filename");
+                    if (filename.equals(file.getName())) {
+                        String fileId = attachment.getString("id");
+                        jiraClientV2.deleteAttachment(fileId);
+                    }
+                }
+            }
+        }
+    }
+
     public void syncJiraIssueAttachments(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
-        issuesService.deleteIssueAttachments(issue.getId());
+        AttachmentRequest request = new AttachmentRequest();
+        request.setBelongType(AttachmentType.ISSUE.type());
+        request.setBelongId(issue.getId());
+        attachmentService.deleteAttachment(request);
         JSONArray attachments = jiraIssue.getFields().getJSONArray("attachment");
         if (CollectionUtils.isEmpty(attachments)) {
             return;
@@ -882,14 +870,16 @@ public class JiraPlatform extends AbstractIssuePlatform {
         for (int i = 0; i < attachments.size(); i++) {
             JSONObject attachment = attachments.getJSONObject(i);
             String filename = attachment.getString("filename");
-            if (!issue.getDescription().contains(filename) && !issue.getCustomFields().contains(filename)) {
+            if ((issue.getDescription() == null || !issue.getDescription().contains(filename))
+                    && (issue.getCustomFields() == null || !issue.getCustomFields().contains(filename))) {
                 String id = attachment.getString("id");
                 byte[] content = jiraClientV2.getAttachmentContent(id);
                 FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
-                IssueFile issueFile = new IssueFile();
-                issueFile.setIssueId(issue.getId());
-                issueFile.setFileId(fileAttachmentMetadata.getId());
-                issueFileMapper.insert(issueFile);
+                AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
+                attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
+                attachmentModuleRelation.setRelationId(issue.getId());
+                attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
+                attachmentModuleRelationMapper.insert(attachmentModuleRelation);
             }
         }
     }

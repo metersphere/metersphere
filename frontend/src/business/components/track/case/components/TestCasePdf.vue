@@ -21,7 +21,7 @@ export default {
   },
   mounted() {
     this.loading = true;
-    this.loadingTask = pdf.createLoadingTask("/test/case/attachment/preview/" + this.fileId);
+    this.loadingTask = pdf.createLoadingTask("/attachment/preview/" + this.fileId);
     this.loadingTask.promise.then(pdf => {
       this.numPages = pdf.numPages
       this.loading = false;
