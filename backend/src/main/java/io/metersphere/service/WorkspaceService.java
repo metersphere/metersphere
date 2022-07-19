@@ -60,6 +60,8 @@ public class WorkspaceService {
     @Resource
     private EnvironmentGroupService environmentGroupService;
 
+    private static final String GLOBAL = "global";
+
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
@@ -299,35 +301,45 @@ public class WorkspaceService {
 
     public WorkspaceResource listResource(String groupId, String type) {
         Group group = groupMapper.selectByPrimaryKey(groupId);
-        String workspaceId = group.getScopeId();
         WorkspaceResource resource = new WorkspaceResource();
-
+        if (group == null) {
+            return resource;
+        }
         if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
-            WorkspaceExample workspaceExample = new WorkspaceExample();
-            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
-            if (!StringUtils.equals(workspaceId, "global")) {
-                criteria.andIdEqualTo(workspaceId);
-            }
-            List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-            resource.setWorkspaces(workspaces);
+            resource.setWorkspaces(getWorkspaceGroupResource(group.getScopeId()));
         }
-
         if (StringUtils.equals(UserGroupType.PROJECT, type)) {
-            ProjectExample projectExample = new ProjectExample();
-            ProjectExample.Criteria pc = projectExample.createCriteria();
-            WorkspaceExample workspaceExample = new WorkspaceExample();
-            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
-            if (!StringUtils.equals(workspaceId, "global")) {
-                criteria.andIdEqualTo(workspaceId);
-                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-                List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
-                pc.andWorkspaceIdIn(list);
-            }
-            List<Project> projects = projectMapper.selectByExample(projectExample);
-            resource.setProjects(projects);
+            resource.setProjects(getProjectGroupResource(group.getScopeId()));
         }
-
         return resource;
+    }
+
+    public List<Workspace> getWorkspaceGroupResource(String scopeId) {
+        WorkspaceExample workspaceExample = new WorkspaceExample();
+        WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+        if (!StringUtils.equals(scopeId, GLOBAL)) {
+            criteria.andIdEqualTo(scopeId);
+        }
+        return workspaceMapper.selectByExample(workspaceExample);
+    }
+
+    public List<Project> getProjectGroupResource(String scopeId) {
+        ProjectExample projectExample = new ProjectExample();
+        ProjectExample.Criteria criteria = projectExample.createCriteria();
+        if (StringUtils.equals(scopeId, GLOBAL)) {
+            return projectMapper.selectByExample(projectExample);
+        }
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(scopeId);
+        if (workspace != null) {
+            criteria.andWorkspaceIdEqualTo(workspace.getId());
+            return projectMapper.selectByExample(projectExample);
+        }
+        Project project = projectMapper.selectByPrimaryKey(scopeId);
+        List<Project> list = new ArrayList<>();
+        if (project != null) {
+            list.add(project);
+        }
+        return list;
     }
 
     public List<String> getWorkspaceIds() {
