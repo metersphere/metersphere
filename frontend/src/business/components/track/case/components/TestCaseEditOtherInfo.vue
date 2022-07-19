@@ -18,12 +18,17 @@
       <el-col :span="8">
         <el-form-item :label="$t('test_track.related_requirements')" :label-width="labelWidth"
                       prop="demandId">
-          <el-cascader v-model="demandValue" :show-all-levels="false" :options="demandOptions"
+
+          <el-cascader  v-if="!readOnly" v-model="demandValue" :show-all-levels="false" :options="demandOptions"
                        clearable filterable :filter-method="filterDemand">
             <template slot-scope="{ node, data }">
               <span class="demand-span" :title="data.label">{{ data.label }}</span>
             </template>
           </el-cascader>
+
+          <el-input class="demandInput" v-else :disabled="readOnly" :value="demandLabel">
+
+          </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8" :offset="2">
@@ -160,6 +165,7 @@ export default {
       demandOptions: [],
       relationshipCount: 0,
       demandValue: [],
+      demandLabel: '',
       //sysList:this.sysList,//一级选择框的数据
       props: {
         multiple: true,
@@ -386,40 +392,38 @@ export default {
       }
     },
     getDemandOptions() {
-      if (this.demandOptions.length === 0) {
-        this.result = {loading: true};
-        this.$get("/issues/demand/list/" + this.projectId).then(response => {
-          this.demandOptions = [];
-          if (response.data.data && response.data.data.length > 0) {
-            this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
-          }
-          this.demandOptions.unshift({
-            value: 'other',
-            label: 'Other: ' + this.$t('test_track.case.other'),
-            platform: 'Other'
-          });
-          if (this.form.demandId === 'other') {
-            this.demandValue = ['other'];
-          }
-          this.result = {loading: false};
-        }).catch(() => {
-          this.demandOptions.unshift({
-            value: 'other',
-            label: 'Other: ' + this.$t('test_track.case.other'),
-            platform: 'Other'
-          });
-          if (this.form.demandId === 'other') {
-            this.demandValue = ['other'];
-          }
-          this.result = {loading: false};
-        });
+      this.result = {loading: true};
+      this.demandLabel = '';
+      this.$get("/issues/demand/list/" + this.projectId).then(response => {
+        this.demandOptions = [];
+        if (response.data.data && response.data.data.length > 0) {
+          this.buildDemandCascaderOptions(response.data.data, this.demandOptions, []);
+        }
+        this.addOtherOption();
+      }).catch(() => {
+        this.addOtherOption();
+      });
+    },
+    addOtherOption() {
+      this.demandOptions.unshift({
+        value: 'other',
+        label: 'Other: ' + this.$t('test_track.case.other'),
+        platform: 'Other'
+      });
+      if (this.form.demandId === 'other') {
+        this.demandValue = ['other'];
+        this.demandLabel = 'Other: ' + this.$t('test_track.case.other');
       }
+      this.result = {loading: false};
     },
     buildDemandCascaderOptions(data, options, pathArray) {
       data.forEach(item => {
         let option = {
           label: item.platform + ': ' + item.name,
           value: item.id
+        }
+        if (this.form.demandId === item.id) {
+          this.demandLabel = option.label;
         }
         options.push(option);
         pathArray.push(item.id);
@@ -474,5 +478,9 @@ export default {
   overflow: hidden;
   word-break: break-all;
   margin-right: 5px;
+}
+
+.demandInput {
+  width: 200px;
 }
 </style>

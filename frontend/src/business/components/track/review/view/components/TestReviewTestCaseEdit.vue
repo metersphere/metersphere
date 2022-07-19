@@ -428,6 +428,10 @@ export default {
           this.testCaseTemplate = template;
           initFuc(testCase.id);
         });
+
+      if (this.$refs.otherInfo) {
+        this.$refs.otherInfo.reset();
+      }
     },
     openTestTestCase(item) {
       let testCaseData = this.$router.resolve(
