@@ -28,4 +28,5 @@ public class EditGroupRequest extends Group {
     private String userGroupId;
     private List<OrderRequest> orders;
     private boolean onlyQueryCurrentProject = false;
+    private boolean onlyQueryGlobal = false;
 }

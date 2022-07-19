@@ -940,7 +940,8 @@ export default {
     please_select_group: '請選擇用戶組',
     global: '全局',
     unable_to_remove_current_member: '無法移除當前登錄用戶！',
-    ws_admin_global: '工作空間管理員才可以創建全局用戶組'
+    ws_admin_global: '工作空間管理員才可以創建全局用戶組',
+    ws_share: '工作空間共享'
   },
   role: {
     please_choose_role: '請選擇角色',
