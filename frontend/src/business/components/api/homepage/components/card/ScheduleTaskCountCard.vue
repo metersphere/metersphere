@@ -9,11 +9,11 @@
 
     <!-- 数量统计 -->
     <el-container>
-      <el-aside width="34%">
+      <el-aside width="120px">
         <count-rectangle-chart :content="scheduleTaskCountData.allApiDataCountNumber"/>
       </el-aside>
-      <el-main style="padding-left: 0px;padding-right: 0px; margin-right: 5px">
-        <div style="width: 185px; float:right;margin:0 auto">
+      <el-main style="padding-left: 0px;padding-right: 0px; margin-right: 5px;display: block">
+        <div style="width: 185px; float:right;margin:0 auto;overflow: auto">
           <el-row align="right">
             <span style="text-align: right;display:block;margin-top: 4px">
             {{
