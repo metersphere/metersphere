@@ -241,4 +241,12 @@ ALTER TABLE test_plan_report_content
 ALTER TABLE test_case_comment
     ADD `type` varchar(20) DEFAULT ' ';
 
+--
+-- v2_api_add_to_update_time
+ALTER TABLE `api_definition`
+    ADD to_be_update_Time bigint(13)   DEFAULT NULL COMMENT '需要同步的开始时间';
 
+--
+-- v2_api_case_add_to_update_time
+ALTER TABLE `api_test_case`
+    ADD to_be_update_Time bigint(13)   DEFAULT NULL COMMENT '需要同步的开始时间';
