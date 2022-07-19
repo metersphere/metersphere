@@ -20,8 +20,8 @@
         <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.updated_attr_value')">
           <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"></ms-input-tag>
           <el-checkbox v-model="form.appendTag">
-            追加标签
-            <el-tooltip class="item" effect="dark" content="勾选：新增标签；不勾选：覆盖原有标签；" placement="top">
+            {{ $t('commons.append_tag') }}
+            <el-tooltip class="item" effect="dark" :content="$t('commons.append_tag_tip')" placement="top">
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-checkbox>
@@ -46,11 +46,11 @@
 </template>
 
 <script>
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
-  export default {
+export default {
     name: "BatchEdit",
     components: {
       MsDialogFooter,
