@@ -2143,6 +2143,7 @@ export default {
       batch_delete_case: '批量刪除',
       batch_copy: '批量復製',
       batch_add_public: '批量添加到公共用例庫',
+      batch_link_demand: '批量關聯需求',
       public_warning: '未開啟公共庫用例配置',
       generate_dependencies: '生成依賴關系',
       generate_dependencies_warning: '為了更好的體驗，建議勾選一百條以下的數據',

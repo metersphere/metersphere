@@ -523,6 +523,11 @@
       "resourceId": "PROJECT_TRACK_CASE"
     },
     {
+      "id": "PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND",
+      "name": "test_track.case.batch_link_demand",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
       "id": "PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES",
       "name": "test_track.case.generate_dependencies",
       "resourceId": "PROJECT_TRACK_CASE",
