@@ -4,21 +4,26 @@
       <el-form-item :label="$t('test_track.report.testing_time') + ':'">
         {{ showTime }}
       </el-form-item>
-      <el-row type="flex" class="select-time"
-              v-if="report.envGroupName || report.projectEnvMap">
-        <el-form-item :label="$t('commons.environment') + ':'" style="width: 100%">
-          <div v-if="report.envGroupName" style="margin-left: 12px">
-            <ms-tag type="danger" :content="$t('commons.group')"></ms-tag>
-            {{ report.envGroupName }}
+      <el-row class="select-time"
+              v-if="report.envGroupName || report.projectEnvMap" style="display:inline-block">
+        <div>
+          <div style="float: left">
+            {{$t('commons.environment') + ':'}}
           </div>
-          <div v-else-if="report.projectEnvMap" style="margin-left: 12px">
-            <div v-for="(values,key) in report.projectEnvMap" :key="key" style="margin-right: 10px">
-              {{ key + ":" }}
-              <ms-tag v-for="(item,index) in values" :key="index" type="success" :content="item"
-                      style="margin-left: 2px"/>
+          <div style="float: right">
+            <div v-if="report.envGroupName" style="margin-left: 42px">
+              <ms-tag type="danger" :content="$t('commons.group')"></ms-tag>
+              {{ report.envGroupName }}
+            </div>
+            <div v-else-if="report.projectEnvMap" style="margin-left: 42px">
+              <div v-for="(values,key) in report.projectEnvMap" :key="key" style="margin-right: 10px">
+                {{ key + ":" }}
+                <ms-tag v-for="(item,index) in values" :key="index" type="success" :content="item"
+                        style="margin-left: 2px"/>
+              </div>
             </div>
           </div>
-        </el-form-item>
+        </div>
       </el-row>
       <el-row type="flex" justify="space-between" class="select-time">
         <el-col :span="8">
