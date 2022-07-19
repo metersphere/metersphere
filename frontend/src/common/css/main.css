@@ -74,6 +74,7 @@ body {
   --asideOpenMargin: 114px;
   --aside_color: '';
   --font_color: '';
+  --font_light_color: '';
 }
 
 /* 解决 document.body.clientHeight 为0 */

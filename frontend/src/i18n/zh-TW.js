@@ -526,6 +526,9 @@ export default {
     pageTitle: '頁面 Title',
     sysTitle: '系統名稱',
     theme_style: '菜單風格設置',
+    theme_default: '默認',
+    theme_light: '白色',
+    theme_follow: '跟隨主題色'
   },
   system_config: {
     base_config: '基本配置',
