@@ -15,6 +15,7 @@
         @setModuleOptions="setModuleOptions"
         :show-case-num="false"
         :is-read-only="true"
+        :is-relevance="true"
         ref="nodeTree"/>
     </template>
 
