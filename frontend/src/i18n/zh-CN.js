@@ -943,7 +943,8 @@ export default {
     please_select_group: '请选择用户组',
     global: '全局',
     unable_to_remove_current_member: '无法移除当前登录用户！',
-    ws_admin_global: '工作空间管理员才可以创建全局用户组'
+    ws_admin_global: '工作空间管理员才可以创建全局用户组',
+    ws_share: '工作空间共享'
   },
   role: {
     please_choose_role: '请选择角色',

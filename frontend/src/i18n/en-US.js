@@ -936,7 +936,8 @@ export default {
     please_select_group: 'Please Select Group',
     global: 'Global',
     unable_to_remove_current_member: 'Unable to remove currently logged in user!',
-    ws_admin_global: 'Only workspace administrators can create global user groups'
+    ws_admin_global: 'Only workspace administrators can create global user groups',
+    ws_share: 'Workspace sharing'
   },
   role: {
     please_choose_role: 'Please Choose Role',
