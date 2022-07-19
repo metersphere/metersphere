@@ -1425,6 +1425,9 @@ public class ApiAutomationService {
             if (item.getVersionId() == null || (!item.getVersionId().equals("new") && !item.getVersionId().equals("update"))) {
                 item.setNum(num);
             }
+            if (StringUtils.isBlank(item.getLevel())) {
+                item.setLevel("P0");
+            }
             if (BooleanUtils.isFalse(request.getOpenCustomNum())) {
                 // 如果未开启，即使有自定值也直接覆盖
                 item.setCustomNum(String.valueOf(num));

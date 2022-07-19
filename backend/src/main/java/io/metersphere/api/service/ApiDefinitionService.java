@@ -846,6 +846,9 @@ public class ApiDefinitionService {
             if (apiTestCaseWithBLOBs.getNum() == null) {
                 apiTestCaseWithBLOBs.setNum(testCaseService.getNextNum(apiDefinition.getId()));
             }
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getPriority())) {
+                apiTestCaseWithBLOBs.setPriority("P0");
+            }
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
             } else {
