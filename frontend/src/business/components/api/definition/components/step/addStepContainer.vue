@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>
-      <el-select v-model="operateModel" size="mini" class="ms-select-step">
+      <el-select v-model="operateModel" size="small" class="ms-select-step">
         <el-option
           v-for="item in operates"
           :key="item.id"
@@ -10,8 +10,17 @@
         </el-option>
       </el-select>
 
+      <el-select v-model="operateSubModel" size="small" class="ms-select-step" v-if="subOperates">
+        <el-option
+          v-for="item in subOperates"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+
       <el-button
-        size="mini"
+        size="small"
         type="primary"
         @click="add">
         {{ $t('api_test.request.assertions.add') }}
@@ -25,10 +34,12 @@
 
 <script>
 
+const requireComponent = require.context('@/business/components/xpack/', true, /\.js$/);
+const CMD_CONSTANTS = requireComponent.keys().length > 0 ? requireComponent("./ui/definition/command/cmd-constants-utils.js") : {};
+
 export default {
   name: "addStepContainer",
-  components: {
-  },
+  components: {},
   props: {
     showButton: {
       type: Boolean,
@@ -39,7 +50,10 @@ export default {
   },
   data() {
     return {
-      operateModel: ''
+      operateModel: '',
+      //数据提取或者断言的子分类模型
+      operateSubModel: '',
+      subOperates: null,
     }
   },
   created() {
@@ -48,10 +62,30 @@ export default {
   watch: {
     operateModel() {
       this.$emit('update:operate', this.operateModel);
+      this.operateSubModel = null;
+      if (this.operateModel == "cmdExtraction") {
+        this.subOperates = null;
+      } else if (this.operateModel == "cmdValidation") {
+        this.subOperates = null;
+      } else if (this.operateModel == "cmdExtractElement") {
+        this.subOperates = CMD_CONSTANTS.EXTRACT_ELEMENT_OPTIONS
+      } else if (this.operateModel == "cmdExtractWindow") {
+        this.subOperates = CMD_CONSTANTS.EXTRACT_WINDOW_OPTIONS;
+      }
+    },
+    operateSubModel() {
+      this.$emit('update:operate', this.operateSubModel);
     }
   },
   methods: {
     add() {
+      if (this.subOperates && this.subOperates.length && !this.operateSubModel) {
+        this.$message({
+          message: this.$t('ui.check_subitem'),
+          type: 'error'
+        });
+        return;
+      }
       this.$emit('add');
     }
   }
