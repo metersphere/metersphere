@@ -161,17 +161,7 @@ public class AttachmentService {
 
     public void initAttachment() {
         List<AttachmentModuleRelation> attachmentModuleRelations = new ArrayList<>();
-        List<IssueFile> issueFiles = issueFileMapper.selectByExample(new IssueFileExample());
         List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(new TestCaseFileExample());
-        if (CollectionUtils.isNotEmpty(issueFiles)) {
-            issueFiles.forEach(issueFile -> {
-                AttachmentModuleRelation relation = new AttachmentModuleRelation();
-                relation.setAttachmentId(issueFile.getFileId());
-                relation.setRelationId(issueFile.getIssueId());
-                relation.setRelationType(AttachmentType.ISSUE.type());
-                attachmentModuleRelations.add(relation);
-            });
-        }
         if (CollectionUtils.isNotEmpty(testCaseFiles)) {
             testCaseFiles.forEach(testCaseFile -> {
                 AttachmentModuleRelation relation = new AttachmentModuleRelation();
