@@ -116,7 +116,9 @@ import PriorityTableItem from "../../../../track/common/tableItems/planview/Prio
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import {_filter, _sort, buildBatchParam} from "@/common/js/tableUtils";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-import {TEST_PLAN_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {
+  TEST_PLAN_RELEVANCE_API_CASE_CONFIGS
+} from "@/business/components/common/components/search/search-components";
 import {hasLicense} from "@/common/js/utils";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
 
@@ -212,6 +214,10 @@ export default {
       this.initTable();
     },
     projectId() {
+      this.condition = {
+        components: TEST_PLAN_RELEVANCE_API_CASE_CONFIGS
+      };
+      this.selectNodeIds.length = 0;
       this.initTable();
       this.checkVersionEnable();
     },

@@ -176,7 +176,10 @@ export default {
       this.search();
     },
     projectId() {
-      this.condition.versionId = null;
+      this.condition = {
+        components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS
+      };
+      this.selectNodeIds.length = 0;
       this.search();
       this.getVersionOptions();
     },

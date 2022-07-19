@@ -114,7 +114,10 @@ export default {
       this.initTable();
     },
     projectId() {
-      this.condition.versionId = null;
+      this.condition = {
+        components: TEST_PLAN_RELEVANCE_API_DEFINITION_CONFIGS
+      };
+      this.selectNodeIds.length = 0;
       this.initTable();
     },
     currentVersion() {
