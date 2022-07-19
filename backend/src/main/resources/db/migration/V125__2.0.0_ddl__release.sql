@@ -250,3 +250,21 @@ ALTER TABLE `api_definition`
 -- v2_api_case_add_to_update_time
 ALTER TABLE `api_test_case`
     ADD to_be_update_Time bigint(13)   DEFAULT NULL COMMENT '需要同步的开始时间';
+
+
+--
+-- 新增附件关系表
+-- v2_init_attachment_module_relation
+CREATE TABLE `attachment_module_relation`
+(
+   `relation_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'RELATION ID',
+   `relation_type` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'RELATION TYPE',
+   `attachment_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'ATTACHMENT ID',
+   KEY `attachment_module_index`(`relation_id`, `relation_type`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8
+  COLLATE = utf8_general_ci;
+
+--
+-- 删除缺陷附件表
+DROP TABLE IF EXISTS `issue_file`;
