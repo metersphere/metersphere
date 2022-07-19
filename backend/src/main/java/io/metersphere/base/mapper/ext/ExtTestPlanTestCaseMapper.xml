@@ -369,14 +369,12 @@
                test_plan_test_case.id                                                         as id,
                test_plan_test_case.*,
                test_case.*,
-               if(pa.type_value = 'false', cast(test_case.num as char), test_case.custom_num) as customNum,
                test_case_node.name                                                            as model,
                project.name                                                                   as projectName
         from test_plan_test_case
                  inner join test_case on test_plan_test_case.case_id = test_case.id
                  left join test_case_node on test_case_node.id = test_case.node_id
                  inner join project on project.id = test_case.project_id
-                 inner join project_application pa on project.id = pa.project_id and pa.type = 'CASE_CUSTOM_NUM'
         where test_plan_test_case.id = #{testPlanTestCaseId}
     </select>
 

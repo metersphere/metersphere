@@ -372,20 +372,36 @@ public class ServiceUtils {
         ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
         Map<String, String> customNumMap = projectApplicationService.getCustomNumMapByProjectIds(projectIds);
         list.forEach(i -> {
-            Class<?> clazz = i.getClass();
-            try {
-                Method setIsCustomNum = clazz.getMethod("setCustomNum", String.class);
-                Method getNum = clazz.getMethod("getNum");
-                Method getProjectId = clazz.getMethod("getProjectId");
-                Object projectId = getProjectId.invoke(i);
-                String isCustomNum = customNumMap.get(projectId);
-                if (isCustomNum == null) {
-                    setIsCustomNum.invoke(i, String.valueOf(getNum.invoke(i)));
-                }
-            } catch (Exception e) {
-                LogUtil.error(e);
-            }
+            buildCustomNumInfo(customNumMap, i);
         });
+    }
+
+    public static void buildCustomNumInfo(Object data) {
+        try {
+            Method getProjectId = data.getClass().getMethod("getProjectId");
+            String projectId = getProjectId.invoke(data).toString();
+            ProjectApplicationService projectApplicationService = CommonBeanFactory.getBean(ProjectApplicationService.class);
+            Map<String, String> customNumMap = projectApplicationService.getCustomNumMapByProjectIds(Arrays.asList(projectId));
+            buildCustomNumInfo(customNumMap, data);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+    }
+
+    private static void buildCustomNumInfo(Map<String, String> customNumMap, Object data) {
+        Class<?> clazz = data.getClass();
+        try {
+            Method setIsCustomNum = clazz.getMethod("setCustomNum", String.class);
+            Method getNum = clazz.getMethod("getNum");
+            Method getProjectId = clazz.getMethod("getProjectId");
+            Object projectId = getProjectId.invoke(data);
+            String isCustomNum = customNumMap.get(projectId);
+            if (isCustomNum == null) {
+                setIsCustomNum.invoke(data, String.valueOf(getNum.invoke(data)));
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     private static List<String> getFieldListByMethod(List<?> list, String field) {

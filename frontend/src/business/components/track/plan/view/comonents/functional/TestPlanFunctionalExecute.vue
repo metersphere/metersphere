@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card class="executeCard">
     <test-plan-test-case-status-button class="status-button"
                                        @statusChange="statusChange"
                                        :is-read-only="statusReadOnly"
@@ -48,9 +48,8 @@ export default {
 </script>
 
 <style scoped>
-.status-button {
-  padding-left: 4%;
-  padding-right: 4%;
+.status-button >>> .el-col {
+  padding-right: 0px !important;
 }
 
 .status-button {

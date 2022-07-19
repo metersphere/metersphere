@@ -547,4 +547,8 @@ export default {
 /deep/ .el-drawer__body {
   overflow: unset;
 }
+
+.comment-card >>> .executeCard {
+  margin-bottom: 5px;
+}
 </style>
