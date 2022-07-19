@@ -3,6 +3,7 @@
     :title="$t('commons.environment')"
     :visible.sync="dialogVisible"
     width="30%"
+    :append-to-body="true"
     :destroy-on-close="true"
     :before-close="handleClose">
     <div>
