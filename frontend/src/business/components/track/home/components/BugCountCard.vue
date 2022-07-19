@@ -6,7 +6,7 @@
       </span>
     </div>
     <el-container>
-      <el-aside width="150px">
+      <el-aside width="120px">
         <count-rectangle-chart :content="bugTotalSize"/>
         <div>
           {{ $t('test_track.home.percentage') }}

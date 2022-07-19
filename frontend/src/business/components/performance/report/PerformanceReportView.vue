@@ -81,7 +81,7 @@
               </span>
             </div>
             <div style="float: right;margin-right: 10px;">
-              <div v-if="projectEnvMap" type="flex">
+              <div v-if="showProjectEnv" type="flex">
                 <span> {{ $t('commons.environment') + ':' }} </span>
                 <div v-for="(values,key) in projectEnvMap" :key="key" style="margin-right: 10px">
                   {{ key + ":" }}
@@ -240,6 +240,11 @@ export default {
       shareUrl: "",
       application: {}
     };
+  },
+  computed:{
+    showProjectEnv() {
+      return this.projectEnvMap && JSON.stringify(this.projectEnvMap) !== '{}';
+    },
   },
   methods: {
     showAllProjectInfo() {
