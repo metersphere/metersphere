@@ -178,7 +178,6 @@ export default {
         to[key] = this.assign(Object(to[key]), from[key]);
       }
     },
-
     assign(to, from) {
       if (to === from) {
         return to;
@@ -189,17 +188,20 @@ export default {
           this.assignKey(to, from, key);
         }
       }
-
+      // 清除多出部分属性
+      for (let key in to) {
+        if (!this.hasOwnProperty.call(from, key) && key !== 'description') {
+          this.$delete(to, key)
+        }
+      }
       if (Object.getOwnPropertySymbols) {
         let symbols = Object.getOwnPropertySymbols(from);
-
         for (let i = 0; i < symbols.length; i++) {
           if (this.propIsEnumerable.call(from, symbols[i])) {
             this.assignKey(to, from, symbols[i]);
           }
         }
       }
-
       return to;
     },
 
