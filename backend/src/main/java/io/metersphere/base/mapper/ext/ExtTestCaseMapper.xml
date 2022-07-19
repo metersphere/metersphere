@@ -588,6 +588,10 @@
                                 <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                             )
                         </when>
+                        <when test="key=='create_user'">
+                            and test_case.create_user in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
                     </choose>
                 </if>
                 <if test="key=='status' and (values == null || values.size() == 0)">
