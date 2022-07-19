@@ -9,6 +9,7 @@ import io.metersphere.base.domain.IssuesExample;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.commons.constants.AttachmentSyncType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.constants.ZentaoIssuePlatformStatus;
@@ -38,6 +39,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -535,6 +537,11 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     @Override
     public Boolean checkProjectExist(String relateId) {
         return zentaoClient.checkProjectExist(relateId);
+    }
+
+    @Override
+    public void syncIssuesAttachment(IssuesUpdateRequest issuesRequest, File file, AttachmentSyncType syncType) {
+        // TODO: 同步缺陷MS附件到禅道
     }
 
     @Override

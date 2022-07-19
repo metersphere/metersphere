@@ -6,7 +6,10 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.TestCase;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -371,11 +374,6 @@ public class TestCaseController {
         return fileService.getFileMetadataByCaseId(caseId);
     }
 
-    @GetMapping("/file/attachmentMetadata/{caseId}")
-    public List<FileAttachmentMetadata> getFileAttachmentMetadataByCaseId(@PathVariable String caseId) {
-        return fileService.getFileAttachmentMetadataByCaseId(caseId);
-    }
-
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
@@ -392,35 +390,6 @@ public class TestCaseController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
                 .body(bytes);
-    }
-
-    @PostMapping(value = "/attachment/upload", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.IMPORT, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public void uploadAttachment(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
-        testCaseService.uploadAttachment(request, file);
-    }
-
-    @GetMapping("/attachment/preview/{fileId}")
-    public ResponseEntity<byte[]> previewAttachment(@PathVariable String fileId) {
-        byte[] bytes = fileService.getAttachmentBytes(fileId);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
-                .body(bytes);
-    }
-
-    @PostMapping("/attachment/download")
-    public ResponseEntity<byte[]> downloadAttachment(@RequestBody FileOperationRequest fileOperationRequest) {
-        byte[] bytes = fileService.getAttachmentBytes(fileOperationRequest.getId());
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileOperationRequest.getName(), StandardCharsets.UTF_8) + "\"")
-                .body(bytes);
-    }
-
-    @GetMapping("/attachment/delete/{fileId}")
-    public void deleteAttachment(@PathVariable String fileId) {
-        testCaseService.deleteAttachment(fileId);
     }
 
     @PostMapping("/save")

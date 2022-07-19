@@ -3,6 +3,7 @@ package io.metersphere.track.issue;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
+import io.metersphere.commons.constants.AttachmentSyncType;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
@@ -12,6 +13,7 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
+import java.io.File;
 import java.util.List;
 
 public interface IssuesPlatform {
@@ -113,4 +115,12 @@ public interface IssuesPlatform {
      * @return
      */
     ResponseEntity proxyForGet(String url, Class responseEntityClazz);
+
+    /**
+     * 同步MS缺陷附件到第三方平台
+     * @param issuesRequest 平台参数
+     * @param file 附件
+     * @param syncType 同步操作类型: UPLOAD, DELETE
+     */
+    void syncIssuesAttachment(IssuesUpdateRequest issuesRequest, File file, AttachmentSyncType syncType);
 }
