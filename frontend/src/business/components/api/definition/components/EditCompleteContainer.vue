@@ -409,9 +409,10 @@ export default {
   position: fixed;
   right: 50px;
   z-index: 1;
-  top: 128px;
+  top: 90px;
   float: right;
   margin-right: 20px;
   margin-top: 5px;
 }
+
 </style>
