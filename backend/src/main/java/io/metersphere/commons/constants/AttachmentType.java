@@ -1,10 +1,21 @@
 package io.metersphere.commons.constants;
 
+/**
+ * @author songcc
+ */
+
 public enum AttachmentType {
 
-    TEST_CASE("testcase"), ISSUE("issue");
+    /**
+     * 测试用例类型
+     */
+    TEST_CASE("testcase"),
 
-    // 附件类型名称
+    /**
+     * 缺陷类型
+     */
+    ISSUE("issue");
+
     private String type;
 
     AttachmentType(String type) {

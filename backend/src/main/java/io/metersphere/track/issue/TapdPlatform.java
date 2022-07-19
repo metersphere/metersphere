@@ -7,6 +7,7 @@ import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.commons.constants.AttachmentSyncType;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -304,6 +306,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public void syncIssuesAttachment(IssuesUpdateRequest issuesRequest, File file, AttachmentSyncType syncType) {
+        // TODO: 同步缺陷MS附件到TAPD
     }
 
     @Override
