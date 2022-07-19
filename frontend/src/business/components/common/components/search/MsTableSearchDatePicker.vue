@@ -1,6 +1,6 @@
 <template>
   <ms-table-search-component v-model="component.operator.value" :component="component" v-bind="$attrs"
-                             v-on="$listeners">
+                             @change="change" v-on="$listeners">
     <template v-slot="scope">
       <el-date-picker
         v-model="scope.component.value" v-bind="scope.component.props"
