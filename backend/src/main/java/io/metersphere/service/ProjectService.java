@@ -266,7 +266,9 @@ public class ProjectService {
         extModuleNodeMapper.insert(ProjectModuleDefaultNodeEnum.UI_SCENARIO_DEFAULT_NODE.getTableName(), record);
         record.setId(UUID.randomUUID().toString());
         record.setName(ProjectModuleDefaultNodeEnum.UI_ELEMENT_DEFAULT_NODE.getNodeName());
+        record.setModulePath("/" + record.getName());
         extModuleNodeMapper.insertWithModulePath(ProjectModuleDefaultNodeEnum.UI_ELEMENT_DEFAULT_NODE.getTableName(), record);
+        record.setModulePath(null);
 
         ApiModule apiRecord = new ApiModule();
         BeanUtils.copyBean(apiRecord, record);
