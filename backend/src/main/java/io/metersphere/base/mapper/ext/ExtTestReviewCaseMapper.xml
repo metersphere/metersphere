@@ -113,7 +113,7 @@
             <foreach collection="request.orders" separator="," item="order">
                 <choose>
                     <when test="order.name == 'custom_num'">
-                        customNum ${order.type}
+                        test_case.custom_num ${order.type}
                     </when>
                     <when test="order.name == 'priority'">
                         test_case.priority ${order.type}
