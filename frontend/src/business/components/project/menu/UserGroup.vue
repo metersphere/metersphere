@@ -48,15 +48,14 @@
                   <ms-table-operator :edit-permission="['PROJECT_GROUP:READ+EDIT']"
                                      :delete-permission="['PROJECT_GROUP:READ+DELETE']"
                                      @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
-                                     :isShow="flagChange(scope.row.scopeId ==='global')">
+                                     :isShow="isDisable(scope.row.scopeId)">
                     <template v-slot:middle>
-                      <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
                       <ms-table-operator-button
                         v-permission="['PROJECT_GROUP:READ+SETTING_PERMISSION']"
                         :tip="$t('group.set_permission')"
                         icon="el-icon-s-tools"
                         @exec="setPermission(scope.row)"
-                        :disabled="flagChange(scope.row.scopeId ==='global')"/>
+                        :disabled="isDisable(scope.row.scopeId)"/>
                       <ms-table-operator-button :tip="$t('group.view_permission')" icon="el-icon-view" @exec="viewPermission(scope.row)"/>
                     </template>
                   </ms-table-operator>
@@ -116,18 +115,20 @@ export default {
       screenHeight: 'calc(100vh - 200px)',
       groups: [],
       currentGroup: {},
-      flag: false
+      isWorkspaceAdmin: false
     };
   },
   created() {
     this.$get("/user/group/list/ws/" + getCurrentWorkspaceId() + "/" + getCurrentUserId(), res => {
       let data = res.data;
-      if (data) {
-        data.forEach(row => {
-          if (row.id === 'ws_admin') {
-            this.flag = true;
-          }
-        })
+      if (!data) {
+        return;
+      }
+      for (let da of data) {
+        if (da.id === 'ws_admin') {
+          this.isWorkspaceAdmin = true;
+          break;
+        }
       }
     })
   },
@@ -156,13 +157,12 @@ export default {
         });
       }
     },
-    flagChange(data) {
-      if (this.flag) {
-        return false;
-      } else if (data) {
-        return true;
+    isDisable(scopeId) {
+      if (scopeId === 'global') {
+        return true; // 全局用户组禁用
       } else {
-        return false;
+        // 应用范围如果是当前项目则放开编辑，否则检查是否是工作空间管理员. 应该检查权限而非用户组
+        return scopeId === getCurrentProjectID() ? false : !this.isWorkspaceAdmin;
       }
     },
     viewPermission(row) {

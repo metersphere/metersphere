@@ -171,6 +171,7 @@
     <add-member
       :group-type="'PROJECT'"
       :group-scope-id="workspaceId"
+      :project-id="rowProjectId"
       ref="addMember"
       :user-resource-url="'user/ws/current/member/list'"
       @submit="submitForm"/>
@@ -268,7 +269,8 @@ export default {
       dialogTotal: 0,
       currentProjectId: "",
       userList: [],
-      labelWidth: '150px'
+      labelWidth: '150px',
+      rowProjectId: ""
     };
   },
   props: {
@@ -408,6 +410,7 @@ export default {
       return path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize;
     },
     cellClick(row) {
+      this.rowProjectId = row.id;
       // 保存当前点击的组织信息到currentRow
       this.currentWorkspaceRow = row;
       this.currentProjectId = row.id;

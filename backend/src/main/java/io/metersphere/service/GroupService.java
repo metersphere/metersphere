@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.poi.ss.formula.functions.T;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -228,6 +227,9 @@ public class GroupService {
         if (!StringUtils.equals(type, UserGroupType.SYSTEM)) {
             criteria.andTypeEqualTo(type);
         }
+        if (BooleanUtils.isTrue(request.isOnlyQueryGlobal())) {
+            criteria.andScopeIdEqualTo(GLOBAL);
+        }
 
         return groupMapper.selectByExample(example);
     }
@@ -261,6 +263,9 @@ public class GroupService {
         String resourceId = request.getResourceId();
         String type = request.getType();
         List<String> scopeList = Arrays.asList(GLOBAL, resourceId);
+        if (StringUtils.equals(type, UserGroupType.PROJECT) && StringUtils.isNotBlank(request.getProjectId())) {
+            scopeList = Arrays.asList(GLOBAL, resourceId, request.getProjectId());
+        }
         GroupExample groupExample = new GroupExample();
         groupExample.createCriteria().andScopeIdIn(scopeList)
                 .andTypeEqualTo(type);
@@ -312,7 +317,8 @@ public class GroupService {
     private Pager<List<GroupDTO>> getUserGroup(String groupType, EditGroupRequest request) {
         List<String> types;
         String workspaceId = SessionUtils.getCurrentWorkspaceId();
-        List<String> scopes = Arrays.asList(GLOBAL, workspaceId);
+        String projectId = SessionUtils.getCurrentProjectId();
+        List<String> scopes = Arrays.asList(GLOBAL, workspaceId, projectId);
         int goPage = request.getGoPage();
         int pageSize = request.getPageSize();
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -322,7 +328,6 @@ public class GroupService {
         types = map.get(groupType);
         request.setTypes(types);
         request.setScopes(scopes);
-//        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);
         buildUserInfo(groups);
         return PageUtils.setPageInfo(page, groups);
@@ -340,36 +345,17 @@ public class GroupService {
     }
 
     public List<?> getResource(String type, String groupId) {
-        List<T> resource = new ArrayList<>();
         Group group = groupMapper.selectByPrimaryKey(groupId);
-        String workspaceId = group.getScopeId();
-
+        if (group == null) {
+            return new ArrayList<>();
+        }
         if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
-            WorkspaceExample workspaceExample = new WorkspaceExample();
-            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
-            if (!StringUtils.equals(workspaceId, GLOBAL)) {
-                criteria.andIdEqualTo(workspaceId);
-            }
-            return workspaceMapper.selectByExample(workspaceExample);
+            return workspaceService.getWorkspaceGroupResource(group.getScopeId());
         }
-
         if (StringUtils.equals(UserGroupType.PROJECT, type)) {
-            ProjectExample projectExample = new ProjectExample();
-            ProjectExample.Criteria pc = projectExample.createCriteria();
-            WorkspaceExample workspaceExample = new WorkspaceExample();
-            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
-            if (!StringUtils.equals(workspaceId, GLOBAL)) {
-                criteria.andIdEqualTo(workspaceId);
-                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-                List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(list)) {
-                    pc.andWorkspaceIdIn(list);
-                }
-            }
-            return projectMapper.selectByExample(projectExample);
+            return workspaceService.getProjectGroupResource(group.getScopeId());
         }
-
-        return resource;
+        return new ArrayList<>();
     }
 
     public List<User> getGroupUser(EditGroupRequest request) {

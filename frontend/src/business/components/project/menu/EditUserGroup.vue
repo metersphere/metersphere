@@ -23,11 +23,9 @@
       <el-form-item :label="$t('group.description')" prop="description">
         <el-input type="textarea" v-model="form.description" style="width: 83%"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('group.global_group')">
-        <el-switch v-model="form.global" :disabled="dialogType === 'edit'"
-                   @change="change(form.global)"></el-switch>
+      <el-form-item :label="form.scopeId === 'global' ? $t('group.global_group') : $t('group.ws_share')">
+        <el-switch v-model="isShare" :disabled="dialogType === 'edit'" @change="change"/>
       </el-form-item>
-
     </el-form>
 
     <template v-slot:footer>
@@ -39,7 +37,7 @@
 
 <script>
 import {GROUP_SYSTEM} from "@/common/js/constants";
-import {getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "EditUserGroup",
@@ -69,7 +67,7 @@ export default {
       show: true,
       workspaces: [],
       title: this.$t('group.create'),
-      flag: false
+      isShare: false
     }
   },
   props: {
@@ -95,7 +93,9 @@ export default {
     create() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          this.form.scopeId = getCurrentWorkspaceId();
+          if (!this.form.scopeId) {
+            this.form.scopeId = getCurrentProjectID();
+          }
           this.$post("/user/group/add", this.form, () => {
             this.$success(this.$t('commons.save_success'));
             this.$emit("refresh")
@@ -125,28 +125,16 @@ export default {
       this.show = true;
       this.dialogVisible = true;
       this.dialogType = type;
-      this.form = Object.assign({type: 'PROJECT' ,global: false , scopeId: getCurrentWorkspaceId()}, row);
+      if (row) {
+        this.isShare = row.scopeId === getCurrentWorkspaceId();
+      }
+      this.form = Object.assign({type: 'PROJECT' ,global: false , scopeId: ''}, row);
     },
     cancel() {
       this.dialogVisible = false;
     },
-    change(global) {
-      this.$get("/user/group/list/ws/" + getCurrentWorkspaceId() + "/" + getCurrentUserId(), res => {
-        let data = res.data;
-        if (data) {
-          data.forEach(row => {
-            if (row.id === 'ws_admin') {
-              this.flag = true;
-            }
-          })
-        }
-        if (this.flag === true) {
-          this.show = this.isSystem ? false : !global;
-        } else {
-          this.form.global = false;
-          this.$warning(this.$t('group.ws_admin_global'))
-        }
-      })
+    change(share) {
+      this.form.scopeId = share ? getCurrentWorkspaceId() : getCurrentProjectID();
     },
     changeGroup(val) {
       if (val === GROUP_SYSTEM) {
