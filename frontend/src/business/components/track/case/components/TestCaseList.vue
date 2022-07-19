@@ -381,7 +381,8 @@ export default {
         },
         {
           name: this.$t('test_track.demand.batch_relate'),
-          handleClick: this.openRelateDemand
+          handleClick: this.openRelateDemand,
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND']
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
