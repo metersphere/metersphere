@@ -216,7 +216,7 @@ export default {
       this.condition.projectId = this.projectId;
       this.page.result = this.$post("/test/case/review/list/" + this.page.currentPage + "/" + this.page.pageSize, this.condition, response => {
         let data = response.data;
-        this.page.taotal = data.itemCount;
+        this.page.total = data.itemCount;
         this.tableData = data.listObject;
         this.tableData.forEach(item => {
           if (item.tags && item.tags.length > 0) {
