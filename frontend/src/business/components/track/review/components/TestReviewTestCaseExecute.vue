@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card class="executeCard">
     <div class="status-bnt">
       <el-button type="success" size="mini"
                  :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''"
