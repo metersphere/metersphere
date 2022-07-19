@@ -173,6 +173,7 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+      this.selectNodeIds = [];
     }
   }
 };

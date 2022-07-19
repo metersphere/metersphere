@@ -143,6 +143,7 @@ export default {
       if (this.$refs.apiCaseList) {
         this.$refs.apiCaseList.clearEnvAndSelect();
       }
+      this.selectNodeIds = [];
       this.projectId = projectId;
     },
     isApiListEnableChange(data) {

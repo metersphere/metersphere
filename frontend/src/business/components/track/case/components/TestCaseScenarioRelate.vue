@@ -83,6 +83,7 @@ export default {
       }
     },
     setProject(projectId) {
+      this.selectNodeIds = [];
       this.projectId = projectId;
     },
 
