@@ -172,8 +172,6 @@
           </el-col>
         </el-row>
 
-<!--        <form-rich-text-item :title="$t('commons.remark')" :data="form" prop="remark"/>-->
-
         <issue-comment :issues-id="form.id"
                        @getComments="getComments"
                        ref="issueComment"/>

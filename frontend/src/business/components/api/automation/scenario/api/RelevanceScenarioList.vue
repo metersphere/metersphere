@@ -162,6 +162,10 @@ export default {
       this.search();
     },
     projectId() {
+      this.condition = {
+        components: API_SCENARIO_CONFIGS
+      };
+      this.selectNodeIds.length = 0;
       this.search();
     },
   },
