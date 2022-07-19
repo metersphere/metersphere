@@ -3293,6 +3293,7 @@ export default {
     step_results: "步骤结果",
     treatment_method: "處理方式",
     scenario_steps: "場景步驟",
-    basic_information: "基礎信息"
+    basic_information: "基礎信息",
+    check_element: "請勾選元素"
   }
 };
