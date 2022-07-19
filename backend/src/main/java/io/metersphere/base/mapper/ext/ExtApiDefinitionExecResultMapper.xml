@@ -422,13 +422,27 @@
 
     <select id="selectByResourceIdsAndMaxCreateTime"
             resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
-        SELECT resource_id,max(create_time) AS create_time, id, env_config, project_id FROM api_definition_exec_result
+        SELECT
+        execResult.resource_id,
+        execResult.create_time,
+        execResult.id,
+        execResult.env_config,
+        execResult.project_id
+        FROM api_definition_exec_result execResult
+        INNER JOIN ( SELECT
+        resource_id,
+        max( create_time + 0 ) AS create_time
+        FROM
+        api_definition_exec_result
         WHERE
         resource_id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-        GROUP BY resource_id;
+        GROUP BY
+        resource_id )maxdata ON maxdata.resource_id = execResult.resource_id AND maxdata.create_time = execResult.create_time;
+
+
     </select>
 
     <select id="findByProjectIds" resultType="io.metersphere.base.domain.ApiDefinitionExecResult"
