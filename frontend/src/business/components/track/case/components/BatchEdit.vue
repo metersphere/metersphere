@@ -30,11 +30,7 @@
                        ref="envPopover"/>
         </el-form-item>
 
-        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue" :label="$t('test_track.case.updated_attr_value')">
-          <custom-filed-component :data="customField" prop="defaultValue"/>
-        </el-form-item>
-
-        <el-form-item v-else-if="form.type === 'tags'" prop="tags" :label="$t('test_track.case.updated_attr_value')">
+        <el-form-item v-else-if="form.type === 'tags'" :label="$t('test_track.case.updated_attr_value')">
           <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"></ms-input-tag>
           <el-checkbox v-model="form.appendTag">
             {{ $t('commons.append_tag') }}
@@ -42,6 +38,10 @@
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-checkbox>
+        </el-form-item>
+
+        <el-form-item v-else-if="fieldType === 'custom'" prop="customFieldValue" :label="$t('test_track.case.updated_attr_value')">
+          <custom-filed-component :data="customField" prop="defaultValue"/>
         </el-form-item>
 
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
@@ -214,7 +214,12 @@ export default {
         if (val && val.startsWith("custom")) {
           this._handleCustomField(val);
         }
-        this.$set(this.form, "value", "");
+        if (val === 'tags') {
+          // 跳过form rules的检查
+          this.$set(this.form, "value", "tags");
+        } else {
+          this.$set(this.form, "value", "");
+        }
         if (val === 'projectEnv' && this.isScenario !== '') {
           this.projectIds.clear();
           this.map.clear();
