@@ -120,6 +120,8 @@ export default {
       this.initTableData();
     },
     projectId() {
+      this.condition = {};
+      this.selectNodeIds = [];
       this.initTableData();
     },
   },

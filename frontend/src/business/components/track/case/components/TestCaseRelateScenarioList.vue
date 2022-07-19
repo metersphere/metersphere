@@ -139,7 +139,10 @@ export default {
       this.initTable();
     },
     projectId() {
-      this.condition.versionId = null;
+      this.condition = {
+        components: TEST_CASE_RELEVANCE_API_CASE_CONFIGS
+      };
+      this.selectNodeIds.length = 0;
       this.getVersionOptions();
       this.initTable();
     }
