@@ -46,7 +46,6 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
-import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.issue.AbstractIssuePlatform;
 import io.metersphere.track.issue.IssueFactory;
 import io.metersphere.track.issue.service.XpackIssueService;
@@ -2896,30 +2895,6 @@ public class TestCaseService {
             }
         }
         return false;
-    }
-
-    public List<TestCaseNodeDTO> getPublicCaseNode(QueryTestCaseRequest request) {
-        List<TestCaseNodeDTO> testCaseDTOS = publicProjectNode(request);
-        return testCaseNodeService.getPublicNodeByProjectNode(testCaseDTOS, request);
-    }
-
-    public List<TestCaseNodeDTO> publicProjectNode(QueryTestCaseRequest request) {
-        this.initRequest(request, true);
-        setDefaultOrder(request);
-        if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
-            request.getFilters().put("status", new ArrayList<>(0));
-        }
-        List<TestCaseNodeDTO> testCaseNodeDTOList = new ArrayList<>();
-        List<String> publicProjectIds = extTestCaseMapper.getPublicProjectIdByWorkSpaceId(request);
-        publicProjectIds.forEach(projectId -> {
-            Project project = projectMapper.selectByPrimaryKey(projectId);
-            TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
-            testCaseNodeDTO.setName(project.getName());
-            testCaseNodeDTO.setLabel(project.getName());
-            testCaseNodeDTO.setId(projectId);
-            testCaseNodeDTOList.add(testCaseNodeDTO);
-        });
-        return testCaseNodeDTOList;
     }
 
     public void saveRelationshipBatch(TestCaseRelationshipEdgeRequest request) {

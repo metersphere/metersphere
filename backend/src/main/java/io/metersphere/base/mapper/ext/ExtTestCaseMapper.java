@@ -162,4 +162,6 @@ public interface ExtTestCaseMapper {
     List<Map<String, Object>> moduleExtraNodeCount(@Param("nodeIds") List<String> nodeIds);
 
     int bathUpdateByCondition(@Param("request") QueryTestCaseRequest condition, @Param("record") TestCaseWithBLOBs testCaseWithBLOBs);
+
+    List<TestCaseNodeDTO> getWorkspaceCountNodes(@Param("request") QueryTestCaseRequest request);
 }

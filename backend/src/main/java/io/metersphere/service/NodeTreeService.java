@@ -112,6 +112,12 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         }
     }
 
+    /**
+     * 用户测试计划评审或者公共用例库查询多个项目的模块
+     * @param countModules 带有用例的节点的信息
+     * @param getProjectModulesFunc 根据 projectIds 获取多个项目下的模块
+     * @return
+     */
     public List<T> getNodeTreeWithPruningTree(List<T> countModules,
                                               Function<List<String>, List<T>> getProjectModulesFunc) {
         if (org.springframework.util.CollectionUtils.isEmpty(countModules)) {
@@ -127,11 +133,12 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
         List<Project> projects = projectService.getProjectByIds(new ArrayList<>(projectIds));
 
+        // 项目->对应项目下的模块
         Map<String, List<T>> projectModuleMap = getProjectModulesFunc.apply(projectIds)
                 .stream()
                 .collect(Collectors.groupingBy(TreeNodeDTO::getProjectId));
 
-        // 模块与用例数的映射
+        // 模块->用例数
         Map<String, Integer> countMap = countModules.stream()
                 .collect(Collectors.toMap(TreeNodeDTO::getId, TreeNodeDTO::getCaseNum));
 

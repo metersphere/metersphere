@@ -4,7 +4,9 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
@@ -22,7 +24,6 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
-import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
@@ -34,7 +35,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -54,8 +54,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     @Resource
     TestCaseMapper testCaseMapper;
     @Resource
-    TestPlanMapper testPlanMapper;
-    @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
@@ -66,12 +64,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     @Resource
     ProjectMapper projectMapper;
     @Resource
-    TestCaseReviewMapper testCaseReviewMapper;
-    @Resource
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
-    @Lazy
-    @Resource
-    ProjectService projectService;
 
     public TestCaseNodeService() {
         super(TestCaseNodeDTO.class);
@@ -276,19 +269,15 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return getNodeTreeWithPruningTree(countModules);
     }
 
-    public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
-        return this.getNodeByPlanId(planId, new QueryTestPlanCaseRequest());
+    public List<TestCaseNodeDTO> getPublicCaseNode(String workspaceId, QueryTestCaseRequest request) {
+        request.setWorkspaceId(workspaceId);
+        request.setProjectId(null);
+        List<TestCaseNodeDTO> countModules = extTestCaseMapper.getWorkspaceCountNodes(request);
+        return getNodeTreeWithPruningTree(countModules);
     }
 
-    public List<TestCaseNodeDTO> getPublicNodeByProjectNode(List<TestCaseNodeDTO> projectNodes, QueryTestCaseRequest request) {
-        request.setCasePublic(true);
-        for (TestCaseNodeDTO dto : projectNodes) {
-            List<TestCaseNodeDTO> children = this.getNodeTreeByProjectId(dto.getId(), request);
-            dto.setChildren(children);
-            int sum = children.stream().mapToInt(TestCaseNodeDTO::getCaseNum).sum();
-            dto.setCaseNum(sum);
-        }
-        return projectNodes;
+    public List<TestCaseNodeDTO> getNodeByPlanId(String planId) {
+        return this.getNodeByPlanId(planId, new QueryTestPlanCaseRequest());
     }
 
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {

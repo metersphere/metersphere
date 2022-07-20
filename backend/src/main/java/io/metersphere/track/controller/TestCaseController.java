@@ -28,7 +28,6 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
-import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
@@ -72,12 +71,6 @@ public class TestCaseController {
     public Pager<List<TestCaseDTO>> publicList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.publicListTestCase(request));
-    }
-
-
-    @PostMapping("/public/case/node")
-    public List<TestCaseNodeDTO> getPublicCaseNode(@RequestBody QueryTestCaseRequest request) {
-        return testCaseService.getPublicCaseNode(request);
     }
 
     @GetMapping("/list/{projectId}")
