@@ -162,7 +162,9 @@ export default {
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-        {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
+        {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
+        {text: this.$t('test_track.plan.plan_status_finished'), value: 'Finished'},
+        {text: this.$t('test_track.plan.plan_status_archived'), value: 'Archived'}
       ],
       operators: [
         {
