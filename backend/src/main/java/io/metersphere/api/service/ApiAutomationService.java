@@ -703,15 +703,31 @@ public class ApiAutomationService {
                 .andProjectIdEqualTo(request.getProjectId())
                 .andStatusNotEqualTo("Trash")
                 .andIdNotEqualTo(request.getId())
-                .andVersionIdEqualTo(request.getVersionId())
                 .andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId());
         if (moduleIdNotExist) {
             criteria.andModulePathEqualTo(request.getModulePath());
         } else {
             criteria.andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId());
         }
+        if (apiScenarioMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+            MSException.throwException(Translator.get("automation_versions_create"));
+        }
+        criteria.andVersionIdEqualTo(request.getVersionId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("automation_name_already_exists") + " :" + Translator.get("api_definition_module") + request.getModulePath() + " ," + Translator.get("automation_name") + " :" + request.getName());
+        }
+        if (StringUtils.isNotBlank(request.getId())) {
+            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
+            if (scenario != null) {
+                example = new ApiScenarioExample();
+                example.createCriteria().andIdEqualTo(scenario.getRefId()).andStatusNotEqualTo("Trash");
+                List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+                if (apiScenarios != null && apiScenarios.size() > 1) {
+                    if (!StringUtils.equals(scenario.getName(), request.getName())) {
+                        MSException.throwException(Translator.get("automation_versions_update"));
+                    }
+                }
+            }
         }
     }
 
