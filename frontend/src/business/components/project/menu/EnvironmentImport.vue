@@ -1,11 +1,11 @@
 <template>
   <el-dialog :visible="dialogVisible" :title="dialogTitle"
              @close="close" :close-on-click-modal="false"
-              :width="!toImportProjectId ? `50%` : `25%`">
+             width="50%">
     <el-form>
-      <el-row>
-        <el-col :span="6">
-          <div class="project-item" v-if="!toImportProjectId">
+      <el-row type="flex" justify="center">
+        <el-col :span="!toImportProjectId ? 6 : 0">
+          <div class="project-item">
             <div style="margin-bottom: 10px">
               {{$t('project.select')}}
             </div>
@@ -16,7 +16,7 @@
             </el-select>
           </div>
         </el-col>
-        <el-col :span="16" :offset="1">
+        <el-col :span="16" style="text-align: center;">
           <el-upload
             class="api-upload" drag action="alert"
             :on-change="handleFileChange"
