@@ -141,8 +141,9 @@ public class ApiCaseSerialService {
                 group.setLabel(caseWithBLOBs.getName());
                 group.setName(runRequest.getReportId());
                 group.setProjectId(caseWithBLOBs.getProjectId());
-                MsTestElement testElement = null;
-                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                MsTestElement testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
+                // 暂时保留用例的重试功能
+                /*if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                     // 失败重试
                     ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
                     String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), true);
@@ -155,7 +156,8 @@ public class ApiCaseSerialService {
                     }});
                 } else {
                     testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
-                }
+                }*/
+
                 group.setHashTree(new LinkedList<>());
                 group.getHashTree().add(testElement);
                 testPlan.getHashTree().add(group);
