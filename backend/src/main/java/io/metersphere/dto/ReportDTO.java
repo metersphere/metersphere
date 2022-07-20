@@ -1,12 +1,11 @@
 package io.metersphere.dto;
 
-import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ReportDTO extends LoadTestReportWithBLOBs {
+public class ReportDTO extends LoadTestReportInfoDTO {
 
     private String content;
     private String projectName;
