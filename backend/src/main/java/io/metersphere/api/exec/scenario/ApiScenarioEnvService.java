@@ -24,8 +24,10 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
+import io.metersphere.service.EnvironmentGroupService;
 import io.metersphere.service.ProjectService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -58,6 +60,9 @@ public class ApiScenarioEnvService {
     private ProjectService projectService;
     @Resource
     private ApiTestEnvironmentService apiTestEnvironmentService;
+    @Lazy
+    @Resource
+    private EnvironmentGroupService environmentGroupService;
 
     public ScenarioEnv getApiScenarioEnv(String definition) {
         ScenarioEnv env = new ScenarioEnv();
@@ -508,10 +513,14 @@ public class ApiScenarioEnvService {
         //执行时选择的环境信息 （一般在集合报告中会记录）
         Map<String, List<String>> envMapByExecution = null;
 
+        String groupId = null;
         try {
             JSONObject jsonObject = JSONObject.parseObject(envConfig);
             if (jsonObject.containsKey("executionEnvironmentMap")) {
                 RunModeConfigWithEnvironmentDTO configWithEnvironment = JSONObject.parseObject(envConfig, RunModeConfigWithEnvironmentDTO.class);
+                if (StringUtils.equals("GROUP", configWithEnvironment.getEnvironmentType()) && StringUtils.isNotEmpty(configWithEnvironment.getEnvironmentGroupId())) {
+                    groupId = configWithEnvironment.getEnvironmentGroupId();
+                }
                 if (MapUtils.isNotEmpty(configWithEnvironment.getExecutionEnvironmentMap())) {
                     envMapByExecution = configWithEnvironment.getExecutionEnvironmentMap();
                 } else {
@@ -519,28 +528,37 @@ public class ApiScenarioEnvService {
                 }
             } else {
                 RunModeConfigDTO config = JSONObject.parseObject(envConfig, RunModeConfigDTO.class);
+                if (StringUtils.equals("GROUP", config.getEnvironmentType()) && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
+                    groupId = config.getEnvironmentGroupId();
+                }
                 envMapByRunConfig = config.getEnvMap();
             }
         } catch (Exception e) {
             LogUtil.error("解析RunModeConfig失败!参数：" + envConfig, e);
         }
-        returnMap.putAll(this.selectProjectNameAndEnvName(envMapByExecution));
 
-        if (MapUtils.isNotEmpty(envMapByRunConfig)) {
-            for (Map.Entry<String, String> entry : envMapByRunConfig.entrySet()) {
-                String projectId = entry.getKey();
-                String envId = entry.getValue();
-                String projectName = projectService.selectNameById(projectId);
-                String envName = apiTestEnvironmentService.selectNameById(envId);
-                if (StringUtils.isNoneEmpty(projectName, envName)) {
-                    returnMap.put(projectName, new ArrayList<>() {{
-                        this.add(envName);
-                    }});
-                }
+        if(StringUtils.isNotEmpty(groupId)){
+            EnvironmentGroup environmentGroup = environmentGroupService.selectById(groupId);
+            if (StringUtils.isNotEmpty(environmentGroup.getName())) {
+                returnMap.put(Translator.get("environment_group"),new ArrayList<>(){{this.add(environmentGroup.getName());}});
             }
+        }else {
+            returnMap.putAll(this.selectProjectNameAndEnvName(envMapByExecution));
+            if (MapUtils.isNotEmpty(envMapByRunConfig)) {
+                for (Map.Entry<String, String> entry : envMapByRunConfig.entrySet()) {
+                    String projectId = entry.getKey();
+                    String envId = entry.getValue();
+                    String projectName = projectService.selectNameById(projectId);
+                    String envName = apiTestEnvironmentService.selectNameById(envId);
+                    if (StringUtils.isNoneEmpty(projectName, envName)) {
+                        returnMap.put(projectName, new ArrayList<>() {{
+                            this.add(envName);
+                        }});
+                    }
+                }
 
+            }
         }
-
         return returnMap;
     }
 }
