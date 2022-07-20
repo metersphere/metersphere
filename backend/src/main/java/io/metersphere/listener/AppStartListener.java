@@ -159,8 +159,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(mockConfigService::initExpectNum, "init.mock.expectNum");
         initOnceOperate(customFieldResourceService::compatibleData, "init.custom.field.resource");
         initOnceOperate(jarConfigService::initJarPath, "init.jar.path");
-        initOnceOperate(testCaseService::initAttachment, "init.attachment.test.case");
-        initOnceOperate(attachmentService::initAttachment, "init.attachment.all");
+        initOnceOperate(testCaseService::initAttachment, "init.test.case.attachment");
     }
 
     /**

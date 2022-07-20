@@ -128,6 +128,8 @@ public class TestCaseService {
     @Resource
     TestCaseTestMapper testCaseTestMapper;
     @Resource
+    AttachmentModuleRelationMapper attachmentModuleRelationMapper;
+    @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
@@ -2573,11 +2575,14 @@ public class TestCaseService {
                     fileAttachmentMetadata.setCreator("");
                     fileAttachmentMetadata.setFilePath(uploadPath);
                     fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
-                    TestCaseFile newTestCaseFile = new TestCaseFile();
-                    newTestCaseFile.setFileId(fileAttachmentMetadata.getId());
+                    AttachmentModuleRelation record = new AttachmentModuleRelation();
+                    record.setRelationId(testCaseFile.getCaseId());
+                    record.setRelationType(AttachmentType.TEST_CASE.type());
+                    record.setAttachmentId(fileAttachmentMetadata.getId());
+                    attachmentModuleRelationMapper.insert(record);
                     TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
                     testCaseFileExample.createCriteria().andCaseIdEqualTo(testCaseFile.getCaseId()).andFileIdEqualTo(testCaseFile.getFileId());
-                    testCaseFileMapper.updateByExampleSelective(newTestCaseFile, testCaseFileExample);
+                    testCaseFileMapper.deleteByExample(testCaseFileExample);
                     fileMetadataMapper.deleteByPrimaryKey(fileMetadata.getId());
                 }
                 if (StringUtils.isNotEmpty(filename) && fileContents.size() == 1) {
@@ -2587,7 +2592,6 @@ public class TestCaseService {
                 }
             });
         }
-
     }
 
     /**
