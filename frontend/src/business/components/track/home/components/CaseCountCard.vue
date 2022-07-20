@@ -1,5 +1,6 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 5px;" style="height: 350px;margin-top: 5px">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 5px;"
+           style="margin-top: 5px">
     <div slot="header">
       <span class="title">
         {{ $t('test_track.home.case_count') }}
@@ -144,7 +145,7 @@ export default {
 }
 
 .detail-container {
-  margin-top: 20px
+  margin-top: 30px;
 }
 
 .default-property {

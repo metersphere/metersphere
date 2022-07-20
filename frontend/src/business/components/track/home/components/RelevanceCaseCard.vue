@@ -1,5 +1,6 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 5px;" style="height: 350px;margin-top: 5px">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:16px 5px 16px 5px;"
+           style="margin-top: 5px">
     <div slot="header">
       <span class="title">
         {{ $t('test_track.home.relevance_case') }}
