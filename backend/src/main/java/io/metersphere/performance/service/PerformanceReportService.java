@@ -213,7 +213,9 @@ public class PerformanceReportService {
     }
 
     public ReportDTO getReportTestAndProInfo(String reportId) {
-        return extLoadTestReportMapper.getReportTestAndProInfo(reportId);
+        ReportDTO reportDTO = extLoadTestReportMapper.getReportTestAndProInfo(reportId);
+        this.parseRunEnvironment(reportDTO);
+        return reportDTO;
     }
 
     private String getContent(String id, ReportKeys reportKey) {
