@@ -127,6 +127,8 @@ public class TestCaseService {
     @Resource
     TestCaseTestMapper testCaseTestMapper;
     @Resource
+    AttachmentModuleRelationMapper attachmentModuleRelationMapper;
+    @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
@@ -2549,19 +2551,21 @@ public class TestCaseService {
     }
 
     public void initAttachment() {
-        TestCaseFileExample example = new TestCaseFileExample();
-        List<TestCaseFile> testCaseFiles = testCaseFileMapper.selectByExample(example);
+        // 用例有关附件处理
+        AttachmentModuleRelationExample relationExample = new AttachmentModuleRelationExample();
+        relationExample.createCriteria().andRelationTypeEqualTo(AttachmentType.TEST_CASE.type());
+        List<AttachmentModuleRelation> relations = attachmentModuleRelationMapper.selectByExample(relationExample);
         List<FileMetadata> allFileMeta = fileService.getAllFileMeta();
         List<FileContent> allFileContent = fileService.getAllFileContent();
-        Map<String, List<TestCaseFile>> testCaseFileGroup = testCaseFiles.stream().collect(Collectors.groupingBy(TestCaseFile::getCaseId));
-        for(Map.Entry<String, List<TestCaseFile>> entry : testCaseFileGroup.entrySet()) {
+        Map<String, List<AttachmentModuleRelation>> relationGroup = relations.stream().collect(Collectors.groupingBy(AttachmentModuleRelation::getRelationId));
+        for(Map.Entry<String, List<AttachmentModuleRelation>> entry : relationGroup.entrySet()) {
             final String caseId = entry.getKey();
             final String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + AttachmentType.TEST_CASE.type() + "/" + caseId;
-            entry.getValue().stream().forEach(testCaseFile -> {
+            entry.getValue().stream().forEach(relation -> {
                 String filename = "";
-                List<FileMetadata> fileMetadatas = allFileMeta.stream().filter(fileMetadata -> fileMetadata.getId().equals(testCaseFile.getFileId()))
+                List<FileMetadata> fileMetadatas = allFileMeta.stream().filter(fileMetadata -> fileMetadata.getId().equals(relation.getAttachmentId()))
                         .collect(Collectors.toList());
-                List<FileContent> fileContents = allFileContent.stream().filter(fileContent -> fileContent.getFileId().equals(testCaseFile.getFileId()))
+                List<FileContent> fileContents = allFileContent.stream().filter(fileContent -> fileContent.getFileId().equals(relation.getAttachmentId()))
                         .collect(Collectors.toList());
                 if (fileMetadatas.size() == 1) {
                     FileMetadata fileMetadata = fileMetadatas.get(0);
@@ -2572,11 +2576,12 @@ public class TestCaseService {
                     fileAttachmentMetadata.setCreator("");
                     fileAttachmentMetadata.setFilePath(uploadPath);
                     fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
-                    TestCaseFile newTestCaseFile = new TestCaseFile();
-                    newTestCaseFile.setFileId(fileAttachmentMetadata.getId());
-                    TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
-                    testCaseFileExample.createCriteria().andCaseIdEqualTo(testCaseFile.getCaseId()).andFileIdEqualTo(testCaseFile.getFileId());
-                    testCaseFileMapper.updateByExampleSelective(newTestCaseFile, testCaseFileExample);
+                    AttachmentModuleRelation record = new AttachmentModuleRelation();
+                    record.setAttachmentId(fileAttachmentMetadata.getId());
+                    AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+                    example.createCriteria().andRelationIdEqualTo(relation.getRelationId())
+                            .andAttachmentIdEqualTo(relation.getAttachmentId()).andRelationTypeEqualTo(relation.getRelationType());
+                    attachmentModuleRelationMapper.updateByExample(record, example);
                     fileMetadataMapper.deleteByPrimaryKey(fileMetadata.getId());
                 }
                 if (StringUtils.isNotEmpty(filename) && fileContents.size() == 1) {
@@ -2586,7 +2591,6 @@ public class TestCaseService {
                 }
             });
         }
-
     }
 
     /**
