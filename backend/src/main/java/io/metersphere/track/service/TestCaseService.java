@@ -1950,37 +1950,7 @@ public class TestCaseService {
         return false;
     }
 
-    public TestCase save(EditTestCaseRequest request, List<MultipartFile> files) {
-
-
-        final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
-
-        // 复制用例时传入文件ID进行复制
-        if (!CollectionUtils.isEmpty(request.getFileIds())) {
-            List<String> fileIds = request.getFileIds();
-            fileIds.forEach(id -> {
-                FileMetadata fileMetadata = fileService.copyFile(id);
-                TestCaseFile testCaseFile = new TestCaseFile();
-                testCaseFile.setCaseId(testCaseWithBLOBs.getId());
-                testCaseFile.setFileId(fileMetadata.getId());
-                testCaseFileMapper.insert(testCaseFile);
-            });
-        }
-
-        if (files != null) {
-            files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
-                TestCaseFile testCaseFile = new TestCaseFile();
-                testCaseFile.setCaseId(testCaseWithBLOBs.getId());
-                testCaseFile.setFileId(fileMetadata.getId());
-                testCaseFileMapper.insert(testCaseFile);
-            });
-        }
-
-        return testCaseWithBLOBs;
-    }
-
-    public TestCase refactorSave(EditTestCaseRequest request, List<MultipartFile> files) {
+    public TestCase add(EditTestCaseRequest request) {
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
         // 复制用例时复制对应附件数据
         if (StringUtils.isNotEmpty(request.getCopyCaseId())) {
@@ -1993,45 +1963,7 @@ public class TestCaseService {
         return testCaseWithBLOBs;
     }
 
-    public TestCase edit(EditTestCaseRequest request, List<MultipartFile> files) {
-        TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
-        request.setNum(testCaseWithBLOBs.getNum());
-        if (testCaseWithBLOBs == null) {
-            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
-        }
-
-        if (BooleanUtils.isTrue(request.isHandleAttachment())) {
-            // 新选择了一个文件，删除原来的文件
-            List<FileMetadata> updatedFiles = request.getUpdatedFileList();
-            List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(request.getId());
-            List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-            List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
-            // 相减
-            List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
-            fileService.deleteFileRelatedByIds(deleteFileIds);
-
-            if (!CollectionUtils.isEmpty(deleteFileIds)) {
-                TestCaseFileExample testCaseFileExample = new TestCaseFileExample();
-                testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
-                testCaseFileMapper.deleteByExample(testCaseFileExample);
-            }
-
-            if (files != null) {
-                files.forEach(file -> {
-                    final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
-                    TestCaseFile testCaseFile = new TestCaseFile();
-                    testCaseFile.setFileId(fileMetadata.getId());
-                    testCaseFile.setCaseId(request.getId());
-                    testCaseFileMapper.insert(testCaseFile);
-                });
-            }
-        }
-
-        this.setNode(request);
-        return editTestCase(request);
-    }
-
-    public TestCase refactorEdit(EditTestCaseRequest request, List<MultipartFile> files) {
+    public TestCase edit(EditTestCaseRequest request) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
         request.setNum(testCaseWithBLOBs.getNum());
         if (testCaseWithBLOBs == null) {
