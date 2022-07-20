@@ -1,13 +1,8 @@
 package io.metersphere.api.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
-import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
+import io.metersphere.api.service.utils.ResultConversionUtil;
 import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
-import io.metersphere.commons.constants.ExecuteResult;
-import io.metersphere.commons.utils.ErrorReportLibraryUtil;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
@@ -21,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -41,7 +34,7 @@ public class ApiScenarioReportResultService {
                     if (StringUtils.isNotEmpty(item.getName()) && item.getName().startsWith("Transaction=") && CollectionUtils.isEmpty(item.getSubRequestResults())) {
                         LoggerUtil.debug("合并事物请求暂不入库");
                     } else {
-                        apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                        apiScenarioReportResultMapper.insert(ResultConversionUtil.getApiScenarioReportResultBLOBs(reportId, item));
                     }
                 });
             } else {
@@ -49,7 +42,7 @@ public class ApiScenarioReportResultService {
                 ApiScenarioReportResultMapper batchMapper = sqlSession.getMapper(ApiScenarioReportResultMapper.class);
                 queue.forEach(item -> {
                     if (StringUtils.isEmpty(item.getName()) || !item.getName().startsWith("Transaction=") || !CollectionUtils.isEmpty(item.getSubRequestResults())) {
-                        batchMapper.insert(this.newApiScenarioReportResult(reportId, item));
+                        batchMapper.insert(ResultConversionUtil.getApiScenarioReportResultBLOBs(reportId, item));
                     }
                 });
                 sqlSession.flushStatements();
@@ -66,7 +59,7 @@ public class ApiScenarioReportResultService {
                 // 单条储存
                 RequestResult requestResult = dtos.get(0).getRequestResults().get(0);
                 if (StringUtils.isEmpty(requestResult.getName()) || !requestResult.getName().startsWith("Transaction=") || !CollectionUtils.isEmpty(requestResult.getSubRequestResults())) {
-                    apiScenarioReportResultMapper.insert(this.newApiScenarioReportResult(dtos.get(0).getReportId(), requestResult));
+                    apiScenarioReportResultMapper.insert(ResultConversionUtil.getApiScenarioReportResultBLOBs(dtos.get(0).getReportId(), requestResult));
                 }
             } else {
                 SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -75,7 +68,7 @@ public class ApiScenarioReportResultService {
                     if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                         dto.getRequestResults().forEach(item -> {
                             if (StringUtils.isEmpty(item.getName()) || !item.getName().startsWith("Transaction=") || !CollectionUtils.isEmpty(item.getSubRequestResults())) {
-                                batchMapper.insert(this.newApiScenarioReportResult(dto.getReportId(), item));
+                                batchMapper.insert(ResultConversionUtil.getApiScenarioReportResultBLOBs(dto.getReportId(), item));
                             }
                         });
                     }
@@ -89,53 +82,6 @@ public class ApiScenarioReportResultService {
     }
 
     public ApiScenarioReportResultWithBLOBs newScenarioReportResult(String reportId, String resourceId) {
-        ApiScenarioReportResultWithBLOBs report = new ApiScenarioReportResultWithBLOBs();
-        report.setId(UUID.randomUUID().toString());
-        report.setResourceId(resourceId);
-        report.setReportId(reportId);
-        report.setTotalAssertions(0L);
-        report.setPassAssertions(0L);
-        report.setCreateTime(System.currentTimeMillis());
-        return report;
-    }
-
-    //记录基础信息
-    private ApiScenarioReportBaseInfoDTO getBaseInfo(RequestResult result) {
-        ApiScenarioReportBaseInfoDTO baseInfoDTO = new ApiScenarioReportBaseInfoDTO();
-        baseInfoDTO.setReqName(result.getName());
-        baseInfoDTO.setReqSuccess(result.isSuccess());
-        baseInfoDTO.setReqError(result.getError());
-        baseInfoDTO.setReqStartTime(result.getStartTime());
-        if (result.getResponseResult() != null) {
-            baseInfoDTO.setRspCode(result.getResponseResult().getResponseCode());
-            baseInfoDTO.setRspTime(result.getResponseResult().getResponseTime());
-        }
-        return baseInfoDTO;
-    }
-
-    private ApiScenarioReportResultWithBLOBs newApiScenarioReportResult(String reportId, RequestResult baseResult) {
-        //解析误报内容
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
-        RequestResult result = errorCodeDTO.getResult();
-        String resourceId = result.getResourceId();
-
-        ApiScenarioReportResultWithBLOBs report = newScenarioReportResult(reportId, resourceId);
-        report.setTotalAssertions(Long.parseLong(result.getTotalAssertions() + ""));
-        report.setPassAssertions(Long.parseLong(result.getPassAssertions() + ""));
-        String status = result.getError() == 0 ? ExecuteResult.SCENARIO_SUCCESS.toString() : ExecuteResult.SCENARIO_ERROR.toString();
-        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
-            report.setErrorCode(errorCodeDTO.getErrorCodeStr());
-        }
-        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())) {
-            status = errorCodeDTO.getRequestStatus();
-        }
-        report.setStatus(status);
-        report.setRequestTime(result.getEndTime() - result.getStartTime());
-
-        report.setBaseInfo(JSONObject.toJSONString(getBaseInfo(result)));
-        report.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
-
-        LoggerUtil.info("报告ID [ " + reportId + " ] 执行请求：【 " + baseResult.getName() + "】 入库存储");
-        return report;
+        return ResultConversionUtil.newScenarioReportResult(reportId, resourceId);
     }
 }
