@@ -74,6 +74,11 @@ public class TestCaseNodeController {
         return testCaseNodeService.getNodeByPlanId(planId, Optional.ofNullable(request).orElse(new QueryTestPlanCaseRequest()));
     }
 
+    @PostMapping("/list/public/{workspaceId}")
+    public List<TestCaseNodeDTO> getPublicCaseNode(@PathVariable String workspaceId, @RequestBody QueryTestCaseRequest request) {
+        return testCaseNodeService.getPublicCaseNode(workspaceId, request);
+    }
+
     @PostMapping("/list/plan/relate")
     public List<TestCaseNodeDTO> getRelatePlanNodes(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkTestPlanOwner(request.getPlanId());
