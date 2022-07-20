@@ -623,8 +623,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getProtocol()) && request.getProtocol().equals(RequestType.HTTP)) {
             criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
-                    .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId())
-                    .andVersionIdEqualTo(request.getVersionId());
+                    .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
             ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.URL_REPEATABLE.name());
             boolean urlRepeat = config.getUrlRepeatable();
@@ -635,10 +634,18 @@ public class ApiDefinitionService {
                     criteria.andModuleIdEqualTo(request.getModuleId());
                 }
                 criteria.andNameEqualTo(request.getName());
+                if (apiDefinitionMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+                    MSException.throwException(Translator.get("api_versions_create"));
+                }
+                criteria.andVersionIdEqualTo(request.getVersionId());
                 if (apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_name_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName() + "-" + request.getPath());
                 }
             } else {
+                if (apiDefinitionMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+                    MSException.throwException(Translator.get("api_versions_create"));
+                }
+                criteria.andVersionIdEqualTo(request.getVersionId());
                 if (apiDefinitionMapper.countByExample(example) > 0) {
                     MSException.throwException(Translator.get("api_definition_url_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
                 }
@@ -646,14 +653,36 @@ public class ApiDefinitionService {
         } else {
             criteria.andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
-                    .andIdNotEqualTo(request.getId()).andVersionIdEqualTo(request.getVersionId());
+                    .andIdNotEqualTo(request.getId());
             if (moduleIdNotExist) {
                 criteria.andModulePathEqualTo(request.getModulePath());
             } else {
                 criteria.andModuleIdEqualTo(request.getModuleId());
             }
+            if (apiDefinitionMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+                MSException.throwException(Translator.get("api_versions_create"));
+            }
+            criteria.andVersionIdEqualTo(request.getVersionId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("api_definition_name_already_exists") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName());
+            }
+        }
+        if (StringUtils.isNotBlank(request.getId())) {
+            ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(request.getId());
+            if (result != null) {
+                example = new ApiDefinitionExample();
+                example.createCriteria().andRefIdEqualTo(result.getRefId()).andStatusNotEqualTo("Trash");
+                List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+                if (apiDefinitions != null && apiDefinitions.size() > 1) {
+                    if (request.getProtocol().equals(RequestType.HTTP) && (!StringUtils.equals(result.getMethod(), request.getMethod()) || !StringUtils.equals(result.getPath(), request.getPath()))) {
+                        MSException.throwException(Translator.get("api_versions_update_http"));
+                    } else {
+                        if (!StringUtils.equals(result.getName(), request.getName())) {
+                            MSException.throwException(Translator.get("api_versions_update"));
+                        }
+                    }
+
+                }
             }
         }
     }
