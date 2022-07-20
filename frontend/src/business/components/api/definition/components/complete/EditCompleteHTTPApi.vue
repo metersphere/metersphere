@@ -282,6 +282,7 @@ export default {
         status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
       },
       httpForm: {environmentId: "", path: "", tags: []},
+      beforeHttpForm: {environmentId: "", path: "", tags: []},
       newData: {environmentId: "", path: "", tags: []},
       dialogVisible: false,
       isShowEnable: true,
@@ -502,6 +503,9 @@ export default {
       if (this.httpForm.tags instanceof Array) {
         this.httpForm.tags = JSON.stringify(this.httpForm.tags);
       }
+      if (this.beforeHttpForm.tags instanceof Array) {
+        this.beforeHttpForm.tags = JSON.stringify(this.beforeHttpForm.tags);
+      }
     },
     saveApi() {
       this.$refs['httpForm'].validate((valid) => {
@@ -514,7 +518,40 @@ export default {
             }
           }
           if (hasLicense() && this.httpForm.caseTotal > 0) {
-            this.batchSyncApiVisible = true;
+            if (this.httpForm.name !== this.beforeHttpForm.name) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.httpForm.method !== this.beforeHttpForm.method) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.httpForm.path !== this.beforeHttpForm.path) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.httpForm.userId !== this.beforeHttpForm.userId) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.httpForm.moduleId !== this.beforeHttpForm.moduleId) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.httpForm.status !== this.beforeHttpForm.status) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.httpForm.tags !== this.beforeHttpForm.tags) {
+              this.batchSyncApiVisible = true;
+            }
+            let submitRequest = JSON.stringify(this.httpForm.request);
+            let beforeRequest = JSON.stringify(this.beforeHttpForm.request);
+            if (submitRequest !== beforeRequest) {
+              this.batchSyncApiVisible = true;
+            }
+            let submitResponse = JSON.stringify(this.httpForm.response);
+            let beforeResponse = JSON.stringify(this.beforeHttpForm.response);
+            if (submitResponse !== beforeResponse) {
+              this.batchSyncApiVisible = true;
+            }
+            if (this.batchSyncApiVisible !== true) {
+              this.$emit('saveApi', this.httpForm);
+            }
           } else {
             this.$emit('saveApi', this.httpForm);
           }
@@ -535,14 +572,21 @@ export default {
           let fromData = this.$refs.synSetting.fromData;
           this.httpForm.triggerUpdate = JSON.stringify(fromData);
         }
-        if (this.specialReceivers) {
+        if (this.specialReceivers && this.specialReceivers === true) {
           this.httpForm.sendSpecialMessage = this.specialReceivers;
+        } else {
+          this.httpForm.sendSpecialMessage = false
         }
-        if (this.caseCreator) {
+
+        if (this.caseCreator && this.caseCreator === true) {
           this.httpForm.caseCreator = this.caseCreator;
+        } else {
+          this.httpForm.caseCreator = false
         }
-        if (this.scenarioCreator) {
+        if (this.scenarioCreator && this.scenarioCreator === true) {
           this.httpForm.scenarioCreator = this.scenarioCreator;
+        } else {
+          this.httpForm.scenarioCreator = false
         }
         this.$emit('saveApi', this.httpForm);
       }
@@ -811,8 +855,10 @@ export default {
       this.basisData.moduleId = this.moduleOptions[0].id;
     }
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
+    this.beforeHttpForm = JSON.parse(JSON.stringify(this.basisData));
     this.$get('/api/definition/follow/' + this.basisData.id, response => {
       this.httpForm.follows = response.data;
+      this.beforeHttpForm.follows = response.data;
       for (let i = 0; i < response.data.length; i++) {
         if (response.data[i] === this.currentUser().id) {
           this.showFollow = true;
