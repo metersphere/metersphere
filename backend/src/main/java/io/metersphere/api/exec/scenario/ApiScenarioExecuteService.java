@@ -341,8 +341,24 @@ public class ApiScenarioExecuteService {
             if (item.getStepTotal() == null || item.getStepTotal() == 0) {
                 continue;
             }
+
+            if (MapUtils.isEmpty(request.getConfig().getEnvMap())) {
+                RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
+                BeanUtils.copyBean(runModeConfig, request.getConfig());
+                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(apiScenarios);
+                apiCaseExecuteService.setExecutionEnvironment(runModeConfig, projectEnvMap);
+                request.setConfig(runModeConfig);
+            }
+
+            RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
+            BeanUtils.copyBean(runModeConfig, request.getConfig());
+            if(StringUtils.equals(runModeConfig.getEnvironmentType(), EnvironmentType.JSON.name()) && MapUtils.isEmpty(runModeConfig.getEnvMap())){
+                Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(new ArrayList<>(){{this.add(item);}});
+                runModeConfig.setExecutionEnvironmentMap(projectEnvMap);
+            }
+
             APIScenarioReportResult report = apiScenarioReportService.init(reportId, item.getId(), item.getName(), request.getTriggerMode(),
-                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), runModeConfig);
             scenarioIds.add(item.getId());
             report.setVersionId(item.getVersionId());
             scenarioNames.append(item.getName()).append(",");
