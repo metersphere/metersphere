@@ -163,6 +163,9 @@ public class TestResultService {
         if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
             redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
         }
+        if (dto.getRequestResults() == null) {
+            dto.setRequestResults(new LinkedList<>());
+        }
         if (scenarioRunModes.contains(dto.getRunMode()) || dto.getRunMode().startsWith("UI")) {
             ApiScenarioReport scenarioReport = apiScenarioReportService.testEnded(dto);
             if (scenarioReport != null) {
