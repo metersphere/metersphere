@@ -352,6 +352,24 @@ export const TRIGGER_MODE = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
+    {label: 'test_track.report.trigger_mode.manual', value: 'manual'},
+    {label: 'commons.trigger_mode.schedule', value: 'SCHEDULE'},
+    {label: 'commons.trigger_mode.api', value: 'API'},
+    {label: 'api_test.automation.batch_execute', value: 'BATCH'}
+  ],
+  props: {
+    multiple: true
+  }
+}
+
+export const UI_TRIGGER_MODE = {
+  key: "triggerMode",
+  name: 'MsTableSearchSelect',
+  label: 'commons.trigger_mode.name',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
     {label: "commons.trigger_mode.manual", value: "MANUAL"}
   ],
   props: {
@@ -629,9 +647,9 @@ export const CASE_DEMAND = {
   label: "test_track.related_requirements",
   operator: {
     options: [{
-        label: "test_track.demand.third_platform_demand",
-        value: "third_platform"
-      },
+      label: "test_track.demand.third_platform_demand",
+      value: "third_platform"
+    },
       {
         label: "test_track.demand.other_demand",
         value: "other_platform"
@@ -713,7 +731,7 @@ export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TR
 
 export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE, UI_MODULE_TREE];
+export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, UI_TRIGGER_MODE, UI_MODULE_TREE];
 
 // 测试跟踪-测试用例 列表
 export const TEST_CASE_CONFIGS = [ID, NAME, TAGS, TEST_CASE_MODULE_TREE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE, CASE_DEMAND];
