@@ -159,6 +159,10 @@ public class ApiDefinitionService {
     @Lazy
     @Resource
     private ProjectService projectService;
+    @Resource
+    private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
     private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -374,7 +378,6 @@ public class ApiDefinitionService {
             if (apiDefinitionSyncService != null) {
                 apiDefinitionSyncService.syncApi(request);
             }
-
         }
 
         ApiDefinitionWithBLOBs returnModel = updateTest(request);
@@ -390,7 +393,62 @@ public class ApiDefinitionService {
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        // 发送通知
+        String context = SessionUtils.getUserId() + "更新了接口定义:" + returnModel.getName();
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("projectId", request.getProjectId());
+        paramMap.put("operator", SessionUtils.getUserId());
+        paramMap.put("id", returnModel.getId());
+        paramMap.put("name", returnModel.getName());
+        paramMap.put("createUser", returnModel.getCreateUser());
+        paramMap.put("userId", returnModel.getUserId());
+        List<String> specialReceivers = new ArrayList<>();
+        this.getReceivers(request, returnModel, specialReceivers);
+        if (request.getSendSpecialMessage() != null && request.getSendSpecialMessage()) {
+            paramMap.put("specialReceivers", JSON.toJSONString(specialReceivers));
+            paramMap.put("apiSpecialType", "API_SPECIAL");
+        }
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(returnModel.getId())
+                .subject("接口更新通知")
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.UPDATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
         return getById(returnModel.getId());
+    }
+
+    private void getReceivers(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs returnModel, List<String> specialReceivers) {
+        if (request.getSendSpecialMessage() != null && request.getSendSpecialMessage()) {
+            if (request.getCaseCreator() != null && request.getCaseCreator()) {
+                ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+                apiTestCaseExample.createCriteria().andApiDefinitionIdEqualTo(returnModel.getId());
+                List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+                if (CollectionUtils.isNotEmpty(apiTestCases)) {
+                    for (ApiTestCase apiTestCase : apiTestCases) {
+                        specialReceivers.add(apiTestCase.getCreateUserId());
+                    }
+                }
+            }
+            if (request.getScenarioCreator() != null && request.getScenarioCreator()) {
+                ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
+                apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo("API").andReferenceIdEqualTo(returnModel.getId());
+                List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
+                if (CollectionUtils.isNotEmpty(apiScenarioReferenceIds)) {
+                    List<String> scenarioIds = apiScenarioReferenceIds.stream().map(ApiScenarioReferenceId::getApiScenarioId).collect(Collectors.toList());
+                    ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
+                    apiScenarioExample.createCriteria().andIdIn(scenarioIds);
+                    List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(apiScenarioExample);
+                    if (CollectionUtils.isNotEmpty(apiScenarios)) {
+                        for (ApiScenario apiScenario : apiScenarios) {
+                            specialReceivers.add(apiScenario.getCreateUser());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void checkQuota(String projectId) {

@@ -1252,6 +1252,9 @@ export default {
       check_select: "请勾选接口",
       api_project: "所属项目",
       one_click_sync: "一键同步",
+      change_notification: "变更通知",
+      recipient: "接受人",
+      recipient_tips: "当API发生变化时，关联的CASE创建人、自动化场景创建人会收到站内消息",
       select_comp: {
         no_data: "无数据",
         add_data: "去添加"
