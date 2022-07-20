@@ -1255,4 +1255,13 @@
         </foreach>
         GROUP BY parent_id
     </select>
+    <select id="getWorkspaceCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select tcn.id, count(*) as caseNum, test_case.project_id
+        from test_case_node tcn
+        inner join test_case on test_case.node_id = tcn.id
+        inner join project p on p.id = test_case.project_id
+        <include refid="queryWhereCondition"/>
+        and p.workspace_id = #{request.workspaceId}
+        group by test_case.node_id;
+    </select>
 </mapper>

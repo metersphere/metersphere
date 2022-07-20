@@ -3,6 +3,7 @@ import {success} from "@/common/js/message";
 import i18n from "@/i18n/i18n";
 import {basePost} from "@/network/base-network";
 import {baseGet} from "./base-network";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
 
 export const minderPageInfoMap = new Map();
 
@@ -97,7 +98,7 @@ export function getTestReviewCaseNodesByCaseFilter(reviewId, param, callback) {
 }
 
 export function getTestCasePublicNodes(param, callback) {
-  return basePost('/test/case/public/case/node', param, callback);
+  return basePost('/case/node/list/public/' + getCurrentWorkspaceId(), param, callback);
 }
 
 export function getRelationshipCase(id, relationshipType, callback) {
