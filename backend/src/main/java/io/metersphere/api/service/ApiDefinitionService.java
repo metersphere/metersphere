@@ -1411,13 +1411,17 @@ public class ApiDefinitionService {
         }
         APIReportResult reportResult = new APIReportResult();
         reportResult.setStatus(result.getStatus());
-        if (StringUtils.isNotEmpty(result.getEnvConfig())) {
+        String contentStr = result.getContent();
+        try {
             JSONObject content = JSONObject.parseObject(result.getContent());
-            content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
-            reportResult.setContent(content.toJSONString());
-        } else {
-            reportResult.setContent(result.getContent());
+            if (StringUtils.isNotEmpty(result.getEnvConfig())) {
+                content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+            }
+            contentStr = content.toString();
+        } catch (Exception e) {
+            LogUtil.error("解析content失败!", e);
         }
+        reportResult.setContent(contentStr);
         return reportResult;
     }
 
