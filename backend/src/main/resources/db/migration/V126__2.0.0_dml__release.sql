@@ -260,3 +260,12 @@ WHERE `type` = '';
 INSERT INTO attachment_module_relation SELECT case_id, 'test_case', file_id FROM test_case_file;
 -- 清空test_case_file表数据
 DELETE FROM test_case_file;
+
+
+--
+-- v2_init_permissions
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND', 'PROJECT_TRACK_CASE');
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_member', 'PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND', 'PROJECT_TRACK_CASE');
