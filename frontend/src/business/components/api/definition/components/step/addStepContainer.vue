@@ -74,7 +74,9 @@ export default {
       }
     },
     operateSubModel() {
-      this.$emit('update:operate', this.operateSubModel);
+      if (this.operateSubModel) {
+        this.$emit('update:operate', this.operateSubModel);
+      }
     }
   },
   methods: {
