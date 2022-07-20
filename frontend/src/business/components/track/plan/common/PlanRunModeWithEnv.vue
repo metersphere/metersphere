@@ -243,7 +243,8 @@
           resourcePoolId: null,
           envMap: new Map(),
           environmentGroupId: "",
-          environmentType: ENV_TYPE.JSON
+          environmentType: ENV_TYPE.JSON,
+          browser: "CHROME"
         };
         this.runModeVisible = false;
         this.$emit('close');
