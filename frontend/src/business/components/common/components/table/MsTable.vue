@@ -431,7 +431,7 @@ export default {
       if (this.rememberOrder) {
         saveLastTableSortField(this.fieldKey, JSON.stringify(this.condition.orders));
       }
-      this.$emit('order');
+      this.$emit('order', column);
       this.handleRefresh();
     },
     handleBatchEdit() {
