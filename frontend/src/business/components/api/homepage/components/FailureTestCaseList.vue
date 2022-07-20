@@ -35,10 +35,9 @@
       </el-table-column>
       <el-table-column prop="testPlan" :label="$t('api_test.home_page.failed_case_list.table_coloum.test_plan')">
         <template v-slot:default="{row}">
-          <div v-for="(testPlan, index) in row.testPlanDTOList" :key="index">
-            <el-link type="info" @click="redirect('testPlanEdit',testPlan.id)"
-                     v-if="testPlan.name === row.testPlan || row.caseType !== 'apiCase'">
-              {{ testPlan.name }};
+          <div>
+            <el-link type="info" @click="redirect('testPlanEdit',row.testPlanId)">
+              {{ row.testPlan }}
             </el-link>
           </div>
         </template>
