@@ -2,6 +2,7 @@ package io.metersphere.api.exec.api;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ApiCaseRunRequest;
+import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.RunModeConfigWithEnvironmentDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
@@ -234,6 +235,40 @@ public class ApiCaseExecuteService {
         return projectEnvMap;
     }
 
+    public Map<String, String> getEnvMap(ApiTestCaseWithBLOBs apiCase) {
+        Map<String, String> projectEnvMap = new HashMap<>();
+
+        JSONObject apiCaseNew = new JSONObject(apiCase.getRequest());
+        if (apiCaseNew.has("type") && "HTTPSamplerProxy".equals(apiCaseNew.getString("type"))) {
+            if (apiCaseNew.has("useEnvironment") && StringUtils.isNotEmpty(apiCaseNew.getString("useEnvironment"))) {
+                //记录运行环境ID
+                String envId = apiCaseNew.getString("useEnvironment");
+                projectEnvMap.put(apiCase.getProjectId(), envId);
+            }
+        }
+        if (apiCaseNew.has("type") && "JDBCSampler".equals(apiCaseNew.getString("type"))) {
+            if (apiCaseNew.has("useEnvironment") && apiCaseNew.has("dataSourceId")) {
+                String environmentId = apiCaseNew.getString("useEnvironment");
+                String dataSourceId = apiCaseNew.getString("dataSourceId");
+                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
+                EnvironmentConfig envConfig = null;
+                if (environment != null && environment.getConfig() != null) {
+                    envConfig = com.alibaba.fastjson.JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                        for (DatabaseConfig item : envConfig.getDatabaseConfigs()) {
+                            if (item.getId().equals(dataSourceId)) {
+                                //记录运行环境ID
+                                projectEnvMap.put(apiCase.getProjectId(), environmentId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return projectEnvMap;
+    }
+
     /**
      * 接口定义case执行
      *
@@ -321,7 +356,14 @@ public class ApiCaseExecuteService {
         if (!request.isRerun()) {
             for (int i = 0; i < caseList.size(); i++) {
                 ApiTestCaseWithBLOBs caseWithBLOBs = caseList.get(i);
-                ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, request.getConfig());
+
+                RunModeConfigDTO config = new RunModeConfigDTO();
+                BeanUtils.copyBean(config,request.getConfig());
+
+                if(StringUtils.equals(config.getEnvironmentType(), EnvironmentType.JSON.name()) && MapUtils.isEmpty(config.getEnvMap())){
+                    config.setEnvMap(this.getEnvMap(caseWithBLOBs));
+                }
+                ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, config);
                 report.setStatus(status);
                 report.setName(caseWithBLOBs.getName());
                 report.setProjectId(caseWithBLOBs.getProjectId());
