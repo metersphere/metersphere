@@ -8,11 +8,11 @@
               v-if="report.envGroupName || report.projectEnvMap" style="display:inline-block">
         <div>
           <div style="float: left">
-            {{$t('commons.environment') + ':'}}
+            {{ $t('commons.environment') + ':' }}
           </div>
           <div style="float: right">
             <div v-if="report.envGroupName" style="margin-left: 42px">
-              <ms-tag type="danger" :content="$t('commons.group')"></ms-tag>
+              <ms-tag type="danger" :content="$t('workspace.env_group.name')"></ms-tag>
               {{ report.envGroupName }}
             </div>
             <div v-else-if="report.projectEnvMap" style="margin-left: 42px">
