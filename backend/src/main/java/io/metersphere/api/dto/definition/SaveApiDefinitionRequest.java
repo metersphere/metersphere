@@ -74,4 +74,13 @@ public class SaveApiDefinitionRequest {
     //同步的内容
     private String triggerUpdate;
 
+    //是否发送特殊通知
+    private Boolean sendSpecialMessage;
+
+    //发送信息给case创建人
+    private Boolean caseCreator;
+
+    //发送信息给场景创建人
+    private Boolean scenarioCreator;
+
 }

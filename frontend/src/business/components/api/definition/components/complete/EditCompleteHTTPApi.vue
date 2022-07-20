@@ -191,8 +191,23 @@
         <span>{{ $t('workstation.batch_sync_api_tips') }}</span>
       </el-row>
       <span v-if="syncCases">{{ $t('workstation.sync') + $t('commons.setting') }}</span><br/>
-      <sync-settings v-if="syncCases" ref="synSetting"></sync-settings>
-
+      <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+        <sync-settings v-if="syncCases" ref="synSetting"></sync-settings>
+      </el-row>
+      <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+        <div class="timeClass">
+          <span>{{ $t('api_test.definition.change_notification') }}</span>
+          <el-switch v-model="specialReceivers"></el-switch>
+        </div>
+        <span>{{ $t('api_test.definition.recipient_tips') }}</span>
+        <el-row v-if="specialReceivers">
+          <el-col :span="4">{{ $t('api_test.definition.recipient') + ":" }}</el-col>
+          <el-col :span="20" style="color: #783887">
+            <el-checkbox v-model="caseCreator">{{ 'CASE' + $t('api_test.creator') }}</el-checkbox>
+            <el-checkbox v-model="scenarioCreator">{{ $t('commons.scenario') + $t('api_test.creator') }}</el-checkbox>
+          </el-col>
+        </el-row>
+      </el-row>
       <span slot="footer" class="dialog-footer">
         <el-button @click="batchSyncApiVisible = false">取 消</el-button>
         <el-button type="primary" @click="batchSync()">确 定</el-button>
@@ -290,6 +305,10 @@ export default {
       createNewVersionVisible: false,
       batchSyncApiVisible: false,
       syncCases: true,
+      specialReceivers: false,
+      caseCreator: false,
+      scenarioCreator: false
+
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -515,6 +534,15 @@ export default {
         if (this.$refs.synSetting && this.$refs.synSetting.fromData) {
           let fromData = this.$refs.synSetting.fromData;
           this.httpForm.triggerUpdate = JSON.stringify(fromData);
+        }
+        if (this.specialReceivers) {
+          this.httpForm.sendSpecialMessage = this.specialReceivers;
+        }
+        if (this.caseCreator) {
+          this.httpForm.caseCreator = this.caseCreator;
+        }
+        if (this.scenarioCreator) {
+          this.httpForm.scenarioCreator = this.scenarioCreator;
         }
         this.$emit('saveApi', this.httpForm);
       }
