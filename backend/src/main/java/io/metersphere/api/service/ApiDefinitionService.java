@@ -1338,15 +1338,17 @@ public class ApiDefinitionService {
         }
         ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             if (!request.getPlatform().equalsIgnoreCase("Swagger2")) {
+                this.sendFailMessage(request, project);
                 MSException.throwException("文件格式不符合要求");
             }
             if (!UrlTestUtils.testUrlWithTimeOut(request.getSwaggerUrl(), 30000)) {
+                this.sendFailMessage(request, project);
                 MSException.throwException(Translator.get("connection_timeout"));
             }
         }
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         if (StringUtils.equals(request.getType(), "schedule")) {
             request.setProtocol("HTTP");
         }
@@ -1356,6 +1358,8 @@ public class ApiDefinitionService {
                 apiImport.setMocks(new ArrayList<>());
             }
         } catch (Exception e) {
+            // 发送通知
+            this.sendFailMessage(request, project);
             LogUtil.error(e.getMessage(), e);
             String returnThrowException = e.getMessage();
             if (StringUtils.contains(returnThrowException, "模块树最大深度为")) {
@@ -1366,23 +1370,6 @@ public class ApiDefinitionService {
                 } else {
                     MSException.throwException(Translator.get("parse_data_error"));
                 }
-            }
-            // 发送通知
-            if (StringUtils.equals(request.getType(), "schedule")) {
-                String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
-                String context = request.getSwaggerUrl() + "导入失败";
-                Map<String, Object> paramMap = new HashMap<>();
-                paramMap.put("url", request.getSwaggerUrl());
-                paramMap.put("projectId", request.getProjectId());
-                NoticeModel noticeModel = NoticeModel.builder()
-                        .operator(project.getCreateUser())
-                        .context(context)
-                        .testId(scheduleId)
-                        .subject(Translator.get("swagger_url_scheduled_import_notification"))
-                        .paramMap(paramMap)
-                        .event(NoticeConstants.Event.IMPORT)
-                        .build();
-                noticeSendService.send(NoticeConstants.TaskType.SWAGGER_TASK, noticeModel);
             }
         }
         try {
@@ -1410,10 +1397,30 @@ public class ApiDefinitionService {
                 noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
             }
         } catch (Exception e) {
+            this.sendFailMessage(request, project);
             LogUtil.error(e);
             MSException.throwException(Translator.get("user_import_format_wrong"));
         }
         return apiImport;
+    }
+
+    private void sendFailMessage(ApiTestImportRequest request, Project project) {
+        if (StringUtils.equals(request.getType(), "schedule")) {
+            String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
+            String context = request.getSwaggerUrl() + "导入失败";
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("url", request.getSwaggerUrl());
+            paramMap.put("projectId", request.getProjectId());
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .operator(project.getCreateUser())
+                    .context(context)
+                    .testId(scheduleId)
+                    .subject(Translator.get("swagger_url_scheduled_import_notification"))
+                    .paramMap(paramMap)
+                    .event(NoticeConstants.Event.EXECUTE_FAILED)
+                    .build();
+            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
+        }
     }
 
     private void checkFileSuffixName(ApiTestImportRequest request, String suffixName) {
