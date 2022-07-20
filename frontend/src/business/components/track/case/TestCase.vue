@@ -7,6 +7,7 @@
         :total='total'
         :show-operator="true"
         :public-total="publicTotal"
+        :case-condition="condition"
         @refreshTable="refresh"
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
@@ -671,7 +672,7 @@ export default {
       if (this.publicEnable) {
         this.$refs.publicNodeTree.list(this.condition);
       } else if (!this.trashEnable) {
-        this.$refs.nodeTree.list(this.condition);
+        this.$refs.nodeTree.list();
       }
     },
     setTable(data) {

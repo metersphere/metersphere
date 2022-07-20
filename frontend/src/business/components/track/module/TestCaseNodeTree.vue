@@ -126,6 +126,7 @@ export default {
     showOperator: Boolean,
     total: Number,
     publicTotal: Number,
+    caseCondition: Object
   },
   watch: {
     treeNodes() {
@@ -181,9 +182,9 @@ export default {
       this.$emit('enablePublic', this.condition.publicEnable);
       this.$emit('toPublic', 'public');
     },
-    list(caseCondition) {
+    list() {
       if (this.projectId) {
-        this.result = getTestCaseNodesByCaseFilter(this.projectId, caseCondition, data => {
+        this.result = getTestCaseNodesByCaseFilter(this.projectId, this.caseCondition, data => {
           this.treeNodes = data;
           this.treeNodes.forEach(node => {
             node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
