@@ -137,6 +137,9 @@ public class TestCaseTemplateService extends TemplateBaseService {
                 template.setProjectId(customField.getProjectId());
                 testCaseTemplateMapper.insert(template);
 
+                projectService.updateCaseTemplate(global.getId(), template.getId(), customField.getProjectId());
+
+
                 List<CustomFieldTemplate> customFieldTemplate =
                         customFieldTemplateService.getSystemFieldCreateTemplate(customField, global.getId());
 
