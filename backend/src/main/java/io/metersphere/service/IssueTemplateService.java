@@ -144,6 +144,8 @@ public class IssueTemplateService extends TemplateBaseService {
                 template.setProjectId(customField.getProjectId());
                 issueTemplateMapper.insert(template);
 
+                projectService.updateIssueTemplate(global.getId(), template.getId(), customField.getProjectId());
+
                 List<CustomFieldTemplate> customFieldTemplate =
                         customFieldTemplateService.getSystemFieldCreateTemplate(customField, global.getId());
 
