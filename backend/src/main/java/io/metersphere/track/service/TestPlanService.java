@@ -430,7 +430,7 @@ public class TestPlanService {
             uiScenarioExecResults.forEach(item -> {
                 if (StringUtils.isNotBlank(item)) {
                     testPlan.setTested(testPlan.getTested() + 1);
-                    if (StringUtils.equals(item, "success")) {
+                    if (StringUtils.equals(item, "Success")) {
                         testPlan.setPassed(testPlan.getPassed() + 1);
                     }
                 }
