@@ -210,14 +210,14 @@ public class TestCaseController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, targetClass = TestCaseMapper.class,
             event = NoticeConstants.Event.CREATE, subject = "测试用例通知")
-    public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+    public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request) {
         if (StringUtils.isBlank(request.getId())) {
             //新增 后端生成 id
             request.setId(UUID.randomUUID().toString());
         } else {
             //复制，前端生成 id
         }
-        return testCaseService.refactorSave(request, files);
+        return testCaseService.add(request);
     }
 
     @PostMapping("/edit/order")
@@ -230,8 +230,8 @@ public class TestCaseController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.id)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
-    public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        return testCaseService.refactorEdit(request, files);
+    public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request) {
+        return testCaseService.edit(request);
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})

@@ -177,7 +177,7 @@
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
                          :min-width="120"
-                         :column-key="'custom' + field.id"
+                         :column-key="field.columnKey ? field.columnKey : 'custom' + field.id"
                          :prop="field.name">
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
@@ -679,6 +679,13 @@ export default {
             testCaseDefaultValue[item.name] = "";
           }
         }
+        if (item.name === '用例等级') {
+          item.columnKey = 'priority';
+        } else if (item.name === '责任人') {
+          item.columnKey = 'maintainer';
+        } else if (item.name === '用例状态') {
+          item.columnKey = 'status';
+        }
       });
       this.$store.commit('setTestCaseDefaultValue', testCaseDefaultValue);
     },
@@ -791,8 +798,6 @@ export default {
           this.condition.filters.review_status = ['UnPass'];
           break;
       }
-      this.condition.filters.priority = this.condition.filters['用例等级'];
-      this.condition.filters.status = this.condition.filters['用例状态'];
       if (this.trashEnable) {
         //支持回收站查询版本
         let versionIds = this.condition.filters.version_id;
