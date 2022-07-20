@@ -37,10 +37,7 @@
                   @blur="handleValueEdit(element)"
                   v-model="element.value"/>
         <span class="text-item" v-else-if="isKv">
-          <span v-if="element.system">
-             {{$t(element.text)}}
-          </span>
-          <span v-else>
+          <span>
              {{ (element.value && isKv ? '(' : '') + element.value + (element.value && isKv ? ')' : '')}}
           </span>
         </span>
