@@ -226,7 +226,7 @@ public class TestPlanReportService {
     }
 
     public TestPlanScheduleReportInfoDTO genTestPlanReportBySchedule(String planReportId, String planId, String userId, String triggerMode, RunModeConfigDTO runModeConfigDTO) {
-         TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
+        TestPlanReport testPlanReport = this.getTestPlanReport(planReportId);
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
         if (testPlanReport != null) {
             returnDTO.setTestPlanReport(testPlanReport);
@@ -305,11 +305,11 @@ public class TestPlanReportService {
                 try {
                     Map<String, String> envMap = JSONObject.parseObject(model.getEnvironment(), Map.class);
                     if (MapUtils.isNotEmpty(envMap)) {
-                        String envId = null;
-                        for (String envIdStr : envMap.values()) {
-                            envId = envIdStr;
+                        for (Map.Entry<String, String> entry : envMap.entrySet()) {
+                            String projectId = entry.getKey();
+                            String envIdStr = entry.getValue();
+                            runInfoDTO.putScenarioRunInfo(model.getId(), projectId, envIdStr);
                         }
-                        runInfoDTO.putScenarioRunInfo(model.getId(), model.getProjectId(), envId);
                     }
                 } catch (Exception ignore) {
                 }
@@ -991,10 +991,10 @@ public class TestPlanReportService {
             testPlanReportDTO.setRunMode(StringUtils.equalsIgnoreCase(runInfoDTO.getRunMode(), "serial") ? Translator.get("serial") : Translator.get("parallel"));
             Map<String, Set<String>> projectEnvMap = new LinkedHashMap<>();
             if (MapUtils.isNotEmpty(runInfoDTO.getApiCaseRunInfo())) {
-                this.setProjectEnvMap(projectEnvMap, runInfoDTO.getApiCaseRunInfo());
+                this.setApiCaseProjectEnvMap(projectEnvMap, runInfoDTO.getApiCaseRunInfo());
             }
             if (MapUtils.isNotEmpty(runInfoDTO.getScenarioRunInfo())) {
-                this.setProjectEnvMap(projectEnvMap, runInfoDTO.getScenarioRunInfo());
+                this.setScenarioProjectEnvMap(projectEnvMap, runInfoDTO.getScenarioRunInfo());
             }
             Map<String, List<String>> showProjectEnvMap = new LinkedHashMap<>();
             for (Map.Entry<String, Set<String>> entry : projectEnvMap.entrySet()) {
@@ -1012,7 +1012,33 @@ public class TestPlanReportService {
         }
     }
 
-    private void setProjectEnvMap(Map<String, Set<String>> projectEnvMap, Map<String, Map<String, String>> caseEnvironmentMap) {
+    private void setScenarioProjectEnvMap(Map<String, Set<String>> projectEnvMap, Map<String, Map<String, List<String>>> caseEnvironmentMap) {
+        if (projectEnvMap == null || caseEnvironmentMap == null) {
+            return;
+        }
+        for (Map<String, List<String>> map : caseEnvironmentMap.values()) {
+            if (MapUtils.isEmpty(map)) {
+                continue;
+            }
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                String projectId = entry.getKey();
+                List<String> envIdList = entry.getValue();
+                if (CollectionUtils.isNotEmpty(envIdList)) {
+                    envIdList.forEach(envId -> {
+                        if (projectEnvMap.containsKey(projectId)) {
+                            projectEnvMap.get(projectId).add(envId);
+                        } else {
+                            projectEnvMap.put(projectId, new LinkedHashSet<>() {{
+                                this.add(envId);
+                            }});
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private void setApiCaseProjectEnvMap(Map<String, Set<String>> projectEnvMap, Map<String, Map<String, String>> caseEnvironmentMap) {
         if (projectEnvMap == null || caseEnvironmentMap == null) {
             return;
         }
