@@ -76,6 +76,17 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
         // 处理 userIds 中包含的特殊值
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
+        //apiReceiver特殊处理
+        String apiSpecialType = (String) noticeModel.getParamMap().get("apiSpecialType");
+        if (apiSpecialType != null && apiSpecialType.equals("API_SPECIAL")) {
+            String specialReceivers = (String) noticeModel.getParamMap().get("specialReceivers");
+            JSONArray array = JSON.parseArray(specialReceivers);
+            if (CollectionUtils.isNotEmpty(array)) {
+                for (Object o : array) {
+                    noticeModel.getReceivers().add(new Receiver(o.toString(), NotificationConstants.Type.MENTIONED_ME.name()));
+                }
+            }
+        }
 
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
