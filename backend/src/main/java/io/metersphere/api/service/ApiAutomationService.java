@@ -270,6 +270,7 @@ public class ApiAutomationService {
             msScenario.setHashTree(new LinkedList<>());
             request.setScenarioDefinition(msScenario);
         }
+        request.setNewCreate(true);
         checkNameExist(request, false);
         int nextNum = getNextNum(request.getProjectId());
         if (StringUtils.isBlank(request.getCustomNum())) {
@@ -724,7 +725,7 @@ public class ApiAutomationService {
         } else {
             criteria.andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId());
         }
-        if (apiScenarioMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+        if (apiScenarioMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
             MSException.throwException(Translator.get("automation_versions_create"));
         }
         criteria.andVersionIdEqualTo(request.getVersionId());

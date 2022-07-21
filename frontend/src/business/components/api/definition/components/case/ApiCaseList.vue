@@ -419,27 +419,29 @@ export default {
       }
       if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
         apiCase.request = JSON.parse(apiCase.request);
-        if (!apiCase.request.body) {
-          apiCase.request.body = new Body();
-        }
-        if (!apiCase.request.headers) {
-          apiCase.request.headers = [];
-        }
-        if (!apiCase.request.rest) {
-          apiCase.request.rest = [];
-        }
-        if (!apiCase.request.arguments) {
-          apiCase.request.arguments = [
-            {
-              contentType: "text/plain",
-              enable: true,
-              file: false,
-              required: false,
-              type: "text",
-              urlEncode: false,
-              valid: false
-            }
-          ];
+        if (apiCase.request.protocol === 'HTTP') {
+          if (!apiCase.request.body) {
+            apiCase.request.body = new Body();
+          }
+          if (!apiCase.request.headers) {
+            apiCase.request.headers = [];
+          }
+          if (!apiCase.request.rest) {
+            apiCase.request.rest = [];
+          }
+          if (!apiCase.request.arguments) {
+            apiCase.request.arguments = [
+              {
+                contentType: "text/plain",
+                enable: true,
+                file: false,
+                required: false,
+                type: "text",
+                urlEncode: false,
+                valid: false
+              }
+            ];
+          }
         }
       }
       if (!apiCase.request.hashTree) {

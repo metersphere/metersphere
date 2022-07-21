@@ -676,49 +676,51 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
             item.caseTotal = parseInt(item.caseTotal);
-            if (!item.response) {
-              let response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
-              item.response = JSON.stringify(response);
-            }
-            if (item.response) {
-              item.response = JSON.parse(item.response);
-              if (!item.response.body) {
-                item.response.body = new Body();
+            if (item.protocol === 'HTTP') {
+              if (!item.response) {
+                let response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+                item.response = JSON.stringify(response);
               }
-              if (!item.response.headers) {
-                item.response.headers = [];
+              if (item.response) {
+                item.response = JSON.parse(item.response);
+                if (!item.response.body) {
+                  item.response.body = new Body();
+                }
+                if (!item.response.headers) {
+                  item.response.headers = [];
+                }
+                if (!item.response.statusCode) {
+                  item.response.statusCode = [];
+                }
+                item.response = JSON.stringify(item.response);
               }
-              if (!item.response.statusCode) {
-                item.response.statusCode = [];
+              //request
+              if (item.request) {
+                item.request = JSON.parse(item.request);
+                if (!item.request.body) {
+                  item.request.body = new Body();
+                }
+                if (!item.request.headers) {
+                  item.request.headers = [];
+                }
+                if (!item.request.rest) {
+                  item.request.rest = [];
+                }
+                if (!item.request.arguments) {
+                  item.request.arguments = [
+                    {
+                      contentType: "text/plain",
+                      enable: true,
+                      file: false,
+                      required: false,
+                      type: "text",
+                      urlEncode: false,
+                      valid: false
+                    }
+                  ];
+                }
+                item.request = JSON.stringify(item.request);
               }
-              item.response = JSON.stringify(item.response);
-            }
-            //request
-            if (item.request) {
-              item.request = JSON.parse(item.request);
-              if (!item.request.body) {
-                item.request.body = new Body();
-              }
-              if (!item.request.headers) {
-                item.request.headers = [];
-              }
-              if (!item.request.rest) {
-                item.request.rest = [];
-              }
-              if (!item.request.arguments) {
-                item.request.arguments = [
-                  {
-                    contentType: "text/plain",
-                    enable: true,
-                    file: false,
-                    required: false,
-                    type: "text",
-                    urlEncode: false,
-                    valid: false
-                  }
-                ];
-              }
-              item.request = JSON.stringify(item.request);
             }
           });
           this.$emit('getTrashApi');
