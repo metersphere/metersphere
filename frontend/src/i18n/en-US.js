@@ -1040,6 +1040,7 @@ export default {
     upload_tips: 'Drag files here, or <em> click to upload </em>',
     upload_type: 'Only JMX/CSV/JAR files can be uploaded',
     related_file_not_found: "No related test file found!",
+    delete_file_when_uploading: 'The current operation may interrupt the file being uploaded!',
     delete_file_confirm: 'Confirm delete file:',
     file_size_out_of_bounds: "File size out of bounds, file name: ",
     file_size_limit: "The number of files exceeds the limit！",

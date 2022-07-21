@@ -1043,6 +1043,7 @@ export default {
     upload_tips: '將文件拖到此處，或<em>點擊上傳</em>',
     upload_type: '只能上傳JMX/CSV/JAR文件',
     related_file_not_found: "未找到關聯的測試文件！",
+    delete_file_when_uploading: '當前操作可能會中斷正在上傳的文件!',
     delete_file_confirm: '確認刪除文件: ',
     file_size_limit: "文件個數超出限製！",
     file_size_out_of_bounds: "文件大小超出範圍, 文件名称: ",
