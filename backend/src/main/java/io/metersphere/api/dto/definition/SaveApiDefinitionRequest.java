@@ -82,5 +82,8 @@ public class SaveApiDefinitionRequest {
 
     //发送信息给场景创建人
     private Boolean scenarioCreator;
+    
+    //是否新建
+    private Boolean newCreate;
 
 }
