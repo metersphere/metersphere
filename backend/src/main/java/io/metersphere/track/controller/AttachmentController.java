@@ -48,6 +48,7 @@ public class AttachmentController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(fileOperationRequest.getName(), StandardCharsets.UTF_8) + "\"")
+                .contentLength(bytes.length)
                 .body(bytes);
     }
 
