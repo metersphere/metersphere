@@ -1207,7 +1207,9 @@ public class ApiDefinitionService {
         }
 
         if (!StringUtils.equals(apiDefinition.getTags(), existApi.getTags())) {
-            return true;
+            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), "") && existApi.getTags() != null && Objects.equals(existApi.getTags(), "")) {
+                return true;
+            }
         }
 
         if (!StringUtils.equals(existApi.getRemark(), apiDefinition.getRemark())) {
@@ -1218,8 +1220,53 @@ public class ApiDefinitionService {
             return true;
         }
 
-        if (!StringUtils.equals(existApi.getResponse(), apiDefinition.getResponse())) {
-            return true;
+        JsonNode exApiResponse = null;
+        JsonNode apiResponse = null;
+        try {
+            exApiResponse = objectMapper.readTree(existApi.getResponse());
+            apiResponse = objectMapper.readTree(apiDefinition.getResponse());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        if (exApiResponse == null || apiResponse == null) {
+            return false;
+        }
+
+        if (exApiResponse.get("headers") != null && apiResponse.get("headers") != null) {
+            if (!StringUtils.equals(exApiResponse.get("headers").toString(), apiResponse.get("headers").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("type") != null && apiResponse.get("type") != null) {
+            if (!StringUtils.equals(exApiResponse.get("type").toString(), apiResponse.get("type").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("name") != null && apiResponse.get("name") != null) {
+            if (!StringUtils.equals(exApiResponse.get("name").toString(), apiResponse.get("name").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("body") != null && apiResponse.get("body") != null) {
+            if (!StringUtils.equals(exApiResponse.get("body").toString(), apiResponse.get("body").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("statusCode") != null && apiResponse.get("statusCode") != null) {
+            if (!StringUtils.equals(exApiResponse.get("statusCode").toString(), apiResponse.get("statusCode").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("enable") != null && apiResponse.get("enable") != null) {
+            if (!StringUtils.equals(exApiResponse.get("enable").toString(), apiResponse.get("enable").toString())) {
+                return true;
+            }
         }
 
         JsonNode exApiRequest = null;
