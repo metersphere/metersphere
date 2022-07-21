@@ -269,8 +269,6 @@
 
     <select id="publicList" resultType="io.metersphere.track.dto.TestCaseDTO">
        select
-        project_version.name as versionName,
-        project_version.id as versionId,
         test_case.last_execute_result,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
@@ -278,20 +276,17 @@
             </foreach>
         </if>
         <if test="request.selectFields == null or request.selectFields.size() == 0">
-            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`, test_case.version_id,
             test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
             test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
             test_case.other_test_name, test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
+            test_case.custom_num, test_case.step_model, test_case.create_user,
             test_case.custom_fields,test_case.case_public ,
             project.workspace_id , project.name as projectName ,test_case.ref_id ,test_case.`order`
         </if>
-        from test_case left join user u on test_case.create_user=u.id
-        left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
-        project on test_case.project_id = project.id
-        left join project_version on project.id = project_version.project_id and project_version.id =
-        test_case.version_id
+        from test_case
+        inner join project on test_case.project_id = project.id and workspace_id = #{request.workspaceId}
         <include refid="queryPublicCaseWhere"></include>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
 
@@ -301,7 +296,8 @@
         select
         distinct test_case.project_id
         from test_case
-        <include refid="queryPublicCaseWhere"></include>
+        <include refid="queryPublicCaseWhere"/>
+        and test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
@@ -313,27 +309,27 @@
     <select id="getCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
         select tcn.id, count(*) as caseNum
         from test_case
-        inner join test_case_node tcn on test_case.node_id = tcn.id
+        left join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
-        group by test_case.node_id
+        group by tcn.id
     </select>
     <select id="getTestPlanRelateCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
         select tcn.id, count(*) as caseNum, test_case.project_id
         from test_case
         left join test_plan_test_case tptc on tptc.case_id = test_case.id and tptc.plan_id = #{request.planId}
-        inner join test_case_node tcn on test_case.node_id = tcn.id
+        left join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
         and tptc.case_id is null
-        group by test_case.node_id
+        group by tcn.id
     </select>
     <select id="getTestReviewRelateCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
         select tcn.id, count(*) as caseNum, test_case.project_id
         from test_case
         left join test_case_review_test_case tcrtc on tcrtc.case_id = test_case.id and tcrtc.review_id = #{request.reviewId}
-        inner join test_case_node tcn on test_case.node_id = tcn.id
+        left join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
         and tcrtc.case_id is null
-        group by test_case.node_id
+        group by tcn.id
     </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
         select load_test.id, load_test.name, load_test.project_id,'性能测试' as type, project_version.name as version_name
@@ -530,9 +526,6 @@
                 <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
                     #{nodeId}
                 </foreach>
-            </if>
-            <if test="request.workspaceId != null">
-                AND test_case.project_id in (select id from project where workspace_id=#{request.workspaceId})
             </if>
             and test_case.case_public = TRUE
             <include refid="filters"/>
@@ -1257,11 +1250,11 @@
     </select>
     <select id="getWorkspaceCountNodes" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
         select tcn.id, count(*) as caseNum, test_case.project_id
-        from test_case_node tcn
-        inner join test_case on test_case.node_id = tcn.id
+        from test_case
+        left join test_case_node tcn on test_case.node_id = tcn.id
         inner join project p on p.id = test_case.project_id
         <include refid="queryWhereCondition"/>
         and p.workspace_id = #{request.workspaceId}
-        group by test_case.node_id;
+        group by tcn.id;
     </select>
 </mapper>

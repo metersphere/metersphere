@@ -763,7 +763,14 @@ public class TestCaseService {
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
         }
+        if (StringUtils.isBlank(request.getWorkspaceId())) {
+            MSException.throwException("workspaceId could not be null!");
+        }
+        request.setProjectId(null);
         List<TestCaseDTO> returnList = extTestCaseMapper.publicList(request);
+        ServiceUtils.buildVersionInfo(returnList);
+        ServiceUtils.buildProjectInfo(returnList);
+        buildUserInfo(returnList);
         returnList = this.parseStatus(returnList);
         return returnList;
     }

@@ -144,16 +144,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return getNodeTreeByProjectId(projectId, new QueryTestCaseRequest());
     }
 
-    public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId, QueryTestCaseRequest request) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
-        request.setProjectId(projectId);
-        request.setUserId(SessionUtils.getUserId());
-        List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getCountNodes(request);
-        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
-        return getNodeTrees(testCaseNodes, getCountMap(countMNodes));
-    }
-
     private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
         Map<String, Integer> returnMap = new HashMap<>();
         for (Map<String, Object> map : moduleCountList) {
@@ -254,6 +244,16 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return list;
     }
 
+    public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId, QueryTestCaseRequest request) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId);
+        request.setProjectId(projectId);
+        request.setUserId(SessionUtils.getUserId());
+        List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getCountNodes(request);
+        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
+        return getNodeTrees(testCaseNodes, getCountMap(countMNodes));
+    }
+
     /**
      * 获取当前计划下
      * 有关联数据的节点
@@ -273,6 +273,13 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setWorkspaceId(workspaceId);
         request.setProjectId(null);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getWorkspaceCountNodes(request);
+        return getNodeTreeWithPruningTree(countModules);
+    }
+
+    public List<TestCaseNodeDTO> getTrashCaseNode(String projectId, QueryTestCaseRequest request) {
+        request.setProjectId(projectId);
+        List<TestCaseNodeDTO> countModules = extTestCaseMapper.getCountNodes(request);
+        countModules.forEach(item -> item.setProjectId(projectId));
         return getNodeTreeWithPruningTree(countModules);
     }
 
