@@ -622,7 +622,7 @@ public class ApiScenarioReportService {
 
         deleteScenarioReportResource(request.getId());
 
-        deleteApiDefinitionResult(report.getId());
+        deleteApiDefinitionResult(request.getId());
 
         // 补充逻辑，如果是集成报告则把零时报告全部删除
         if (report != null && StringUtils.isNotEmpty(report.getScenarioId())) {
