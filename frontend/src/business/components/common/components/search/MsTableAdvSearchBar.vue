@@ -11,7 +11,8 @@
                          @updateKey="changeSearchItemKey" :custom="condition.custom"/>
             </el-col>
             <el-col :span="2">
-              <i class="el-icon-close delete-icon" @click="remove(component)"></i>
+              <i class="el-icon-close delete-icon" @click="remove(component)"
+                 v-if="optional.components.length !== 1"></i>
             </el-col>
           </el-row>
         </div>
