@@ -683,9 +683,19 @@ export default {
         progress = 100;
         param.onSuccess(response);
         progressCallback({progress, status: 'success'});
+        self.cancelFileToken.forEach((token, index, array)=>{
+          if(token.name == file.name){
+            array.splice(token,1)
+          }
+        })
       }).catch(({error}) => { // 失败回调
         progress = 100;
         progressCallback({progress, status: 'error'});
+        self.cancelFileToken.forEach((token, index, array)=>{
+          if(token.name == file.name){
+            array.splice(token,1)
+          }
+        })
       })
     },
     showProgress(file, params) {
@@ -715,8 +725,9 @@ export default {
       }
     },
     handleDelete(file, index) {
-      this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
+      this.$alert((this.cancelFileToken.length > 0 ? this.$t('load_test.delete_file_when_uploading') + '<br/>': "") +  this.$t('load_test.delete_file_confirm') + file.name + "?", '', {
         confirmButtonText: this.$t('commons.confirm'),
+        dangerouslyUseHTMLString: true,
         callback: (action) => {
           if (action === 'confirm') {
             this._handleDelete(file, index);
@@ -725,6 +736,12 @@ export default {
       });
     },
     _handleDelete(file, index) {
+      // 中断所有正在上传的文件
+      if (this.cancelFileToken && this.cancelFileToken.length >= 1) {
+        this.cancelFileToken.forEach(cacelToken => {
+          cacelToken.cancelFunc();
+        })
+      }
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
       let data = {"belongId": this.issueId, "belongType": "issue"}
