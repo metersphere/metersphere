@@ -25,19 +25,35 @@
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
-        FROM api_definition_exec_result
-        WHERE resource_id IN (SELECT testCase.id
-                              FROM api_test_case testCase
-                              WHERE testCase.project_id = #{projectId})
-          and start_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+        FROM api_case_execution_info
+        WHERE source_id IN (
+            SELECT testCase.id
+            FROM api_test_case testCase
+            WHERE testCase.project_id = #{projectId}
+            UNION
+            SELECT id
+            FROM test_plan_api_case
+            WHERE api_case_id IN (SELECT testCase.id
+                                  FROM api_test_case testCase
+                                  WHERE testCase.project_id = #{projectId})
+        )
+          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
     <select id="countByTestCaseIDInProject" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
-        FROM api_definition_exec_result
-        WHERE resource_id IN (SELECT testCase.id
-                              FROM api_test_case testCase
-                              WHERE testCase.project_id = #{projectId})
+        FROM api_case_execution_info
+        WHERE source_id IN (
+            SELECT testCase.id
+            FROM api_test_case testCase
+            WHERE testCase.project_id = #{projectId}
+            UNION
+            SELECT id
+            FROM test_plan_api_case
+            WHERE api_case_id IN (SELECT testCase.id
+                                  FROM api_test_case testCase
+                                  WHERE testCase.project_id = #{projectId})
+        )
     </select>
 
     <select id="selectDistinctStatusByReportId" resultType="java.lang.String">
