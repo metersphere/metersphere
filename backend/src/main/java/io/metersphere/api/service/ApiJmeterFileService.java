@@ -80,6 +80,10 @@ public class ApiJmeterFileService {
                 detail = list.get(0);
             }
         }
+        if (detail != null) {
+            runRequest.setRetryEnable(detail.getRetryEnable());
+            runRequest.setRetryNum(detail.getRetryNumber());
+        }
         Map<String, String> envMap = new LinkedHashMap<>();
         if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
             envMap = JSON.parseObject(detail.getEvnMap(), Map.class);

@@ -5,7 +5,7 @@
     :before-close="handleClose"
     :visible.sync="visible"
     :with-header="false"
-    size="calc(100% - var(--asideWidth))"
+    size="100%"
     :modal-append-to-body="false"
     ref="drawer"
     >
