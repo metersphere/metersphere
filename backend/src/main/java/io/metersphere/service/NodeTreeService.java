@@ -158,6 +158,10 @@ public class NodeTreeService<T extends TreeNodeDTO> {
                 projectNode.setLabel(project.getName());
                 projectNode.setChildren(testCaseNodes);
                 projectNode.setCaseNum(testCaseNodes.stream().mapToInt(TreeNodeDTO::getCaseNum).sum());
+                if (countMap.get(null) != null) {
+                    // 如果模块删除了, 回收站中的用例归到项目模块下
+                    projectNode.setCaseNum(projectNode.getCaseNum() + countMap.get(null));
+                }
                 if (!org.springframework.util.CollectionUtils.isEmpty(testCaseNodes)) {
                     list.add(projectNode);
                 }

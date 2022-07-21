@@ -24,8 +24,16 @@
 
     <ms-aside-container v-if="showPublicNode">
       <test-case-public-node-tree
+        :case-condition="condition"
         @nodeSelectEvent="publicNodeChange"
         ref="publicNodeTree"/>
+    </ms-aside-container>
+
+    <ms-aside-container v-if="showTrashNode">
+      <test-case-trash-node-tree
+        :case-condition="condition"
+        @nodeSelectEvent="trashNodeChange"
+        ref="trashNodeTree"/>
     </ms-aside-container>
 
     <ms-main-container>
@@ -43,13 +51,12 @@
               :trash-enable="true"
               :current-version="currentTrashVersion"
               :version-enable="versionEnable"
-              @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
               @testCaseDetail="showTestCaseDetail"
               @getTrashList="getTrashList"
               @getPublicList="getPublicList"
-              @refresh="refresh"
+              @refresh="refreshTrashNode"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
               @search="refreshTreeByCaseFilter"
@@ -225,6 +232,7 @@ import {openMinderConfirm} from "@/business/components/track/common/minder/minde
 import TestCaseEditShow from "@/business/components/track/case/components/TestCaseEditShow";
 import {PROJECT_ID} from "@/common/js/constants";
 import TestCasePublicNodeTree from "@/business/components/track/module/TestCasePublicNodeTree";
+import TestCaseTrashNodeTree from "@/business/components/track/module/TestCaseTrashNodeTree";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./version/VersionSelect.vue") : {};
@@ -232,6 +240,7 @@ const VersionSelect = requireComponent.keys().length > 0 ? requireComponent("./v
 export default {
   name: "TestCase",
   components: {
+    TestCaseTrashNodeTree,
     TestCasePublicNodeTree,
     IsChangeConfirm,
     TestCaseMinder,
@@ -304,7 +313,7 @@ export default {
       this.init(to);
     },
     activeName(newVal, oldVal) {
-      this.isAsideHidden = this.activeName === 'default' || this.activeName === 'trash';
+      this.isAsideHidden = this.activeName === 'default';
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
@@ -319,8 +328,10 @@ export default {
     trashEnable() {
       if (this.trashEnable) {
         this.activeName = 'trash';
-      } else {
-        this.actciveName = 'default';
+        this.publicEnable = false;
+        this.$nextTick(() => {
+          this.$refs.trashNodeTree.list();
+        });
       }
     },
     publicEnable() {
@@ -329,8 +340,7 @@ export default {
         this.$nextTick(() => {
           this.$refs.publicNodeTree.list();
         });
-      } else {
-        this.activeName = 'default';
+        this.trashEnable = false;
       }
     },
     '$store.state.temWorkspaceId'() {
@@ -351,6 +361,9 @@ export default {
     },
     showPublicNode() {
       return this.activeName === 'public';
+    },
+    showTrashNode() {
+      return this.activeName === 'trash';
     },
     projectId() {
       return getCurrentProjectID();
@@ -473,6 +486,11 @@ export default {
         this.$nextTick(() => {
           this.publicEnable = true;
         })
+      } else if (tab.name === 'trash') {
+        this.trashEnable = false;
+        this.$nextTick(() => {
+          this.trashEnable = true;
+        })
       }
 
       setCurTabId(this, tab, 'testCaseEdit');
@@ -593,6 +611,11 @@ export default {
         this.$refs.testCasePublicList.initTableData(nodeIds);
       }
     },
+    trashNodeChange(node, nodeIds, pNodes) {
+      if (this.$refs.testCaseTrashList) {
+        this.$refs.testCaseTrashList.initTableData(nodeIds);
+      }
+    },
     increase(id) {
       this.$refs.nodeTree.increase(id);
     },
@@ -668,10 +691,15 @@ export default {
       }
       this.refreshAll(data);
     },
+    refreshTrashNode() {
+      this.$refs.trashNodeTree.list();
+    },
     refreshTreeByCaseFilter() {
       if (this.publicEnable) {
-        this.$refs.publicNodeTree.list(this.condition);
-      } else if (!this.trashEnable) {
+        this.$refs.publicNodeTree.list();
+      } else if (this.trashEnable) {
+        this.$refs.trashNodeTree.list();
+      } else {
         this.$refs.nodeTree.list();
       }
     },

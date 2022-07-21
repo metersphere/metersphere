@@ -79,6 +79,11 @@ public class TestCaseNodeController {
         return testCaseNodeService.getPublicCaseNode(workspaceId, request);
     }
 
+    @PostMapping("/list/trash/{projectId}")
+    public List<TestCaseNodeDTO> getTrashCaseNode(@PathVariable String projectId, @RequestBody QueryTestCaseRequest request) {
+        return testCaseNodeService.getTrashCaseNode(projectId, request);
+    }
+
     @PostMapping("/list/plan/relate")
     public List<TestCaseNodeDTO> getRelatePlanNodes(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkTestPlanOwner(request.getPlanId());
