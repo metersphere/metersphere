@@ -455,6 +455,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private JsonSchemaItem parseSchema(Schema schema, Set<String> refSet) {
         if (schema == null) return null;
+        if (StringUtils.isBlank(schema.get$ref()) && schema.getProperties() == null && refSet.isEmpty()) {
+            return null;
+        }
         JsonSchemaItem item = new JsonSchemaItem();
         if (schema.getRequired() != null) {
             item.setRequired(schema.getRequired());
@@ -477,16 +480,28 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (schema instanceof ObjectSchema) {
             item.setType("object");
             item.setProperties(parseSchemaProperties(schema, refSet));
+        } else if (schema instanceof StringSchema) {
+            item.setType("string");
+        } else if (schema instanceof IntegerSchema) {
+            item.setType("integer");
+        } else if (schema instanceof NumberSchema) {
+            item.setType("number");
+        } else if (schema instanceof BooleanSchema) {
+            item.setType("boolean");
         } else {
             return null;
         }
-
         if (schema.getExample() != null) {
             item.getMock().put("mock", schema.getExample());
         } else {
             item.getMock().put("mock", "");
         }
+
         item.setDescription(schema.getDescription());
+        item.setPattern(schema.getPattern());
+        item.setMaxLength(schema.getMaxLength());
+        item.setMinLength(schema.getMinLength());
+
         return item;
     }
 
