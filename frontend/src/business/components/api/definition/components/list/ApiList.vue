@@ -676,7 +676,7 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
             item.caseTotal = parseInt(item.caseTotal);
-            if (!item.response) {
+            if (!item.response || item.response === 'null') {
               let response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
               item.response = JSON.stringify(response);
             }
