@@ -76,8 +76,9 @@ public class ApiCaseExecuteService {
      * @return
      */
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
+        List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         if (CollectionUtils.isEmpty(request.getPlanIds())) {
-            return new LinkedList<>();
+            return responseDTOS;
         }
         if (request.getConfig() == null) {
             request.setConfig(new RunModeConfigDTO());
@@ -91,13 +92,15 @@ public class ApiCaseExecuteService {
         example.createCriteria().andIdIn(request.getPlanIds());
         example.setOrderByClause("`order` DESC");
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(planApiCases)) {
+            return responseDTOS;
+        }
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
         LoggerUtil.debug("查询到测试计划用例 " + planApiCases.size());
 
         Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = request.isRerun() ? request.getExecuteQueue() : new LinkedHashMap<>();
-        List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
         String status = request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
 
         // 查出用例
@@ -358,9 +361,9 @@ public class ApiCaseExecuteService {
                 ApiTestCaseWithBLOBs caseWithBLOBs = caseList.get(i);
 
                 RunModeConfigDTO config = new RunModeConfigDTO();
-                BeanUtils.copyBean(config,request.getConfig());
+                BeanUtils.copyBean(config, request.getConfig());
 
-                if(StringUtils.equals(config.getEnvironmentType(), EnvironmentType.JSON.name()) && MapUtils.isEmpty(config.getEnvMap())){
+                if (StringUtils.equals(config.getEnvironmentType(), EnvironmentType.JSON.name()) && MapUtils.isEmpty(config.getEnvMap())) {
                     config.setEnvMap(this.getEnvMap(caseWithBLOBs));
                 }
                 ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.initBase(caseWithBLOBs.getId(), APITestStatus.Running.name(), null, config);
