@@ -140,7 +140,7 @@ public class FileService {
         String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
         File parentFile = new File(uploadPath);
         if (!parentFile.exists()) {
-            parentFile.mkdir();
+            parentFile.mkdirs();
         }
         try (OutputStream os = new FileOutputStream(uploadPath + "/" + attachmentName)){
             InputStream in = new ByteArrayInputStream(bytes);
