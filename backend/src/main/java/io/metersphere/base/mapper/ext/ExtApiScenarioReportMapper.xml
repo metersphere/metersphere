@@ -350,9 +350,13 @@
     </select>
     <select id="countByProjectIdAndCreateInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber
-        FROM api_scenario_report
-        WHERE project_id = #{projectId}
-          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+        FROM scenario_execution_info
+        WHERE create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+          AND source_id in (
+            SELECT id
+            FROM api_scenario
+            WHERE project_id = #{projectId}
+        );
     </select>
 
     <select id="countByProjectIdAndCreateAndByScheduleInThisWeek" resultType="java.lang.Long">
@@ -364,7 +368,6 @@
                             WHERE project_id = #{projectId}
                               AND latest = 1)
           AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
-
     </select>
 
     <select id="countByProjectIdGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
@@ -461,7 +464,10 @@
         </foreach>
     </select>
     <select id="selectByProjectIdAndLessThanTime" resultType="java.lang.String">
-        select id from api_scenario_report where create_time &lt; #{time} and project_id = #{projectId}
+        select id
+        from api_scenario_report
+        where create_time &lt; #{time}
+          and project_id = #{projectId}
     </select>
 
 </mapper>
