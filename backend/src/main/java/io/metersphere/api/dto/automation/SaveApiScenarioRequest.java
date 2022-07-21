@@ -65,4 +65,6 @@ public class SaveApiScenarioRequest {
     private String environmentGroupId;
 
     private String versionId;
+
+    private Boolean newCreate;
 }
