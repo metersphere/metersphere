@@ -222,11 +222,13 @@ export default {
       const MsConvert = new Convert();
 
       if (this.body.format === 'JSON-SCHEMA') {
-        if (this.body.raw && !this.body.jsonSchema) {
-          this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
-        } else {
-          let data = MsConvert.format(JSON.parse(this.body.raw));
-          this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+        if (this.body.raw) {
+          if (!this.body.jsonSchema) {
+            this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+          } else {
+            let data = MsConvert.format(JSON.parse(this.body.raw));
+            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+          }
         }
       } else {
         if (this.body.jsonSchema) {
