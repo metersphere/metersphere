@@ -22,7 +22,11 @@ public class JsonSchemaItem {
     private Map<String, Object> mock;
     private Map<String, JsonSchemaItem> properties;
     private JsonSchemaItem additionalProperties;
-    private List<String> required ;
+    private List<String> required;
+    private String pattern;
+    private Integer maxLength;
+    private Integer minLength;
+
 
     @JSONField(name = "$schema")
     private String schema;
