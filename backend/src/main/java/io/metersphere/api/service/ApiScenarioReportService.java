@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.*;
@@ -36,6 +37,7 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -485,44 +487,56 @@ public class ApiScenarioReportService {
         if (scenario == null) {
             scenario = uiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
+        //场景模式，只更新场景
         if (scenario != null) {
-            if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
-                scenario.setLastResult(status);
-            } else {
-                scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
-            }
-
-            long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
-            scenario.setReportId(dto.getReportId());
-            int executeTimes = 0;
-            if (scenario.getExecuteTimes() != null) {
-                executeTimes = scenario.getExecuteTimes().intValue();
-            }
-            scenario.setExecuteTimes(executeTimes + 1);
-            // 针对 UI 调试类型的不需要更新
-            if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
-                    report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
-                return report;
-            }
-            uiScenarioMapper.updateByPrimaryKey(scenario);
+            ApiScenarioReport report1 = updateUiScenario(requestResults, dto, errorSize, status, report, scenario);
+            if (report1 != null) return report1;
         }
 
+        //测试计划模式 更新玩测试计划最新结果再更新场景
         TestPlanUiScenario testPlanUiScenario = testPlanUiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanUiScenario != null) {
             report.setScenarioId(testPlanUiScenario.getUiScenarioId());
             report.setEndTime(System.currentTimeMillis());
-            testPlanUiScenario.setLastResult(report.getStatus());
+            testPlanUiScenario.setLastResult(status);
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
             String passRate = new DecimalFormat("0%").format((float) successSize / requestResults.size());
             testPlanUiScenario.setPassRate(passRate);
-
             testPlanUiScenario.setReportId(report.getId());
             report.setEndTime(System.currentTimeMillis());
             testPlanUiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanUiScenarioMapper.updateByPrimaryKeySelective(testPlanUiScenario);
+            if(scenario == null){
+                scenario = uiScenarioMapper.selectByPrimaryKey(testPlanUiScenario.getUiScenarioId());
+            }
+            updateUiScenario(requestResults, dto, errorSize, status, report, scenario);
         }
         return report;
+    }
+
+    @Nullable
+    private ApiScenarioReport updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto, long errorSize, String status, ApiScenarioReport report, UiScenarioWithBLOBs scenario) {
+        if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
+            scenario.setLastResult(status);
+        } else {
+            scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+        }
+
+        long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
+        scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+        scenario.setReportId(dto.getReportId());
+        int executeTimes = 0;
+        if (scenario.getExecuteTimes() != null) {
+            executeTimes = scenario.getExecuteTimes().intValue();
+        }
+        scenario.setExecuteTimes(executeTimes + 1);
+        // 针对 UI 调试类型的不需要更新
+        if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
+                report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
+            return report;
+        }
+        uiScenarioMapper.updateByPrimaryKey(scenario);
+        return null;
     }
 
     public String getEnvironment(ApiScenarioWithBLOBs apiScenario) {
@@ -897,6 +911,12 @@ public class ApiScenarioReportService {
         return report;
     }
 
+    /**
+     * 返回正确的报告状态
+     *
+     * @param dto jmeter返回
+     * @return
+     */
     private String getStatus(ResultDTO dto) {
         if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey("REPORT_STATUS")) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
@@ -907,7 +927,15 @@ public class ApiScenarioReportService {
 
         long errorReportResultSize = dto.getRequestResults().stream().filter(requestResult ->
                 StringUtils.equalsIgnoreCase(requestResult.getStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())).count();
-
+        //类型为ui时的统计
+        if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
+            try {
+                errorSize = dto.getRequestResults().stream().filter(requestResult ->
+                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders()) && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")).count() > 0).count();
+            } catch (Exception e) {
+                errorSize = 1;
+            }
+        }
         String status = dto.getRequestResults().isEmpty() ? ExecuteResult.UN_EXECUTE.toString() : ScenarioStatus.Success.name();
         if (errorSize > 0) {
             status = ScenarioStatus.Error.name();
