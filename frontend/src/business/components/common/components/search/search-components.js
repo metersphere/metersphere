@@ -64,8 +64,18 @@ export const OPERATORS = {
   },
 }
 
-const MS_USER_OPTIONS = { // 获取当前项目的用户列表
+const MS_USER_OPTIONS = { // 获取当前工作空间的用户列表
   url: "/user/ws/current/member/list",
+  labelKey: "name",
+  valueKey: "id",
+  showLabel: option => {
+    return option.label + "(" + option.value + ")";
+  }
+}
+
+// 获取当前项目的用户列表
+const MS_PROJECT_USER_OPTIONS = { 
+  url: "/user/project/member/list",
   labelKey: "name",
   valueKey: "id",
   showLabel: option => {
@@ -284,6 +294,29 @@ export const CREATOR = {
     return operator !== OPERATORS.CURRENT_USER.value;
   }
 }
+
+// 创建人(仅当前项目)
+export const PROJECT_CREATOR = {
+  key: "creator",
+  name: 'MsTableSearchSelect',
+  label: 'api_test.creator',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: MS_PROJECT_USER_OPTIONS,
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+}
+
 // 执行人
 export const EXECUTOR = {
   key: "executor",
@@ -731,7 +764,7 @@ export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TR
 
 export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, UI_TRIGGER_MODE, UI_MODULE_TREE];
+export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, PROJECT_CREATOR, UI_TRIGGER_MODE, UI_MODULE_TREE];
 
 // 测试跟踪-测试用例 列表
 export const TEST_CASE_CONFIGS = [ID, NAME, TAGS, TEST_CASE_MODULE_TREE, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS, FOLLOW_PEOPLE, CASE_DEMAND];
