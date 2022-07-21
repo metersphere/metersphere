@@ -136,6 +136,7 @@ export default {
     },
     reset() {
       let source = this.condition.components;
+      console.log(source);
       this.optional.components.forEach((component, index) => {
         if (component.operator.value !== undefined) {
           let operator = _findByKey(source, component.key).operator.value;
