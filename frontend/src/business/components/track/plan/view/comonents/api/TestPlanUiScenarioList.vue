@@ -195,7 +195,7 @@
 <!--      @handleRunBatch="handleRunBatch"-->
 <!--      ref="runMode"/>-->
 
-    <ui-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ui-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :custom-run-mode="true"/>
 
     <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
