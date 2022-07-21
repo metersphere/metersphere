@@ -385,4 +385,17 @@
             and ${versionTable}.ref_id = #{request.refId}
         </if>
     </sql>
+
+    <select id="selectByIdsAndStatusIsNotTrash" resultType="io.metersphere.base.domain.TestPlanApiCase">
+        SELECT
+            plan.*
+        FROM
+            test_plan_api_case plan
+            INNER JOIN api_test_case api ON plan.api_case_id = api.id
+        WHERE
+            (api.`status` is null OR api.`status` != 'Trash') AND plan.id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
 </mapper>
