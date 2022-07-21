@@ -12,7 +12,6 @@ import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.dto.UserDTO;
-import io.metersphere.service.CustomFieldService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
@@ -112,7 +111,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             return description;
         }
 
-        String[] splitStrs = description.split("\\n\\n");
+        String[] splitStrs = description.split("\\n");
         for (int j = 0; j < splitStrs.length; j++) {
             String splitStr = splitStrs[j];
             if (StringUtils.isNotEmpty(splitStr)) {
@@ -220,13 +219,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         setUserConfig();
         Project project = getProject();
-        List<File> imageFiles = getImageFiles(issuesRequest);
-        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
 
+        JSONObject addJiraIssueParam = buildUpdateParam(issuesRequest, getIssueType(project.getIssueConfig()), project.getJiraKey());
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
 
-        // 上传附件
+        // 上传富文本中的图片作为附件
+        List<File> imageFiles = getImageFiles(issuesRequest);
         imageFiles.forEach(img -> jiraClientV2.uploadAttachment(result.getKey(), img));
 
         String status = getStatus(issues.getFields());
@@ -265,7 +264,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     private List<File> getImageFiles(IssuesUpdateRequest issuesRequest) {
         List<File> files = new ArrayList<>();
-        List<CustomFieldItemDTO> customFields = CustomFieldService.getCustomFields(issuesRequest.getCustomFields());
+        List<CustomFieldItemDTO> customFields = issuesRequest.getRequestFields();
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             if (StringUtils.isNotBlank(fieldName)) {
@@ -454,7 +453,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                 fields.put(fieldName, attr);
                             }
                         } else if (StringUtils.equalsAny(item.getType(), "richText")) {
-                            fields.put(fieldName, removeImage(item.getValue().toString()));
+                            fields.put(fieldName, parseRichTextImageUrlToJira(item.getValue().toString()));
                             if (fieldName.equals("description")) {
                                 issuesRequest.setDescription(item.getValue().toString());
                             }
@@ -474,6 +473,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
         Project project = getProject();
         JSONObject param = buildUpdateParam(request, getIssueType(project.getIssueConfig()), project.getJiraKey());
         jiraClientV2.updateIssue(request.getPlatformId(), JSONObject.toJSONString(param));
+
+        // 同步Jira富文本有关的附件
+        syncJiraRichTextAttachment(request);
 
         if (request.getTransitions() != null) {
             try {
@@ -882,5 +884,74 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 attachmentModuleRelationMapper.insert(attachmentModuleRelation);
             }
         }
+    }
+
+    public void syncJiraRichTextAttachment(IssuesUpdateRequest request) {
+        List<String> msFileNames = new ArrayList<String>();
+        List<String> jiraFileNames = new ArrayList<String>();
+        // 获得所有MS附件名称
+        AttachmentRequest attachmentRequest = new AttachmentRequest();
+        attachmentRequest.setBelongId(request.getId());
+        attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
+        List<FileAttachmentMetadata> fileAttachmentMetadata = attachmentService.listMetadata(attachmentRequest);
+        List<String> attachmentNames = fileAttachmentMetadata.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
+        msFileNames.addAll(attachmentNames);
+        // 获取富文本图片附件名称
+        List<CustomFieldItemDTO> richTexts = request.getRequestFields().stream().filter(item -> item.getType().equals("richText")).collect(Collectors.toList());
+        richTexts.forEach(richText -> {
+            String url = richText.getValue().toString();
+            if (url.contains("fileName")) {
+                // 本地上传的图片URL
+                msFileNames.add(url.substring(url.indexOf("=") + 1, url.lastIndexOf(")")));
+            } else if (url.contains("platform=Jira")) {
+                // Jira同步的图片URL
+                msFileNames.add(url.substring(url.indexOf("[") + 1, url.indexOf("]")));
+            }
+        });
+
+        // 获得所有Jira附件, 遍历删除MS中不存在的
+        JiraIssue jiraIssue = jiraClientV2.getIssues(request.getPlatformId());
+        JSONObject fields = jiraIssue.getFields();
+        JSONArray attachments = fields.getJSONArray("attachment");
+        if (!attachments.isEmpty() && attachments.size() > 0) {
+            for (int i = 0; i < attachments.size(); i++) {
+                JSONObject attachment = attachments.getJSONObject(i);
+                String filename = attachment.getString("filename");
+                jiraFileNames.add(filename);
+                if (!msFileNames.contains(filename)) {
+                    String fileId = attachment.getString("id");
+                    jiraClientV2.deleteAttachment(fileId);
+                }
+            }
+        }
+
+        // 上传富文本有关的新附件
+        List<File> imageFiles = getImageFiles(request);
+        imageFiles.forEach(img -> {
+            if (!jiraFileNames.contains(img.getName())) {
+                jiraClientV2.uploadAttachment(request.getPlatformId(), img);
+            }
+        });
+    }
+
+    private String parseRichTextImageUrlToJira(String parseRichText) {
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        if (StringUtils.isBlank(parseRichText)) {
+            return "";
+        }
+        Matcher matcher = Pattern.compile(regex).matcher(parseRichText);
+        while (matcher.find()) {
+            String msRichAttachmentUrl = matcher.group();
+            String filename = "";
+            if (msRichAttachmentUrl.contains("fileName")) {
+                // 本地上传的图片URL
+                filename = msRichAttachmentUrl.substring(msRichAttachmentUrl.indexOf("=") + 1, msRichAttachmentUrl.lastIndexOf(")"));
+            } else if (msRichAttachmentUrl.contains("platform=Jira")) {
+                // Jira同步的图片URL
+                filename = msRichAttachmentUrl.substring(msRichAttachmentUrl.indexOf("[") + 1, msRichAttachmentUrl.indexOf("]"));
+            }
+            parseRichText = parseRichText.replace(msRichAttachmentUrl, "\n!" + filename + "|width=1360,height=876!\n");
+        }
+        return parseRichText;
     }
 }
