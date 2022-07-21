@@ -527,14 +527,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         issues.forEach(item -> {
             try {
-                getUpdateIssue(item, jiraClientV2.getIssues(item.getPlatformId()));
+                JiraIssue jiraIssue = jiraClientV2.getIssues(item.getPlatformId());
+                getUpdateIssue(item, jiraIssue);
                 String customFields = item.getCustomFields();
                 // 把自定义字段存入新表
                 List<CustomFieldResource> customFieldResource = customFieldService.getCustomFieldResource(customFields);
                 customFieldMap.put(item.getId(), customFieldResource);
                 issuesMapper.updateByPrimaryKeySelective(item);
                 // 同步第三方平台附件
-                syncJiraIssueAttachments(item, jiraClientV2.getIssues(item.getPlatformId()));
+                syncJiraIssueAttachments(item, jiraIssue);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
                     // 标记成删除
@@ -874,14 +875,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
             String filename = attachment.getString("filename");
             if ((issue.getDescription() == null || !issue.getDescription().contains(filename))
                     && (issue.getCustomFields() == null || !issue.getCustomFields().contains(filename))) {
-                String id = attachment.getString("id");
-                byte[] content = jiraClientV2.getAttachmentContent(id);
-                FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
-                AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
-                attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
-                attachmentModuleRelation.setRelationId(issue.getId());
-                attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
-                attachmentModuleRelationMapper.insert(attachmentModuleRelation);
+                try {
+                    byte[] content = jiraClientV2.getAttachmentContent(attachment.getString("content"));
+                    FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
+                    AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
+                    attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
+                    attachmentModuleRelation.setRelationId(issue.getId());
+                    attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
+                    attachmentModuleRelationMapper.insert(attachmentModuleRelation);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
             }
         }
     }
