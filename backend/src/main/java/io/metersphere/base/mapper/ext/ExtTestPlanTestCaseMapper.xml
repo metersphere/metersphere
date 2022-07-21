@@ -552,9 +552,9 @@
         select tcn.id, count(*) as caseNum, test_case.project_id
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
-        inner join test_case_node tcn on test_case.node_id = tcn.id
+        left join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
-        group by test_case.node_id;
+        group by tcn.id;
     </select>
     <select id="getExecResultMapByPlanId" resultType="io.metersphere.track.dto.CountMapDTO">
         select status as `key`, count(*) as `value`
