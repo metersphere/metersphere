@@ -1,8 +1,8 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.response.Response;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -68,4 +68,7 @@ public class SaveApiDefinitionRequest {
     private boolean newVersionMock;
     // 复制的请求Id
     private String sourceId;
+
+    //是否新建
+    private Boolean newCreate;
 }

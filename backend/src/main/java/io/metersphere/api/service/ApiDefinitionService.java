@@ -340,6 +340,7 @@ public class ApiDefinitionService {
         } else {
             FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         }
+        request.setNewCreate(true);
         return createTest(request);
     }
 
@@ -541,7 +542,7 @@ public class ApiDefinitionService {
                     criteria.andModuleIdEqualTo(request.getModuleId());
                 }
                 criteria.andNameEqualTo(request.getName());
-                if (apiDefinitionMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+                if (apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
                     MSException.throwException(Translator.get("api_versions_create"));
                 }
                 criteria.andVersionIdEqualTo(request.getVersionId());
@@ -549,7 +550,7 @@ public class ApiDefinitionService {
                     MSException.throwException(Translator.get("api_definition_name_not_repeating") + " :" + Translator.get("api_definition_module") + ":" + request.getModulePath() + " ," + Translator.get("api_definition_name") + " :" + request.getName() + "-" + request.getPath());
                 }
             } else {
-                if (apiDefinitionMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+                if (apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
                     MSException.throwException(Translator.get("api_versions_create"));
                 }
                 criteria.andVersionIdEqualTo(request.getVersionId());
@@ -566,7 +567,7 @@ public class ApiDefinitionService {
             } else {
                 criteria.andModuleIdEqualTo(request.getModuleId());
             }
-            if (apiDefinitionMapper.countByExample(example) > 0 && StringUtils.isBlank(request.getId())) {
+            if (apiDefinitionMapper.countByExample(example) > 0 && request.getNewCreate() != null && request.getNewCreate()) {
                 MSException.throwException(Translator.get("api_versions_create"));
             }
             criteria.andVersionIdEqualTo(request.getVersionId());
