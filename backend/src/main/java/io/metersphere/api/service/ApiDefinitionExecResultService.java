@@ -98,6 +98,7 @@ public class ApiDefinitionExecResultService {
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
                 if (result != null) {
+                    result.setResourceId(dto.getTestId());
                     apiExecutionInfoService.insertExecutionInfo(result);
                     User user = null;
                     if (MapUtils.isNotEmpty(dto.getExtendedParameters())) {
@@ -111,7 +112,6 @@ public class ApiDefinitionExecResultService {
                         }
                     }
                     // 发送通知
-                    result.setResourceId(dto.getTestId());
                     LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
                     sendNotice(result, user);
                 }
@@ -344,7 +344,7 @@ public class ApiDefinitionExecResultService {
                         triggerMode = reportResult.getTriggerMode();
                     }
 
-                    if (MapUtils.isNotEmpty(expandDTO.getAttachInfoMap())) {
+                    if (StringUtils.isNotEmpty(expandDTO.getStatus())) {
                         status = expandDTO.getStatus();
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
@@ -425,6 +425,7 @@ public class ApiDefinitionExecResultService {
         try {
             startTime = DateUtils.getDayStartTime(startDay);
         } catch (Exception e) {
+            LogUtil.error("解析日期出错!", e);
         }
 
         if (startTime == null) {
