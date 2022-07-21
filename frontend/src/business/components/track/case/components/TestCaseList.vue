@@ -934,7 +934,7 @@ export default {
       param.ids = [testCase.id];
       param.projectId = getCurrentProjectID();
       this.$post('/test/case/reduction', param, () => {
-        this.$emit('refreshTable');
+        this.$emit('refresh');
         this.initTableData();
         this.$success(this.$t('commons.save_success'));
       });
@@ -959,7 +959,7 @@ export default {
     batchReduction() {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
       this.$post('/test/case/reduction', param, () => {
-        this.$emit('refreshTable');
+        this.$emit('refresh');
         this.initTableData();
         this.$success(this.$t('commons.save_success'));
       });
@@ -973,6 +973,7 @@ export default {
             this.$post('/test/case/batch/delete', param, () => {
               this.$refs.table.clear();
               this.$emit("refresh");
+              this.initTableData();
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -1007,6 +1008,7 @@ export default {
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
+        this.$emit('refresh');
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
         this.$emit('decrease', testCase.nodeId);

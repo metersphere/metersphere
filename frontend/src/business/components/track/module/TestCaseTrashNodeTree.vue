@@ -4,22 +4,22 @@
            local-suffix="test_case"
            default-label="未规划用例"
            @nodeSelectEvent="publicNodeChange"
-           :tree-nodes="publicTreeNodes"
-           ref="publicNodeTree"/>
+           :tree-nodes="trashTreeNodes"
+           ref="trashNodeTree"/>
 </template>
 
 <script>
 import MsNodeTree from "@/business/components/track/common/NodeTree";
-import {getTestCasePublicNodes} from "@/network/testCase";
+import {getTestCaseTrashNodes} from "@/network/testCase";
 export default {
-  name: "TestCasePublicNodeTree",
+  name: "TestCaseTrashNodeTree",
   components: {MsNodeTree},
   props: {
     caseCondition: Object
   },
   data() {
     return {
-      publicTreeNodes: [],
+      trashTreeNodes: [],
       result: {}
     }
   },
@@ -28,11 +28,11 @@ export default {
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
     },
     list() {
-      this.result = getTestCasePublicNodes(this.caseCondition, data => {
-        this.publicTreeNodes = data;
-        if (this.$refs.publicNodeTree) {
-          this.publicTreeNodes.forEach(firstLevel => {
-              this.$refs.publicNodeTree.nodeExpand(firstLevel);
+      this.result = getTestCaseTrashNodes(this.caseCondition, data => {
+        this.trashTreeNodes = data;
+        if (this.$refs.trashNodeTree) {
+          this.trashTreeNodes.forEach(firstLevel => {
+              this.$refs.trashNodeTree.nodeExpand(firstLevel);
           })
         }
       });
