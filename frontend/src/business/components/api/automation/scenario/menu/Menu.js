@@ -158,6 +158,7 @@ export function buttons(this_) {
 
 export function scenarioAssertion(data, node) {
   node.active = false;
+  node.scenarioAss = true;
   let needAdd = true;
   data.forEach(data => {
     if (data.type === "Assertions") {
