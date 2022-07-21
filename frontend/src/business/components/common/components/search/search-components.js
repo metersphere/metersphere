@@ -284,6 +284,35 @@ export const CREATOR = {
   }
 }
 
+//获取当前项目下的 用户
+export const PROJECT_CREATOR = {
+  key: "creator",
+  name: 'MsTableSearchSelect',
+  label: 'api_test.creator',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: { // 异步获取候选项
+    url: "/user/project/member/list",
+    labelKey: "name",
+    valueKey: "id",
+    showLabel: option => {
+      return option.label + "(" + option.value + ")";
+    }
+  },
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+}
+
 export const EXECUTOR = {
   key: "executor",
   name: 'MsTableSearchSelect',
@@ -580,7 +609,7 @@ export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TR
 
 export const REPORT_CASE_CONFIGS = [NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, CREATOR, TRIGGER_MODE];
+export const UI_REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, UI_REPORT_STATUS, PROJECT_CREATOR, TRIGGER_MODE];
 
 export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, UPDATE_TIME, CREATOR, CASE_REVIEW_STATUS];
 
