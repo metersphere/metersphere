@@ -205,7 +205,7 @@ public class TestPlanUiScenarioCaseService {
         request.setIds(scenarioIds);
         request.setReportId(testPlanScenarioRequest.getId());
         request.setScenarioTestPlanIdMap(scenarioPlanIdMap);
-        request.setRunMode(ApiRunMode.UI_SCENARIO.name());
+        request.setRunMode(ApiRunMode.UI_SCENARIO_PLAN.name());
         request.setId(testPlanScenarioRequest.getId());
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
