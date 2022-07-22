@@ -1224,6 +1224,16 @@ public class ApiDefinitionService {
 
         JsonNode exApiResponse = null;
         JsonNode apiResponse = null;
+
+        if (StringUtils.isBlank(apiDefinition.getResponse()) && StringUtils.isBlank(existApi.getResponse())) {
+            return false;
+        }
+        if (StringUtils.isBlank(apiDefinition.getResponse()) && StringUtils.isNotBlank(existApi.getResponse())) {
+            return false;
+        }
+        if (StringUtils.isNotBlank(apiDefinition.getResponse()) && StringUtils.isBlank(existApi.getResponse())) {
+            return false;
+        }
         try {
             exApiResponse = objectMapper.readTree(existApi.getResponse());
             apiResponse = objectMapper.readTree(apiDefinition.getResponse());
