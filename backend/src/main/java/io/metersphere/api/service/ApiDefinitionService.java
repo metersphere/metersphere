@@ -149,8 +149,8 @@ public class ApiDefinitionService {
     @Resource
     private ApiModuleService apiModuleService;
 
-    private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
-    private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
+    private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
+    private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -1059,11 +1059,9 @@ public class ApiDefinitionService {
             if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
                 return true;
             }
-
             if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
                 return true;
             }
-
         }
 
         if (!StringUtils.equals(apiDefinition.getCreateUser(), existApi.getCreateUser())) {
@@ -1091,14 +1089,8 @@ public class ApiDefinitionService {
         JsonNode exApiResponse = null;
         JsonNode apiResponse = null;
 
-        if (StringUtils.isBlank(apiDefinition.getResponse()) && StringUtils.isBlank(existApi.getResponse())) {
-            return false;
-        }
-        if (StringUtils.isBlank(apiDefinition.getResponse()) && StringUtils.isNotBlank(existApi.getResponse())) {
-            return false;
-        }
-        if (StringUtils.isNotBlank(apiDefinition.getResponse()) && StringUtils.isBlank(existApi.getResponse())) {
-            return false;
+        if (StringUtils.isBlank(apiDefinition.getResponse()) || StringUtils.isBlank(existApi.getResponse())) {
+            return !StringUtils.isBlank(apiDefinition.getResponse()) || !StringUtils.isBlank(existApi.getResponse());
         }
         try {
             exApiResponse = objectMapper.readTree(existApi.getResponse());
@@ -1108,7 +1100,7 @@ public class ApiDefinitionService {
         }
 
         if (exApiResponse == null || apiResponse == null) {
-            return false;
+            return exApiResponse != null || apiResponse != null;
         }
 
         if (exApiResponse.get("headers") != null && apiResponse.get("headers") != null) {
@@ -1157,8 +1149,9 @@ public class ApiDefinitionService {
         }
 
         if (exApiRequest == null || apiRequest == null) {
-            return false;
+            return exApiRequest != null || apiRequest != null;
         }
+
         if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
             if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
                 return true;
@@ -1178,9 +1171,7 @@ public class ApiDefinitionService {
         }
 
         if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
-            if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-                return true;
-            }
+            return !StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString());
         }
 
         return false;
@@ -1232,90 +1223,6 @@ public class ApiDefinitionService {
         tcpSampler.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(tcpSampler));
         return request;
-    }
-
-    private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession,
-                              ApiTestImportRequest request, ApiTestCaseMapper apiTestCaseMapper) {
-        List<ApiTestCaseWithBLOBs> cases = apiImport.getCases();
-        if (CollectionUtils.isNotEmpty(cases)) {
-            int batchCount = 0;
-            for (int i = 0; i < cases.size(); i++) {
-                ApiTestCaseWithBLOBs item = cases.get(i);
-                List<ApiDefinitionWithBLOBs> data = apiImport.getData();
-                List<ApiDefinitionWithBLOBs> collect = data.stream().filter(t -> t.getId().equals(item.getApiDefinitionId())).collect(Collectors.toList());
-                if (collect.isEmpty()) {
-                    continue;
-                }
-                insertOrUpdateImportCase(item, request, collect.get(0), apiTestCaseMapper);
-            }
-            if (batchCount % 300 == 0) {
-                sqlSession.flushStatements();
-            }
-        }
-    }
-
-    /**
-     * 导入是插件或者postman时创建用例
-     * postman考虑是否有前置脚本
-     */
-    private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest apiTestImportRequest, ApiTestCaseMapper apiTestCaseMapper) {
-        try {
-            if (StringUtils.equalsAnyIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Plugin.name(), ApiImportPlatform.Postman.name())) {
-                ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
-                BeanUtils.copyBean(apiTestCase, apiDefinition);
-                apiTestCase.setApiDefinitionId(apiDefinition.getId());
-                apiTestCase.setPriority("P0");
-                if (apiTestCase.getName().length() > 255) {
-                    apiTestCase.setName(apiTestCase.getName().substring(0, 255));
-                }
-                insertOrUpdateImportCase(apiTestCase, apiTestImportRequest, apiDefinition, apiTestCaseMapper);
-            }
-        } catch (Exception e) {
-            LogUtil.error("导入创建用例异常", e);
-        }
-    }
-
-    private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest, ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper) {
-        SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
-        if (apiTestCase.getName().length() > 255) {
-            apiTestCase.setName(apiTestCase.getName().substring(0, 255));
-            checkRequest.setName(apiTestCase.getName().substring(0, 255));
-        } else {
-            checkRequest.setName(apiTestCase.getName());
-        }
-        checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
-        checkRequest.setId(apiTestCase.getId());
-        ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
-        if (sameCase == null) {
-            sameCase = apiTestCaseService.getSameCaseById(checkRequest);
-        }
-        apiTestCase.setUpdateUserId(SessionUtils.getUserId());
-        if (sameCase == null) {
-            apiTestCase.setId(UUID.randomUUID().toString());
-            apiTestCase.setStatus("");
-            apiTestCase.setNum(apiTestCaseService.getNextNum(apiTestCase.getApiDefinitionId(), apiDefinition.getNum(), apiDefinition.getProjectId()));
-            apiTestCase.setCreateTime(System.currentTimeMillis());
-            apiTestCase.setUpdateTime(System.currentTimeMillis());
-            apiTestCase.setCreateUserId(SessionUtils.getUserId());
-            if (StringUtils.isEmpty(apiTestImportRequest.getProjectId())) {
-                apiTestCase.setProjectId(SessionUtils.getCurrentProjectId());
-            } else {
-                apiTestCase.setProjectId(apiTestImportRequest.getProjectId());
-            }
-            apiTestCase.setOrder(getImportNextCaseOrder(apiTestImportRequest.getProjectId()));
-            apiTestCaseMapper.insert(apiTestCase);
-        } else if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            apiTestCase.setId(sameCase.getId());
-            apiTestCase.setUpdateTime(System.currentTimeMillis());
-            apiTestCase.setCreateTime(null);
-            apiTestCase.setPriority(sameCase.getPriority());
-            apiTestCase.setCreateUserId(sameCase.getCreateUserId());
-            apiTestCase.setNum(sameCase.getNum());
-            apiTestCase.setOrder(sameCase.getOrder());
-            apiTestCase.setProjectId(sameCase.getProjectId());
-            apiTestCase.setVersion((sameCase.getVersion() == null ? 0 : sameCase.getVersion()) + 1);
-            apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
-        }
     }
 
     private void deleteFileByTestId(String apiId) {
@@ -1434,8 +1341,10 @@ public class ApiDefinitionService {
         //通过platform，获取对应的导入解析类型。
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
-            String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
-            checkFileSuffixName(request, suffixName);
+            if (StringUtils.isNotBlank(originalFilename)) {
+                String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
+                checkFileSuffixName(request, suffixName);
+            }
         }
         ApiImportParser runService = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
@@ -2189,19 +2098,16 @@ public class ApiDefinitionService {
             if (CollectionUtils.isNotEmpty(definitions)) {
                 List<DetailColumn> columns = new LinkedList<>();
                 if (StringUtils.isNotEmpty(request.getMethod())) {
-                    columns.clear();
                     definitions.forEach(item -> {
                         DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("method"), "method", item.getMethod(), null);
                         columns.add(column);
                     });
                 } else if (StringUtils.isNotEmpty(request.getStatus())) {
-                    columns.clear();
                     definitions.forEach(item -> {
                         DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", StatusReference.statusMap.get(item.getStatus()), null);
                         columns.add(column);
                     });
                 } else if (StringUtils.isNotEmpty(request.getUserId())) {
-                    columns.clear();
                     definitions.forEach(item -> {
                         DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
                         columns.add(column);
