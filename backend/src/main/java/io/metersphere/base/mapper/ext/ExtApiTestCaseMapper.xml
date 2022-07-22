@@ -629,8 +629,10 @@
         FROM api_test_case testCase
                  INNER JOIN api_definition apiDef ON testCase.api_definition_id = apiDef.id
         WHERE testCase.project_id = #{projectId}AND apiDef.status != "Trash"
-          AND testCase.create_time BETWEEN #{firstDayTimestamp}
-          AND #{lastDayTimestamp}
+          AND (testCase.create_time BETWEEN #{firstDayTimestamp}
+          AND #{lastDayTimestamp})
+          AND (testCase.status is null
+           or testCase.status != 'Trash')
           and latest = 1
     </select>
 

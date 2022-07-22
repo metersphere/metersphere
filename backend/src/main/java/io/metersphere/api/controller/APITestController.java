@@ -313,7 +313,10 @@ public class APITestController {
         long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId);
         long sourceIdCount = apiDefinitionService.countQuotedApiByProjectId(projectId);
         try {
-            if (sourceIdCount != 0) {
+            if (effectiveApiCount == 0) {
+                coverage.setCoverate(0);
+                coverage.setNotCoverate(0);
+            } else {
                 coverage.setCoverate(sourceIdCount);
                 coverage.setNotCoverate(effectiveApiCount - sourceIdCount);
                 float coverageRageNumber = (float) sourceIdCount * 100 / effectiveApiCount;
