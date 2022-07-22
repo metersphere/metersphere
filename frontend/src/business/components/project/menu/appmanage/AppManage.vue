@@ -205,14 +205,14 @@
             <el-row>
               <el-col :span="4">{{ $t('api_test.mock.base_info') + ":" }}</el-col>
               <el-col :span="20" style="color: #783887">
-                <el-checkbox v-model="apiSyncCaseRequest.protocol">{{
+                <el-checkbox v-model="apiSyncCaseRequest.protocol" disabled>{{
                     $t('api_report.request') + $t('api_test.request.protocol')
                   }}
                 </el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.method">
+                <el-checkbox v-model="apiSyncCaseRequest.method" disabled>
                   {{ $t('api_test.definition.document.request_method') + '\xa0\xa0\xa0\xa0\xa0' }}
                 </el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.path">{{ "URL" }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.path" disabled>{{ "URL" }}</el-checkbox>
               </el-col>
             </el-row>
             <el-row>
@@ -414,6 +414,9 @@ export default {
           unExecute: true
         }
       }
+      this.apiSyncCaseRequest.protocol = true;
+      this.apiSyncCaseRequest.method = true;
+      this.apiSyncCaseRequest.path = true;
     },
     setSyncTime() {
       this.showSyncTimeSetting = !this.showSyncTimeSetting;
