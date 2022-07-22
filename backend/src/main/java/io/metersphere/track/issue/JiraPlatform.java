@@ -862,31 +862,50 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     public void syncJiraIssueAttachments(IssuesWithBLOBs issue, JiraIssue jiraIssue) {
+        List<String> jiraAttachmentsName = new ArrayList<String>();
         AttachmentRequest request = new AttachmentRequest();
         request.setBelongType(AttachmentType.ISSUE.type());
         request.setBelongId(issue.getId());
-        attachmentService.deleteAttachment(request);
+        List<FileAttachmentMetadata> allMsAttachments = attachmentService.listMetadata(request);
+        List<String> msAttachmentsName = allMsAttachments.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
         JSONArray attachments = jiraIssue.getFields().getJSONArray("attachment");
-        if (CollectionUtils.isEmpty(attachments)) {
-            return;
-        }
-        for (int i = 0; i < attachments.size(); i++) {
-            JSONObject attachment = attachments.getJSONObject(i);
-            String filename = attachment.getString("filename");
-            if ((issue.getDescription() == null || !issue.getDescription().contains(filename))
-                    && (issue.getCustomFields() == null || !issue.getCustomFields().contains(filename))) {
-                try {
-                    byte[] content = jiraClientV2.getAttachmentContent(attachment.getString("content"));
-                    FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
-                    AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
-                    attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
-                    attachmentModuleRelation.setRelationId(issue.getId());
-                    attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
-                    attachmentModuleRelationMapper.insert(attachmentModuleRelation);
-                } catch (Exception e) {
-                    LogUtil.error(e);
+        // 同步Jira中新的附件
+        if (CollectionUtils.isNotEmpty(attachments)) {
+            for (int i = 0; i < attachments.size(); i++) {
+                JSONObject attachment = attachments.getJSONObject(i);
+                String filename = attachment.getString("filename");
+                jiraAttachmentsName.add(filename);
+                if ((issue.getDescription() == null || !issue.getDescription().contains(filename))
+                        && (issue.getCustomFields() == null || !issue.getCustomFields().contains(filename))
+                        && !msAttachmentsName.contains(filename)) {
+                    try {
+                        byte[] content = jiraClientV2.getAttachmentContent(attachment.getString("content"));
+                        FileAttachmentMetadata fileAttachmentMetadata = fileService.saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issue.getId(), filename);
+                        AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
+                        attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
+                        attachmentModuleRelation.setRelationId(issue.getId());
+                        attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
+                        attachmentModuleRelationMapper.insert(attachmentModuleRelation);
+                    } catch (Exception e) {
+                        LogUtil.error(e);
+                    }
                 }
             }
+        }
+
+        // 删除Jira中不存在的附件
+        if (CollectionUtils.isNotEmpty(allMsAttachments)) {
+            List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
+                    .filter(msAttachment -> !jiraAttachmentsName.contains(msAttachment.getName())).collect(Collectors.toList());
+            deleteMsAttachments.forEach(fileAttachmentMetadata -> {
+                List<String> ids = List.of(fileAttachmentMetadata.getId());
+                AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+                example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
+                // 删除MS附件及关联数据
+                fileService.deleteAttachment(ids);
+                fileService.deleteFileAttachmentByIds(ids);
+                attachmentModuleRelationMapper.deleteByExample(example);
+            });
         }
     }
 
