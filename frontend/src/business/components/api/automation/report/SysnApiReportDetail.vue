@@ -184,6 +184,18 @@ export default {
       }
       return type;
     },
+    margeTransaction(item, arr) {
+      arr.forEach(subItem => {
+        if (item.resId === subItem.resourceId) {
+          item.value = subItem;
+          item.testing = false;
+          item.debug = true;
+        }
+        if (subItem.subRequestResults && subItem.subRequestResults.length > 0) {
+          this.margeTransaction(item, subItem.subRequestResults);
+        }
+      })
+    },
     formatContent(hashTree, tree, fullPath, pid) {
       if (hashTree) {
         hashTree.forEach(item => {
@@ -367,6 +379,7 @@ export default {
         if(children && children.length > 0){
           let tempArr = new Array(children.length);
           let tempMap = new Map();
+
           for(let i = 0; i < children.length; i++){
             if(!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0){
               //若没有value或未执行的，则step留在当前位置
@@ -375,6 +388,7 @@ export default {
               tempMap.set(children[i].stepId, children[i])
             }
           }
+
           //过滤出还没有指定好位置的step
           let arr = children.filter(m => {
             return !tempMap.get(m.stepId);
@@ -382,6 +396,7 @@ export default {
             //按时间排序
             return m.value.startTime - n.value.startTime;
           });
+
           //找出arr(已经有序，从头取即可)中时间最小的插入 tempArr 可用位置
           for(let j = 0, i = 0; j < tempArr.length; j++){
             if(!tempArr[j]){
@@ -392,6 +407,7 @@ export default {
             //重新排序
             tempArr[j].index = j + 1;
           }
+
           //赋值
           item.children = tempArr;
         }
@@ -404,13 +420,7 @@ export default {
         } else if (resourceId && resourceId.startsWith("result_")) {
           let data = JSON.parse(resourceId.substring(7));
           if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-            data.subRequestResults.forEach(subItem => {
-              if (item.resId === subItem.resourceId) {
-                item.value = subItem;
-                item.testing = false;
-                item.debug = true;
-              }
-            })
+            this.margeTransaction(item, data.subRequestResults);
           } else if (item.resId === data.resourceId) {
             if (item.value && item.value.id && !item.mark) {
               let newItem = JSON.parse(JSON.stringify(item));
