@@ -569,6 +569,10 @@ export default {
       if (comp) {
         comp.options.params = {protocol: this.currentProtocol};
       }
+      let method = this.condition.components.find(c => c.key === 'method');
+      if (method) {
+        method.options = getProtocolFilter(this.currentProtocol);
+      }
     },
     getProtocolFilter() {
       this.methodFilters = getProtocolFilter(this.currentProtocol);
