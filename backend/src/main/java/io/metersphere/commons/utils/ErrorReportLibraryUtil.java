@@ -67,7 +67,7 @@ public class ErrorReportLibraryUtil {
                 }
 
                 //根据配置来筛选断言、获取误报编码、获取接口状态是否是误报
-                AssertionFilterResult filterResult = filterAssertions(passedErrorReportAssertionMap,successAssertionMessageMap,errorAssertionMessageMap,higherThanSuccess,higherThanError);
+                AssertionFilterResult filterResult = filterAssertions(passedErrorReportAssertionMap, successAssertionMessageMap, errorAssertionMessageMap, result.isSuccess(), higherThanSuccess, higherThanError);
                 int filteredSuccessAssertionCount = unMatchErrorReportAssertions.size() + filterResult.filteredSuccessAssertionList.size();
                 unMatchErrorReportAssertions.addAll(filterResult.filteredSuccessAssertionList);
                 unMatchErrorReportAssertions.addAll(filterResult.filteredErrorAssertionList);
@@ -112,13 +112,13 @@ public class ErrorReportLibraryUtil {
      * @param errorReportAssertionMap 匹配到的误报断言
      * @param successAssertionMap     匹配到的成功断言
      * @param errorAssertionMap       匹配到的失败断言
-     * @param higherThanSuccess        误报断言优先级小于成功断言优先级
+     * @param higherThanSuccess       误报断言优先级小于成功断言优先级
      * @param higherThanError         误报断言优先级大于成功断言优先级
      */
     private static AssertionFilterResult filterAssertions(Map<String, List<ResponseAssertionResult>> errorReportAssertionMap,
                                                           Map<String, List<ResponseAssertionResult>> successAssertionMap,
                                                           Map<String, List<ResponseAssertionResult>> errorAssertionMap,
-                                                          boolean higherThanSuccess, boolean higherThanError) {
+                                                          boolean resultIsSuccess, boolean higherThanSuccess, boolean higherThanError) {
         AssertionFilterResult result = new AssertionFilterResult();
         if (MapUtils.isNotEmpty(errorReportAssertionMap)) {
             List<ResponseAssertionResult> removedSuccessList = removeAssertions(errorReportAssertionMap, successAssertionMap, higherThanSuccess);
@@ -127,14 +127,14 @@ public class ErrorReportLibraryUtil {
             }
             List<ResponseAssertionResult> removedErrorList = removeAssertions(errorReportAssertionMap, errorAssertionMap, higherThanError);
             if (CollectionUtils.isNotEmpty(removedErrorList)) {
-                if(higherThanError){
+                if (higherThanError) {
                     result.filteredErrorAssertionList.addAll(removedErrorList);
-                }else {
+                } else {
                     result.filteredSuccessAssertionList.addAll(removedErrorList);
                 }
 
             }
-            for (List<ResponseAssertionResult> list: errorReportAssertionMap.values()) {
+            for (List<ResponseAssertionResult> list : errorReportAssertionMap.values()) {
                 list.forEach(item -> {
                     String assertionName = item.getName();
                     if (StringUtils.startsWith(assertionName, ERROR_REPORT_NAME_START)) {
@@ -144,14 +144,8 @@ public class ErrorReportLibraryUtil {
                 });
             }
 
-            if(MapUtils.isNotEmpty(errorReportAssertionMap)){
-                if (MapUtils.isNotEmpty(errorAssertionMap)) {
-                    if(higherThanError){
-                        result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
-                    }
-                }else if(higherThanSuccess){
-                    result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
-                }else if(MapUtils.isEmpty(successAssertionMap)){
+            if (MapUtils.isNotEmpty(errorReportAssertionMap)) {
+                if ((higherThanError && !resultIsSuccess) || (higherThanSuccess && resultIsSuccess)) {
                     result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
                 }
             }
@@ -161,26 +155,27 @@ public class ErrorReportLibraryUtil {
 
     /**
      * 将匹配的断言移除
-     * @param map1
-     * @param map2
-     * @param removeDataInMap2 是否移除map2中的数据？true:移除map2中的数据 false：移除map1中的数据
+     *
+     * @param firstMap
+     * @param secondMap
+     * @param removeDataInSecondMap 是否移除map2中的数据？true:移除map2中的数据 false：移除map1中的数据
      * @return
      */
-    private static List<ResponseAssertionResult> removeAssertions(Map<String, List<ResponseAssertionResult>> map1, Map<String, List<ResponseAssertionResult>> map2, boolean removeDataInMap2) {
+    private static List<ResponseAssertionResult> removeAssertions(Map<String, List<ResponseAssertionResult>> firstMap, Map<String, List<ResponseAssertionResult>> secondMap, boolean removeDataInSecondMap) {
         List<ResponseAssertionResult> returnList = new ArrayList<>();
-        if (MapUtils.isNotEmpty(map1) && MapUtils.isNotEmpty(map2)) {
-            if (removeDataInMap2) {
-                for (String regex : map1.keySet()) {
-                    if(map2.containsKey(regex)){
-                        returnList.addAll(map2.get(regex));
-                        map2.remove(regex);
+        if (MapUtils.isNotEmpty(firstMap) && MapUtils.isNotEmpty(secondMap)) {
+            if (removeDataInSecondMap) {
+                for (String regex : firstMap.keySet()) {
+                    if (secondMap.containsKey(regex)) {
+                        returnList.addAll(secondMap.get(regex));
+                        secondMap.remove(regex);
                     }
                 }
             } else {
-                for (String regex : map2.keySet()) {
-                    if(map1.containsKey(regex)){
-                        returnList.addAll(map1.get(regex));
-                        map1.remove(regex);
+                for (String regex : secondMap.keySet()) {
+                    if (firstMap.containsKey(regex)) {
+                        returnList.addAll(firstMap.get(regex));
+                        firstMap.remove(regex);
                     }
                 }
             }
@@ -190,13 +185,14 @@ public class ErrorReportLibraryUtil {
 
     /**
      * 解析并重新格式化请求中的所有断言
+     *
      * @param assertions
      * @return
      */
-    private static AssertionParserResult parserAndFormatAssertion(List<ResponseAssertionResult> assertions){
+    private static AssertionParserResult parserAndFormatAssertion(List<ResponseAssertionResult> assertions) {
         AssertionParserResult result = new AssertionParserResult();
         for (ResponseAssertionResult assertion : assertions) {
-            if (assertion instanceof ErrorReportAssertionResult || StringUtils.startsWith(assertion.getName(),ERROR_REPORT_NAME_START)) {
+            if (assertion instanceof ErrorReportAssertionResult || StringUtils.startsWith(assertion.getName(), ERROR_REPORT_NAME_START)) {
                 String expression = assertion.getContent().trim();
                 if (StringUtils.contains(expression, ASSERTION_CONTENT_REGEX_DELIMITER)) {
                     String[] contentArr = expression.split(ASSERTION_CONTENT_REGEX_DELIMITER);
