@@ -48,6 +48,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -288,7 +289,15 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                         samplerProxy.getBody().setRaw(v);
                     });
                     samplerProxy.getBody().initKvs();
-                } else if (StringUtils.isNotEmpty(bodyType) || (source.getMethod().equalsIgnoreCase("POST") && source.getArguments().getArgumentsAsMap().size() > 0)) {
+                } else if (source.getDoMultipart()) {
+                    samplerProxy.getBody().setType(Body.FORM_DATA);
+                    source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
+                        KeyValue keyValue = new KeyValue(k, v);
+                        samplerProxy.getBody().getKvs().add(keyValue);
+                    });
+                } else if (StringUtils.isNotEmpty(bodyType) ||
+                        (source.getMethod().equalsIgnoreCase("POST") &&
+                                MapUtils.isNotEmpty(source.getArguments().getArgumentsAsMap()))) {
                     samplerProxy.getBody().setType(Body.WWW_FROM);
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
                         KeyValue keyValue = new KeyValue(k, v);
@@ -762,7 +771,6 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 BeanUtils.copyBean(elementNode, key);
                 elementNode.setType("ConstantTimer");
             }
-            // IF条件控制器，这里平台方式和jmeter 不同，暂时不处理
             // 次数循环控制器
             else if (key instanceof LoopController) {
                 elementNode = new MsLoopController();
