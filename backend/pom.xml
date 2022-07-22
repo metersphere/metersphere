@@ -172,7 +172,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>ms-jmeter-core</artifactId>
-            <version>jmeter-5.5_2</version>
+            <version>${revision}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>netty</artifactId>
