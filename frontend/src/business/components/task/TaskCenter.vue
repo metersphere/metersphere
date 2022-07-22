@@ -81,7 +81,7 @@
           <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px;">
             <el-card class="ms-card-task" @click.native="showReport(item)">
               <span>
-                {{ getModeName(item.executionModule) }} : <el-link type="primary" class="ms-task-name-width"> {{
+                {{ getModeName(item) }} : <el-link type="primary" class="ms-task-name-width"> {{
                   item.name
                 }} </el-link>
               </span>
@@ -327,10 +327,14 @@ export default {
       }
       return true;
     },
-    getModeName(executionModule) {
-      switch (executionModule) {
+    getModeName(item) {
+      switch (item.executionModule) {
         case "SCENARIO":
-          return this.$t('test_track.scenario_test_case');
+          if (item.reportType !== "UI_INDEPENDENT") {
+            return this.$t('test_track.scenario_test_case');
+          } else {
+            return this.$t("test_track.ui_scenario_test_case");
+          }
         case "PERFORMANCE":
           return this.$t('test_track.performance_test_case');
         case "API":

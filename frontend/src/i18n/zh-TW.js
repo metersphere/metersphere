@@ -2064,6 +2064,7 @@ export default {
     ui_test_case: "UI 測試用例",
     performance_test_case: "性能測試用例",
     scenario_test_case: "場景測試用例",
+    ui_scenario_test_case: "UI 測試用例",
     report_statistics: "報告統計",
     sort: '種類',
     other_test_name: '其他測試名稱',
