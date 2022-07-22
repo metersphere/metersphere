@@ -31,6 +31,7 @@ import io.metersphere.service.ScenarioExecutionInfoService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.PlanReportCaseDTO;
+import io.metersphere.track.dto.UiRunModeConfigDTO;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xmind.utils.FileUtil;
 import org.apache.commons.beanutils.BeanMap;
@@ -907,7 +908,11 @@ public class ApiScenarioReportService {
         if (config != null) {
             report.setEnvConfig(JSON.toJSONString(config));
         }
-        report.setReportType(ReportTypeConstants.SCENARIO_INDEPENDENT.name());
+        if (config instanceof UiRunModeConfigDTO) {
+            report.setReportType(ReportTypeConstants.UI_INDEPENDENT.name());
+        } else {
+            report.setReportType(ReportTypeConstants.SCENARIO_INDEPENDENT.name());
+        }
         return report;
     }
 
