@@ -173,6 +173,7 @@
             :field="item"
             :filters="environmentsFilters"
             :fields-width="fieldsWidth"
+            min-width="100px"
             :label="$t('commons.environment')"
           >
           </ms-table-column>

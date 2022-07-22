@@ -40,7 +40,7 @@
                                     style="float: right;margin: 6px;font-size: 17px"/>
         </el-row>
         <el-row v-else
-                style="margin-top: 0px;position: fixed;float: right;margin-right: 0px;margin-left: 400px;top: 135px; right: 90px;">
+                style="margin-top: 0px;position: fixed;float: right;margin-right: 0px;margin-left: 400px;top: 90px; right: 40px;">
           <el-select size="small" :placeholder="$t('api_test.definition.document.order')"
                      v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
                      class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
