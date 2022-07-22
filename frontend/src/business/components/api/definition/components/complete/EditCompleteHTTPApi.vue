@@ -536,8 +536,14 @@ export default {
             if (this.httpForm.status !== this.beforeHttpForm.status) {
               this.batchSyncApiVisible = true;
             }
+            if (!this.beforeHttpForm.tags) {
+              this.beforeHttpForm.tags = [];
+            }
             if (this.httpForm.tags !== this.beforeHttpForm.tags) {
-              this.batchSyncApiVisible = true;
+              if (this.httpForm.tags.length !== this.beforeHttpForm.tags.length) {
+                this.batchSyncApiVisible = true;
+              }
+
             }
             let submitRequest = JSON.stringify(this.httpForm.request);
             let beforeRequest = JSON.stringify(this.beforeHttpForm.request);
