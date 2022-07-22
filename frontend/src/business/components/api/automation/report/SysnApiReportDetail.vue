@@ -5,28 +5,28 @@
         <section class="report-container">
           <div style="margin-top: 10px">
             <ms-api-report-view-header
-              :show-cancel-button="false"
-              :debug="debug"
-              :export-flag="exportFlag"
-              :report="report"
-              @reportExport="handleExport"
-              @reportSave="handleSave"/>
+                :show-cancel-button="false"
+                :debug="debug"
+                :export-flag="exportFlag"
+                :report="report"
+                @reportExport="handleExport"
+                @reportSave="handleSave"/>
           </div>
           <main>
             <ms-metric-chart
-              :content="content"
-              :totalTime="totalTime"
-              :report="report"
-              v-if="!loading"/>
+                :content="content"
+                :totalTime="totalTime"
+                :report="report"
+                v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
                   <ms-scenario-results
-                    :treeData="fullTreeNodes"
-                    :report="report"
-                    :default-expand="true"
-                    :console="content.console"
-                    v-on:requestResult="requestResult"
+                      :treeData="fullTreeNodes"
+                      :report="report"
+                      :default-expand="true"
+                      :console="content.console"
+                      v-on:requestResult="requestResult"
                   />
                 </el-tab-pane>
                 <el-tab-pane name="fail">
@@ -36,11 +36,11 @@
                     </span>
                   </template>
                   <ms-scenario-results
-                    :console="content.console"
-                    :report="report"
-                    :treeData="fullTreeNodes"
-                    v-on:requestResult="requestResult"
-                    ref="failsTree"
+                      :console="content.console"
+                      :report="report"
+                      :treeData="fullTreeNodes"
+                      v-on:requestResult="requestResult"
+                      ref="failsTree"
                   />
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
@@ -69,11 +69,11 @@
               </el-tabs>
             </div>
             <ms-api-report-export
-              :title="report.testName"
-              :content="content"
-              :total-time="totalTime"
-              id="apiTestReport"
-              v-if="reportExportVisible"
+                :title="report.testName"
+                :content="content"
+                :total-time="totalTime"
+                id="apiTestReport"
+                v-if="reportExportVisible"
             />
           </main>
         </section>
@@ -183,6 +183,18 @@ export default {
           return "条件控制器";
       }
       return type;
+    },
+    margeTransaction(item, arr) {
+      arr.forEach(subItem => {
+        if (item.resId === subItem.resourceId) {
+          item.value = subItem;
+          item.testing = false;
+          item.debug = true;
+        }
+        if (subItem.subRequestResults && subItem.subRequestResults.length > 0) {
+          this.margeTransaction(item, subItem.subRequestResults);
+        }
+      })
     },
     formatContent(hashTree, tree, fullPath, pid) {
       if (hashTree) {
@@ -309,7 +321,7 @@ export default {
         this.initHeartBeat();
       }
       this.messageWebSocket.onmessage = this.onMessage;
-      this.messageWebSocket.onerror  = this.cleanHeartBeat;
+      this.messageWebSocket.onerror = this.cleanHeartBeat;
     },
     getReport() {
       let url = "/api/scenario/report/get/" + this.reportId;
@@ -325,16 +337,16 @@ export default {
           this.content.success = (this.content.total - this.content.error - this.content.errorCode - this.content.unExecute);
           this.totalTime = this.content.totalTime;
           this.resetLabel(this.content.steps);
-          if(this.report.reportType === "UI_INDEPENDENT"){
+          if (this.report.reportType === "UI_INDEPENDENT") {
             this.tempResult = this.content.steps;
             //校对执行次序
-            try{
+            try {
               this.checkOrder(this.tempResult);
               this.fullTreeNodes = this.tempResult;
-            }catch(e){
+            } catch (e) {
               this.fullTreeNodes = this.content.steps;
             }
-          }else{
+          } else {
             this.fullTreeNodes = this.content.steps;
           }
           this.recursiveSorting(this.fullTreeNodes);
@@ -345,31 +357,31 @@ export default {
         }
       });
     },
-    checkOrder(origin){
-      if(!origin){
+    checkOrder(origin) {
+      if (!origin) {
         return;
       }
-      if(Array.isArray(origin)){
+      if (Array.isArray(origin)) {
         this.sortChildren(origin);
         origin.forEach(v => {
-          if(v.children){
+          if (v.children) {
             this.checkOrder(v.children)
           }
         })
       }
     },
-    sortChildren(source){
-      if(!source){
+    sortChildren(source) {
+      if (!source) {
         return;
       }
-      source.forEach( item =>{
+      source.forEach(item => {
         let children = item.children;
-        if(children && children.length > 0){
+        if (children && children.length > 0) {
           let tempArr = new Array(children.length);
           let tempMap = new Map();
 
-          for(let i = 0; i < children.length; i++){
-            if(!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0){
+          for (let i = 0; i < children.length; i++) {
+            if (!children[i].value || !children[i].value.startTime || children[i].value.startTime === 0) {
               //若没有value或未执行的，则step留在当前位置
               tempArr[i] = children[i];
               //进行标识
@@ -386,8 +398,8 @@ export default {
           });
 
           //找出arr(已经有序，从头取即可)中时间最小的插入 tempArr 可用位置
-          for(let j = 0, i = 0; j < tempArr.length; j++){
-            if(!tempArr[j]){
+          for (let j = 0, i = 0; j < tempArr.length; j++) {
+            if (!tempArr[j]) {
               //占位
               tempArr[j] = arr[i];
               i++;
@@ -408,13 +420,7 @@ export default {
         } else if (resourceId && resourceId.startsWith("result_")) {
           let data = JSON.parse(resourceId.substring(7));
           if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-            data.subRequestResults.forEach(subItem => {
-              if (item.resId === subItem.resourceId) {
-                item.value = subItem;
-                item.testing = false;
-                item.debug = true;
-              }
-            })
+            this.margeTransaction(item, data.subRequestResults);
           } else if (item.resId === data.resourceId) {
             if (item.value && item.value.id && !item.mark) {
               let newItem = JSON.parse(JSON.stringify(item));
@@ -505,7 +511,7 @@ export default {
         }
       }
     },
-    websocketKey(){
+    websocketKey() {
       return "ui_ws_" + this.reportId;
     },
     initHeartBeat() {

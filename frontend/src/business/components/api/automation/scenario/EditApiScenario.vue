@@ -932,21 +932,27 @@ export default {
         this.runningEditParent(node.parent);
       }
     },
+    margeTransaction(item, console, arr) {
+      arr.forEach(sub => {
+        if (item.data && item.data.id + "_" + item.data.parentIndex === sub.resourceId) {
+          sub.responseResult.console = console;
+          item.data.requestResult.push(sub);
+          // 更新父节点状态
+          this.resultEvaluation(sub.resourceId, sub.success);
+          item.data.testing = false;
+          item.data.debug = true;
+        }
+        if (sub.subRequestResults && sub.subRequestResults.length > 0) {
+          this.margeTransaction(item, console, sub.subRequestResults);
+        }
+      })
+    },
     runningNodeChild(arr, resultData) {
       arr.forEach(item => {
         if (resultData && resultData.startsWith("result_")) {
           let data = JSON.parse(resultData.substring(7));
           if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-            data.subRequestResults.forEach(subItem => {
-              if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
-                subItem.responseResult.console = data.responseResult.console;
-                item.data.requestResult.push(subItem);
-                // 更新父节点状态
-                this.resultEvaluation(subItem.resourceId, subItem.success);
-                item.data.testing = false;
-                item.data.debug = true;
-              }
-            })
+            this.margeTransaction(item, data.responseResult.console, data.subRequestResults);
           } else if ((item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId)
             || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
             if (item.data.requestResult) {
@@ -976,15 +982,7 @@ export default {
           } else if (resultData && resultData.startsWith("result_")) {
             let data = JSON.parse(resultData.substring(7));
             if (data.method === 'Request' && data.subRequestResults && data.subRequestResults.length > 0) {
-              data.subRequestResults.forEach(subItem => {
-                if (item.data && item.data.id + "_" + item.data.parentIndex === subItem.resourceId) {
-                  item.data.requestResult.push(subItem);
-                  // 更新父节点状态
-                  this.resultEvaluation(subItem.resourceId, subItem.success);
-                  item.data.testing = false;
-                  item.data.debug = true;
-                }
-              })
+              this.margeTransaction(item, data.responseResult.console, data.subRequestResults);
             } else if (item.data && item.data.id + "_" + item.data.parentIndex === data.resourceId
               || (item.data && item.data.resourceId + "_" + item.data.parentIndex === data.resourceId)) {
               item.data.requestResult.push(data);
