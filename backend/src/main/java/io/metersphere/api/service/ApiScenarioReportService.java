@@ -487,10 +487,10 @@ public class ApiScenarioReportService {
         if (scenario == null) {
             scenario = uiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
         }
-        //场景模式，只更新场景
+        //场景模式，只更新场景,调试的不更新直接返回
         if (scenario != null) {
-            ApiScenarioReport report1 = updateUiScenario(requestResults, dto, errorSize, status, report, scenario);
-            if (report1 != null) return report1;
+            boolean whetherUpdateScenario = updateUiScenario(requestResults, dto, errorSize, status, report, scenario);
+            if (!whetherUpdateScenario) return report;
         }
 
         //测试计划模式 更新玩测试计划最新结果再更新场景
@@ -515,7 +515,7 @@ public class ApiScenarioReportService {
     }
 
     @Nullable
-    private ApiScenarioReport updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto, long errorSize, String status, ApiScenarioReport report, UiScenarioWithBLOBs scenario) {
+    private boolean updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto, long errorSize, String status, ApiScenarioReport report, UiScenarioWithBLOBs scenario) {
         if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
             scenario.setLastResult(status);
         } else {
@@ -533,10 +533,10 @@ public class ApiScenarioReportService {
         // 针对 UI 调试类型的不需要更新
         if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
                 report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
-            return report;
+            return false;
         }
         uiScenarioMapper.updateByPrimaryKey(scenario);
-        return null;
+        return true;
     }
 
     public String getEnvironment(ApiScenarioWithBLOBs apiScenario) {
@@ -931,8 +931,13 @@ public class ApiScenarioReportService {
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
             try {
                 errorSize = dto.getRequestResults().stream().filter(requestResult ->
-                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders()) && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")).count() > 0).count();
+                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
+                                && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()) .stream().filter(
+                                r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
+                        ).count() > 0)
+                        .count();
             } catch (Exception e) {
+                // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
                 errorSize = 1;
             }
         }
