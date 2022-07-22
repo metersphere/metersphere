@@ -136,6 +136,7 @@ import BatchAddParameter from "../basis/BatchAddParameter";
 import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
 import MsConstantTimer from "../../../automation/scenario/component/ConstantTimer";
 import MsJdbcProcessor from "@/business/components/api/automation/scenario/component/JDBCProcessor";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "MsJmxStep",
@@ -457,18 +458,25 @@ export default {
     sort() {
       let index = 1;
       for (let i in this.request.hashTree) {
-        if (this.tabType === 'pre' && (this.request.hashTree[i].type === 'JSR223PreProcessor' ||
-          this.request.hashTree[i].type === 'JDBCPreProcessor' || this.request.hashTree[i].type === 'ConstantTimer')) {
-          this.request.hashTree[i].index = Number(index);
+        let step = this.request.hashTree[i];
+        if (this.tabType === 'pre' &&
+          (step.type === 'JSR223PreProcessor' ||
+            step.type === 'JDBCPreProcessor' || step.type === 'ConstantTimer')) {
+          step.index = Number(index);
           index++;
-        } else if (this.tabType === 'post' && (this.request.hashTree[i].type === 'JSR223PostProcessor' ||
-          this.request.hashTree[i].type === 'JDBCPostProcessor' ||
-          this.request.hashTree[i].type === 'Extract')) {
-          this.request.hashTree[i].index = Number(index);
+        } else if (this.tabType === 'post' &&
+          (step.type === 'JSR223PostProcessor' ||
+            step.type === 'JDBCPostProcessor' ||
+            step.type === 'Extract')) {
+          step.index = Number(index);
           index++;
-        } else if (this.tabType === 'assertionsRule' && this.request.hashTree[i].type === 'Assertions') {
-          this.request.hashTree[i].index = Number(index);
+        } else if (this.tabType === 'assertionsRule' && step.type === 'Assertions') {
+          step.index = Number(index);
           index++;
+        }
+        // 兼容历史数据
+        if (!step.clazzName) {
+          step.clazzName = TYPE_TO_C.get(step.type);
         }
       }
     },
