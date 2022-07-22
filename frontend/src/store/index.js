@@ -48,7 +48,8 @@ const state = {
   uiElementLibraryElements: null,
   refreshUiScenario: false,
   showLicenseCountWarning: false,
-  temWorkspaceId: null
+  temWorkspaceId: null,
+  fileDownloadList: [], // 文件下载进度列表
 }
 
 const store = new Vuex.Store({
