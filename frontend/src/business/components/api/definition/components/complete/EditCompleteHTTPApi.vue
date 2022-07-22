@@ -236,6 +236,7 @@ import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {getProjectMemberOption} from "@/network/user";
 import SyncSettings from "@/business/components/xpack/workstation/component/SyncSettings";
+import {deepClone} from "@/common/js/tableUtils";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
@@ -283,6 +284,8 @@ export default {
       },
       httpForm: {environmentId: "", path: "", tags: []},
       beforeHttpForm: {environmentId: "", path: "", tags: []},
+      beforeRequest: {},
+      beforeResponse: {},
       newData: {environmentId: "", path: "", tags: []},
       dialogVisible: false,
       isShowEnable: true,
@@ -538,20 +541,18 @@ export default {
             }
             if (!this.beforeHttpForm.tags) {
               this.beforeHttpForm.tags = [];
+              this.beforeHttpForm.tags = JSON.stringify(this.beforeHttpForm.tags)
             }
             if (this.httpForm.tags !== this.beforeHttpForm.tags) {
-              if (this.httpForm.tags.length !== this.beforeHttpForm.tags.length) {
-                this.batchSyncApiVisible = true;
-              }
-
-            }
-            let submitRequest = JSON.stringify(this.httpForm.request);
-            let beforeRequest = JSON.stringify(this.beforeHttpForm.request);
-            if (submitRequest !== beforeRequest) {
               this.batchSyncApiVisible = true;
             }
-            let submitResponse = JSON.stringify(this.httpForm.response);
-            let beforeResponse = JSON.stringify(this.beforeHttpForm.response);
+            let submitRequest = JSON.stringify(this.request);
+            let beforeRequestHeaders = JSON.stringify(this.beforeRequest);
+            if (submitRequest !== beforeRequestHeaders) {
+              this.batchSyncApiVisible = true;
+            }
+            let submitResponse = JSON.stringify(this.response);
+            let beforeResponse = JSON.stringify(this.response);
             if (submitResponse !== beforeResponse) {
               this.batchSyncApiVisible = true;
             }
@@ -849,7 +850,7 @@ export default {
           }
         }
       });
-    }
+    },
   },
 
   created() {
@@ -861,7 +862,10 @@ export default {
       this.basisData.moduleId = this.moduleOptions[0].id;
     }
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
-    this.beforeHttpForm = JSON.parse(JSON.stringify(this.basisData));
+    this.beforeHttpForm = deepClone(this.basisData);
+    this.beforeRequest = deepClone(this.request);
+    this.beforeResponse = deepClone(this.response);
+
     this.$get('/api/definition/follow/' + this.basisData.id, response => {
       this.httpForm.follows = response.data;
       this.beforeHttpForm.follows = response.data;
