@@ -10,6 +10,20 @@ pipeline {
         IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
     }
     stages {
+        stage('Preparation') {
+            steps {
+                script {
+                    REVISION = ""
+                    if (env.BRANCH_NAME.startsWith("v") ) {
+                        REVISION = env.BRANCH_NAME.substring(1)
+                    } else {
+                        REVISION = env.BRANCH_NAME
+                    }
+                    env.REVISION = "${REVISION}"
+                    echo "REVISION=${REVISION}"
+                }
+            }
+        }
         stage('Build/Test') {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
@@ -18,7 +32,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/mvnd/bin:$PATH
                         java -version
-                        mvnd clean package -Drevision=${BRANCH_NAME} -DskipAntRunForJenkins --settings ./settings.xml
+                        mvnd clean package -Drevision=${REVISION} -DskipAntRunForJenkins --settings ./settings.xml
                         mkdir -p backend/target/dependency && (cd backend/target/dependency; jar -xf ../*.jar)
                     '''
                 }
