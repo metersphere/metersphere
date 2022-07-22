@@ -99,7 +99,7 @@ export const UPDATE_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'commons.update_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 // 所属项目
@@ -135,7 +135,7 @@ export const CREATE_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'commons.create_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 // 报告状态
@@ -631,7 +631,7 @@ export const ACTUAL_START_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'test_track.plan.actual_start_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 // 测试计划 实际结束时间
@@ -640,7 +640,7 @@ export const ACTUAL_END_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'test_track.plan.actual_end_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 
@@ -650,7 +650,7 @@ export const PLAN_START_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'test_track.plan.planned_start_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 
@@ -660,7 +660,7 @@ export const PLAN_END_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'test_track.plan.planned_end_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 // 测试评审 截止时间
@@ -669,7 +669,7 @@ export const END_TIME = {
   name: 'MsTableSearchDateTimePicker',
   label: 'test_track.review.end_time',
   operator: {
-    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE, OPERATORS.EQ]
+    options: [OPERATORS.BETWEEN, OPERATORS.GT, OPERATORS.GE, OPERATORS.LT, OPERATORS.LE]
   },
 }
 
