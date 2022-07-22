@@ -1773,48 +1773,46 @@ public class ApiAutomationService {
      */
     public CoverageDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> allEffectiveApiList) {
         CoverageDTO coverage = new CoverageDTO();
-
-        if (MapUtils.isEmpty(scenarioUrlMap) || CollectionUtils.isEmpty(allEffectiveApiList)) {
+        if (CollectionUtils.isEmpty(allEffectiveApiList)) {
             return coverage;
         }
-
-        ProjectApplication urlRepeatableConfig = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
-        boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
-
-        int containsCount = 0;
-        for (ApiDefinition model : allEffectiveApiList) {
-            if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
-                Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
-                if (stepIdAndUrlMap != null) {
-                    if (isUrlRepeatable) {
-                        String url = stepIdAndUrlMap.get(model.getId());
-                        if (StringUtils.isNotEmpty(url)) {
-                            boolean matchedUrl = MockApiUtils.isUrlMatch(model.getPath(), url);
+        int urlContainsCount = 0;
+        if (MapUtils.isNotEmpty(scenarioUrlMap)) {
+            ProjectApplication urlRepeatableConfig = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
+            boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
+            for (ApiDefinition model : allEffectiveApiList) {
+                if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
+                    Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
+                    if (stepIdAndUrlMap != null) {
+                        if (isUrlRepeatable) {
+                            String url = stepIdAndUrlMap.get(model.getId());
+                            if (StringUtils.isNotEmpty(url)) {
+                                boolean urlMatched = MockApiUtils.isUrlMatch(model.getPath(), url);
+                                if (urlMatched) {
+                                    urlContainsCount++;
+                                }
+                            }
+                        } else {
+                            Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
+                            boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
                             if (matchedUrl) {
-                                containsCount++;
+                                urlContainsCount++;
                             }
                         }
-                    } else {
-                        Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
-                        boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
-                        if (matchedUrl) {
-                            containsCount++;
-                        }
                     }
-                }
-            } else {
-                Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");
-                if (stepIdAndUrlMap != null && stepIdAndUrlMap.containsKey(model.getId())) {
-                    containsCount++;
+                } else {
+                    Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");
+                    if (stepIdAndUrlMap != null && stepIdAndUrlMap.containsKey(model.getId())) {
+                        urlContainsCount++;
+                    }
                 }
             }
         }
-        coverage.setCoverate(containsCount);
-        coverage.setNotCoverate(allEffectiveApiList.size() - containsCount);
-        float coverageRageNumber = (float) containsCount * 100 / allEffectiveApiList.size();
+        coverage.setCoverate(urlContainsCount);
+        coverage.setNotCoverate(allEffectiveApiList.size() - urlContainsCount);
+        float coverageRageNumber = (float) urlContainsCount * 100 / allEffectiveApiList.size();
         DecimalFormat df = new DecimalFormat("0.0");
         coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
-
         return coverage;
     }
 
