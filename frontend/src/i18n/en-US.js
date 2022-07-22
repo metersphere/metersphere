@@ -2060,6 +2060,7 @@ export default {
     ui_test_case: "UI Case",
     performance_test_case: "Performance Case",
     scenario_test_case: "Scenario Case",
+    ui_scenario_test_case: "UI Scenario Case",
     report_statistics: "Report Statistics",
     sort: 'Sort',
     other_test_name: 'Other Test Name',
