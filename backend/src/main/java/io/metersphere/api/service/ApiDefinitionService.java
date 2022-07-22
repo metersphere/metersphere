@@ -404,8 +404,10 @@ public class ApiDefinitionService {
         paramMap.put("name", returnModel.getName());
         paramMap.put("createUser", returnModel.getCreateUser());
         paramMap.put("userId", returnModel.getUserId());
-        List<String> specialReceivers = new ArrayList<>();
-        this.getReceivers(request, returnModel, specialReceivers);
+        
+        Set<String> specialReceiversSet = new HashSet<>();
+        this.getReceivers(request, returnModel, specialReceiversSet);
+        List<String> specialReceivers = new ArrayList<>(specialReceiversSet);
         if (request.getSendSpecialMessage() != null && request.getSendSpecialMessage()) {
             paramMap.put("specialReceivers", JSON.toJSONString(specialReceivers));
             paramMap.put("apiSpecialType", "API_SPECIAL");
@@ -422,7 +424,7 @@ public class ApiDefinitionService {
         return getById(returnModel.getId());
     }
 
-    private void getReceivers(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs returnModel, List<String> specialReceivers) {
+    private void getReceivers(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs returnModel, Set<String> specialReceivers) {
         if (request.getSendSpecialMessage() != null && request.getSendSpecialMessage()) {
             if (request.getCaseCreator() != null && request.getCaseCreator()) {
                 ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
