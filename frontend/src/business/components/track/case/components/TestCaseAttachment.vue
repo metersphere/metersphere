@@ -76,7 +76,7 @@
 
 <script>
 import TestCaseFile from "@/business/components/track/case/components/TestCaseFile";
-import {Message} from "element-ui";
+import DownloadNotice from "@/business/components/notice/DownloadNotice";
 
 export default {
   name: "TestCaseAttachment",
@@ -96,6 +96,7 @@ export default {
       default: false
     }
   },
+  mixins: [DownloadNotice],
   data() {
     return {
       uploadProgressColor: '#d4f6d4',
@@ -116,33 +117,9 @@ export default {
       return fileType === 'JPG' || fileType === 'JPEG' || fileType === 'PDF' || fileType === 'PNG';
     },
     handleDownload(file) {
-      let data = {
+      this.$fileDownloadPost('/attachment/download', {
         name: file.name,
         id: file.id,
-      };
-      let config = {
-        url: '/attachment/download',
-        method: 'post',
-        data: data,
-        responseType: 'blob'
-      };
-      this.result = this.$request(config).then(response => {
-        const content = response.data;
-        const blob = new Blob([content]);
-        if ("download" in document.createElement("a")) {
-          // 非IE下载
-          //  chrome/firefox
-          let aTag = document.createElement('a');
-          aTag.download = file.name;
-          aTag.href = URL.createObjectURL(blob);
-          aTag.click();
-          URL.revokeObjectURL(aTag.href)
-        } else {
-          // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
-        }
-      }).catch(e => {
-        Message.error({message: e.message, showClose: true});
       });
     },
     handleDelete(file, index) {

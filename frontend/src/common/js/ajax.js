@@ -2,7 +2,7 @@ import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
 import i18n from '../../i18n/i18n';
 import {TokenKey} from "@/common/js/constants";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 
 export function registerRequestHeaders() {
   axios.interceptors.request.use(config => {
@@ -136,16 +136,7 @@ export function request(axiosRequestConfig, success, failure) {
   }
 }
 
-export function fileDownload(url) {
-  axios.get(url, {responseType: 'blob'})
-    .then(response => {
-      let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
-      let link = document.createElement("a");
-      link.href = window.URL.createObjectURL(new Blob([response.data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"}));
-      link.download = fileName;
-      link.click();
-    });
-}
+
 
 export function fileUpload(url, file, files, param, success, failure) {
   let formData = new FormData();
@@ -189,6 +180,41 @@ export function doDownload(content, fileName) {
   }
 }
 
+import jsFileDownload from 'js-file-download'
+import store from "@/store";
+import {error} from "@/common/js/message";
+export function downloadFile(method, url, data, fileName) {
+  let downProgress = {};
+  let id = getUUID();
+  let config = {
+    url: url,
+    method: method,
+    data: data,
+    responseType: 'blob',
+    headers: {"Content-Type": "application/json; charset=utf-8"},
+    onDownloadProgress(progress) {
+      // 计算出下载进度
+      downProgress = Math.round(100 * progress.loaded / progress.total);
+      // 下载进度存入 vuex
+      store.commit('setDownloadFile', {id, 'progress': downProgress});
+    }
+  };
+  axios.request(config)
+    .then((res) => {
+      fileName = fileName ? fileName : window.decodeURI(res.headers['content-disposition'].split('=')[1]);
+      jsFileDownload(res.data, fileName);
+  }).catch((e) => {
+    error(e.message);
+  })
+}
+
+export function fileDownload(url, fileName) {
+  downloadFile('get', url, null, fileName);
+}
+
+export function fileDownloadPost(url, data, fileName) {
+  downloadFile('post', url, data, fileName);
+}
 
 export function all(array, callback) {
   if (array.length < 1) return;
@@ -230,6 +256,8 @@ export default {
     Vue.prototype.$all = all;
 
     Vue.prototype.$fileDownload = fileDownload;
+
+    Vue.prototype.$fileDownloadPost = fileDownloadPost;
 
     Vue.prototype.$fileUpload = fileUpload;
 
