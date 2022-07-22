@@ -392,14 +392,16 @@ export default {
           if (this.config.openUpdateRuleTime) {
             this.pastUnit = this.config.openUpdateRuleTime.substring(this.config.openUpdateRuleTime.length - 1);
             this.pastQuantity = this.config.openUpdateRuleTime.substring(0, this.config.openUpdateRuleTime.length - 1);
-            this.showSyncTimeSetting = true;
+            if (this.config.openUpdateTime) {
+              this.showSyncTimeSetting = true;
+            }
           }
         }
       });
     },
     openRuleSetting() {
       this.showRuleSetting = true;
-      if (!this.apiSyncCaseRequest.protocol) {
+      if (!this.apiSyncCaseRequest) {
         this.apiSyncCaseRequest = {
           protocol: true,
           method: true,
@@ -426,13 +428,13 @@ export default {
           this.$message.error("请选择时间单位")
         }
         this.config.openUpdateRuleTime = this.pastQuantity + this.pastUnit;
-        configs.push({projectId: this.projectId, typeValue: 'true', type: 'OPEN_UPDATE_TIME'});
         configs.push({
           projectId: this.projectId,
           typeValue: this.config.openUpdateRuleTime,
           type: 'OPEN_UPDATE_RULE_TIME'
         });
       }
+      configs.push({projectId: this.projectId, typeValue: this.config.openUpdateTime, type: 'OPEN_UPDATE_TIME'});
       configs.push({
         projectId: this.projectId,
         typeValue: JSON.stringify(this.apiSyncCaseRequest),
