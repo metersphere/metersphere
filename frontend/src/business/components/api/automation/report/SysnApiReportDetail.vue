@@ -5,28 +5,29 @@
         <section class="report-container">
           <div style="margin-top: 10px">
             <ms-api-report-view-header
-                :show-cancel-button="false"
-                :debug="debug"
-                :export-flag="exportFlag"
-                :report="report"
-                @reportExport="handleExport"
-                @reportSave="handleSave"/>
+              :show-cancel-button="false"
+              :debug="debug"
+              :export-flag="exportFlag"
+              :report="report"
+              :project-env-map="projectEnvMap"
+              @reportExport="handleExport"
+              @reportSave="handleSave"/>
           </div>
           <main>
             <ms-metric-chart
-                :content="content"
-                :totalTime="totalTime"
-                :report="report"
-                v-if="!loading"/>
+              :content="content"
+              :totalTime="totalTime"
+              :report="report"
+              v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
                   <ms-scenario-results
-                      :treeData="fullTreeNodes"
-                      :report="report"
-                      :default-expand="true"
-                      :console="content.console"
-                      v-on:requestResult="requestResult"
+                    :treeData="fullTreeNodes"
+                    :report="report"
+                    :default-expand="true"
+                    :console="content.console"
+                    v-on:requestResult="requestResult"
                   />
                 </el-tab-pane>
                 <el-tab-pane name="fail">
@@ -36,11 +37,11 @@
                     </span>
                   </template>
                   <ms-scenario-results
-                      :console="content.console"
-                      :report="report"
-                      :treeData="fullTreeNodes"
-                      v-on:requestResult="requestResult"
-                      ref="failsTree"
+                    :console="content.console"
+                    :report="report"
+                    :treeData="fullTreeNodes"
+                    v-on:requestResult="requestResult"
+                    ref="failsTree"
                   />
                 </el-tab-pane>
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
@@ -52,7 +53,9 @@
                 </el-tab-pane>
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
                   <template slot="label">
-                    <span class="fail" style="color: #9C9B9A">{{ $t('api_test.home_page.detail_card.unexecute') }}</span>
+                    <span class="fail" style="color: #9C9B9A">{{
+                        $t('api_test.home_page.detail_card.unexecute')
+                      }}</span>
                   </template>
                   <ms-scenario-results v-on:requestResult="requestResult"
                                        :report="report"
@@ -69,11 +72,12 @@
               </el-tabs>
             </div>
             <ms-api-report-export
-                :title="report.testName"
-                :content="content"
-                :total-time="totalTime"
-                id="apiTestReport"
-                v-if="reportExportVisible"
+              :title="report.testName"
+              :content="content"
+              :total-time="totalTime"
+              :project-env-map="projectEnvMap"
+              id="apiTestReport"
+              v-if="reportExportVisible"
             />
           </main>
         </section>
@@ -93,9 +97,9 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
-import {KeyValue, RequestFactory} from "../../definition/model/ApiTestModel";
-import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
-import {ELEMENT_TYPE, STEP, TYPE_TO_C} from "../scenario/Setting";
+import {RequestFactory} from "../../definition/model/ApiTestModel";
+import {getCurrentProjectID, windowPrint} from "@/common/js/utils";
+import {STEP} from "../scenario/Setting";
 
 export default {
   name: "SysnApiReportDetail",
@@ -128,6 +132,7 @@ export default {
       websocket: {},
       stepFilter: new STEP,
       tempResult: [],
+      projectEnvMap: {},
     }
   },
   activated() {
@@ -160,7 +165,14 @@ export default {
   methods: {
     initTree() {
       this.fullTreeNodes = [];
-      let obj = {resId: "root", index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
+      let obj = {
+        resId: "root",
+        index: 1,
+        label: this.scenario.name,
+        value: {responseResult: {}, unexecute: true, testing: false},
+        children: [],
+        unsolicited: true
+      };
       this.formatContent(this.scenario.scenarioDefinition.hashTree, obj, "", "root");
       this.fullTreeNodes.push(obj);
     },
@@ -331,6 +343,9 @@ export default {
           this.content = JSON.parse(response.data.content);
           if (!this.content) {
             this.content = {scenarios: []};
+          }
+          if (this.content.projectEnvMap) {
+            this.projectEnvMap = this.content.projectEnvMap;
           }
           this.content.error = this.content.error;
 
