@@ -658,6 +658,15 @@
           AND status != 'Trash' AND latest = 1
     </select>
 
+    <select id="selectEffectiveIdByProjectIdAndHaveNotCase" resultType="io.metersphere.base.domain.ApiDefinition">
+        select id, path, method, protocol
+        from api_definition
+        WHERE project_id = #{0}
+          AND status != 'Trash' AND latest = 1
+            AND id NOT IN (select api_definition_id FROM api_test_case WHERE project_id = #{0}
+          AND (status IS NULL
+           or status != 'Trash'))
+    </select>
     <select id="moduleCount" resultType="java.lang.Integer">
         select count(id) from api_definition
         <include refid="queryWhereCondition"/>
@@ -955,22 +964,15 @@
         order by `order` desc limit 1;
     </select>
 
-    <select id="countQuotedApiByProjectId" resultType="java.lang.Long">
+    <select id="countApiByProjectIdAndHasCase" resultType="java.lang.Long">
         SELECT COUNT(id)
         FROM api_definition
         WHERE project_id = #{0}
           AND `status` != 'Trash'
-          AND (
-                    id IN (
-                    SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in (
-                        SELECT id FROM api_scenario WHERE  `status` is null or `status` != 'Trash'
-                    )
-                )
-                OR
+          AND
                     id IN (
                         SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
                     )
-            )
         AND latest = 1
     </select>
     <select id="getForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
