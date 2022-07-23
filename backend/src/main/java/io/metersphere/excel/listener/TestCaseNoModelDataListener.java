@@ -122,7 +122,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             //根据excel数据实体中的javax.validation + 正则表达式来校验excel数据
             errMsg = ExcelValidateHelper.validateEntity(testCaseExcelData);
             //自定义校验规则
-            errMsg = validate(testCaseExcelData, errMsg);
+            if (StringUtils.isEmpty(errMsg)) {
+                errMsg = validate(testCaseExcelData, errMsg);
+            }
         } catch (NoSuchFieldException e) {
             errMsg = Translator.get("parse_data_error");
             LogUtil.error(e.getMessage(), e);
