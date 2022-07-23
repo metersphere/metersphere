@@ -4,6 +4,7 @@
     :field="field"
     :filters="reviewStatusFilters"
     :min-width="minWidth"
+    :sortable="sortable"
     :fields-width="fieldsWidth"
     :label="$t('test_track.case.status')">
     <template v-slot:default="scope">
@@ -33,6 +34,12 @@ export default {
     field: {
       type: Object,
       default: null
+    },
+    sortable: {
+      type: [Boolean, String],
+      default() {
+        return false;
+      }
     },
   },
   data() {
