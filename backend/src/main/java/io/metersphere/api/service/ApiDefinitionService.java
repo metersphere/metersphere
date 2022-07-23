@@ -170,12 +170,6 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
-        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
-            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
-            if (toBeUpdatedTime != null) {
-                request.setToBeUpdateTime(toBeUpdatedTime);
-            }
-        }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {

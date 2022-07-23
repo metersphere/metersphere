@@ -252,7 +252,7 @@
 
     <el-dialog :visible.sync="batchSyncCaseVisible" :title="$t('commons.batch')+$t('workstation.sync')">
       <span>{{ $t('workstation.sync') + $t('commons.setting') }}</span><br/>
-      <sync-settings ref="synSetting"></sync-settings>
+      <sync-setting ref="synSetting"></sync-setting>
       <span style="color: red">{{ $t('workstation.batch_sync_api_tips') }}</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="batchSyncCaseVisible = false">取 消</el-button>
@@ -308,7 +308,7 @@ import {editApiTestCaseOrder} from "@/network/api";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import i18n from "@/i18n/i18n";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
-import SyncSettings from "@/business/components/xpack/workstation/component/SyncSettings";
+import SyncSetting from "@/business/components/api/definition/util/SyncSetting";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -336,7 +336,7 @@ export default {
     MsRequestResultTail,
     MsApiCaseRunModeWithEnv,
     MsSearch,
-    SyncSettings,
+    SyncSetting,
     PlanStatusTableItem: () => import("../../../../track/common/tableItems/plan/PlanStatusTableItem"),
     MsTaskCenter: () => import("@/business/components/task/TaskCenter"),
   },

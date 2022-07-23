@@ -13,10 +13,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
-import io.metersphere.api.service.ApiDefinitionService;
-import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.api.service.EsbApiParamService;
-import io.metersphere.api.service.EsbImportService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -51,6 +48,8 @@ public class ApiDefinitionController {
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
     private CheckPermissionService checkPermissionService;
     @Resource
     private EsbApiParamService esbApiParamService;
@@ -64,6 +63,12 @@ public class ApiDefinitionController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
+            Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
+            if (toBeUpdatedTime != null) {
+                request.setToBeUpdateTime(toBeUpdatedTime);
+            }
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
