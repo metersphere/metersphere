@@ -308,18 +308,28 @@ public class APITestController {
         CoverageDTO coverage = new CoverageDTO();
         /**
          * 接口覆盖率
-         * 接口有案例/被场景引用 ： 所有的接口
+         * 有案例的接口/没有案例确被场景引用  （apiHasCase + apiInScenario） ： 所有的接口（effectiveApiCount）
          */
         long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId);
-        long sourceIdCount = apiDefinitionService.countQuotedApiByProjectId(projectId);
+        long apiHasCase = apiDefinitionService.countApiByProjectIdAndHasCase(projectId);
+
+
+        /**
+         * 计算没有用例接口的覆盖数量
+         */
+        List<ApiDefinition> apiNoCaseList = apiDefinitionService.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
+        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId);
+        int apiInScenario = apiAutomationService.countApiInScenario(projectId, scenarioUrlList, apiNoCaseList);
+
         try {
             if (effectiveApiCount == 0) {
                 coverage.setCoverate(0);
                 coverage.setNotCoverate(0);
             } else {
-                coverage.setCoverate(sourceIdCount);
-                coverage.setNotCoverate(effectiveApiCount - sourceIdCount);
-                float coverageRageNumber = (float) sourceIdCount * 100 / effectiveApiCount;
+                long quotedApiCount = apiHasCase + apiInScenario;
+                coverage.setCoverate(quotedApiCount);
+                coverage.setNotCoverate(effectiveApiCount - quotedApiCount);
+                float coverageRageNumber = (float) quotedApiCount * 100 / effectiveApiCount;
                 DecimalFormat df = new DecimalFormat("0.0");
                 coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
             }

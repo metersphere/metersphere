@@ -2162,6 +2162,10 @@ public class ApiDefinitionService {
         return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
     }
 
+    public List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId) {
+        return extApiDefinitionMapper.selectEffectiveIdByProjectIdAndHaveNotCase(projectId);
+    }
+
     public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String baseUrlSuffix) {
         if (StringUtils.isEmpty(baseUrlSuffix)) {
             return new ArrayList<>();
@@ -2372,8 +2376,8 @@ public class ApiDefinitionService {
         }
     }
 
-    public long countQuotedApiByProjectId(String projectId) {
-        return extApiDefinitionMapper.countQuotedApiByProjectId(projectId);
+    public long countApiByProjectIdAndHasCase(String projectId) {
+        return extApiDefinitionMapper.countApiByProjectIdAndHasCase(projectId);
     }
 
     public int getRelationshipCount(String id) {
