@@ -74,9 +74,11 @@
         </template>
       </ms-table-column>
 
-      <test-plan-case-status-table-item prop="lastExecuteResult"/>
+      <test-plan-case-status-table-item
+        sortable
+        prop="lastExecuteResult"/>
 
-      <test-case-review-status-table-item/>
+      <test-case-review-status-table-item sortable/>
 
       <ms-table-column prop="tags" :label="$t('commons.tag')" width="90px">
         <template v-slot:default="scope">
