@@ -827,7 +827,7 @@ public class ApiTestCaseService {
         }
     }
 
-    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol, Boolean toBeUpdated) {
+    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol, Boolean toBeUpdated, ApiSyncCaseRequest apiSyncCaseRequest) {
         if ((StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path) && RequestType.HTTP.equals(protocol))) {
             ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
             apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
@@ -858,7 +858,16 @@ public class ApiTestCaseService {
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
                 if (toBeUpdated != null) {
-                    apiTestCase.setToBeUpdated(toBeUpdated);
+                    if (apiSyncCaseRequest.getUnRun() != null && apiSyncCaseRequest.getUnRun() && apiTestCase.getStatus() != null && !apiTestCase.getStatus().equalsIgnoreCase("Trash")
+                            && !apiTestCase.getStatus().equalsIgnoreCase("success") && !apiTestCase.getStatus().equalsIgnoreCase("error")
+                            && !apiTestCase.getStatus().equalsIgnoreCase("Running") && !apiTestCase.getStatus().equalsIgnoreCase("errorReportResult")
+                            && !apiTestCase.getStatus().equalsIgnoreCase("STOP")) {
+
+                        apiTestCase.setToBeUpdated(true);
+
+                    } else
+                        apiTestCase.setToBeUpdated(apiSyncCaseRequest.getRunError() != null && apiSyncCaseRequest.getRunError() && apiTestCase.getStatus() != null && !apiTestCase.getStatus().equalsIgnoreCase("Trash")
+                                && !apiTestCase.getStatus().equalsIgnoreCase("error"));
                     if (toBeUpdated) {
                         apiTestCase.setToBeUpdateTime(System.currentTimeMillis());
                     }

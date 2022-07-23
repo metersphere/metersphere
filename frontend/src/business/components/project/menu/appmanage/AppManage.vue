@@ -234,8 +234,8 @@
             <el-row>
               <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
               <el-col :span="20" style="color: #783887">
-                <el-checkbox v-model="apiSyncCaseRequest.failed">{{ $t('schedule.event_failed') }}</el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.unExecute">{{ $t('api_test.home_page.detail_card.unexecute') }}
+                <el-checkbox v-model="apiSyncCaseRequest.runError">{{ $t('schedule.event_failed') }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.unRun">{{ $t('api_test.home_page.detail_card.unexecute') }}
                 </el-checkbox>
               </el-col>
             </el-row>
@@ -410,8 +410,8 @@ export default {
           query: true,
           rest: true,
           body: true,
-          failed: true,
-          unExecute: true
+          runError: true,
+          unRun: true
         }
       }
       this.apiSyncCaseRequest.protocol = true;
