@@ -503,7 +503,7 @@
             and (t1.status is null or t1.status != 'Trash')
         </if>
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true">
-            and (t1.to_be_updated = #{request.toBeUpdated} or t3.status = 'error')
+            and t1.to_be_updated = #{request.toBeUpdated}
         </if>
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true and request.toBeUpdateTime !=null">
             and (t1.to_be_update_time >= #{request.toBeUpdateTime})
