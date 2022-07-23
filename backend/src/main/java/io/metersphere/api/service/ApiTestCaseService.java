@@ -146,14 +146,6 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
         request = this.initRequest(request, true, true);
-        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
-            if (request.getProjectId() != null) {
-                Long toBeUpdatedTime = getToBeUpdatedTime(request.getProjectId());
-                if (toBeUpdatedTime != null) {
-                    request.setToBeUpdateTime(toBeUpdatedTime);
-                }
-            }
-        }
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
