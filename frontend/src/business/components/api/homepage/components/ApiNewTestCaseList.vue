@@ -104,9 +104,6 @@ export default {
         this.condition.moduleIds = this.selectNodeIds;
       }
       this.condition.projectId = this.projectId;
-      if (this.currentProtocol != null) {
-        this.condition.protocol = this.currentProtocol;
-      }
 
       this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
 
