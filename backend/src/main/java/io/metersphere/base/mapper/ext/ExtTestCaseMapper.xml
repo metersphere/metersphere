@@ -574,6 +574,10 @@
                             and test_case.version_id in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key=='maintainer'">
+                            and test_case.maintainer in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
                         <when test="key.startsWith('custom')">
                             and test_case.id in (
                                 select resource_id from custom_field_test_case where concat('custom',field_id) = #{key}
