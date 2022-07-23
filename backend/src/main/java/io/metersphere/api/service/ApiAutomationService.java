@@ -1767,20 +1767,30 @@ public class ApiAutomationService {
      * <p>
      * 匹配场景中用到的路径
      *
-     * @param scenarioUrlMap      场景使用到的url  key:method
-     * @param allEffectiveApiList 接口集合（id / path 必须有数据）
+     * @param scenarioUrlMap 场景使用到的url  key:method
+     * @param apiList        接口集合（id / path 必须有数据）
      * @return
      */
-    public CoverageDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> allEffectiveApiList) {
+    public CoverageDTO countInterfaceCoverage(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
         CoverageDTO coverage = new CoverageDTO();
-        if (CollectionUtils.isEmpty(allEffectiveApiList)) {
+        if (CollectionUtils.isEmpty(apiList)) {
             return coverage;
         }
+        int urlContainsCount = this.countApiInScenario(projectId, scenarioUrlMap, apiList);
+        coverage.setCoverate(urlContainsCount);
+        coverage.setNotCoverate(apiList.size() - urlContainsCount);
+        float coverageRageNumber = (float) urlContainsCount * 100 / apiList.size();
+        DecimalFormat df = new DecimalFormat("0.0");
+        coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
+        return coverage;
+    }
+
+    public int countApiInScenario(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
         int urlContainsCount = 0;
         if (MapUtils.isNotEmpty(scenarioUrlMap)) {
             ProjectApplication urlRepeatableConfig = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
             boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
-            for (ApiDefinition model : allEffectiveApiList) {
+            for (ApiDefinition model : apiList) {
                 if (StringUtils.equalsIgnoreCase(model.getProtocol(), "http")) {
                     Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get(model.getMethod());
                     if (stepIdAndUrlMap != null) {
@@ -1808,12 +1818,7 @@ public class ApiAutomationService {
                 }
             }
         }
-        coverage.setCoverate(urlContainsCount);
-        coverage.setNotCoverate(allEffectiveApiList.size() - urlContainsCount);
-        float coverageRageNumber = (float) urlContainsCount * 100 / allEffectiveApiList.size();
-        DecimalFormat df = new DecimalFormat("0.0");
-        coverage.setRateOfCoverage(df.format(coverageRageNumber) + "%");
-        return coverage;
+        return urlContainsCount;
     }
 
     public ScenarioEnv getApiScenarioProjectId(String id) {

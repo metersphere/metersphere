@@ -75,7 +75,7 @@ public interface ExtApiDefinitionMapper {
 
     Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
-    long countQuotedApiByProjectId(String projectId);
+    long countApiByProjectIdAndHasCase(String projectId);
 
     List<RelationshipGraphData.Node> getForGraph(@Param("ids") Set<String> ids);
 
@@ -100,4 +100,6 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol, @Param("projectId") String projectId);
 
     int countById(String id);
+
+    List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId);
 }
