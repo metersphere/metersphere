@@ -311,9 +311,6 @@ export default {
         },
         {
           name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute,  isDisable: this.planStatus==='Archived', permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
-        },
-        {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, isDisable: this.planStatus==='Archived',  permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
         }
       ],
       typeArr: [
