@@ -192,7 +192,7 @@
       </el-row>
       <span v-if="syncCases">{{ $t('workstation.sync') + $t('commons.setting') }}</span><br/>
       <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
-        <sync-settings v-if="syncCases" ref="synSetting"></sync-settings>
+        <sync-setting v-if="syncCases" ref="synSetting"></sync-setting>
       </el-row>
       <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
         <div class="timeClass">
@@ -235,8 +235,8 @@ import {createComponent} from ".././jmeter/components";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {getProjectMemberOption} from "@/network/user";
-import SyncSettings from "@/business/components/xpack/workstation/component/SyncSettings";
 import {deepClone} from "@/common/js/tableUtils";
+import SyncSetting from "@/business/components/api/definition/util/SyncSetting";
 
 const {Body} = require("@/business/components/api/definition/model/ApiTestModel");
 const Sampler = require("@/business/components/api/definition/components/jmeter/components/sampler/sampler");
@@ -252,7 +252,7 @@ export default {
     ApiOtherInfo,
     MsFormDivider,
     MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree, MsChangeHistory,
-    HttpApiVersionDiff, SyncSettings,
+    HttpApiVersionDiff, SyncSetting,
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -284,7 +284,7 @@ export default {
       },
       httpForm: {environmentId: "", path: "", tags: []},
       beforeHttpForm: {environmentId: "", path: "", tags: []},
-      beforeRequest: {},
+      beforeRequest: {arguments: []},
       beforeResponse: {},
       newData: {environmentId: "", path: "", tags: []},
       dialogVisible: false,
@@ -311,7 +311,8 @@ export default {
       syncCases: true,
       specialReceivers: false,
       caseCreator: false,
-      scenarioCreator: false
+      scenarioCreator: false,
+      apiSyncCaseRequest: {},
 
     };
   },
@@ -521,40 +522,52 @@ export default {
             }
           }
           if (hasLicense() && this.httpForm.caseTotal > 0) {
-            if (this.httpForm.name !== this.beforeHttpForm.name) {
-              this.batchSyncApiVisible = true;
+
+            if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.method) {
+              if (this.httpForm.method !== this.beforeHttpForm.method) {
+                this.batchSyncApiVisible = true;
+              }
             }
-            if (this.httpForm.method !== this.beforeHttpForm.method) {
-              this.batchSyncApiVisible = true;
+            if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.path) {
+              if (this.httpForm.path !== this.beforeHttpForm.path) {
+                this.batchSyncApiVisible = true;
+              }
             }
-            if (this.httpForm.path !== this.beforeHttpForm.path) {
-              this.batchSyncApiVisible = true;
+            if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.headers) {
+              if (this.request.headers && this.beforeRequest.headers) {
+                let submitRequestHeaders = JSON.stringify(this.request.headers);
+                let beforeRequestHeaders = JSON.stringify(this.beforeRequest.headers);
+                if (submitRequestHeaders !== beforeRequestHeaders) {
+                  this.batchSyncApiVisible = true;
+                }
+              }
             }
-            if (this.httpForm.userId !== this.beforeHttpForm.userId) {
-              this.batchSyncApiVisible = true;
+            if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.query) {
+              if (this.request.arguments && this.beforeRequest.arguments) {
+                let submitRequestQuery = JSON.stringify(this.request.arguments);
+                let beforeRequestQuery = JSON.stringify(this.beforeRequest.arguments);
+                if (submitRequestQuery !== beforeRequestQuery) {
+                  this.batchSyncApiVisible = true;
+                }
+              }
             }
-            if (this.httpForm.moduleId !== this.beforeHttpForm.moduleId) {
-              this.batchSyncApiVisible = true;
+            if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.rest) {
+              if (this.request.rest && this.beforeRequest.rest) {
+                let submitRequestRest = JSON.stringify(this.request.rest);
+                let beforeRequestRest = JSON.stringify(this.beforeRequest.rest);
+                if (submitRequestRest !== beforeRequestRest) {
+                  this.batchSyncApiVisible = true;
+                }
+              }
             }
-            if (this.httpForm.status !== this.beforeHttpForm.status) {
-              this.batchSyncApiVisible = true;
-            }
-            if (!this.beforeHttpForm.tags) {
-              this.beforeHttpForm.tags = [];
-              this.beforeHttpForm.tags = JSON.stringify(this.beforeHttpForm.tags)
-            }
-            if (this.httpForm.tags !== this.beforeHttpForm.tags) {
-              this.batchSyncApiVisible = true;
-            }
-            let submitRequest = JSON.stringify(this.request);
-            let beforeRequestHeaders = JSON.stringify(this.beforeRequest);
-            if (submitRequest !== beforeRequestHeaders) {
-              this.batchSyncApiVisible = true;
-            }
-            let submitResponse = JSON.stringify(this.response);
-            let beforeResponse = JSON.stringify(this.response);
-            if (submitResponse !== beforeResponse) {
-              this.batchSyncApiVisible = true;
+            if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.body) {
+              if (this.request.body && this.beforeRequest.body) {
+                let submitRequestBody = JSON.stringify(this.request.body);
+                let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
+                if (submitRequestBody !== beforeRequestBody) {
+                  this.batchSyncApiVisible = true;
+                }
+              }
             }
             if (this.batchSyncApiVisible !== true) {
               this.$emit('saveApi', this.httpForm);
@@ -851,10 +864,18 @@ export default {
         }
       });
     },
+    getApplication() {
+      this.$get('/project_application/get/config/' + this.projectId + "/TRIGGER_UPDATE", res => {
+        if (res.data && res.data.triggerUpdate) {
+          this.apiSyncCaseRequest = JSON.parse(res.data.triggerUpdate);
+        }
+      });
+    }
   },
 
   created() {
     this.getMaintainerOptions();
+    this.getApplication();
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = "";
     }
