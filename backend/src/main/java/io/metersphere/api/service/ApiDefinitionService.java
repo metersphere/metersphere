@@ -752,7 +752,12 @@ public class ApiDefinitionService {
             if (request.getToBeUpdated() != null) {
                 toBeUpdated = request.getToBeUpdated();
             }
-            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol(), toBeUpdated);
+            ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
+            ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+            if (apiDefinitionSyncService != null) {
+                apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(request.getProjectId());
+            }
+            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol(), toBeUpdated, apiSyncCaseRequest);
         }
         //
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
@@ -1113,6 +1118,9 @@ public class ApiDefinitionService {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
                     } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
+                    }
+                    if (CollectionUtils.isEmpty(caseList)) {
+                        apiDefinition.setToBeUpdated(false);
                     }
                 } else {
                     apiDefinition.setUpdateTime(System.currentTimeMillis());
