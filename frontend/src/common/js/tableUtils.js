@@ -5,6 +5,7 @@ import i18n from "@/i18n/i18n";
 import Sortable from 'sortablejs'
 import {timestampFormatDate} from "@/common/js/filter";
 import {CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
+import _ from "lodash"
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -148,6 +149,12 @@ export function _sort(column, condition) {
     condition.orders = [];
   }
   if (column.order == null) {
+    if (condition.orders && condition.orders.length) {
+      let index = _.findIndex(condition.orders, {"name": column.column.columnKey});
+      if (index != -1) {
+        condition.orders.splice(index, 1);
+      }
+    }
     return;
   }
   let hasProp = false;
