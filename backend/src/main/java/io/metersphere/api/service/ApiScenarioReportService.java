@@ -296,6 +296,7 @@ public class ApiScenarioReportService {
         if (testPlanApiScenario != null) {
             if (report != null) {
                 testPlanApiScenario.setLastResult(report.getStatus());
+                report.setScenarioId(testPlanApiScenario.getApiScenarioId());
             } else {
                 testPlanApiScenario.setLastResult(status);
             }
@@ -507,7 +508,7 @@ public class ApiScenarioReportService {
             report.setEndTime(System.currentTimeMillis());
             testPlanUiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanUiScenarioMapper.updateByPrimaryKeySelective(testPlanUiScenario);
-            if(scenario == null){
+            if (scenario == null) {
                 scenario = uiScenarioMapper.selectByPrimaryKey(testPlanUiScenario.getUiScenarioId());
             }
             updateUiScenario(requestResults, dto, errorSize, status, report, scenario);
@@ -936,10 +937,10 @@ public class ApiScenarioReportService {
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
             try {
                 errorSize = dto.getRequestResults().stream().filter(requestResult ->
-                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
-                                && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()) .stream().filter(
-                                r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                        ).count() > 0)
+                                StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
+                                        && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
+                                        r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
+                                ).count() > 0)
                         .count();
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
