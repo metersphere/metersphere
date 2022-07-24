@@ -6,8 +6,10 @@
         from api_scenario_reference_id
         WHERE api_scenario_id in (SELECT id
                                   from api_scenario
-                                  WHERE project_id = #{0}
-                                    AND latest = 1)
+                                  WHERE status
+            != 'Trash'
+          AND project_id = #{0}
+          AND latest = 1)
           AND reference_id IS NOT NULL;
     </select>
 
