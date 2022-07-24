@@ -1116,6 +1116,24 @@
         and project_id = #{projectId}
         and status != 'Trash'
     </select>
+    <select id="apiList" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
+        select * from api_definition
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <if test="order.name == 'user_name'">
+                    user_name ${order.type}
+                </if>
+                <if test="order.name == 'case_total'">
+                    CONVERT(api_definition.${order.name},SIGNED) ${order.type}
+                </if>
+                <if test="order.name != 'user_name' and order.name != 'case_total'">
+                    api_definition.${order.name} ${order.type}
+                </if>
+            </foreach>
+        </if>
+    </select>
     <sql id="Same_Where_Clause">
         <where>
             <if test="blobs">

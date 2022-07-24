@@ -946,4 +946,19 @@
                                       AND latest = 1)
         GROUP BY `status`
     </select>
+    <select id="caseList" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
+        SELECT
+        t1.*,
+        a.method AS apiMethod
+        FROM
+        api_test_case t1
+        inner join api_definition a on t1.api_definition_id = a.id
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                t1.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
 </mapper>

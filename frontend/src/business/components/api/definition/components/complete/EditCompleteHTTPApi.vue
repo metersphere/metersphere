@@ -521,7 +521,7 @@ export default {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
             }
           }
-          if (hasLicense() && this.httpForm.caseTotal > 0) {
+          if (hasLicense() && this.httpForm.caseTotal > 0 && !this.httpForm.isCopy) {
 
             if (this.apiSyncCaseRequest && this.apiSyncCaseRequest.method) {
               if (this.httpForm.method !== this.beforeHttpForm.method) {
