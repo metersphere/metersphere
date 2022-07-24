@@ -985,9 +985,26 @@ public class ApiDefinitionService {
             }
 
             if (apiDefinition.getToBeUpdated() != null) {
-                apiTestCaseWithBLOBs.setToBeUpdated(apiDefinition.getToBeUpdated());
-            }
+                ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
+                ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
+                if (apiDefinitionSyncService != null) {
+                    apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(apiDefinition.getProjectId());
+                }
+                if (apiSyncCaseRequest.getUnRun() != null && apiSyncCaseRequest.getUnRun() && apiTestCaseWithBLOBs.getStatus() != null && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("Trash")
+                        && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("success") && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("error")
+                        && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("Running") && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("errorReportResult")
+                        && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("STOP")) {
 
+                    apiTestCaseWithBLOBs.setToBeUpdated(true);
+
+                } else if (apiSyncCaseRequest.getRunError() != null && apiSyncCaseRequest.getRunError() && apiTestCaseWithBLOBs.getStatus() != null
+                        && !apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("Trash")
+                        && apiTestCaseWithBLOBs.getStatus().equalsIgnoreCase("error")) {
+                    apiTestCaseWithBLOBs.setToBeUpdated(true);
+                } else {
+                    apiTestCaseWithBLOBs.setToBeUpdated(false);
+                }
+            }
             if (apiDefinition.getToBeUpdateTime() != null) {
                 apiTestCaseWithBLOBs.setToBeUpdateTime(apiDefinition.getToBeUpdateTime());
             }

@@ -34,4 +34,6 @@ public class ApiSyncCaseRequest {
     private Boolean unRun;
 
     private List<String> ids;
+
+    private Boolean selectAll;
 }
