@@ -90,12 +90,9 @@
           </el-col>
         </el-row>
 
-        <el-row class="other-info-rows" style="margin-top: 20px">
-          <el-col :span="2">
-            <ms-form-divider :title="$t('test_track.case.other_info')"/>
-          </el-col>
-          <el-col :span="22">
-            <el-tabs class="other-info-tabs" v-loading="result.loading" v-model="tabActiveName">
+        <ms-form-divider :title="$t('test_track.case.other_info')"/>
+
+        <el-tabs class="other-info-tabs" v-loading="result.loading" v-model="tabActiveName">
               <el-tab-pane :label="$t('test_track.review_view.relevance_case')" name="relateTestCase">
                 <el-form-item v-if="!isCaseEdit" style="margin-left: -80px">
                   <test-case-issue-list :issues-id="form.id"
@@ -169,8 +166,6 @@
                 </el-row>
               </el-tab-pane>
             </el-tabs>
-          </el-col>
-        </el-row>
 
         <issue-comment :issues-id="form.id"
                        @getComments="getComments"
@@ -801,6 +796,10 @@ export default {
 <style scoped>
 .other-info-tabs >>> .el-tabs__content {
   padding: 20px 0px;
+}
+
+.other-info-tabs {
+  margin-left: 20px;
 }
 
 .top-input-class{
