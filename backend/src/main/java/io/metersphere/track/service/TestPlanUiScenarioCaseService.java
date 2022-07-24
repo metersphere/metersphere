@@ -213,7 +213,6 @@ public class TestPlanUiScenarioCaseService {
         request.setProjectId(testPlanScenarioRequest.getProjectId());
         UiRunModeConfigDTO configDTO = new UiRunModeConfigDTO();
         BeanUtils.copyBean(configDTO, testPlanScenarioRequest.getConfig());
-        configDTO.setHeadlessEnabled(true);
         request.setUiConfig(configDTO);
         request.setPlanCaseIds(planCaseIdList);
         request.setRequestOriginator("TEST_PLAN");
