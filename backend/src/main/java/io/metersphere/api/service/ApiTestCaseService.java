@@ -865,9 +865,13 @@ public class ApiTestCaseService {
 
                         apiTestCase.setToBeUpdated(true);
 
-                    } else
-                        apiTestCase.setToBeUpdated(apiSyncCaseRequest.getRunError() != null && apiSyncCaseRequest.getRunError() && apiTestCase.getStatus() != null && !apiTestCase.getStatus().equalsIgnoreCase("Trash")
-                                && !apiTestCase.getStatus().equalsIgnoreCase("error"));
+                    } else if (apiSyncCaseRequest.getRunError() != null && apiSyncCaseRequest.getRunError() && apiTestCase.getStatus() != null && !apiTestCase.getStatus().equalsIgnoreCase("Trash")
+                            && apiTestCase.getStatus().equalsIgnoreCase("error")) {
+                        apiTestCase.setToBeUpdated(true);
+                    } else {
+                        apiTestCase.setToBeUpdated(false);
+                    }
+
                     if (toBeUpdated) {
                         apiTestCase.setToBeUpdateTime(System.currentTimeMillis());
                     }

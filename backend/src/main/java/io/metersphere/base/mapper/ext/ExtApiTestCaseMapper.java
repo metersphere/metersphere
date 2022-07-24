@@ -5,6 +5,7 @@ import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCase;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.List;
 public interface ExtApiTestCaseMapper {
 
     List<ApiTestCaseResult> list(@Param("request") ApiTestCaseRequest request);
+
+    List<ApiTestCaseWithBLOBs> caseList(@Param("request") ApiTestCaseRequest request);
 
     List<ApiTestCaseDTO> listSimple(@Param("request") ApiTestCaseRequest request);
 

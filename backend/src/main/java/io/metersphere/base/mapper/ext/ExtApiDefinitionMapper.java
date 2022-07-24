@@ -23,6 +23,8 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
 
+    List<ApiDefinitionWithBLOBs> apiList(@Param("request") ApiDefinitionRequest request);
+
     List<ApiDefinitionResult> weekList(@Param("request") ApiDefinitionRequest request, @Param("startTimestamp") long startTimestamp);
 
     List<Scenario> scenarioList(@Param("apiDefinitionId") String apiDefinitionId);
