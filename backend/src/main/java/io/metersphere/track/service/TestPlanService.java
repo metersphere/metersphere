@@ -47,7 +47,6 @@ import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.dto.RunUiScenarioRequest;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -1028,7 +1027,7 @@ public class TestPlanService {
             LoggerUtil.info("开始执行测试计划 UI 场景用例 " + planReportId);
             uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanID, projectID, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
         }
-        if (apiCaseReportMap != null && scenarioReportMap != null && loadCaseReportMap != null && uiScenarioReportMap!= null) {
+        if (apiCaseReportMap != null && scenarioReportMap != null && loadCaseReportMap != null && uiScenarioReportMap != null) {
             LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
             testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiCaseReportMap, scenarioReportMap, loadCaseReportMap, uiScenarioReportMap);
         }
@@ -2236,12 +2235,11 @@ public class TestPlanService {
             TestPlanWithBLOBs testPlan = testPlanMap.get(id);
             String planReportId = UUID.randomUUID().toString();
             //创建测试报告
-            // TODO: 2022/5/16  genTestPlanReport的runModeConfig先赋值为null，日后这里需要将前台传递的具体数据填写进来
-            this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode(), null);
+            RunModeConfigDTO runModeConfigDTO = JSONObject.parseObject(testPlan.getRunModeConfig(), RunModeConfigDTO.class);
+            this.genTestPlanReport(planReportId, testPlan.getId(), request.getUserId(), request.getTriggerMode(), runModeConfigDTO);
             //测试计划准备执行，取消测试计划的实际结束时间
             extTestPlanMapper.updateActualEndTimeIsNullById(testPlan.getId());
             executeQueue.put(testPlan.getId(), planReportId);
-
         }
 
         LoggerUtil.info("开始生成测试计划队列");
