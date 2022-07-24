@@ -58,4 +58,10 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
 
     //页面跳转时附带的过滤条件
     private String redirectFilter;
+
+    //同步配置
+    private ApiSyncCaseRequest syncConfig;
+
+    //全选
+    private boolean selectAll;
 }

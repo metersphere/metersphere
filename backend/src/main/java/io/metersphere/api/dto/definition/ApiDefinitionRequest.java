@@ -36,4 +36,10 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
 
     //当前时间减去进入待更新的时间
     private Long toBeUpdateTime;
+
+    //同步配置
+    private ApiSyncCaseRequest syncConfig;
+
+    //全选
+    private boolean selectAll;
 }
