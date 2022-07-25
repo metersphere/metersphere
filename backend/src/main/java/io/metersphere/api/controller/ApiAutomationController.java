@@ -11,6 +11,7 @@ import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ResetOrderRequest;
@@ -378,12 +379,22 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/checkScenarioEnv")
     public boolean checkScenarioEnv(@RequestBody ApiScenarioWithBLOBs request) {
-        return apiAutomationService.checkScenarioEnv(request);
+        try {
+            return apiAutomationService.checkScenarioEnv(request);
+        } catch (Exception e) {
+            MSException.throwException("场景步骤解析错误，检查是否包含插件步骤!");
+        }
+        return false;
     }
 
     @GetMapping(value = "/checkScenarioEnv/{scenarioId}")
     public boolean checkScenarioEnvByScenarioId(@PathVariable String scenarioId) {
-        return apiAutomationService.checkScenarioEnv(scenarioId);
+        try {
+            return apiAutomationService.checkScenarioEnv(scenarioId);
+        } catch (Exception e) {
+            MSException.throwException("场景步骤解析错误，检查是否包含插件步骤!");
+        }
+        return false;
     }
 
     @GetMapping("/follow/{scenarioId}")
