@@ -107,21 +107,24 @@ export default {
       listenGoBack(this.close);
     },
     deleteEnvironment(environment, index) {
-      if (this.delDialogVisible === false) {
-        this.delDialogVisible = true;
-        return;
-      }
-      this.ifCreate = false;
-      if (environment.id) {
-        this.result = this.$get('/api/environment/delete/' + environment.id, () => {
-          this.$success(this.$t('commons.delete_success'));
-          this.getEnvironments();
-          this.delDialogVisible = false;
-        });
-      } else {
-        this.environments.splice(index, 1);
-        this.delDialogVisible = false;
-      }
+      this.$alert(this.$t('commons.confirm_delete') + environment.name, '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            if (environment.id) {
+              this.result = this.$get('/api/environment/delete/' + environment.id, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.getEnvironments();
+                this.delDialogVisible = false;
+              });
+            } else {
+              this.environments.splice(index, 1);
+              this.delDialogVisible = false;
+            }
+          }
+        }
+      });
 
     },
     copyEnvironment(environment) {
