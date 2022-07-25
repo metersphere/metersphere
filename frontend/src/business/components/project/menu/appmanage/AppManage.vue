@@ -230,15 +230,15 @@
                 <el-checkbox v-model="apiSyncCaseRequest.body">{{ $t('api_test.request.body') }}</el-checkbox>
               </el-col>
             </el-row>
-            <span>{{ $t('commons.track') + $t('commons.setting') }}</span>
-            <el-row>
-              <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
-              <el-col :span="20" style="color: #783887">
-                <el-checkbox v-model="apiSyncCaseRequest.runError">{{ $t('schedule.event_failed') }}</el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.unRun">{{ $t('api_test.home_page.detail_card.unexecute') }}
-                </el-checkbox>
-              </el-col>
-            </el-row>
+            <!--            <span>{{ $t('commons.track') + $t('commons.setting') }}</span>
+                        <el-row>
+                          <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
+                          <el-col :span="20" style="color: #783887">
+                            <el-checkbox v-model="apiSyncCaseRequest.runError">{{ $t('schedule.event_failed') }}</el-checkbox>
+                            <el-checkbox v-model="apiSyncCaseRequest.unRun">{{ $t('api_test.home_page.detail_card.unexecute') }}
+                            </el-checkbox>
+                          </el-col>
+                        </el-row>-->
           </div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="showRuleSetting = false">取 消</el-button>
@@ -410,8 +410,8 @@ export default {
           query: true,
           rest: true,
           body: true,
-          runError: true,
-          unRun: true
+          runError: false,
+          unRun: false
         }
       }
       this.apiSyncCaseRequest.protocol = true;

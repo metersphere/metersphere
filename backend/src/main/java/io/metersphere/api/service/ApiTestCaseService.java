@@ -865,20 +865,7 @@ public class ApiTestCaseService {
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
                 if (toBeUpdated != null) {
-                    if (apiSyncCaseRequest.getUnRun() != null && apiSyncCaseRequest.getUnRun() && apiTestCase.getStatus() != null && !apiTestCase.getStatus().equalsIgnoreCase("Trash")
-                            && !apiTestCase.getStatus().equalsIgnoreCase("success") && !apiTestCase.getStatus().equalsIgnoreCase("error")
-                            && !apiTestCase.getStatus().equalsIgnoreCase("Running") && !apiTestCase.getStatus().equalsIgnoreCase("errorReportResult")
-                            && !apiTestCase.getStatus().equalsIgnoreCase("STOP")) {
-
-                        apiTestCase.setToBeUpdated(true);
-
-                    } else if (apiSyncCaseRequest.getRunError() != null && apiSyncCaseRequest.getRunError() && apiTestCase.getStatus() != null && !apiTestCase.getStatus().equalsIgnoreCase("Trash")
-                            && apiTestCase.getStatus().equalsIgnoreCase("error")) {
-                        apiTestCase.setToBeUpdated(true);
-                    } else {
-                        apiTestCase.setToBeUpdated(false);
-                    }
-
+                    apiTestCase.setToBeUpdated(toBeUpdated);
                     if (toBeUpdated) {
                         apiTestCase.setToBeUpdateTime(System.currentTimeMillis());
                     }

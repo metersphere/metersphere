@@ -273,8 +273,11 @@ public class ApiDefinitionExecResultService {
                     // 更新用例最后执行结果
                     caseWithBLOBs.setLastResultId(reportId);
                     caseWithBLOBs.setStatus(status);
-                    if (status.equals("success")) {
+                    if (status.equals(APITestStatus.Success.name())) {
                         caseWithBLOBs.setToBeUpdated(false);
+                    }
+                    if (status.equals(APITestStatus.Error.name())) {
+                        caseWithBLOBs.setToBeUpdated(true);
                     }
                     caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
                     apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
