@@ -110,8 +110,8 @@
         testPlan.`name` AS testPlanName
         FROM test_plan_api_scenario testPlanScenario
         INNER JOIN test_plan testPlan ON testPlan.id = testPlanScenario.test_plan_id) apiScene
-        ON apiScene.api_scenario_id = executionInfo.source_id
-        INNER JOIN api_scenario scene ON scene.id = executionInfo.source_id
+        ON apiScene.id = executionInfo.source_id
+        INNER JOIN api_scenario scene ON scene.id = apiScene.api_scenario_id
 
         WHERE scene.project_id = #{projectId}
         AND scene.`status` != 'Trash'
@@ -151,78 +151,6 @@
             testCase.id
         </if>
         ) showTable
-        ORDER BY showTable.failureTimes DESC
-    </select>
-    <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber"
-            resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
-        SELECT *
-        FROM (
-                 -- api_test_case 只查找测试计划执行的结果
-                 SELECT testCase.testCaseID                AS testCaseID,
-                        testCase.id                        AS id,
-                        testCase.testCaseName              AS caseName,
-                        testCase.testPlanName              AS testPlan,
-                        caseErrorCountData.dataCountNumber AS failureTimes,
-                        'apiCase'                          AS caseType
-                 FROM (SELECT testPlanCase.id          AS testPlanCaseID,
-                              testPlanCase.api_case_id as testCaseID,
-                              apiCase.id               AS id,
-                              apiCase.`name`           AS testCaseName,
-                              testPlan.`name`          AS testPlanName,
-                              testPlanCase.update_time as updateTime
-                       FROM api_test_case apiCase
-                                inner join api_definition on api_definition.id = apiCase.api_definition_id
-                                INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
-                                INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
-                           and api_definition.status != 'Trash'
-                       ORDER BY apiCase.create_time DESC) testCase
-                          INNER JOIN (SELECT resource_id AS testPlanCaseID,
-                                             COUNT(id)   AS dataCountNumber,
-                                             start_time  AS executeTime
-                                      FROM api_definition_exec_result
-                                      WHERE resource_id IN (SELECT t2.id
-                                                            FROM api_test_case t1
-                                                                     INNER JOIN test_plan_api_case t2 ON t1.id = t2.api_case_id
-                                                            WHERE t1.project_id = #{projectId})
-                                        and `status` = 'error'
-                                      GROUP BY resource_id) caseErrorCountData
-                                     ON caseErrorCountData.testPlanCaseID = testCase.testPlanCaseID
-                 WHERE testCase.updateTime >= #{startTimestamp}
-                 UNION
-                 SELECT ltr.test_id       as testCaseID,
-                        ltr.id            AS id,
-                        ltr.name          as caseName,
-                        tplt.testPlanName AS testPlan,
-                        count(ltr.id)     as failureTimes,
-                        'load'            as caseType
-                 FROM load_test_report ltr
-                          join load_test on load_test.id = ltr.test_id
-                          JOIN (select tplc.load_case_id, group_concat(tp.`name`) AS testPlanName, tp.project_id
-                                from test_plan_load_case tplc
-                                         join test_plan tp on tp.id = tplc.test_plan_id
-                                GROUP BY tplc.load_case_id) tplt on tplt.load_case_id = ltr.test_id
-                 WHERE load_test.project_id = #{projectId}
-                   AND ltr.STATUS = 'Error'
-                   and ltr.trigger_mode = 'TEST_PLAN_SCHEDULE'
-                   AND ltr.create_time >= #{startTimestamp}
-                 GROUP BY load_test.id
-                 UNION
-                 SELECT scene.id              AS testCaseID,
-                        scene.id              AS id,
-                        scene.`name`          AS caseName,
-                        apiScene.testPlanName AS testPlan,
-                        count(report.id)      AS failureTimes,
-                        'scenario'            AS caseType
-                 FROM api_scenario_report report
-                          INNER JOIN api_scenario scene ON report.scenario_id = scene.id
-                          INNER JOIN(SELECT apiScene.api_scenario_id, group_concat(testPlan.`name`) AS testPlanName
-                                     FROM test_plan_api_scenario apiScene
-                                              INNER JOIN test_plan testPlan ON testPlan.id = apiScene.test_plan_id
-                                     GROUP BY apiScene.api_scenario_id) apiScene ON apiScene.api_scenario_id = scene.id
-                 WHERE report.project_id = #{projectId}
-                   AND scene.`status` != 'Trash'
-              AND ( report.STATUS = 'Error' OR report.STATUS = 'Fail' )  AND report.create_time >= #{startTimestamp}
-                 GROUP BY scene.id) showTable
         ORDER BY showTable.failureTimes DESC
     </select>
     <select id="selectExecResult" resultType="java.lang.String">
@@ -482,7 +410,9 @@
                  INNER JOIN api_test_case c ON r.resource_id = c.id
             AND c.`status` != 'Trash'
         WHERE
-            r.status not in ('success','errorReportResult','errorReport')
+            r.status not in ('success'
+            , 'errorReportResult'
+            , 'errorReport')
           AND r.integrated_report_id = #{reportId}
         ORDER BY
             r.create_time ASC
@@ -495,7 +425,9 @@
     </select>
 
     <update id="updateAllStatus">
-        update api_definition_exec_result set status="STOP" where status in ('Rerunning','Running','Waiting')
+        update api_definition_exec_result
+        set status="STOP"
+        where status in ('Rerunning', 'Running', 'Waiting')
     </update>
 
 </mapper>

@@ -187,7 +187,11 @@ public class TestResultService {
                 } else {
                     ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
                     if (apiScenario != null) {
-                        scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode());
+                        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                            scenarioExecutionInfoService.insertExecutionInfo(dto.getTestId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode());
+                        } else {
+                            scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode());
+                        }
                         environment = apiScenarioReportService.getEnvironment(apiScenario);
                         userName = apiAutomationService.getUser(apiScenario.getUserId());
                         principal = apiAutomationService.getUser(apiScenario.getPrincipal());
