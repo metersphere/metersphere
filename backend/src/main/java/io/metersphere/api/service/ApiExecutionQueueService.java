@@ -15,12 +15,14 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
@@ -69,6 +71,8 @@ public class ApiExecutionQueueService {
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
     @Resource
     private ApiCaseSerialService apiCaseSerialService;
+    @Resource
+    protected ExtTestPlanReportMapper extTestPlanReportMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -527,5 +531,24 @@ public class ApiExecutionQueueService {
                 queueMapper.deleteByPrimaryKey(queueId);
             }
         }
+    }
+
+    /**
+     * 服务异常重启处理
+     */
+    public void exceptionHandling() {
+        LogUtil.info("开始处理服务重启导致执行未完成的报告状态");
+        // 清理残留队列
+        ApiExecutionQueueExample example = new ApiExecutionQueueExample();
+        queueMapper.deleteByExample(example);
+        ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
+        executionQueueDetailMapper.deleteByExample(detailExample);
+        // 更新报告状态
+        extApiScenarioReportMapper.updateAllStatus();
+        // 更新用例报告状态
+        extApiDefinitionExecResultMapper.updateAllStatus();
+        // 更新测试计划报告状态
+        extTestPlanReportMapper.updateAllStatus();
+        LogUtil.info("处理服务重启导致执行未完成的报告状态完成");
     }
 }

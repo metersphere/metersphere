@@ -214,10 +214,23 @@ public class ApiJmeterFileService {
         return multipartFiles;
     }
 
+    private String replaceJmx(String jmx) {
+        jmx = StringUtils.replace(jmx, "<DubboSample", "<io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
+        jmx = StringUtils.replace(jmx, "</DubboSample>", "</io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample>");
+        jmx = StringUtils.replace(jmx, " guiclass=\"DubboSampleGui\" ", " guiclass=\"io.github.ningyu.jmeter.plugin.dubbo.gui.DubboSampleGui\" ");
+        jmx = StringUtils.replace(jmx, " guiclass=\"DubboDefaultConfigGui\" ", " guiclass=\"io.github.ningyu.jmeter.plugin.dubbo.gui.DubboDefaultConfigGui\" ");
+        jmx = StringUtils.replace(jmx, " testclass=\"DubboSample\" ", " testclass=\"io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample\" ");
+        return jmx;
+    }
+
     private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
         String bodyFilePath = FileUtils.BODY_FILE_DIR;
         String fileName = testId + ".jmx";
         String jmx = new MsTestPlan().getJmx(hashTree);
+        // 处理dubbo请求生成jmx文件
+        if (StringUtils.isNotEmpty(jmx)) {
+            jmx = replaceJmx(jmx);
+        }
         Map<String, byte[]> files = new HashMap<>();
         //  每个测试生成一个文件夹
         files.put(fileName, jmx.getBytes(StandardCharsets.UTF_8));
