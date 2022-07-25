@@ -115,8 +115,8 @@
                       :on-exceed="handleExceed"
                       :on-success="handleSuccess"
                       :on-error="handleError"
-                      :disabled="type === 'add' || type === 'copy'">
-                      <el-button type="primary" :disabled="type === 'add' || type === 'copy'" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+                      :disabled="type === 'add' || type === 'copy' || isCaseEdit">
+                      <el-button type="primary" :disabled="type === 'add' || type === 'copy' || isCaseEdit" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
                       <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
                     </el-upload>
                   </el-col>
