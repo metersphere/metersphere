@@ -31,8 +31,6 @@ public interface ExtTestPlanMapper {
 
     String findTestProjectNameByTestPlanID(String testPlanId);
 
-    String findScheduleCreateUserById(String testPlanId);
-
     List<String> findIdByPerformanceReportId(String reportId);
 
     List<TestPlan> listRecent(@Param("userId") String userId, @Param("projectId") String currentProjectId);
