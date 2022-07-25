@@ -63,8 +63,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.mybatis.spring.SqlSessionUtils;
-import org.quartz.JobKey;
-import org.quartz.TriggerKey;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -1091,13 +1089,7 @@ public class ApiAutomationService {
     }
 
     public void updateSchedule(Schedule request) {
-        scheduleService.editSchedule(request);
-        JobKey jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
-        TriggerKey triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
-        Class clazz = ApiScenarioTestJob.class;
-        request.setJob(ApiScenarioTestJob.class.getName());
-        this.addOrUpdateApiScenarioCronJob(request);
-        scheduleService.resetJob(request, jobKey, triggerKey, clazz);
+        scheduleService.updateSchedule(request);
     }
 
     private void addOrUpdateApiScenarioCronJob(Schedule request) {
