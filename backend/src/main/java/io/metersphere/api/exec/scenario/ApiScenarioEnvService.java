@@ -311,7 +311,7 @@ public class ApiScenarioEnvService {
                         builder.append(apiScenarioWithBLOBs.getName()).append("; ");
                     }
                 } catch (Exception e) {
-                    MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+                    MSException.throwException("场景：" +apiScenarioWithBLOBs.getName() +"，步骤解析错误，检查是否包含插件步骤!");
                 }
             }
             if (builder.length() > 0) {
