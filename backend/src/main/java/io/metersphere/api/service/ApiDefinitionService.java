@@ -326,6 +326,16 @@ public class ApiDefinitionService {
                 }
             }
         }
+        return request;
+    }
+
+    /**
+     * 检查请求中是否含有覆盖率的查询
+     *
+     * @param request
+     * @return
+     */
+    public ApiDefinitionRequest checkFilterHasCoverage(ApiDefinitionRequest request) {
         if (StringUtils.isNotEmpty(request.getProjectId())) {
             List<ApiDefinition> definitionList = null;
             if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), "uncoverage", "coverage")) {
