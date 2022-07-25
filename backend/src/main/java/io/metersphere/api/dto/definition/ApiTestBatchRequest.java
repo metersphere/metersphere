@@ -54,4 +54,8 @@ public class ApiTestBatchRequest extends ApiTestCaseWithBLOBs {
      */
     private boolean appendTag = false;
 
+    /**
+     * 关注
+     */
+    private String follow;
 }

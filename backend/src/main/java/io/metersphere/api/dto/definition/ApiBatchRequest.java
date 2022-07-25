@@ -26,4 +26,9 @@ public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
      */
     private boolean appendTag = false;
     private ApiDefinitionRequest condition;
+
+    /**
+     * 关注
+     */
+    private String follow;
 }
