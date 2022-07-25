@@ -470,4 +470,8 @@
           and project_id = #{projectId}
     </select>
 
+    <update id="updateAllStatus">
+        update api_scenario_report set status="STOP" where status in ('Rerunning','Running','Waiting')
+    </update>
+
 </mapper>

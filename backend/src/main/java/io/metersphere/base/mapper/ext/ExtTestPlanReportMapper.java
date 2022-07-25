@@ -20,4 +20,6 @@ public interface ExtTestPlanReportMapper {
 
     @MapKey("id")
     Map<String, ParamsDTO> reportCount(@Param("planIds") Set<String> planIds);
+
+    void updateAllStatus();
 }
