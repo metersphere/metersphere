@@ -174,7 +174,6 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="100px"
-          sortable
           :label="$t('api_test.definition.api_case_number')"/>
 
         <ms-table-column
@@ -189,7 +188,6 @@
           prop="casePassingRate"
           :field="item"
           min-width="120px"
-          sortable
           :fields-width="fieldsWidth"
           :label="$t('api_test.definition.api_case_passing_rate')"/>
 
