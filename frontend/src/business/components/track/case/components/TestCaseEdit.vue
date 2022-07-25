@@ -1074,9 +1074,13 @@ export default {
     },
     hasOtherInfo() {
       return new Promise((resolve) => {
-          this.$get("test/case/hasOtherInfo/" + this.form.id, (res) => {
-            resolve(res.data);
-          })
+          if (this.form.id) {
+            this.$get("test/case/hasOtherInfo/" + this.form.id, (res) => {
+              resolve(res.data);
+            });
+          } else {
+            resolve();
+          }
         }
       );
     },
