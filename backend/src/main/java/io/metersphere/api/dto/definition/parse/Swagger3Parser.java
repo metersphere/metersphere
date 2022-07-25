@@ -20,6 +20,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
+import io.metersphere.i18n.Translator;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.headers.Header;
@@ -54,14 +55,19 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     public ApiDefinitionImport parse(String sourceStr, ApiTestImportRequest request) {
 
         List<AuthorizationValue> auths = setAuths(request);
-        SwaggerParseResult result;
+        SwaggerParseResult result = null;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
-            result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), auths, null);
+            try {
+                result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), auths, null);
+            } catch (Exception e) {
+                MSException.throwException(e.getMessage());
+            }
         } else {
             result = new OpenAPIParser().readContents(sourceStr, null, null);
         }
-        if (result == null) {
-            MSException.throwException("解析失败，请确认选择的是 swagger 格式！");
+        if (result == null || result.getOpenAPI() == null) {
+            MSException.throwException(Translator.get(CollectionUtils.isEmpty(auths) ?
+                    "swagger_parse_error" : "swagger_parse_error_with_auth"));
         }
         OpenAPI openAPI = result.getOpenAPI();
         if (result.getMessages() != null) {
