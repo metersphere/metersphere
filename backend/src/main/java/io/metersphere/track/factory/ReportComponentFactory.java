@@ -1,4 +1,4 @@
-package io.metersphere.track.Factory;
+package io.metersphere.track.factory;
 
 import io.metersphere.track.domain.*;
 import io.metersphere.track.dto.TestPlanDTO;
