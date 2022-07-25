@@ -793,6 +793,13 @@ public class ApiTestCaseService {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
+        if (StringUtils.isNotEmpty(request.getFollow())) {
+            if (StringUtils.equals(request.getFollow(), "cancel")) {
+                ApiTestCaseFollowExample apiTestCaseFollowExample = new ApiTestCaseFollowExample();
+                apiTestCaseFollowExample.createCriteria().andCaseIdIn(ids);
+                apiTestCaseFollowMapper.deleteByExample(apiTestCaseFollowExample);
+            }
+        }
     }
 
     private void batchEditTags(ApiTestBatchRequest request, List<String> ids) {

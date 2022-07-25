@@ -1771,6 +1771,9 @@ public class ApiDefinitionService {
     }
 
     public void editApiByParam(ApiBatchRequest request) {
+        if (request == null) {
+            return;
+        }
         if (StringUtils.equals("tags", request.getType())) {
             this.batchEditDefinitionTags(request);
             return;
@@ -1782,7 +1785,7 @@ public class ApiDefinitionService {
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
-        if (request != null && (request.getIds() != null || !request.getIds().isEmpty())) {
+        if (CollectionUtils.isNotEmpty(request.getIds())) {
             request.getIds().forEach(apiId -> {
                 ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
                 if (api == null) {
@@ -1813,6 +1816,11 @@ public class ApiDefinitionService {
                 apiDefinitionRequest.setVersionId(api.getVersionId());
                 checkNameExist(apiDefinitionRequest, false);
             });
+            if (StringUtils.isNotEmpty(request.getFollow())) {
+                if (StringUtils.equals(request.getFollow(), "cancel")) {
+                    this.deleteFollows(request.getIds());
+                }
+            }
         }
         apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
     }
