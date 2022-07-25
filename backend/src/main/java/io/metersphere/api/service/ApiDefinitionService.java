@@ -968,9 +968,7 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
             }
             apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getStatus())) {
-                apiTestCaseWithBLOBs.setStatus(APITestStatus.Prepare.name());
-            }
+
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getCaseStatus())) {
                 apiTestCaseWithBLOBs.setCaseStatus(APITestStatus.Prepare.name());
             }
@@ -1136,7 +1134,7 @@ public class ApiDefinitionService {
                     } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
                     }
-                    if (CollectionUtils.isEmpty(caseList)) {
+                    if (StringUtils.isBlank(apiDefinition.getCaseTotal()) || Integer.parseInt(apiDefinition.getCaseTotal()) == 0) {
                         apiDefinition.setToBeUpdated(false);
                     }
                 } else {
@@ -1220,82 +1218,6 @@ public class ApiDefinitionService {
 
         }
 
-        if (!StringUtils.equals(apiDefinition.getCreateUser(), existApi.getCreateUser())) {
-            return true;
-        }
-
-        if (!StringUtils.equals(apiDefinition.getStatus(), existApi.getStatus())) {
-            return true;
-        }
-
-        if (!StringUtils.equals(apiDefinition.getTags(), existApi.getTags())) {
-            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), "") && existApi.getTags() != null && Objects.equals(existApi.getTags(), "")) {
-                return true;
-            }
-        }
-
-        if (!StringUtils.equals(existApi.getRemark(), apiDefinition.getRemark())) {
-            return true;
-        }
-
-        if (!StringUtils.equals(existApi.getDescription(), apiDefinition.getDescription())) {
-            return true;
-        }
-
-        JsonNode exApiResponse = null;
-        JsonNode apiResponse = null;
-
-        if (StringUtils.isBlank(apiDefinition.getResponse()) || StringUtils.isBlank(existApi.getResponse())) {
-            return !StringUtils.isBlank(apiDefinition.getResponse()) || !StringUtils.isBlank(existApi.getResponse());
-        }
-
-        try {
-            exApiResponse = objectMapper.readTree(existApi.getResponse());
-            apiResponse = objectMapper.readTree(apiDefinition.getResponse());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        if (exApiResponse == null || apiResponse == null) {
-            return exApiResponse != null || apiResponse != null;
-        }
-
-        if (exApiResponse.get("headers") != null && apiResponse.get("headers") != null) {
-            if (!StringUtils.equals(exApiResponse.get("headers").toString(), apiResponse.get("headers").toString())) {
-                return true;
-            }
-        }
-
-        if (exApiResponse.get("type") != null && apiResponse.get("type") != null) {
-            if (!StringUtils.equals(exApiResponse.get("type").toString(), apiResponse.get("type").toString())) {
-                return true;
-            }
-        }
-
-        if (exApiResponse.get("name") != null && apiResponse.get("name") != null) {
-            if (!StringUtils.equals(exApiResponse.get("name").toString(), apiResponse.get("name").toString())) {
-                return true;
-            }
-        }
-
-        if (exApiResponse.get("body") != null && apiResponse.get("body") != null) {
-            if (!StringUtils.equals(exApiResponse.get("body").toString(), apiResponse.get("body").toString())) {
-                return true;
-            }
-        }
-
-        if (exApiResponse.get("statusCode") != null && apiResponse.get("statusCode") != null) {
-            if (!StringUtils.equals(exApiResponse.get("statusCode").toString(), apiResponse.get("statusCode").toString())) {
-                return true;
-            }
-        }
-
-        if (exApiResponse.get("enable") != null && apiResponse.get("enable") != null) {
-            if (!StringUtils.equals(exApiResponse.get("enable").toString(), apiResponse.get("enable").toString())) {
-                return true;
-            }
-        }
-
         JsonNode exApiRequest = null;
         JsonNode apiRequest = null;
         try {
@@ -1349,6 +1271,79 @@ public class ApiDefinitionService {
             }
         }
 
+        if (!StringUtils.equals(apiDefinition.getCreateUser(), existApi.getCreateUser())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(apiDefinition.getStatus(), existApi.getStatus()) && StringUtils.isNotBlank(existApi.getStatus()) && StringUtils.isNotBlank(apiDefinition.getStatus())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(apiDefinition.getTags(), existApi.getTags())) {
+            if (apiDefinition.getTags() != null && Objects.equals(apiDefinition.getTags(), "") && existApi.getTags() != null && Objects.equals(existApi.getTags(), "")) {
+                return true;
+            }
+        }
+
+        if (!StringUtils.equals(existApi.getRemark(), apiDefinition.getRemark()) && StringUtils.isNotBlank(existApi.getRemark()) && StringUtils.isNotBlank(apiDefinition.getRemark())) {
+            return true;
+        }
+
+        if (!StringUtils.equals(existApi.getDescription(), apiDefinition.getDescription()) && StringUtils.isNotBlank(existApi.getDescription()) && StringUtils.isNotBlank(apiDefinition.getDescription())) {
+            return true;
+        }
+
+        JsonNode exApiResponse = null;
+        JsonNode apiResponse = null;
+
+        if (StringUtils.isBlank(apiDefinition.getResponse()) || StringUtils.isBlank(existApi.getResponse())) {
+            return !StringUtils.isBlank(apiDefinition.getResponse()) || !StringUtils.isBlank(existApi.getResponse());
+        }
+
+        try {
+            exApiResponse = objectMapper.readTree(existApi.getResponse());
+            apiResponse = objectMapper.readTree(apiDefinition.getResponse());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        if (exApiResponse == null || apiResponse == null) {
+            return exApiResponse != null || apiResponse != null;
+        }
+
+        if (exApiResponse.get("headers") != null && apiResponse.get("headers") != null) {
+            if (!StringUtils.equals(exApiResponse.get("headers").toString(), apiResponse.get("headers").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("type") != null && apiResponse.get("type") != null) {
+            if (!StringUtils.equals(exApiResponse.get("type").toString(), apiResponse.get("type").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("name") != null && apiResponse.get("name") != null) {
+            if (!StringUtils.equals(exApiResponse.get("name").toString(), apiResponse.get("name").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("body") != null && apiResponse.get("body") != null) {
+            if (!StringUtils.equals(exApiResponse.get("body").toString(), apiResponse.get("body").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("statusCode") != null && apiResponse.get("statusCode") != null) {
+            if (!StringUtils.equals(exApiResponse.get("statusCode").toString(), apiResponse.get("statusCode").toString())) {
+                return true;
+            }
+        }
+
+        if (exApiResponse.get("enable") != null && apiResponse.get("enable") != null) {
+            return !StringUtils.equals(exApiResponse.get("enable").toString(), apiResponse.get("enable").toString());
+        }
         return false;
     }
 
