@@ -125,7 +125,7 @@ export default {
         condition['customs'] = [];
       }
       let value = component.value;
-      if (component.type === "multipleMember") {
+      if (component.type === "multipleMember" || component.type === "checkbox" || component.type === "multipleSelect") {
         try {
           value = JSON.stringify(component.value);
         } catch (e) {
