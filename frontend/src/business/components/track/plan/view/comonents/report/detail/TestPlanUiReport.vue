@@ -60,11 +60,11 @@ export default {
       errorReportSize: 0,
       unExecuteSize: 0,
       allSize: 0,
-      showRerunBtn: true,
+      showRerunBtn: false,
     };
   },
   created() {
-    this.showRerunBtn = !this.isShare && hasLicense();
+    // this.showRerunBtn = !this.isShare && hasLicense();
   },
   props: [
     'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'isDb'
