@@ -643,6 +643,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         List<ApiDefinitionWithBLOBs> optionData = new ArrayList<>();
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs;
+        Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
         if (protocol.equals("HTTP")) {
             //去重 如果url可重复 则模块+名称+请求方式+路径 唯一，否则 请求方式+路径唯一，
             //覆盖模式留重复的最后一个，不覆盖留第一个
@@ -653,7 +654,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             //系统内重复的数据
             repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionData, projectId);
             //重复接口的case
-            Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
             if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
                 oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
             }
@@ -749,7 +749,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             //获取系统内重复数据
             repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol, projectId);
             //重复接口的case
-            Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
+
             if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
                 oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
             }
@@ -795,7 +795,23 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (optionData.isEmpty()) {
             moduleMap = new HashMap<>();
         }
+        //将原来的case和更改的case组合在一起，为了同步的设置
+        List<String> caseIds = optionDataCases.stream().map(ApiTestCase::getId).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        buildCases(optionDataCases, oldCaseMap, caseIds);
+
         return getUpdateApiModuleDTO(moduleMap, toUpdateList, optionData, optionDataCases);
+    }
+
+    private void buildCases(List<ApiTestCaseWithBLOBs> optionDataCases, Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, List<String> caseIds) {
+        if (MapUtils.isNotEmpty(oldCaseMap)) {
+            List<ApiTestCaseWithBLOBs> oldCaseList = new ArrayList<>();
+            Collection<List<ApiTestCaseWithBLOBs>> values = oldCaseMap.values();
+            for (List<ApiTestCaseWithBLOBs> value : values) {
+                oldCaseList.addAll(value);
+            }
+            List<ApiTestCaseWithBLOBs> collect = oldCaseList.stream().filter(t -> !caseIds.contains(t.getId())).collect(Collectors.toList());
+            optionDataCases.addAll(collect);
+        }
     }
 
     private void removeRepeatCase(Boolean fullCoverage, List<ApiTestCaseWithBLOBs> importCases, List<ApiTestCaseWithBLOBs> optionDataCases) {
@@ -819,8 +835,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
         testCaseExample.createCriteria().andApiDefinitionIdIn(definitionIds);
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = apiTestCaseMapper.selectByExampleWithBLOBs(testCaseExample);
-        ArrayList<ApiTestCaseWithBLOBs> testCases = getDistinctNameCases(caseWithBLOBs);
-        oldCaseMap = testCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
+        /*ArrayList<ApiTestCaseWithBLOBs> testCases = getDistinctNameCases(caseWithBLOBs);*/
+        oldCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         return oldCaseMap;
     }
 
