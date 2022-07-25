@@ -90,6 +90,10 @@ import {
   getPlanUiScenarioFailureCase,
   getPlanUiScenarioUnExecuteCase,
   getPlanUiScenarioAllCase,
+  getSharePlanUiScenarioAllCase,
+  getSharePlanUiScenarioUnExecuteCase,
+  getSharePlanUiScenarioErrorReportCase,
+  getSharePlanUiScenarioFailureCase,
 } from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -148,7 +152,7 @@ export default {
         } else {
           this.scenarioCases = this.report.scenarioFailureCases ? this.report.scenarioFailureCases : [];
         }
-      } else if (this.isShare) {
+      } else if (this.isShare && !this.isUi) {
         if (this.isErrorReport) {
           this.result = getSharePlanScenarioErrorReportCase(this.shareId, this.planId, (data) => {
             this.scenarioCases = data;
@@ -163,6 +167,24 @@ export default {
           });
         } else {
           this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        }
+      } else if (this.isShare && this.isUi) {
+        if (this.isErrorReport) {
+          this.result = getSharePlanUiScenarioErrorReportCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else if (this.isUnExecute) {
+          this.result = getSharePlanUiScenarioUnExecuteCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else if (this.isAll) {
+          this.result = getSharePlanUiScenarioAllCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+          });
+        } else {
+          this.result = getSharePlanUiScenarioFailureCase(this.shareId, this.planId, (data) => {
             this.scenarioCases = data;
           });
         }

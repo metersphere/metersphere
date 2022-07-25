@@ -94,6 +94,21 @@ export function getSharePlanScenarioUnExecuteCase(shareId, planId, callback) {
   return planId ? baseGet('/share/test/plan/scenario/case/list/unExecute/' + shareId + '/' + planId, callback) : {};
 }
 
+export function getSharePlanUiScenarioFailureCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/uiScenario/case/list/failure/' + shareId + '/' + planId, callback) : {};
+}
+
+export function getSharePlanUiScenarioAllCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/uiScenario/case/list/all/' + shareId + '/' + planId, callback) : {};
+}
+
+export function getSharePlanUiScenarioErrorReportCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/uiScenario/case/list/errorReport/' + shareId + '/' + planId, callback) : {};
+}
+export function getSharePlanUiScenarioUnExecuteCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/uiScenario/case/list/unExecute/' + shareId + '/' + planId, callback) : {};
+}
+
 export function getPlanApiFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/api/case/list/failure/' + planId, callback) : {};
 }
