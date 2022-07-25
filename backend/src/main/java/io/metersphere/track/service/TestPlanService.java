@@ -2179,7 +2179,7 @@ public class TestPlanService {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN_SCHEDULE, type = OperLogConstants.UPDATE, title = "#request.name",
             beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = ScheduleService.class)
     public Schedule updateSchedule(Schedule request) {
-        apiAutomationService.updateSchedule(request);
+        scheduleService.updateSchedule(request);
         return request;
     }
 
