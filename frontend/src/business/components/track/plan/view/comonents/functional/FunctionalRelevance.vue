@@ -287,6 +287,7 @@ export default {
     changeVersion(currentVersion) {
       this.page.condition.versionId = currentVersion || null;
       this.getTestCases();
+      this.getProjectNode(this.projectId, this.page.condition);
     },
     setSelectCounts(data) {
       this.$refs.baseRelevance.selectCounts = data;
