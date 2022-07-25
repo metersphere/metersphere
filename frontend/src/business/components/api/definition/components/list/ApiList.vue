@@ -635,9 +635,11 @@ export default {
           break;
         case 'notCoverate':
           this.condition.apiCoverage = 'uncoverage';
+          this.condition.scenarioCoverage = null;
           break;
         case 'coverate':
           this.condition.apiCoverage = 'coverage';
+          this.condition.scenarioCoverage = null;
           break;
         case 'unCoverageTestCase':
           this.condition.apiCaseCoverage = 'uncoverage';
@@ -647,9 +649,11 @@ export default {
           break;
         case 'coverageScenario':
           this.condition.scenarioCoverage = 'coverage';
+          this.condition.apiCoverage = null;
           break;
         case 'unCoverageScenario':
           this.condition.scenarioCoverage = 'uncoverage';
+          this.condition.apiCoverage = null;
           break;
         case 'Prepare':
           this.condition.filters.status = [this.selectDataRange];
