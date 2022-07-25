@@ -299,19 +299,25 @@ public class TestPlanReportService {
         }
 
         for (TestPlanApiScenarioInfoDTO model : testPlanApiScenarioList) {
-            if (MapUtils.isNotEmpty(selectEnvMap) && selectEnvMap.containsKey(model.getProjectId())) {
-                runInfoDTO.putScenarioRunInfo(model.getId(), model.getProjectId(), selectEnvMap.get(model.getProjectId()));
-            } else if (StringUtils.isNotEmpty(model.getEnvironment())) {
-                try {
-                    Map<String, String> envMap = JSONObject.parseObject(model.getEnvironment(), Map.class);
-                    if (MapUtils.isNotEmpty(envMap)) {
-                        for (Map.Entry<String, String> entry : envMap.entrySet()) {
-                            String projectId = entry.getKey();
-                            String envIdStr = entry.getValue();
-                            runInfoDTO.putScenarioRunInfo(model.getId(), projectId, envIdStr);
-                        }
+            Map<String, String> envMap = null;
+            if (StringUtils.equalsIgnoreCase("group", model.getEnvironmentType()) && StringUtils.isNotEmpty(model.getEnvironmentGroupId())) {
+                envMap = environmentGroupProjectService.getEnvMap(model.getEnvironmentGroupId());
+            } else {
+                if (MapUtils.isNotEmpty(selectEnvMap) && selectEnvMap.containsKey(model.getProjectId())) {
+                    runInfoDTO.putScenarioRunInfo(model.getId(), model.getProjectId(), selectEnvMap.get(model.getProjectId()));
+                } else if (StringUtils.isNotEmpty(model.getEnvironment())) {
+                    try {
+                        envMap = JSONObject.parseObject(model.getEnvironment(), Map.class);
+                    } catch (Exception e) {
+                        LogUtil.error("解析场景环境失败!", e);
                     }
-                } catch (Exception ignore) {
+                }
+            }
+            if (MapUtils.isNotEmpty(envMap)) {
+                for (Map.Entry<String, String> entry : envMap.entrySet()) {
+                    String projectId = entry.getKey();
+                    String envIdStr = entry.getValue();
+                    runInfoDTO.putScenarioRunInfo(model.getId(), projectId, envIdStr);
                 }
             }
         }
