@@ -153,4 +153,9 @@
         </where>
         GROUP BY t.test_plan_id
     </select>
+
+    <update id="updateAllStatus">
+        update test_plan_report set status="COMPLETED" where status in ('Rerunning','Running')
+    </update>
+
 </mapper>

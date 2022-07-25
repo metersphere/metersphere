@@ -494,4 +494,8 @@
           and create_time &lt; #{time}
     </select>
 
+    <update id="updateAllStatus">
+        update api_definition_exec_result set status="STOP" where status in ('Rerunning','Running','Waiting')
+    </update>
+
 </mapper>
