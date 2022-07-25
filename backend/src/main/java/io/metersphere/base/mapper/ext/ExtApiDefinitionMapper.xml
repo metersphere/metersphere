@@ -87,6 +87,21 @@
     <sql id="Blob_Column_List">
         request
     </sql>
+    <delete id="deleteApiToGc" parameterType="io.metersphere.api.dto.definition.ApiDefinitionRequest">
+        update api_definition
+        set original_state=status,
+        status = 'Trash', delete_user_id = #{deleteUserId},delete_time = #{deleteTime}, to_be_updated = 0
+        where id in (
+        SELECT api_tmp.* from (
+        SELECT id from api_definition api INNER JOIN (
+        SELECT ref_id from api_definition where module_id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+        ) api_ref on api_ref.ref_id = api.ref_id
+        ) api_tmp
+        )
+    </delete>
 
     <select id="selectByIds" resultType="io.metersphere.api.dto.definition.ApiComputeResult">
         SELECT t1.api_definition_id apiDefinitionId,count(t1.id) caseTotal,

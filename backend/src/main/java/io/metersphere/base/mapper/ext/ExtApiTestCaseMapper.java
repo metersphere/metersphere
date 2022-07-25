@@ -86,4 +86,6 @@ public interface ExtApiTestCaseMapper {
     int countById(String resourceID);
 
     List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId);
+
+    int deleteCaseToGc(ApiTestCaseRequest request);
 }

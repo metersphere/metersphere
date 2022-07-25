@@ -870,6 +870,18 @@
         </foreach>
     </update>
 
+    <update id="deleteCaseToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">
+        update api_test_case
+        set original_status=status,
+        status = 'Trash',delete_time = #{deleteTime},delete_user_id = #{deleteUserId}, to_be_updated = 0
+        where api_definition_id IN
+        (SELECT id from api_definition api INNER JOIN (
+        SELECT ref_id from api_definition where module_id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+        ) api_ref on api.ref_id = api_ref.ref_id)
+    </update>
     <update id="reduction">
         update api_test_case
         set status = original_status
