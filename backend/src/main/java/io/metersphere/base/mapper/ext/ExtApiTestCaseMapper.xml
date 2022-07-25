@@ -503,10 +503,10 @@
             and (t1.status is null or t1.status != 'Trash')
         </if>
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true">
-            and t1.to_be_updated = #{request.toBeUpdated}
+            and ( t1.to_be_updated = #{request.toBeUpdated} or t1.status = 'error')
         </if>
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true and request.toBeUpdateTime !=null">
-            and (t1.to_be_update_time >= #{request.toBeUpdateTime})
+            and (t1.to_be_update_time >= #{request.toBeUpdateTime} or t1.status = 'error')
         </if>
         <include refid="queryVersionCondition">
             <property name="versionTable" value="t1"/>
