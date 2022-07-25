@@ -2801,7 +2801,7 @@ export default {
     report_name: "报告名称",
     run_with_resource_pool: "资源池运行",
     retry_on_failure: "失败重试",
-    retry_message: "重试接口/UI用例，重试n次后，仍然失败，则用例失败",
+    retry_message: "重试接口用例，重试n次后，仍然失败，则用例失败",
     retry: "重试",
     retry_frequency: "次"
   },
@@ -3333,7 +3333,7 @@ export default {
     cmdElse: "Else",
     cmdElseIf: "ElseIf",
     close: "关闭网页",
-    cmdExtraction: "数据提取",
+    cmdExtraction: "提取参数",
     cmdExtractWindow: "提取窗口信息",
     cmdExtractElement: "提取元素信息",
     valiate_fail: "校验失败，请检查必填项",
@@ -3358,5 +3358,6 @@ export default {
     basic_information: "基础信息",
     check_element: "请勾选元素",
     check_subitem: '请选择子分类',
+    pause: '等待时间',
   }
 };

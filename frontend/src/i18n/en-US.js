@@ -2793,7 +2793,7 @@ export default {
     report_name: "Report name",
     run_with_resource_pool: "Run Within Resource pool",
     retry_on_failure: "retry on failure",
-    retry_message: "Retry the interface/UI use case, if it still fails after retries n times, the use case failed",
+    retry_message: "Retry the interface use case, if it still fails after retries n times, the use case failed",
     retry: "Retry",
     retry_frequency: "Frequency"
   },
@@ -3348,6 +3348,7 @@ export default {
     cmdExtractWindow: "Extract window",
     cmdExtractElement: "Extract Element",
     valiate_fail: "Validate fail",
-    check_subitem: 'check subitem'
+    check_subitem: 'check subitem',
+    pause: 'Pause',
   }
 };
