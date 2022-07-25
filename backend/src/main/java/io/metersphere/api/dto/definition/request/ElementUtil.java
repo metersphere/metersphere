@@ -347,8 +347,11 @@ public class ElementUtil {
     public static void dataFormatting(JSONArray hashTree) {
         for (int i = 0; i < hashTree.size(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
+            if (element == null) {
+                continue;
+            }
             formatSampler(element);
-            if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+            if (element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
                 element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
             }
             if (element.containsKey("hashTree")) {
