@@ -196,7 +196,7 @@ export default {
       });
     },
     handleEditTask(index, data) {
-
+      this.handleReceivers(data);
       data.isSet = true;
       if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = false;
