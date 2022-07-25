@@ -104,4 +104,6 @@ public interface ExtApiDefinitionMapper {
     int countById(String id);
 
     List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId);
+
+    int deleteApiToGc(ApiDefinitionRequest request);
 }
