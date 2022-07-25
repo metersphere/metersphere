@@ -1572,9 +1572,11 @@ public class ApiDefinitionService {
                 this.sendFailMessage(request, project);
                 MSException.throwException("文件格式不符合要求");
             }
-            if (!UrlTestUtils.testUrlWithTimeOut(request.getSwaggerUrl(), 30000)) {
+            try {
+                UrlTestUtils.testUrl(request.getSwaggerUrl(), 30000);
+            } catch (Exception e) {
                 this.sendFailMessage(request, project);
-                MSException.throwException(Translator.get("connection_timeout"));
+                MSException.throwException(e.getMessage());
             }
         }
         if (StringUtils.equals(request.getType(), "schedule")) {
@@ -1585,21 +1587,17 @@ public class ApiDefinitionService {
             if (apiImport.getMocks() == null) {
                 apiImport.setMocks(new ArrayList<>());
             }
+        } catch (MSException e) {
+            // 发送通知
+            this.sendFailMessage(request, project);
+            throw e;
         } catch (Exception e) {
             // 发送通知
             this.sendFailMessage(request, project);
             LogUtil.error(e.getMessage(), e);
-            String returnThrowException = e.getMessage();
-            if (StringUtils.contains(returnThrowException, "模块树最大深度为")) {
-                MSException.throwException(returnThrowException);
-            } else {
-                if (returnThrowException.equals("wrong format")) {
-                    MSException.throwException("文件格式不符合要求");
-                } else {
-                    MSException.throwException(Translator.get("parse_data_error"));
-                }
-            }
+            MSException.throwException(Translator.get("parse_data_error"));
         }
+
         try {
             importApi(request, apiImport);
             if (CollectionUtils.isNotEmpty(apiImport.getData())) {
