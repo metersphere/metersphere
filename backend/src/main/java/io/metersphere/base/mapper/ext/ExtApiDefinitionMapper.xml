@@ -802,7 +802,8 @@
 
             <if test="request.apiCoverage == 'uncoverage'">
                 and
-                api_definition.id not in (SELECT api_definition_id FROM api_test_case)
+                api_definition.id not in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status`
+                != 'Trash')
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and
                     api_definition.id not in
@@ -815,7 +816,8 @@
             <if test="request.apiCoverage == 'coverage' ">
                 and
                 (
-                api_definition.id in (SELECT api_definition_id FROM api_test_case)
+                api_definition.id in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` !=
+                'Trash')
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     or
                     api_definition.id in
@@ -828,11 +830,11 @@
             </if>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
                 and api_definition.id not in
-                (SELECT api_definition_id FROM api_test_case)
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
             <if test="request.apiCaseCoverage == 'coverage' ">
                 and api_definition.id in
-                (SELECT api_definition_id FROM api_test_case)
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
             <if test="request.scenarioCoverage == 'uncoverage' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
@@ -916,7 +918,8 @@
             <include refid="filter"/>
             <if test="request.apiCoverage == 'uncoverage' ">
                 and
-                api_definition.id not in (SELECT api_definition_id FROM api_test_case)
+                api_definition.id not in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status`
+                != 'Trash')
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and
                     api_definition.id not in
@@ -929,7 +932,8 @@
             <if test="request.apiCoverage == 'coverage' ">
                 and
                 (
-                api_definition.id in (SELECT api_definition_id FROM api_test_case)
+                api_definition.id in (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` !=
+                'Trash')
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     or
                     api_definition.id in
@@ -942,11 +946,11 @@
             </if>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
                 and api_definition.id not in
-                (SELECT api_definition_id FROM api_test_case)
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
             <if test="request.apiCaseCoverage == 'coverage' ">
                 and api_definition.id in
-                (SELECT api_definition_id FROM api_test_case)
+                (SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash')
             </if>
             <if test="request.scenarioCoverage == 'uncoverage' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
