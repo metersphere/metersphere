@@ -4,6 +4,8 @@ import io.metersphere.controller.request.BaseQueryRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ApiDefinitionRequest extends BaseQueryRequest {
@@ -28,6 +30,9 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private String versionId;
     private String path;
     private String method;
+
+    //被场景覆盖的接口id集合
+    private List<String> coverageIds;
 
     // 测试计划是否允许重复
     private boolean repeatCase;
