@@ -918,18 +918,6 @@ public class TestPlanService {
         return issues;
     }
 
-    public List<TestPlanDTO> selectTestPlanByRelevancy(QueryTestPlanRequest params) {
-        return extTestPlanMapper.selectTestPlanByRelevancy(params);
-    }
-
-    public String findTestProjectNameByTestPlanID(String testPlanId) {
-        return extTestPlanMapper.findTestProjectNameByTestPlanID(testPlanId);
-    }
-
-    public String findScheduleCreateUserById(String testPlanId) {
-        return extTestPlanMapper.findScheduleCreateUserById(testPlanId);
-    }
-
     public List<MsExecResponseDTO> scenarioRunModeConfig(SchedulePlanScenarioExecuteRequest planScenarioExecuteRequest) {
         Map<String, Map<String, String>> testPlanScenarioIdMap = planScenarioExecuteRequest.getTestPlanScenarioIDMap();
         List<MsExecResponseDTO> list = new LinkedList<>();
