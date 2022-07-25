@@ -258,7 +258,7 @@ export default {
         },
         ui: {
           enable: true,
-          name: this.$t('test_track.report.analysis_api'),
+          name: this.$t('test_track.report.analysis_ui'),
           children: {
             result: {
               enable: true,
@@ -267,10 +267,6 @@ export default {
             failure: {
               enable: true,
               name: this.$t('test_track.report.fail_case'),
-            },
-            errorReport: {
-              enable: true,
-              name: this.$t('error_report_library.option.name'),
             },
             unExecute: {
               enable: true,
