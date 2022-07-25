@@ -568,7 +568,7 @@ function _resizeTextarea(i, size, textareaList) {
   let maxHeight = 0;
   for (let j = 0; j < size; j++) {
     let cur = textareaList[i + j];
-    let curHeight = Number.parseInt(calcTextareaHeight(cur).height.replace(/[^\d]/g, ''));
+    let curHeight = parseFloat(calcTextareaHeight(cur).height);
     maxHeight = Math.max(curHeight, maxHeight);
   }
 
