@@ -1776,7 +1776,7 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(apiList)) {
             return coverage;
         }
-        int urlContainsCount = this.countApiInScenario(projectId, scenarioUrlMap, apiList);
+        int urlContainsCount = this.getApiIdInScenario(projectId, scenarioUrlMap, apiList).size();
         coverage.setCoverate(urlContainsCount);
         coverage.setNotCoverate(apiList.size() - urlContainsCount);
         float coverageRageNumber = (float) urlContainsCount * 100 / apiList.size();
@@ -1785,9 +1785,9 @@ public class ApiAutomationService {
         return coverage;
     }
 
-    public int countApiInScenario(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
-        int urlContainsCount = 0;
-        if (MapUtils.isNotEmpty(scenarioUrlMap)) {
+    public List<String> getApiIdInScenario(String projectId, Map<String, Map<String, String>> scenarioUrlMap, List<ApiDefinition> apiList) {
+        List<String> apiIdList = new ArrayList<>();
+        if (MapUtils.isNotEmpty(scenarioUrlMap) && CollectionUtils.isNotEmpty(apiList)) {
             ProjectApplication urlRepeatableConfig = projectApplicationService.getProjectApplication(projectId, ProjectApplicationType.URL_REPEATABLE.name());
             boolean isUrlRepeatable = BooleanUtils.toBoolean(urlRepeatableConfig.getTypeValue());
             for (ApiDefinition model : apiList) {
@@ -1799,26 +1799,26 @@ public class ApiAutomationService {
                             if (StringUtils.isNotEmpty(url)) {
                                 boolean urlMatched = MockApiUtils.isUrlMatch(model.getPath(), url);
                                 if (urlMatched) {
-                                    urlContainsCount++;
+                                    apiIdList.add(model.getId());
                                 }
                             }
                         } else {
                             Collection<String> scenarioUrlList = scenarioUrlMap.get(model.getMethod()).values();
                             boolean matchedUrl = MockApiUtils.isUrlInList(model.getPath(), scenarioUrlList);
                             if (matchedUrl) {
-                                urlContainsCount++;
+                                apiIdList.add(model.getId());
                             }
                         }
                     }
                 } else {
                     Map<String, String> stepIdAndUrlMap = scenarioUrlMap.get("MS_NOT_HTTP");
                     if (stepIdAndUrlMap != null && stepIdAndUrlMap.containsKey(model.getId())) {
-                        urlContainsCount++;
+                        apiIdList.add(model.getId());
                     }
                 }
             }
         }
-        return urlContainsCount;
+        return apiIdList;
     }
 
     public ScenarioEnv getApiScenarioProjectId(String id) {

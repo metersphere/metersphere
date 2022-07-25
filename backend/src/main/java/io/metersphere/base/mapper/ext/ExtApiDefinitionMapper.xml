@@ -785,24 +785,30 @@
             </choose>
             <include refid="filter"/>
 
-            <if test="request.apiCoverage == 'uncoverage' ">
+            <if test="request.apiCoverage == 'uncoverage'">
                 and
                 api_definition.id not in (SELECT api_definition_id FROM api_test_case)
-                and
-                api_definition.id not in (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') AND reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and
+                    api_definition.id not in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
             </if>
             <if test="request.apiCoverage == 'coverage' ">
                 and
                 (
                 api_definition.id in (SELECT api_definition_id FROM api_test_case)
-                or
-                api_definition.id in (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    or
+                    api_definition.id in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
                 )
             </if>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
@@ -814,18 +820,22 @@
                 (SELECT api_definition_id FROM api_test_case)
             </if>
             <if test="request.scenarioCoverage == 'uncoverage' ">
-                and api_definition.id not in
-                (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id not in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
             </if>
             <if test="request.scenarioCoverage == 'coverage' ">
-                and api_definition.id in
-                (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
             </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
@@ -892,21 +902,27 @@
             <if test="request.apiCoverage == 'uncoverage' ">
                 and
                 api_definition.id not in (SELECT api_definition_id FROM api_test_case)
-                and
-                api_definition.id not in (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') AND reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and
+                    api_definition.id not in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
             </if>
             <if test="request.apiCoverage == 'coverage' ">
                 and
                 (
                 api_definition.id in (SELECT api_definition_id FROM api_test_case)
-                or
-                api_definition.id in (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash')
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    or
+                    api_definition.id in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
                 )
             </if>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
@@ -918,18 +934,22 @@
                 (SELECT api_definition_id FROM api_test_case)
             </if>
             <if test="request.scenarioCoverage == 'uncoverage' ">
-                and api_definition.id not in
-                (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id not in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
             </if>
             <if test="request.scenarioCoverage == 'coverage' ">
-                and api_definition.id in
-                (
-                SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in
-                (SELECT id FROM api_scenario WHERE `status` is null or `status` != 'Trash') and reference_id is not null
-                )
+                <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
+                    and api_definition.id in (
+                    <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                    )
+                </if>
             </if>
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
