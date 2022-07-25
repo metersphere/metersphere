@@ -69,6 +69,7 @@ public class ApiDefinitionController {
                 request.setToBeUpdateTime(toBeUpdatedTime);
             }
         }
+        apiDefinitionService.checkFilterHasCoverage(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }

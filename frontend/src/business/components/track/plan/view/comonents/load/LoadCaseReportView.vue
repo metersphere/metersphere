@@ -63,30 +63,45 @@
             </el-row>
           </el-col>
           <el-col :span="8">
-            <span class="ms-report-time-desc">
+            <div v-if="isPlanReport" style="float: right;margin-right: 10px;">
+              <div v-if="showProjectEnv" type="flex">
+                <span> {{ $t('commons.environment') + ':' }} </span>
+                <div v-for="(values,key) in projectEnvMap" :key="key" style="margin-right: 10px">
+                  {{ key + ":" }}
+                  <ms-tag v-for="(item,index) in values" :key="index" type="success" :content="item"
+                          style="margin-left: 2px"/>
+                </div>
+                <div v-show="showMoreProjectEnvMap">
+                  <el-link icon="el-icon-more" @click="showAllProjectInfo"></el-link>
+                </div>
+              </div>
+            </div>
+            <div style="float: left">
+              <span class="ms-report-time-desc">
               {{
-                $t('report.test_duration', [templateMinutes ? templateMinutes : minutes,
-                  templateSeconds ? templateSeconds : seconds])
-              }}
+                  $t('report.test_duration', [templateMinutes ? templateMinutes : minutes,
+                    templateSeconds ? templateSeconds : seconds])
+                }}
             </span>
-            <span class="ms-report-time-desc" v-if="startTime !== '0'">
+              <span class="ms-report-time-desc" v-if="startTime !== '0'">
               {{ $t('report.test_start_time') }}：{{ startTime | timestampFormatDate }}
             </span>
-            <span class="ms-report-time-desc" v-else-if="planReportTemplate && planReportTemplate.startTime">
+              <span class="ms-report-time-desc" v-else-if="planReportTemplate && planReportTemplate.startTime">
               {{ $t('report.test_start_time') }}：{{ planReportTemplate.startTime | timestampFormatDate }}
             </span>
-            <span class="ms-report-time-desc" v-else>
+              <span class="ms-report-time-desc" v-else>
               {{ $t('report.test_start_time') }}：-
             </span>
-            <span class="ms-report-time-desc" v-if="report.status === 'Completed' && endTime !== '0'">
+              <span class="ms-report-time-desc" v-if="report.status === 'Completed' && endTime !== '0'">
               {{ $t('report.test_end_time') }}：{{ endTime | timestampFormatDate }}
             </span>
-            <span class="ms-report-time-desc" v-else-if="planReportTemplate && planReportTemplate.endTime">
+              <span class="ms-report-time-desc" v-else-if="planReportTemplate && planReportTemplate.endTime">
               {{ $t('report.test_end_time') }}：{{ planReportTemplate.endTime | timestampFormatDate }}
             </span>
-            <span class="ms-report-time-desc" v-else>
+              <span class="ms-report-time-desc" v-else>
               {{ $t('report.test_end_time') }}：-
             </span>
+            </div>
           </el-col>
         </el-row>
 

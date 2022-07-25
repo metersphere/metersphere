@@ -10,7 +10,7 @@
             != 'Trash'
           AND project_id = #{0}
           AND latest = 1)
-          AND reference_id IS NOT NULL;
+          AND reference_id IS NOT NULL
     </select>
 
 </mapper>
