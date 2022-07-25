@@ -31,7 +31,6 @@
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
 import {
-  getExportReport,
   getShareTestPlanReport,
   getShareTestPlanReportContent,
   getTestPlanReport,
@@ -50,6 +49,7 @@ import TestPlanReportNavigationBar
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportNavigationBar";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+
 export default {
   name: "TestPlanReportContent",
   components: {

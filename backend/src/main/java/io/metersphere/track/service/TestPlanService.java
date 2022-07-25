@@ -36,9 +36,9 @@ import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
-import io.metersphere.track.factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
+import io.metersphere.track.factory.ReportComponentFactory;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
@@ -1441,7 +1441,17 @@ public class TestPlanService {
                     ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(apiCase.getId(), "API_PLAN");
                     if (result != null && StringUtils.isNotBlank(result.getContent())) {
                         apiCase.setReportId(result.getId());
-                        apiCase.setResponse(result.getContent());
+                        String contentStr = result.getContent();
+                        try {
+                            JSONObject content = JSONObject.parseObject(contentStr);
+                            if (StringUtils.isNotEmpty(contentStr)) {
+                                content.put("envName", apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
+                            }
+                            contentStr = content.toString();
+                            apiCase.setResponse(contentStr);
+                        } catch (Exception e) {
+                            LogUtil.error("解析content失败!", e);
+                        }
                     }
                 } else {
                     reportIds.add(apiCase.getReportId());
@@ -1461,7 +1471,7 @@ public class TestPlanService {
                         if (StringUtils.isNotEmpty(execResult.getEnvConfig())) {
                             responseObj.put("envName", apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig()));
                         }
-                        item.setResponse(resultMap.get(item.getReportId()).getContent());
+                        item.setResponse(responseObj.toString());
                     }
                 });
             }
