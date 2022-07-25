@@ -76,6 +76,8 @@ public class ApiScenarioReportStructureService {
     @Lazy
     @Resource
     private ApiScenarioEnvService apiScenarioEnvService;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
@@ -279,7 +281,7 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    public void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResultWithBLOBs>> maps) {
+    public void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResultWithBLOBs>> maps, String reportType) {
         // 按照创建时间排序
         for (int index = 0; index < dtoList.size(); index++) {
             StepTreeDTO dto = dtoList.get(index);
@@ -325,7 +327,7 @@ public class ApiScenarioReportStructureService {
             }
 
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
-                reportFormatting(dto.getChildren(), maps);
+                reportFormatting(dto.getChildren(), maps, reportType);
 
                 if (StringUtils.isEmpty(dto.getErrorCode())) {
                     //统计child的errorCode，合并到parent中
@@ -384,7 +386,9 @@ public class ApiScenarioReportStructureService {
                 dto.setTotalStatus(ExecuteResult.FAIL.getValue());
             }
         }
-        this.orderLoops(dtoList);
+        if (!reportType.startsWith("UI")) {
+            this.orderLoops(dtoList);
+        }
     }
 
     /**
@@ -400,8 +404,8 @@ public class ApiScenarioReportStructureService {
             }
             // 非正常执行结束的请求结果
             List<StepTreeDTO> unList = dtoList.stream().filter(e -> e.getValue() != null
-                            && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0)
-                            || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.UN_EXECUTE.toString())))
+                    && ((StringUtils.equalsIgnoreCase(e.getType(), "DubboSampler") && e.getValue().getStartTime() == 0)
+                    || StringUtils.equalsIgnoreCase(e.getTotalStatus(), ExecuteResult.UN_EXECUTE.toString())))
                     .collect(Collectors.toList());
 
             // 有效数据按照时间排序
@@ -556,6 +560,7 @@ public class ApiScenarioReportStructureService {
 
 
     private ApiScenarioReportDTO getReport(String reportId, boolean selectContent) {
+        ApiScenarioReport mainReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
         List<ApiScenarioReportResultWithBLOBs> reportResults = null;
         if (selectContent) {
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
@@ -605,7 +610,7 @@ public class ApiScenarioReportStructureService {
 
             // 匹配结果
             Map<String, List<ApiScenarioReportResultWithBLOBs>> maps = reportResults.stream().collect(Collectors.groupingBy(ApiScenarioReportResult::getResourceId));
-            this.reportFormatting(stepList, maps);
+            this.reportFormatting(stepList, maps, mainReport.getReportType());
 
             reportDTO = this.countReportNum(stepList, reportDTO);
             // 统计场景数据
