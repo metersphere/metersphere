@@ -293,11 +293,8 @@
                 and issues.id in (
                     select resource_id from custom_field_issues where field_id = #{custom.id}
                     <choose>
-                        <when test="custom.type == 'multipleMember'">
-                            <foreach item="item" collection='custom.value.split(",")' open="" separator="" close="">
-                                and left(`value`, 1) = '['
-                                and find_in_set(#{item}, replace(replace(`value`, ']', ''), '[', ''))
-                            </foreach>
+                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox'">
+                            and JSON_CONTAINS(`value`, #{custom.value})
                         </when>
                         <when test="custom.type == 'date' or custom.type == 'datetime'">
                             and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)

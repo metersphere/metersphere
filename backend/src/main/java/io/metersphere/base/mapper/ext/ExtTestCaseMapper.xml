@@ -111,7 +111,7 @@
                 and test_case.id in (
                     select resource_id from custom_field_test_case where field_id = #{custom.id}
                     <choose>
-                        <when test="custom.type == 'multipleMember'">
+                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
                             and JSON_CONTAINS(`value`, #{custom.value})
                         </when>
                         <when test="custom.type == 'date' or custom.type == 'datetime'">
