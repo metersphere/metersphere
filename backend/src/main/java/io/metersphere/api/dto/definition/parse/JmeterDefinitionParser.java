@@ -37,6 +37,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -110,7 +111,7 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                     ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                     BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
                     apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
-                    apiTestCase.setStatus("Prepare");
+                    apiTestCase.setCaseStatus(APITestStatus.Prepare.name());
                     apiTestCase.setPriority("P0");
                     definitionCases.add(apiTestCase);
 
