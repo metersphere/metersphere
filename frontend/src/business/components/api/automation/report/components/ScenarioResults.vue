@@ -15,7 +15,7 @@
              highlight-current
              class="ms-tree ms-report-tree" ref="resultsTree">
           <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
-            <ms-scenario-result :node="data" :console="console"  v-on:requestResult="requestResult"
+            <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"
                                 :isActive="isActive" :is-share="isShare" :share-id="shareId"/>
           </span>
     </el-tree>
@@ -38,7 +38,7 @@ export default {
       default: false,
       type: Boolean,
     },
-    isShare:Boolean,
+    isShare: Boolean,
     shareId: String,
   },
   data() {
@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     filterNode(value, data) {
-      if (!data.value && !data.children && data.children.length === 0) {
+      if (!data.value && (!data.children || data.children.length === 0)) {
         return false;
       }
       if (!value) return true;
@@ -67,11 +67,11 @@ export default {
           if (data.errorCode && data.errorCode !== "" && data.value.status === "errorReportResult") {
             return true;
           }
-        }else if (value === 'unexecute') {
-          if(data.value.status === 'unexecute'){
+        } else if (value === 'unexecute') {
+          if (data.value.status === 'unexecute') {
             return true;
           }
-        }else {
+        } else {
           if (this.isUi) {
             return data.value.success === false && data.value.startTime > 0;
           } else {
@@ -93,7 +93,7 @@ export default {
       node.expanded = !node.expanded;
     },
     // 改变节点的状态
-    changeTreeNodeStatus(node,expandCount) {
+    changeTreeNodeStatus(node, expandCount) {
       node.expanded = this.expandAll
       for (let i = 0; i < node.childNodes.length; i++) {
         // 改变节点的自身expanded状态
@@ -107,13 +107,13 @@ export default {
     closeExpansion() {
       this.isActive = false;
       this.expandAll = false;
-      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root,0);
+      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0);
     },
     openExpansion() {
       this.isActive = true;
       this.expandAll = true;
       // 改变每个节点的状态
-      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root,0)
+      this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0)
     },
   }
 }
