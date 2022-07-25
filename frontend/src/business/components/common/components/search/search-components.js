@@ -132,11 +132,12 @@ export const UI_REPORT_STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "Saved", value: "Saved"},
     {label: "Running", value: "Running"},
-    {label: 'Stopped', value: 'stop'},
     {label: "Error", value: "Error"},
-    {label: "Success", value: "Success"}
+    {label: "Success", value: "Success"},
+    {label: 'Stopped', value: 'stop'},
+    {label: "NotExecute", value: "unexecute"},
+    // {label: "Saved", value: "Saved"},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
