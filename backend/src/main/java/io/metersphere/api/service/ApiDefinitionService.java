@@ -1475,10 +1475,10 @@ public class ApiDefinitionService {
                 content.put("envName", this.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig()));
             }
             contentStr = content.toString();
+            reportResult.setContent(contentStr);
         } catch (Exception e) {
             LogUtil.error("解析content失败!", e);
         }
-        reportResult.setContent(contentStr);
         return reportResult;
     }
 
