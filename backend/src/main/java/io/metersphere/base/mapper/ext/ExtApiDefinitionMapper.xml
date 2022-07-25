@@ -805,11 +805,11 @@
                 api_definition.id not in (SELECT api_definition_id FROM api_test_case)
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and
-                    api_definition.id not in (
+                    api_definition.id not in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
             </if>
             <if test="request.apiCoverage == 'coverage' ">
@@ -818,11 +818,11 @@
                 api_definition.id in (SELECT api_definition_id FROM api_test_case)
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     or
-                    api_definition.id in (
+                    api_definition.id in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
                 )
             </if>
@@ -836,20 +836,20 @@
             </if>
             <if test="request.scenarioCoverage == 'uncoverage' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
-                    and api_definition.id not in (
+                    and api_definition.id not in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
             </if>
             <if test="request.scenarioCoverage == 'coverage' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
-                    and api_definition.id in (
+                    and api_definition.id in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
             </if>
             <include refid="queryVersionCondition">
@@ -919,11 +919,11 @@
                 api_definition.id not in (SELECT api_definition_id FROM api_test_case)
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     and
-                    api_definition.id not in (
+                    api_definition.id not in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
             </if>
             <if test="request.apiCoverage == 'coverage' ">
@@ -932,11 +932,11 @@
                 api_definition.id in (SELECT api_definition_id FROM api_test_case)
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
                     or
-                    api_definition.id in (
+                    api_definition.id in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
                 )
             </if>
@@ -950,20 +950,20 @@
             </if>
             <if test="request.scenarioCoverage == 'uncoverage' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
-                    and api_definition.id not in (
+                    and api_definition.id not in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
             </if>
             <if test="request.scenarioCoverage == 'coverage' ">
                 <if test=" request.coverageIds != null and request.coverageIds.size() > 0">
-                    and api_definition.id in (
+                    and api_definition.id in
                     <foreach collection="request.coverageIds" item="nodeId" separator="," open="(" close=")">
                         #{nodeId}
                     </foreach>
-                    )
+
                 </if>
             </if>
             <include refid="queryVersionCondition">
