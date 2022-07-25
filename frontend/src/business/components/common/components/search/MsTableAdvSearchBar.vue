@@ -109,31 +109,35 @@ export default {
       this.visible = false;
     },
     setCondition(condition, component) {
-      if (!component.custom) {
-        condition[component.key] = {
-          operator: component.operator.value,
-          value: component.value
-        };
-      } else {
-        if (!condition.customs) {
-          condition['customs'] = [];
-        }
-        let value = component.value;
-        if (component.type === "multipleMember") {
-          try {
-            value = JSON.stringify(component.value);
-          } catch (e) {
-            // nothing
-          }
-        }
-        condition['customs'].push({
-          id: component.key,
-          operator: component.operator.value,
-          value: value,
-          type: component.type
-        });
+      //【严重程度、处理人、状态】三个字段储存在自定义表但是其 custom 的值是 false
+      // 因为需求要把这些字段在有选项分类时归为 系统字段 ？
+      if (component.custom || (component.label === '严重程度' || component.label === '处理人' || component.label === '状态')) {
+        this.handleCustomField(condition, component);
+        return;
       }
-
+      condition[component.key] = {
+        operator: component.operator.value,
+        value: component.value
+      };
+    },
+    handleCustomField(condition, component) {
+      if (!condition.customs) {
+        condition['customs'] = [];
+      }
+      let value = component.value;
+      if (component.type === "multipleMember") {
+        try {
+          value = JSON.stringify(component.value);
+        } catch (e) {
+          // nothing
+        }
+      }
+      condition['customs'].push({
+        id: component.key,
+        operator: component.operator.value,
+        value: value,
+        type: component.type
+      });
     },
     reset() {
       let source = this.condition.components;
