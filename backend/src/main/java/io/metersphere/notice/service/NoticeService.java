@@ -151,6 +151,7 @@ public class NoticeService {
             messageDetail.setWebhook(m.getWebhook());
             messageDetail.setIdentification(m.getIdentification());
             messageDetail.setType(m.getType());
+            messageDetail.setTestId(m.getTestId());
             messageDetail.setIsSet(m.getIsSet());
             messageDetail.setCreateTime(m.getCreateTime());
             messageDetail.setTemplate(m.getTemplate());
