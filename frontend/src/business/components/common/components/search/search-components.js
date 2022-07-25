@@ -185,14 +185,28 @@ export const API_STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {value: 'Prepare', label: '未开始'},
-    {value: 'Underway', label: '进行中'},
-    {value: 'Completed', label: '已完成'}
+    {value: 'Prepare', label: 'test_track.plan.plan_status_prepare'},
+    {value: 'Underway', label: 'test_track.plan.plan_status_running'},
+    {value: 'Completed', label: 'test_track.plan.plan_status_completed'}
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
   }
 }
+
+export const API_STATUS_TRASH = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: 'commons.status',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [{value: 'Trash', label: 'test_track.plan.plan_status_trash'}],
+  props: { // 尾部控件的props，一般为element ui控件的props
+    multiple: true
+  }
+}
+
 // 用例执行结果
 export const API_CASE_RESULT = {
   key: "status",
@@ -778,6 +792,7 @@ export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TES
 export const TEST_REVIEW = [NAME, CREATOR, TAGS, TEST_PLAN_STATUS, FOLLOW_PEOPLE, CREATE_TIME, UPDATE_TIME, END_TIME];
 
 export const API_DEFINITION_CONFIGS = [ID, NAME, API_METHOD, API_PATH, API_STATUS, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TREE, FOLLOW_PEOPLE, CASE_COUNT];
+export const API_DEFINITION_CONFIGS_TRASH = [ID, NAME, API_METHOD, API_PATH, API_STATUS_TRASH, TAGS, UPDATE_TIME, CREATE_TIME, API_PRINCIPAL, API_MODULE_TREE, FOLLOW_PEOPLE, CASE_COUNT];
 
 export const API_CASE_CONFIGS = [ID, NAME, PRIORITY, TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR, FOLLOW_PEOPLE, API_PATH];
 
