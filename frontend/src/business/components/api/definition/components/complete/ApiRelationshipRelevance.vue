@@ -14,6 +14,7 @@
         @refreshTable="initTable"
         :is-read-only="true"
         :show-case-num="false"
+        :is-relevance="true"
         ref="nodeTree"/>
     </template>
 
