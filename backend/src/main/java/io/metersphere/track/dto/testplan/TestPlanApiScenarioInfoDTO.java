@@ -10,4 +10,6 @@ public class TestPlanApiScenarioInfoDTO {
     private String apiScenarioId;
     private String environment;
     private String projectId;
+    private String environmentType;
+    private String environmentGroupId;
 }
