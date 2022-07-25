@@ -3,10 +3,7 @@ package io.metersphere.listener;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
-import io.metersphere.api.service.ApiAutomationService;
-import io.metersphere.api.service.ApiDefinitionService;
-import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.api.service.MockConfigService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -50,8 +47,6 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     @Resource
     private TestCaseService testCaseService;
     @Resource
-    private AttachmentService attachmentService;
-    @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
@@ -69,6 +64,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private MockConfigService mockConfigService;
     @Resource
     private CustomFieldResourceService customFieldResourceService;
+    @Resource
+    private ApiExecutionQueueService apiExecutionQueueService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -89,6 +86,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         System.setProperty("jmeter.home", jmeterHome);
 
         pluginService.loadPlugins();
+        // 处理重启导致未执行完成的报告
+        apiExecutionQueueService.exceptionHandling();
         // 设置并发队列核心数
         BaseSystemConfigDTO dto = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         if (StringUtils.isNotEmpty(dto.getConcurrency())) {
