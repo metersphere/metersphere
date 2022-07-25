@@ -238,7 +238,10 @@ import {API_LIST} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {
+  API_DEFINITION_CONFIGS,
+  API_DEFINITION_CONFIGS_TRASH
+} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
@@ -295,7 +298,7 @@ export default {
       fields: getCustomTableHeader('API_DEFINITION'),
       fieldsWidth: getCustomTableWidth('API_DEFINITION'),
       condition: {
-        components: API_DEFINITION_CONFIGS
+        components: this.trashEnable ? API_DEFINITION_CONFIGS_TRASH : API_DEFINITION_CONFIGS
       },
       selectApi: {},
       result: {},
