@@ -1,8 +1,8 @@
 <template>
   <div v-loading="result.loading">
     <api-list-container
-        :is-api-list-enable="isApiListEnable"
-        @isApiListEnableChange="isApiListEnableChange">
+      :is-api-list-enable="isApiListEnable"
+      @isApiListEnableChange="isApiListEnableChange">
 
       <template>
         <slot name="version"></slot>
@@ -11,7 +11,7 @@
       <ms-environment-select :project-id="projectId" v-if="isTestPlan || isScript" :is-read-only="isReadOnly"
                              @setEnvironment="setEnvironment" ref="msEnvironmentSelect"/>
 
-      <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="initTable"
+      <el-input :placeholder="$t('commons.search_by_name_or_id')" @change="change"
                 class="search-input" size="small" v-model="condition.name"/>
       <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
                                v-if="condition.components !== undefined && condition.components.length > 0"
@@ -235,6 +235,9 @@ export default {
     },
     selectCountChange(data) {
       this.$emit('selectCountChange', data);
+    },
+    change() {
+      this.initTable();
     },
     initTable(projectId) {
       this.condition.status = "";
