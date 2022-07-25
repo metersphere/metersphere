@@ -993,6 +993,12 @@ public class ApiDefinitionService {
         }
         for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : caseList) {
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
+            if (apiDefinition.getToBeUpdated() != null && !apiTestCaseWithBLOBs.getVersionId().equals("cover")) {
+                apiTestCaseWithBLOBs.setToBeUpdated(true);
+                //TODO:check setting
+            } else {
+                apiTestCaseWithBLOBs.setToBeUpdated(false);
+            }
             apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
             if (apiTestCaseWithBLOBs.getCreateTime() == null) {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
@@ -1012,9 +1018,6 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setNum(testCaseService.getNextNum(apiDefinition.getId()));
             }
 
-            if (apiDefinition.getToBeUpdated() != null) {
-                apiTestCaseWithBLOBs.setToBeUpdated(apiDefinition.getToBeUpdated());
-            }
             if (apiDefinition.getToBeUpdateTime() != null) {
                 apiTestCaseWithBLOBs.setToBeUpdateTime(apiDefinition.getToBeUpdateTime());
             }
@@ -1146,8 +1149,15 @@ public class ApiDefinitionService {
                     } else if (apiTestImportRequest.getCoverModule() != null && apiTestImportRequest.getCoverModule()) {
                         apiDefinition.setUpdateTime(System.currentTimeMillis());
                     }
-                    if (StringUtils.isBlank(apiDefinition.getCaseTotal()) || Integer.parseInt(apiDefinition.getCaseTotal()) == 0) {
+                    if (CollectionUtils.isEmpty(caseList)) {
                         apiDefinition.setToBeUpdated(false);
+                    } else {
+                        List<ApiTestCaseWithBLOBs> cover = caseList.stream().filter(t -> !t.getVersionId().equals("cover") && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
+                        if (CollectionUtils.isEmpty(cover)) {
+                            apiDefinition.setToBeUpdated(false);
+                        } else {
+                            apiDefinition.setToBeUpdated(true);
+                        }
                     }
                 } else {
                     apiDefinition.setUpdateTime(System.currentTimeMillis());
