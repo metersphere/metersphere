@@ -16,10 +16,12 @@ import java.util.Set;
  * @Description
  */
 public interface ExtTestPlanReportMapper {
-    List<TestPlanReportDTO> list(@Param("request")QueryTestPlanReportRequest request);
+    List<TestPlanReportDTO> list(@Param("request") QueryTestPlanReportRequest request);
 
     @MapKey("id")
     Map<String, ParamsDTO> reportCount(@Param("planIds") Set<String> planIds);
+
+    void setApiBaseCountAndPassRateIsNullById(String id);
 
     void updateAllStatus();
 }
