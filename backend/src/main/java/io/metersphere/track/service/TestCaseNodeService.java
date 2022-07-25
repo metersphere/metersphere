@@ -249,6 +249,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         this.getDefaultNode(projectId);
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         return getNodeTrees(testCaseNodes, getCountMap(countMNodes));
@@ -265,6 +266,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<TestCaseNodeDTO> getNodeByPlanId(String planId, QueryTestPlanCaseRequest request) {
         request.setPlanId(planId);
         request.setProjectId(null);
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countModules = extTestPlanTestCaseMapper.getTestPlanCountNodes(request);
         return getNodeTreeWithPruningTree(countModules);
     }
@@ -272,12 +274,14 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<TestCaseNodeDTO> getPublicCaseNode(String workspaceId, QueryTestCaseRequest request) {
         request.setWorkspaceId(workspaceId);
         request.setProjectId(null);
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getWorkspaceCountNodes(request);
         return getNodeTreeWithPruningTree(countModules);
     }
 
     public List<TestCaseNodeDTO> getTrashCaseNode(String projectId, QueryTestCaseRequest request) {
         request.setProjectId(projectId);
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getCountNodes(request);
         countModules.forEach(item -> item.setProjectId(projectId));
         return getNodeTreeWithPruningTree(countModules);
@@ -294,6 +298,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId, QueryCaseReviewRequest request) {
         request.setReviewId(reviewId);
         request.setProjectId(null);
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countModules = extTestReviewCaseMapper.getTestReviewCountNodes(request);
         return getNodeTreeWithPruningTree(countModules);
     }
@@ -340,12 +345,14 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getRelatePlanNodes(QueryTestCaseRequest request) {
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestPlanRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
     }
 
     public List<TestCaseNodeDTO> getRelateReviewNodes(QueryTestCaseRequest request) {
+        request.setNodeIds(null);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestReviewRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
