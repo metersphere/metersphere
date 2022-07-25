@@ -329,13 +329,6 @@
         WHERE tp.id = #{0}
         limit 1;
     </select>
-    <select id="findScheduleCreateUserById" resultType="java.lang.String">
-        SELECT user_id
-        FROM `schedule`
-        WHERE resource_id = #{0}
-        limit 1;
-    </select>
-
     <select id="findIdByPerformanceReportId" resultType="java.lang.String">
         SELECT report.id
         FROM test_plan_report report
