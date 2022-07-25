@@ -42,7 +42,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
             } catch (Exception e) {
                 LoggerUtil.error(e);
-                MSException.throwException("swagger验证失败");
+                MSException.throwException(e.getMessage());
             }
 
         } else {
