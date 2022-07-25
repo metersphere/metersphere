@@ -155,6 +155,7 @@ export default {
   float: left;
   color: #606266;
   margin-top: 15px;
+  font-size: 14px;
 }
 
 .green {
