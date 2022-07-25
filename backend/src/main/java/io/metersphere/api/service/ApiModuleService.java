@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ApiModuleMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
+import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -62,6 +63,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -347,16 +350,25 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public int deleteNode(List<String> nodeIds) {
-        ApiDefinitionExampleWithOperation apiDefinitionExample = new ApiDefinitionExampleWithOperation();
-        apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
-        apiDefinitionExample.setOperator(SessionUtils.getUserId());
-        apiDefinitionExample.setOperationTime(System.currentTimeMillis());
-        apiDefinitionService.removeToGcByExample(apiDefinitionExample);
-//        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
+        if (CollectionUtils.isNotEmpty(nodeIds)) {
+            //删除case
+            ApiTestCaseRequest request = new ApiTestCaseRequest();
+            request.setIds(nodeIds);
+            request.setDeleteUserId(SessionUtils.getUserId());
+            request.setDeleteTime(System.currentTimeMillis());
+            extApiTestCaseMapper.deleteCaseToGc(request);
+            //删除api
+            ApiDefinitionRequest apiDefinitionRequest = new ApiDefinitionRequest();
+            apiDefinitionRequest.setIds(nodeIds);
+            apiDefinitionRequest.setDeleteUserId(SessionUtils.getUserId());
+            apiDefinitionRequest.setDeleteTime(System.currentTimeMillis());
+            extApiDefinitionMapper.deleteApiToGc(apiDefinitionRequest);
 
-        ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
-        apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);
-        return apiModuleMapper.deleteByExample(apiDefinitionNodeExample);
+            ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
+            apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);
+            return apiModuleMapper.deleteByExample(apiDefinitionNodeExample);
+        }
+        return 0;
     }
 
     private void batchUpdateApiDefinition(List<ApiDefinitionResult> apiModule) {

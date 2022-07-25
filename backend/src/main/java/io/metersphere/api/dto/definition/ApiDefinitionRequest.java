@@ -47,4 +47,7 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
 
     //全选
     private boolean selectAll;
+
+    private Long deleteTime;
+    private String deleteUserId;
 }
