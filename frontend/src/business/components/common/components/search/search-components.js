@@ -403,7 +403,8 @@ export const UI_TRIGGER_MODE = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "commons.trigger_mode.manual", value: "MANUAL"}
+    {label: "commons.trigger_mode.manual", value: "MANUAL"},
+    {label: "api_test.automation.batch_execute", value: 'BATCH'}
   ],
   props: {
     multiple: true
