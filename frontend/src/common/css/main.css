@@ -310,3 +310,7 @@ textarea {
 .ace-chrome .ace_print-margin {
   width: 0px !important;
 }
+
+.el-form-item__error {
+  position: relative;
+}
