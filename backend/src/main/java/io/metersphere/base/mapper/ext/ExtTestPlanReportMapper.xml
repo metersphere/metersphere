@@ -154,6 +154,13 @@
         GROUP BY t.test_plan_id
     </select>
 
+
+    <update id="setApiBaseCountAndPassRateIsNullById">
+        update test_plan_report_content
+        SET api_base_count = NULL AND pass_rate = NULL
+        WHERE id = #{0}
+    </update>
+
     <update id="updateAllStatus">
         update test_plan_report set status="COMPLETED" where status in ('Rerunning','Running')
     </update>

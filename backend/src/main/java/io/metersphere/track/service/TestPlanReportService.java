@@ -540,6 +540,9 @@ public class TestPlanReportService {
             List<TestPlanReportContentWithBLOBs> contents = testPlanReportContentMapper.selectByExampleWithBLOBs(contentExample);
             if (CollectionUtils.isNotEmpty(contents)) {
                 content = contents.get(0);
+                content.setApiBaseCount(null);
+                content.setPassRate(null);
+                extTestPlanReportMapper.setApiBaseCountAndPassRateIsNullById(content.getId());
             }
             if (content != null) {
                 //更新content表对结束日期
