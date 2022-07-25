@@ -84,7 +84,6 @@ export default {
     initForm() {
       this.result = this.$get('/notice/search/message/' + this.apiTestId, response => {
         this.scheduleTask = response.data;
-        this.scheduleTask.testId = this.apiTestId;
       });
     },
     handleAddTaskModel() {
