@@ -164,6 +164,9 @@ public class ApiDefinitionService {
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Lazy
+    @Resource
+    private ApiAutomationService apiAutomationService;
 
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -321,6 +324,23 @@ public class ApiDefinitionService {
                 if (weekFirstTime != null) {
                     request.setCreateTime(weekFirstTime.getTime());
                 }
+            }
+        }
+        if (StringUtils.isNotEmpty(request.getProjectId())) {
+            List<ApiDefinition> definitionList = null;
+            if (StringUtils.equalsAnyIgnoreCase(request.getApiCoverage(), "uncoverage", "coverage")) {
+                //计算没有用例接口的覆盖数量
+                definitionList = this.selectEffectiveIdByProjectIdAndHaveNotCase(request.getProjectId());
+            }
+            if (StringUtils.equalsAnyIgnoreCase(request.getScenarioCoverage(), "uncoverage", "coverage")) {
+                //计算全部用例
+                definitionList = this.selectEffectiveIdByProjectId(request.getProjectId());
+            }
+            //如果查询条件中有未覆盖/已覆盖， 则需要解析出没有用例的接口中，有多少是符合场景覆盖规律的。然后将这些接口的id作为查询参数
+            Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(request.getProjectId());
+            List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(request.getProjectId(), scenarioUrlList, definitionList);
+            if (CollectionUtils.isNotEmpty(apiIdInScenario)) {
+                request.setCoverageIds(apiIdInScenario);
             }
         }
         return request;
