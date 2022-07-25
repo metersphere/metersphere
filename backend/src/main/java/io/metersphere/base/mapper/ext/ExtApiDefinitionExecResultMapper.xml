@@ -482,7 +482,7 @@
                  INNER JOIN api_test_case c ON r.resource_id = c.id
             AND c.`status` != 'Trash'
         WHERE
-            r.STATUS != 'success'
+            r.status not in ('success','errorReportResult','errorReport')
           AND r.integrated_report_id = #{reportId}
         ORDER BY
             r.create_time ASC
