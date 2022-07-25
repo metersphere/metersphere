@@ -308,9 +308,6 @@ public class ApiScenarioReportService {
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
 
-            //增加场景的运行记录
-            scenarioExecutionInfoService.insertExecutionInfo(testPlanApiScenario.getId(), status, report.getTriggerMode());
-
             // 更新场景状态
             ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
             if (scenario != null) {

@@ -352,11 +352,20 @@
         SELECT count(id) AS countNumber
         FROM scenario_execution_info
         WHERE create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
-          AND source_id in (
-            SELECT id
-            FROM api_scenario
-            WHERE project_id = #{projectId}
-        );
+          AND (
+                    source_id in (
+                    SELECT id
+                    FROM api_scenario
+                    WHERE project_id = #{projectId}
+                ) or
+                    source_id in (
+                        select id
+                        FROM test_plan_api_scenario
+                        WHERE api_scenario_id in (SELECT id
+                                                  FROM api_scenario
+                                                  WHERE project_id = #{projectId})
+                    )
+            )
     </select>
 
     <select id="countByProjectIdAndCreateAndByScheduleInThisWeek" resultType="java.lang.Long">
@@ -471,7 +480,9 @@
     </select>
 
     <update id="updateAllStatus">
-        update api_scenario_report set status="STOP" where status in ('Rerunning','Running','Waiting')
+        update api_scenario_report
+        set status="STOP"
+        where status in ('Rerunning', 'Running', 'Waiting')
     </update>
 
 </mapper>
