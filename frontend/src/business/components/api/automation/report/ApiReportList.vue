@@ -252,7 +252,7 @@ export default {
       this.selectDataCounts = 0;
 
       this.condition.reportType = this.reportType;
-      if (this.condition.orders) {
+      if (this.condition.orders && this.condition.orders.length > 0) {
         let order = this.condition.orders[this.condition.orders.length - 1];
         this.condition.orders = [];
         this.condition.orders.push(order);
