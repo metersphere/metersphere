@@ -5,7 +5,6 @@
         <ms-doughnut-pie-chart style="margin-right: 200px" :name="$t('api_test.home_page.ui_details_card.scenario_cases')" :data="caseCharData" ref="functionChar"/>
       </el-col>
       <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
-<!--        <api-scenario-char-result :name="$t('test_track.plan.test_plan_api_scenario_count')" :data="scenarioCharData"/>-->
         <api-scenario-char-result style="margin-top: -50px;" :name="$t('api_test.home_page.ui_details_card.step_count')" :data="stepCharData"/>
       </el-col>
     </el-row>

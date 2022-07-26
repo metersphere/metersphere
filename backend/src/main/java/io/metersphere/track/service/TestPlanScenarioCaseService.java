@@ -504,19 +504,6 @@ public class TestPlanScenarioCaseService {
         calculatePlanReport(report, planReportCaseDTOS);
     }
 
-    public void calculatePlanReportByScenarioList(List<TestPlanFailureScenarioDTO> scenarioList, TestPlanSimpleReportDTO report) {
-        List<PlanReportCaseDTO> planReportCaseDTOS = new ArrayList<>();
-        for (TestPlanFailureScenarioDTO scenario : scenarioList) {
-            PlanReportCaseDTO dto = new PlanReportCaseDTO();
-            dto.setCaseId(scenario.getCaseId());
-            dto.setId(scenario.getId());
-            dto.setStatus(scenario.getStatus());
-            dto.setReportId(scenario.getReportId());
-            planReportCaseDTOS.add(dto);
-        }
-        calculatePlanReport(report, planReportCaseDTOS);
-    }
-
     private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
 
