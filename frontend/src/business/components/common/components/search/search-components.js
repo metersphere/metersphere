@@ -147,11 +147,13 @@ export const STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "Saved", value: "Saved"}, {label: "Starting", value: "Starting"},
-    {label: "Running", value: "Running"}, {label: "Reporting", value: "Reporting"},
-    {label: "Completed", value: "Completed"}, {label: "Error", value: "Error"},
-    {label: "error_report_library.option.name", value: "errorReportResult"},
-    {label: "Success", value: "Success"}
+    {label: 'Running', value: 'Running'},
+    {label: 'Success', value: 'Success'},
+    {label: 'Stopped', value: 'stop'},
+    {label: 'NotExecute', value: 'unexecute'},
+    {label: 'Error', value: 'Error'},
+    {label: "FakeError", value: 'errorReportResult'},
+    {label: 'Rerunning', value: 'Rerunning'},
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
