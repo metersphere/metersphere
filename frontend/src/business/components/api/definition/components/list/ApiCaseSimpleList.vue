@@ -1068,8 +1068,9 @@ export default {
       let selectIds = this.$refs.caseTable.selectIds;
       let fromData = this.$refs.synSetting.fromData;
       fromData.ids = selectIds;
+      this.condition.syncConfig = fromData
       if (hasLicense()) {
-        this.$post('/api/sync/case/batch', fromData, response => {
+        this.$post('/api/sync/case/batch', this.condition, response => {
           this.batchSyncCaseVisible = false;
           this.$message.success("success");
           this.initTable();
