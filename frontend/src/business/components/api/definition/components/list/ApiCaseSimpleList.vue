@@ -1072,7 +1072,7 @@ export default {
       if (hasLicense()) {
         this.$post('/api/sync/case/batch', this.condition, response => {
           this.batchSyncCaseVisible = false;
-          this.$message.success("success");
+          this.$message.success(this.$t('commons.save_success'));
           this.initTable();
         });
       }
