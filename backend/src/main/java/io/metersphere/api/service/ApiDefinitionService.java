@@ -1842,7 +1842,9 @@ public class ApiDefinitionService {
                 }
             }
         }
-        apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
+        if (StringUtils.isEmpty(request.getFollow())) {
+            apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
+        }
     }
 
     private void batchEditDefinitionTags(ApiBatchRequest request) {
