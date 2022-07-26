@@ -165,7 +165,15 @@
           <div style="margin-top: -25px; margin-left: -20px; width:720px; height:1px; background:#DCDFE6;"></div>
           <el-row style="margin-top: 15px">
             <div class="timeClass">
-              <span>{{ $t('api_test.request.time') + $t('commons.setting') }}</span>
+              <span>
+                <span style="font-size: 16px">{{ $t('api_test.request.time') + $t('commons.setting') }}</span>
+                 <i class="el-icon-arrow-down" v-if="showSyncTimeSetting" @click="showSyncTimeSetting=false"/>
+                 <i class="el-icon-arrow-right" v-if="!showSyncTimeSetting" @click="showSyncTimeSetting=true"/>
+                <el-tooltip class="ms-num" effect="dark"
+                            :content="$t('project_application.workstation.time_tip')"
+                            placement="top">
+                  <i class="el-icon-warning"/>
+                </el-tooltip></span>
               <el-switch v-model="config.openUpdateTime"
                          @change="setSyncTime"></el-switch>
             </div>
@@ -196,12 +204,28 @@
             </div>
           </el-row>
           <el-row style="margin-top: 15px">
-            <span>{{
-                $t('commons.pending_upgrade') + $t('api_test.request.condition') + $t('commons.setting')
-              }}</span>
+            <span>
+              <span style="font-size: 16px">{{
+                  $t('commons.pending_upgrade') + $t('api_test.request.condition') + $t('commons.setting')
+                }}</span>
+              <i class="el-icon-arrow-down" v-if="showApiConfig" @click="showApiConfig=false"/>
+              <i class="el-icon-arrow-right" v-if="!showApiConfig" @click="showApiConfig=true"/>
+              <el-tooltip class="ms-num" effect="dark"
+                          :content="$t('project_application.workstation.rule_tip')"
+                          placement="top">
+                <i class="el-icon-warning"/>
+              </el-tooltip>
+            </span>
           </el-row>
-          <div style="margin-top: 15px" class="setApiClass">
-            <span>{{ $t('workstation.api_change') + $t('commons.setting') }}</span>
+          <div style="margin-top: 15px" class="setApiClass" v-if="showApiConfig">
+            <span>
+              <span style="font-weight: bold">{{ $t('workstation.api_change') + $t('commons.setting') }}</span>
+              <el-tooltip class="ms-num" effect="dark"
+                          :content="$t('project_application.workstation.api_tip')"
+                          placement="top">
+                <i class="el-icon-warning"/>
+              </el-tooltip>
+            </span>
             <el-row>
               <el-col :span="4">{{ $t('api_test.mock.base_info') + ":" }}</el-col>
               <el-col :span="20" style="color: #783887">
@@ -230,7 +254,12 @@
                 <el-checkbox v-model="apiSyncCaseRequest.body">{{ $t('api_test.request.body') }}</el-checkbox>
               </el-col>
             </el-row>
-            <!--            <span>{{ $t('commons.track') + $t('commons.setting') }}</span>
+            <!--            <span>{{ $t('commons.track') + $t('commons.setting') }}<el-tooltip class="ms-num" effect="dark"
+                                                                                           :content="$t('project_application.workstation.case_tip')"
+                                                                                           placement="top">
+                          <i class="el-icon-warning"/>
+                          </el-tooltip>
+                        </span>
                         <el-row>
                           <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
                           <el-col :span="20" style="color: #783887">
@@ -321,10 +350,11 @@ export default {
         triggerUpdate: "",
       },
       showRuleSetting: false,
-      showSyncTimeSetting: false,
+      showSyncTimeSetting: true,
       apiSyncCaseRequest: {},
       pastQuantity: '',
-      pastUnit: ''
+      pastUnit: '',
+      showApiConfig: true
     };
   },
   created() {
@@ -419,11 +449,8 @@ export default {
       this.apiSyncCaseRequest.path = true;
     },
     setSyncTime() {
-      this.showSyncTimeSetting = !this.showSyncTimeSetting;
-    },
-    saveSync() {
       let configs = [];
-      if (this.showSyncTimeSetting) {
+      if (this.config.openUpdateTime) {
         if (!this.pastQuantity) {
           this.$message.error("请选择时间")
         }
@@ -438,6 +465,11 @@ export default {
         });
       }
       configs.push({projectId: this.projectId, typeValue: this.config.openUpdateTime, type: 'OPEN_UPDATE_TIME'});
+      let params = {configs};
+      this.startSaveData(params)
+    },
+    saveSync() {
+      let configs = [];
       configs.push({
         projectId: this.projectId,
         typeValue: JSON.stringify(this.apiSyncCaseRequest),

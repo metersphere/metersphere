@@ -3337,5 +3337,14 @@ export default {
     valiate_fail: "校驗失敗，請檢查必填項",
     pause: '等待時間',
     browser: "瀏覽器",
+  },
+  project_application: {
+    workstation: {
+      time_tip: '關閉，不設置時間範圍；開啟，根據設置的時間範圍，進入待更新列表，超出時間範圍，將自動從列表清除;',
+      rule_tip: '設置待更新規則，符合選擇的條件，會進入待更新列表中',
+      api_tip: '接口定義和受影響的接口用例都會進入待更新列表',
+      case_tip: '接口用例符合條件就會進入待更新列表',
+      update_rule_title: '進入待更新列表規則設置'
+    }
   }
 };
