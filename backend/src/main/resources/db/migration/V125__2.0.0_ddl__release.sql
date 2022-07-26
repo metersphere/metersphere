@@ -254,3 +254,5 @@ CREATE TABLE IF NOT EXISTS `attachment_module_relation`
 ) ENGINE = InnoDB
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_general_ci;
+
+ALTER TABLE test_plan_report_content ADD COLUMN `ui_all_cases` LONGTEXT COMMENT 'ui all cases (JSON format)';
