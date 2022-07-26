@@ -28,6 +28,7 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -62,13 +63,13 @@ public class IssuesController {
         return PageUtils.setPageInfo(page, issuesService.relateList(request));
     }
 
-    @PostMapping(value = "/add")
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
             event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
-    public IssuesWithBLOBs addIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
-        return issuesService.addIssues(issuesRequest);
+    public IssuesWithBLOBs addIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+        return issuesService.addIssues(issuesRequest, files);
     }
 
     @PostMapping(value = "/update")

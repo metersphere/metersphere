@@ -37,7 +37,7 @@
             :width="70"
             :label="$t('commons.status')">
             <template v-slot:default="scope">
-              <span :class="scope.row.status === 'success' ? 'green' : scope.row.status === 'error' ? 'red' : ''">{{ scope.row.status | formatStatus}}</span>
+              <span :class="scope.row.status === 'success' ? 'green' : scope.row.status === 'error' ? 'red' : scope.row.status === 'toUpload' ? 'yellow' : ''">{{ scope.row.status | formatStatus}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -55,7 +55,7 @@
               <el-button @click="handleDownload(scope.row)"  type="primary" :disabled="!scope.row.id"
                          v-if="scope.row.progress === 100"
                          icon="el-icon-download" size="mini" circle/>
-              <el-button :disabled="readOnly || !isDelete || isCopy || !scope.row.id"
+              <el-button :disabled="readOnly || !isDelete || isCopy || (!scope.row.id && scope.row.status !== 'toUpload')"
                          @click="handleDelete(scope.row, scope.$index)" type="danger"
                          v-if="scope.row.progress === 100"
                          icon="el-icon-delete" size="mini"
@@ -132,7 +132,7 @@ export default {
   filters: {
     formatStatus(status) {
       if (isNaN(status)) {
-        return status === 'success' ? '完成' : '失败'
+        return status === 'success' ? '完成' : status === 'toUpload' ? '待上传' : '失败'
       }
       return Math.floor(status * 100 / 100) + "%";
     }
@@ -164,5 +164,9 @@ export default {
 
 .red {
   color: red;
+}
+
+.yellow {
+  color: #E6A23C;
 }
 </style>
