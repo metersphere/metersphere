@@ -1403,13 +1403,17 @@ public class TestPlanService {
         }
     }
 
-    public void buildUiReport(TestPlanSimpleReportDTO report, JSONObject config, String planId, boolean saveResponse) {
+    public void buildUiReport(TestPlanSimpleReportDTO report, JSONObject config, String planId, TestPlanExecuteReportDTO testPlanExecuteReportDTO, boolean saveResponse) {
         if (checkReportConfig(config, "ui")) {
             List<TestPlanUiScenarioDTO> allCases;
             List<String> statusList = getUiReportStatusList(config);
             if (statusList != null) {
                 // 不等于null，说明配置了用例，根据配置的状态查询用例
-                allCases = testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
+                if (testPlanExecuteReportDTO != null) {
+                    allCases = testPlanUiScenarioCaseService.getAllCases(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap(), testPlanExecuteReportDTO.getUiScenarioInfoDTOMap());
+                } else {
+                    allCases = testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
+                }
                 report.setUiAllCases(allCases);
                 if (saveResponse) {
                     buildUiScenarioResponse(allCases);
@@ -1839,6 +1843,7 @@ public class TestPlanService {
             buildFunctionalReport(report, config, testPlanReport.getTestPlanId());
             buildApiReport(report, config, testPlanExecuteReportDTO);
             buildLoadReport(report, config, testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap(), false);
+            buildUiReport(report, config, testPlanReport.getTestPlanId(), testPlanExecuteReportDTO, false);
             returnDTO.setTestPlanSimpleReportDTO(report);
             return returnDTO;
         } else {
@@ -1859,7 +1864,7 @@ public class TestPlanService {
         buildFunctionalReport(report, config, planId);
         buildApiReport(report, config, planId, saveResponse);
         buildLoadReport(report, config, planId, saveResponse);
-        buildUiReport(report, config, planId, saveResponse);
+        buildUiReport(report, config, planId, null, saveResponse);
         return report;
     }
 
