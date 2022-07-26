@@ -5,13 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.EnvironmentType;
-import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.automation.RunTestPlanScenarioRequest;
+import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.UiAutomationServiceProxy;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
-import io.metersphere.base.mapper.TestPlanMapper;
-import io.metersphere.base.mapper.TestPlanUiScenarioMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanUiScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExecuteResult;
@@ -26,10 +27,6 @@ import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
-import io.metersphere.dto.RunUiScenarioRequest;
-import io.metersphere.dto.UiScenarioRequest;
-import io.metersphere.track.dto.UiRunModeConfigDTO;
-import io.metersphere.xpack.ui.service.UiAutomationService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -49,7 +46,7 @@ import java.util.stream.Collectors;
 public class TestPlanUiScenarioCaseService {
 
     @Resource
-    UiAutomationService uiAutomationService;
+    UiAutomationServiceProxy uiAutomationServiceProxy;
     @Resource
     TestPlanUiScenarioMapper testPlanUiScenarioMapper;
     @Resource
@@ -71,6 +68,8 @@ public class TestPlanUiScenarioCaseService {
     private TestPlanService testPlanService;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private UiScenarioMapper uiScenarioMapper;
 
     public List<UiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -135,7 +134,7 @@ public class TestPlanUiScenarioCaseService {
             request.setNotInTestPlan(false);
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, uiAutomationService.list(request));
+        return PageUtils.setPageInfo(page, uiAutomationServiceProxy.list(request));
     }
 
     public int delete(String id) {
@@ -216,7 +215,7 @@ public class TestPlanUiScenarioCaseService {
         request.setUiConfig(configDTO);
         request.setPlanCaseIds(planCaseIdList);
         request.setRequestOriginator("TEST_PLAN");
-        return uiAutomationService.run(request);
+        return uiAutomationServiceProxy.run(request);
     }
 
     public void setScenarioEnv(List<TestPlanUiScenario> testPlanApiScenarios, List<String> planScenarioIds, RunModeConfigDTO runModeConfig) {
@@ -485,21 +484,60 @@ public class TestPlanUiScenarioCaseService {
     private void calculateScenarioResultDTO(PlanReportCaseDTO item,
                                             TestPlanScenarioStepCountDTO stepCount) {
         if (StringUtils.isNotBlank(item.getReportId())) {
-            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId(),false);
-            if (apiScenarioReportResult != null) {
-                String content = apiScenarioReportResult.getContent();
+            APIScenarioReportResult uiScenarioReportResult = apiScenarioReportService.get(item.getReportId(), false);
+
+            if (uiScenarioReportResult != null) {
+                String content = uiScenarioReportResult.getContent();
                 if (StringUtils.isNotBlank(content)) {
                     JSONObject jsonObject = JSONObject.parseObject(content);
-                    stepCount.setScenarioStepTotal(stepCount.getScenarioStepTotal() + jsonObject.getIntValue("scenarioStepTotal"));
+
                     stepCount.setScenarioStepSuccess(stepCount.getScenarioStepSuccess() + jsonObject.getIntValue("scenarioStepSuccess"));
                     stepCount.setScenarioStepError(stepCount.getScenarioStepError() + jsonObject.getIntValue("scenarioStepError"));
                     stepCount.setScenarioStepErrorReport(stepCount.getScenarioStepErrorReport() + jsonObject.getIntValue("scenarioStepErrorReport"));
-                    stepCount.setScenarioStepUnExecute(stepCount.getScenarioStepUnExecute() + jsonObject.getIntValue("scenarioStepUnExecuteReport"));
+
+                    if (!StringUtils.equalsIgnoreCase("STOP", uiScenarioReportResult.getStatus())) {
+                        stepCount.setScenarioStepTotal(stepCount.getScenarioStepTotal() + jsonObject.getIntValue("scenarioStepTotal"));
+                        stepCount.setScenarioStepUnExecute(stepCount.getScenarioStepUnExecute() + jsonObject.getIntValue("scenarioStepUnExecuteReport"));
+                    } else {
+                        //串行执行的报告 勾选了失败停止 后续的所有场景的未禁用步骤都统计到总数和未执行里面去
+                        UiScenarioWithBLOBs stoppedScenario = uiScenarioMapper.selectByPrimaryKey(uiScenarioReportResult.getScenarioId());
+                        if (stoppedScenario == null) {
+                            TestPlanUiScenario testPlanUiScenario = testPlanUiScenarioMapper.selectByPrimaryKey(uiScenarioReportResult.getScenarioId());
+                            stoppedScenario = uiScenarioMapper.selectByPrimaryKey(testPlanUiScenario.getUiScenarioId());
+                        }
+                        if (stoppedScenario == null) {
+                            return;
+                        }
+                        int totalSteps = getTotalSteps(stoppedScenario);
+                        stepCount.setScenarioStepTotal(stepCount.getScenarioStepTotal() + totalSteps);
+                        stepCount.setScenarioStepUnExecute(stepCount.getScenarioStepUnExecute() + totalSteps);
+                    }
                 }
             }
         } else {
             stepCount.getUnderwayIds().add(item.getCaseId());
         }
+    }
+
+    /**
+     * 获取一个ui场景所有未禁用的步骤数
+     *
+     * @param stoppedScenario
+     * @return
+     */
+    private int getTotalSteps(UiScenarioWithBLOBs stoppedScenario) {
+        if (StringUtils.isNotBlank(stoppedScenario.getScenarioDefinition())) {
+            JSONObject definition = JSONObject.parseObject(stoppedScenario.getScenarioDefinition());
+            if (definition.containsKey("hashTree")) {
+                return definition
+                        .getJSONArray("hashTree")
+                        .stream()
+                        .filter(cmd -> (((JSONObject) cmd).getBoolean("enable")))
+                        .collect(Collectors.toList())
+                        .size();
+            }
+        }
+        return 0;
     }
 
     private void getScenarioCaseReportStatusResultDTO(String status, int count, List<TestCaseReportStatusResultDTO> scenarioCaseList) {
@@ -518,7 +556,7 @@ public class TestPlanUiScenarioCaseService {
     }
 
     public List<TestPlanUiScenarioDTO> getAllCases(Map<String, String> idMap, Map<String, TestPlanUiScenarioDTO> scenarioInfoDTOMap) {
-        String defaultStatus = "Fail";
+        String defaultStatus = "Error";
         Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
         Map<String, String> savedReportMap = new HashMap<>(idMap);
         List<TestPlanUiScenarioDTO> apiTestCases = new ArrayList<>();
@@ -530,10 +568,6 @@ public class TestPlanUiScenarioCaseService {
                 String status = reportStatus.get(reportId);
                 if (status == null) {
                     status = defaultStatus;
-                } else {
-                    if (StringUtils.equalsIgnoreCase(status, "Error")) {
-                        status = "Fail";
-                    }
                 }
                 dto.setLastResult(status);
                 dto.setStatus(status);
