@@ -7,8 +7,10 @@ import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.jmeter.FixedCapacityUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -866,7 +868,7 @@ public class ApiScenarioReportService {
         return map;
     }
 
-    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfigDTO config) {
+    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userId, RunModeConfigDTO config) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
             triggerMode = ReportTriggerMode.MANUAL.name();
@@ -885,9 +887,9 @@ public class ApiScenarioReportService {
         String status = config != null && StringUtils.equals(config.getMode(), RunModeConstants.SERIAL.toString())
                 ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         report.setStatus(status);
-        if (StringUtils.isNotEmpty(userID)) {
-            report.setUserId(userID);
-            report.setCreateUser(userID);
+        if (StringUtils.isNotEmpty(userId)) {
+            report.setUserId(userId);
+            report.setCreateUser(userId);
         } else {
             report.setUserId(SessionUtils.getUserId());
             report.setCreateUser(SessionUtils.getUserId());
@@ -914,6 +916,22 @@ public class ApiScenarioReportService {
         return report;
     }
 
+    public APIScenarioReportResult getApiScenarioReportResult(RunScenarioRequest request, String serialReportId,
+                                                              String scenarioNames, String reportScenarioIds) {
+        APIScenarioReportResult report = this.init(request.getConfig().getReportId(), reportScenarioIds,
+                scenarioNames, request.getTriggerMode(), ExecuteType.Saved.name(), request.getProjectId(),
+                request.getReportUserID(), request.getConfig());
+        report.setName(request.getConfig().getReportName());
+        report.setId(serialReportId);
+        report.setReportType(ReportTypeConstants.SCENARIO_INTEGRATED.name());
+        request.getConfig().setAmassReport(serialReportId);
+        if (request.getConfig() != null) {
+            report.setEnvConfig(JSON.toJSONString(request.getConfig()));
+        }
+        report.setStatus(APITestStatus.Running.name());
+        return report;
+    }
+
     /**
      * 返回正确的报告状态
      *
@@ -934,10 +952,10 @@ public class ApiScenarioReportService {
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
             try {
                 errorSize = dto.getRequestResults().stream().filter(requestResult ->
-                                StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
-                                        && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
-                                        r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                                ).count() > 0)
+                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
+                                && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
+                                r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
+                        ).count() > 0)
                         .count();
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
@@ -1022,5 +1040,21 @@ public class ApiScenarioReportService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
         }
+    }
+
+    public APIScenarioReportResult initResult(String reportId, String testPlanScenarioId, String name, RunScenarioRequest request) {
+        return this.init(reportId, testPlanScenarioId, name, request.getTriggerMode(),
+                request.getExecuteType(), request.getProjectId(), request.getReportUserID(), request.getConfig());
+    }
+
+    public APIScenarioReportResult initDebugResult(RunDefinitionRequest request) {
+        return this.init(request.getId(),
+                request.getScenarioId(),
+                request.getScenarioName(),
+                ReportTriggerMode.MANUAL.name(),
+                request.getExecuteType(),
+                request.getProjectId(),
+                SessionUtils.getUserId(),
+                request.getConfig());
     }
 }
