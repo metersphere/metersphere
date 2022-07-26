@@ -2,7 +2,7 @@
   <el-popover
     v-model="visible"
     :placement="placement"
-    width="400"
+    :width="width"
     :disabled="isReadOnly"
     @show="showPopover"
     trigger="click">
@@ -18,10 +18,11 @@
                 @close="visible = false"
                 @setProjectEnvMap="setProjectEnvMap"
                 v-show="!radio || radio === ENV_TYPE.JSON"
+                :btnStyle="btnStyle"
                 ref="envSelect"/>
     <env-group ref="envGroup" v-show="radio === ENV_TYPE.GROUP && !hasOptionGroup" @close="visible = false"
                :project-ids="projectIds"
-               @setEnvGroup="setEnvGroup" :group-id="groupId"></env-group>
+               @setEnvGroup="setEnvGroup" :group-id="groupId" :btnStyle="btnStyle"></env-group>
     <!-- 对环境组选项进行分类 可用｜不可用 -->
     <env-group-with-option ref="envOptionGroup" v-show="radio === ENV_TYPE.GROUP && hasOptionGroup"
                            @close="visible = false"
@@ -44,6 +45,10 @@ export default {
   name: "EnvPopover",
   components: {EnvGroup, EnvSelect, EnvGroupWithOption},
   props: {
+    width:{
+      type: String,
+      default: "400"
+    },
     envMap: Map,
     projectIds: Set,
     projectList: Array,
@@ -94,6 +99,12 @@ export default {
       type: Boolean,
       default() {
         return false;
+      }
+    },
+    btnStyle: {
+      type: Object,
+      default() {
+        return {width: "360px"}
       }
     }
   },

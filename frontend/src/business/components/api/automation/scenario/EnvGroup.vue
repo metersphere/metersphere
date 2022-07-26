@@ -9,7 +9,7 @@
       <span style="margin-left: 8px;">{{$t('workspace.env_group.name')}}</span>
       <i class="el-icon-view icon-view-btn" @click="viewGroup"></i>
     </div>
-    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
+    <el-button type="primary" @click="handleConfirm" size="small" :style="btnStyle" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
     <el-dialog :visible="visble" append-to-body :title="$t('workspace.env_group.name')" @close="visble = false" style="height: 800px;">
       <template>
         <environment-group style="overflow-y: auto;"
@@ -42,6 +42,12 @@ export default {
       }
     },
     projectIds: Set,
+    btnStyle: {
+      type: Object,
+      default() {
+        return {width: "360px"}
+      }
+    }
   },
   watch: {
     groupId(val) {

@@ -23,7 +23,7 @@
       </span>
     </div>
 
-    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
+    <el-button type="primary" @click="handleConfirm" size="small" :style="btnStyle" class="env-confirm">{{$t('workspace.env_group.confirm')}}</el-button>
 
     <!-- 环境配置 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -51,6 +51,12 @@ export default {
       type: Object,
       default() {
         return {loading: false}
+      }
+    },
+    btnStyle: {
+      type: Object,
+      default() {
+        return {width: "360px"}
       }
     }
   },
