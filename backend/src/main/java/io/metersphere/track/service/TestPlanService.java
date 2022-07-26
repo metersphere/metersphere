@@ -187,6 +187,8 @@ public class TestPlanService {
     private UiAutomationServiceProxy uiAutomationServiceProxy;
     @Resource
     private TestPlanUiScenarioMapper testPlanUiScenarioMapper;
+    @Resource
+    private ExtTestPlanUiScenarioCaseMapper extTestPlanUiScenarioCaseMapper;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1273,6 +1275,31 @@ public class TestPlanService {
                     load.setOrder(nextLoadOrder);
                     mapper.insert(load);
                     nextLoadOrder += 5000;
+                }
+            }
+            sqlSession.flushStatements();
+
+            TestPlanUiScenarioExample testPlanUiScenarioExample = new TestPlanUiScenarioExample();
+            testPlanUiScenarioExample.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
+            List<TestPlanUiScenario> uiScenarios = testPlanUiScenarioMapper.selectByExampleWithBLOBs(testPlanUiScenarioExample);
+            TestPlanUiScenarioMapper uiScenarioMapper = sqlSession.getMapper(TestPlanUiScenarioMapper.class);
+            if (!CollectionUtils.isEmpty(uiScenarios)) {
+                Long nextScenarioOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanUiScenarioCaseMapper::getLastOrder);
+                for (TestPlanUiScenario uiScenario : uiScenarios) {
+                    TestPlanUiScenario planScenario = new TestPlanUiScenario();
+                    planScenario.setId(UUID.randomUUID().toString());
+                    planScenario.setTestPlanId(targetPlanId);
+                    planScenario.setUiScenarioId(uiScenario.getUiScenarioId());
+                    planScenario.setEnvironment(uiScenario.getEnvironment());
+                    if (uiScenario.getEnvironmentType() != null) {
+                        planScenario.setEnvironmentType(uiScenario.getEnvironmentType());
+                    }
+                    planScenario.setCreateTime(System.currentTimeMillis());
+                    planScenario.setUpdateTime(System.currentTimeMillis());
+                    planScenario.setCreateUser(SessionUtils.getUserId());
+                    planScenario.setOrder(nextScenarioOrder);
+                    nextScenarioOrder += 5000;
+                    uiScenarioMapper.insert(planScenario);
                 }
             }
             sqlSession.flushStatements();
