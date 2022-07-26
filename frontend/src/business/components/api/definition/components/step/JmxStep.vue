@@ -132,12 +132,13 @@ import {createComponent} from "../jmeter/components";
 import MsApiAssertions from "../assertion/ApiAssertions";
 import MsApiExtract from "../extract/ApiExtract";
 import {Assertions, Body, ConstantTimer, Extract, KeyValue} from "../../model/ApiTestModel";
-import {getUUID} from "@/common/js/utils";
+import {getUUID, getCurrentProjectID} from "@/common/js/utils";
 import BatchAddParameter from "../basis/BatchAddParameter";
 import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
 import MsConstantTimer from "../../../automation/scenario/component/ConstantTimer";
 import MsJdbcProcessor from "@/business/components/api/automation/scenario/component/JDBCProcessor";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
+import {parseEnvironment} from "../../model/EnvironmentModel";
 
 export default {
   name: "MsJmxStep",
@@ -176,6 +177,14 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+  watch: {
+    // 接口/用例 右上角公共环境监听
+    '$store.state.useEnvironment': function () {
+      if (this.request.hashTree && this.request.hashTree.length > 0 && !this.scenarioId) {
+        this.setSubset(this.request.hashTree, this.$store.state.useEnvironment);
+      }
+    },
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -220,6 +229,7 @@ export default {
       isReloadData: false,
       isBodyShow: true,
       dialogVisible: false,
+      environments: [],
     }
   },
   created() {
@@ -270,6 +280,67 @@ export default {
       }
       this.sort();
       this.reload();
+    },
+    setSubset(scenarioDefinition, env) {
+      for (let i in scenarioDefinition) {
+        let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+          // 找到原始数据源名称
+          this.getTargetSource(scenarioDefinition[i])
+          scenarioDefinition[i].environmentId = env;
+          this.setSameSourceId(env, scenarioDefinition[i])
+        }
+        if (scenarioDefinition[i].hashTree !== undefined && scenarioDefinition[i].hashTree.length > 0) {
+          this.setSubset(scenarioDefinition[i].hashTree, env);
+        }
+      }
+    },
+    getEnvs() {
+      if (!this.scenarioId) {
+        let projectId = this.request.projectId ? this.request.projectId : getCurrentProjectID();
+        this.result = this.$get('/api/environment/list/' + projectId, response => {
+          this.environments = response.data;
+          this.environments.forEach(environment => {
+            parseEnvironment(environment);
+          });
+        });
+      }
+    },
+    getTargetSource(obj) {
+      this.environments.forEach(environment => {
+        // 找到原始环境和数据源名称
+        if (environment.id === obj.environmentId) {
+          if (environment.config && environment.config.databaseConfigs) {
+            environment.config.databaseConfigs.forEach(item => {
+              if (item.id === obj.dataSourceId) {
+                obj.targetDataSourceName = item.name;
+              }
+            });
+          }
+        }
+      });
+    },
+    setSameSourceId(envId, obj) {
+      let currentEnvironment;
+      for (let i in this.environments) {
+        if (this.environments[i].id === envId) {
+          currentEnvironment = this.environments[i];
+          break;
+        }
+      }
+      let isSame = false;
+      if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
+        currentEnvironment.config.databaseConfigs.forEach(item => {
+          // 按照名称匹配
+          if (item.name === obj.targetDataSourceName) {
+            obj.dataSourceId = item.id;
+            isSame = true;
+          }
+        });
+        if (!isSame && currentEnvironment.config.databaseConfigs.length > 0) {
+          obj.dataSourceId = currentEnvironment.config.databaseConfigs[0].id;
+        }
+      }
     },
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
@@ -455,6 +526,7 @@ export default {
         this.request.arguments = [];
       }
       this.sort();
+      this.getEnvs();
     },
     sort() {
       let index = 1;

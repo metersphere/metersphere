@@ -404,6 +404,9 @@ public class ApiExecutionQueueService {
                 continue;
             }
             // 检查是否已经超时
+            ResultDTO dto = new ResultDTO();
+            dto.setQueueId(item.getQueueId());
+            dto.setTestId(item.getTestId());
             if (StringUtils.equalsAnyIgnoreCase(queue.getRunMode(),
                     ApiRunMode.SCENARIO.name(),
                     ApiRunMode.SCENARIO_PLAN.name(),
@@ -422,9 +425,6 @@ public class ApiExecutionQueueService {
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
 
                     LoggerUtil.info("超时处理报告：" + report.getId());
-                    ResultDTO dto = new ResultDTO();
-                    dto.setQueueId(item.getQueueId());
-                    dto.setTestId(item.getTestId());
                     if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
                         // 删除串行资源锁
                         redisTemplate.delete(RunModeConstants.SERIAL.name() + "_" + dto.getReportId());
@@ -447,6 +447,12 @@ public class ApiExecutionQueueService {
                     result.setStatus(ScenarioStatus.Timeout.name());
                     apiDefinitionExecResultMapper.updateByPrimaryKeySelective(result);
                     executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
+                    dto.setTestPlanReportId(queue.getReportId());
+                    dto.setReportId(queue.getReportId());
+                    dto.setRunMode(queue.getRunMode());
+                    dto.setRunType(item.getType());
+                    dto.setReportType(queue.getReportType());
+                    queueNext(dto);
                 }
             }
         }
