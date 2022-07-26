@@ -9,7 +9,7 @@ import io.metersphere.api.exec.api.ApiCaseSerialService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.JmeterThreadUtils;
+import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -400,7 +400,7 @@ public class ApiExecutionQueueService {
                 continue;
             }
             // 检查执行报告是否还在等待队列中或执行线程中
-            if (JmeterThreadUtils.isRunning(item.getReportId(), item.getTestId())) {
+            if (JMeterThreadUtils.isRunning(item.getReportId(), item.getTestId())) {
                 continue;
             }
             // 检查是否已经超时
