@@ -242,6 +242,8 @@ public class APITestController {
         for (ExecuteResultCountDTO execResult : apiCaseExecResultList) {
             if (StringUtils.isEmpty(execResult.getExecResult())) {
                 unexecuteCount += execResult.getCount();
+            } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), "Underway", ExecuteResult.TEST_PLAN_PREPARE.toString())) {
+                unexecuteCount += execResult.getCount();
             } else if (StringUtils.equalsIgnoreCase(execResult.getExecResult(), ExecuteResult.API_SUCCESS.toString())) {
                 executionPassCount += execResult.getCount();
             } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), ExecuteResult.ERROR_REPORT_RESULT.toString(), ExecuteResult.ERROR_REPORT.toString())) {

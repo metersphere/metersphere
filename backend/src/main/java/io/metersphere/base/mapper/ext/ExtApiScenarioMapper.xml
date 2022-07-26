@@ -277,7 +277,7 @@
                 and (api_scenario.status is null or api_scenario.status != 'Trash')
             </if>
             <if test="request.executeStatus == 'unExecute' and request.selectDataType != 'schedule' ">
-                and api_scenario.last_result IS NULL
+                and (api_scenario.last_result IS NULL or api_scenario.last_result = 'unexecute')
             </if>
             <if test="request.executeStatus == 'executeFailed' and request.selectDataType != 'schedule' ">
                 and api_scenario.last_result = 'Fail'
