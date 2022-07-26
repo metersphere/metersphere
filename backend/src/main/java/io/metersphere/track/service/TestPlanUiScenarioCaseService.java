@@ -451,19 +451,6 @@ public class TestPlanUiScenarioCaseService {
         calculatePlanReport(report, planReportCaseDTOS);
     }
 
-    public void calculatePlanReportByScenarioList(List<TestPlanFailureUiScenarioDTO> scenarioList,TestPlanSimpleReportDTO report){
-        List<PlanReportCaseDTO> planReportCaseDTOS = new ArrayList<>();
-        for (TestPlanFailureUiScenarioDTO scenario : scenarioList) {
-            PlanReportCaseDTO dto = new PlanReportCaseDTO();
-            dto.setCaseId(scenario.getCaseId());
-            dto.setId(scenario.getId());
-            dto.setStatus(scenario.getStatus());
-            dto.setReportId(scenario.getReportId());
-            planReportCaseDTOS.add(dto);
-        }
-        calculatePlanReport(report, planReportCaseDTOS);
-    }
-
     private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanUiResultReportDTO uiResult = report.getUiResult();
 
@@ -524,18 +511,18 @@ public class TestPlanUiScenarioCaseService {
         }
     }
 
-    public List<TestPlanFailureUiScenarioDTO> getAllCases(String planId) {
-        List<TestPlanFailureUiScenarioDTO> apiTestCases =
-                extTestPlanUiScenarioCaseMapper.getFailureList(planId, null);
-        return buildCases(apiTestCases);
+    public List<TestPlanUiScenarioDTO> getAllCasesByStatusList(String planId, List<String> statusList) {
+        List<TestPlanUiScenarioDTO> uiTestCases =
+                extTestPlanUiScenarioCaseMapper.getPlanUiScenarioByStatusList(planId, statusList);
+        return buildCases(uiTestCases);
     }
 
-    public List<TestPlanFailureUiScenarioDTO> getAllCases(Map<String, String> idMap, Map<String, TestPlanFailureUiScenarioDTO> scenarioInfoDTOMap) {
+    public List<TestPlanUiScenarioDTO> getAllCases(Map<String, String> idMap, Map<String, TestPlanUiScenarioDTO> scenarioInfoDTOMap) {
         String defaultStatus = "Fail";
         Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(idMap.values());
         Map<String, String> savedReportMap = new HashMap<>(idMap);
-        List<TestPlanFailureUiScenarioDTO> apiTestCases = new ArrayList<>();
-        for (TestPlanFailureUiScenarioDTO dto : scenarioInfoDTOMap.values()) {
+        List<TestPlanUiScenarioDTO> apiTestCases = new ArrayList<>();
+        for (TestPlanUiScenarioDTO dto : scenarioInfoDTOMap.values()) {
             String reportId = savedReportMap.get(dto.getId());
             savedReportMap.remove(dto.getId());
             dto.setReportId(reportId);
@@ -556,13 +543,7 @@ public class TestPlanUiScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureUiScenarioDTO> getFailureCases(String planId) {
-        List<TestPlanFailureUiScenarioDTO> apiTestCases =
-                extTestPlanUiScenarioCaseMapper.getFailureList(planId, "Fail");
-        return buildCases(apiTestCases);
-    }
-
-    public List<TestPlanFailureUiScenarioDTO> buildCases(List<TestPlanFailureUiScenarioDTO> apiTestCases) {
+    public List<TestPlanUiScenarioDTO> buildCases(List<TestPlanUiScenarioDTO> apiTestCases) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
@@ -602,17 +583,5 @@ public class TestPlanUiScenarioCaseService {
                 extTestPlanUiScenarioCaseMapper::getPreOrder,
                 extTestPlanUiScenarioCaseMapper::getLastOrder,
                 testPlanUiScenarioMapper::updateByPrimaryKeySelective);
-    }
-
-    public List<TestPlanFailureUiScenarioDTO> getErrorReportCases(String planId) {
-        List<TestPlanFailureUiScenarioDTO> apiTestCases =
-                extTestPlanUiScenarioCaseMapper.getFailureList(planId, ExecuteResult.ERROR_REPORT_RESULT.toString());
-        return buildCases(apiTestCases);
-    }
-
-    public List<TestPlanFailureUiScenarioDTO> getUnExecuteCases(String planId) {
-        List<TestPlanFailureUiScenarioDTO> apiTestCases =
-                extTestPlanUiScenarioCaseMapper.getFailureList(planId, "unExecute");
-        return buildCases(apiTestCases);
     }
 }

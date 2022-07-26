@@ -41,15 +41,7 @@
                 :label="$t('test_track.plan_view.execute_result')"
                 prop="lastResult">
               <template v-slot:default="{row}">
-                <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
-                <status-table-item v-else-if="row.lastResult === 'Fail'" :value="'Failure'"/>
-                <status-table-item v-else-if="row.lastResult === 'Error'" :value="'Failure'"/>
-                <status-table-item v-else-if="row.lastResult === 'STOP'" :value="'STOP'"/>
-                <status-table-item v-else-if="row.lastResult === 'Running'" :value="'Underway'"/>
-                <status-table-item v-else-if="row.lastResult === 'Waiting'" :value="'Waiting'"/>
-                <status-table-item v-else-if="row.lastResult === 'Timeout'" :value="'Timeout'"/>
-                <status-table-item v-else-if="row.lastResult === 'errorReportResult'" :value="'ErrorReportResult'"/>
-                <status-table-item v-else :value="'Prepare'"/>
+                <status-table-item :value="resultMap[row.lastResult]"/>
               </template>
             </ms-table-column>
           </ms-table>
@@ -77,16 +69,6 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {
-  getPlanScenarioAllCase,
-  getPlanScenarioFailureCase,
-  getSharePlanScenarioAllCase,
-  getSharePlanScenarioFailureCase,
-  getPlanScenarioErrorReportCase,
-  getSharePlanScenarioErrorReportCase,
-  getPlanScenarioUnExecuteCase,
-  getSharePlanScenarioUnExecuteCase
-} from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsApiReport from "@/business/components/api/automation/report/ApiReportDetail";
@@ -94,7 +76,7 @@ import MsAsideContainer from "@/business/components/common/components/MsAsideCon
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
 export default {
-  name: "ApiScenarioFailureResult",
+  name: "UiScenarioResult",
   components: {
     MsMainContainer,
     MsAsideContainer,
@@ -111,6 +93,8 @@ export default {
     isErrorReport: Boolean,
     isUnExecute: Boolean,
     isDb: Boolean,
+    uiAllCases: Array,
+    filterStatus: Array,
   },
   data() {
     return {
@@ -118,7 +102,14 @@ export default {
       result: {},
       reportId: null,
       response: {},
-      showResponse: false
+      showResponse: false,
+      resultMap: {
+        'Success' : 'Pass',
+        'Error' : 'Failure',
+        'STOP' : 'STOP',
+        'Running' : 'Running',
+        'UnExecute' : 'Prepare'
+      }
     }
   },
   mounted() {
@@ -129,56 +120,22 @@ export default {
       if (this.scenarioCases) {
         this.$emit('setSize', this.scenarioCases.length);
       }
+    },
+    uiAllCases() {
+      this.getScenarioApiCase();
     }
   },
   methods: {
     getScenarioApiCase() {
-      if (this.isTemplate || this.isDb) {
-        if (this.isErrorReport) {
-          this.scenarioCases = this.report.errorReportScenarios ? this.report.errorReportScenarios : [];
-        } else if (this.isUnExecute) {
-          this.scenarioCases = this.report.unExecuteScenarios ? this.report.unExecuteScenarios : [];
-        } else if (this.isAll) {
-          this.scenarioCases = this.report.scenarioAllCases ? this.report.scenarioAllCases : [];
-        } else {
-          this.scenarioCases = this.report.scenarioFailureCases ? this.report.scenarioFailureCases : [];
-        }
-      } else if (this.isShare) {
-        if (this.isErrorReport) {
-          this.result = getSharePlanScenarioErrorReportCase(this.shareId, this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        } else if (this.isUnExecute) {
-          this.result = getSharePlanScenarioUnExecuteCase(this.shareId, this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        } else if (this.isAll) {
-          this.result = getSharePlanScenarioAllCase(this.shareId, this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        } else {
-          this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        }
+      this.scenarioCases = [];
+      if (this.filterStatus && this.filterStatus.length > 0) {
+        this.uiAllCases.forEach(item => {
+          if (this.filterStatus.indexOf(item.lastResult) > -1) {
+            this.scenarioCases.push(item);
+          }
+        });
       } else {
-        if (this.isErrorReport) {
-          this.result = getPlanScenarioErrorReportCase(this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        } else if (this.isUnExecute) {
-          this.result = getPlanScenarioUnExecuteCase(this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        } else if (this.isAll) {
-          this.result = getPlanScenarioAllCase(this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        } else {
-          this.result = getPlanScenarioFailureCase(this.planId, (data) => {
-            this.scenarioCases = data;
-          });
-        }
+        this.scenarioCases = this.uiAllCases;
       }
     },
     rowClick(row) {

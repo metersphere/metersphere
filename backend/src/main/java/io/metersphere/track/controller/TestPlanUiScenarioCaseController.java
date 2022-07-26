@@ -38,24 +38,10 @@ public class TestPlanUiScenarioCaseController {
         return PageUtils.setPageInfo(page, testPlanUiScenarioCaseService.list(request));
     }
 
-    @GetMapping("/list/failure/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getFailureList(@PathVariable String planId) {
-        return testPlanUiScenarioCaseService.getFailureCases(planId);
-    }
-
-    @GetMapping("/list/errorReport/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getErrorReportList(@PathVariable String planId) {
-        return testPlanUiScenarioCaseService.getErrorReportCases(planId);
-    }
-
-    @GetMapping("/list/unExecute/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getUnExecuteCases(@PathVariable String planId) {
-        return testPlanUiScenarioCaseService.getUnExecuteCases(planId);
-    }
-
-    @GetMapping("/list/all/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getAllList(@PathVariable String planId) {
-        return testPlanUiScenarioCaseService.getAllCases(planId);
+    @PostMapping("/list/all/{planId}")
+    public List<TestPlanUiScenarioDTO> getAllList(@PathVariable String planId,
+                                                  @RequestBody(required = false) List<String> statusList) {
+        return testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
     }
 
     @PostMapping("/selectAllTableRows")

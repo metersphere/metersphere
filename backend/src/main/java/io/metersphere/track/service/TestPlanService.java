@@ -1364,12 +1364,8 @@ public class TestPlanService {
             List<TestPlanCaseDTO> allCases = null;
             List<String> statusList = getFunctionalReportStatusList(config);
             if (statusList != null) {
+                // 不等于null，说明配置了用例，根据配置的状态查询用例
                 allCases = testPlanTestCaseService.getAllCasesByStatusList(planId, statusList);
-                report.setFunctionAllCases(allCases);
-            }
-
-            if (checkReportConfig(config, "functional", "all")) {
-                allCases = testPlanTestCaseService.getAllCases(planId);
                 report.setFunctionAllCases(allCases);
             }
 
@@ -1380,6 +1376,28 @@ public class TestPlanService {
         }
     }
 
+    public void buildUiReport(TestPlanSimpleReportDTO report, JSONObject config, String planId, boolean saveResponse) {
+        if (checkReportConfig(config, "ui")) {
+            List<TestPlanUiScenarioDTO> allCases;
+            List<String> statusList = getUiReportStatusList(config);
+            if (statusList != null) {
+                // 不等于null，说明配置了用例，根据配置的状态查询用例
+                allCases = testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
+                report.setUiAllCases(allCases);
+                if (saveResponse) {
+                    buildUiScenarioResponse(allCases);
+                }
+            }
+        }
+    }
+
+    /**
+     * 如果配置了全部用例返回空的数组
+     * 如果没有，则添加对应的状态
+     * 都没配置就返回 null
+     * @param config
+     * @return
+     */
     public List<String> getFunctionalReportStatusList(JSONObject config) {
         List<String> statusList = new ArrayList<>();
         if (checkReportConfig(config, "functional", "all")) {
@@ -1393,6 +1411,20 @@ public class TestPlanService {
         }
         if (checkReportConfig(config, "functional", "skip")) {
             statusList.add(TestPlanTestCaseStatus.Skip.name());
+        }
+        return statusList.size() > 0 ? statusList : null;
+    }
+
+    public List<String> getUiReportStatusList(JSONObject config) {
+        List<String> statusList = new ArrayList<>();
+        if (checkReportConfig(config, "ui", "all")) {
+            return statusList;
+        }
+        if (checkReportConfig(config, "ui", "failure")) {
+            statusList.add(TestPlanUiResultStatus.Error.name());
+        }
+        if (checkReportConfig(config, "ui", "unExecute")) {
+            statusList.add(TestPlanUiResultStatus.UnExecute.name());
         }
         return statusList.size() > 0 ? statusList : null;
     }
@@ -1467,6 +1499,14 @@ public class TestPlanService {
     }
 
     public void buildScenarioResponse(List<TestPlanFailureScenarioDTO> cases) {
+        if (!CollectionUtils.isEmpty(cases)) {
+            cases.forEach((item) -> {
+                item.setResponse(apiScenarioReportService.get(item.getReportId(), true));
+            });
+        }
+    }
+
+    public void buildUiScenarioResponse(List<TestPlanUiScenarioDTO> cases) {
         if (!CollectionUtils.isEmpty(cases)) {
             cases.forEach((item) -> {
                 item.setResponse(apiScenarioReportService.get(item.getReportId(), true));
@@ -1792,6 +1832,7 @@ public class TestPlanService {
         buildFunctionalReport(report, config, planId);
         buildApiReport(report, config, planId, saveResponse);
         buildLoadReport(report, config, planId, saveResponse);
+        buildUiReport(report, config, planId, saveResponse);
         return report;
     }
 
@@ -1817,21 +1858,27 @@ public class TestPlanService {
             return true;
         } else {
             JSONObject configItem = config.getJSONObject(key);
+            if (configItem == null) {
+                return true;
+            }
             return configItem.getBoolean("enable");
         }
     }
 
     public Boolean checkReportConfig(JSONObject config, String key, String subKey) {
-        if (config == null) {
+        if (config == null || config.getJSONObject(key) == null) {
             return true;
         } else {
             JSONObject configItem = config.getJSONObject(key);
             Boolean enable = configItem.getBoolean("enable");
-            if (!enable) {
-                return false;
-            } else {
+            if (enable) {
                 JSONObject subConfig = configItem.getJSONObject("children").getJSONObject(subKey);
-                return subConfig == null ? true : subConfig.getBoolean("enable");
+                if (subConfig == null) {
+                    return true;
+                }
+                return subConfig.getBoolean("enable");
+            } else {
+                return false;
             }
         }
     }
