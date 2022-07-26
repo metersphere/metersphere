@@ -405,8 +405,10 @@ public class ApiScenarioReportStructureService {
             List<StepTreeDTO> list = dtoList.stream().filter(e -> e.getValue() != null && e.getValue().getStartTime() != 0).collect(Collectors.toList());
             list = list.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
             unList = unList.stream().sorted(Comparator.comparing(x -> x.getIndex())).collect(Collectors.toList());
+            unList.addAll(steps);
+            List<StepTreeDTO> mergeList = unList.stream().distinct().collect(Collectors.toList());
             // 处理请求结果开始时间为0的数据
-            for (StepTreeDTO unListDTO : unList) {
+            for (StepTreeDTO unListDTO : mergeList) {
                 int index = unListDTO.getIndex();
                 if (index > 0) {
                     list.add(index - 1, unListDTO);
@@ -414,13 +416,6 @@ public class ApiScenarioReportStructureService {
             }
             for (int index = 0; index < list.size(); index++) {
                 list.get(index).setIndex((index + 1));
-            }
-            // 处理步骤为空的数据
-            for (StepTreeDTO step : steps) {
-                int index = step.getIndex();
-                if (index > 0) {
-                    list.add(index - 1, step);
-                }
             }
             dtoList.clear();
             dtoList.addAll(list);
