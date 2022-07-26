@@ -3350,5 +3350,6 @@ export default {
     valiate_fail: "Validate fail",
     check_subitem: 'check subitem',
     pause: 'Pause',
+    browser: "Browser",
   }
 };

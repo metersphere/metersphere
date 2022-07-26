@@ -3336,5 +3336,6 @@ export default {
     cmdExtractElement: "提取元素信息",
     valiate_fail: "校驗失敗，請檢查必填項",
     pause: '等待時間',
+    browser: "瀏覽器",
   }
 };
