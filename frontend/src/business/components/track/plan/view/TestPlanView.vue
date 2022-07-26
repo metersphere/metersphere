@@ -24,13 +24,33 @@
     <test-plan-functional v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
                           :clickType="clickType" :plan-id="planId" :version-enable="versionEnable" :plan-status="currentPlan.status"
                           ref="testPlanFunctional"/>
-    <test-plan-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType"
-                   :plan-id="planId" :version-enable="versionEnable" :plan-status="currentPlan.status"/>
-    <test-plan-ui v-if="activeIndex === 'ui'" :redirectCharType="redirectCharType" :clickType="clickType"
-                   :plan-id="planId" :version-enable="versionEnable" :plan-status="currentPlan.status"/>
-    <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
-                    :plan-id="planId" :version-enable="versionEnable" :plan-status="currentPlan.status"/>
-    <test-plan-report-content class="plan-report" v-if="activeIndex === 'report'" :plan-id="planId" :version-enable="versionEnable"/>
+    <test-plan-api
+      v-if="activeIndex === 'api'"
+      :redirectCharType="redirectCharType"
+      :clickType="clickType"
+      :plan-id="planId"
+      :version-enable="versionEnable"
+      :plan-status="currentPlan.status"/>
+    <test-plan-ui
+      v-if="activeIndex === 'ui'"
+      :redirectCharType="redirectCharType"
+      :clickType="clickType"
+      :plan-id="planId"
+      :version-enable="versionEnable"
+      :plan-status="currentPlan.status"/>
+    <test-plan-load
+      v-if="activeIndex === 'load'"
+      :redirectCharType="redirectCharType"
+      :clickType="clickType"
+      :plan-id="planId"
+      :version-enable="versionEnable"
+      :plan-status="currentPlan.status"/>
+    <test-plan-report-content
+      class="plan-report"
+      v-if="activeIndex === 'report'"
+      :need-move-bar="true"
+      :plan-id="planId"
+      :version-enable="versionEnable"/>
 
     <is-change-confirm
       @confirm="changeConfirm"

@@ -19,6 +19,7 @@
     </ms-main-container>
     <test-plan-report-navigation-bar
       :api-enable="apiEnable"
+      :need-move-bar="needMoveBar"
       :summary-enable="summaryEnable"
       :functional-enable="functionalEnable"
       :load-enable="loadEnable"
@@ -71,7 +72,8 @@ export default {
     isTemplate: Boolean,
     isDb: Boolean,
     shareId: String,
-    reportId: String
+    reportId: String,
+    needMoveBar: Boolean
   },
   data() {
     return {

@@ -1,6 +1,12 @@
 <template>
   <div>
-    <ms-drawer class="drawer-content" :visible="true" :size="10" direction="left" :show-full-screen="false" :is-show-close="false">
+    <ms-drawer class="drawer-content"
+               direction="left"
+               :class="{'move-bar' : needMoveBar}"
+               :visible="true"
+               :size="10"
+               :show-full-screen="false"
+               :is-show-close="false">
       <div class="title-item" >
          <span class="title-name">{{$t('test_track.report.content')}}</span>
         <el-tabs tab-position="right" v-model="activeName">
@@ -28,6 +34,7 @@ export default {
     functionalEnable: Boolean,
     apiEnable: Boolean,
     loadEnable: Boolean,
+    needMoveBar: Boolean
   },
   data() {
     return {
@@ -175,6 +182,10 @@ export default {
   box-sizing: border-box;
   background-color: #FFF;
   overflow: visible !important;
+}
+
+.move-bar {
+  margin-left: 50px;
 }
 
 .drawer-content {
