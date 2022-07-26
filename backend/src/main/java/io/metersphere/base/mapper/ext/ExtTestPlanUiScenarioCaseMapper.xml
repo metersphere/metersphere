@@ -237,31 +237,7 @@
           SELECT id FROM ui_scenario where status is null or status != 'Trash'
         )
     </select>
-    <select id="getFailureList" resultType="io.metersphere.dto.TestPlanFailureUiScenarioDTO">
-      select
-      t.id, t.last_result, t.report_id, c.user_id, c.module_path, c.name, c.level,c.create_user,c.principal,
-      c.status,c.step_total, c.step_total, c.project_id,
-      c.num, c.custom_num
-      from
-      test_plan_ui_scenario t
-      inner join
-      ui_scenario c
-      on t.ui_scenario_id = c.id and (c.status != 'Trash' or c.status is null)
-      and t.test_plan_id = #{planId}
-      <if test="status != null and status != 'Fail' and status != 'unExecute'">
-        and t.last_result = #{status}
-      </if>
-      <if test="status == 'unExecute'">
-        and (t.last_result in ('Stop','unExecute') or t.last_result IS NULL)
-      </if>
-      <if test="status == 'Fail'">
-        and t.last_result in ('Fail','Error')
-      </if>
-      where t.test_plan_id = #{planId}
-        ORDER BY t.order DESC
-    </select>
-
-    <select id="getFailureListByIds" resultType="io.metersphere.dto.TestPlanFailureUiScenarioDTO">
+    <select id="getFailureListByIds" resultType="io.metersphere.dto.TestPlanUiScenarioDTO">
       select
       t.id, t.last_result, t.report_id, c.user_id, c.module_path, c.name, c.level,c.create_user,c.principal,
       c.status,c.step_total, c.step_total, c.project_id,
@@ -317,6 +293,26 @@
       and `order` &lt; #{baseOrder}
     </if>
     order by `order` desc limit 1;
+  </select>
+
+  <select id="getPlanUiScenarioByStatusList" resultType="io.metersphere.dto.TestPlanUiScenarioDTO">
+    select
+    t.id, t.last_result, t.report_id, c.user_id, c.module_path, c.name, c.level,c.create_user,c.principal,
+    c.status,c.step_total, c.step_total, c.project_id,
+    c.num, c.custom_num
+    from
+    test_plan_ui_scenario t
+    inner join
+    ui_scenario c
+    on t.ui_scenario_id = c.id and (c.status != 'Trash' or c.status is null)
+    and t.test_plan_id = #{planId}
+    <if test="statusList != null and statusList.size() > 0">
+      and t.last_result in
+      <foreach collection="statusList" item="status" separator="," open="(" close=")">
+        #{status}
+      </foreach>
+    </if>
+    ORDER BY t.order DESC
   </select>
 
   <sql id="queryVersionCondition">

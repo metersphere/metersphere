@@ -159,28 +159,11 @@ public class ShareController {
         return testPlanScenarioCaseService.getUnExecuteCases(planId);
     }
 
-    @GetMapping("/test/plan/uiScenario/case/list/failure/{shareId}/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getUiScenarioFailureList(@PathVariable String shareId, @PathVariable String planId) {
+    @PostMapping("/test/plan/uiScenario/case/list/all/{shareId}/{planId}")
+    public List<TestPlanUiScenarioDTO> getUiScenarioAllList(@PathVariable String shareId, @PathVariable String planId,
+                                                            @RequestBody(required = false) List<String> statusList) {
         shareInfoService.validate(shareId, planId);
-        return testPlanUiScenarioCaseService.getFailureCases(planId);
-    }
-
-    @GetMapping("/test/plan/uiScenario/case/list/all/{shareId}/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getUiScenarioAllList(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
-        return testPlanUiScenarioCaseService.getAllCases(planId);
-    }
-
-    @GetMapping("/test/plan/uiScenario/case/list/errorReport/{shareId}/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> getUiScenarioErrorReportList(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
-        return testPlanUiScenarioCaseService.getErrorReportCases(planId);
-    }
-
-    @GetMapping("/test/plan/uiScenario/case/list/unExecute/{shareId}/{planId}")
-    public List<TestPlanFailureUiScenarioDTO> geUitUnExecuteScenarioCases(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
-        return testPlanUiScenarioCaseService.getUnExecuteCases(planId);
+        return testPlanUiScenarioCaseService.getAllCasesByStatusList(planId, statusList);
     }
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")
