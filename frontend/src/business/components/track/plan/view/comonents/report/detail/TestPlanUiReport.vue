@@ -8,34 +8,31 @@
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.fail_case')" :count="failureSize"/>
         </template>
-        <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate"
-                   :plan-id="planId" @setSize="setFailureSize" :is-ui="true"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
-          {{ $t('api_test.automation.rerun') }}
-        </el-button>
+        <ui-scenario-result :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                            :report="report" :is-template="isTemplate" :plan-id="planId"
+                            :ui-all-cases="uiAllCases"
+                            :filter-status="['Error']"
+                            @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane style="min-height: 500px" name="fourth" v-if="unExecuteEnable">
+      <el-tab-pane style="min-height: 500px" name="third" v-if="unExecuteEnable">
         <template v-slot:label>
           <tab-pane-count :title="$t('api_test.home_page.detail_card.unexecute')" :count="unExecuteSize"/>
         </template>
-        <api-cases :is-db="isDb" :is-un-execute="true" :share-id="shareId" :is-share="isShare" :report="report"
-                   :is-template="isTemplate" :plan-id="planId" @setSize="setUnExecuteSize" :is-ui="true"/>
-
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
-          {{ $t('api_test.automation.rerun') }}
-        </el-button>
+        <ui-scenario-result :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                            :report="report" :is-template="isTemplate" :plan-id="planId"
+                            :ui-all-cases="uiAllCases"
+                            :filter-status="['UnExecute']"
+                            @setSize="setUnExecuteSize"/>
       </el-tab-pane>
 
       <el-tab-pane style="min-height: 500px" name="fifth" v-if="allEnable">
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
         </template>
-        <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report"
-                   :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize" :is-ui="true"/>
-        <el-button class="rerun-button" plain size="mini" v-if="showRerunBtn && (failureSize > 0 || unExecuteSize > 0) && isRerun" @click="rerun">
-          {{ $t('api_test.automation.rerun') }}
-        </el-button>
-
+        <ui-scenario-result :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                            :report="report" :is-template="isTemplate" :plan-id="planId"
+                            :ui-all-cases="uiAllCases"
+                            @setSize="setAllSize"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -46,25 +43,25 @@ import MsFormDivider from "@/business/components/common/components/MsFormDivider
 import UiResult from "@/business/components/track/plan/view/comonents/report/detail/component/UiResult";
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
-import ApiCases from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCases";
 import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
 import {hasLicense} from "@/common/js/utils";
+import {
+  getPlanUiScenarioAllCase,
+  getSharePlanUiScenarioAllCase,
+} from "@/network/test-plan";
+import UiScenarioResult from "@/business/components/track/plan/view/comonents/report/detail/component/UiScenarioResult";
 
 export default {
   name: "TestPlanUiReport",
-  components: {TabPaneCount, ApiCases, TestPlanReportContainer, UiResult, MsFormDivider},
+  components: {UiScenarioResult, TabPaneCount, TestPlanReportContainer, UiResult, MsFormDivider},
   data() {
     return {
       activeName: 'first',
       failureSize: 0,
-      errorReportSize: 0,
       unExecuteSize: 0,
       allSize: 0,
-      showRerunBtn: false,
+      uiAllCases: []
     };
-  },
-  created() {
-    // this.showRerunBtn = !this.isShare && hasLicense();
   },
   props: [
     'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'isDb'
@@ -78,10 +75,6 @@ export default {
       let disable = this.report.config && this.report.config.ui.children.failure.enable === false;
       return !disable;
     },
-    errorReportEnable() {
-      let disable = this.report.config && this.report.config.ui.children.errorReport && this.report.config.ui.children.errorReport.enable === false;
-      return !disable;
-    },
     unExecuteEnable() {
       let disable = this.report.config && this.report.config.ui.children.unExecute && this.report.config.ui.children.unExecute.enable === false;
       return !disable;
@@ -89,13 +82,6 @@ export default {
     allEnable() {
       let disable = this.report.config && this.report.config.ui.children.all.enable === false;
       return !disable;
-    },
-    isRerun() {
-      return ((this.report && this.report.apiFailureCases)
-        || (this.report && this.report.unExecuteCases)
-        || (this.report && this.report.scenarioFailureCases)
-        || (this.report && this.report.unExecuteScenarios)
-        || (this.report && this.report.loadFailureCases));
     }
   },
   watch: {
@@ -105,15 +91,16 @@ export default {
     failureEnable() {
       this.initActiveName();
     },
-    errorReportEnable() {
-      this.initActiveName();
-    },
     allEnable() {
       this.initActiveName();
     },
+    'report.config'() {
+      this.getAllUiCase();
+    }
   },
   mounted() {
     this.initActiveName();
+    this.getAllUiCase();
   },
   methods: {
     initActiveName() {
@@ -121,17 +108,12 @@ export default {
         this.activeName = 'first';
       } else if (this.failureEnable) {
         this.activeName = 'second';
-      } else if (this.errorReportEnable) {
-        this.activeName = 'third';
       } else if (this.allEnable) {
-        this.activeName = 'fourth';
+        this.activeName = 'third';
       }
     },
     setFailureSize(size) {
       this.failureSize = size;
-    },
-    setErrorReportSize(size) {
-      this.errorReportSize = size;
     },
     setUnExecuteSize(size) {
       this.unExecuteSize = size;
@@ -141,66 +123,41 @@ export default {
     },
     handleClick(tab, event) {
     },
-    rerun() {
-      let type = "TEST_PLAN";
-      let scenarios = [];
-      let cases = [];
-      let performanceCases = [];
-      let rerunObj = {
-        type: type,
-        reportId: this.report.id,
-        scenarios: scenarios,
-        cases: cases,
-        performanceCases: performanceCases
-      }
-      // 获取需要重跑的用例
-      if (this.report && this.report.apiFailureCases) {
-        this.format(cases, this.report.apiFailureCases);
-      }
-      if (this.report && this.report.unExecuteCases) {
-        this.format(cases, this.report.unExecuteCases);
-      }
-      // 获取需要重跑的场景
-      if (this.report && this.report.scenarioFailureCases) {
-        this.format(scenarios, this.report.scenarioFailureCases);
-      }
-      if (this.report && this.report.unExecuteScenarios) {
-        this.format(scenarios, this.report.unExecuteScenarios);
-      }
-      // 获取需要重跑的性能用例
-      if (this.report && this.report.loadFailureCases) {
-        this.format(performanceCases, this.report.loadFailureCases);
-      }
-      this.$post('/ui/test/exec/rerun', rerunObj, res => {
-        if (res.data !== 'SUCCESS') {
-          this.$error(res.data);
-        } else {
-          this.$success(this.$t('api_test.automation.rerun_success'));
+    getAllUiCase() {
+      if (this.isTemplate || this.isDb) {
+        this.uiAllCases = this.report.uiAllCases ? this.report.uiAllCases : [];
+      } else if (this.isShare) {
+        let param = this.getStatusList();
+        if (param) {
+          getSharePlanUiScenarioAllCase(this.shareId, this.planId, param, (data) => {
+            this.uiAllCases = data;
+          });
         }
-      });
-    },
-    format(cases, datas) {
-      if (this.report && datas) {
-        datas.forEach(item => {
-          if (item) {
-            let obj = {id: item.id, reportId: item.reportId, userId: item.createUser};
-            cases.push(obj);
-          }
-        });
+      } else {
+        let param = this.getStatusList();
+        if (param) {
+          this.result = getPlanUiScenarioAllCase(this.planId, param, (data) => {
+            this.uiAllCases = data;
+          });
+        }
       }
+    },
+    getStatusList() {
+      let statusList = [];
+      if (this.allEnable) {
+        return statusList;
+      }
+      if (this.failureEnable) {
+        statusList.push('Error');
+      }
+      if (this.unExecuteEnable) {
+        statusList.push('UnExecute');
+      }
+      return statusList.length > 0 ? statusList : null;
     }
   }
 }
 </script>
 
 <style scoped>
-.rerun-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  margin-right: 10px;
-  z-index: 1100;
-  background-color: #F2F9EF;
-  color: #87C45D;
-}
 </style>

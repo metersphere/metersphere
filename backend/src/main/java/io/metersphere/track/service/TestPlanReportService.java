@@ -16,7 +16,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.dto.TestPlanExecuteReportDTO;
-import io.metersphere.dto.TestPlanFailureUiScenarioDTO;
+import io.metersphere.dto.TestPlanUiScenarioDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.EnvironmentGroupProjectService;
@@ -1104,9 +1104,9 @@ public class TestPlanReportService {
             content.setPlanLoadCaseReportStruct(JSONObject.toJSONString(loadCaseReportIdMap));
         }
         if (MapUtils.isNotEmpty(uiScenarioReportMap)) {
-            List<TestPlanFailureUiScenarioDTO> uiScenarios =
+            List<TestPlanUiScenarioDTO> uiScenarios =
                     extTestPlanUiScenarioCaseMapper.getFailureListByIds(uiScenarioReportMap.keySet(), null);
-            for (TestPlanFailureUiScenarioDTO dto : uiScenarios) {
+            for (TestPlanUiScenarioDTO dto : uiScenarios) {
                 dto.setReportId(uiScenarioReportMap.get(dto.getId()));
             }
             content.setPlanUiScenarioReportStruct(JSONObject.toJSONString(uiScenarios));

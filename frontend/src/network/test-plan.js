@@ -94,19 +94,8 @@ export function getSharePlanScenarioUnExecuteCase(shareId, planId, callback) {
   return planId ? baseGet('/share/test/plan/scenario/case/list/unExecute/' + shareId + '/' + planId, callback) : {};
 }
 
-export function getSharePlanUiScenarioFailureCase(shareId, planId, callback) {
-  return planId ? baseGet('/share/test/plan/uiScenario/case/list/failure/' + shareId + '/' + planId, callback) : {};
-}
-
-export function getSharePlanUiScenarioAllCase(shareId, planId, callback) {
-  return planId ? baseGet('/share/test/plan/uiScenario/case/list/all/' + shareId + '/' + planId, callback) : {};
-}
-
-export function getSharePlanUiScenarioErrorReportCase(shareId, planId, callback) {
-  return planId ? baseGet('/share/test/plan/uiScenario/case/list/errorReport/' + shareId + '/' + planId, callback) : {};
-}
-export function getSharePlanUiScenarioUnExecuteCase(shareId, planId, callback) {
-  return planId ? baseGet('/share/test/plan/uiScenario/case/list/unExecute/' + shareId + '/' + planId, callback) : {};
+export function getSharePlanUiScenarioAllCase(shareId, planId, param, callback) {
+  return planId ? basePost('/share/test/plan/uiScenario/case/list/all/' + shareId + '/' + planId, param, callback) : {};
 }
 
 export function getPlanApiFailureCase(planId, callback) {
@@ -187,19 +176,6 @@ export function saveTestPlanReport(planId, callback) {
   return planId ? baseGet('/test/plan/report/saveTestPlanReport/' + planId + '/MANUAL', callback) : {};
 }
 
-
-export function getPlanUiScenarioFailureCase(planId, callback) {
-  return planId ? baseGet('/test/plan/uiScenario/case/list/failure/' + planId, callback) : {};
-}
-
-export function getPlanUiScenarioErrorReportCase(planId, callback) {
-  return planId ? baseGet('/test/plan/uiScenario/case/list/errorReport/' + planId, callback) : {};
-}
-
-export function getPlanUiScenarioUnExecuteCase(planId, callback) {
-  return planId ? baseGet('/test/plan/uiScenario/case/list/unExecute/' + planId, callback) : {};
-}
-
-export function getPlanUiScenarioAllCase(planId, callback) {
-  return planId ? baseGet('/test/plan/uiScenario/case/list/all/' + planId, callback) : {};
+export function getPlanUiScenarioAllCase(planId, param, callback) {
+  return planId ? basePost('/test/plan/uiScenario/case/list/all/' + planId, param, callback) : {};
 }
