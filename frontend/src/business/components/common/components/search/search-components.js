@@ -3,7 +3,6 @@ import MsTableSearchDateTimePicker from "./MsTableSearchDateTimePicker";
 import MsTableSearchDatePicker from "./MsTableSearchDatePicker";
 import MsTableSearchSelect from "./MsTableSearchSelect";
 import MsTableSearchInputNumber from "@/business/components/common/components/search/MsTableSearchInputNumber";
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableSearchMix from "@/business/components/common/components/search/MsTableSearchMix";
 import MsTableSearchNodeTree from "@/business/components/common/components/search/MsTableSearchNodeTree";
 
@@ -714,7 +713,7 @@ export const CASE_DEMAND = {
     this.showInput = false;
   },
   options: {
-    url: "/issues/demand/list/" + getCurrentProjectID(),
+    url: "/issues/demand/list",
     labelKey: "name",
     valueKey: "id",
     showLabel: option => {
@@ -751,25 +750,25 @@ function _getModuleTree(options) {
 }
 
 export const TEST_CASE_MODULE_TREE = _getModuleTree({
-  url: "/case/node/list/" + getCurrentProjectID(),
+  url: "/case/node/list",
   type: "POST",
   params: {} // 赋值时注意顺序
 })
 
 export const API_MODULE_TREE = _getModuleTree({
-  url: "/api/module/list/" + getCurrentProjectID(),
+  url: "/api/module/list",
   type: "GET",
   params: {}
 })
 
 export const SCENARIO_MODULE_TREE = _getModuleTree({
-  url: "/api/automation/module/list/" + getCurrentProjectID(),
+  url: "/api/automation/module/list",
   type: "GET",
   params: {}
 })
 
 export const UI_MODULE_TREE = _getModuleTree({
-  url: "/ui/scenario/module/list/" + getCurrentProjectID(),
+  url: "/ui/scenario/module/list",
   type: "GET",
   params: {}
 })

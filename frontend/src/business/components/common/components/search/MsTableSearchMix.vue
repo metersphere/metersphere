@@ -14,6 +14,7 @@
 
 <script>
 import MsTableSearchComponent from "./MsTableSearchComponet";
+import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 
 export default {
   name: "MsTableSearchMix",
@@ -30,6 +31,12 @@ export default {
   },
   created() {
     if (!(this.component.options instanceof Array) && this.component.options.url) {
+      // is need to add project properties
+      let projectId = getCurrentProjectID();
+      if (!projectId) {
+        projectId = getCurrentUser().lastProjectId;
+      }
+      this.component.options.url += '/' + projectId;
       this.result = this.$get(this.component.options.url, response => {
         if (response.data) {
           response.data.forEach(item => {
