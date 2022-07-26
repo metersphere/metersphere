@@ -3359,5 +3359,6 @@ export default {
     check_element: "请勾选元素",
     check_subitem: '请选择子分类',
     pause: '等待时间',
+    browser: "浏览器",
   }
 };
