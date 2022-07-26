@@ -115,8 +115,8 @@
                       :on-exceed="handleExceed"
                       :on-success="handleSuccess"
                       :on-error="handleError"
-                      :disabled="type === 'add' || type === 'copy' || isCaseEdit">
-                      <el-button type="primary" :disabled="type === 'add' || type === 'copy' || isCaseEdit" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+                      :disabled="type === 'copy'">
+                      <el-button type="primary" :disabled="type === 'copy'" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
                       <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
                     </el-upload>
                   </el-col>
@@ -308,6 +308,7 @@ export default {
       readOnly: false,
       isDelete: true,
       cancelFileToken: [],
+      uploadFiles: []
     };
   },
   props: {
@@ -574,9 +575,15 @@ export default {
         return key === "file" ? undefined : value
       });
 
+      if (this.uploadFiles.length > 0) {
+        this.uploadFiles.forEach(f => {
+          formData.append("file", f);
+        });
+      }
       formData.append('request', new Blob([requestJson], {
         type: "application/json"
       }));
+
       return {
         method: 'POST',
         url: this.url,
@@ -639,13 +646,17 @@ export default {
         name: file.name,
         size: byteToSize(file.size),
         updateTime: new Date().getTime(),
-        progress: 0,
-        status: 0,
+        progress: this.type === 'add' || this.isCaseEdit? 100 : 0,
+        status: this.type === 'add' || this.isCaseEdit? 'toUpload' : 0,
         creator: user.name,
         type: getTypeByFileName(file.name)
       });
 
-      // 上传文件
+      if (this.type === 'add' || this.isCaseEdit) {
+        // 新增上传
+        this.uploadFiles.push(file);
+        return false;
+      }
       this.uploadFile(e, (param) => {
         this.showProgress(e.file, param)
       })
@@ -739,11 +750,14 @@ export default {
       }
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
-      let data = {"belongId": this.issueId, "belongType": "issue"}
-      this.$get('/attachment/delete/issue/' + file.id , response => {
-        this.$success(this.$t('commons.delete_success'));
-        this.getFileMetaData(this.issueId);
-      });
+      if (this.type === 'add' || this.isCaseEdit) {
+        this.uploadFiles.splice(index, 1);
+      } else {
+        this.$get('/attachment/delete/issue/' + file.id , response => {
+          this.$success(this.$t('commons.delete_success'));
+          this.getFileMetaData(this.issueId);
+        });
+      }
     },
     handleCancel(file, index) {
       this.fileList.splice(index, 1);
