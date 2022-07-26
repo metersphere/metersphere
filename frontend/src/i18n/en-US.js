@@ -3351,5 +3351,14 @@ export default {
     check_subitem: 'check subitem',
     pause: 'Pause',
     browser: "Browser",
+  },
+  project_application: {
+    workstation: {
+      time_tip: 'Off, no time range is set; On, according to the set time range, enter the list to be updated, if the time range is exceeded, it will be automatically cleared from the list;',
+      rule_tip: 'Set the to-be-updated rule, if it meets the selected conditions, it will enter the to-be-updated list',
+      api_tip: 'Both the interface definition and the affected interface use cases will enter the to-be-updated list',
+      case_tip: 'If the interface use case meets the conditions, it will enter the to-be-updated list',
+      update_rule_title: 'Enter the to-be-updated list rule settings'
+    }
   }
 };

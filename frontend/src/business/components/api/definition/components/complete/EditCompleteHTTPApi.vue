@@ -182,26 +182,37 @@
       </template>
     </el-dialog>
 
-    <el-dialog :visible.sync="batchSyncApiVisible" :title="$t('commons.save')+$t('commons.setting')">
+    <el-dialog :visible.sync="batchSyncApiVisible"
+               :title="$t('commons.save')+'&'+$t('workstation.sync')+$t('commons.setting')" v-if="isXpack">
       <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
         <div class="timeClass">
-          <span>{{ $t('api_test.definition.one_click_sync') + "case" }}</span>
+          <span style="font-size: 16px;font-weight: bold">{{ $t('api_test.definition.one_click_sync') + "case" }}</span>
           <el-switch v-model="syncCases"></el-switch>
         </div>
-        <span>{{ $t('workstation.batch_sync_api_tips') }}</span>
+        <br/>
+        <span style="font-size: 12px">{{ $t('workstation.batch_sync_api_tips') }}</span><br/><br/>
+        <span v-if="syncCases" style="font-size: 16px; font-weight: bold">
+        {{ $t('workstation.sync') + $t('commons.setting') }}
+        <i class="el-icon-arrow-down" v-if="showApiSyncConfig" @click="showApiSyncConfig=false"/>
+        <i class="el-icon-arrow-right" v-if="!showApiSyncConfig" @click="showApiSyncConfig=true"/>
+      </span><br/><br/>
+        <div v-if="showApiSyncConfig">
+          <sync-setting style="padding-left: 10px" v-if="syncCases" ref="synSetting"></sync-setting>
+        </div>
       </el-row>
-      <span v-if="syncCases">{{ $t('workstation.sync') + $t('commons.setting') }}</span><br/>
-      <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
-        <sync-setting v-if="syncCases" ref="synSetting"></sync-setting>
-      </el-row>
-      <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+
+      <el-row style="margin-bottom: 10px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)" v-if="showNotice">
         <div class="timeClass">
-          <span>{{ $t('api_test.definition.change_notification') }}</span>
+          <span style="font-size: 16px;font-weight: bold">{{ $t('api_test.definition.change_notification') }}</span>
           <el-switch v-model="specialReceivers"></el-switch>
         </div>
-        <span>{{ $t('api_test.definition.recipient_tips') }}</span>
-        <el-row v-if="specialReceivers">
-          <el-col :span="4">{{ $t('api_test.definition.recipient') + ":" }}</el-col>
+        <span style="font-size: 12px;">
+          {{ $t('api_test.definition.recipient_tips') }}
+        </span>
+        <el-row v-if="specialReceivers" style="margin-bottom: 5px;margin-top: 5px">
+          <el-col :span="4"><span
+            style="font-weight: bold">{{ $t('api_test.definition.recipient') + ":" }}</span>
+          </el-col>
           <el-col :span="20" style="color: #783887">
             <el-checkbox v-model="caseCreator">{{ 'CASE' + $t('api_test.creator') }}</el-checkbox>
             <el-checkbox v-model="scenarioCreator">{{ $t('commons.scenario') + $t('api_test.creator') }}</el-checkbox>
@@ -309,11 +320,13 @@ export default {
       createNewVersionVisible: false,
       batchSyncApiVisible: false,
       syncCases: true,
-      specialReceivers: false,
-      caseCreator: false,
-      scenarioCreator: false,
+      specialReceivers: true,
+      caseCreator: true,
+      scenarioCreator: true,
       apiSyncCaseRequest: {},
-
+      isXpack: false,
+      showNotice: false,
+      showApiSyncConfig: true
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -870,12 +883,32 @@ export default {
           this.apiSyncCaseRequest = JSON.parse(res.data.triggerUpdate);
         }
       });
+    },
+    getMessageList() {
+      let messageConfig = {
+        userIds: [],
+        taskType: 'API_DEFINITION_TASK',
+        event: 'UPDATE',
+        webhook: null,
+        type: 'IN_SITE',
+        identification: null,
+        isSet: null,
+        testId: null,
+        createTime: null,
+        template: null
+      }
+      this.$post('/notice/search/message/tasks/' + this.projectId, messageConfig, response => {
+        if (response.data && response.data.length > 0) {
+          this.showNotice = true;
+        }
+      });
     }
   },
 
   created() {
     this.getMaintainerOptions();
     this.getApplication();
+    this.isXpack = !!hasLicense();
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = "";
     }
@@ -901,6 +934,7 @@ export default {
 
     if (hasLicense()) {
       this.getVersionHistory();
+      this.getMessageList();
     }
   }
 };
@@ -911,6 +945,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  margin-bottom: 5px;
 }
 
 .base-info .el-form-item {
