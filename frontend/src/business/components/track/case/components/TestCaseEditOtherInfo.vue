@@ -73,8 +73,8 @@
             :on-exceed="handleExceed"
             :on-success="handleSuccess"
             :on-error="handleError"
-            :disabled="(readOnly && isTestPlanEdit) || type === 'add' || isCopy">
-            <el-button :disabled="(readOnly && isTestPlanEdit) || type === 'add' || isCopy" type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
+            :disabled="(readOnly && isTestPlanEdit) || isCopy">
+            <el-button :disabled="(readOnly && isTestPlanEdit) || isCopy" type="primary" size="mini">{{$t('test_track.case.add_attachment')}}</el-button>
             <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
           </el-upload>
         </el-col>
@@ -174,6 +174,7 @@ export default {
       },
       intervalMap: new Map(),
       cancelFileToken: [],
+      uploadFiles: []
     };
   },
   computed: {
@@ -258,12 +259,17 @@ export default {
         name: file.name,
         size: byteToSize(file.size),
         updateTime: new Date().getTime(),
-        progress: 0,
-        status: 0,
+        progress: this.type === 'add' ? 100 : 0,
+        status: this.type === 'add' ? 'toUpload' : 0,
         creator: user.name,
         type: getTypeByFileName(file.name)
       });
 
+      if (this.type === 'add') {
+        // 新增上传
+        this.uploadFiles.push(file);
+        return false;
+      }
       // 上传文件
       this.uploadFile(e, (param) => {
         this.showProgress(e.file, param)
@@ -358,10 +364,14 @@ export default {
       }
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
-      this.$get('/attachment/delete/testcase/' + file.id , response => {
-        this.$success(this.$t('commons.delete_success'));
-        this.getFileMetaData();
-      });
+      if (this.type === 'add') {
+        this.uploadFiles.splice(index, 1);
+      } else {
+        this.$get('/attachment/delete/testcase/' + file.id , response => {
+          this.$success(this.$t('commons.delete_success'));
+          this.getFileMetaData();
+        });
+      }
     },
     handleCancel(file, index) {
       this.fileList.splice(index, 1);

@@ -1957,15 +1957,23 @@ public class TestCaseService {
         return false;
     }
 
-    public TestCase add(EditTestCaseRequest request) {
+    public TestCase add(EditTestCaseRequest request, List<MultipartFile> files) {
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
-        // 复制用例时复制对应附件数据
         if (StringUtils.isNotEmpty(request.getCopyCaseId())) {
+            // 复制用例时复制对应附件数据
             AttachmentRequest attachmentRequest = new AttachmentRequest();
             attachmentRequest.setCopyBelongId(request.getCopyCaseId());
             attachmentRequest.setBelongId(testCaseWithBLOBs.getId());
             attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
             attachmentService.copyAttachment(attachmentRequest);
+        } else {
+            // 新增需上传用例所有待上传的附件
+            files.forEach(file -> {
+                AttachmentRequest attachmentRequest = new AttachmentRequest();
+                attachmentRequest.setBelongId(testCaseWithBLOBs.getId());
+                attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
+                attachmentService.uploadAttachment(attachmentRequest, file);
+            });
         }
         return testCaseWithBLOBs;
     }
