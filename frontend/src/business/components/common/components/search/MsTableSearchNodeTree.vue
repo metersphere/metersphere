@@ -51,6 +51,7 @@
 import MsTableSearchComponent from "@/business/components/common/components/search/MsTableSearchComponet";
 import MsNodeTree from "@/business/components/track/common/NodeTree";
 import {cloneDeep} from "lodash";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 
 export default {
@@ -84,6 +85,7 @@ export default {
       let options = cloneDeep(this.component.options);
       let {url, params, type} = options;
       if (!url) return;
+      url += '/' + getCurrentProjectID();
       if (type === "POST") {
         this.result = this.$post(url, params || {}, response => {
           this.handleTreeNodes(response.data);
