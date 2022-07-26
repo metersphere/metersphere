@@ -111,6 +111,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             return description;
         }
 
+        description = description.replaceAll("!image", "\n!image");
         String[] splitStrs = description.split("\\n");
         for (int j = 0; j < splitStrs.length; j++) {
             String splitStr = splitStrs[j];
