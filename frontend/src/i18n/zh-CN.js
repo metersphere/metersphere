@@ -1254,7 +1254,7 @@ export default {
       api_project: "所属项目",
       one_click_sync: "一键同步",
       change_notification: "变更通知",
-      recipient: "接受人",
+      recipient: "接收人",
       recipient_tips: "当API发生变化时，关联的CASE创建人、自动化场景创建人会收到站内消息",
       select_comp: {
         no_data: "无数据",
@@ -3360,5 +3360,14 @@ export default {
     check_subitem: '请选择子分类',
     pause: '等待时间',
     browser: "浏览器",
+  },
+  project_application: {
+    workstation: {
+      time_tip: '关闭，不设置时间范围；开启，根据设置的时间范围，进入待更新列表，超出时间范围，将自动从列表清除;',
+      rule_tip: '设置待更新规则，符合选择的条件，会进入待更新列表中',
+      api_tip: '接口定义和受影响的接口用例都会进入待更新列表',
+      case_tip: '接口用例符合条件就会进入待更新列表',
+      update_rule_title: '进入待更新列表规则设置'
+    }
   }
 };
