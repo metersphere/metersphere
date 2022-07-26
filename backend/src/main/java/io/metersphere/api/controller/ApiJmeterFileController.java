@@ -1,6 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.jmeter.JmeterThreadUtils;
+import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.api.service.ApiJmeterFileService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,7 +19,7 @@ public class ApiJmeterFileController {
 
     @GetMapping("stop/{name}")
     public String stop(@PathVariable String name) {
-        return JmeterThreadUtils.stop(name);
+        return JMeterThreadUtils.stop(name);
     }
 
     @GetMapping("download/jar")

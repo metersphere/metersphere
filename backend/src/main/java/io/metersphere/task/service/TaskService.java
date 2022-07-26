@@ -5,7 +5,7 @@ import io.metersphere.api.dto.automation.TaskRequest;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.JmeterThreadUtils;
+import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -179,9 +179,9 @@ public class TaskService {
 
                     // 结束掉未分发完成的任务
                     LoggerUtil.info("结束正在进行中的计划任务队列");
-                    JmeterThreadUtils.stop("PLAN-CASE");
-                    JmeterThreadUtils.stop("API-CASE-RUN");
-                    JmeterThreadUtils.stop("SCENARIO-PARALLEL-THREAD");
+                    JMeterThreadUtils.stop("PLAN-CASE");
+                    JMeterThreadUtils.stop("API-CASE-RUN");
+                    JMeterThreadUtils.stop("SCENARIO-PARALLEL-THREAD");
 
                     if (taskRequestMap.containsKey("API")) {
                         List<ApiDefinitionExecResult> results = extApiDefinitionExecResultMapper.findByProjectIds(taskCenterRequest);
@@ -261,7 +261,7 @@ public class TaskService {
             }
         } else {
             new LocalRunner().stop(reportId);
-            JmeterThreadUtils.stop(reportId);
+            JMeterThreadUtils.stop(reportId);
         }
     }
 }
