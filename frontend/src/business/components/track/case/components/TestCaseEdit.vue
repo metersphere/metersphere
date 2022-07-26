@@ -832,6 +832,11 @@ export default {
         return key === "file" ? undefined : value
       });
 
+      if (this.$refs.otherInfo.uploadFiles.length > 0) {
+        this.$refs.otherInfo.uploadFiles.forEach(f => {
+          formData.append("file", f);
+        });
+      }
       formData.append('request', new Blob([requestJson], {
         type: "application/json"
       }));

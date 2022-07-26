@@ -210,14 +210,14 @@ public class TestCaseController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, targetClass = TestCaseMapper.class,
             event = NoticeConstants.Event.CREATE, subject = "测试用例通知")
-    public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request) {
+    public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         if (StringUtils.isBlank(request.getId())) {
             //新增 后端生成 id
             request.setId(UUID.randomUUID().toString());
         } else {
             //复制，前端生成 id
         }
-        return testCaseService.add(request);
+        return testCaseService.add(request, files);
     }
 
     @PostMapping("/edit/order")

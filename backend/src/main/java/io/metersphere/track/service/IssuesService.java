@@ -41,6 +41,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -104,7 +105,7 @@ public class IssuesService {
     }
 
 
-    public IssuesWithBLOBs addIssues(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs addIssues(IssuesUpdateRequest issuesRequest, List<MultipartFile> files) {
         List<AbstractIssuePlatform> platformList = getAddPlatforms(issuesRequest);
         IssuesWithBLOBs issues = null;
         for (AbstractIssuePlatform platform : platformList) {
@@ -118,13 +119,22 @@ public class IssuesService {
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
-        // 复制新增, 同步缺陷的MS附件
         if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
+            // 复制新增, 同步缺陷的MS附件
             AttachmentRequest attachmentRequest = new AttachmentRequest();
             attachmentRequest.setCopyBelongId(issuesRequest.getCopyIssueId());
             attachmentRequest.setBelongId(issues.getId());
             attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
             attachmentService.copyAttachment(attachmentRequest);
+        } else {
+            // 新增, 需保存并同步所有待上传的附件
+            final String issueId = issues.getId();
+            files.forEach(file -> {
+                AttachmentRequest attachmentRequest = new AttachmentRequest();
+                attachmentRequest.setBelongId(issueId);
+                attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
+                attachmentService.uploadAttachment(attachmentRequest, file);
+            });
         }
         return issues;
     }
