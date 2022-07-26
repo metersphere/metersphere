@@ -429,7 +429,7 @@
             </foreach>
         </if>
         <if test="request.redirectFilter == 'unexecuteCount' ">
-            and (t1.status IS NULL or t1.status = '')
+            and (t1.status IS NULL or t1.status = '' or t1.status = 'Prepare' or t1.status = 'Underway')
         </if>
         <if test="request.redirectFilter == 'executionPassCount' ">
             and t1.status = 'success'
