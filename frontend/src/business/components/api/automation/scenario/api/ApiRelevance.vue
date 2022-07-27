@@ -6,7 +6,6 @@
     ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
-        style="margin-top: 5px;"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
