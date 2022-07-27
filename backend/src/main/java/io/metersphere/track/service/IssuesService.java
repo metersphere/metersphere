@@ -128,13 +128,15 @@ public class IssuesService {
             attachmentService.copyAttachment(attachmentRequest);
         } else {
             // 新增, 需保存并同步所有待上传的附件
-            final String issueId = issues.getId();
-            files.forEach(file -> {
-                AttachmentRequest attachmentRequest = new AttachmentRequest();
-                attachmentRequest.setBelongId(issueId);
-                attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
-                attachmentService.uploadAttachment(attachmentRequest, file);
-            });
+            if (CollectionUtils.isNotEmpty(files)) {
+                final String issueId = issues.getId();
+                files.forEach(file -> {
+                    AttachmentRequest attachmentRequest = new AttachmentRequest();
+                    attachmentRequest.setBelongId(issueId);
+                    attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
+                    attachmentService.uploadAttachment(attachmentRequest, file);
+                });
+            }
         }
         return issues;
     }
