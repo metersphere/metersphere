@@ -771,9 +771,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             //处理数据
             if (fullCoverage) {
                 if (fullCoverageApi) {
-                    coverModule(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, definitionIdCaseMAp, oldCaseMap);
+                    coverModule(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, definitionIdCaseMAp, oldCaseMap, apiImport.getEsbApiParamsMap());
                 } else {
-                    moduleMap = cover(moduleMap, toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, definitionIdCaseMAp, oldCaseMap);
+                    moduleMap = cover(moduleMap, toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, definitionIdCaseMAp, oldCaseMap, apiImport.getEsbApiParamsMap());
                 }
             } else {
                 //不覆盖
@@ -784,7 +784,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 Map<String, ApiDefinitionWithBLOBs> repeatMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
                 Map<String, ApiDefinitionWithBLOBs> optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
                 if (fullCoverage) {
-                    cover(moduleMap, toUpdateList, optionMap, repeatMap, updateVersionId, definitionIdCaseMAp, oldCaseMap);
+                    cover(moduleMap, toUpdateList, optionMap, repeatMap, updateVersionId, definitionIdCaseMAp, oldCaseMap, apiImport.getEsbApiParamsMap());
                 } else {
                     //不覆盖,同一接口不做更新
                     removeRepeat(optionData, optionMap, repeatMap, moduleMap, versionId, definitionIdCaseMAp, optionDataCases);
@@ -878,7 +878,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private Map<String, ApiModule> cover(Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList,
                                          Map<String, ApiDefinitionWithBLOBs> nameModuleMap, Map<String, ApiDefinitionWithBLOBs> repeatDataMap,
                                          String updateVersionId, Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp,
-                                         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
+                                         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
         //覆盖但不覆盖模块
         if (nameModuleMap != null) {
             //导入文件没有新增接口无需创建接口模块
@@ -893,6 +893,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     }
                     //该接口的case
                     Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
+                    updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
                     apiDefinitionWithBLOBs.setId(v.getId());
                     apiDefinitionWithBLOBs.setVersionId(updateVersionId);
                     apiDefinitionWithBLOBs.setModuleId(v.getModuleId());
@@ -915,6 +916,17 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return moduleMap;
     }
 
+    private void updateEsb(Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap, String newId, String oldId) {
+        if (MapUtils.isNotEmpty(esbApiParamsMap)) {
+            EsbApiParamsWithBLOBs esbApiParamsWithBLOBs = esbApiParamsMap.get(oldId);
+            if (esbApiParamsWithBLOBs != null) {
+                esbApiParamsMap.remove(oldId);
+                esbApiParamsWithBLOBs.setResourceId(newId);
+                esbApiParamsMap.put(newId, esbApiParamsWithBLOBs);
+            }
+        }
+    }
+
     private Map<String, ApiModule> judgeModule(Map<String, ApiModule> moduleMap, Map<String, ApiDefinitionWithBLOBs> nameModuleMap, Map<String, ApiDefinitionWithBLOBs> repeatDataMap) {
         AtomicBoolean remove = new AtomicBoolean(true);
 
@@ -934,7 +946,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private void coverModule(List<ApiDefinitionWithBLOBs> toUpdateList, Map<String, ApiDefinitionWithBLOBs> nameModuleMap,
                              Map<String, ApiDefinitionWithBLOBs> repeatDataMap, String updateVersionId, Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp,
-                             Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
+                             Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
         if (nameModuleMap != null) {
             repeatDataMap.forEach((k, v) -> {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
@@ -946,6 +958,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     }
                     //该接口的case
                     Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
+                    updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
                     apiDefinitionWithBLOBs.setId(v.getId());
                     setApiParam(apiDefinitionWithBLOBs, updateVersionId, v);
                     //组合case
