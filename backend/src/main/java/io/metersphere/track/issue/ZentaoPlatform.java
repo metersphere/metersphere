@@ -514,6 +514,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 name = name.replaceAll("&amp;", "&");
                 path = zentaoClient.getBaseUrl() + path.replaceAll("&amp;", "&");
             }
+            // 专业版格式有差异，解析完会出现两个 /pro，去掉一个
+            path.replace("/pro/pro", "/pro");
             path = "/resource/md/get/url?url=" + URLEncoder.encode(path, StandardCharsets.UTF_8);
             // 图片与描述信息之间需换行，否则无法预览图片
             result = "\n\n![" + name + "](" + path + ")";
