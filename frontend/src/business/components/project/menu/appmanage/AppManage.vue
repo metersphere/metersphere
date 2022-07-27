@@ -452,10 +452,14 @@ export default {
       let configs = [];
       if (this.config.openUpdateTime) {
         if (!this.pastQuantity) {
-          this.$message.error("请选择时间")
+          this.$message.error("请选择时间");
+          this.config.openUpdateTime = false;
+          return
         }
         if (!this.pastUnit) {
-          this.$message.error("请选择时间单位")
+          this.$message.error("请选择时间单位");
+          this.config.openUpdateTime = false;
+          return
         }
         this.config.openUpdateRuleTime = this.pastQuantity + this.pastUnit;
         configs.push({
