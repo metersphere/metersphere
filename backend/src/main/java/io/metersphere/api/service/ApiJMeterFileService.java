@@ -35,7 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class ApiJmeterFileService {
+public class ApiJMeterFileService {
     @Resource
     private ApiCaseSerialService apiCaseSerialService;
     @Resource
@@ -123,7 +123,7 @@ public class ApiJmeterFileService {
         Map<String, byte[]> files = new HashMap<>();
         // 获取JAR
         Map<String, byte[]> jarFiles = this.getJar();
-        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(jarFiles)) {
+        if (!MapUtils.isEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
                 files.put(k, v);
@@ -136,7 +136,7 @@ public class ApiJmeterFileService {
         Map<String, byte[]> files = new HashMap<>();
         // 获取JAR
         Map<String, byte[]> jarFiles = this.getPlugJar();
-        if (!com.alibaba.excel.util.CollectionUtils.isEmpty(jarFiles)) {
+        if (!MapUtils.isEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
                 files.put(k, v);

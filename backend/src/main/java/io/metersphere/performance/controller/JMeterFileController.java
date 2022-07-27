@@ -4,7 +4,7 @@ package io.metersphere.performance.controller;
 import io.metersphere.commons.utils.WeakConcurrentHashMap;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
 import io.metersphere.performance.dto.ZipDTO;
-import io.metersphere.performance.service.JmeterFileService;
+import io.metersphere.performance.service.JMeterFileService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("jmeter")
-public class JmeterFileController {
+public class JMeterFileController {
     @Resource
-    private JmeterFileService jmeterFileService;
+    private JMeterFileService jmeterFileService;
     private final WeakConcurrentHashMap<String, List<Double>> readyMap = new WeakConcurrentHashMap<>(30 * 60 * 1000);// 默认保留30分钟
 
     @GetMapping("ping")
