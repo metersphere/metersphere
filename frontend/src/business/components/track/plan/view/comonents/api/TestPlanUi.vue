@@ -10,6 +10,7 @@
         :is-read-only="true"
         :plan-id="planId"
         :plan-status="planStatus"
+        :show-case-num="false"
         ref="scenarioNodeTree">
       </ui-scenario-module>
     </template>
@@ -41,120 +42,122 @@
 </template>
 
 <script>
-    import NodeTree from "../../../../common/NodeTree";
-    import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
-    import TestPlanApiCaseList from "./TestPlanApiCaseList";
-    import TestCaseApiRelevance from "./TestCaseApiRelevance";
-    import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
-    import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
-    import MsTestPlanUiScenarioList from "./TestPlanUiScenarioList";
-    import UiScenarioModule from "@/business/components/xpack/ui/automation/scenario/UiScenarioModule";
-    import TestCaseUiScenarioRelevance
-      from "@/business/components/track/plan/view/comonents/api/TestCaseUiScenarioRelevance";
+import NodeTree from "../../../../common/NodeTree";
+import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
+import TestPlanApiCaseList from "./TestPlanApiCaseList";
+import TestCaseApiRelevance from "./TestCaseApiRelevance";
+import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
+import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
+import MsTestPlanUiScenarioList from "./TestPlanUiScenarioList";
+import TestCaseUiScenarioRelevance
+  from "@/business/components/track/plan/view/comonents/api/TestCaseUiScenarioRelevance";
 
-    export default {
-      name: "TestPlanUi",
-      components: {
-        TestCaseUiScenarioRelevance,
-        MsTestPlanUiScenarioList,
-        UiScenarioModule,
-        MsApiModule,
-        ApiCaseSimpleList,
-        TestCaseApiRelevance,
-        TestPlanApiCaseList,
-        MsTestPlanCommonComponent,
-        NodeTree,
-      },
-      data() {
-        return {
-          result: {},
-          treeNodes: [],
-          currentRow: "",
-          trashEnable: false,
-          currentProtocol: null,
-          currentModule: null,
-          selectNodeIds: [],
-          moduleOptions: {},
-          model: 'scenario'
-        }
-      },
-      props: [
-        'planId',
-        'redirectCharType',
-        'clickType',
-        'versionEnable',
-        'planStatus'
-      ],
-      mounted() {
-        this.checkRedirectCharType();
-      },
-      watch: {
-        model() {
-          this.selectNodeIds = [];
-          this.moduleOptions = {};
-        },
-        redirectCharType(){
-          if(this.redirectCharType=='scenario'){
-            this.model = 'scenario';
-          }else{
-            this.model = 'api';
-          }
-        }
-      },
-      methods: {
-        checkRedirectCharType(){
-          if(this.redirectCharType=='scenario'){
-            this.model = 'scenario';
-          }else{
-            this.model = 'api';
-          }
-        },
-        refresh() {
-          this.refreshTree();
-          this.refreshTable();
-        },
-        refreshTable() {
-          if (this.$refs.apiCaseList) {
-            this.$refs.apiCaseList.initTable();
-          }
-          if (this.$refs.apiScenarioList) {
-            this.$refs.apiScenarioList.search();
-          }
-        },
-        refreshTree() {
-          if (this.$refs.scenarioNodeTree) {
-            this.$refs.scenarioNodeTree.list();
-          }
-        },
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const UiScenarioModule = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/scenario/UiScenarioModule.vue") : {};
 
-        nodeChange(node, nodeIds, pNodes) {
-          this.selectNodeIds = nodeIds;
-        },
-        handleProtocolChange(protocol) {
-          this.currentProtocol = protocol;
-        },
-        setModuleOptions(data) {
-          this.moduleOptions = data;
-        },
-
-        openTestCaseRelevanceDialog(model) {
-          if (model === 'scenario') {
-            this.$refs.scenarioCaseRelevance.open();
-          } else {
-            this.$refs.apiCaseRelevance.open();
-          }
-        },
+export default {
+  name: "TestPlanUi",
+  components: {
+    TestCaseUiScenarioRelevance,
+    MsTestPlanUiScenarioList,
+    "UiScenarioModule": UiScenarioModule.default,
+    MsApiModule,
+    ApiCaseSimpleList,
+    TestCaseApiRelevance,
+    TestPlanApiCaseList,
+    MsTestPlanCommonComponent,
+    NodeTree,
+  },
+  data() {
+    return {
+      result: {},
+      treeNodes: [],
+      currentRow: "",
+      trashEnable: false,
+      currentProtocol: null,
+      currentModule: null,
+      selectNodeIds: [],
+      moduleOptions: {},
+      model: 'scenario'
+    }
+  },
+  props: [
+    'planId',
+    'redirectCharType',
+    'clickType',
+    'versionEnable',
+    'planStatus'
+  ],
+  mounted() {
+    this.checkRedirectCharType();
+  },
+  watch: {
+    model() {
+      this.selectNodeIds = [];
+      this.moduleOptions = {};
+    },
+    redirectCharType() {
+      if (this.redirectCharType == 'scenario') {
+        this.model = 'scenario';
+      } else {
+        this.model = 'api';
       }
     }
+  },
+  methods: {
+    checkRedirectCharType() {
+      if (this.redirectCharType == 'scenario') {
+        this.model = 'scenario';
+      } else {
+        this.model = 'api';
+      }
+    },
+    refresh() {
+      this.refreshTree();
+      this.refreshTable();
+    },
+    refreshTable() {
+      if (this.$refs.apiCaseList) {
+        this.$refs.apiCaseList.initTable();
+      }
+      if (this.$refs.apiScenarioList) {
+        this.$refs.apiScenarioList.search();
+      }
+    },
+    refreshTree() {
+      if (this.$refs.scenarioNodeTree) {
+        this.$refs.scenarioNodeTree.list();
+      }
+    },
+
+    nodeChange(node, nodeIds, pNodes) {
+      this.selectNodeIds = nodeIds;
+    },
+    handleProtocolChange(protocol) {
+      this.currentProtocol = protocol;
+    },
+    setModuleOptions(data) {
+      this.moduleOptions = data;
+    },
+
+    openTestCaseRelevanceDialog(model) {
+      if (model === 'scenario') {
+        this.$refs.scenarioCaseRelevance.open();
+      } else {
+        this.$refs.apiCaseRelevance.open();
+      }
+    },
+  }
+}
 
 </script>
 
 <style scoped>
 
-  .model-change-radio {
-    height: 25px;
-    line-height: 25px;
-    margin: 5px 10px;
-  }
+.model-change-radio {
+  height: 25px;
+  line-height: 25px;
+  margin: 5px 10px;
+}
 
 </style>

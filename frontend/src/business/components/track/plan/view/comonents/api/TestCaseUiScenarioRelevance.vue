@@ -13,6 +13,7 @@
         @setModuleOptions="setModuleOptions"
         :relevance-project-id="projectId"
         :is-read-only="true"
+        :show-case-num="false"
         ref="nodeTree"/>
     </template>
 
@@ -35,9 +36,10 @@ import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
 import {strMapToObj} from "../../../../../../../common/js/utils";
 import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
 import MsApiScenarioList from "../../../../../api/automation/scenario/ApiScenarioList";
-import UiScenarioModule from "@/business/components/xpack/ui/automation/scenario/UiScenarioModule";
 import RelevanceUiScenarioList from "@/business/components/track/plan/view/comonents/api/RelevanceUiScenarioList";
 import {ENV_TYPE} from "@/common/js/constants";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const UiScenarioModule = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/scenario/UiScenarioModule.vue") : {};
 
 export default {
   name: "TestCaseUiScenarioRelevance",
@@ -45,7 +47,7 @@ export default {
     RelevanceUiScenarioList,
     MsApiScenarioList,
     ApiCaseSimpleList,
-    UiScenarioModule,
+    "UiScenarioModule" : UiScenarioModule.default,
     TestCaseRelevanceBase,
   },
   data() {
