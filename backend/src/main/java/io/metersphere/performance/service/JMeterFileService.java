@@ -1,6 +1,5 @@
 package io.metersphere.performance.service;
 
-import com.alibaba.excel.util.CollectionUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
@@ -10,6 +9,7 @@ import io.metersphere.performance.dto.ZipDTO;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.engine.EngineFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
@@ -23,7 +23,7 @@ import java.util.zip.ZipOutputStream;
 
 // 非事务运行
 @Service
-public class JmeterFileService {
+public class JMeterFileService {
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource

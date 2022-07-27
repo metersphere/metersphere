@@ -1,7 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.jmeter.JMeterThreadUtils;
-import io.metersphere.api.service.ApiJmeterFileService;
+import io.metersphere.api.service.ApiJMeterFileService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +12,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/jmeter")
-public class ApiJmeterFileController {
+public class ApiJMeterFileController {
 
     @Resource
-    private ApiJmeterFileService apiJmeterFileService;
+    private ApiJMeterFileService apiJmeterFileService;
 
     @GetMapping("stop/{name}")
     public String stop(@PathVariable String name) {

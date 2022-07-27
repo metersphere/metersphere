@@ -501,34 +501,27 @@ public class ESBParser extends EsbAbstractParser {
 
     private String getCellValue(Cell cell) {
         String returnCellValue = "";
-        int cellType = cell.getCellType();
-        switch (cellType) {
-            case Cell.CELL_TYPE_BLANK:
-                returnCellValue = "";
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                returnCellValue = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case Cell.CELL_TYPE_ERROR:
-                returnCellValue = "";
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
+        if (cell.getCellType() == CellType.BLANK) {
+            returnCellValue = "";
+        } else if (cell.getCellType() == CellType.BOOLEAN) {
+            returnCellValue = String.valueOf(cell.getBooleanCellValue());
+        } else if (cell.getCellType() == CellType.ERROR) {
+            returnCellValue = "";
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            returnCellValue = getValueOfNumericCell(cell);
+        } else if (cell.getCellType() == CellType.FORMULA) {
+            try {
                 returnCellValue = getValueOfNumericCell(cell);
-                break;
-            case Cell.CELL_TYPE_FORMULA:
+            } catch (IllegalStateException e) {
                 try {
-                    returnCellValue = getValueOfNumericCell(cell);
-                } catch (IllegalStateException e) {
-                    try {
-                        returnCellValue = cell.getRichStringCellValue().toString();
-                    } catch (IllegalStateException e2) {
-                    }
-                } catch (Exception e) {
-                    LogUtil.error(e);
+                    returnCellValue = cell.getRichStringCellValue().toString();
+                } catch (IllegalStateException e2) {
                 }
-                break;
-            default:
-                returnCellValue = cell.getRichStringCellValue().getString();
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        } else {
+            returnCellValue = cell.getRichStringCellValue().getString();
         }
         if (returnCellValue == null) {
             returnCellValue = "";
