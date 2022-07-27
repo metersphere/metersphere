@@ -398,12 +398,13 @@ name: "TestCaseMinder",
     buildExtraNode(data, parent, root) {
       if (data.type !== 'node' && data.type !== 'tmp' && parent && isModuleNodeData(parent) && data.changed === true) {
         // 保存额外信息，只保存模块下的一级子节点
-        let nodes = this.saveExtraNode[parent.id];
+        let pId = parent.newId ? parent.newId : parent.id;
+        let nodes = this.saveExtraNode[pId];
         if (!nodes) {
           nodes = [];
         }
         nodes.push(JSON.stringify(this._buildExtraNode(root)));
-        this.saveExtraNode[parent.newId ? parent.newId : parent.id] = nodes;
+        this.saveExtraNode[pId] = nodes;
       }
     },
     validate(parent, data) {
