@@ -1,75 +1,77 @@
 <template>
   <div v-loading="isReloadData || result.loading">
-    <el-row>
-      <el-col :span="21" style="padding-bottom: 20px">
-        <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
-          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="request.disabled" style="margin: 10px">
-            <el-row>
-              <el-col :span="8">
-                <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
-                  <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
-                             :placeholder="$t('api_test.definition.request.run_env')"
-                             @change="environmentChange" clearable :disabled="isReadOnly">
-                    <el-option v-for="(environment, index) in environments" :key="index"
-                               :label="environment.name"
-                               :value="environment.id"/>
-                    <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
+    <div class="jdbc-class">
+      <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="request.disabled"
+               style="margin: 10px">
+        <el-row>
+          <el-col :span="8">
+            <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
+              <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
+                         :placeholder="$t('api_test.definition.request.run_env')"
+                         @change="environmentChange" clearable :disabled="isReadOnly">
+                <el-option v-for="(environment, index) in environments" :key="index"
+                           :label="environment.name"
+                           :value="environment.id"/>
+                <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
+                  {{ $t('api_test.environment.environment_config') }}
+                </el-button>
+                <template v-slot:empty>
+                  <div class="empty-environment">
+                    <el-button class="environment-button" size="small" type="primary"
+                               @click="openEnvironmentConfig">
                       {{ $t('api_test.environment.environment_config') }}
                     </el-button>
-                    <template v-slot:empty>
-                      <div class="empty-environment">
-                        <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
-                          {{ $t('api_test.environment.environment_config') }}
-                        </el-button>
-                      </div>
-                    </template>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
-                  <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
-                    <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
-                  </el-select>
-                </el-form-item>
-
-              </el-col>
-              <el-col :span="8">
-                <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
-                  <el-input-number :disabled="request.disabled" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-
-            <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
-              <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small"/>
+                  </div>
+                </template>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId"
+                          style="margin-left: 10px">
+              <el-select v-model="request.dataSourceId" size="small" @change="reload" :disabled="request.disabled">
+                <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id"
+                           :label="item.name"/>
+              </el-select>
             </el-form-item>
 
-            <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
-              <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
+              <el-input-number :disabled="request.disabled" size="small" v-model="request.queryTimeout"
+                               :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
             </el-form-item>
+          </el-col>
+        </el-row>
 
-            <el-tabs v-model="activeName" class="ms-sql-tabs">
-              <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
-                <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
-                                           :description="$t('api_test.scenario.kv_description')"/>
-              </el-tab-pane>
-              <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
-                <ms-code-edit
-                    :height="120"
-                    :read-only="isReadOnly"
-                    :modes="['sql']"
-                    :data.sync="request.query"
-                    theme="eclipse"
-                    mode="sql"
-                    ref="codeEdit"/>
-              </el-tab-pane>
-            </el-tabs>
-          </el-form>
-        </div>
-      </el-col>
-    </el-row>
+
+        <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
+          <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small"/>
+        </el-form-item>
+
+        <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
+          <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
+        </el-form-item>
+
+        <el-tabs v-model="activeName" class="ms-sql-tabs">
+          <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables">
+            <ms-api-scenario-variables :is-read-only="isReadOnly" :items="request.variables"
+                                       :description="$t('api_test.scenario.kv_description')"/>
+          </el-tab-pane>
+          <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
+            <ms-code-edit
+              :height="120"
+              :read-only="isReadOnly"
+              :modes="['sql']"
+              :data.sync="request.query"
+              theme="eclipse"
+              mode="sql"
+              ref="codeEdit"/>
+          </el-tab-pane>
+        </el-tabs>
+      </el-form>
+    </div>
+
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -84,8 +86,7 @@ import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsApiScenarioVariables from "@/business/components/api/definition/components/ApiScenarioVariables";
 import {parseEnvironment} from "@/business/components/api/definition/model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-import {getCurrentProjectID, objToStrMap} from "@/common/js/utils";
-import {getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, objToStrMap} from "@/common/js/utils";
 import MsJsr233Processor from "@/business/components/api/automation/scenario/component/Jsr233Processor";
 
 export default {
@@ -211,7 +212,7 @@ export default {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       let scenarioEnvId = this.scenarioId !== "" ? (this.scenarioId + "_" + id) : id;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-          && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
+        && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
       if (!this.scenarioId && !this.request.customizeReq) {
@@ -359,5 +360,12 @@ export default {
 
 /deep/ .el-form-item {
   margin-bottom: 15px;
+}
+
+.jdbc-class {
+  border: 1px #DCDFE6 solid;
+  height: 100%;
+  border-radius: 4px;
+  width: 100%
 }
 </style>
