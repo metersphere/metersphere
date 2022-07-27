@@ -210,7 +210,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>2.2.10</version>
+            <version>3.1.1</version>
         </dependency>
 
         <dependency>
