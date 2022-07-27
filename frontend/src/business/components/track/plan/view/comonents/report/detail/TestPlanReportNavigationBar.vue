@@ -34,7 +34,8 @@ export default {
     functionalEnable: Boolean,
     apiEnable: Boolean,
     loadEnable: Boolean,
-    needMoveBar: Boolean
+    uiEnable: Boolean,
+    needMoveBar: Boolean,
   },
   data() {
     return {
@@ -60,6 +61,10 @@ export default {
         {
           link: 'load',
           title: this.$t('test_track.report.analysis_load'),
+        },
+        {
+          link: 'ui',
+          title: this.$t('test_track.report.analysis_ui')
         }
       ]
     }
@@ -84,6 +89,9 @@ export default {
     loadEnable() {
       this.setData();
     },
+    uiEnable() {
+      this.setData();
+    }
   },
   computed: {
     navBtnClass() {
@@ -109,6 +117,7 @@ export default {
         ['functional', this.functionalEnable],
         ['api', this.apiEnable],
         ['load', this.loadEnable],
+        ['ui', this.uiEnable],
       ]);
       this.data = [];
       this.contents.forEach(item => {
