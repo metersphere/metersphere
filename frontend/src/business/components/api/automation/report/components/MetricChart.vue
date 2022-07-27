@@ -435,6 +435,7 @@ export default {
   border-radius: 50%;
   height: 12px;
   width: 12px;
+  min-width: 12px;
   display: inline-block;
   vertical-align: top;
   margin-left: 20px;
@@ -446,6 +447,7 @@ export default {
   border-radius: 50%;
   height: 12px;
   width: 12px;
+  min-width: 12px;
   display: inline-block;
   vertical-align: top;
   margin-left: 20px;
@@ -457,6 +459,7 @@ export default {
   border-radius: 50%;
   height: 12px;
   width: 12px;
+  min-width: 12px;
   display: inline-block;
   vertical-align: top;
   margin-left: 20px;
@@ -468,6 +471,7 @@ export default {
   border-radius: 50%;
   height: 12px;
   width: 12px;
+  min-width: 12px;
   display: inline-block;
   vertical-align: top;
   margin-left: 20px;
