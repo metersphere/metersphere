@@ -23,6 +23,7 @@
       :summary-enable="summaryEnable"
       :functional-enable="functionalEnable"
       :load-enable="loadEnable"
+      :ui-enable="uiEnable"
       :overview-enable="overviewEnable"
       :is-template="isTemplate"/>
   </ms-container>
