@@ -1015,9 +1015,9 @@ public class ApiDefinitionService {
                     apiDefinition.setId(existApi.getId());
                     String request = setImportHashTree(apiDefinition);
                     apiDefinition.setOrder(existApi.getOrder());
-                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                     apiDefinition.setRequest(request);
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
+                    batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 } else {
                     apiDefinition.setId(existApi.getId());
                     if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {

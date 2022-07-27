@@ -461,7 +461,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private JsonSchemaItem parseSchema(Schema schema, Set<String> refSet) {
         if (schema == null) return null;
-        if (StringUtils.isBlank(schema.get$ref()) && schema.getProperties() == null && refSet.isEmpty()) {
+        if (StringUtils.isBlank(schema.get$ref()) && schema.getProperties() == null && refSet.isEmpty() && schema.getExample() == null) {
             return null;
         }
         JsonSchemaItem item = new JsonSchemaItem();
