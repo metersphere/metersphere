@@ -2241,13 +2241,20 @@ public class TestCaseService {
     }
 
     public void reduction(TestCaseBatchRequest request) {
-        if (CollectionUtils.isNotEmpty(request.getIds())) {
-            extTestCaseMapper.checkOriginalStatusByIds(request.getIds());
+        List<String> ids = new ArrayList<>();
+        if (request.getCondition().isSelectAll()) {
+            List<TestCaseDTO> allReductionTestCases = listTestCase(request.getCondition());
+            ids = allReductionTestCases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
+        } else {
+            ids = request.getIds();
+        }
+        if (CollectionUtils.isNotEmpty(ids)) {
+            extTestCaseMapper.checkOriginalStatusByIds(ids);
 
             //检查原来模块是否还在
             TestCaseExample example = new TestCaseExample();
             // 关联版本之后，必须查询每一个数据的所有版本，依次还原
-            example.createCriteria().andIdIn(request.getIds());
+            example.createCriteria().andIdIn(ids);
             List<TestCase> reductionCaseList = testCaseMapper.selectByExample(example);
             List<String> refIds = reductionCaseList.stream().map(TestCase::getRefId).collect(Collectors.toList());
             example.clear();
