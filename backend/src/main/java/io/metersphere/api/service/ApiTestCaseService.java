@@ -346,7 +346,7 @@ public class ApiTestCaseService {
 
     public void checkNameExist(SaveApiTestCaseRequest request) {
         if (hasSameCase(request)) {
-            MSException.throwException(Translator.get("load_test_already_exists"));
+            MSException.throwException(Translator.get("load_test_already_exists") + ": " + request.getName());
         }
     }
 
@@ -924,7 +924,19 @@ public class ApiTestCaseService {
         if (request.isSelectAll()) {
             ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), null, request.getCombine());
         }
-
+        ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+        apiTestCaseExample.createCriteria().andIdIn(ids);
+        List<ApiTestCase> apiCaseList = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+        SaveApiTestCaseRequest saveApiTestCaseRequest = new SaveApiTestCaseRequest();
+        if (CollectionUtils.isNotEmpty(apiCaseList)) {
+            for (ApiTestCase apiTestCaseDTO : apiCaseList) {
+                saveApiTestCaseRequest.setName(apiTestCaseDTO.getName());
+                saveApiTestCaseRequest.setApiDefinitionId(apiTestCaseDTO.getApiDefinitionId());
+                saveApiTestCaseRequest.setId(apiTestCaseDTO.getId());
+                saveApiTestCaseRequest.setVersionId(apiTestCaseDTO.getVersionId());
+                checkNameExist(saveApiTestCaseRequest);
+            }
+        }
         List<String> cannotReductionAPiName = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
             List<ApiTestCaseDTO> cannotReductionApiCaseList = extApiTestCaseMapper.getCannotReductionApiCaseList(ids);
