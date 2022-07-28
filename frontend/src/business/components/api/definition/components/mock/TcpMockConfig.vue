@@ -125,7 +125,7 @@ import MsApiVariableAdvance from "@/business/components/api/test/components/ApiV
 import MsTag from "@/business/components/common/components/MsTag";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import TcpParams from "@/business/components/api/definition/components/request/tcp/TcpParams";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {operationConfirm} from "@/common/js/utils";
 
 
 export default {
@@ -225,11 +225,7 @@ export default {
       });
     },
     removeExpect(row) {
-      this.$confirm(this.$t('api_test.mock.delete_mock_expect'), this.$t('commons.prompt'), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('api_test.mock.delete_mock_expect'), () => {
         let mockInfoId = row.mockConfigId;
         let selectUrl = "/mockConfig/deleteMockExpectConfig/" + row.id;
         this.$get(selectUrl, response => {
@@ -240,9 +236,7 @@ export default {
             message: this.$t('commons.delete_success'),
           });
         });
-      }).catch(() => {
       });
-
     },
     saveMockExpectConfig() {
       let mockConfigId = this.mockConfigData.mockConfig.id;

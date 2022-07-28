@@ -196,7 +196,7 @@ import {
   getCurrentProjectID,
   getCurrentUser,
   getCurrentUserId,
-  getCurrentWorkspaceId,
+  getCurrentWorkspaceId, operationConfirm,
   removeGoBackListener
 } from "@/common/js/utils";
 import MsContainer from "../../common/components/MsContainer";
@@ -350,11 +350,7 @@ export default {
       this.$refs.deleteConfirm.open(project);
     },
     _handleDelete(project) {
-      this.$confirm(this.$t('project.delete_tip'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('project.delete_tip'), () => {
         this.$get('/project/delete/' + project.id, () => {
           if (project.id === getCurrentProjectID()) {
             localStorage.removeItem(PROJECT_ID);
@@ -362,11 +358,6 @@ export default {
           }
           Message.success(this.$t('commons.delete_success'));
           this.list();
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: this.$t('commons.delete_cancelled')
         });
       });
     },
@@ -471,17 +462,11 @@ export default {
       this.$set(this.form, 'groupIds', groupIds);
     },
     delMember(row) {
-      this.$confirm(this.$t('member.remove_member'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('member.remove_member'), () => {
         this.result = this.$get('/user/project/member/delete/' + this.currentProjectId + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.dialogSearch();
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.remove_cancel'));
       });
     },
     close: function () {

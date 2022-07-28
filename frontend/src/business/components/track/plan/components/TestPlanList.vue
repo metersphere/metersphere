@@ -361,7 +361,7 @@ import {
   getCurrentProjectID,
   getCurrentUser,
   getCurrentUserId,
-  hasPermission
+  hasPermission, operationConfirm
 } from "@/common/js/utils";
 import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
@@ -690,11 +690,8 @@ export default {
       if (row.scheduleOpen) {
         message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
       }
-      this.$confirm(message, this.$t('commons.prompt'), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning',
-      }).then(() => {
+
+      operationConfirm(this, message, () => {
         this.result = this.$post('/test/plan/update/scheduleByEnable', param, response => {
           if (row.scheduleOpen) {
             row.scheduleStatus = 'OPEN'
@@ -705,8 +702,8 @@ export default {
           }
           this.$success(this.$t('commons.save_success'));
         });
-      }).catch(() => {
-        row.scheduleOpen = param.enable = !param.enable;
+      }, () => {
+        row.scheduleOpen = !row.scheduleOpen;
       });
     },
     handleDelete(testPlan) {

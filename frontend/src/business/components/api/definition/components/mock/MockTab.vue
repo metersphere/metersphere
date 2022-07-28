@@ -81,7 +81,7 @@
 
 <script>
 
-import {getCurrentProjectID, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, hasLicense, operationConfirm} from "@/common/js/utils";
 import MockEditDrawer from "@/business/components/api/definition/components/mock/MockEditDrawer";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -327,11 +327,7 @@ export default {
       });
     },
     removeExpect(row) {
-      this.$confirm(this.$t('api_test.mock.delete_mock_expect'), this.$t('commons.prompt'), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('api_test.mock.delete_mock_expect'), () => {
         let mockInfoId = row.mockConfigId;
         let selectUrl = "/mockConfig/deleteMockExpectConfig/" + row.id;
         this.$get(selectUrl, response => {
@@ -341,7 +337,6 @@ export default {
             message: this.$t('commons.delete_success'),
           });
         });
-      }).catch(() => {
       });
     },
     refreshMockInfo(mockConfigId) {

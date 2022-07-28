@@ -281,7 +281,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {listenGoBack, operationConfirm, removeGoBackListener} from "@/common/js/utils";
 import BatchAddResource from "@/business/components/settings/system/components/BatchAddResource";
 import {getYaml} from "@/business/components/settings/system/test-resource-pool";
 
@@ -465,17 +465,11 @@ export default {
       this.infoList = resources;
     },
     del(row) {
-      this.$confirm(this.$t('test_resource_pool.delete_prompt'), this.$t('commons.prompt'), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('test_resource_pool.delete_prompt'), () => {
         this.result = this.$get(`/testresourcepool/delete/${row.id}`, () => {
           this.initTableData();
           this.$success(this.$t('commons.delete_success'));
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.delete_cancel'));
       });
     },
     createTestResourcePool() {
@@ -555,16 +549,11 @@ export default {
       if (row.status === 'INVALID') {
         this.checkHaveTestUsePool(row).then(() => {
           if (this.updatePool && this.updatePool.haveTestUsePool) {
-            this.$confirm(this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), this.$t('commons.prompt'), {
-              confirmButtonText: this.$t('commons.confirm'),
-              cancelButtonText: this.$t('commons.cancel'),
-              type: 'warning'
-            }).then(() => {
+            operationConfirm(this, this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), () => {
               this.updatePoolStatus(row);
-            }).catch(() => {
+            }, () => {
               row.status = 'VALID';
               this.result.loading = false;
-              this.$info(this.$t('commons.cancel'));
             });
           } else {
             this.updatePoolStatus(row);

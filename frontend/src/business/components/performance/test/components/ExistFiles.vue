@@ -102,7 +102,7 @@
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, operationConfirm} from "@/common/js/utils";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import axios from "axios";
@@ -330,17 +330,11 @@ export default {
       this.currentRow = row;
     },
     handleDelete(row) {
-      this.$confirm(this.$t('project.file_delete_tip', [row.name]), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('project.file_delete_tip', [row.name]), () => {
         this.$get('/project/delete/file/' + row.id, response => {
           Message.success(this.$t('commons.delete_success'));
           this.getProjectFiles();
         });
-      }).catch(() => {
-
       });
     },
     handleExceed() {

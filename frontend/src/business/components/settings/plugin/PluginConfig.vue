@@ -70,6 +70,7 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsJarConfig from "./JarConfig";
 import MsScriptView from "./ScriptView";
+import {operationConfirm} from "@/common/js/utils";
 
 export default {
   name: "PluginConfig",
@@ -128,19 +129,10 @@ export default {
       this.$refs.scriptView.open(row.scriptId);
     },
     handleDelete(id) {
-      this.$confirm(this.$t('api_test.jar_config.delete_tip'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('api_test.jar_config.delete_tip'), () => {
         this.result = this.$get("/plugin/delete/" + id, () => {
           this.$success(this.$t('commons.delete_success'));
           this.initPlugins();
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: this.$t('commons.delete_cancelled')
         });
       });
     },

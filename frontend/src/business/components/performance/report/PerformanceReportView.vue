@@ -169,7 +169,7 @@ import MsReportTestOverview from './components/TestOverview';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsTag from "@/business/components/common/components/MsTag";
-import {exportPdf, getCurrentProjectID, hasPermission} from "@/common/js/utils";
+import {exportPdf, getCurrentProjectID, hasPermission, operationConfirm} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
@@ -336,17 +336,12 @@ export default {
       this.dialogFormVisible = false;
     },
     rerun(testId) {
-      this.$confirm(this.$t('report.test_rerun_confirm'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('report.test_rerun_confirm'), () => {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});
           this.clearData();
         });
-      }).catch(() => {
       });
     },
     onOpen() {

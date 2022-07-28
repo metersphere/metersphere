@@ -114,7 +114,13 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-import {getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  listenGoBack,
+  operationConfirm,
+  removeGoBackListener
+} from "@/common/js/utils";
 import MsRolesTag from "../../common/components/MsRolesTag";
 import {PHONE_REGEX} from "@/common/js/regex";
 import UserImport from "@/business/components/settings/system/components/UserImport";
@@ -134,6 +140,7 @@ import GroupCascader from "@/business/components/settings/system/components/Grou
 import {logout} from "@/network/user";
 import WorkspaceCascader from "@/business/components/settings/system/components/WorkspaceCascader";
 import BatchToProjectGroupCascader from "@/business/components/settings/system/components/BatchToProjectGroupCascader";
+import {Message} from "element-ui";
 
 export default {
   name: "MsUser",
@@ -296,17 +303,11 @@ export default {
       listenGoBack(this.handleClose);
     },
     del(row) {
-      this.$confirm(this.$t('user.delete_confirm'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('user.delete_confirm'), () => {
         this.result = this.$get(this.deletePath + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.delete_success'));
           this.search();
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.delete_cancel'));
       });
     },
     createUser(createUserForm) {

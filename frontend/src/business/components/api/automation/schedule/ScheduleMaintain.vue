@@ -250,31 +250,6 @@ export default {
         this.resourcePools = response.data;
       });
     },
-    scheduleChange() {
-      let flag = this.schedule.enable;
-      let param = {};
-      param.taskID = this.schedule.id;
-      param.enable = flag;
-      let that = this;
-      if (flag == false) {
-        this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning',
-          beforeClose(action, instance, done) {
-            if (action == 'cancel') {  //  否则在 messageBox 点击取消后，switch 按钮仍然会被关闭
-              that.schedule.enable = param.enable = true;
-            }
-            done(); //  done 是关闭 messageBox 的行为
-          },
-        }).then(() => {
-          this.updateTask(param);
-        }).catch(() => {
-        });
-      } else {
-        this.updateTask(param);
-      }
-    },
     updateTask(param) {
       this.result = this.$post('/api/schedule/updateEnableByPrimyKey', param, response => {
         let paramTestId = "";
