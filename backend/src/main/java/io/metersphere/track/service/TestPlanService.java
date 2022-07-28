@@ -189,6 +189,10 @@ public class TestPlanService {
     private TestPlanUiScenarioMapper testPlanUiScenarioMapper;
     @Resource
     private ExtTestPlanUiScenarioCaseMapper extTestPlanUiScenarioCaseMapper;
+    @Resource
+    private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private ExtTestPlanUiScenarioMapper extTestPlanUiScenarioMapper;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1426,6 +1430,7 @@ public class TestPlanService {
      * 如果配置了全部用例返回空的数组
      * 如果没有，则添加对应的状态
      * 都没配置就返回 null
+     *
      * @param config
      * @return
      */
@@ -2058,6 +2063,10 @@ public class TestPlanService {
     }
 
     public String runPlan(TestplanRunRequest testplanRunRequest) {
+        //检查测试计划下有没有可以执行的用例；
+        if (!haveExecCase(testplanRunRequest.getTestPlanId()) || !haveUiCase(testplanRunRequest.getTestPlanId())) {
+            MSException.throwException(Translator.get("plan_warning"));
+        }
         String envType = testplanRunRequest.getEnvironmentType();
         Map<String, String> envMap = testplanRunRequest.getEnvMap();
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
@@ -2137,16 +2146,14 @@ public class TestPlanService {
         if (StringUtils.isBlank(id)) {
             return false;
         }
-        TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
-        apiCaseExample.createCriteria().andTestPlanIdEqualTo(id);
-        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(apiCaseExample);
+        List<String> ids = new ArrayList<>();
+        ids.add(id);
+        List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.selectByIdsAndStatusIsNotTrash(ids);
         if (!CollectionUtils.isEmpty(testPlanApiCases)) {
             return true;
         }
 
-        TestPlanApiScenarioExample apiScenarioExample = new TestPlanApiScenarioExample();
-        apiScenarioExample.createCriteria().andTestPlanIdEqualTo(id);
-        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(apiScenarioExample);
+        List<TestPlanApiScenario> testPlanApiScenarios = extTestPlanApiScenarioMapper.selectByIdsAndStatusIsNotTrash(ids);
         if (!CollectionUtils.isEmpty(testPlanApiScenarios)) {
             return true;
         }
@@ -2295,6 +2302,8 @@ public class TestPlanService {
         Map<String, String> executeQueue = new LinkedHashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
+        //检查测试计划下是否有可执行的用例
+        StringBuilder haveExecCaseBuilder = new StringBuilder();
         for (int i = 0; i < planList.size(); i++) {
             if (StringUtils.isBlank(planList.get(i).getRunModeConfig())) {
                 StringBuilder append = stringBuilder.append("请保存[").append(planList.get(i).getName()).append("]的运行配置");
@@ -2302,10 +2311,17 @@ public class TestPlanService {
                     append.append("/");
                 }
             }
+            if (!haveExecCase(planList.get(i).getId()) || !haveUiCase(planList.get(i).getId())) {
+                haveExecCaseBuilder.append(planList.get(i).getName()).append("; ");
+            }
         }
 
         if (StringUtils.isNotEmpty(stringBuilder)) {
             MSException.throwException(stringBuilder.toString());
+        }
+
+        if (StringUtils.isNotEmpty(haveExecCaseBuilder)) {
+            MSException.throwException(Translator.get("track_test_plan") + ": " + haveExecCaseBuilder.toString() + ": " + Translator.get("plan_warning"));
         }
 
         for (String id : ids) {
@@ -2389,9 +2405,9 @@ public class TestPlanService {
             return false;
         }
 
-        TestPlanUiScenarioExample uiScenarioExample = new TestPlanUiScenarioExample();
-        uiScenarioExample.createCriteria().andTestPlanIdEqualTo(id);
-        List<TestPlanUiScenario> testPlanUiScenarios = testPlanUiScenarioMapper.selectByExample(uiScenarioExample);
+        List<String> ids = new ArrayList<>();
+        ids.add(id);
+        List<TestPlanUiScenario> testPlanUiScenarios = extTestPlanUiScenarioMapper.selectByIdsAndStatusIsNotTrash(ids);
         return !CollectionUtils.isEmpty(testPlanUiScenarios);
     }
 }
