@@ -600,5 +600,24 @@ export function getTypeByFileName(filename) {
   return type.toUpperCase();
 }
 
+export function operationConfirm(v, tip, success, cancel) {
+  if (tip[tip.length - 1] !== '?' && tip[tip.length - 1] !== '？') {
+    tip += '?';
+  }
+ return v.$confirm(tip, '', {
+    confirmButtonText: v.$t('commons.confirm'),
+    cancelButtonText: v.$t('commons.cancel'),
+    type: 'warning'
+  }).then(() => {
+    if (success) {
+      success();
+    }
+  }).catch(() => {
+    if (cancel) {
+      cancel();
+    }
+ });
+}
+
 
 

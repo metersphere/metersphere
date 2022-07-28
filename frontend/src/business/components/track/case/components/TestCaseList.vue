@@ -262,7 +262,7 @@ import {
   getCurrentUserId,
   getCurrentWorkspaceId,
   getUUID,
-  hasLicense,
+  hasLicense, operationConfirm,
   parseTag
 } from "@/common/js/utils";
 import {getTestTemplate} from "@/network/custom-field-template";
@@ -920,13 +920,8 @@ export default {
       });
     },
     handleDelete(testCase) {
-      this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this._handleDelete(testCase);
-          }
-        }
+      operationConfirm(this, this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
+        this._handleDelete(testCase);
       });
     },
     reduction(testCase) {
@@ -945,13 +940,8 @@ export default {
           // 删除提供列表删除和全部版本删除
           this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
         } else {
-          this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this._handleDeleteVersion(testCase, false);
-              }
-            }
+          operationConfirm(this, this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'', () => {
+             this._handleDeleteVersion(testCase, false);
           });
         }
       });
@@ -965,19 +955,14 @@ export default {
       });
     },
     handleDeleteBatch() {
-      this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let param = buildBatchParam(this, this.$refs.table.selectIds);
-            this.$post('/test/case/batch/delete', param, () => {
-              this.$refs.table.clear();
-              this.$emit("refresh");
-              this.initTableData();
-              this.$success(this.$t('commons.delete_success'));
-            });
-          }
-        }
+      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
+        let param = buildBatchParam(this, this.$refs.table.selectIds);
+        this.$post('/test/case/batch/delete', param, () => {
+          this.$refs.table.clear();
+          this.$emit("refresh");
+          this.initTableData();
+          this.$success(this.$t('commons.delete_success'));
+        });
       });
     },
     generateGraph() {
@@ -991,18 +976,13 @@ export default {
       });
     },
     handleDeleteBatchToGc() {
-      this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let param = buildBatchParam(this, this.$refs.table.selectIds);
-            this.$post('/test/case/batch/deleteToGc', param, () => {
-              this.$refs.table.clear();
-              this.$emit("refresh");
-              this.$success(this.$t('commons.delete_success'));
-            });
-          }
-        }
+      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
+        let param = buildBatchParam(this, this.$refs.table.selectIds);
+        this.$post('/test/case/batch/deleteToGc', param, () => {
+          this.$refs.table.clear();
+          this.$emit("refresh");
+          this.$success(this.$t('commons.delete_success'));
+        });
       });
     },
     _handleDelete(testCase) {
@@ -1170,18 +1150,13 @@ export default {
       });
     },
     handleDeleteBatchToPublic() {
-      this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let param = buildBatchParam(this, this.$refs.table.selectIds);
-            this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
-              this.$refs.table.clear();
-              this.$emit("refreshPublic");
-              this.$success(this.$t('commons.delete_success'));
-            });
-          }
-        }
+      operationConfirm(this, this.$t('test_track.case.delete_confirm'), () => {
+        let param = buildBatchParam(this, this.$refs.table.selectIds);
+        this.$post('/test/case/batch/movePublic/deleteToGc', param, () => {
+          this.$refs.table.clear();
+          this.$emit("refreshPublic");
+          this.$success(this.$t('commons.delete_success'));
+        });
       });
     },
     handleBatchMove() {
