@@ -103,7 +103,7 @@ import {
   getCurrentProjectID,
   getCurrentUser,
   getCurrentWorkspaceId, hasPermission,
-  listenGoBack,
+  listenGoBack, operationConfirm,
   removeGoBackListener
 } from "@/common/js/utils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
@@ -236,17 +236,11 @@ export default {
       removeGoBackListener(this.handleClose);
     },
     del(row) {
-      this.$confirm(this.$t('member.remove_member'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('member.remove_member'), () => {
         this.result = this.$get('/user/ws/member/delete/' + getCurrentWorkspaceId() + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.initTableData();
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.remove_cancel'));
       });
     },
     edit(row) {

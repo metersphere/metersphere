@@ -87,7 +87,7 @@ import {
   getCurrentUser,
   getCurrentUserId,
   getCurrentWorkspaceId,
-  listenGoBack,
+  listenGoBack, operationConfirm,
   removeGoBackListener
 } from "@/common/js/utils";
 
@@ -288,11 +288,7 @@ export default {
       this.$refs.deleteConfirm.open(project);
     },
     _handleDelete(project) {
-      this.$confirm(this.$t('project.delete_tip'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('project.delete_tip'), () => {
         this.$get('/project/delete/' + project.id, () => {
           if (project.id === getCurrentProjectID()) {
             localStorage.removeItem(PROJECT_ID);
@@ -300,11 +296,6 @@ export default {
           }
           this.$success(this.$t('commons.delete_success'));
           this.list();
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: this.$t('commons.delete_cancelled')
         });
       });
     },

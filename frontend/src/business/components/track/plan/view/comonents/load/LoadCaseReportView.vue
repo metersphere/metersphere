@@ -391,15 +391,6 @@ export default {
       });
       this.dialogFormVisible = false;
     },
-    rerun(testId) {
-      this.$confirm(this.$t('report.test_rerun_confirm'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
-      }).catch(() => {
-      });
-    },
     onOpen() {
     },
     onError(e) {
