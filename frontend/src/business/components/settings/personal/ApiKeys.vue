@@ -71,7 +71,7 @@
 
 <script>
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentUser, operationConfirm} from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import MsTableHeader from "../../common/components/MsTableHeader";
 
@@ -109,19 +109,12 @@ export default {
       )
     },
     deleteApiKey(row) {
-      this.$confirm(this.$t('user.apikey_delete_confirm'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('user.apikey_delete_confirm'), () => {
         this.result = this.$get("/user/key/delete/" + row.id, response => {
           this.$success(this.$t('commons.delete_success'));
           this.search();
         })
-      }).catch(() => {
-        this.$info(this.$t('commons.delete_cancel'));
       });
-
     },
 
     createApiKey() {

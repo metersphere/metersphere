@@ -91,7 +91,7 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import EditMember from "@/business/components/project/menu/EditMember";
 import {GROUP_PROJECT} from "@/common/js/constants";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId, operationConfirm} from "@/common/js/utils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 
@@ -164,11 +164,7 @@ export default {
       this.$set(this.form, 'groupIds', groupIds);
     },
     del(row) {
-      this.$confirm(this.$t('member.remove_member'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('member.remove_member'), () => {
         if (row.id === getCurrentUserId()) {
           this.$warning(this.$t('group.unable_to_remove_current_member'));
           return;
@@ -177,8 +173,6 @@ export default {
           this.$success(this.$t('commons.remove_success'));
           this.initTableData();
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.remove_cancel'));
       });
     },
     handleClose() {

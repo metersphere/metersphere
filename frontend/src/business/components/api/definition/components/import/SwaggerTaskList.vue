@@ -10,8 +10,6 @@
                      width="60"
                      :label="$t('api_test.home_page.running_task_list.table_coloum.index')"
                      show-overflow-tooltip/>
-<!--    <el-table-column prop="SwaggerUrlId">-->
-<!--    </el-table-column>-->
     <el-table-column
       prop="swaggerUrl"
       :label="$t('swaggerUrl')"
@@ -53,7 +51,7 @@
 </template>
 
 <script>
-import {getCurrentProjectID} from "../../../../../../common/js/utils";
+import {getCurrentProjectID, operationConfirm} from "../../../../../../common/js/utils";
 
 export default {
   name: "SwaggerTaskList",
@@ -82,23 +80,11 @@ export default {
       this.$emit('rowClick', row);
     },
     closeTaskConfirm(row) {
-      let flag = row.enable;
-      row.enable = !flag;
-      if (row.enable) {
-        this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          row.enable = !row.enable
-          this.updateTask(row);
-        }).catch(() => {
-        });
-      } else {
+      row.enable = !row.enable
+      operationConfirm(this, this.$t('api_test.home_page.running_task_list.confirm.close_title'), () => {
         row.enable = !row.enable
         this.updateTask(row);
-      }
-
+      });
     },
     updateTask(taskRow) {
       let schedule = {

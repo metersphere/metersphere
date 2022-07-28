@@ -143,7 +143,7 @@ import EnvironmentEdit from "@/business/components/api/test/components/environme
 import MsAsideItem from "@/business/components/common/components/MsAsideItem";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
-import {downloadFile, strMapToObj} from "@/common/js/utils";
+import {downloadFile, operationConfirm, strMapToObj} from "@/common/js/utils";
 import EnvironmentImport from "@/business/components/project/menu/EnvironmentImport";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import {_handleSelect, _handleSelectAll, getSelectDataCounts, setUnSelectIds} from "@/common/js/tableUtils";
@@ -341,17 +341,11 @@ export default {
     },
     deleteEnv(environment) {
       if (environment.id) {
-        this.$confirm(this.$t('commons.confirm_delete') + environment.name, {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: "warning"
-        }).then(() => {
+        operationConfirm(this, this.$t('commons.confirm_delete') + environment.name, () => {
           this.result = this.$get('/api/environment/delete/' + environment.id, () => {
             this.$success(this.$t('commons.delete_success'));
             this.list();
           });
-        }).catch(() => {
-          this.$info(this.$t('commons.delete_cancelled'));
         });
       }
     },

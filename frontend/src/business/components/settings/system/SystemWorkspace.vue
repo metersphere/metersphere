@@ -161,7 +161,7 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   getCurrentWorkspaceId, hasPermission,
-  listenGoBack,
+  listenGoBack, operationConfirm,
   removeGoBackListener
 } from "@/common/js/utils";
 import {GROUP_WORKSPACE} from "@/common/js/constants";
@@ -345,34 +345,19 @@ export default {
       this.$refs.deleteConfirm.open(workspace);
     },
     _handleDelete(workspace) {
-      this.$confirm(this.$t('workspace.delete_confirm'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('workspace.delete_confirm'), () => {
         this.$get('/workspace/special/delete/' + workspace.id, () => {
           Message.success(this.$t('commons.delete_success'));
           this.list();
         });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: this.$t('commons.delete_cancelled')
-        });
       });
     },
     delMember(row) {
-      this.$confirm(this.$t('member.remove_member'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
+      operationConfirm(this, this.$t('member.remove_member'), () => {
         this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.cellClick(this.currentWorkspaceRow);
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.remove_cancel'));
       });
     },
     updateWorkspaceMember(formName) {
