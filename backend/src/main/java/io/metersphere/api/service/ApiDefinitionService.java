@@ -833,12 +833,10 @@ public class ApiDefinitionService {
                 } else {
                     apiDefinition.setVersionId(apiTestImportRequest.getDefaultVersion());
                 }
-                batchMapper.insert(apiDefinition);
                 String requestStr = setImportHashTree(apiDefinition);
-
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
-
+                batchMapper.insert(apiDefinition);
                 importCase(apiDefinition, apiTestCaseMapper, caseList);
                 extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
                 extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
@@ -857,7 +855,8 @@ public class ApiDefinitionService {
         if (caseList == null || caseList.isEmpty()) {
             return;
         }
-        for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : caseList) {
+        for (int i = 0; i < caseList.size(); i++) {
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
             apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
             if (apiTestCaseWithBLOBs.getCreateTime() == null) {
@@ -877,7 +876,7 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setOrder(getImportNextCaseOrder(apiDefinition.getProjectId()));
             }
             if (apiTestCaseWithBLOBs.getNum() == null) {
-                apiTestCaseWithBLOBs.setNum(testCaseService.getNextNum(apiDefinition.getId()));
+                apiTestCaseWithBLOBs.setNum(apiTestCaseService.getNextNum(apiDefinition.getId(), apiDefinition.getNum() + i, apiDefinition.getProjectId()));
             }
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getPriority())) {
                 apiTestCaseWithBLOBs.setPriority("P0");
@@ -941,9 +940,9 @@ public class ApiDefinitionService {
 
             reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
-                batchMapper.insert(apiDefinition);
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
+                batchMapper.insert(apiDefinition);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
