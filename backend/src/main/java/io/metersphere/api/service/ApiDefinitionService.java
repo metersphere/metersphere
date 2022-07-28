@@ -863,9 +863,7 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
             }
             apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getStatus())) {
-                apiTestCaseWithBLOBs.setStatus(APITestStatus.Prepare.name());
-            }
+            
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getCaseStatus())) {
                 apiTestCaseWithBLOBs.setCaseStatus(APITestStatus.Prepare.name());
             }
