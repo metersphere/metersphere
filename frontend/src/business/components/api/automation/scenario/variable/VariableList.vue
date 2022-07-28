@@ -301,7 +301,6 @@ export default {
       v.id = getUUID();
       if (v.type === 'CSV') {
         v.delimiter = ",";
-        v.quotedData = false;
       }
       this.variables.push(v);
       let index = 1;
