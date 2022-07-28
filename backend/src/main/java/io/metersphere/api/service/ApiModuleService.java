@@ -650,7 +650,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         //导入的case,导入的接口是有ID的，所以导入的case已经标记过一遍接口ID了,这里是处理覆盖时接口ID的变动
         List<ApiTestCaseWithBLOBs> importCases = apiImport.getCases();
         List<ApiTestCaseWithBLOBs> optionDataCases = new ArrayList<>();
-        //将ID全部置于null,覆盖的时候会增加ID，用以区分更新还是新增
+        //将ID,num全部置于null,覆盖的时候会增加ID，用以区分更新还是新增
         removeRepeatCase(fullCoverage, importCases, optionDataCases);
 
         Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
@@ -832,11 +832,13 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (fullCoverage) {
             apiIdNameMap.forEach((k, v) -> {
                 v.get(v.size() - 1).setId(null);
+                v.get(v.size() - 1).setNum(null);
                 optionDataCases.add(v.get(v.size() - 1));
             });
         } else {
             apiIdNameMap.forEach((k, v) -> {
                 v.get(0).setId(null);
+                v.get(0).setNum(null);
                 optionDataCases.add(v.get(0));
             });
         }
@@ -1188,6 +1190,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = oldCaseNameMap.get(name);
                 if (apiTestCaseWithBLOBs1 != null) {
                     caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
+                    caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
                     caseWithBLOBs1.setVersion(apiTestCaseWithBLOBs1.getVersion() == null ? 0 : apiTestCaseWithBLOBs1.getVersion() + 1);
                     //这里是用这个属性做一个临时标记，表明这个case已被覆盖，不需要同步
                     caseWithBLOBs1.setVersionId("cover");
