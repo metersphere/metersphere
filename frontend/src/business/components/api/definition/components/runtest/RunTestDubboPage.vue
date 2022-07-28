@@ -142,6 +142,7 @@ export default {
     },
     loadCase() {
       this.refreshSign = getUUID();
+      this.loaded = true;
       this.$refs.caseList.open();
       this.visible = true;
     },
