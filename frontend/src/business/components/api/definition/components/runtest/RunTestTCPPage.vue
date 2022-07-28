@@ -214,8 +214,9 @@ export default {
     },
     loadCase() {
       this.refreshSign = getUUID();
-      this.$refs.caseList.open();
       this.visible = true;
+      this.loaded = true;
+      this.$refs.caseList.open();
     },
     apiCaseClose() {
       this.visible = false;
