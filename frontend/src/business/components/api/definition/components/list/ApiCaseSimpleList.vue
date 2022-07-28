@@ -90,15 +90,26 @@
             </template>
           </ms-table-column>
 
-          <ms-table-column
-            prop="caseStatus"
-            :filters="STATUS_FILTERS"
-            :field="item"
-            :fields-width="fieldsWidth"
-            min-width="120px"
-            :label="$t('commons.status')">
+          <ms-table-column v-if="!trashEnable"
+                           prop="caseStatus"
+                           :filters="STATUS_FILTERS"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           min-width="120px"
+                           :label="$t('commons.status')">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.caseStatus"/>
+            </template>
+          </ms-table-column>
+
+          <ms-table-column v-if="trashEnable"
+                           prop="caseStatus"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           min-width="120px"
+                           :label="$t('commons.status')">
+            <template v-slot:default="scope">
+              <plan-status-table-item :value="scope.row.status"/>
             </template>
           </ms-table-column>
 
