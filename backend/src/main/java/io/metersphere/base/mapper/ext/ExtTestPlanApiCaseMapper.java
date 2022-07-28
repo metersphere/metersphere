@@ -20,7 +20,7 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<String> getIdsByPlanId(String planId);
 
-    List<String> getNotRelevanceCaseIds(@Param("planId")String planId, @Param("relevanceProjectIds")List<String> relevanceProjectIds);
+    List<String> getNotRelevanceCaseIds(@Param("planId") String planId, @Param("relevanceProjectIds") List<String> relevanceProjectIds);
 
     List<String> getStatusByTestPlanId(String id);
 
@@ -36,14 +36,17 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanFailureApiDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
 
-    List<TestPlanFailureApiDTO> getFailureListByIds(@Param("ids") Collection<String> caseIdList,@Param("status") String status);
+    List<TestPlanFailureApiDTO> getFailureListByIds(@Param("ids") Collection<String> caseIdList, @Param("status") String status);
 
     List<String> selectPlanIds();
 
     List<String> getIdsOrderByUpdateTime(@Param("planId") String planId);
 
-    Long getPreOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+    Long getPreOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
 
-    Long getLastOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+    Long getLastOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
+
+    List<TestPlanApiCase> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
+
 }
 
