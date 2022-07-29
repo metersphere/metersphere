@@ -134,6 +134,20 @@ export default {
     };
   },
   mounted() {
+    if (['select', 'multipleSelect', 'checkbox', 'radio'].indexOf(this.data.type) > -1
+      && this.data[this.prop] && this.data.options) {
+      // 如果选项被删除，显示为空
+      let hasOption = false;
+      for (const item of this.data.options) {
+        if (item.value === this.data[this.prop]) {
+          hasOption = true;
+          break;
+        }
+      }
+      if (!hasOption) {
+        this.data[this.prop] = '';
+      }
+    }
     getProjectMemberOption((data) => {
       this.memberOptions = data;
       if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
