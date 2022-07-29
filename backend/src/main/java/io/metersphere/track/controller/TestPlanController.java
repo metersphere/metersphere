@@ -1,7 +1,6 @@
 package io.metersphere.track.controller;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
@@ -19,7 +18,7 @@ import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
-import io.metersphere.track.request.testplan.TestplanRunRequest;
+import io.metersphere.track.request.testplan.TestPlanRunRequest;
 import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
@@ -207,18 +206,18 @@ public class TestPlanController {
 
 
     @PostMapping("/edit/runModeConfig")
-    public void updateRunModeConfig(@RequestBody TestplanRunRequest testplanRunRequest) {
-       testPlanService.updateRunModeConfig(testplanRunRequest);
+    public void updateRunModeConfig(@RequestBody TestPlanRunRequest testplanRunRequest) {
+        testPlanService.updateRunModeConfig(testplanRunRequest);
     }
 
     @PostMapping("/run")
-    public String run(@RequestBody TestplanRunRequest testplanRunRequest) {
+    public String run(@RequestBody TestPlanRunRequest testplanRunRequest) {
         return testPlanService.runPlan(testplanRunRequest);
     }
 
     @PostMapping(value = "/run/batch")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanService.class)
-    public void runBatch(@RequestBody TestplanRunRequest request) {
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanIds)", msClass = TestPlanService.class)
+    public void runBatch(@RequestBody TestPlanRunRequest request) {
         request.setTriggerMode(TriggerMode.BATCH.name());
         testPlanService.runBatch(request);
     }
