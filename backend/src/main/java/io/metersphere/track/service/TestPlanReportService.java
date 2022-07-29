@@ -30,7 +30,8 @@ import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
-import io.metersphere.track.request.testplan.TestplanRunRequest;
+import io.metersphere.track.request.testplan.TestPlanRunRequest;
+import io.metersphere.track.service.utils.TestPlanRequestUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -584,7 +585,8 @@ public class TestPlanReportService {
                 TestPlanExecutionQueue testPlanExecutionQueue = planExecutionQueueList.get(0);
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanExecutionQueue.getTestPlanId());
                 JSONObject jsonObject = JSONObject.parseObject(testPlan.getRunModeConfig());
-                TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject, TestplanRunRequest.class);
+                TestPlanRequestUtil.changeStringToBoolean(jsonObject);
+                TestPlanRunRequest runRequest = JSON.toJavaObject(jsonObject, TestPlanRunRequest.class);
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
                 testPlanService.runPlan(runRequest);
             }

@@ -125,7 +125,7 @@
             <span v-if="runConfig.retryEnable">
               <el-tooltip placement="top" style="margin: 0 4px 0 2px">
                 <div slot="content">{{ $t("run_mode.retry_message") }}</div>
-                <i class="el-icon-question" style="cursor: pointer" />
+                <i class="el-icon-question" style="cursor: pointer"/>
               </el-tooltip>
               <span style="margin-left: 10px">
                 {{ $t("run_mode.retry") }}
@@ -145,8 +145,9 @@
 
           <div class="mode-row" v-if="runConfig.mode === 'serial'">
             <el-checkbox v-model="runConfig.onSampleError">{{
-              $t("api_test.fail_to_stop")
-            }}</el-checkbox>
+                $t("api_test.fail_to_stop")
+              }}
+            </el-checkbox>
           </div>
 
           <div class="mode-row" v-if="haveUICase">
@@ -163,20 +164,23 @@
         <el-button @click="close">{{ $t("commons.cancel") }}</el-button>
         <el-dropdown @command="handleCommand" style="margin-left: 5px">
           <el-button type="primary">
-            {{ $t("load_test.save_and_run")
+            {{
+              $t("load_test.save_and_run")
             }}<i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="run">{{
-              $t("load_test.save_and_run")
-            }}</el-dropdown-item>
+                $t("load_test.save_and_run")
+              }}
+            </el-dropdown-item>
             <el-dropdown-item command="save">{{
-              $t("commons.save")
-            }}</el-dropdown-item>
+                $t("commons.save")
+              }}
+            </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
-      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch" />
+      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch"/>
     </template>
   </el-dialog>
 </template>
@@ -184,13 +188,12 @@
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-import { strMapToObj } from "@/common/js/utils";
-import { ENV_TYPE } from "@/common/js/constants";
-import { hasLicense } from "@/common/js/utils";
+import {hasLicense, strMapToObj} from "@/common/js/utils";
+import {ENV_TYPE} from "@/common/js/constants";
 
 export default {
   name: "MsPlanRunModeWithEnv",
-  components: { EnvPopover, MsDialogFooter },
+  components: {EnvPopover, MsDialogFooter},
   data() {
     return {
       btnStyle: {
@@ -256,7 +259,12 @@ export default {
     },
   },
   methods: {
-    open(testType) {
+    open(testType, runModeConfig) {
+      if (runModeConfig) {
+        this.runConfig = JSON.parse(runModeConfig);
+        this.runConfig.onSampleError = this.runConfig.onSampleError === 'true' || this.runConfig.onSampleError === true;
+        this.runConfig.runWithinResourcePool = this.runConfig.runWithinResourcePool === 'true' || this.runConfig.runWithinResourcePool === true;
+      }
       this.runModeVisible = true;
       this.testType = testType;
       this.getResourcePools();
@@ -317,7 +325,7 @@ export default {
         param = this.planCaseIds;
       } else if (this.type === "plan") {
         url = "/test/plan/case/env";
-        param = { id: this.planId };
+        param = {id: this.planId};
       }
       this.$post(url, param, (res) => {
         let data = res.data;
@@ -359,6 +367,7 @@ export default {
   text-align: right;
   padding-right: 10px;
 }
+
 .env-container .content {
   width: 163px;
 }
@@ -369,7 +378,7 @@ export default {
   padding: 5px 10px 5px 10px;
 }
 
-/deep/.content .el-popover__reference {
+/deep/ .content .el-popover__reference {
   width: 100%;
 }
 
@@ -382,6 +391,7 @@ export default {
   margin-top: 25px;
   align-items: flex-start;
 }
+
 .other-content {
   height: 100%;
 }
