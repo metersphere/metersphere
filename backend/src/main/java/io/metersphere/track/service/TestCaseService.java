@@ -682,7 +682,14 @@ public class TestCaseService {
         return extTestCaseMapper.deleteToGc(request);
     }
 
-    public int deleteToGcBatch(List<String> ids) {
+    public int deleteToGcBatch(TestCaseBatchRequest request) {
+        List<String> ids = new ArrayList<String>();
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            List<TestCaseDTO> testCaseDTOS = listTestCase(request.getCondition());
+            ids = testCaseDTOS.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
+        } else {
+            ids = request.getIds();
+        }
         return deleteToGcBatch(ids, null);
     }
 
@@ -2272,7 +2279,7 @@ public class TestCaseService {
 
     public void reduction(TestCaseBatchRequest request) {
         List<String> ids = new ArrayList<>();
-        if (request.getCondition().isSelectAll()) {
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             List<TestCaseDTO> allReductionTestCases = listTestCase(request.getCondition());
             ids = allReductionTestCases.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
         } else {
