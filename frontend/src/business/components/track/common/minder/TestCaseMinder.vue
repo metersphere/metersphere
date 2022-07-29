@@ -214,7 +214,7 @@ name: "TestCaseMinder",
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
           let level = Number.parseInt(even.commandArgs);
-          handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getTestCasesForMinder);
+          handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getTestCasesForMinder, null, getMinderExtraNode);
         }
 
         if (handleMinderIssueDelete(even.commandName))  return; // 删除缺陷不算有编辑脑图信息
