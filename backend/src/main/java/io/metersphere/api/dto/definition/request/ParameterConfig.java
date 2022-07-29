@@ -88,6 +88,8 @@ public class ParameterConfig extends MsParameter {
 
     private boolean runLocal;
 
+    private String browserLanguage;
+
     /**
      * 排除生成临界控制器的场景
      */

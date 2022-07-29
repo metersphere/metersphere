@@ -21,7 +21,8 @@ export default {
     runLocal: Boolean,
     saved: Boolean,
     environmentType: String,
-    environmentGroupId: String
+    environmentGroupId: String,
+    browserLanguage: String
   },
   data() {
     return {
@@ -80,6 +81,7 @@ export default {
         reqObj.variables = this.runData.variables;
       }
       reqObj.runLocal = this.runLocal;
+      reqObj.browserLanguage = this.browserLanguage;
       reqObj.uiRunMode = this.uiRunMode;
       this.$emit('runRefresh', {});
 
