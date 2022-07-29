@@ -1,12 +1,14 @@
 <template>
   <div>
-    <el-row >
+    <el-row>
       <el-col :span="12" v-if="caseCharData && caseCharData.length > 0">
-        <ms-doughnut-pie-chart style="margin-right: 200px" :name="$t('api_test.home_page.detail_card.single_case')" :data="caseCharData" ref="functionChar"/>
+        <ms-doughnut-pie-chart style="margin-right: 200px" :name="$t('api_test.home_page.detail_card.single_case')"
+                               :data="caseCharData" ref="functionChar"/>
       </el-col>
       <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
         <api-scenario-char-result :name="$t('test_track.plan.test_plan_api_scenario_count')" :data="scenarioCharData"/>
-        <api-scenario-char-result style="margin-top: -50px;" :name="$t('test_track.plan.test_plan_component_case_count')" :data="stepCharData"/>
+        <api-scenario-char-result style="margin-top: -50px;"
+                                  :name="$t('test_track.plan.test_plan_component_case_count')" :data="stepCharData"/>
       </el-col>
     </el-row>
   </div>
@@ -18,6 +20,7 @@ import MsPieChart from "@/business/components/common/components/MsPieChart";
 import MsDoughnutPieChart from "@/business/components/common/components/MsDoughnutPieChart";
 import ApiScenarioCharResult
   from "@/business/components/track/plan/view/comonents/report/detail/component/ApiScenarioCharResult";
+
 export default {
   name: "ApiResult",
   components: {ApiScenarioCharResult, MsDoughnutPieChart, MsPieChart},
@@ -82,11 +85,13 @@ export default {
       }
 
       let stepCharData = [];
-      for (let i = 0; i < this.apiResult.apiScenarioStepData.length; i++) {
-        let stepItem = this.apiResult.apiScenarioStepData[i];
-        let data = this.getDataByStatus(stepItem.status);
-        data.value = stepItem.count;
-        stepCharData.push(data);
+      if (this.apiResult.apiScenarioStepData && this.apiResult.apiScenarioStepData.length > 0) {
+        for (let i = 0; i < this.apiResult.apiScenarioStepData.length; i++) {
+          let stepItem = this.apiResult.apiScenarioStepData[i];
+          let data = this.getDataByStatus(stepItem.status);
+          data.value = stepItem.count;
+          stepCharData.push(data);
+        }
       }
 
       this.scenarioCharData = apiScenarioData;
