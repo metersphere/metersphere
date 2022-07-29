@@ -354,51 +354,52 @@ export default {
     };
   },
   activated() {
-    this.selectNodeIds = [];
-    let routeParamObj = this.$route.params.paramObj;
-    if (routeParamObj) {
-      let dataRange = routeParamObj.dataSelectRange;
-      if (dataRange && dataRange.length > 0) {
-        this.activeDom = 'middle';
-      }
-      let dataType = routeParamObj.dataType;
-      if (dataType) {
-        if (dataType === "api") {
-          this.activeDom = 'left';
-        } else {
+    this.$nextTick(() => {
+      let routeParamObj = this.$route.params.paramObj;
+      if (routeParamObj) {
+        let dataRange = routeParamObj.dataSelectRange;
+        if (dataRange && dataRange.length > 0) {
           this.activeDom = 'middle';
         }
-      }
-      if (routeParamObj.dataSelectRange) {
-        let item = JSON.parse(JSON.stringify(routeParamObj.dataSelectRange)).param;
-        if (item !== undefined) {
-          let type = item.taskGroup.toString();
-          if (type === "SWAGGER_IMPORT") {
-            this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
-            this.param = item;
+        let dataType = routeParamObj.dataType;
+        if (dataType) {
+          if (dataType === "api") {
+            this.activeDom = 'left';
+          } else {
+            this.activeDom = 'middle';
+          }
+        }
+        if (routeParamObj.dataSelectRange) {
+          let item = JSON.parse(JSON.stringify(routeParamObj.dataSelectRange)).param;
+          if (item !== undefined) {
+            let type = item.taskGroup.toString();
+            if (type === "SWAGGER_IMPORT") {
+              this.openSwaggerScheduleTab();
+              this.param = item;
+            }
+          }
+        }
+      } else {
+        let dataType = this.$route.params.dataType;
+        if (dataType) {
+          if (dataType === "api") {
+            this.activeDom = 'left';
+          } else {
+            this.activeDom = 'middle';
+          }
+        }
+        if (this.$route.params.dataSelectRange) {
+          let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
+          if (item !== undefined) {
+            let type = item.taskGroup.toString();
+            if (type === "SWAGGER_IMPORT") {
+              this.openSwaggerScheduleTab();
+              this.param = item;
+            }
           }
         }
       }
-    } else {
-      let dataType = this.$route.params.dataType;
-      if (dataType) {
-        if (dataType === "api") {
-          this.activeDom = 'left';
-        } else {
-          this.activeDom = 'middle';
-        }
-      }
-      if (this.$route.params.dataSelectRange) {
-        let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
-        if (item !== undefined) {
-          let type = item.taskGroup.toString();
-          if (type === "SWAGGER_IMPORT") {
-            this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
-            this.param = item;
-          }
-        }
-      }
-    }
+    });
   },
   watch: {
     currentProtocol() {
@@ -463,6 +464,22 @@ export default {
     }
   },
   methods: {
+    openSwaggerScheduleTab() {
+      //检查是否有开启的定时任务配置页，如果有的话直接跳转，不用再开启
+      let scheduleTabName = "";
+      if (this.apiTabs) {
+        this.apiTabs.forEach(tab => {
+          if (tab.type === 'SCHEDULE') {
+            scheduleTabName = tab.name;
+          }
+        });
+      }
+      if (scheduleTabName === "") {
+        this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
+      } else {
+        this.apiDefaultTab = scheduleTabName;
+      }
+    },
     setEnvironment(data) {
       if (data) {
         this.useEnvironment = data.id;
@@ -733,7 +750,7 @@ export default {
       if (routeParamObj) {
         let dataRange = routeParamObj.dataSelectRange;
         let dataType = routeParamObj.dataType;
-        if (dataRange) {
+        if (dataRange && dataRange instanceof String) {
           let selectParamArr = dataRange.split("edit:");
           if (selectParamArr.length === 2) {
             let scenarioId = selectParamArr[1];
@@ -747,7 +764,7 @@ export default {
       } else {
         let dataRange = this.$route.params.dataSelectRange;
         let dataType = this.$route.params.dataType;
-        if (dataRange) {
+        if (dataRange && dataRange instanceof String) {
           let selectParamArr = dataRange.split("edit:");
           if (selectParamArr.length === 2) {
             let scenarioId = selectParamArr[1];
