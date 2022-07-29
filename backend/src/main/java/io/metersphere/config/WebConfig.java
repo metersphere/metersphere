@@ -35,7 +35,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final static int MAX_PER_ROUTE = 500;
     private final static int CONN_REQUEST_TIMEOUT = 5000;
     private final static int CONNECT_TIMEOUT = 8000;
-    private final static int SOCKET_TIMEOUT = 10 * 1000;
+    private final static int SOCKET_TIMEOUT = 20 * 1000;
 
     @Bean
     public RestTemplate restTemplate() {
