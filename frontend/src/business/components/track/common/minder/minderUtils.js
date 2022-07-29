@@ -107,14 +107,13 @@ export function loadSelectNodes(param, getCaseFuc, setParamCallback, getExtraNod
   });
 }
 
-
-export function handleExpandToLevel(level, node, param, getCaseFuc, setParamCallback) {
-  loadNode(node, param, getCaseFuc, setParamCallback);
+export function handleExpandToLevel(level, node, param, getCaseFuc, setParamCallback, getExtraNodeFuc) {
+  loadNode(node, param, getCaseFuc, setParamCallback, getExtraNodeFuc);
   level--;
   if (level > 0) {
     if (node.children) {
       node.children.forEach(item => {
-        handleExpandToLevel(level, item, param, getCaseFuc, setParamCallback);
+        handleExpandToLevel(level, item, param, getCaseFuc, setParamCallback, getExtraNodeFuc);
       });
     }
   }
