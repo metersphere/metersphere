@@ -220,30 +220,32 @@ export default {
       if (!params) {
         return;
       }
-      let paramArr = params.split("edit:");
-      if (paramArr.length !== 2) {
-        return;
-      }
-      let scenarioId = paramArr[1];
-      //查找单条数据，跳转修改页面
-      this.$post("/api/automation/list/1/1", {id: scenarioId}, response => {
-        let data = response.data;
-        if (data && data.listObject && data.listObject.length > 0) {
-          let row = data.listObject[0];
-          let checks = ["array", "object"];
-          if (row && row.tags && (checks.indexOf(Object.prototype.toString.call(row.tags)
-            .match(/\[object (\w+)\]/)[1].toLowerCase()) !== -1)) {
-            row.tags = JSON.parse(row.tags);
-          }
-          //如果树未加载
-          if (this.moduleOptions && this.moduleOptions.length === 0) {
-            let projectId = data.projectId ? data.projectId : this.projectId;
-            this.initModules(row, projectId);
-          } else {
-            this.editScenario(row);
-          }
+      if (params instanceof String) {
+        let paramArr = params.split("edit:");
+        if (paramArr.length !== 2) {
+          return;
         }
-      });
+        let scenarioId = paramArr[1];
+        //查找单条数据，跳转修改页面
+        this.$post("/api/automation/list/1/1", {id: scenarioId}, response => {
+          let data = response.data;
+          if (data && data.listObject && data.listObject.length > 0) {
+            let row = data.listObject[0];
+            let checks = ["array", "object"];
+            if (row && row.tags && (checks.indexOf(Object.prototype.toString.call(row.tags)
+              .match(/\[object (\w+)\]/)[1].toLowerCase()) !== -1)) {
+              row.tags = JSON.parse(row.tags);
+            }
+            //如果树未加载
+            if (this.moduleOptions && this.moduleOptions.length === 0) {
+              let projectId = data.projectId ? data.projectId : this.projectId;
+              this.initModules(row, projectId);
+            } else {
+              this.editScenario(row);
+            }
+          }
+        });
+      }
     },
     initModules(row, projectId) {
       this.$get("/api/automation/module/list/" + projectId, response => {
