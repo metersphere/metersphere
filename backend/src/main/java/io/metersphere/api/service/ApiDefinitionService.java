@@ -1741,7 +1741,7 @@ public class ApiDefinitionService {
                 sqlSession.flushStatements();
             }
         }
-        sqlSession.flushStatements();
+
         //判断EsbData是否需要存储
         if (apiImport.getEsbApiParamsMap() != null && apiImport.getEsbApiParamsMap().size() > 0) {
             EsbApiParamsMapper esbApiParamsMapper = sqlSession.getMapper(EsbApiParamsMapper.class);
@@ -1762,7 +1762,7 @@ public class ApiDefinitionService {
             MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
             mockConfigService.importMock(apiImport, sqlSession, request);
         }
-
+        sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
