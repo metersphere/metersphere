@@ -44,13 +44,13 @@
                       <el-divider direction="vertical"></el-divider>
 
                       <el-button type="success" size="mini"
-                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''"
+                                 :disabled="isReadOnly" :icon="testCase.status === 'Pass' ? 'el-icon-check' : ''"
                                  @click="saveCase('Pass')">
                         {{ $t('test_track.review.pass') }}
                       </el-button>
                       <el-button type="danger" size="mini"
                                  :disabled="isReadOnly"
-                                 :icon="testCase.reviewStatus === 'UnPass' ? 'el-icon-check' : ''"
+                                 :icon="testCase.status === 'UnPass' ? 'el-icon-check' : ''"
                                  @click="saveCase('UnPass')">
                         {{ $t('test_track.review.un_pass') }}
                       </el-button>
@@ -140,7 +140,7 @@
               </template>
               <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
                               :oldReviewStatus="oldReviewStatus"
-                              @getComments="getComments" :review-status="testCase.reviewStatus" ref="reviewComment"
+                              @getComments="getComments" :review-status="testCase.status" ref="reviewComment"
                               @saveCaseReview="saveCaseReview"/>
             </el-card>
           </el-col>
@@ -296,7 +296,7 @@ export default {
       param.reviewId = this.testCase.reviewId;
       param.status = status;
       if (status === 'UnPass') {
-        this.testCase.reviewStatus = 'UnPass';
+        this.testCase.status = 'UnPass';
         // 第一种情况，第一次评审，用户直接点击未通过，需要提醒未评论
         if (this.oldReviewStatus === 'Prepare' && this.comments.length < 1) {
           this.$refs.reviewComment.inputLight();
@@ -326,9 +326,10 @@ export default {
         }
         this.updateTestCases(param);
         this.setReviewStatus(this.testCase.reviewId);
-        this.testCase.reviewStatus = status;
+        this.testCase.status = status;
         // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = status;
+        this.testCases[this.index].status
+          = status;
         this.handleNext();
         // 切换状态后需要修改旧的状态
         this.oldReviewStatus = status;
@@ -336,7 +337,7 @@ export default {
     },
     saveCaseReview() {
       let param = {};
-      let status = this.testCase.reviewStatus;
+      let status = this.testCase.status;
       param.id = this.testCase.id;
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
@@ -346,7 +347,7 @@ export default {
         this.setReviewStatus(this.testCase.reviewId);
         this.oldReviewStatus = status;
         // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = status;
+        this.testCases[this.index].status = status;
         if (this.index < this.testCases.length - 1) {
           this.handleNext();
         }
@@ -406,7 +407,7 @@ export default {
         parseCustomField(item, this.testCaseTemplate, null, buildTestCaseOldFields(item));
         this.isCustomFiledActive = true;
         this.testCase = item;
-        this.oldReviewStatus = this.testCase.reviewStatus;
+        this.oldReviewStatus = this.testCase.status;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
@@ -432,7 +433,7 @@ export default {
     openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
       // 一开始加载时候需要保存用例评审旧的状态
-      this.oldReviewStatus = testCase.reviewStatus;
+      this.oldReviewStatus = testCase.status;
       this.activeTab = 'detail';
       this.getComments(testCase);
       this.hasTapdId = false;
