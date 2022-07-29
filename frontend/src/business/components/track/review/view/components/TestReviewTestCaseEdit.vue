@@ -292,16 +292,16 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.comment = this.testCase.comment;
-      param.status = this.testCase.reviewStatus;
+      param.status = this.testCase.status;
       this.$post('/test/review/case/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setReviewStatus(this.testCase.reviewId);
 
         // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = this.testCase.reviewStatus;
+        this.testCases[this.index].status = this.testCase.status;
         // 切换状态后需要修改旧的状态
-        this.oldReviewStatus = this.testCase.reviewStatus;
+        this.oldReviewStatus = this.testCase.status;
 
         if (this.testCase.comment) {
           this.$refs.comment.getComments();
@@ -311,7 +311,7 @@ export default {
     },
     saveCaseReview() {
       let param = {};
-      let status = this.testCase.reviewStatus;
+      let status = this.testCase.status;
       param.id = this.testCase.id;
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
@@ -321,7 +321,7 @@ export default {
         this.setReviewStatus(this.testCase.reviewId);
         this.oldReviewStatus = status;
         // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = status;
+        this.testCases[this.index].status = status;
         if (this.index < this.testCases.length - 1) {
           this.handleNext();
         }
@@ -381,7 +381,7 @@ export default {
         parseCustomField(item, this.testCaseTemplate, null, buildTestCaseOldFields(item));
         this.isCustomFiledActive = true;
         this.testCase = item;
-        this.oldReviewStatus = this.testCase.reviewStatus;
+        this.oldReviewStatus = this.testCase.status;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
@@ -405,7 +405,7 @@ export default {
     openTestCaseEdit(testCase, tableData) {
       this.showDialog = true;
       // 一开始加载时候需要保存用例评审旧的状态
-      this.oldReviewStatus = testCase.reviewStatus;
+      this.oldReviewStatus = testCase.status;
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;
