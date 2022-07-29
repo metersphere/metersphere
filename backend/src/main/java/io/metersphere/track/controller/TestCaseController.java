@@ -343,7 +343,7 @@ public class TestCaseController {
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.DELETE, subject = "测试用例通知")
     public void deleteToGcBatch(@RequestBody TestCaseBatchRequest request) {
-        testCaseService.deleteToGcBatch(request.getIds());
+        testCaseService.deleteToGcBatch(request);
     }
 
     @PostMapping("/batch/movePublic/deleteToGc")
