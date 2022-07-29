@@ -319,7 +319,10 @@ import {
   objToStrMap,
   strMapToObj
 } from "@/common/js/utils";
-import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {
+  API_SCENARIO_CONFIGS,
+  API_SCENARIO_CONFIGS_TRASH
+} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
 import {
@@ -431,7 +434,7 @@ export default {
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
       screenHeight: 'calc(100vh - 180px)',//屏幕高度,
       condition: {
-        components: API_SCENARIO_CONFIGS
+        components: this.trashEnable ? API_SCENARIO_CONFIGS_TRASH : API_SCENARIO_CONFIGS
       },
       scenarioId: "",
       isMoveBatch: true,
