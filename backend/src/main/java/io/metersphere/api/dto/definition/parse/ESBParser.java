@@ -107,13 +107,13 @@ public class ESBParser extends EsbAbstractParser {
 
             String name = "";
             if (colorIndex == IndexedColors.LIGHT_GREEN.getIndex()) {
-                style.setFillForegroundColor(new XSSFColor(new java.awt.Color(204, 255, 204)));
+                style.setFillForegroundColor(new XSSFColor(new java.awt.Color(204, 255, 204), null));
                 name = "green";
             } else if (colorIndex == IndexedColors.ORCHID.getIndex()) {
-                style.setFillForegroundColor(new XSSFColor(new java.awt.Color(151, 50, 101)));
+                style.setFillForegroundColor(new XSSFColor(new java.awt.Color(151, 50, 101), null));
                 name = "pop";
             } else if (colorIndex == IndexedColors.YELLOW.getIndex()) {
-                style.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 153)));
+                style.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 153), null));
                 name = "yellow";
             } else {
                 name = "default";
