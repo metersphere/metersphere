@@ -24,7 +24,8 @@
         <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
         <postgresql.version>42.3.2</postgresql.version>
         <java-websocket.version>1.5.3</java-websocket.version>
-        <xmlbeans.version>3.1.0</xmlbeans.version>
+        <xmlbeans.version>5.1.0</xmlbeans.version>
+        <poi.version>5.1.0</poi.version>
     </properties>
 
     <dependencies>
@@ -212,6 +213,20 @@
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
             <version>3.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>poi</artifactId>
+                    <groupId>org.apache.poi</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>poi-ooxml</artifactId>
+                    <groupId>org.apache.poi</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>poi-ooxml-schemas</artifactId>
+                    <groupId>org.apache.poi</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -375,6 +390,18 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
         </dependency>
     </dependencies>
 
