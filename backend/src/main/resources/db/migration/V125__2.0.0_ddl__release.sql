@@ -28,11 +28,6 @@ CREATE TABLE IF NOT EXISTS custom_field_issues
 ALTER TABLE custom_field
     ADD third_part TINYINT(1) DEFAULT 0 NOT NULL;
 
--- 变更标题和描述字段长度
-ALTER TABLE issues
-    MODIFY title varchar(128) NULL;
-ALTER TABLE issues
-    MODIFY description longtext NULL;
 
 --
 -- V120__1-20-4_retry_related_fields
