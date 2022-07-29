@@ -966,11 +966,27 @@ public class TestPlanService {
             LogUtil.error(e);
         }
         if (runModeConfig == null) {
-            runModeConfig = new RunModeConfigDTO();
-            runModeConfig.setMode(RunModeConstants.SERIAL.name());
-            runModeConfig.setReportType("iddReport");
-            runModeConfig.setEnvMap(new HashMap<>());
-            runModeConfig.setOnSampleError(false);
+            TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanID);
+            if (StringUtils.isNotEmpty(testPlanWithBLOBs.getRunModeConfig())) {
+                runModeConfig = JSONObject.parseObject(testPlanWithBLOBs.getRunModeConfig(), RunModeConfigDTO.class);
+                if (StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && StringUtils.isBlank(runModeConfig.getEnvironmentGroupId())) {
+                    runModeConfig = new RunModeConfigDTO();
+                    runModeConfig.setMode(RunModeConstants.SERIAL.name());
+                    runModeConfig.setReportType("iddReport");
+                    runModeConfig.setEnvMap(new HashMap<>());
+                    runModeConfig.setOnSampleError(false);
+                } else {
+                    if (runModeConfig.getEnvMap() == null) {
+                        runModeConfig.setEnvMap(new HashMap<>());
+                    }
+                }
+            } else {
+                runModeConfig = new RunModeConfigDTO();
+                runModeConfig.setMode(RunModeConstants.SERIAL.name());
+                runModeConfig.setReportType("iddReport");
+                runModeConfig.setEnvMap(new HashMap<>());
+                runModeConfig.setOnSampleError(false);
+            }
         } else {
             if (runModeConfig.getEnvMap() == null) {
                 runModeConfig.setEnvMap(new HashMap<>());

@@ -266,11 +266,14 @@
         </ms-table-column>
       </span>
       <template v-slot:opt-before="scope">
-        <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play"  :class="[scope.row.status==='Archived'?'disable-run':'run-button']"  :disabled="scope.row.status === 'Archived'"
+        <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play"
+                                  :class="[scope.row.status==='Archived'?'disable-run':'run-button']"
+                                  :disabled="scope.row.status === 'Archived'"
                                   @exec="handleRun(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"
-                                  />
+        />
         <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit"
-                                  @exec="handleEdit(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']" :disabled="scope.row.status === 'Archived'"
+                                  @exec="handleEdit(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
+                                  :disabled="scope.row.status === 'Archived'"
                                   style="margin-right: 10px"/>
       </template>
       <template v-slot:opt-behind="scope">
@@ -290,10 +293,11 @@
             <el-icon class="el-icon-more"></el-icon>
           </el-link>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']" >
+            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']">
               {{ $t('commons.delete') }}
             </el-dropdown-item>
-            <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']" :disabled="scope.row.status === 'Archived'" >
+            <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
+                              :disabled="scope.row.status === 'Archived'">
               {{ $t('commons.trigger_mode.schedule') }}
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -325,7 +329,8 @@
           <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
           <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
         </el-radio-group>
-      </div><br/>
+      </div>
+      <br/>
       <span>注：运行模式仅对测试计划间有效</span>
       <template v-slot:footer>
         <ms-dialog-footer @cancel="closeExecute" @confirm="handleRunBatch"/>
@@ -347,7 +352,9 @@ import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-compon
 import {
   _filter,
   _sort,
-  deepClone, getCustomTableHeader, getCustomTableWidth,
+  deepClone,
+  getCustomTableHeader,
+  getCustomTableWidth,
   getLastTableSortField,
   saveLastTableSortField
 } from "@/common/js/tableUtils";
@@ -356,12 +363,7 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-  hasPermission
-} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, hasPermission} from "@/common/js/utils";
 import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
 import MsTaskCenter from "@/business/components/task/TaskCenter";
@@ -397,7 +399,7 @@ export default {
       result: {},
       cardResult: {},
       enableDeleteTip: false,
-      showExecute:false,
+      showExecute: false,
       queryPath: "/test/plan/list",
       deletePath: "/test/plan/delete",
       condition: {
@@ -459,7 +461,7 @@ export default {
           permission: ['PROJECT_TRACK_PLAN:READ+EDIT']
         },
       ],
-      batchExecuteType:"serial"
+      batchExecuteType: "serial"
     };
   },
   watch: {
@@ -525,7 +527,7 @@ export default {
         data.listObject.forEach(item => {
           if (item.tags) {
             item.tags = JSON.parse(item.tags);
-            if(item.tags.length===0){
+            if (item.tags.length === 0) {
               item.tags = null;
             }
           }
@@ -571,7 +573,7 @@ export default {
             this.$set(item, "showFollow", showFollow);
           })
         });
-        this.tableData =data.listObject;
+        this.tableData = data.listObject;
       });
     },
     copyData(status) {
@@ -613,10 +615,10 @@ export default {
         this.$refs.scheduleBatchSwitch.open(param, size, this.condition.selectAll, this.condition);
       }
     },
-    handleBatchExecute(){
+    handleBatchExecute() {
       this.showExecute = true;
     },
-    handleRunBatch(){
+    handleRunBatch() {
       this.showExecute = false;
       let mode = this.batchExecuteType;
       let param = {mode};
@@ -624,8 +626,7 @@ export default {
       if (this.condition.selectAll) {
         param.isAll = true;
         param.queryTestPlanRequest = this.condition
-      }
-      else {
+      } else {
         this.$refs.testPlanLitTable.selectRows.forEach((item) => {
           ids.push(item.id)
         });
@@ -642,7 +643,7 @@ export default {
         // this.$error(error.message);
       });
     },
-    closeExecute(){
+    closeExecute() {
       this.showExecute = false;
     },
     statusChange(data) {
@@ -760,7 +761,7 @@ export default {
       this.$get("/test/plan/have/exec/case/" + row.id, res => {
         const haveExecCase = res.data;
         if (haveExecCase) {
-          this.$refs.runMode.open('API');
+          this.$refs.runMode.open('API', row.runModeConfig);
         } else {
           this.$router.push('/track/plan/view/' + row.id);
         }
@@ -785,17 +786,17 @@ export default {
       param.environmentType = environmentType;
       param.environmentGroupId = environmentGroupId;
       param.requestOriginator = "TEST_PLAN";
-      if(config.isRun === true){
+      if (config.isRun === true) {
         this.$refs.taskCenter.open();
         this.result = this.$post('test/plan/run/', param, () => {
           this.$success(this.$t('commons.run_success'));
         });
-      }else{
+      } else {
         this.result = this.$post('test/plan/edit/runModeConfig', param, () => {
           this.$success(this.$t('commons.save_success'));
         });
       }
-
+      this.initTableData();
     },
     saveFollow(row) {
       if (row.showFollow) {
