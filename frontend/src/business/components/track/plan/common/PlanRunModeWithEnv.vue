@@ -76,14 +76,14 @@
     </div>
     <template v-slot:footer>
       <div class="dialog-footer" v-if="showSave">
-        <el-button @click="close">{{$t('commons.cancel')}}</el-button>
+        <el-button @click="close">{{ $t('commons.cancel') }}</el-button>
         <el-dropdown @command="handleCommand" style="margin-left: 5px">
           <el-button type="primary">
-            {{$t('load_test.save_and_run')}}<i class="el-icon-arrow-down el-icon--right"></i>
+            {{ $t('load_test.save_and_run') }}<i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="run">{{$t('load_test.save_and_run')}}</el-dropdown-item>
-            <el-dropdown-item command="save">{{$t('commons.save')}}</el-dropdown-item>
+            <el-dropdown-item command="run">{{ $t('load_test.save_and_run') }}</el-dropdown-item>
+            <el-dropdown-item command="save">{{ $t('commons.save') }}</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -93,158 +93,162 @@
 </template>
 
 <script>
-  import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-  import {strMapToObj} from "@/common/js/utils";
-  import {ENV_TYPE} from "@/common/js/constants";
-  import {hasLicense} from "@/common/js/utils";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import {hasLicense, strMapToObj} from "@/common/js/utils";
+import {ENV_TYPE} from "@/common/js/constants";
 
-  export default {
-    name: "MsPlanRunModeWithEnv",
-    components: {EnvPopover, MsDialogFooter},
-    data() {
-      return {
-        runModeVisible: false,
-        testType: null,
-        resourcePools: [],
-        runConfig: {
-          mode: "serial",
-          reportType: "iddReport",
-          onSampleError: false,
-          runWithinResourcePool: false,
-          resourcePoolId: null,
-          envMap: new Map(),
-          environmentGroupId: "",
-          environmentType: ENV_TYPE.JSON,
-        },
-        isHasLicense: hasLicense(),
-        projectEnvListMap: {},
-        projectList: [],
-        projectIds: new Set(),
-        options: [{
-          value: 'confirmAndRun',
-          label: this.$t('load_test.save_and_run')
-        }, {
-          value: 'save',
-          label: this.$t('commons.save')
-        }],
-        value: 'confirmAndRun'
-      };
+export default {
+  name: "MsPlanRunModeWithEnv",
+  components: {EnvPopover, MsDialogFooter},
+  data() {
+    return {
+      runModeVisible: false,
+      testType: null,
+      resourcePools: [],
+      runConfig: {
+        mode: "serial",
+        reportType: "iddReport",
+        onSampleError: false,
+        runWithinResourcePool: false,
+        resourcePoolId: null,
+        envMap: new Map(),
+        environmentGroupId: "",
+        environmentType: ENV_TYPE.JSON,
+      },
+      isHasLicense: hasLicense(),
+      projectEnvListMap: {},
+      projectList: [],
+      projectIds: new Set(),
+      options: [{
+        value: 'confirmAndRun',
+        label: this.$t('load_test.save_and_run')
+      }, {
+        value: 'save',
+        label: this.$t('commons.save')
+      }],
+      value: 'confirmAndRun'
+    };
+  },
+  props: {
+    planCaseIds: {
+      type: Array,
     },
-    props: {
-      planCaseIds: {
-        type: Array,
-      },
-      type: String,
-      planId: String,
-      showSave: {
-        type: Boolean,
-        default: false
-      },
+    type: String,
+    planId: String,
+    showSave: {
+      type: Boolean,
+      default: false
     },
-    methods: {
-      open(testType) {
-        this.runModeVisible = true;
-        this.testType = testType;
-        this.getResourcePools();
-        this.getWsProjects();
-      },
-      changeMode() {
-        this.runConfig.onSampleError = false;
-        this.runConfig.runWithinResourcePool = false;
-        this.runConfig.resourcePoolId = null;
-      },
-      close() {
-        this.runConfig = {
-          mode: "serial",
-          reportType: "iddReport",
-          onSampleError: false,
-          runWithinResourcePool: false,
-          resourcePoolId: null,
-          envMap: new Map(),
-          environmentGroupId: "",
-          environmentType: ENV_TYPE.JSON
-        };
-        this.runModeVisible = false;
-        this.$emit('close');
-      },
-      handleRunBatch() {
-        this.$emit("handleRunBatch", this.runConfig);
-        this.close();
-      },
-      getResourcePools() {
-        this.result = this.$get('/testresourcepool/list/quota/valid', response => {
-          this.resourcePools = response.data;
-        });
-      },
-      setProjectEnvMap(projectEnvMap) {
-        this.runConfig.envMap = strMapToObj(projectEnvMap);
-      },
-      setEnvGroup(id) {
-        this.runConfig.environmentGroupId = id;
-      },
-      getWsProjects() {
-        this.$get("/project/getOwnerProjects", res => {
-          this.projectList = res.data;
-        })
-      },
-      showPopover() {
-        this.projectIds.clear();
-        let param = undefined;
-        let url = "";
-        if (this.type === 'apiCase') {
-          url = '/test/plan/api/case/env';
-          param = this.planCaseIds;
-        } else if (this.type === 'apiScenario') {
-          url = '/test/plan/api/scenario/env';
-          param = this.planCaseIds;
-        } else if (this.type === 'plan') {
-          url = '/test/plan/case/env';
-          param = {id: this.planId};
-        }
-        this.$post(url, param, res => {
-          let data = res.data;
-          if (data) {
-            this.projectEnvListMap = data;
-            for (let d in data) {
-              this.projectIds.add(d);
-            }
-          }
-          this.$refs.envPopover.openEnvSelect();
-        });
-      },
-      handleCommand(command) {
-        if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
-          this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
-          return;
-        }
-        if (command === 'run') {
-          this.runConfig.isRun = true
-          this.handleRunBatch();
-        } else {
-          this.runConfig.isRun = false
-          this.handleRunBatch();
-        }
+  },
+  methods: {
+    open(testType, runModeConfig) {
+      if (runModeConfig) {
+        this.runConfig = JSON.parse(runModeConfig);
+        this.runConfig.onSampleError = this.runConfig.onSampleError === 'true' || this.runConfig.onSampleError === true;
+        this.runConfig.runWithinResourcePool = this.runConfig.runWithinResourcePool === 'true' || this.runConfig.runWithinResourcePool === true;
       }
+      this.runModeVisible = true;
+      this.testType = testType;
+      this.getResourcePools();
+      this.getWsProjects();
     },
-  };
+    changeMode() {
+      this.runConfig.onSampleError = false;
+      this.runConfig.runWithinResourcePool = false;
+      this.runConfig.resourcePoolId = null;
+    },
+    close() {
+      this.runConfig = {
+        mode: "serial",
+        reportType: "iddReport",
+        onSampleError: false,
+        runWithinResourcePool: false,
+        resourcePoolId: null,
+        envMap: new Map(),
+        environmentGroupId: "",
+        environmentType: ENV_TYPE.JSON
+      };
+      this.runModeVisible = false;
+      this.$emit('close');
+    },
+    handleRunBatch() {
+      this.$emit("handleRunBatch", this.runConfig);
+      this.close();
+    },
+    getResourcePools() {
+      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
+        this.resourcePools = response.data;
+      });
+    },
+    setProjectEnvMap(projectEnvMap) {
+      this.runConfig.envMap = strMapToObj(projectEnvMap);
+    },
+    setEnvGroup(id) {
+      this.runConfig.environmentGroupId = id;
+    },
+    getWsProjects() {
+      this.$get("/project/getOwnerProjects", res => {
+        this.projectList = res.data;
+      })
+    },
+    showPopover() {
+      this.projectIds.clear();
+      let param = undefined;
+      let url = "";
+      if (this.type === 'apiCase') {
+        url = '/test/plan/api/case/env';
+        param = this.planCaseIds;
+      } else if (this.type === 'apiScenario') {
+        url = '/test/plan/api/scenario/env';
+        param = this.planCaseIds;
+      } else if (this.type === 'plan') {
+        url = '/test/plan/case/env';
+        param = {id: this.planId};
+      }
+      this.$post(url, param, res => {
+        let data = res.data;
+        if (data) {
+          this.projectEnvListMap = data;
+          for (let d in data) {
+            this.projectIds.add(d);
+          }
+        }
+        this.$refs.envPopover.openEnvSelect();
+      });
+    },
+    handleCommand(command) {
+      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        return;
+      }
+      if (command === 'run') {
+        this.runConfig.isRun = true
+        this.handleRunBatch();
+      } else {
+        this.runConfig.isRun = false
+        this.handleRunBatch();
+      }
+    }
+  },
+};
 </script>
 
 <style scoped>
-  .ms-mode-span {
-    margin-right: 10px;
-  }
+.ms-mode-span {
+  margin-right: 10px;
+}
 
-  .ms-mode-div {
-    margin-top: 20px;
-  }
+.ms-mode-div {
+  margin-top: 20px;
+}
 
-  .ms-failure-div {
-    margin-top: 10px;
-  }
+.ms-failure-div {
+  margin-top: 10px;
+}
 
-  .ms-failure-div-right {
-    padding-right: 10px;
-  }
+.ms-failure-div-right {
+  padding-right: 10px;
+}
 
 </style>

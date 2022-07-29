@@ -43,8 +43,9 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
-import io.metersphere.track.request.testplan.TestplanRunRequest;
+import io.metersphere.track.request.testplan.TestPlanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import io.metersphere.track.service.utils.TestPlanRequestUtil;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
@@ -966,11 +967,27 @@ public class TestPlanService {
             LogUtil.error(e);
         }
         if (runModeConfig == null) {
-            runModeConfig = new RunModeConfigDTO();
-            runModeConfig.setMode(RunModeConstants.SERIAL.name());
-            runModeConfig.setReportType("iddReport");
-            runModeConfig.setEnvMap(new HashMap<>());
-            runModeConfig.setOnSampleError(false);
+            TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanID);
+            if (StringUtils.isNotEmpty(testPlanWithBLOBs.getRunModeConfig())) {
+                JSONObject json = JSONObject.parseObject(testPlanWithBLOBs.getRunModeConfig());
+                TestPlanRequestUtil.changeStringToBoolean(json);
+                TestPlanRunRequest testPlanRunRequest = JSON.toJavaObject(json, TestPlanRunRequest.class);
+                if (StringUtils.equals("GROUP", testPlanRunRequest.getEnvironmentType()) && StringUtils.isBlank(testPlanRunRequest.getEnvironmentGroupId())) {
+                    runModeConfig = buildRunModeConfigDTO();
+                } else {
+                    runModeConfig = new RunModeConfigDTO();
+                    runModeConfig.setMode(testPlanRunRequest.getMode());
+                    runModeConfig.setReportType(testPlanRunRequest.getReportType());
+                    if (testPlanRunRequest.getEnvMap() == null) {
+                        runModeConfig.setEnvMap(new HashMap<>());
+                    } else {
+                        runModeConfig.setEnvMap(testPlanRunRequest.getEnvMap());
+                    }
+                    runModeConfig.setOnSampleError(testPlanRunRequest.isOnSampleError());
+                }
+            } else {
+                runModeConfig = buildRunModeConfigDTO();
+            }
         } else {
             if (runModeConfig.getEnvMap() == null) {
                 runModeConfig.setEnvMap(new HashMap<>());
@@ -1012,6 +1029,15 @@ public class TestPlanService {
         }
 
         return planReportId;
+    }
+
+    private RunModeConfigDTO buildRunModeConfigDTO() {
+        RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
+        runModeConfig.setMode(RunModeConstants.SERIAL.name());
+        runModeConfig.setReportType("iddReport");
+        runModeConfig.setEnvMap(new HashMap<>());
+        runModeConfig.setOnSampleError(false);
+        return runModeConfig;
     }
 
     private Map<String, String> executeApiTestCase(String triggerMode, String planReportId, String userId, List<String> planCaseIds, RunModeConfigDTO runModeConfig) {
@@ -1115,6 +1141,22 @@ public class TestPlanService {
 
 
         return loadCaseReportMap;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestPlanExample testPlanExample = new TestPlanExample();
+            testPlanExample.createCriteria().andIdIn(ids);
+            List<TestPlan> planList = testPlanMapper.selectByExample(testPlanExample);
+            if (CollectionUtils.isNotEmpty(planList)) {
+                for (TestPlan plan : planList) {
+                    List<DetailColumn> columns = ReflexObjectUtil.getColumns(plan, TestPlanReference.testPlanColumns);
+                    OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(plan.getId()), plan.getProjectId(), plan.getName(), plan.getCreator(), columns);
+                    return JSON.toJSONString(details);
+                }
+            }
+        }
+        return null;
     }
 
     public String getLogDetails(String id) {
@@ -1925,7 +1967,7 @@ public class TestPlanService {
         return envMap;
     }
 
-    public String runPlan(TestplanRunRequest testplanRunRequest) {
+    public String runPlan(TestPlanRunRequest testplanRunRequest) {
         //检查是否有可以执行的用例
         if (!haveExecCase(testplanRunRequest.getTestPlanId())) {
             MSException.throwException(Translator.get("plan_warning"));
@@ -1942,7 +1984,7 @@ public class TestPlanService {
 
     }
 
-    private RunModeConfigDTO getRunModeConfigDTO(TestplanRunRequest testplanRunRequest, String envType, Map<String, String> envMap, String environmentGroupId, String testPlanId) {
+    private RunModeConfigDTO getRunModeConfigDTO(TestPlanRunRequest testplanRunRequest, String envType, Map<String, String> envMap, String environmentGroupId, String testPlanId) {
         RunModeConfigDTO runModeConfig = new RunModeConfigDTO();
         runModeConfig.setEnvironmentType(testplanRunRequest.getEnvironmentType());
         if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && !envMap.isEmpty()) {
@@ -1954,7 +1996,7 @@ public class TestPlanService {
         }
         runModeConfig.setMode(testplanRunRequest.getMode());
         runModeConfig.setResourcePoolId(testplanRunRequest.getResourcePoolId());
-        runModeConfig.setOnSampleError(Boolean.parseBoolean(testplanRunRequest.getOnSampleError()));
+        runModeConfig.setOnSampleError(testplanRunRequest.isOnSampleError());
         if (StringUtils.isBlank(testplanRunRequest.getReportType())) {
             runModeConfig.setReportType("iddReport");
         } else {
@@ -1963,7 +2005,7 @@ public class TestPlanService {
         return runModeConfig;
     }
 
-    private void updatePlan(TestplanRunRequest testplanRunRequest, String testPlanId) {
+    private void updatePlan(TestPlanRunRequest testplanRunRequest, String testPlanId) {
         String request = JSON.toJSONString(testplanRunRequest);
         TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
         if (testPlanWithBLOBs.getRunModeConfig() == null || !(StringUtils.equals(request, testPlanWithBLOBs.getRunModeConfig()))) {
@@ -2136,7 +2178,7 @@ public class TestPlanService {
         return extTestPlanMapper.list(request);
     }
 
-    public void runBatch(TestplanRunRequest request) {
+    public void runBatch(TestPlanRunRequest request) {
         List<String> ids = request.getTestPlanIds();
         if (CollectionUtils.isEmpty(ids) && !request.getIsAll()) {
             return;
@@ -2201,7 +2243,7 @@ public class TestPlanService {
     }
 
 
-    private List<TestPlanExecutionQueue> getTestPlanExecutionQueues(TestplanRunRequest request, Map<String, String> executeQueue) {
+    private List<TestPlanExecutionQueue> getTestPlanExecutionQueues(TestPlanRunRequest request, Map<String, String> executeQueue) {
         List<TestPlanExecutionQueue> planExecutionQueues = new ArrayList<>();
         String resourceId = UUID.randomUUID().toString();
         final int[] nextNum = {testPlanExecutionQueueService.getNextNum(resourceId)};
@@ -2220,7 +2262,7 @@ public class TestPlanService {
         return planExecutionQueues;
     }
 
-    private void runByMode(TestplanRunRequest request, Map<String, TestPlanWithBLOBs> testPlanMap, List<TestPlanExecutionQueue> planExecutionQueues) {
+    private void runByMode(TestPlanRunRequest request, Map<String, TestPlanWithBLOBs> testPlanMap, List<TestPlanExecutionQueue> planExecutionQueues) {
         if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -2230,14 +2272,16 @@ public class TestPlanService {
                         TestPlanExecutionQueue planExecutionQueue = planExecutionQueues.get(0);
                         TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
                         JSONObject jsonObject = JSONObject.parseObject(testPlan.getRunModeConfig());
-                        TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject, TestplanRunRequest.class);
+                        TestPlanRequestUtil.changeStringToBoolean(jsonObject);
+                        TestPlanRunRequest runRequest = JSON.toJavaObject(jsonObject, TestPlanRunRequest.class);
                         runRequest.setReportId(planExecutionQueue.getReportId());
                         runPlan(runRequest);
                     } else {
                         for (TestPlanExecutionQueue planExecutionQueue : planExecutionQueues) {
                             TestPlanWithBLOBs testPlan = testPlanMap.get(planExecutionQueue.getTestPlanId());
                             JSONObject jsonObject = JSONObject.parseObject(testPlan.getRunModeConfig());
-                            TestplanRunRequest runRequest = JSON.toJavaObject(jsonObject, TestplanRunRequest.class);
+                            TestPlanRequestUtil.changeStringToBoolean(jsonObject);
+                            TestPlanRunRequest runRequest = JSON.toJavaObject(jsonObject, TestPlanRunRequest.class);
                             runRequest.setReportId(planExecutionQueue.getReportId());
                             runPlan(runRequest);
                         }
@@ -2248,7 +2292,7 @@ public class TestPlanService {
         }
     }
 
-    public void updateRunModeConfig(TestplanRunRequest testplanRunRequest) {
+    public void updateRunModeConfig(TestPlanRunRequest testplanRunRequest) {
         String testPlanId = testplanRunRequest.getTestPlanId();
         updatePlan(testplanRunRequest, testPlanId);
     }
