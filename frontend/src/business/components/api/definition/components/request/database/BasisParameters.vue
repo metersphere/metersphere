@@ -3,7 +3,8 @@
     <el-row>
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
-          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
+          <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly"
+                   style="margin: 10px">
             <el-row>
               <el-col :span="7">
                 <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
@@ -18,7 +19,8 @@
                     </el-button>
                     <template v-slot:empty>
                       <div class="empty-environment">
-                        <el-button class="environment-button" size="small" type="primary" @click="openEnvironmentConfig">
+                        <el-button class="environment-button" size="small" type="primary"
+                                   @click="openEnvironmentConfig">
                           {{ $t('api_test.environment.environment_config') }}
                         </el-button>
                       </div>
@@ -27,22 +29,26 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
+                <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId"
+                              style="margin-left: 10px">
                   <el-select v-model="request.dataSourceId" size="small" @change="reload">
-                    <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
+                    <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id"
+                               :label="item.name"/>
                   </el-select>
                 </el-form-item>
 
               </el-col>
               <el-col :span="7">
                 <el-form-item :label="$t('api_test.request.sql.timeout')" prop="queryTimeout" style="margin-left: 10px">
-                  <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+                  <el-input-number :disabled="isReadOnly" size="small" v-model="request.queryTimeout"
+                                   :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
                 </el-form-item>
               </el-col>
               <el-col :span="2">
                 <el-checkbox
-                  v-if="request.referenced==='Created' && scenarioId !==''"
-                  v-model="request.isRefEnvironment" :disabled="request.disabled" class="ref_environment" @change="getEnvironments">
+                    v-if="request.referenced==='Created' && scenarioId !==''"
+                    v-model="request.isRefEnvironment" :disabled="request.disabled" class="ref_environment"
+                    @change="getEnvironments">
                   {{ $t('api_test.request.refer_to_environment') }}
                 </el-checkbox>
               </el-col>
@@ -63,7 +69,8 @@
                                            :description="$t('api_test.scenario.kv_description')"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.request.sql.sql_script')" name="sql">
-                <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query" :height="200" theme="eclipse" ref="codeEdit"/>
+                <ms-code-edit mode="sql" :read-only="isReadOnly" :modes="['sql']" :data.sync="request.query"
+                              :height="200" theme="eclipse" ref="codeEdit" :key="request.id"/>
               </el-tab-pane>
               <!-- 脚本步骤/断言步骤 -->
               <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
@@ -73,7 +80,8 @@
                     <div class="el-step__icon-inner">{{ request.preSize }}</div>
                   </div>
                 </span>
-                <ms-jmx-step :request="request" :scenarioId="scenarioId" :apiId="request.id" :response="response" :tab-type="'pre'"
+                <ms-jmx-step :request="request" :scenarioId="scenarioId" :apiId="request.id" :response="response"
+                             :tab-type="'pre'"
                              ref="preStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate"
@@ -84,7 +92,8 @@
                     <div class="el-step__icon-inner">{{ request.postSize }}</div>
                   </div>
                   </span>
-                <ms-jmx-step :request="request" :scenarioId="scenarioId" :apiId="request.id" :response="response" :tab-type="'post'"
+                <ms-jmx-step :request="request" :scenarioId="scenarioId" :apiId="request.id" :response="response"
+                             :tab-type="'post'"
                              ref="postStep"/>
               </el-tab-pane>
               <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule"
@@ -95,7 +104,8 @@
                     <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                   </div>
                   </span>
-                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :scenarioId="scenarioId" @reload="reloadBody"
+                <ms-jmx-step :request="request" :apiId="request.id" :response="response" :scenarioId="scenarioId"
+                             @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
 
@@ -120,11 +130,10 @@ import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
 import MsApiScenarioVariables from "../../ApiScenarioVariables";
 import {parseEnvironment} from "../../../model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-import {getCurrentProjectID, objToStrMap} from "@/common/js/utils";
-import {getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, objToStrMap} from "@/common/js/utils";
 import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 import MsJmxStep from "../../step/JmxStep";
-import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, stepCompute} from "@/business/components/api/definition/api-definition";
 
 
 export default {
@@ -292,7 +301,7 @@ export default {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
       let scenarioEnvId = this.request.currentScenarioId ? (this.request.currentScenarioId + "_" + id) : id;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-        && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
+          && this.$store.state.scenarioEnvMap.has(scenarioEnvId)) {
         envId = this.$store.state.scenarioEnvMap.get(scenarioEnvId);
       }
       if (this.request.referenced === 'Created' && this.scenarioId !== "" && !this.request.isRefEnvironment) {
@@ -318,7 +327,7 @@ export default {
       let targetDataSourceName = "";
       let currentEnvironment = {};
 
-      if(envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
+      if (envId === this.request.originalEnvironmentId && this.request.originalDataSourceId) {
         this.request.dataSourceId = this.request.originalDataSourceId;
       }
       this.result = this.$get('/api/environment/list/' + id, response => {
