@@ -3,14 +3,14 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanUiScenarioMapper">
 
 
-    <select id="selectByIdsAndStatusIsNotTrash" resultType="io.metersphere.base.domain.TestPlanUiScenario">
+    <select id="selectPlanByIdsAndStatusIsNotTrash" resultType="io.metersphere.base.domain.TestPlanUiScenario">
         SELECT
         plan.*
         FROM
         test_plan_ui_scenario plan
         INNER JOIN ui_scenario ui ON plan.ui_scenario_id = ui.id
         WHERE
-        (ui.`status` is null OR ui.`status` != 'Trash') AND plan.id IN
+        (ui.`status` is null OR ui.`status` != 'Trash') AND plan.test_plan_id IN
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>

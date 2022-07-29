@@ -3,14 +3,27 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanApiScenarioMapper">
     <select id="selectByIdsAndStatusIsNotTrash" resultType="io.metersphere.base.domain.TestPlanApiScenario">
         SELECT
-            plan.*
+        plan.*
         FROM
-            test_plan_api_scenario plan
-            INNER JOIN api_scenario api ON plan.api_scenario_id = api.id
+        test_plan_api_scenario plan
+        INNER JOIN api_scenario api ON plan.api_scenario_id = api.id
         WHERE
-            (api.`status` is null OR api.`status` != 'Trash') AND plan.id IN
-            <foreach collection="ids" item="v" separator="," open="(" close=")">
-                #{v}
-            </foreach>
+        (api.`status` is null OR api.`status` != 'Trash') AND plan.id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+    <select id="selectPlanByIdsAndStatusIsNotTrash"
+            resultType="io.metersphere.base.domain.TestPlanApiScenario">
+        SELECT
+        plan.*
+        FROM
+        test_plan_api_scenario plan
+        INNER JOIN api_scenario api ON plan.api_scenario_id = api.id
+        WHERE
+        (api.`status` is null OR api.`status` != 'Trash') AND plan.test_plan_id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
     </select>
 </mapper>

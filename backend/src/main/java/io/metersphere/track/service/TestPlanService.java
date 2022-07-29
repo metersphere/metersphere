@@ -2148,12 +2148,12 @@ public class TestPlanService {
         }
         List<String> ids = new ArrayList<>();
         ids.add(id);
-        List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.selectByIdsAndStatusIsNotTrash(ids);
+        List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.selectPlanByIdsAndStatusIsNotTrash(ids);
         if (!CollectionUtils.isEmpty(testPlanApiCases)) {
             return true;
         }
 
-        List<TestPlanApiScenario> testPlanApiScenarios = extTestPlanApiScenarioMapper.selectByIdsAndStatusIsNotTrash(ids);
+        List<TestPlanApiScenario> testPlanApiScenarios = extTestPlanApiScenarioMapper.selectPlanByIdsAndStatusIsNotTrash(ids);
         if (!CollectionUtils.isEmpty(testPlanApiScenarios)) {
             return true;
         }
@@ -2407,7 +2407,7 @@ public class TestPlanService {
 
         List<String> ids = new ArrayList<>();
         ids.add(id);
-        List<TestPlanUiScenario> testPlanUiScenarios = extTestPlanUiScenarioMapper.selectByIdsAndStatusIsNotTrash(ids);
+        List<TestPlanUiScenario> testPlanUiScenarios = extTestPlanUiScenarioMapper.selectPlanByIdsAndStatusIsNotTrash(ids);
         return !CollectionUtils.isEmpty(testPlanUiScenarios);
     }
 }

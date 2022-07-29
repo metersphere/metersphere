@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface ExtTestPlanApiScenarioMapper {
     public List<TestPlanApiScenario> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
+
+    List<TestPlanApiScenario> selectPlanByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
+
 }
