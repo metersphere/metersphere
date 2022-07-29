@@ -24,6 +24,8 @@ public class RunDefinitionRequest {
 
     private boolean runLocal;
 
+    private String browserLanguage;
+
     private String requestId;
 
     private String name;
