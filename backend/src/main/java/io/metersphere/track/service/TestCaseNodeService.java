@@ -204,7 +204,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         List<String> testCaseIdList = this.selectCaseIdByNodeIds(nodeIds);
         TestCaseBatchRequest request = new TestCaseBatchRequest();
         request.setIds(testCaseIdList);
-        testCaseService.deleteToGcBatch(request.getIds());
+        testCaseService.deleteToGcBatch(request);
 
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andIdIn(nodeIds);
