@@ -1307,6 +1307,7 @@ public class TestCaseService {
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"), handler);
 
         } catch (Exception e) {
+            LogUtil.error(e);
             MSException.throwException(e);
         }
     }
