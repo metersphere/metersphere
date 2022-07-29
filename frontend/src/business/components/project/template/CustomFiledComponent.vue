@@ -134,6 +134,27 @@ export default {
     };
   },
   mounted() {
+    if (['select', 'multipleSelect', 'checkbox', 'radio'].indexOf(this.data.type) > -1 && this.data.options) {
+      let values = this.data[this.prop];
+      if (['multipleSelect', 'checkbox'].indexOf(this.data.type) > -1) {
+        if (values && values instanceof Array) {
+          for (let i = values.length - 1; i >= 0; i--) {
+            if (!this.data.options.find(item => item.value === values[i])) {
+              // 删除已删除的选项
+              values.splice(i, 1);
+            }
+          }
+        } else {
+          // 不是数组类型，改成空数组
+          this.data[this.prop] = [];
+        }
+      } else {
+        if (!this.data.options.find(item => item.value === values)) {
+          // 没有选项则清空
+          this.data[this.prop] = '';
+        }
+      }
+    }
     getProjectMemberOption((data) => {
       this.memberOptions = data;
       if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
