@@ -863,7 +863,7 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
             }
             apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-            
+
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getCaseStatus())) {
                 apiTestCaseWithBLOBs.setCaseStatus(APITestStatus.Prepare.name());
             }
@@ -1520,7 +1520,6 @@ public class ApiDefinitionService {
                 sqlSession.flushStatements();
             }
         }
-        sqlSession.flushStatements();
         //判断EsbData是否需要存储
         if (apiImport.getEsbApiParamsMap() != null && apiImport.getEsbApiParamsMap().size() > 0) {
             EsbApiParamsMapper esbApiParamsMapper = sqlSession.getMapper(EsbApiParamsMapper.class);
@@ -1542,6 +1541,7 @@ public class ApiDefinitionService {
             mockConfigService.importMock(apiImport, sqlSession, request);
         }
 
+        sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
