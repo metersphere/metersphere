@@ -59,4 +59,5 @@ public class TestPlanSimpleReportDTO extends TestPlanReportContent {
     List<TestPlanFailureScenarioDTO> unExecuteScenarios;
 
     List<TestPlanUiScenarioDTO> uiAllCases;
+    List<TestPlanUiScenarioDTO> uiFailureCases;
 }
