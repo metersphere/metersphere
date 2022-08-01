@@ -3,6 +3,8 @@ package io.metersphere.consul;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
@@ -14,6 +16,7 @@ import io.metersphere.performance.request.QueryTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,25 +25,33 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ConsulService {
-    private final Map<String, List<String>> cache = new ConcurrentHashMap<>();
+    private static final String RESOURCE_POOL_CACHE_KEY = "RESOURCE_POOL_CACHE";
     @Resource
     private TestResourcePoolService testResourcePoolService;
     @Resource
     private PerformanceTestService performanceTestService;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private ObjectMapper objectMapper;
+    private static final TypeReference<Map<String, List<String>>> TYPE_REFERENCE = new TypeReference<>() {
+    };
 
-    public Map<String, List<String>> getActiveNodes() {
-        if (cache.size() == 0) {
-            updateCache();
+    public Map<String, List<String>> getActiveNodes() throws Exception {
+        String values = stringRedisTemplate.opsForValue().get(RESOURCE_POOL_CACHE_KEY);
+        if (StringUtils.isNotEmpty(values)) {
+            return objectMapper.readValue(values, TYPE_REFERENCE);
         }
-        return cache;
+        Map<String, List<String>> result = updateCache();
+        stringRedisTemplate.opsForValue().set(RESOURCE_POOL_CACHE_KEY, objectMapper.writeValueAsString(result));
+        return result;
     }
 
-    public void updateCache() {
+    public Map<String, List<String>> updateCache() {
         Map<String, List<String>> result = new HashMap<>();
 
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
@@ -78,7 +89,6 @@ public class ConsulService {
                 result.put(node.getIp() + "-" + port, Collections.singletonList("metersphere"));
             }
         }
-        cache.clear();
-        cache.putAll(result);
+        return result;
     }
 }
