@@ -1422,6 +1422,17 @@ public class TestPlanService {
                 if (saveResponse) {
                     buildUiScenarioResponse(allCases);
                 }
+
+                if (checkReportConfig(config, "ui", "failure")) {
+                    List<TestPlanUiScenarioDTO> failureCases = null;
+                    if (!CollectionUtils.isEmpty(allCases)) {
+                        failureCases = allCases.stream()
+                                .filter(i -> StringUtils.isNotBlank(i.getStatus())
+                                        && StringUtils.equalsAnyIgnoreCase(i.getStatus(), "Error"))
+                                .collect(Collectors.toList());
+                    }
+                    report.setUiFailureCases(failureCases);
+                }
             }
         }
     }
@@ -1886,6 +1897,7 @@ public class TestPlanService {
         buildScenarioResponse(report.getScenarioAllCases());
         buildScenarioResponse(report.getScenarioFailureCases());
         buildLoadResponse(report.getLoadAllCases());
+        buildUiScenarioResponse(report.getUiAllCases());
         report.setLang(lang);
         render(report, response);
     }

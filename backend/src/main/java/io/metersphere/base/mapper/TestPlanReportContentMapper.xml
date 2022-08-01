@@ -37,6 +37,7 @@
     <result column="ui_result" jdbcType="LONGVARCHAR" property="uiResult" />
     <result column="api_base_count" jdbcType="LONGVARCHAR" property="apiBaseCount" />
     <result column="ui_all_cases" jdbcType="LONGVARCHAR" property="uiAllCases" />
+    <result column="ui_failure_cases" jdbcType="LONGVARCHAR" property="uiFailureCases" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -106,7 +107,7 @@
     load_all_Cases, load_failure_cases, plan_scenario_report_struct, plan_api_case_report_struct, 
     plan_load_case_report_struct, error_report_cases, error_report_scenarios, un_execute_cases, 
     un_execute_scenarios, plan_ui_scenario_report_struct, ui_result, api_base_count, 
-    ui_all_cases
+    ui_all_cases, ui_failure_cases
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanReportContentExample" resultMap="ResultMapWithBLOBs">
     select
@@ -169,8 +170,8 @@
       plan_load_case_report_struct, error_report_cases, 
       error_report_scenarios, un_execute_cases, 
       un_execute_scenarios, plan_ui_scenario_report_struct, 
-      ui_result, api_base_count, ui_all_cases
-      )
+      ui_result, api_base_count, ui_all_cases, 
+      ui_failure_cases)
     values (#{id,jdbcType=VARCHAR}, #{testPlanReportId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{caseCount,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{executeRate,jdbcType=DOUBLE}, 
       #{passRate,jdbcType=DOUBLE}, #{isThirdPartIssue,jdbcType=BIT}, #{config,jdbcType=LONGVARCHAR}, 
@@ -183,8 +184,8 @@
       #{planLoadCaseReportStruct,jdbcType=LONGVARCHAR}, #{errorReportCases,jdbcType=LONGVARCHAR}, 
       #{errorReportScenarios,jdbcType=LONGVARCHAR}, #{unExecuteCases,jdbcType=LONGVARCHAR}, 
       #{unExecuteScenarios,jdbcType=LONGVARCHAR}, #{planUiScenarioReportStruct,jdbcType=LONGVARCHAR}, 
-      #{uiResult,jdbcType=LONGVARCHAR}, #{apiBaseCount,jdbcType=LONGVARCHAR}, #{uiAllCases,jdbcType=LONGVARCHAR}
-      )
+      #{uiResult,jdbcType=LONGVARCHAR}, #{apiBaseCount,jdbcType=LONGVARCHAR}, #{uiAllCases,jdbcType=LONGVARCHAR}, 
+      #{uiFailureCases,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReportContentWithBLOBs">
     insert into test_plan_report_content
@@ -288,6 +289,9 @@
       <if test="uiAllCases != null">
         ui_all_cases,
       </if>
+      <if test="uiFailureCases != null">
+        ui_failure_cases,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -388,6 +392,9 @@
       </if>
       <if test="uiAllCases != null">
         #{uiAllCases,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="uiFailureCases != null">
+        #{uiFailureCases,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -499,6 +506,9 @@
       <if test="record.uiAllCases != null">
         ui_all_cases = #{record.uiAllCases,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.uiFailureCases != null">
+        ui_failure_cases = #{record.uiFailureCases,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -538,7 +548,8 @@
       plan_ui_scenario_report_struct = #{record.planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
       ui_result = #{record.uiResult,jdbcType=LONGVARCHAR},
       api_base_count = #{record.apiBaseCount,jdbcType=LONGVARCHAR},
-      ui_all_cases = #{record.uiAllCases,jdbcType=LONGVARCHAR}
+      ui_all_cases = #{record.uiAllCases,jdbcType=LONGVARCHAR},
+      ui_failure_cases = #{record.uiFailureCases,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -656,6 +667,9 @@
       <if test="uiAllCases != null">
         ui_all_cases = #{uiAllCases,jdbcType=LONGVARCHAR},
       </if>
+      <if test="uiFailureCases != null">
+        ui_failure_cases = #{uiFailureCases,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -692,7 +706,8 @@
       plan_ui_scenario_report_struct = #{planUiScenarioReportStruct,jdbcType=LONGVARCHAR},
       ui_result = #{uiResult,jdbcType=LONGVARCHAR},
       api_base_count = #{apiBaseCount,jdbcType=LONGVARCHAR},
-      ui_all_cases = #{uiAllCases,jdbcType=LONGVARCHAR}
+      ui_all_cases = #{uiAllCases,jdbcType=LONGVARCHAR},
+      ui_failure_cases = #{uiFailureCases,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanReportContent">
