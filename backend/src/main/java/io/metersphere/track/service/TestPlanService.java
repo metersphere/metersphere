@@ -2076,7 +2076,7 @@ public class TestPlanService {
 
     public String runPlan(TestplanRunRequest testplanRunRequest) {
         //检查测试计划下有没有可以执行的用例；
-        if (!haveExecCase(testplanRunRequest.getTestPlanId()) || !haveUiCase(testplanRunRequest.getTestPlanId())) {
+        if (!haveExecCase(testplanRunRequest.getTestPlanId()) && !haveUiCase(testplanRunRequest.getTestPlanId())) {
             MSException.throwException(Translator.get("plan_warning"));
         }
         String envType = testplanRunRequest.getEnvironmentType();
@@ -2323,7 +2323,7 @@ public class TestPlanService {
                     append.append("/");
                 }
             }
-            if (!haveExecCase(planList.get(i).getId()) || !haveUiCase(planList.get(i).getId())) {
+            if (!haveExecCase(planList.get(i).getId()) && !haveUiCase(planList.get(i).getId())) {
                 haveExecCaseBuilder.append(planList.get(i).getName()).append("; ");
             }
         }
