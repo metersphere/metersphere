@@ -587,11 +587,20 @@
                             and test_case.maintainer in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key.startsWith('custom')">
+                        <when test="key.startsWith('custom_single')">
                             and test_case.id in (
-                            select resource_id from custom_field_test_case where concat('custom',field_id) = #{key}
+                            select resource_id from custom_field_test_case where concat('custom_single-',field_id) = #{key}
                             and trim(both '"' from value) in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <when test="key.startsWith('custom_multiple')">
+                            and test_case.id in (
+                            select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) = #{key}
+                            and JSON_CONTAINS(value,
+                            <foreach collection="values" item="value" separator="" open="" close="">
+                                #{value}
+                            </foreach>)
                             )
                         </when>
                         <when test="key=='create_user'">

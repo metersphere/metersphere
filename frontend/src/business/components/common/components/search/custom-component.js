@@ -132,3 +132,12 @@ export function _findByKey(components, key) {
 export function _findIndexByKey(components, key) {
   return components.findIndex(co => co.key === key);
 }
+
+export function generateFilterColumnKey(field) {
+  if (field.type === 'select' || field.type === 'radio' || field.type === 'member') {
+    // 修改标识
+    return 'custom_single-' + field.id;
+  } else if (field.type === 'multipleSelect' || field.type === 'checkbox' || field.type === 'multipleMember') {
+    return 'custom_multiple-' + field.id;
+  }
+}

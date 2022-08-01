@@ -376,7 +376,7 @@ public class IssuesService {
         request.getOrders().forEach(order -> {
             if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
                 request.setIsCustomSorted(true);
-                request.setCustomFieldId(order.getName().substring(6));
+                request.setCustomFieldId(order.getName().substring(order.getName().indexOf("-") + 1));
                 order.setPrefix("cfi");
                 order.setName("value");
             }
