@@ -239,13 +239,24 @@
                                     #{value}
                                 </foreach>
                             </when>
-                            <when test="key.startsWith('custom')">
+                            <when test="key.startsWith('custom_single')">
                                 and issues.id in (
-                                select resource_id from custom_field_issues where concat('custom',field_id) = #{key}
+                                select resource_id from custom_field_issues
+                                where concat('custom_single-',field_id) = #{key}
                                 and trim(both '"' from value) in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
+                                )
+                            </when>
+                            <when test="key.startsWith('custom_multiple')">
+                                and issues.id in (
+                                select resource_id from custom_field_issues
+                                where concat('custom_multiple-',field_id) = #{key}
+                                and JSON_CONTAINS(value,
+                                <foreach collection="values" item="value" separator="" open="" close="">
+                                    #{value}
+                                </foreach>)
                                 )
                             </when>
                         </choose>
