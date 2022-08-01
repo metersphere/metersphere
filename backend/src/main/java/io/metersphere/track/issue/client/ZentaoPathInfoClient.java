@@ -17,7 +17,9 @@ public class ZentaoPathInfoClient extends ZentaoClient {
     private static final String USER_GET = "/api-getModel-user-getList?zentaosid=";
     private static final String BUILDS_GET = "/api-getModel-build-getProductBuildPairs-productID={0}?zentaosid={1}";
     private static final String CREATE_META_DATA="/bug-create-{0}.json?zentaosid={1}";
-    private static final String FILE_UPLOAD = "/api-getModel-file-saveUpload.json?zentaosid=";
+    private static final String FILE_UPLOAD = "/api-getModel-file-saveUpload-{1}-{2}.json?zentaosid={3}";
+    private static final String FILE_DELETE = "/file-delete-{1}-.yes.json?zentaosid={2}";
+    private static final String FILE_DOWNLOAD="/file-download-{1}-.click.json?zentaosid={2}";
     private static final String REPLACE_IMG_URL = "<img src=\"%s/file-read-$1\"/>";
     private static final Pattern IMG_PATTERN = Pattern.compile("file-read-(.*?)\"/>");
     private static final String PRODUCT_GET = "/api-getModel-product-getById-productID={0}?zentaosid={1}";
@@ -45,6 +47,8 @@ public class ZentaoPathInfoClient extends ZentaoClient {
         request.setBugList(getUrl(BUG_LIST_URL));
         request.setCreateMetaData(getUrl(CREATE_META_DATA));
         request.setProductGet(getUrl(PRODUCT_GET));
+        request.setFileDelete(getUrl(FILE_DELETE));
+        request.setFileDelete(getUrl(FILE_DOWNLOAD));
         requestUrl = request;
     }
 
