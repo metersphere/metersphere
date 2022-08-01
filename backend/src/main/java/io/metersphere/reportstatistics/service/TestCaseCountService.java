@@ -496,11 +496,11 @@ public class TestCaseCountService {
                 this.add("50%");
             }});
 
-            Map<String,Object> labelMap = new HashMap<>();
-            Map<String,Object> normalMap = new HashMap<>();
-            normalMap.put("show",true);
-            normalMap.put("formatter","{b}: {c}({d}%)");
-            labelMap.put("normal",normalMap);
+            Map<String, Object> labelMap = new HashMap<>();
+            Map<String, Object> normalMap = new HashMap<>();
+            normalMap.put("show", true);
+            normalMap.put("formatter", "{b}: {c}({d}%)");
+            labelMap.put("normal", normalMap);
             series.setLabel(labelMap);
 
             Title title = new Title();
