@@ -59,5 +59,7 @@ public class TestPlanReportContentWithBLOBs extends TestPlanReportContent implem
 
     private String uiAllCases;
 
+    private String uiFailureCases;
+
     private static final long serialVersionUID = 1L;
 }
