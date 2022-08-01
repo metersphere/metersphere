@@ -281,7 +281,7 @@ public class APITestController {
         //未执行、未通过、已通过
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
         apiCountResult.countRunResult(countResultByRunResult);
-        long allCount = apiCountResult.getUnexecuteCount() + apiCountResult.getExecutionPassCount() + apiCountResult.getExecutionFailedCount();
+        long allCount = apiCountResult.getAllExecutedResultCount();
         DecimalFormat df = new DecimalFormat("0.0");
         if (allCount != 0) {
             //通过率
