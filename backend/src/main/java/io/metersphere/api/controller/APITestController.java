@@ -204,35 +204,27 @@ public class APITestController {
     @GetMapping("/testCaseInfoCount/{projectId}")
     public ApiDataCountDTO testCaseInfoCount(@PathVariable String projectId) {
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
-
         List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId);
         apiCountResult.countProtocal(countResultList);
-
         long dateCountByCreateInThisWeek = apiTestCaseService.countByProjectIDAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
-
         long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId);
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
         long executedCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProject(projectId);
         apiCountResult.setExecutedCount(executedCountNumber);
-
         //未覆盖 已覆盖： 统计当前接口下是否含有案例
         List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId);
         apiCountResult.countApiCoverage(countResultByApiCoverageList);
         long allCount = apiCountResult.getCoverageCount() + apiCountResult.getUncoverageCount();
-
         if (allCount != 0) {
             float coverageRageNumber = (float) apiCountResult.getCoverageCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
             apiCountResult.setCoverageRage(df.format(coverageRageNumber) + "%");
         }
-
-
         apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getHttpApiDataCountNumber());
         apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>" + apiCountResult.getRpcApiDataCountNumber());
         apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getTcpApiDataCountNumber());
         apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>" + apiCountResult.getSqlApiDataCountNumber());
-
         //计算用例的通过率
         List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(projectId);
         long unexecuteCount = 0;
