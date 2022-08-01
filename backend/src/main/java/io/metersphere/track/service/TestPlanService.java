@@ -35,9 +35,9 @@ import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
-import io.metersphere.track.factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
+import io.metersphere.track.factory.ReportComponentFactory;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
@@ -184,6 +184,8 @@ public class TestPlanService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
+    private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1924,6 +1926,10 @@ public class TestPlanService {
     }
 
     public String runPlan(TestplanRunRequest testplanRunRequest) {
+        //检查是否有可以执行的用例
+        if (!haveExecCase(testplanRunRequest.getTestPlanId())) {
+            MSException.throwException(Translator.get("plan_warning"));
+        }
         String envType = testplanRunRequest.getEnvironmentType();
         Map<String, String> envMap = testplanRunRequest.getEnvMap();
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
@@ -1999,16 +2005,14 @@ public class TestPlanService {
         if (StringUtils.isBlank(id)) {
             return false;
         }
-        TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
-        apiCaseExample.createCriteria().andTestPlanIdEqualTo(id);
-        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(apiCaseExample);
+        List<String> ids = new ArrayList<>();
+        ids.add(id);
+        List<TestPlanApiCase> testPlanApiCases = extTestPlanApiCaseMapper.selectByIdsAndStatusIsNotTrash(ids);
         if (!CollectionUtils.isEmpty(testPlanApiCases)) {
             return true;
         }
 
-        TestPlanApiScenarioExample apiScenarioExample = new TestPlanApiScenarioExample();
-        apiScenarioExample.createCriteria().andTestPlanIdEqualTo(id);
-        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(apiScenarioExample);
+        List<TestPlanApiScenario> testPlanApiScenarios = extTestPlanApiScenarioMapper.selectByIdsAndStatusIsNotTrash(ids);
         if (!CollectionUtils.isEmpty(testPlanApiScenarios)) {
             return true;
         }
@@ -2153,6 +2157,7 @@ public class TestPlanService {
         Map<String, String> executeQueue = new LinkedHashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder haveExecCaseBuilder = new StringBuilder();
         for (int i = 0; i < planList.size(); i++) {
             if (StringUtils.isBlank(planList.get(i).getRunModeConfig())) {
                 StringBuilder append = stringBuilder.append("请保存[").append(planList.get(i).getName()).append("]的运行配置");
@@ -2160,8 +2165,14 @@ public class TestPlanService {
                     append.append("/");
                 }
             }
+            if (!haveExecCase(planList.get(i).getId())) {
+                haveExecCaseBuilder.append(planList.get(i).getName()).append("; ");
+            }
         }
 
+        if (StringUtils.isNotEmpty(haveExecCaseBuilder)) {
+            MSException.throwException(Translator.get("track_test_plan") + ": " + haveExecCaseBuilder.toString() + " :" + Translator.get("plan_warning"));
+        }
         if (StringUtils.isNotEmpty(stringBuilder)) {
             MSException.throwException(stringBuilder.toString());
         }
