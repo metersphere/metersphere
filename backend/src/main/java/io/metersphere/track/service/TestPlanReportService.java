@@ -979,6 +979,9 @@ public class TestPlanReportService {
         if (StringUtils.isNotBlank(testPlanReportContent.getUiAllCases())) {
             testPlanReportDTO.setUiAllCases(JSONObject.parseArray(testPlanReportContent.getUiAllCases(), TestPlanUiScenarioDTO.class));
         }
+        if (StringUtils.isNotBlank(testPlanReportContent.getUiFailureCases())) {
+            testPlanReportDTO.setUiFailureCases(JSONObject.parseArray(testPlanReportContent.getUiFailureCases(), TestPlanUiScenarioDTO.class));
+        }
         testPlanReportDTO.setId(reportId);
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
