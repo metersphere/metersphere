@@ -743,8 +743,8 @@ export default {
       //检查是否只查询本周数据
       this.condition.selectThisWeedData = false;
       this.condition.executeStatus = null;
-      this.condition.selectDataType = this.selectDataType;
       this.isRedirectFilter();
+      this.condition.selectDataType = this.selectDataType;
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
