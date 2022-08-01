@@ -31,7 +31,8 @@
       <el-row>
         <div class="chart-style">
           <ms-chart ref="chart1" v-if="!loading" :options="dataOption"
-                    :style="{width: chartWidthNumber+'px', height: (h-70) + 'px'}" class="chart-config"
+                    :style="{width: chartWidthNumber+'px', height: (h-70) + 'px'}"
+                    class="chart-config"
                     :autoresize="true"
                     id="picChart"/>
         </div>
@@ -148,14 +149,19 @@ export default {
       this.originalW = this.w;
       this.originalH = this.h;
       this.w = document.body.clientWidth - 50;
-      this.h = document.body.clientHeight;
       this.isFullScreen = true;
+      if (this.chartType === 'bar') {
+        this.chartWidthNumber = this.w;
+      }
       this.$emit('hidePage', true);
     },
     unFullScreen() {
       this.w = this.originalW;
       this.h = this.originalH;
       this.isFullScreen = false;
+      if (this.chartType === 'bar') {
+        this.chartWidthNumber = this.w;
+      }
       this.$emit('hidePage', false);
     },
     getImages(command) {
@@ -167,7 +173,6 @@ export default {
       if (document.getElementById('picChart')) {
         let chartsCanvas = document.getElementById('picChart').querySelectorAll('canvas')[0];
         if (chartsCanvas) {
-          // toDataURL()是canvas对象的一种方法，用于将canvas对象转换为base64位编码
           returnImageDatas = chartsCanvas && chartsCanvas.toDataURL(imageType);
         }
       }
