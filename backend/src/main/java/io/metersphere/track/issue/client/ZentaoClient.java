@@ -9,13 +9,12 @@ import io.metersphere.commons.utils.UnicodeConvertUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.issue.domain.zentao.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.File;
 import java.util.Map;
 
 public abstract class ZentaoClient extends BaseClient {
@@ -214,5 +213,40 @@ public abstract class ZentaoClient extends BaseClient {
             LogUtil.info("query zentao product info error. product id: " + relateId);
         }
         return false;
+    }
+
+    public void uploadAttachment(String objectType, String objectId, File file) {
+        String sessionId = login();
+        HttpHeaders authHeader = new HttpHeaders();
+        authHeader.setContentType(MediaType.parseMediaType("multipart/form-data; charset=UTF-8"));
+
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        FileSystemResource fileResource = new FileSystemResource(file);
+        paramMap.add("files", fileResource);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, authHeader);
+        try {
+            restTemplate.exchange(requestUrl.getFileUpload(), HttpMethod.POST,
+                    requestEntity, String.class, objectType, objectId, sessionId);
+        } catch (Exception e) {
+            LogUtil.info("upload zentao attachment error");
+        }
+    }
+
+    public void deleteAttachment(String fileId) {
+        String sessionId = login();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(requestUrl.getFileDelete(), HttpMethod.GET,
+                    null, String.class, fileId, sessionId);
+            Object data = JSONObject.parseObject(response.getBody()).get("data");
+        } catch (Exception e) {
+            LogUtil.info("delete zentao attachment error");
+        }
+    }
+
+    public byte[] getAttachmentBytes(String fileId) {
+        String sessionId = login();
+        ResponseEntity<byte[]> response = restTemplate.exchange(requestUrl.getFileDownload(), HttpMethod.GET,
+                null, byte[].class, fileId, sessionId);
+        return response.getBody();
     }
 }
