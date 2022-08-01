@@ -46,7 +46,7 @@ public class CatalogApi {
 
     @GetMapping("catalog/services")
     @NoResultHolder
-    public ResponseEntity<Map<String, List<String>>> catalog() {
+    public ResponseEntity<Map<String, List<String>>> catalog() throws Exception {
         Map<String, List<String>> activeNodes = consulService.getActiveNodes();
         HttpHeaders responseHeaders = new HttpHeaders();
         int index = RandomUtils.nextInt(1000, 20000);
