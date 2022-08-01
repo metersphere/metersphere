@@ -210,4 +210,8 @@ public class ApiDataCountDTO {
             }
         }
     }
+
+    public long getAllExecutedResultCount() {
+        return this.unexecuteCount + this.executionFailedCount + this.fakeErrorCount + this.executionPassCount;
+    }
 }
