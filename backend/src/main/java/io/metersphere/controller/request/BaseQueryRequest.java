@@ -1,8 +1,11 @@
 package io.metersphere.controller.request;
 
+import com.alibaba.fastjson.JSON;
 import lombok.Getter;
 import lombok.Setter;
-
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -81,4 +84,18 @@ public class BaseQueryRequest {
      * 版本来源字段
      */
     private String refId;
+
+    public Map<String, List<String>> getFilters() {
+        if (MapUtils.isEmpty(filters) || filters.containsKey("isHandleCustomMultiple")) {
+            return filters;
+        }
+        // 处理过滤器中的自定义字段多选值
+        filters.forEach((k,v) -> {
+            if (k.contains("custom_multiple") && CollectionUtils.isNotEmpty(v)) {
+                filters.put(k, Collections.singletonList(JSON.toJSONString(v)));
+            }
+        });
+        filters.put("isHandleCustomMultiple", null);
+        return filters;
+    }
 }
