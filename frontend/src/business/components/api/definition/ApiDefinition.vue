@@ -369,16 +369,7 @@ export default {
             this.activeDom = 'middle';
           }
         }
-        if (routeParamObj.dataSelectRange) {
-          let item = JSON.parse(JSON.stringify(routeParamObj.dataSelectRange)).param;
-          if (item !== undefined) {
-            let type = item.taskGroup.toString();
-            if (type === "SWAGGER_IMPORT") {
-              this.openSwaggerScheduleTab();
-              this.param = item;
-            }
-          }
-        }
+        this.selectNodeIds = [];
       } else {
         let dataType = this.$route.params.dataType;
         if (dataType) {
