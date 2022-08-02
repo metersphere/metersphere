@@ -224,6 +224,10 @@
                        v-else-if="row.lastResult === 'errorReportResult'">
                 {{ $t('error_report_library.option.name') }}
               </el-link>
+              <el-link type="danger" style="color: #7F7F7F" :disabled="true"
+                       v-else-if="row.lastResult === 'unexecute' || row.lastResult === ''">
+                {{ $t('api_test.home_page.detail_card.unexecute') }}
+              </el-link>
             </template>
           </ms-table-column>
 
@@ -729,6 +733,10 @@ export default {
 
       if (!this.condition.filters.status) {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
+
+      if (this.condition.filters.last_result && this.condition.filters.last_result.indexOf('unexecute') !== -1) {
+        this.condition.filters.last_result.push('');
       }
 
       // todo
