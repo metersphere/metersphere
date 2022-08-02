@@ -1010,7 +1010,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                     updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
                     //组合case
-                    if (caseNameMap != null) {
+                    if (MapUtils.isNotEmpty(caseNameMap)) {
                         buildCaseList(oldCaseMap, caseNameMap, v, optionDataCases);
                     }
                     apiDefinitionWithBLOBs.setId(v.getId());
@@ -1069,7 +1069,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                     updateEsb(esbApiParamsMap, v.getId(), apiDefinitionWithBLOBs.getId());
                     //组合case
-                    if (caseNameMap != null) {
+                    if (MapUtils.isNotEmpty(caseNameMap)) {
                         buildCaseList(oldCaseMap, caseNameMap, v, optionDataCases);
                     }
                     apiDefinitionWithBLOBs.setId(v.getId());
@@ -1148,7 +1148,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 List<ApiDefinitionWithBLOBs> sameVersionList = v.stream().filter(t -> t.getVersionId().equals(versionId)).collect(Collectors.toList());
                 if (!sameVersionList.isEmpty()) {
                     optionData.remove(apiDefinitionWithBLOBs);
-                    if (distinctNameCases != null && !distinctNameCases.isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(distinctNameCases)) {
                         distinctNameCases.forEach(optionDataCases::remove);
                     }
                 } else {
@@ -1206,7 +1206,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                         continue;
                     }
                     //组合case
-                    if (caseNameMap != null) {
+                    if (MapUtils.isNotEmpty(caseNameMap)) {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs, optionDataCases);
                     }
 
@@ -1232,10 +1232,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private void buildCaseList(Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap,
                                Map<String, ApiTestCaseWithBLOBs> caseNameMap,
                                ApiDefinitionWithBLOBs definitionWithBLOBs, List<ApiTestCaseWithBLOBs> optionDataCases) {
-        //找出每个接口的case
+        //找出系统内重复接口每个接口的case
         List<ApiTestCaseWithBLOBs> apiTestCases = oldCaseMap.get(definitionWithBLOBs.getId());
         //map List 结构是因为表里可能一个接口有多个同名case的可能
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseNameMap;
+        //如果有重复接口，处理重复接口
         if (apiTestCases != null && !apiTestCases.isEmpty()) {
             oldCaseNameMap = apiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getName));
             caseNameMap.forEach((name, caseWithBLOBs1) -> {
@@ -1273,14 +1274,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 } else {
                     caseWithBLOBs1.setVersion(0);
                 }
-
+            });
+        } else {
+            //否则直接给新增接口赋值新的接口ID
+            caseNameMap.forEach((name, caseWithBLOBs1) -> {
+                //如果导入的有重名，覆盖，接口ID替换成系统内的
+                caseWithBLOBs1.setApiDefinitionId(definitionWithBLOBs.getId());
             });
         }
     }
 
     private Map<String, ApiTestCaseWithBLOBs> getDistinctCaseNameMap(Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp, ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        if (MapUtils.isEmpty(definitionIdCaseMAp)) {
+            return null;
+        }
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = definitionIdCaseMAp.get(apiDefinitionWithBLOBs.getId());
-        if (caseWithBLOBs != null) {
+        if (CollectionUtils.isNotEmpty(caseWithBLOBs)) {
             return caseWithBLOBs.stream().filter(t -> !t.getVersionId().equals("create_repeat")).collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
         } else {
             return null;
@@ -1306,7 +1315,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                         continue;
                     }
                     //组合case
-                    if (caseNameMap != null) {
+                    if (MapUtils.isNotEmpty(caseNameMap)) {
                         buildCaseList(oldCaseMap, caseNameMap, definitionWithBLOBs, optionDataCases);
                     }
 
