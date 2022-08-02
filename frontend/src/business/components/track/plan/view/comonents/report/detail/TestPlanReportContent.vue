@@ -11,10 +11,10 @@
                                      :is-template="isTemplate" :plan-id="planId" :report="report"/>
         <test-plan-api-report v-if="apiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
                               :is-template="isTemplate" :report="report" :plan-id="planId"/>
-        <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
-                               :is-template="isTemplate" :report="report" :plan-id="planId"/>
         <test-plan-ui-report v-if="uiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
                              :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
+                               :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
     </ms-main-container>
     <test-plan-report-navigation-bar

@@ -59,12 +59,12 @@ export default {
           title: this.$t('test_track.report.analysis_api'),
         },
         {
-          link: 'load',
-          title: this.$t('test_track.report.analysis_load'),
-        },
-        {
           link: 'ui',
           title: this.$t('test_track.report.analysis_ui')
+        },
+        {
+          link: 'load',
+          title: this.$t('test_track.report.analysis_load'),
         }
       ]
     }
