@@ -375,9 +375,11 @@ export default {
         getIssuePartTemplateWithProject((template, project) => {
           this.currentProject = project;
           this.init(template, data);
+          this.getDataInfoAsync(data);
         });
       });
-
+    },
+    getDataInfoAsync(data) {
       if (data && data.id) {
         this.$get('/issues/follow/' + data.id, response => {
           this.form.follows = response.data;

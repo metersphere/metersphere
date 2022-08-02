@@ -464,6 +464,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                 } else {
                     item.setValue(null);
                 }
+            } else {
+                try {
+                    if (item.getValue() != null) {
+                        item.setValue(JSONObject.parse(item.getValue().toString()));
+                    }
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
             }
         });
         return customFields;
@@ -514,20 +522,29 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected void mergeCustomField(IssuesWithBLOBs issues, String defaultCustomField) {
         if (StringUtils.isNotBlank(defaultCustomField)) {
             List<CustomFieldItemDTO> customFields = extIssuesMapper.getIssueCustomField(issues.getId());
-            JSONArray issueFields = JSONArray.parseArray(JSON.toJSONString(customFields));
-            Set<String> ids = issueFields.stream().map(i -> ((JSONObject) i).getString("id")).collect(Collectors.toSet());
-            JSONArray defaultFields = JSONArray.parseArray(defaultCustomField);
-            defaultFields.forEach(item -> { // 如果自定义字段里没有模板新加的字段，就把新字段加上
-                String id = ((JSONObject) item).getString("id");
+            Map<String, CustomFieldItemDTO> fieldMap = customFields.stream()
+                    .collect(Collectors.toMap(CustomFieldItemDTO::getId, i -> i));
+
+            List<CustomFieldItemDTO> defaultFields = JSONArray.parseArray(defaultCustomField, CustomFieldItemDTO.class);
+            for (CustomFieldItemDTO defaultField : defaultFields) {
+                String id = defaultField.getId();
                 if (StringUtils.isBlank(id)) {
-                    id = ((JSONObject) item).getString("key");
-                    ((JSONObject) item).put("id", id);
+                    defaultField.setId(defaultField.getKey());
                 }
-                if (!ids.contains(id)) {
-                    issueFields.add(item);
+                if (fieldMap.keySet().contains(id)) {
+                    // 设置第三方平台的属性名称
+                    fieldMap.get(id).setCustomData(defaultField.getCustomData());
+                } else {
+                    // 如果自定义字段里没有模板新加的字段，就把新字段加上
+                    customFields.add(defaultField);
                 }
-            });
-            issues.setCustomFields(issueFields.toJSONString());
+            }
+
+            // 过滤没有配置第三方字段名称的字段，不需要更新
+            customFields = customFields.stream()
+                    .filter(i -> StringUtils.isNotBlank(i.getCustomData()))
+                    .collect(Collectors.toList());
+            issues.setCustomFields(JSONObject.toJSONString(customFields));
         }
     }
 
