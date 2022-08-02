@@ -1554,9 +1554,22 @@ public class TestCaseService {
         return listTestCase(request.getCondition(), true);
     }
 
+    public List<TestCaseDTO> getExportData(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        this.initRequest(request.getCondition(), true);
+        setDefaultOrder(request.getCondition());
+        Map<String, List<String>> filters = request.getCondition().getFilters();
+        if (filters != null && !filters.containsKey("status")) {
+            filters.put("status", new ArrayList<>(0));
+        }
+        List<TestCaseDTO> testCaseList = extTestCaseMapper.listByTestCaseIds(request);
+        return testCaseList;
+    }
+
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
         request.getCondition().setStatusIsNot("Trash");
-        List<TestCaseDTO> testCaseList = this.findByBatchRequest(request);
+        List<TestCaseDTO> testCaseList = this.getExportData(request);
         boolean isUseCustomId = projectService.useCustomNum(request.getProjectId());
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder step = new StringBuilder("");
