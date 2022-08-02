@@ -967,30 +967,27 @@ public class TestPlanService {
             LogUtil.error(e);
         }
         if (runModeConfig == null) {
+            runModeConfig = buildRunModeConfigDTO();
+        }
+
+        //环境参数为空时，依据测试计划保存的环境执行
+        if ((StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && StringUtils.isBlank(runModeConfig.getEnvironmentGroupId()))
+                || (!StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && MapUtils.isEmpty(runModeConfig.getEnvMap()))) {
             TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanID);
             if (StringUtils.isNotEmpty(testPlanWithBLOBs.getRunModeConfig())) {
-                JSONObject json = JSONObject.parseObject(testPlanWithBLOBs.getRunModeConfig());
-                TestPlanRequestUtil.changeStringToBoolean(json);
-                TestPlanRunRequest testPlanRunRequest = JSON.toJavaObject(json, TestPlanRunRequest.class);
-                if (StringUtils.equals("GROUP", testPlanRunRequest.getEnvironmentType()) && StringUtils.isBlank(testPlanRunRequest.getEnvironmentGroupId())) {
-                    runModeConfig = buildRunModeConfigDTO();
-                } else {
-                    runModeConfig = new RunModeConfigDTO();
-                    runModeConfig.setMode(testPlanRunRequest.getMode());
-                    runModeConfig.setReportType(testPlanRunRequest.getReportType());
-                    if (testPlanRunRequest.getEnvMap() == null) {
-                        runModeConfig.setEnvMap(new HashMap<>());
-                    } else {
-                        runModeConfig.setEnvMap(testPlanRunRequest.getEnvMap());
+                try {
+                    JSONObject json = JSONObject.parseObject(testPlanWithBLOBs.getRunModeConfig());
+                    TestPlanRequestUtil.changeStringToBoolean(json);
+                    TestPlanRunRequest testPlanRunRequest = JSON.toJavaObject(json, TestPlanRunRequest.class);
+                    if (testPlanRunRequest != null) {
+                        String envType = testPlanRunRequest.getEnvironmentType();
+                        Map<String, String> envMap = testPlanRunRequest.getEnvMap();
+                        String environmentGroupId = testPlanRunRequest.getEnvironmentGroupId();
+                        runModeConfig = getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanID);
                     }
-                    runModeConfig.setOnSampleError(testPlanRunRequest.isOnSampleError());
+                } catch (Exception e) {
+                    LogUtil.error("获取测试计划保存的环境信息出错!", e);
                 }
-            } else {
-                runModeConfig = buildRunModeConfigDTO();
-            }
-        } else {
-            if (runModeConfig.getEnvMap() == null) {
-                runModeConfig.setEnvMap(new HashMap<>());
             }
         }
         if (planReportId == null) {
@@ -1980,7 +1977,6 @@ public class TestPlanService {
         String testPlanId = testplanRunRequest.getTestPlanId();
         RunModeConfigDTO runModeConfig = getRunModeConfigDTO(testplanRunRequest, envType, envMap, environmentGroupId, testPlanId);
         String apiRunConfig = JSONObject.toJSONString(runModeConfig);
-        updatePlan(testplanRunRequest, testPlanId);
         return this.run(testPlanId, testplanRunRequest.getProjectId(),
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), apiRunConfig);
 
