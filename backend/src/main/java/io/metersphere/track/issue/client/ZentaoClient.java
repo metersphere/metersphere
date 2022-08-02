@@ -211,7 +211,7 @@ public abstract class ZentaoClient extends BaseClient {
                 return true;
             }
         } catch (Exception e) {
-            LogUtil.info("query zentao product info error. product id: " + relateId);
+            LogUtil.error("checkProjectExist error: " + response.getBody());
         }
         return false;
     }
