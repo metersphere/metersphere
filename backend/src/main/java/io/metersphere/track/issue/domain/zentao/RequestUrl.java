@@ -20,6 +20,8 @@ public class RequestUrl {
     private String userGet;
     private String buildsGet;
     private String fileUpload;
+    private String fileDelete;
+    private String fileDownload;
     private String replaceImgUrl;
     private String productGet;
     private Pattern imgPattern;
