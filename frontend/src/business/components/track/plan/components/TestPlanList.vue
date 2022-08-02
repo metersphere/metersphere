@@ -793,10 +793,10 @@ export default {
         });
       } else {
         this.result = this.$post('test/plan/edit/runModeConfig', param, () => {
+          this.initTableData();
           this.$success(this.$t('commons.save_success'));
         });
       }
-      this.initTableData();
     },
     saveFollow(row) {
       if (row.showFollow) {
