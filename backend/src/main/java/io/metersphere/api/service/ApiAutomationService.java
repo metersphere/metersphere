@@ -515,6 +515,7 @@ public class ApiAutomationService {
         } else {
             scenario.setVersionId(request.getVersionId());
         }
+        scenario.setLastResult("");
         return scenario;
     }
 
@@ -1325,6 +1326,7 @@ public class ApiAutomationService {
             scenarioWithBLOBs.setUserId(request.getUserId());
         }
         scenarioWithBLOBs.setDescription(request.getDescription());
+        scenarioWithBLOBs.setLastResult("");
 
         Boolean openCustomNum = apiTestImportRequest.getOpenCustomNum();
         List<ApiScenario> list = new ArrayList<>();
