@@ -126,18 +126,11 @@ public class ProjectService {
     private ApiScenarioReportStructureMapper apiScenarioReportStructureMapper;
     @Resource
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
+    @Resource
+    private WorkspaceMapper workspaceMapper;
 
     public Project addProject(AddProjectRequest project) {
-        if (StringUtils.isBlank(project.getName())) {
-            MSException.throwException(Translator.get("project_name_is_null"));
-        }
-        ProjectExample example = new ProjectExample();
-        example.createCriteria()
-                .andWorkspaceIdEqualTo(project.getWorkspaceId())
-                .andNameEqualTo(project.getName());
-        if (projectMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("project_name_already_exists"));
-        }
+        this.checkCreateProjectParam(project);
 
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         if (quotaService != null) {
@@ -191,6 +184,29 @@ public class ProjectService {
         // 初始化项目默认节点
         initProjectDefaultNode(project.getId());
         return project;
+    }
+
+    private void checkCreateProjectParam(AddProjectRequest project) {
+        String name = project.getName();
+        if (StringUtils.isBlank(name)) {
+            MSException.throwException(Translator.get("project_name_is_null"));
+        }
+
+        String workspaceId = project.getWorkspaceId();
+        if (StringUtils.isBlank(workspaceId)) {
+            MSException.throwException("project workspace_id is null");
+        }
+
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
+        if (workspace == null) {
+            MSException.throwException("project workspace_id is not exist.");
+        }
+
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andWorkspaceIdEqualTo(workspaceId).andNameEqualTo(name);
+        if (projectMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("project_name_already_exists"));
+        }
     }
 
     public void addProjectVersion(Project project) {
