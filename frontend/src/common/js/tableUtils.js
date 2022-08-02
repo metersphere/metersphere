@@ -527,7 +527,7 @@ export function getCustomFieldValue(row, field, members) {
             }
           }
           return val;
-        }  else if (field.type === 'multipleInput') {
+        }  else if (field.type === 'multipleInput' && item.value instanceof Array) {
           let val = '';
           item.value.forEach(i => {
             val += i + ' ';
@@ -595,7 +595,11 @@ export function parseCustomFilesForList(data) {
 
 export function parseCustomFilesForItem(data) {
   if (data.value) {
-    data.value = JSON.parse(data.value);
+    try {
+      data.value = JSON.parse(data.value);
+    } catch (e) {
+      window.console.error(e);
+    }
   }
   if (data.textValue) {
     data.value = data.textValue;
