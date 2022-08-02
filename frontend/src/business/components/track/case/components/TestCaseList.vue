@@ -177,7 +177,7 @@
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
                          :min-width="120"
-                         :column-key="field.columnKey ? field.columnKey : generateFilterColumnKey(field)"
+                         :column-key="field.columnKey ? field.columnKey : generateColumnKey(field)"
                          :prop="field.name">
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
@@ -277,7 +277,7 @@ import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
 import {
-  generateFilterColumnKey,
+  generateColumnKey,
   getAdvSearchCustomField
 } from "@/business/components/common/components/search/custom-component";
 import MsSearch from "@/business/components/common/components/search/MsSearch";
@@ -1241,7 +1241,7 @@ export default {
         });
       }
     },
-    generateFilterColumnKey,
+    generateColumnKey,
   }
 };
 </script>
