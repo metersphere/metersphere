@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
@@ -195,6 +196,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 .collect(Collectors.toList());
 
         List<String> dataNodeIds = apiAutomationService.selectByIds(caseIds).stream()
+                .filter(apiScenario -> !StringUtils.equals(CommonConstants.TrashStatus, apiScenario.getStatus()))
                 .map(ApiScenario::getApiScenarioModuleId)
                 .collect(Collectors.toList());
 
