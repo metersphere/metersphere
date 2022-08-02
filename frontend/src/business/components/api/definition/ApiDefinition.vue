@@ -366,7 +366,6 @@ export default {
     };
   },
   activated() {
-    this.selectNodeIds = [];
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
@@ -385,7 +384,7 @@ export default {
       if (item !== undefined) {
         let type = item.taskGroup.toString();
         if (type === "SWAGGER_IMPORT") {
-          this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
+          this.openSwaggerScheduleTab();
           this.param = item;
         }
       }
@@ -448,6 +447,22 @@ export default {
     }
   },
   methods: {
+    openSwaggerScheduleTab() {
+      //检查是否有开启的定时任务配置页，如果有的话直接跳转，不用再开启
+      let scheduleTabName = "";
+      if (this.apiTabs) {
+        this.apiTabs.forEach(tab => {
+          if (tab.type === 'SCHEDULE') {
+            scheduleTabName = tab.name;
+          }
+        });
+      }
+      if (scheduleTabName === "") {
+        this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
+      } else {
+        this.apiDefaultTab = scheduleTabName;
+      }
+    },
     setEnvironment(data) {
       if (data) {
         this.useEnvironment = data.id;
