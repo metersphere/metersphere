@@ -190,6 +190,12 @@ public class TestPlanReportService {
                                     planReportCaseDTOS = extApiScenarioReportMapper.selectForPlanReport(reportIds);
                                     TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, "Success");
                                 }
+                                if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap())) {
+                                    // 场景用例
+                                    reportIds = new ArrayList<>(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap().values());
+                                    planReportCaseDTOS = extApiScenarioReportMapper.selectForPlanReport(reportIds);
+                                    TestPlanUtils.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, "Success");
+                                }
                                 if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap())) {
                                     // 性能用例
                                     reportIds = new ArrayList<>(testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap().values());
