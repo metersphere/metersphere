@@ -1,3 +1,12 @@
+ properties([ [ $class: 'ThrottleJobProperty',
+                categories: ['metersphere'], 
+                limitOneJobWithMatchingParams: false,
+                maxConcurrentPerNode: 1,
+                maxConcurrentTotal: 1,
+                paramsToUseForLimit: '',
+                throttleEnabled: true,
+                throttleOption: 'category' ] ])
+                
 pipeline {
     agent {
         node {
