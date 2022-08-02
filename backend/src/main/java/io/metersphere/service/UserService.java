@@ -1381,6 +1381,9 @@ public class UserService {
 
     public UserDTO.PlatformInfo getCurrentPlatformInfo(String workspaceId) {
         User user = userMapper.selectByPrimaryKey(SessionUtils.getUserId());
+        if (user == null) {
+            return null;
+        }
         String platformInfoStr = user.getPlatformInfo();
         if (StringUtils.isBlank(workspaceId) || StringUtils.isBlank(platformInfoStr) || platformInfoStr.equals("null")) {
             return null;

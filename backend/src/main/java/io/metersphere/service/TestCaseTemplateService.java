@@ -241,10 +241,10 @@ public class TestCaseTemplateService extends TemplateBaseService {
         if (StringUtils.isNotBlank(caseTemplateId)) {
             caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);
             if (caseTemplate == null) {
-                caseTemplate = getDefaultTemplate(project.getWorkspaceId());
+                caseTemplate = getDefaultTemplate(projectId);
             }
         } else {
-            caseTemplate = getDefaultTemplate(project.getWorkspaceId());
+            caseTemplate = getDefaultTemplate(projectId);
         }
         BeanUtils.copyBean(caseTemplateDao, caseTemplate);
         List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());

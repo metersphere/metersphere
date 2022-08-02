@@ -233,10 +233,10 @@ public class IssueTemplateService extends TemplateBaseService {
         if (StringUtils.isNotBlank(issueTemplateId)) {
             issueTemplate = issueTemplateMapper.selectByPrimaryKey(issueTemplateId);
             if (issueTemplate == null) {
-                issueTemplate = getDefaultTemplate(project.getWorkspaceId());
+                issueTemplate = getDefaultTemplate(projectId);
             }
         } else {
-            issueTemplate = getDefaultTemplate(project.getWorkspaceId());
+            issueTemplate = getDefaultTemplate(projectId);
         }
         if (!project.getPlatform().equals(issueTemplate.getPlatform())) {
             MSException.throwException("请在项目中配置缺陷模板");
