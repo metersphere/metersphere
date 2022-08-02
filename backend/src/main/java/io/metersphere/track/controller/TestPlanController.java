@@ -214,6 +214,12 @@ public class TestPlanController {
         return testPlanService.runPlan(testplanRunRequest);
     }
 
+    @PostMapping("/run/save")
+    public String runAndSave(@RequestBody TestPlanRunRequest testplanRunRequest) {
+        testPlanService.updateRunModeConfig(testplanRunRequest);
+        return testPlanService.runPlan(testplanRunRequest);
+    }
+
     @PostMapping(value = "/run/batch")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanIds)", msClass = TestPlanService.class)
     public void runBatch(@RequestBody TestPlanRunRequest request) {
