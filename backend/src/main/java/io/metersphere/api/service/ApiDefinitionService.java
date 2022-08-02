@@ -989,7 +989,8 @@ public class ApiDefinitionService {
         if (caseList == null || caseList.isEmpty()) {
             return;
         }
-        for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : caseList) {
+        for (int i = 0; i < caseList.size(); i++) {
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
             if (apiDefinition.getToBeUpdated() != null && !apiTestCaseWithBLOBs.getVersionId().equals("cover")) {
                 apiTestCaseWithBLOBs.setToBeUpdated(true);
@@ -1013,7 +1014,7 @@ public class ApiDefinitionService {
                 apiTestCaseWithBLOBs.setOrder(getImportNextCaseOrder(apiDefinition.getProjectId()));
             }
             if (apiTestCaseWithBLOBs.getNum() == null) {
-                apiTestCaseWithBLOBs.setNum(testCaseService.getNextNum(apiDefinition.getId()));
+                apiTestCaseWithBLOBs.setNum(apiTestCaseService.getNextNum(apiDefinition.getId(), apiDefinition.getNum() + i, apiDefinition.getProjectId()));
             }
 
             if (apiDefinition.getToBeUpdateTime() != null) {
