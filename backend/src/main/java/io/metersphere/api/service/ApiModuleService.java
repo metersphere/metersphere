@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ApiModuleMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -226,10 +227,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 .collect(Collectors.toList());
 
         List<String> definitionIds = apiTestCaseService.selectCasesBydIds(caseIds).stream()
+                .filter(apiTestCase -> !StringUtils.equals(CommonConstants.TrashStatus, apiTestCase.getStatus()))
                 .map(ApiTestCase::getApiDefinitionId)
                 .collect(Collectors.toList());
 
         List<String> dataNodeIds = apiDefinitionService.selectApiDefinitionBydIds(definitionIds).stream()
+                .filter(apiDefinition -> !StringUtils.equals(CommonConstants.TrashStatus, apiDefinition.getStatus()))
                 .map(ApiDefinition::getModuleId)
                 .collect(Collectors.toList());
 
