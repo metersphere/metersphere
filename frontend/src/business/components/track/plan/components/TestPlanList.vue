@@ -814,7 +814,7 @@ export default {
       param.headlessEnabled = config.headlessEnabled;
       if (config.isRun === true) {
         this.$refs.taskCenter.open();
-        this.result = this.$post('test/plan/run/', param, () => {
+        this.result = this.$post('test/plan/run/save', param, () => {
           this.$success(this.$t('commons.run_success'));
         });
       } else {
