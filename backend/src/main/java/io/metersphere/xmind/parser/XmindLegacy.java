@@ -1,7 +1,12 @@
 package io.metersphere.xmind.parser;
 
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
-import org.dom4j.*;
+import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.Node;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -25,15 +30,14 @@ public class XmindLegacy {
         // 删除content.xml里面不能识别的字符串
         xmlContent = xmlContent.replace("xmlns=\"urn:xmind:xmap:xmlns:content:2.0\"", "");
         xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", "");
-        // 删除<topic>节点
-        xmlContent = xmlContent.replace("<topics type=\"attached\">", "");
-        xmlContent = xmlContent.replace("</topics>", "");
 
+        try {
+            xmlContent = removeTopicsFromString(xmlContent);
+        } catch (Exception e) {
+            LogUtil.error("移除xml中的Topic出错：", e);
+        }
         // 去除title中svg:width属性
         xmlContent = xmlContent.replaceAll("<title svg:width=\"[0-9]*\">", "<title>");
-        //去除自由风格主题
-        xmlContent = xmlContent.replaceAll("<topics type=\"detached\">", "");
-
         Document document = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xmlContent.getBytes("utf-8")));// 读取XML文件,获得document对象
         Element root = document.getRootElement();
         List<Node> topics = root.selectNodes("//topic");
@@ -85,5 +89,56 @@ public class XmindLegacy {
         }
         // 设置缩进
         return sheets;
+    }
+
+    /**
+     * 删除topics节点
+     *
+     * @param xmlContent
+     * @return
+     * @throws Exception
+     */
+    private static String removeTopicsFromString(String xmlContent) throws Exception {
+        Document doc = EngineSourceParserFactory.getDocument(new ByteArrayInputStream(xmlContent.getBytes("utf-8")));
+        if (doc != null) {
+            Element root = doc.getRootElement();
+            List<Element> childrenElement = root.elements();
+            for (Element child : childrenElement) {
+                removeTopicsFromElement(child);
+            }
+            xmlContent = doc.asXML();
+        }
+        return xmlContent;
+    }
+
+    /**
+     * 递归删除topics节点
+     *
+     * @param element
+     */
+    private static void removeTopicsFromElement(Element element) {
+        if (element != null) {
+            List<Element> childrenElement = element.elements();
+            List<Element> removeElements = new ArrayList<>();
+            List<Element> addElements = new ArrayList<>();
+            for (Element child : childrenElement) {
+                if (StringUtils.equalsIgnoreCase("topics", child.getName()) && StringUtils.equalsAnyIgnoreCase(child.attributeValue("type"), "attached", "detached")) {
+                    removeElements.add(child);
+                    addElements.addAll(child.elements());
+                }
+            }
+            removeElements.forEach(item -> {
+                item.getParent().remove(item);
+            });
+            addElements.forEach(item -> {
+                item.setParent(null);
+                element.add(item);
+            });
+            childrenElement = element.elements();
+            for (Element child : childrenElement) {
+                removeTopicsFromElement(child);
+            }
+        }
+
     }
 }
