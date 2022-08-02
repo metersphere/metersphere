@@ -136,7 +136,7 @@
                            :fields-width="fieldsWidth"
                            min-width="120"
                            :label="field.system ? $t(systemNameMap[field.name]) :field.name"
-                           :column-key="generateFilterColumnKey(field)"
+                           :column-key="generateColumnKey(field)"
                            :prop="field.name">
               <template v-slot="scope">
                 <span v-if="field.name === '状态'">
@@ -198,7 +198,7 @@ import {getProjectMember} from "@/network/user";
 import {LOCAL} from "@/common/js/constants";
 import {TEST_TRACK_ISSUE_LIST} from "@/business/components/common/components/search/search-components";
 import {
-  generateFilterColumnKey,
+  generateColumnKey,
   getAdvSearchCustomField
 } from "@/business/components/common/components/search/custom-component";
 import MsMarkDownText from "@/business/components/track/case/components/MsMarkDownText";
@@ -293,7 +293,7 @@ export default {
     this.getMaintainerOptions();
   },
   methods: {
-    generateFilterColumnKey,
+    generateColumnKey,
     tableDoLayout() {
       if (this.$refs.table) this.$refs.table.doLayout();
     },
