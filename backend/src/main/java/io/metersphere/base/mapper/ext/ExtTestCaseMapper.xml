@@ -859,8 +859,8 @@
           and tc.status != 'Trash' and tc.latest = 1 and tc.id in (select distinct test_case_test.test_case_id from test_case_test)
         group by tc.maintainer
     </select>
-    <select id="getTestPlanBug" resultType="int">
-        select count(distinct (tci.issues_id))
+    <select id="getTestPlanBug" resultType="java.lang.String">
+        select distinct tci.issues_id
         from test_plan_test_case tptc
                  join test_case_issues tci on tptc.id = tci.resource_id
                  right join test_case
@@ -868,8 +868,6 @@
                  join issues
                       on tci.issues_id = issues.id
         where tptc.plan_id = #{planId}
-          and (issues.status != 'closed'
-            or issues.status is null)
           and test_case.status != 'Trash';
     </select>
     <select id="getTestPlanCase" resultType="int">
