@@ -3,6 +3,7 @@ package io.metersphere.security;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.shiro.aop.AnnotationResolver;
 import org.apache.shiro.aop.MethodInvocation;
@@ -64,7 +65,7 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
             return false;
         }
         //获取这个类的所有属性
-        Field[] fields = obj.getClass().getDeclaredFields();
+        Field[] fields = FieldUtils.getAllFields(obj.getClass());
         boolean flag = false;
         //循环遍历所有的fields
         for (Field field : fields) {
