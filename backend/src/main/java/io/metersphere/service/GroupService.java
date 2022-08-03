@@ -443,7 +443,7 @@ public class GroupService {
             if (user == null) {
                 continue;
             }
-            checkQuota(quotaService, group.getType(), sourceIds, 1);
+            checkQuota(quotaService, group.getType(), sourceIds, Collections.singletonList(userId));
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
             UserGroupExample userGroupExample = new UserGroupExample();
@@ -465,9 +465,9 @@ public class GroupService {
         }
     }
 
-    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, int size) {
+    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, List<String> userIds) {
         if (quotaService != null) {
-            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> size));
+            Map<String, List<String>> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> userIds));
             quotaService.checkMemberCount(addMemberMap, type);
         }
     }
