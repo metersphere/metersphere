@@ -77,26 +77,19 @@ export default {
           legend: {},
           xAxis: {},
           yAxis: [{
-            name: 'User',
+            name: 'Response Time',
             type: 'value',
             min: 0,
             max: yAxisListMax,
             interval: yAxisListMax / 5
-          },
-            {
-              name: 'Response Time',
-              type: 'value',
-              min: 0,
-              max: yAxis2ListMax,
-              interval: yAxis2ListMax / 5
-            }
+          }
           ],
           series: []
         }
         let setting = {
           series: [
             {
-              name: 'users',
+              name: 'Response Time',
               color: '#0CA74A',
             }
           ]
