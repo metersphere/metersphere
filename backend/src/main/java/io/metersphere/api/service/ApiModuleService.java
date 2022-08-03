@@ -1243,36 +1243,38 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 //如果导入的有重名，覆盖，接口ID替换成系统内的
                 caseWithBLOBs1.setApiDefinitionId(definitionWithBLOBs.getId());
                 List<ApiTestCaseWithBLOBs> caseWithBLOBs = oldCaseNameMap.get(name);
-                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = caseWithBLOBs.get(0);
-                if (apiTestCaseWithBLOBs1 != null) {
-                    if (caseWithBLOBs.size() > 1) {
-                        for (int i = 0; i < caseWithBLOBs.size(); i++) {
-                            int version = 0;
-                            if (caseWithBLOBs.get(i).getVersion() != null) {
-                                version = caseWithBLOBs.get(i).getVersion() + 1;
+                if (CollectionUtils.isNotEmpty(caseWithBLOBs)) {
+                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = caseWithBLOBs.get(0);
+                    if (apiTestCaseWithBLOBs1 != null) {
+                        if (caseWithBLOBs.size() > 1) {
+                            for (int i = 0; i < caseWithBLOBs.size(); i++) {
+                                int version = 0;
+                                if (caseWithBLOBs.get(i).getVersion() != null) {
+                                    version = caseWithBLOBs.get(i).getVersion() + 1;
+                                }
+                                if (i == 0) {
+                                    caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
+                                    caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
+                                    caseWithBLOBs1.setVersion(version);
+                                } else {
+                                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
+                                    BeanUtils.copyBean(apiTestCaseWithBLOBs, caseWithBLOBs1);
+                                    apiTestCaseWithBLOBs.setId(caseWithBLOBs.get(i).getId());
+                                    apiTestCaseWithBLOBs.setNum(caseWithBLOBs.get(i).getNum());
+                                    apiTestCaseWithBLOBs.setVersion(version);
+                                    apiTestCaseWithBLOBs.setVersionId("create_repeat");
+                                    optionDataCases.add(apiTestCaseWithBLOBs);
+                                }
                             }
-                            if (i == 0) {
-                                caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
-                                caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
-                                caseWithBLOBs1.setVersion(version);
-                            } else {
-                                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
-                                BeanUtils.copyBean(apiTestCaseWithBLOBs, caseWithBLOBs1);
-                                apiTestCaseWithBLOBs.setId(caseWithBLOBs.get(i).getId());
-                                apiTestCaseWithBLOBs.setNum(caseWithBLOBs.get(i).getNum());
-                                apiTestCaseWithBLOBs.setVersion(version);
-                                apiTestCaseWithBLOBs.setVersionId("create_repeat");
-                                optionDataCases.add(apiTestCaseWithBLOBs);
-                            }
+                        } else {
+                            caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
+                            caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
+                            caseWithBLOBs1.setVersion(apiTestCaseWithBLOBs1.getVersion() == null ? 0 : apiTestCaseWithBLOBs1.getVersion() + 1);
                         }
+                        oldCaseNameMap.remove(name);
                     } else {
-                        caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
-                        caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
-                        caseWithBLOBs1.setVersion(apiTestCaseWithBLOBs1.getVersion() == null ? 0 : apiTestCaseWithBLOBs1.getVersion() + 1);
+                        caseWithBLOBs1.setVersion(0);
                     }
-                    oldCaseNameMap.remove(name);
-                } else {
-                    caseWithBLOBs1.setVersion(0);
                 }
             });
         } else {
