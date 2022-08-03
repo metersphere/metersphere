@@ -6,12 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
-import io.metersphere.commons.constants.AttachmentType;
-import io.metersphere.commons.constants.IssueRefType;
-import io.metersphere.commons.constants.IssuesManagePlatform;
-import io.metersphere.commons.constants.IssuesStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
@@ -36,6 +34,7 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -91,9 +90,11 @@ public class IssuesService {
     @Resource
     IssueFileMapper issueFileMapper;
     @Resource
-    private FileAttachmentMetadataMapper fileAttachmentMetadataMapper;
-    @Resource
     private AttachmentService attachmentService;
+    @Resource
+    private CustomFieldService customFieldService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
@@ -197,7 +198,24 @@ public class IssuesService {
         issueRequest.setCaseResourceId(caseResourceId);
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         issueRequest.setRefType(refType);
-        return disconnectIssue(extIssuesMapper.getIssuesByCaseId(issueRequest));
+        List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
+        this.handleCustomFieldStatus(issues);
+        return disconnectIssue(issues);
+    }
+
+    private void handleCustomFieldStatus(List<IssuesDao> issues) {
+        if (CollectionUtils.isEmpty(issues)) {
+            return;
+        }
+        List<String> issueIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
+        String projectId = issues.get(0).getProjectId();
+        Map<String, String> statusMap = customFieldService.getIssueSystemCustomFieldByName(SystemCustomField.ISSUE_STATUS, projectId, issueIds);
+        if (MapUtils.isEmpty(statusMap)) {
+            return;
+        }
+        for (IssuesDao issue : issues) {
+            issue.setStatus(statusMap.getOrDefault(issue.getId(), "").replaceAll("\"", ""));
+        }
     }
 
     public IssuesWithBLOBs getIssue(String id) {
@@ -735,23 +753,24 @@ public class IssuesService {
         if (StringUtils.isBlank(issuesId) || StringUtils.isBlank(status)) {
             return;
         }
-
-        IssuesWithBLOBs issues = issuesMapper.selectByPrimaryKey(issuesId);
-        String customFields = issues.getCustomFields();
-        if (StringUtils.isBlank(customFields)) {
+        IssuesWithBLOBs issue = issuesMapper.selectByPrimaryKey(issuesId);
+        Project project = projectMapper.selectByPrimaryKey(issue.getProjectId());
+        if (project == null) {
             return;
         }
-
-        List<TestCaseBatchRequest.CustomFiledRequest> fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
-        for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
-            if (StringUtils.equals("状态", field.getName())) {
-                field.setValue(status);
-                break;
+        String templateId = project.getIssueTemplateId();
+        if (StringUtils.isNotBlank(templateId)) {
+            // 模版对于同一个系统字段应该只关联一次
+            List<String> fieldIds = customFieldTemplateService.getSystemCustomField(templateId, SystemCustomField.ISSUE_STATUS);
+            if (CollectionUtils.isNotEmpty(fieldIds)) {
+                String fieldId = fieldIds.get(0);
+                CustomFieldResource resource = new CustomFieldResource();
+                resource.setFieldId(fieldId);
+                resource.setResourceId(issue.getId());
+                resource.setValue(JSON.toJSONString(status));
+                customFieldIssuesService.editFields(issue.getId(), Collections.singletonList(resource));
             }
         }
-        issues.setStatus(status);
-        issues.setCustomFields(JSONObject.toJSONString(fields));
-        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
     public List<IssuesDao> getCountByStatus(IssuesRequest request) {
