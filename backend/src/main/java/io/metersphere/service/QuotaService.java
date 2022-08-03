@@ -6,6 +6,7 @@ import io.metersphere.base.domain.Quota;
 import io.metersphere.performance.request.TestPlanRequest;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,10 +63,10 @@ public interface QuotaService {
 
     /**
      * 检查向某资源添加人员时是否超额
-     * @param map 资源ID:添加人数
+     * @param map 资源ID:添加用户ID列表
      * @param type 检查类型 PROJECT/WORKSPACE
      */
-    void checkMemberCount(Map<String, Integer> map, String type);
+    void checkMemberCount(Map<String, List<String>> map, String type);
 
     /**
      * 更新VumUsed配额
