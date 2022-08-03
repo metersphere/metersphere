@@ -185,7 +185,8 @@ public class JMeterService {
 
 
     public void run(JmeterRunRequestDTO request) {
-        if (request.getPool().isPool()) {
+        //UI 测试只走本地 ms，资源池交给 selenium-grid 本身实现
+        if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode()) && !request.getRunMode().startsWith("UI")) {
             this.runNode(request);
         } else {
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).addTask(request);
