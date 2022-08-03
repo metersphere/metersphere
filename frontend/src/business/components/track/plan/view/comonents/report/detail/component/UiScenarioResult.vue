@@ -41,7 +41,12 @@
                 :label="$t('test_track.plan_view.execute_result')"
                 prop="lastResult">
               <template v-slot:default="{row}">
-                <status-table-item v-if="row.lastResult" :value="resultMap[row.lastResult]"/>
+                <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
+                <status-table-item v-else-if="row.lastResult === 'Error'" :value="'Failure'"/>
+                <status-table-item v-else-if="row.lastResult === 'STOP'" :value="'STOP'"/>
+                <status-table-item v-else-if="row.lastResult === 'Running'" :value="'Underway'"/>
+                <status-table-item v-else-if="row.lastResult === 'Waiting'" :value="'Waiting'"/>
+                <status-table-item v-else-if="row.lastResult === 'Timeout'" :value="'Timeout'"/>
                 <status-table-item v-else :value="'Prepare'"/>
               </template>
             </ms-table-column>
