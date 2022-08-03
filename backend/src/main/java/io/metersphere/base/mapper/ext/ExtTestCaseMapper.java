@@ -94,7 +94,7 @@ public interface ExtTestCaseMapper {
 
     List<TrackCountResult> countRelevanceMaintainer(@Param("projectId") String projectId);
 
-    int getTestPlanBug(@Param("planId") String planId);
+    List<String> getTestPlanBug(@Param("planId") String planId);
 
     int getTestPlanCase(@Param("planId") String planId);
 
