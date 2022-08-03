@@ -1,5 +1,7 @@
 package io.metersphere.excel.handler;
 
+import com.alibaba.excel.util.BooleanUtils;
+import com.alibaba.excel.write.handler.context.RowWriteHandlerContext;
 import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
 import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
 import com.alibaba.excel.write.style.row.AbstractRowHeightStyleStrategy;
@@ -24,37 +26,37 @@ import java.util.*;
 public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStrategy {
 
     private boolean isNeedId;
-    List<List<String>> headList = new ArrayList<>();
-    Map<String,Integer> rowDispseIndexMap;
-    Map<String,List<String>> caseLevelAndStatusValueMap;
-    public FunctionCaseTemplateWriteHandler(boolean isNeedId,List<List<String>> headList,Map<String,List<String>> caseLevelAndStatusValueMap){
+    Map<String, Integer> rowDispseIndexMap;
+    Map<String, List<String>> caseLevelAndStatusValueMap;
+
+    public FunctionCaseTemplateWriteHandler(boolean isNeedId, List<List<String>> headList, Map<String, List<String>> caseLevelAndStatusValueMap) {
         this.isNeedId = isNeedId;
         rowDispseIndexMap = this.buildFiledMap(headList);
         this.caseLevelAndStatusValueMap = caseLevelAndStatusValueMap;
     }
 
     private Map<String, Integer> buildFiledMap(List<List<String>> headList) {
-        Map<String,Integer> returnMap = new HashMap<>();
+        Map<String, Integer> returnMap = new HashMap<>();
 
         int index = 0;
-        for (List<String> list:headList) {
+        for (List<String> list : headList) {
             for (String head : list) {
-                if(StringUtils.equalsAnyIgnoreCase(head,"id")){
-                    returnMap.put("ID",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"所属模块","所屬模塊","Module")){
-                    returnMap.put("Module",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"责任人(ID)","維護人(ID)","Maintainer(ID)")){
-                    returnMap.put("Maintainer",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"用例等级","用例等級","Priority")){
-                    returnMap.put("Priority",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"标签","標簽","Tag")){
-                    returnMap.put("Tag",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"用例状态","用例狀態","Case status")){
-                    returnMap.put("Status",index);
+                if (StringUtils.equalsAnyIgnoreCase(head, "id")) {
+                    returnMap.put("ID", index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "所属模块", "所屬模塊", "Module")) {
+                    returnMap.put("Module", index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "责任人(ID)", "維護人(ID)", "Maintainer(ID)")) {
+                    returnMap.put("Maintainer", index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "用例等级", "用例等級", "Priority")) {
+                    returnMap.put("Priority", index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "标签", "標簽", "Tag")) {
+                    returnMap.put("Tag", index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "用例状态", "用例狀態", "Case status")) {
+                    returnMap.put("Status", index);
                 } else if (StringUtils.equalsAnyIgnoreCase(head, "编辑模式", "編輯模式", "Edit Model")) {
-                    returnMap.put("StepModel",index);
+                    returnMap.put("StepModel", index);
                 }
-                index ++;
+                index++;
             }
         }
         return returnMap;
@@ -62,64 +64,62 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
 
     @Override
     public void beforeRowCreate(WriteSheetHolder writeSheetHolder, WriteTableHolder writeTableHolder, Integer rowIndex, Integer relativeRowIndex, Boolean isHead) {
-
     }
 
     @Override
     public void afterRowCreate(WriteSheetHolder writeSheetHolder, WriteTableHolder writeTableHolder, Row row, Integer relativeRowIndex, Boolean isHead) {
-
     }
 
     @Override
-    public void afterRowDispose(WriteSheetHolder writeSheetHolder, WriteTableHolder writeTableHolder, Row row, Integer relativeRowIndex, Boolean isHead) {
-        super.afterRowDispose(writeSheetHolder, writeTableHolder, row, relativeRowIndex, isHead);
-        if (isHead) {
-            Sheet sheet = writeSheetHolder.getSheet();
+    public void afterRowDispose(RowWriteHandlerContext context) {
+
+        if (BooleanUtils.isTrue(context.getHead())) {
+            Sheet sheet = context.getWriteSheetHolder().getSheet();
             Drawing<?> drawingPatriarch = sheet.createDrawingPatriarch();
 
-            if(rowDispseIndexMap != null){
-                if(isNeedId){
+            if (rowDispseIndexMap != null) {
+                if (isNeedId) {
                     Integer idIndex = rowDispseIndexMap.get("ID");
-                    if(idIndex != null){
+                    if (idIndex != null) {
                         Comment comment1 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, idIndex, 0, (short) 3, 1));
-                        comment1.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order")+"，"+Translator.get("id_required")));
+                        comment1.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order") + "，" + Translator.get("id_required")));
                         sheet.getRow(0).getCell(1).setCellComment(comment1);
                     }
                 }
-                for (Map.Entry<String, Integer> entry:rowDispseIndexMap.entrySet()){
+                for (Map.Entry<String, Integer> entry : rowDispseIndexMap.entrySet()) {
                     String coloum = entry.getKey();
                     Integer index = entry.getValue();
 
-                    if(StringUtils.equalsAnyIgnoreCase(coloum,"Module")){
+                    if (StringUtils.equalsAnyIgnoreCase(coloum, "Module")) {
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("module_created_automatically")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
-                    }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Maintainer")){
+                    } else if (StringUtils.equalsAnyIgnoreCase(coloum, "Maintainer")) {
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("please_input_project_member")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
-                    }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Priority")){
+                    } else if (StringUtils.equalsAnyIgnoreCase(coloum, "Priority")) {
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
                         List<String> list = new ArrayList<>();
-                        if(caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseLevel")){
+                        if (caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseLevel")) {
                             list = caseLevelAndStatusValueMap.get("caseLevel");
                         }
-                        if(CollectionUtils.isEmpty(list)){
+                        if (CollectionUtils.isEmpty(list)) {
                             comment.setString(new XSSFRichTextString(Translator.get("options") + "（P0、P1、P2、P3）"));
-                        }else {
+                        } else {
                             comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
                         }
                         sheet.getRow(0).getCell(1).setCellComment(comment);
-                    }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Tag")){
+                    } else if (StringUtils.equalsAnyIgnoreCase(coloum, "Tag")) {
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("tag_tip_pattern")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
-                    }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Status")){
+                    } else if (StringUtils.equalsAnyIgnoreCase(coloum, "Status")) {
                         List<String> list = new ArrayList<>();
-                        if(caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseStatus")){
+                        if (caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseStatus")) {
                             list = caseLevelAndStatusValueMap.get("caseStatus");
                         }
-                        if(!CollectionUtils.isEmpty(list)){
+                        if (!CollectionUtils.isEmpty(list)) {
                             Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
                             comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
                             sheet.getRow(0).getCell(1).setCellComment(comment);
@@ -131,66 +131,6 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                     }
                 }
             }
-
-
-
-//            if(isNeedId){
-//                // 在第一行 第1列创建一个批注
-//                Comment comment1 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 0, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment1.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order")+"，"+Translator.get("id_required")));
-//                // 在第一行 第3列创建一个批注
-//                Comment comment2 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 2, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment2.setString(new XSSFRichTextString(Translator.get("module_created_automatically")));
-//                // 在第一行 第4列创建一个批注
-//                Comment comment4 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 3, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment4.setString(new XSSFRichTextString(Translator.get("please_input_workspace_member")));
-//
-//                // 在第一行 第5列创建一个批注
-//                Comment comment5 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 4, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment5.setString(new XSSFRichTextString(Translator.get("options") + "（P0、P1、P2、P3）"));
-//
-//                // 在第一行 第6列创建一个批注
-//                Comment comment6 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 5, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment6.setString(new XSSFRichTextString(Translator.get("tag_tip_pattern")));
-//                // 将批注添加到单元格对象中
-//                sheet.getRow(0).getCell(1).setCellComment(comment1);
-//                sheet.getRow(0).getCell(1).setCellComment(comment2);
-//                sheet.getRow(0).getCell(1).setCellComment(comment4);
-//                sheet.getRow(0).getCell(1).setCellComment(comment5);
-//                sheet.getRow(0).getCell(1).setCellComment(comment6);
-//            }else {
-//                // 在第一行 第2列创建一个批注
-//                Comment comment2 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 1, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment2.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order") + ","+Translator.get("module_created_automatically")));
-//
-//                // 在第一行 第3列创建一个批注
-//                Comment comment4 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 2, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment4.setString(new XSSFRichTextString(Translator.get("please_input_workspace_member")));
-//
-//                // 在第一行 第4列创建一个批注
-//                Comment comment5 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 3, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment5.setString(new XSSFRichTextString(Translator.get("options") + "（P0、P1、P2、P3）"));
-//
-//                // 在第一行 第5列创建一个批注
-//                Comment comment6 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 4, 0, (short) 3, 1));
-//                // 输入批注信息
-//                comment6.setString(new XSSFRichTextString(Translator.get("tag_tip_pattern")));
-//
-//                // 将批注添加到单元格对象中
-//                sheet.getRow(0).getCell(1).setCellComment(comment2);
-//                sheet.getRow(0).getCell(1).setCellComment(comment4);
-//                sheet.getRow(0).getCell(1).setCellComment(comment5);
-//                sheet.getRow(0).getCell(1).setCellComment(comment6);
-//            }
-
         }
     }
 
@@ -200,6 +140,5 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
 
     @Override
     protected void setContentColumnHeight(Row row, int relativeRowIndex) {
-
     }
 }
