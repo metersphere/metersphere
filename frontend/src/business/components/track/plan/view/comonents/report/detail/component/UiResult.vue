@@ -41,7 +41,7 @@ export default {
     }
   },
   props: {
-    apiResult: {
+    uiResult: {
       type: Object,
       default() {
         return {
@@ -52,7 +52,7 @@ export default {
     }
   },
   watch: {
-    apiResult() {
+    uiResult() {
       this.getCaseCharData();
     }
   },
@@ -62,8 +62,8 @@ export default {
   methods: {
     getCaseCharData() {
       let caseCharData = [];
-      if (this.apiResult.uiScenarioData) {
-        this.apiResult.uiScenarioData.forEach(item => {
+      if (this.uiResult.uiScenarioData) {
+        this.uiResult.uiScenarioData.forEach(item => {
           let data = this.getDataByStatus(item.status);
           data.value = item.count;
           caseCharData.push(data);
@@ -72,8 +72,8 @@ export default {
       this.caseCharData = caseCharData;
 
       let uiScenarioData = [];
-      if (this.apiResult.uiScenarioData) {
-        this.apiResult.uiScenarioData.forEach(item => {
+      if (this.uiResult.uiScenarioData) {
+        this.uiResult.uiScenarioData.forEach(item => {
           let data = this.getDataByStatus(item.status);
           data.value = item.count;
           uiScenarioData.push(data);
@@ -81,8 +81,8 @@ export default {
       }
 
       let stepCharData = [];
-      for (let i = 0; i < this.apiResult.uiScenarioStepData.length; i++) {
-        let stepItem = this.apiResult.uiScenarioStepData[i];
+      for (let i = 0; i < this.uiResult.uiScenarioStepData.length; i++) {
+        let stepItem = this.uiResult.uiScenarioStepData[i];
         let data = this.getDataByStatus(stepItem.status);
         data.value = stepItem.count;
         stepCharData.push(data);
