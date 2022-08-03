@@ -5,12 +5,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.CustomField;
-import io.metersphere.base.domain.CustomFieldExample;
-import io.metersphere.base.domain.CustomFieldTemplate;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.base.mapper.CustomFieldIssuesMapper;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.CustomFieldTemplateMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.TemplateConstants;
@@ -56,7 +56,9 @@ public class CustomFieldService {
     @Resource
     CustomFieldTemplateService customFieldTemplateService;
     @Resource
-    private CustomFieldTemplateMapper customFieldTemplateMapper;
+    private ProjectMapper projectMapper;
+    @Resource
+    private CustomFieldIssuesMapper customFieldIssuesMapper;
 
     public String add(CustomField customField) {
         checkExist(customField);
@@ -277,5 +279,30 @@ public class CustomFieldService {
         return customFieldMapper.selectByExample(example)
                 .stream()
                 .collect(Collectors.toMap(i -> i.getName() + i.getScene(), i -> i));
+    }
+
+    public Map<String, String> getIssueSystemCustomFieldByName(String fieldName, String projectId, List<String> resourceIds) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return null;
+        }
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return null;
+        }
+        String templateId = project.getIssueTemplateId();
+        if (StringUtils.isBlank(templateId)) {
+            return null;
+        }
+        // 模版对于同一个系统字段应该只关联一次
+        List<String> fieldIds = customFieldTemplateService.getSystemCustomField(templateId, fieldName);
+        if (CollectionUtils.isEmpty(fieldIds)) {
+            return null;
+        }
+        // 该系统字段的自定义ID
+        String customFieldId = fieldIds.get(0);
+        CustomFieldIssuesExample example = new CustomFieldIssuesExample();
+        example.createCriteria().andFieldIdEqualTo(customFieldId).andResourceIdIn(resourceIds);
+        List<CustomFieldIssues> customFieldIssues = customFieldIssuesMapper.selectByExample(example);
+        return customFieldIssues.stream().collect(Collectors.toMap(CustomFieldIssues::getResourceId, CustomFieldIssues::getValue));
     }
 }

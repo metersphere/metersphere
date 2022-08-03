@@ -156,4 +156,8 @@ public class CustomFieldTemplateService {
         customFieldTemplate.setFieldId(customField.getId());
         return customFieldTemplateMapper.updateByExampleSelective(customFieldTemplate, example);
     }
+
+    public List<String> getSystemCustomField(String templateId, String fieldName) {
+        return extCustomFieldTemplateMapper.getSystemCustomField(templateId, fieldName);
+    }
 }
