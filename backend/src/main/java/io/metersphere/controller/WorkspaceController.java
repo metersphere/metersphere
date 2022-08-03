@@ -14,6 +14,7 @@ import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.dto.WorkspaceResource;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.security.session.RefreshSession;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -46,6 +47,7 @@ public class WorkspaceController {
     @PostMapping("special/add")
     @MsAuditLog(module = OperLogModule.SYSTEM_WORKSPACE, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ_CREATE)
+    @RefreshSession
     public Workspace addWorkspaceByAdmin(@RequestBody Workspace workspace) {
         return workspaceService.addWorkspaceByAdmin(workspace);
     }
