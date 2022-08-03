@@ -2,7 +2,7 @@
   <test-plan-report-container id="ui" :title="$t('test_track.report.analysis_ui')">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-if="resultEnable" :label="$t('test_track.report.test_result')" name="first">
-        <ui-result :api-result="report.uiResult"/>
+        <ui-result :ui-result="report.uiResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" name="second">
         <template v-slot:label>

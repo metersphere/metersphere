@@ -13,7 +13,8 @@ import java.util.Map;
 public class TestPlanUtils {
 
     public static void buildStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, String result) {
-        if (StringUtils.isBlank(result)) {
+        // unexecute 存在于 ui 执行结果中
+        if (StringUtils.isBlank(result) || StringUtils.equals("UnExecute", result)) {
             result = TestPlanTestCaseStatus.Prepare.name();
         }
         TestCaseReportStatusResultDTO statusResult = reportStatusResultMap.get(result);
