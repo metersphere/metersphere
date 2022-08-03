@@ -430,7 +430,7 @@ public class GroupService {
             QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
-            checkQuota(quotaService, type, sourceIds, 1);
+            checkQuota(quotaService, type, sourceIds, Collections.singletonList(userId));
             for (String sourceId : sourceIds) {
                 UserGroup userGroup = new UserGroup();
                 userGroup.setId(UUID.randomUUID().toString());
@@ -448,9 +448,9 @@ public class GroupService {
         }
     }
 
-    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, int size) {
+    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, List<String> userIds) {
         if (quotaService != null) {
-            Map<String, Integer> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> size));
+            Map<String, List<String>> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> userIds));
             quotaService.checkMemberCount(addMemberMap, type);
         }
     }
