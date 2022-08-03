@@ -46,12 +46,10 @@ public class ConsulService {
         if (StringUtils.isNotEmpty(values)) {
             return objectMapper.readValue(values, TYPE_REFERENCE);
         }
-        Map<String, List<String>> result = updateCache();
-        stringRedisTemplate.opsForValue().set(RESOURCE_POOL_CACHE_KEY, objectMapper.writeValueAsString(result));
-        return result;
+        return updateCache();
     }
 
-    public Map<String, List<String>> updateCache() {
+    public Map<String, List<String>> updateCache() throws Exception {
         Map<String, List<String>> result = new HashMap<>();
 
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
@@ -89,6 +87,7 @@ public class ConsulService {
                 result.put(node.getIp() + "-" + port, Collections.singletonList("metersphere"));
             }
         }
+        stringRedisTemplate.opsForValue().set(RESOURCE_POOL_CACHE_KEY, objectMapper.writeValueAsString(result));
         return result;
     }
 }
