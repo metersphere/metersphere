@@ -61,8 +61,7 @@ public class PerfExecService {
             apiExecutionQueueService.add(responseMap, config.getResourcePoolId(), ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name(),
                     planReportId, config.getReportType(), config.getMode(), config);
         }
-        if (CollectionUtils.isEmpty(requests) && StringUtils.isNotEmpty(planReportId)) {
-            apiExecutionQueueService.testPlanReportTestEnded(planReportId);
+        if (CollectionUtils.isEmpty(requests)) {
             return responseMap;
         }
         LoggerUtil.info("开始执行性能测试任务");
