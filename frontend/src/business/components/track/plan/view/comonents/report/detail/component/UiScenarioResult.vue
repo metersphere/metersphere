@@ -41,7 +41,8 @@
                 :label="$t('test_track.plan_view.execute_result')"
                 prop="lastResult">
               <template v-slot:default="{row}">
-                <status-table-item :value="resultMap[row.lastResult]"/>
+                <status-table-item v-if="row.lastResult" :value="resultMap[row.lastResult]"/>
+                <status-table-item v-else :value="'Prepare'"/>
               </template>
             </ms-table-column>
           </ms-table>
@@ -108,7 +109,7 @@ export default {
         'Error' : 'Failure',
         'STOP' : 'STOP',
         'Running' : 'Running',
-        'UnExecute' : 'Prepare'
+        'UnExecute' : 'Prepare',
       }
     }
   },
