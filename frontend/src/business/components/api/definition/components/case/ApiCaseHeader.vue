@@ -20,15 +20,30 @@
             :project-id="projectId"
             :is-read-only="isReadOnly"
             :useEnvironment='useEnvironment'
-            @setEnvironment="setEnvironment" ref="environmentSelect" v-if="api.protocol==='HTTP' || api.protocol ==='TCP'"/>
+            @setEnvironment="setEnvironment" ref="environmentSelect"
+            v-if="api.protocol==='HTTP' || api.protocol ==='TCP'"/>
         </el-col>
         <el-col :span="2">
           <!-- 保存操作 -->
-          <el-button type="primary" size="small" @click="saveTestCase()"
+          <el-button v-if="!isXpack || !showUpdateRule"
+                     type="primary" size="small"
+                     @click="saveTestCase()"
                      v-prevent-re-click
                      v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
             {{ saveButtonText }}
           </el-button>
+          <el-dropdown v-else
+                       style="margin-left: -15px"
+                       v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+                       split-button type="primary" size="small" @click="saveTestCase" @command="handleCommand">
+            {{ $t('commons.save') }}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="openSyncRule">{{
+                  $t('commons.save') + '&' + $t('workstation.sync_setting')
+                }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </el-col>
       </el-row>
     </el-card>
@@ -43,7 +58,7 @@ import MsTag from "../../../../common/components/MsTag";
 import MsEnvironmentSelect from "./MsEnvironmentSelect";
 import {API_METHOD_COLOUR} from "../../model/JsonData";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
-import {hasPermission} from "@/common/js/utils";
+import {hasLicense, hasPermission} from "@/common/js/utils";
 
 export default {
   name: "ApiCaseHeader",
@@ -52,6 +67,8 @@ export default {
     return {
       methodColorMap: new Map(API_METHOD_COLOUR),
       saveButtonText: this.$t('commons.save'),
+      isXpack: false,
+      showUpdateRule: false
     }
   },
   props: {
@@ -80,8 +97,15 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('keydown', this.keyDown) // 在页面销毁的时候记得解除
+    this.$EventBus.$off('showXpackCaseBtn');
   },
   created() {
+    this.isXpack = !!hasLicense();
+    if (this.isXpack) {
+      this.$EventBus.$on('showXpackCaseBtn', showUpdateRule => {
+        this.handleXpackCaseBtnChange(showUpdateRule);
+      });
+    }
     if (this.buttonText) {
       this.saveButtonText = this.buttonText;
     }
@@ -104,7 +128,6 @@ export default {
         this.$emit('setEnvironment', data.id);
       }
     },
-
     open() {
       this.$refs.searchBar.open();
     },
@@ -119,6 +142,15 @@ export default {
     },
     saveTestCase() {
       this.$emit("saveCase")
+    },
+    handleCommand(command) {
+      if (command === 'openSyncRule') {
+        this.$EventBus.$emit('showXpackCaseSet', false);
+        this.saveTestCase();
+      }
+    },
+    handleXpackCaseBtnChange(showUpdateRule) {
+      this.showUpdateRule = showUpdateRule;
     }
   }
 }

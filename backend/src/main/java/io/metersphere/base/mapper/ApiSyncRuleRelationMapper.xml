@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ApiSyncRuleRelationMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiSyncRuleRelation">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+    <result column="show_update_rule" jdbcType="BIT" property="showUpdateRule" />
+    <result column="case_creator" jdbcType="BIT" property="caseCreator" />
+    <result column="scenario_creator" jdbcType="BIT" property="scenarioCreator" />
+    <result column="sync_case" jdbcType="BIT" property="syncCase" />
+    <result column="send_notice" jdbcType="BIT" property="sendNotice" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiSyncRuleRelation">
+    <result column="api_sync_case_request" jdbcType="LONGVARCHAR" property="apiSyncCaseRequest" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, resource_id, resource_type, show_update_rule, case_creator, scenario_creator, 
+    sync_case, send_notice
+  </sql>
+  <sql id="Blob_Column_List">
+    api_sync_case_request
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiSyncRuleRelationExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_sync_rule_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiSyncRuleRelationExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_sync_rule_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_sync_rule_relation
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_sync_rule_relation
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.ApiSyncRuleRelationExample">
+    delete from api_sync_rule_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiSyncRuleRelation">
+    insert into api_sync_rule_relation (id, resource_id, resource_type, 
+      show_update_rule, case_creator, scenario_creator, 
+      sync_case, send_notice, api_sync_case_request
+      )
+    values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
+      #{showUpdateRule,jdbcType=BIT}, #{caseCreator,jdbcType=BIT}, #{scenarioCreator,jdbcType=BIT}, 
+      #{syncCase,jdbcType=BIT}, #{sendNotice,jdbcType=BIT}, #{apiSyncCaseRequest,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiSyncRuleRelation">
+    insert into api_sync_rule_relation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="resourceType != null">
+        resource_type,
+      </if>
+      <if test="showUpdateRule != null">
+        show_update_rule,
+      </if>
+      <if test="caseCreator != null">
+        case_creator,
+      </if>
+      <if test="scenarioCreator != null">
+        scenario_creator,
+      </if>
+      <if test="syncCase != null">
+        sync_case,
+      </if>
+      <if test="sendNotice != null">
+        send_notice,
+      </if>
+      <if test="apiSyncCaseRequest != null">
+        api_sync_case_request,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="showUpdateRule != null">
+        #{showUpdateRule,jdbcType=BIT},
+      </if>
+      <if test="caseCreator != null">
+        #{caseCreator,jdbcType=BIT},
+      </if>
+      <if test="scenarioCreator != null">
+        #{scenarioCreator,jdbcType=BIT},
+      </if>
+      <if test="syncCase != null">
+        #{syncCase,jdbcType=BIT},
+      </if>
+      <if test="sendNotice != null">
+        #{sendNotice,jdbcType=BIT},
+      </if>
+      <if test="apiSyncCaseRequest != null">
+        #{apiSyncCaseRequest,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.ApiSyncRuleRelationExample" resultType="java.lang.Long">
+    select count(*) from api_sync_rule_relation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_sync_rule_relation
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceType != null">
+        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.showUpdateRule != null">
+        show_update_rule = #{record.showUpdateRule,jdbcType=BIT},
+      </if>
+      <if test="record.caseCreator != null">
+        case_creator = #{record.caseCreator,jdbcType=BIT},
+      </if>
+      <if test="record.scenarioCreator != null">
+        scenario_creator = #{record.scenarioCreator,jdbcType=BIT},
+      </if>
+      <if test="record.syncCase != null">
+        sync_case = #{record.syncCase,jdbcType=BIT},
+      </if>
+      <if test="record.sendNotice != null">
+        send_notice = #{record.sendNotice,jdbcType=BIT},
+      </if>
+      <if test="record.apiSyncCaseRequest != null">
+        api_sync_case_request = #{record.apiSyncCaseRequest,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_sync_rule_relation
+    set id = #{record.id,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      show_update_rule = #{record.showUpdateRule,jdbcType=BIT},
+      case_creator = #{record.caseCreator,jdbcType=BIT},
+      scenario_creator = #{record.scenarioCreator,jdbcType=BIT},
+      sync_case = #{record.syncCase,jdbcType=BIT},
+      send_notice = #{record.sendNotice,jdbcType=BIT},
+      api_sync_case_request = #{record.apiSyncCaseRequest,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_sync_rule_relation
+    set id = #{record.id,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      show_update_rule = #{record.showUpdateRule,jdbcType=BIT},
+      case_creator = #{record.caseCreator,jdbcType=BIT},
+      scenario_creator = #{record.scenarioCreator,jdbcType=BIT},
+      sync_case = #{record.syncCase,jdbcType=BIT},
+      send_notice = #{record.sendNotice,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiSyncRuleRelation">
+    update api_sync_rule_relation
+    <set>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        resource_type = #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="showUpdateRule != null">
+        show_update_rule = #{showUpdateRule,jdbcType=BIT},
+      </if>
+      <if test="caseCreator != null">
+        case_creator = #{caseCreator,jdbcType=BIT},
+      </if>
+      <if test="scenarioCreator != null">
+        scenario_creator = #{scenarioCreator,jdbcType=BIT},
+      </if>
+      <if test="syncCase != null">
+        sync_case = #{syncCase,jdbcType=BIT},
+      </if>
+      <if test="sendNotice != null">
+        send_notice = #{sendNotice,jdbcType=BIT},
+      </if>
+      <if test="apiSyncCaseRequest != null">
+        api_sync_case_request = #{apiSyncCaseRequest,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiSyncRuleRelation">
+    update api_sync_rule_relation
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      show_update_rule = #{showUpdateRule,jdbcType=BIT},
+      case_creator = #{caseCreator,jdbcType=BIT},
+      scenario_creator = #{scenarioCreator,jdbcType=BIT},
+      sync_case = #{syncCase,jdbcType=BIT},
+      send_notice = #{sendNotice,jdbcType=BIT},
+      api_sync_case_request = #{apiSyncCaseRequest,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiSyncRuleRelation">
+    update api_sync_rule_relation
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      show_update_rule = #{showUpdateRule,jdbcType=BIT},
+      case_creator = #{caseCreator,jdbcType=BIT},
+      scenario_creator = #{scenarioCreator,jdbcType=BIT},
+      sync_case = #{syncCase,jdbcType=BIT},
+      send_notice = #{sendNotice,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
