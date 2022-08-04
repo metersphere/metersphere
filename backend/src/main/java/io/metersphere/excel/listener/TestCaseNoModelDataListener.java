@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.CustomFieldOption;
 import io.metersphere.excel.annotation.NotRequired;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
@@ -207,10 +208,14 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (field.getRequired()) {
                 String value = null;
                 if (StringUtils.equals(customName, "status")) {
-                    value = data.getStatus();
-                    if (!checkCaseStatus(value)) {
-                        stringBuilder.append(Translator.get("case_status_not_exist") + "; ");
-                    }
+                    Map<String, String> valueMap = new HashMap<>() {{
+                        put("Prepare", Translator.get("test_case_status_prepare"));
+                        put("Underway", Translator.get("test_case_status_running"));
+                        put("Completed", Translator.get("test_case_status_finished"));
+                    }};
+                    value = getCustomFieldValue(Translator.get("test_case_status"), data.getStatus(), field.getOptions(),
+                            stringBuilder, valueMap);
+                    data.setStatus(value);
                 } else if (StringUtils.equals(customName, "priority")) {
                     value = data.getPriority();
                 } else if (StringUtils.equals(customName, "maintainer")) {
@@ -311,6 +316,36 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             excelDataList.add(data);
         }
         return stringBuilder.toString();
+    }
+
+    /**
+     * 根据自定义字段的选项值获取对应的选项id
+     * @param name
+     * @param text
+     * @param optionsStr
+     * @return
+     */
+    public String getCustomFieldValue(String name, String text, String optionsStr, StringBuilder error,
+                                      Map<String, String> systemValueMap) {
+        List<String> textList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(optionsStr)) {
+            List<CustomFieldOption> options = JSONObject.parseArray(optionsStr, CustomFieldOption.class);
+            for (CustomFieldOption option : options) {
+                // 系统字段需要翻译
+                String i18nText = systemValueMap.get(option.getValue());
+                if (i18nText != null) {
+                    option.setText(i18nText);
+                }
+                if (StringUtils.equals(option.getValue(), text) ||
+                        // 系统字段填写对应内容，而不是key的情况，比如用例状态填未开始而不是 Prepare
+                        StringUtils.equals(option.getText(), text)) {
+                    return option.getValue();
+                }
+                textList.add(option.getText());
+            }
+        }
+        error.append(String.format(Translator.get("custom_field_option_not_exist"), name, textList.toString()));
+        return text;
     }
 
     public List<String> getNames() {
