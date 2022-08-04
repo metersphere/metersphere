@@ -16,7 +16,7 @@
 
 <script>
 import MsDrawer from "@/business/components/common/components/MsDrawer";
-import {DEFAULT_LANGUAGE, EN_US} from "@/common/js/constants";
+import {DEFAULT_LANGUAGE, EN_US, ZH_CN} from "@/common/js/constants";
 import {getCurrentUser} from "@/common/js/utils";
 export default {
   name: "TestPlanReportNavigationBar",
@@ -80,8 +80,11 @@ export default {
   },
   computed: {
     navBtnClass() {
-      let lang = getCurrentUser().language;
-      if (!lang) {
+      let user = getCurrentUser();
+      let lang = ZH_CN;
+      if (user && user.language) {
+        lang = user.language;
+      } else {
         lang = localStorage.getItem(DEFAULT_LANGUAGE);
       }
       if (lang === EN_US) {
