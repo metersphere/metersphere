@@ -161,9 +161,11 @@ public class ApiDefinitionService {
     @Resource
     private ProjectService projectService;
     @Resource
-    private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
+    private ApiDefinitionSyncService apiDefinitionSyncService;
     @Resource
-    private ApiScenarioMapper apiScenarioMapper;
+    private ApiCaseBatchSyncService apiCaseSyncService;
+
+
     @Lazy
     @Resource
     private ApiAutomationService apiAutomationService;
@@ -398,86 +400,25 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
-        if (StringUtils.isBlank(request.getTriggerUpdate())) {
-            // 设置是否需要进入待更新列表
-            ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
-            if (apiDefinitionSyncService != null) {
-                apiDefinitionSyncService.syncApi(request);
-            }
+
+        // 设置是否需要进入待更新列表
+        if (apiDefinitionSyncService != null) {
+            apiDefinitionSyncService.syncApi(request);
         }
 
         ApiDefinitionWithBLOBs returnModel = updateTest(request);
-        if (StringUtils.isNotBlank(request.getTriggerUpdate())) {
-            //一键同步case
-            ApiSyncCaseRequest apiSyncCaseRequest = JSONObject.parseObject(request.getTriggerUpdate(), ApiSyncCaseRequest.class);
-            ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
-            if (apiCaseSyncService != null) {
-                apiCaseSyncService.oneClickSyncCase(apiSyncCaseRequest, returnModel);
-            }
-        }
 
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
-        // 发送通知
-        String context = SessionUtils.getUserId() + "更新了接口定义:" + returnModel.getName();
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("projectId", request.getProjectId());
-        paramMap.put("operator", SessionUtils.getUserId());
-        paramMap.put("id", returnModel.getId());
-        paramMap.put("name", returnModel.getName());
-        paramMap.put("createUser", returnModel.getCreateUser());
-        paramMap.put("userId", returnModel.getUserId());
 
-        Set<String> specialReceiversSet = new HashSet<>();
-        this.getReceivers(request, returnModel, specialReceiversSet);
-        List<String> specialReceivers = new ArrayList<>(specialReceiversSet);
-        if (request.getSendSpecialMessage() != null && request.getSendSpecialMessage()) {
-            paramMap.put("specialReceivers", JSON.toJSONString(specialReceivers));
-            paramMap.put("apiSpecialType", "API_SPECIAL");
+        // 发送通知
+        if (apiCaseSyncService != null) {
+            apiCaseSyncService.sendApiNotice(returnModel);
         }
-        NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
-                .context(context)
-                .testId(returnModel.getId())
-                .subject("接口更新通知")
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.UPDATE)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
         return getById(returnModel.getId());
     }
 
-    private void getReceivers(SaveApiDefinitionRequest request, ApiDefinitionWithBLOBs returnModel, Set<String> specialReceivers) {
-        if (request.getSendSpecialMessage() != null && request.getSendSpecialMessage()) {
-            if (request.getCaseCreator() != null && request.getCaseCreator()) {
-                ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
-                apiTestCaseExample.createCriteria().andApiDefinitionIdEqualTo(returnModel.getId());
-                List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(apiTestCaseExample);
-                if (CollectionUtils.isNotEmpty(apiTestCases)) {
-                    for (ApiTestCase apiTestCase : apiTestCases) {
-                        specialReceivers.add(apiTestCase.getCreateUserId());
-                    }
-                }
-            }
-            if (request.getScenarioCreator() != null && request.getScenarioCreator()) {
-                ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
-                apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo("API").andReferenceIdEqualTo(returnModel.getId());
-                List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
-                if (CollectionUtils.isNotEmpty(apiScenarioReferenceIds)) {
-                    List<String> scenarioIds = apiScenarioReferenceIds.stream().map(ApiScenarioReferenceId::getApiScenarioId).collect(Collectors.toList());
-                    ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
-                    apiScenarioExample.createCriteria().andIdIn(scenarioIds);
-                    List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(apiScenarioExample);
-                    if (CollectionUtils.isNotEmpty(apiScenarios)) {
-                        for (ApiScenario apiScenario : apiScenarios) {
-                            specialReceivers.add(apiScenario.getCreateUser());
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     public void checkQuota(String projectId) {
         QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
@@ -773,23 +714,12 @@ public class ApiDefinitionService {
 
             apiDefinitionMapper.insertSelective(test);
         }
-
         // 同步修改用例路径
         if (StringUtils.equals(test.getProtocol(), "HTTP")) {
             List<String> ids = new ArrayList<>();
             ids.add(request.getId());
-            Boolean toBeUpdated = null;
-            if (request.getToBeUpdated() != null) {
-                toBeUpdated = request.getToBeUpdated();
-            }
-            ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
-            ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
-            if (apiDefinitionSyncService != null) {
-                apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(request.getProjectId());
-            }
-            apiTestCaseService.updateByApiDefinitionId(ids, test.getPath(), test.getMethod(), test.getProtocol(), toBeUpdated, apiSyncCaseRequest);
+            apiTestCaseService.updateByApiDefinitionId(ids, test, request.getTriggerUpdate());
         }
-        //
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
         checkAndSetLatestVersion(result.getRefId());
         return result;
@@ -1208,7 +1138,6 @@ public class ApiDefinitionService {
             e.printStackTrace();
         }
         ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
-        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
         if (apiDefinitionSyncService != null) {
             apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(existApi.getProjectId());
         }
@@ -1238,7 +1167,6 @@ public class ApiDefinitionService {
                 }
                 return true;
             }
-
         }
 
         JsonNode exApiRequest = null;

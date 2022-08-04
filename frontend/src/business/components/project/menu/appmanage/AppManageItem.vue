@@ -4,7 +4,10 @@
       <el-col :span="prependSpan">
         <div class="item_prepend">
           <slot name="prepend">
-            <span :class="titleClass">{{ title }}</span>
+            <el-button v-if="showBtn" type="text" @click="clickBtn" :disabled="disabledBtn">
+              {{ title }}
+            </el-button>
+            <span v-else :class="titleClass">{{ title }}</span>
             <span class="prepend_description">{{ description }}</span>
           </slot>
         </div>
@@ -56,6 +59,18 @@ export default {
       default() {
         return 12;
       }
+    },
+    showBtn: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    disabledBtn: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     }
   },
   computed: {
@@ -63,6 +78,11 @@ export default {
     titleClass() {
       return this.description ?
         ['prepend_title'] : ['prepend_title', 'item_prepend_lh'];
+    }
+  },
+  methods: {
+    clickBtn() {
+      this.$emit('clickBtn')
     }
   }
 }

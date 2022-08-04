@@ -57,5 +57,10 @@ export default {
       name: 'editCompleteContainer',
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
+    {
+      path: 'messagesettings',
+      name: 'MessageSettings',
+      component: () => import('@/business/components/project/notification/MessageSettings'),
+    },
   ]
 };

@@ -82,5 +82,9 @@ public enum ProjectApplicationType {
     /**
      * 我的工作台-触发待更新规则
      */
-    TRIGGER_UPDATE
+    TRIGGER_UPDATE,
+    /**
+     * 我的工作台-开启待更新规则
+     */
+    OPEN_UPDATE_RULE
 }
