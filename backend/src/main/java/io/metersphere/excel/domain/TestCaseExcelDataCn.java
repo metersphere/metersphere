@@ -85,9 +85,9 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     private String priority;
 
     @Override
-    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields){
+    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields) {
         List<List<String>> returnList = new ArrayList<>();
-        if(needNum){
+        if (needNum) {
             List<String> list = new ArrayList<>();
             list.add("ID");
             returnList.add(list);
@@ -129,9 +129,9 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
         list9.add("用例等级");
         returnList.add(list9);
 
-        if(CollectionUtils.isNotEmpty(customFields)){
-            for (CustomFieldDao dto:customFields) {
-                if(StringUtils.equals(dto.getName(),"用例等级")){
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            for (CustomFieldDao dto : customFields) {
+                if (StringUtils.equals(dto.getName(), "用例等级")) {
                     continue;
                 }
                 List<String> list = new ArrayList<>();
@@ -144,20 +144,5 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
             }
         }
         return returnList;
-    }
-
-    @Override
-    public String parseStatus(String parseStatus){
-        String caseStatusValue = "";
-        if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Underway","进行中","進行中")){
-            caseStatusValue = "进行中";
-        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Prepare","未开始","未開始")){
-            caseStatusValue = "未开始";
-        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Completed","已完成","已完成")){
-            caseStatusValue = "已完成";
-        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Trash","废弃","廢棄")){
-            caseStatusValue = "废弃";
-        }
-        return caseStatusValue;
     }
 }
