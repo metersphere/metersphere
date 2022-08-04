@@ -4,7 +4,7 @@
       <div v-loading="result.loading">
         <el-card class="table-card">
           <el-tabs v-model="activeName" style="height: 600px">
-            <el-tab-pane :label="$t('commons.my_workstation')" name="my_workstation" :disabled="true">
+            <el-tab-pane :label="$t('commons.my_workstation')" name="my_workstation" v-if="isXpack" :disabled="true">
               {{ $t('commons.my_workstation') }}
             </el-tab-pane>
 
@@ -104,7 +104,7 @@
             </el-tab-pane>
 
             <!-- UI 测试 -->
-            <el-tab-pane v-if="isXpack" :label="$t('commons.ui_test')" name="ui_test">
+            <el-tab-pane :label="$t('commons.ui_test')" name="ui_test">
               <el-row style="margin-top: 10px">
                 <span style="font-weight:bold">{{ $t('commons.view_settings') }}</span>
               </el-row>
@@ -113,10 +113,10 @@
                                  :append-span="12" :prepend-span="12" :middle-span="0">
                   <template #append>
                     <el-radio-group v-model="config.uiQuickMenu" @change="switchChange('UI_QUICK_MENU', $event)">
-                      <el-radio label="local" value="local">
+                      <el-radio label="local" value="local" :disabled="!isXpack">
                         {{ $t('ui.ui_local_debug') }}
                       </el-radio>
-                      <el-radio label="server" value="server">
+                      <el-radio label="server" value="server" :disabled="!isXpack">
                         {{ $t('ui.ui_server_debug') }}
                       </el-radio>
                     </el-radio-group>
@@ -281,6 +281,7 @@ export default {
     width: 100%;
   }
 }
+
 @media only screen and (min-width: 1426px) {
   .commons-view-setting {
     margin-left: 200px;
