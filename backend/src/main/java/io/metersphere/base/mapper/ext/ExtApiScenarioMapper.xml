@@ -827,5 +827,23 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
-</mapper>
+    <update id="updateNoModuleToDefaultModule">
+        UPDATE api_scenario
+        SET api_scenario_module_id = #{moduleId}
+        WHERE project_id = #{projectId}
+        <if test="status != null ">
+            AND status = #{status}
+        </if>
+        AND api_scenario_module_id not in (
+        SELECT id FROM api_scenario_module WHERE project_id = #{projectId}
+        )
+    </update>
 
+    <select id="selectBaseInfoByProjectIdAndStatus" resultType="io.metersphere.base.domain.ApiScenario">
+        select id, api_scenario_module_id
+        from api_scenario
+        WHERE project_id = #{projectId}
+          AND status = #{status}
+          AND latest IS TRUE
+    </select>
+</mapper>

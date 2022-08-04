@@ -106,4 +106,8 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(String projectId);
 
     int deleteApiToGc(ApiDefinitionRequest request);
+
+    List<ApiDefinition> selectApiBaseInfoByProjectIdAndProtocolAndStatus(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("versionId") String versionId, @Param("status") String status);
+
+    void updateNoModuleApiToDefaultModule(@Param("projectId") String projectId, @Param("protocol") String protocol, @Param("status") String status, @Param("versionId") String versionId, @Param("moduleId") String moduleId);
 }

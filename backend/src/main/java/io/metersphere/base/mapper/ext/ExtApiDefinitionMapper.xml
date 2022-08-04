@@ -1116,6 +1116,21 @@
         </foreach>
     </update>
 
+    <update id="updateNoModuleApiToDefaultModule">
+        UPDATE api_definition
+        SET module_id = #{moduleId}
+        WHERE protocol = #{protocol}
+        AND project_id = #{projectId}
+        <if test="status != null ">
+            AND status = #{status}
+        </if>
+        <if test="versionId != null ">
+            AND version_id = #{versionId}
+        </if>
+        AND module_id not in (
+        SELECT id FROM api_module WHERE project_id = #{projectId} AND protocol = #{protocol}
+        )
+    </update>
     <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
         SELECT DISTINCT ref_id
         FROM api_definition
@@ -1171,6 +1186,16 @@
                     api_definition.${order.name} ${order.type}
                 </if>
             </foreach>
+        </if>
+    </select>
+    <select id="selectApiBaseInfoByProjectIdAndProtocolAndStatus" resultType="io.metersphere.base.domain.ApiDefinition">
+        select id, module_id
+        from api_definition
+        WHERE project_id = #{projectId}
+        AND protocol = #{protocol}
+        AND status = #{status}
+        <if test="versionId != null">
+            AND version_id = #{versionId}
         </if>
     </select>
     <sql id="Same_Where_Clause">

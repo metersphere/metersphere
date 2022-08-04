@@ -94,4 +94,8 @@ public interface ExtApiScenarioMapper {
     List<ApiScenarioWithBLOBs> selectRepeatByBLOBs(@Param("names") List<String> names, @Param("projectId") String projectId);
 
     List<String> selectRelevanceIdsByQuery(@Param("request") BaseQueryRequest query);
+
+    void updateNoModuleToDefaultModule(@Param("projectId") String projectId, @Param("status") String status, @Param("moduleId") String moduleId);
+
+    List<ApiScenario> selectBaseInfoByProjectIdAndStatus(@Param("projectId") String projectId, @Param("status") String status);
 }

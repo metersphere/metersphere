@@ -2656,4 +2656,24 @@ public class ApiDefinitionService {
             apiDefinitionFollowMapper.deleteByExample(example);
         }
     }
+
+    public Map<String, List<ApiDefinition>> selectApiBaseInfoGroupByModuleId(String projectId, String protocol, String versionId, String status) {
+        List<ApiDefinition> apiList = extApiDefinitionMapper.selectApiBaseInfoByProjectIdAndProtocolAndStatus(projectId, protocol, versionId, status);
+        return apiList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
+    }
+
+    /**
+     * 将模块删除了的接口模块改为默认模块
+     *
+     * @param projectId
+     * @param protocol
+     * @param status
+     * @param versionId
+     * @param id
+     */
+    public void updateNoModuleApiToDefaultModule(String projectId, String protocol, String status, String versionId, String id) {
+        if (StringUtils.isNoneEmpty(projectId, protocol, id)) {
+            extApiDefinitionMapper.updateNoModuleApiToDefaultModule(projectId, protocol, status, versionId, id);
+        }
+    }
 }

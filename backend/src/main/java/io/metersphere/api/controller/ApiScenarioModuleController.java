@@ -28,6 +28,12 @@ public class ApiScenarioModuleController {
         return apiScenarioModuleService.getNodeTreeByProjectId(projectId);
     }
 
+    @GetMapping("/trash/list/{projectId}")
+    public List<ApiScenarioModuleDTO> getTrashNodeByProjectId(@PathVariable String projectId) {
+        checkPermissionService.checkProjectOwner(projectId);
+        return apiScenarioModuleService.getTrashNodeTreeByProjectId(projectId);
+    }
+
     @PostMapping("/add")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiScenarioModuleService.class)
     public String addNode(@RequestBody ApiScenarioModule node) {

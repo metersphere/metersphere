@@ -16,6 +16,7 @@
           @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
           :type="'edit'"
           page-source="definition"
+          :is-trash-data="trashEnable"
           :total='total'
           :current-version="currentVersion"
           ref="nodeTree"/>
@@ -30,9 +31,9 @@
           class="ms-api-button"
           ref="environmentSelect"/>
         <!-- 主框架列表 -->
-        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab">
+        <el-tabs v-model="apiDefaultTab" @edit="closeConfirm" @tab-click="addTab" @tab-remove="removeTab">
           <el-tab-pane
-            name="trash"
+            name="trash" :closable="true"
             :label="$t('commons.trash')" v-if="trashEnable">
             <ms-tab-button
               v-if="this.trashTabInfo.type === 'list'"
@@ -110,7 +111,7 @@
               </template>
               <!-- 列表集合 -->
               <ms-api-list
-                v-if="activeDom==='left'"
+                v-if="activeDom==='left' && !trashEnable"
                 @getTrashApi="getTrashApi"
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
@@ -393,6 +394,9 @@ export default {
     });
   },
   watch: {
+    trashEnable() {
+      this.selectNodeIds = [];
+    },
     currentProtocol() {
       if (this.activeDom === 'right') {
         this.activeDom = 'left';
@@ -400,7 +404,9 @@ export default {
       this.handleCommand("CLOSE_ALL");
     },
     selectNodeIds() {
-      this.apiDefaultTab = "default";
+      if (!this.trashEnable) {
+        this.apiDefaultTab = "default";
+      }
     },
     redirectID() {
       this.renderComponent = false;
@@ -455,6 +461,12 @@ export default {
     }
   },
   methods: {
+    removeTab(name) {
+      if (name === 'trash') {
+        this.selectNodeIds = [];
+        this.trashEnable = false;
+      }
+    },
     openSwaggerScheduleTab() {
       //检查是否有开启的定时任务配置页，如果有的话直接跳转，不用再开启
       let scheduleTabName = "";
@@ -519,6 +531,7 @@ export default {
       this.redirectID = redirectIDParam;
     },
     addTab(tab) {
+      this.trashEnable = tab.name === 'trash';
       if (tab.name === 'add') {
         this.result = this.$get('/project_application/get/config/' + this.projectId + "/API_QUICK_MENU", res => {
           let projectData = res.data;
@@ -528,7 +541,6 @@ export default {
             this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
           }
         })
-
       } else if (tab.name === 'trash') {
         if (this.$refs.trashApiList) {
           this.$refs.trashApiList.initTable();
@@ -620,6 +632,7 @@ export default {
             if (action === 'confirm') {
               this.$store.state.apiMap.clear();
               this.apiTabs = [];
+              this.trashEnable = false;
               this.apiDefaultTab = tabs.name;
               this.apiTabs.push(tabs);
             }
@@ -627,6 +640,7 @@ export default {
         });
       } else {
         this.apiTabs = [];
+        this.trashEnable = false;
         this.apiDefaultTab = tabs.name;
         this.apiTabs.push(tabs);
       }

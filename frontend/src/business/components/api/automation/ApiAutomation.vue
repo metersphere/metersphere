@@ -13,15 +13,15 @@
         @exportJmx="exportJmx"
         @refreshAll="refreshAll"
         page-source="scenario"
+        :is-trash-data="trashEnable"
         :type="'edit'"
         :total='total'
         ref="nodeTree"/>
     </ms-aside-container>
-
     <ms-main-container style="overflow: hidden">
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
         <el-tab-pane
-          name="trash"
+          name="trash" :closable="true"
           :label="$t('commons.trash')" v-if="trashEnable">
           <ms-api-scenario-list
             @getTrashCase="getTrashCase"
@@ -47,6 +47,7 @@
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
+            v-if="!trashEnable"
             @getTrashCase="getTrashCase"
             @refreshTree="refreshTree"
             :module-tree="nodeTree"
@@ -185,6 +186,9 @@ export default {
     this.init();
   },
   watch: {
+    trashEnable() {
+      this.selectNodeIds = [];
+    },
     redirectID() {
       this.renderComponent = false;
       this.$nextTick(() => {
@@ -202,10 +206,12 @@ export default {
       }
     },
     selectNodeIds() {
-      this.activeName = "default";
+      if (!this.trashEnable) {
+        this.activeName = "default";
+      }
     },
     activeName() {
-      this.isAsideHidden = this.activeName === 'default';
+      this.isAsideHidden = (this.activeName === 'default' || this.activeName === 'trash');
     }
   },
   methods: {
@@ -287,6 +293,7 @@ export default {
       }
     },
     addTab(tab) {
+      this.trashEnable = tab.name === 'trash';
       if (tab.name === 'default') {
         this.$refs.apiScenarioList.search();
       } else if (tab.name === 'trash') {
@@ -361,6 +368,7 @@ export default {
           callback: (action) => {
             if (action === 'confirm') {
               this.tabs = [];
+              this.trashEnable = false;
               this.activeName = "default";
               this.isSave = false;
               // 清除vuex中缓存的环境
@@ -372,6 +380,7 @@ export default {
         });
       } else {
         this.tabs = [];
+        this.trashEnable = false;
         this.activeName = "default";
         this.refresh();
         this.isSave = false;
@@ -521,34 +530,39 @@ export default {
       }
     },
     closeConfirm(targetName) {
-      let message = "";
-      this.tabs.forEach(tab => {
-        if (tab.name === targetName) {
-          this.diff(tab);
-          if (tab && this.isSave) {
-            message += tab.currentScenario.name ? tab.currentScenario.name : this.$t('api_test.automation.add_scenario');
-          }
-        }
-      })
-      if (message !== "") {
-        this.$alert(this.$t('commons.scenario') + " [ " + message + " ] " + this.$t('commons.confirm_info'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.removeTab(targetName);
-              this.isSave = false;
-            } else {
-              this.isSave = false;
+      if (targetName === 'trash') {
+        this.selectNodeIds = [];
+        this.trashEnable = false;
+      } else {
+        let message = "";
+        this.tabs.forEach(tab => {
+          if (tab.name === targetName) {
+            this.diff(tab);
+            if (tab && this.isSave) {
+              message += tab.currentScenario.name ? tab.currentScenario.name : this.$t('api_test.automation.add_scenario');
             }
           }
-        });
-      } else {
-        this.isSave = false;
-        this.removeTab(targetName);
-      }
-      if (this.tabs && this.tabs.length === 0) {
-        this.refreshAll();
+        })
+        if (message !== "") {
+          this.$alert(this.$t('commons.scenario') + " [ " + message + " ] " + this.$t('commons.confirm_info'), '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.removeTab(targetName);
+                this.isSave = false;
+              } else {
+                this.isSave = false;
+              }
+            }
+          });
+        } else {
+          this.isSave = false;
+          this.removeTab(targetName);
+        }
+        if (this.tabs && this.tabs.length === 0) {
+          this.refreshAll();
+        }
       }
     },
     removeTab(targetName) {
@@ -606,7 +620,9 @@ export default {
     },
     refreshAll() {
       this.$refs.nodeTree.list();
-      this.$refs.apiScenarioList.search();
+      if (this.$refs.apiScenarioList) {
+        this.$refs.apiScenarioList.search();
+      }
       if (this.$refs.apiTrashScenarioList) {
         this.$refs.apiTrashScenarioList.search();
       }

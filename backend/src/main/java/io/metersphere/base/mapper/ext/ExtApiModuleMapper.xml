@@ -21,12 +21,27 @@
         and api_module.protocol = #{protocol}
         order by api_module.pos asc
     </select>
+
+    <select id="selectByIds" resultType="io.metersphere.api.dto.definition.ApiModuleDTO">
+        select
+        <include refid="io.metersphere.base.mapper.ApiModuleMapper.Base_Column_List"/>
+        from api_module
+        where id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by api_module.pos asc
+    </select>
+
     <select id="getNameById" resultType="java.lang.String">
-        select name from api_module
+        select name
+        from api_module
         where id = #{0}
     </select>
 
     <update id="updatePos">
-        update api_module set pos = #{pos} where id = #{id}
+        update api_module
+        set pos = #{pos}
+        where id = #{id}
     </update>
 </mapper>

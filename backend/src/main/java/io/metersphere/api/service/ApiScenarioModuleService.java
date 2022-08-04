@@ -22,6 +22,7 @@ import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -34,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,6 +103,58 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             node.setCaseNum(countNum);
         });
         return getNodeTrees(nodes);
+    }
+
+    public List<ApiScenarioModuleDTO> getTrashNodeTreeByProjectId(String projectId) {
+        //回收站数据初始化：被删除了的数据挂在默认模块上
+        initTrashDataModule(projectId);
+        //通过回收站里的接口模块进行反显
+        Map<String, List<ApiScenario>> trashApiMap = apiAutomationService.selectApiBaseInfoGroupByModuleId(projectId, ScenarioStatus.Trash.name());
+        //查找回收站里的模块
+        List<ApiScenarioModuleDTO> trashModuleList = this.selectTreeStructModuleById(trashApiMap.keySet());
+        this.initApiCount(trashModuleList, trashApiMap);
+        return getNodeTrees(trashModuleList);
+    }
+
+    private void initApiCount(List<ApiScenarioModuleDTO> moduleDTOList, Map<String, List<ApiScenario>> scenarioMap) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(moduleDTOList) && MapUtils.isNotEmpty(scenarioMap)) {
+            moduleDTOList.forEach(node -> {
+                List<String> moduleIds = new ArrayList<>();
+                moduleIds = this.nodeList(moduleDTOList, node.getId(), moduleIds);
+                moduleIds.add(node.getId());
+                int countNum = 0;
+                for (String moduleId : moduleIds) {
+                    if (scenarioMap.containsKey(moduleId)) {
+                        countNum += scenarioMap.get(moduleId).size();
+                    }
+                }
+                node.setCaseNum(countNum);
+            });
+        }
+    }
+
+    private List<ApiScenarioModuleDTO> selectTreeStructModuleById(Collection<String> ids) {
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>(0);
+        } else {
+            List<String> parentIdList = new ArrayList<>();
+            List<ApiScenarioModuleDTO> apiModuleList = extApiScenarioModuleMapper.selectByIds(ids);
+            apiModuleList.forEach(apiModuleDTO -> {
+                if (StringUtils.isNotBlank(apiModuleDTO.getParentId()) && !parentIdList.contains(apiModuleDTO.getParentId())) {
+                    parentIdList.add(apiModuleDTO.getParentId());
+                }
+            });
+            apiModuleList.addAll(0, this.selectTreeStructModuleById(parentIdList));
+            List<ApiScenarioModuleDTO> returnList = new ArrayList<>(apiModuleList.stream().collect(Collectors.toMap(ApiScenarioModuleDTO::getId, Function.identity(), (t1, t2) -> t1)).values());
+            return returnList;
+        }
+    }
+
+    private void initTrashDataModule(String projectId) {
+        ApiScenarioModule defaultModule = this.getDefaultNode(projectId);
+        if (defaultModule != null) {
+            apiAutomationService.updateNoModuleToDefaultModule(projectId, ScenarioStatus.Trash.name(), defaultModule.getId());
+        }
     }
 
     private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {

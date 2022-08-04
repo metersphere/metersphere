@@ -9,6 +9,7 @@
       :type="isReadOnly ? 'view' : 'edit'"
       :allLabel="$t('api_test.definition.api_all')"
       :default-label="$t('api_test.definition.unplanned_api')"
+      :hide-opretor="isTrashData"
       local-suffix="api_definition"
       @add="add"
       @edit="edit"
@@ -32,6 +33,7 @@
           :moduleOptions="data"
           :options="options"
           :total="total"
+          :is-trash-data="isTrashData"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -90,6 +92,12 @@ export default {
         return true;
       }
     },
+    isTrashData: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
     showOperator: Boolean,
     planId: String,
     currentVersion: String,
@@ -141,6 +149,10 @@ export default {
       this.list();
     },
     reviewId() {
+      this.list();
+    },
+    isTrashData() {
+      this.condition.trashEnable = this.isTrashData;
       this.list();
     }
   },
@@ -199,6 +211,9 @@ export default {
         url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
       } else if (this.isRelevanceModel) {
         url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      } else if (this.isTrashData) {
+        url = "/api/module/trash/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
           (this.currentVersion ? '/' + this.currentVersion : '');
       } else {
         url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
@@ -268,7 +283,6 @@ export default {
     },
     nodeChange(node, nodeIds, pNodes) {
       this.currentModule = node.data;
-      this.condition.trashEnable = false;
       if (node.data.id === 'root') {
         this.$emit("nodeSelectEvent", node, [], pNodes);
       } else {
