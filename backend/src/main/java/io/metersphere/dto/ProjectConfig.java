@@ -29,4 +29,5 @@ public class ProjectConfig {
     private String triggerUpdate;
     private Boolean openUpdateTime = false;
     private String openUpdateRuleTime;
+    private Boolean openUpdateRule = false;
 }

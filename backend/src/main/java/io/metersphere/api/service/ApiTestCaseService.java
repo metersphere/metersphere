@@ -118,6 +118,8 @@ public class ApiTestCaseService {
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private ApiCaseBatchSyncService apiCaseSyncService;
 
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
@@ -324,6 +326,10 @@ public class ApiTestCaseService {
             FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         } else {
             FileUtils.createBodyFiles(request.getId(), bodyFiles);
+        }
+        // 发送通知
+        if (apiCaseSyncService != null) {
+            apiCaseSyncService.sendCaseNotice(test);
         }
         return test;
     }
@@ -834,7 +840,10 @@ public class ApiTestCaseService {
         }
     }
 
-    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol, Boolean toBeUpdated, ApiSyncCaseRequest apiSyncCaseRequest) {
+    public void updateByApiDefinitionId(List<String> ids, ApiDefinitionWithBLOBs test, String apiUpdateRule) {
+        String method = test.getMethod();
+        String path = test.getPath();
+        String protocol = test.getProtocol();
         if ((StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path) && RequestType.HTTP.equals(protocol))) {
             ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
             apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
@@ -864,11 +873,9 @@ public class ApiTestCaseService {
                 }
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
-                if (toBeUpdated != null) {
-                    apiTestCase.setToBeUpdated(toBeUpdated);
-                    if (toBeUpdated) {
-                        apiTestCase.setToBeUpdateTime(System.currentTimeMillis());
-                    }
+                // sync case
+                if (apiCaseSyncService != null) {
+                    apiCaseSyncService.oneClickSyncCase(apiUpdateRule, test, batchMapper, apiTestCase);
                 }
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
             });
