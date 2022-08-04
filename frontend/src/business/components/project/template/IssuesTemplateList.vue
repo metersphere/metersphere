@@ -70,7 +70,7 @@
                          :total="total"/>
 
     <issue-template-edit ref="templateEdit" @refresh="initTableData"/>
-
+    <ms-delete-confirm :title="$t('commons.template_delete')" @delete="_handleDelete" ref="deleteConfirm"/>
   </el-card>
 </template>
 
@@ -86,6 +86,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import TestCaseReportTemplate from "@/business/components/project/template/TestCaseReportTemplate";
 import IssueTemplateEdit from "@/business/components/project/template/IssueTemplateEdit";
+import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 
 export default {
   name: "IssuesTemplateList",
@@ -93,7 +94,12 @@ export default {
     IssueTemplateEdit,
     TestCaseReportTemplate,
     MsTableHeader,
-    MsTablePagination, MsTableButton, MsTableOperators, MsTableColumn, MsTable
+    MsTablePagination,
+    MsTableButton,
+    MsTableOperators,
+    MsTableColumn,
+    MsTable,
+    MsDeleteConfirm
   },
   data() {
     return {
@@ -166,6 +172,9 @@ export default {
       this.$refs.templateEdit.open(copyData, true);
     },
     handleDelete(data) {
+      this.$refs.deleteConfirm.open(data);
+    },
+    _handleDelete(data) {
       this.result = this.$get('field/template/issue/delete/' + data.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
