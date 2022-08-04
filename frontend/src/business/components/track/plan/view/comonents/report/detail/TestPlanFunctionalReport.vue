@@ -4,7 +4,7 @@
       <el-tab-pane v-if="resultEnable" :label="$t('test_track.report.test_result')" name="first">
         <functional-result :function-result="report.functionResult"/>
       </el-tab-pane>
-      <el-tab-pane v-if="issueEnable && (isTemplate || hasPermission('PROJECT_TRACK_ISSUE:READ'))" name="second">
+      <el-tab-pane v-if="issueEnable && (isTemplate || isShare || hasPermission('PROJECT_TRACK_ISSUE:READ'))" name="second">
         <template v-slot:label>
           <tab-pane-count :title="$t('test_track.report.issue_list')" :count="issueSize"/>
         </template>
