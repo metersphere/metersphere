@@ -1210,7 +1210,7 @@ export default {
       base_info: "基本信息",
       req_param: "請求參數",
       rsp_param: "響應內容",
-      delete_mock_expect: "確認刪除這條預期嗎？",
+      delete_mock_expect: "確認刪除這條期望嗎？",
       rule: {
         input_code: "請輸入 HTTP Code"
       },
