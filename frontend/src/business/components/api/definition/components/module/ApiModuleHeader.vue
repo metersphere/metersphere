@@ -20,7 +20,8 @@
       </el-col>
     </el-row>
 
-    <module-trash-button v-if="!isReadOnly" :condition="condition" :total="total" :exe="enableTrash"/>
+    <module-trash-button v-if="showTrashNode" :condition="condition" :total="total"
+                         :exe="enableTrash"/>
 
     <ms-add-basis-api
       :current-protocol="condition.protocol"
@@ -167,6 +168,12 @@ export default {
         return false;
       }
     },
+    isTrashData: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
     options: {
       type: Array,
       default() {
@@ -178,6 +185,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    showTrashNode() {
+      return (!this.isReadOnly && !this.isTrashData);
+    }
   },
   watch: {
     'condition.protocol'() {
@@ -186,7 +196,7 @@ export default {
       } else {
         this.operators = this.otherOperators;
       }
-    }
+    },
   },
   created() {
     this.operators = this.httpOperators;

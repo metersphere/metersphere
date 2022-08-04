@@ -728,7 +728,6 @@ export default {
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};
-        this.condition.moduleIds = [];
       }
 
       if (!this.condition.filters.status) {

@@ -39,6 +39,17 @@ public class ApiModuleController {
         return apiModuleService.getNodeTreeByProjectId(projectId, protocol, versionId);
     }
 
+    @GetMapping("/trash/list/{projectId}/{protocol}/{versionId}")
+    public List<ApiModuleDTO> getTrashNodeByProtocolAndProjectId(@PathVariable String projectId, @PathVariable String protocol,
+                                                                 @PathVariable String versionId) {
+        return apiModuleService.getTrashNodeTreeByProtocolAndProjectId(projectId, protocol, versionId);
+    }
+
+    @GetMapping("/trash/list/{projectId}/{protocol}")
+    public List<ApiModuleDTO> getTrashNodeByProtocolAndProjectId(@PathVariable String projectId, @PathVariable String protocol) {
+        return apiModuleService.getTrashNodeTreeByProtocolAndProjectId(projectId, protocol, null);
+    }
+
     @GetMapping("/trashCount/{projectId}/{protocol}")
     public long trashCount(@PathVariable String projectId, @PathVariable String protocol) {
         String userId = SessionUtils.getUserId();

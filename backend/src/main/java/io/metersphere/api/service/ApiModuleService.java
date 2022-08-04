@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.base.domain.*;
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,6 +84,58 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public List<ApiModuleDTO> getApiModulesByProjectAndPro(String projectId, String protocol) {
         return extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
+    }
+
+    public List<ApiModuleDTO> getTrashNodeTreeByProtocolAndProjectId(String projectId, String protocol, String versionId) {
+        //回收站数据初始化：检查是否存在模块被删除的接口，则把接口挂再默认节点上
+        initTrashDataModule(projectId, protocol, versionId);
+        //通过回收站里的接口模块进行反显
+        Map<String, List<ApiDefinition>> trashApiMap = apiDefinitionService.selectApiBaseInfoGroupByModuleId(projectId, protocol, versionId, ScenarioStatus.Trash.name());
+        //查找回收站里的模块
+        List<ApiModuleDTO> trashModuleList = this.selectTreeStructModuleById(trashApiMap.keySet());
+        this.initApiCount(trashModuleList, trashApiMap);
+        return getNodeTrees(trashModuleList);
+    }
+
+    private void initApiCount(List<ApiModuleDTO> apiModules, Map<String, List<ApiDefinition>> trashApiMap) {
+        if (CollectionUtils.isNotEmpty(apiModules) && MapUtils.isNotEmpty(trashApiMap)) {
+            apiModules.forEach(node -> {
+                List<String> moduleIds = new ArrayList<>();
+                moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+                moduleIds.add(node.getId());
+                int countNum = 0;
+                for (String moduleId : moduleIds) {
+                    if (trashApiMap.containsKey(moduleId)) {
+                        countNum += trashApiMap.get(moduleId).size();
+                    }
+                }
+                node.setCaseNum(countNum);
+            });
+        }
+    }
+
+    private List<ApiModuleDTO> selectTreeStructModuleById(Collection<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>(0);
+        } else {
+            List<String> parentIdList = new ArrayList<>();
+            List<ApiModuleDTO> apiModuleList = extApiModuleMapper.selectByIds(ids);
+            apiModuleList.forEach(apiModuleDTO -> {
+                if (StringUtils.isNotBlank(apiModuleDTO.getParentId()) && !parentIdList.contains(apiModuleDTO.getParentId())) {
+                    parentIdList.add(apiModuleDTO.getParentId());
+                }
+            });
+            apiModuleList.addAll(0, this.selectTreeStructModuleById(parentIdList));
+            List<ApiModuleDTO> returnList = new ArrayList<>(apiModuleList.stream().collect(Collectors.toMap(ApiModuleDTO::getId, Function.identity(), (t1, t2) -> t1)).values());
+            return returnList;
+        }
+    }
+
+    private void initTrashDataModule(String projectId, String protocol, String versionId) {
+        ApiModule defaultModule = this.getDefaultNode(projectId, protocol);
+        if (defaultModule != null) {
+            apiDefinitionService.updateNoModuleApiToDefaultModule(projectId, protocol, ScenarioStatus.Trash.name(), versionId, defaultModule.getId());
+        }
     }
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol, String versionId) {
@@ -140,7 +194,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             if (moduleIdObj != null && countNumObj != null) {
                 String moduleId = String.valueOf(moduleIdObj);
                 try {
-                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
+                    Integer countNumInteger = Integer.parseInt(String.valueOf(countNumObj));
                     returnMap.put(moduleId, countNumInteger);
                 } catch (Exception e) {
                     LogUtil.error("method parseModuleCountList has error:", e);

@@ -2338,4 +2338,13 @@ public class ApiAutomationService {
 
         return !StringUtils.equals(existApiScenario.getScenarioDefinition(), apiScenario.getScenarioDefinition());
     }
+
+    public void updateNoModuleToDefaultModule(String projectId, String status, String id) {
+        this.extApiScenarioMapper.updateNoModuleToDefaultModule(projectId, status, id);
+    }
+
+    public Map<String, List<ApiScenario>> selectApiBaseInfoGroupByModuleId(String projectId, String status) {
+        List<ApiScenario> apiScenarioList = extApiScenarioMapper.selectBaseInfoByProjectIdAndStatus(projectId, status);
+        return apiScenarioList.stream().collect(Collectors.groupingBy(ApiScenario::getApiScenarioModuleId));
+    }
 }

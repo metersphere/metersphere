@@ -14,6 +14,7 @@
       :default-label="$t('api_test.automation.unplanned_scenario')"
       local-suffix="api_scenario"
       :show-case-num="showCaseNum"
+      :hide-opretor="isTrashData"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -28,7 +29,8 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash" :total='total'/>
+        <module-trash-button v-if="!isReadOnly && !isTrashData" :condition="condition" :exe="enableTrash"
+                             :total='total'/>
       </template>
 
     </ms-node-tree>
@@ -76,6 +78,7 @@ export default {
     planId: String,
     pageSource: String,
     total: Number,
+    isTrashData: Boolean,
     showCaseNum: {
       type: Boolean,
       default() {
@@ -151,6 +154,10 @@ export default {
     },
     relevanceProjectId() {
       this.list();
+    },
+    isTrashData() {
+      this.condition.trashEnable = this.isTrashData;
+      this.list();
     }
   },
   methods: {
@@ -176,6 +183,8 @@ export default {
         url = '/api/automation/module/list/plan/' + this.planId;
       } else if (this.isRelevanceModel) {
         url = "/api/automation/module/list/" + this.relevanceProjectId;
+      } else if (this.isTrashData) {
+        url = "/api/automation/module/trash/list/" + (projectId ? projectId : this.projectId);
       } else {
         url = "/api/automation/module/list/" + (projectId ? projectId : this.projectId);
         if (!this.projectId) {
@@ -244,7 +253,6 @@ export default {
     },
     nodeChange(node, nodeIds, pNodes) {
       this.currentModule = node.data;
-      this.condition.trashEnable = false;
       if (node.data.id === 'root') {
         this.$emit("nodeSelectEvent", node, [], pNodes);
       } else {

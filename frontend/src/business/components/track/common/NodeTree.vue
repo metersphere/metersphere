@@ -38,7 +38,7 @@
         </span>
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !== defaultLabel"
+            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
             class="item"
             effect="dark"
             v-permission="updatePermission"
@@ -48,7 +48,7 @@
             <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.name === defaultLabel && data.level !== 1"
+            v-if="data.name === defaultLabel && data.level !== 1 && !hideOpretor"
             v-permission="updatePermission"
             class="item"
             effect="dark"
@@ -62,14 +62,14 @@
             effect="dark"
             :open-delay="200"
             v-permission="addPermission"
-            v-if="!isDefault(data)"
+            v-if="!isDefault(data) && !hideOpretor"
             :content="$t('test_track.module.add_submodule')"
             placement="top">
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
 
           <el-tooltip
-            v-if="data.name === defaultLabel && data.level !==1"
+            v-if="data.name === defaultLabel && data.level !==1 && !hideOpretor"
             class="item" effect="dark"
             :open-delay="200"
             v-permission="deletePermission"
@@ -79,7 +79,7 @@
           </el-tooltip>
 
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !== defaultLabel"
+            v-if="data.id !== 'root' && data.name !== defaultLabel && !hideOpretor"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
@@ -159,7 +159,8 @@ export default {
     updatePermission: Array,
     addPermission: Array,
     deletePermission: Array,
-    localSuffix: String
+    localSuffix: String,
+    hideOpretor: Boolean,
   },
   watch: {
     treeNodes() {

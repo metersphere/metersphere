@@ -525,14 +525,12 @@ export default {
   },
   watch: {
     selectNodeIds() {
-      if (!this.trashEnable) {
-        initCondition(this.condition, false);
-        this.currentPage = 1;
-        this.condition.moduleIds = [];
-        this.condition.moduleIds.push(this.selectNodeIds);
-        this.closeCaseModel();
-        this.initTable();
-      }
+      initCondition(this.condition, false);
+      this.currentPage = 1;
+      this.condition.moduleIds = [];
+      this.condition.moduleIds.push(this.selectNodeIds);
+      this.closeCaseModel();
+      this.initTable();
     },
     currentProtocol() {
       this.getProtocolFilter();
@@ -617,9 +615,7 @@ export default {
 
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
-      if (!this.trashEnable) {
-        this.condition.moduleIds = this.selectNodeIds;
-      }
+      this.condition.moduleIds = this.selectNodeIds;
       this.condition.projectId = this.projectId;
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;

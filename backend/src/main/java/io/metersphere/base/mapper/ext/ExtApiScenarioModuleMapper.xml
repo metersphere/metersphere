@@ -10,6 +10,19 @@
     </select>
 
     <update id="updatePos">
-        update api_scenario_module set pos = #{pos} where id = #{id}
+        update api_scenario_module
+        set pos = #{pos}
+        where id = #{id}
     </update>
+
+    <select id="selectByIds" resultType="io.metersphere.api.dto.automation.ApiScenarioModuleDTO">
+        select
+        <include refid="io.metersphere.base.mapper.ApiScenarioModuleMapper.Base_Column_List"/>
+        from api_scenario_module
+        where id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        order by api_scenario_module.pos asc
+    </select>
 </mapper>
