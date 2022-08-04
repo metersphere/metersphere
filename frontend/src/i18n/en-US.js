@@ -467,7 +467,8 @@ export default {
       api_scenario: 'default',
       ui_element: 'default',
       ui_scenario: 'default'
-    }
+    },
+    template_delete: "Template delete"
   },
   login: {
     normal_Login: "Normal Login",
