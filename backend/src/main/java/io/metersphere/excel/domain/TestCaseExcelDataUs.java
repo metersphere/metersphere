@@ -85,9 +85,9 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     private String maintainer;
 
     @Override
-    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields){
+    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields) {
         List<List<String>> returnList = new ArrayList<>();
-        if(needNum){
+        if (needNum) {
             List<String> list = new ArrayList<>();
             list.add("ID");
             returnList.add(list);
@@ -133,12 +133,12 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
         list10.add("Case status");
         returnList.add(list10);
 
-        if(CollectionUtils.isNotEmpty(customFields)){
-            for (CustomFieldDao dto:customFields) {
-                if(StringUtils.equals(dto.getName(),"用例等级")){
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            for (CustomFieldDao dto : customFields) {
+                if (StringUtils.equals(dto.getName(), "用例等级")) {
                     continue;
                 }
-                if(StringUtils.equals(dto.getName(),"用例状态")){
+                if (StringUtils.equals(dto.getName(), "用例状态")) {
                     continue;
                 }
                 List<String> list = new ArrayList<>();
@@ -151,20 +151,5 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
             }
         }
         return returnList;
-    }
-
-    @Override
-    public String parseStatus(String parseStatus){
-        String caseStatusValue = "";
-        if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Underway","进行中","進行中")){
-            caseStatusValue = "Underway";
-        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Prepare","未开始","未開始")){
-            caseStatusValue = "Prepare";
-        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Completed","已完成","已完成")){
-            caseStatusValue = "Completed";
-        }else if(StringUtils.equalsAnyIgnoreCase(parseStatus,"Trash")){
-            caseStatusValue = "Trash";
-        }
-        return caseStatusValue;
     }
 }
