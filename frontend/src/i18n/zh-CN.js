@@ -494,6 +494,8 @@ export default {
   },
   workstation: {
     sync: '同步',
+    sync_setting: '同步设置',
+    custom_update_list_rule: '自定义待更新列表规则',
     ignore: '忽略',
     past: '过去',
     api_change: '接口变更',
@@ -3402,7 +3404,14 @@ export default {
       rule_tip: '设置待更新规则，符合选择的条件，会进入待更新列表中',
       api_tip: '接口定义和受影响的接口用例都会进入待更新列表',
       case_tip: '接口用例符合条件就会进入待更新列表',
-      update_rule_title: '进入待更新列表规则设置'
+      update_rule_title: '进入待更新列表规则设置',
+      no_show_setting: '不在弹出设置弹窗',
+      api_receiver_tip: "注意：请确认接口测试任务通知中的\"API更新\"已设置\"站内信\"消息，否则，将接收不到消息提醒。",
+      case_receiver_tip: "注意：请确认接口测试任务通知中的\"CASE更新\"已设置\"站内信\"消息，否则，将接收不到消息提醒。",
+      no_show_setting_tip: "勾选后，不再弹出弹窗，会默认按照设置的内容执行同步和变更通知：如果需要更改设置，可以在保存按钮旁的下拉选项中，打开设置项。",
+      go_to_api_message: '接口API更新消息通知',
+      go_to_case_message: 'CASE更新消息通知',
+      update_case_tip: '当CASE发生变化时，引用CASE的自动化场景创建人回收到站内消息提醒'
     }
   }
 };

@@ -494,6 +494,8 @@ export default {
   },
   workstation: {
     sync: '同步',
+    sync_setting: '同步設置',
+    custom_update_list_rule: '自定義待更新列表規則',
     ignore: '忽略',
     past: '過去',
     api_change: '接口變更',
@@ -3378,7 +3380,14 @@ export default {
       rule_tip: '設置待更新規則，符合選擇的條件，會進入待更新列表中',
       api_tip: '接口定義和受影響的接口用例都會進入待更新列表',
       case_tip: '接口用例符合條件就會進入待更新列表',
-      update_rule_title: '進入待更新列表規則設置'
+      update_rule_title: '進入待更新列表規則設置',
+      no_show_setting: '不在彈出設置彈窗',
+      api_receiver_tip: "注意：請確認接口測試任務通知中的\"API更新\"已設置\"站內信\"消息，否則，將接收不到消息提醒",
+      case_receiver_tip: "注意：請確認接口測試任務通知中的\"CASE更新\"已設置\"站內信\"消息，否則，將接收不到消息提醒。",
+      no_show_setting_tip: "勾選後，不再彈出彈窗，會默認按照設置的內容執行同步和變更通知：如果需要更改設置，可以在保存按鈕旁的下拉選項中，打開設置項。",
+      go_to_api_message: '接口API更新消息通知',
+      go_to_case_message: 'CASE更新消息通知',
+      update_case_tip: '當CASE發生變化時，引用CASE的自動化場景創建人回收到站內消息提醒'
     }
   }
 };

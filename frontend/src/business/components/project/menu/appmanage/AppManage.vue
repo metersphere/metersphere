@@ -10,12 +10,15 @@
               </el-row>
               <el-row style="margin-top: 15px">
                 <app-manage-item
-                  :title="$t('workstation.upcoming')+'-'+$t('commons.pending_upgrade')+$t('test_track.case.list')"
+                  :title="$t('workstation.custom_update_list_rule')"
+                  :show-btn="true"
+                  @clickBtn="openRuleSetting"
+                  :disabled-btn="disabledRuleBtn"
                   v-if="isXpack">
                   <template #append>
-                    <el-button type="text" @click="openRuleSetting">
+                    <el-switch v-model="openUpdateRule" @change="openRule">
                       {{ $t('commons.setting') + $t('commons.rule') }}
-                    </el-button>
+                    </el-switch>
                   </template>
                 </app-manage-item>
               </el-row>
@@ -226,20 +229,7 @@
                 <i class="el-icon-warning"/>
               </el-tooltip>
             </span>
-            <el-row>
-              <el-col :span="4">{{ $t('api_test.mock.base_info') + ":" }}</el-col>
-              <el-col :span="20" style="color: #783887">
-                <el-checkbox v-model="apiSyncCaseRequest.protocol" disabled>{{
-                    $t('api_report.request') + $t('api_test.request.protocol')
-                  }}
-                </el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.method" disabled>
-                  {{ $t('api_test.definition.document.request_method') + '\xa0\xa0\xa0\xa0\xa0' }}
-                </el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.path" disabled>{{ "URL" }}</el-checkbox>
-              </el-col>
-            </el-row>
-            <el-row>
+            <el-row style="margin-bottom: 20px">
               <el-col :span="4">{{ $t('api_test.mock.req_param') + ":" }}</el-col>
               <el-col :span="20" style="color: #783887">
                 <el-checkbox v-model="apiSyncCaseRequest.headers">{{ "Header" + '\xa0\xa0' }}</el-checkbox>
@@ -254,20 +244,21 @@
                 <el-checkbox v-model="apiSyncCaseRequest.body">{{ $t('api_test.request.body') }}</el-checkbox>
               </el-col>
             </el-row>
-            <!--            <span>{{ $t('commons.track') + $t('commons.setting') }}<el-tooltip class="ms-num" effect="dark"
-                                                                                           :content="$t('project_application.workstation.case_tip')"
-                                                                                           placement="top">
-                          <i class="el-icon-warning"/>
-                          </el-tooltip>
-                        </span>
-                        <el-row>
-                          <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
-                          <el-col :span="20" style="color: #783887">
-                            <el-checkbox v-model="apiSyncCaseRequest.runError">{{ $t('schedule.event_failed') }}</el-checkbox>
-                            <el-checkbox v-model="apiSyncCaseRequest.unRun">{{ $t('api_test.home_page.detail_card.unexecute') }}
-                            </el-checkbox>
-                          </el-col>
-                        </el-row>-->
+
+            <span>{{ $t('commons.track') + $t('commons.setting') }}<el-tooltip class="ms-num" effect="dark"
+                                                                               :content="$t('project_application.workstation.case_tip')"
+                                                                               placement="top">
+              <i class="el-icon-warning"/>
+              </el-tooltip>
+            </span>
+            <el-row>
+              <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
+              <el-col :span="20" style="color: #783887">
+                <el-checkbox v-model="apiSyncCaseRequest.runError">{{ $t('schedule.event_failed') }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.unRun">{{ $t('api_test.home_page.detail_card.unexecute') }}
+                </el-checkbox>
+              </el-col>
+            </el-row>
           </div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="showRuleSetting = false">取 消</el-button>
@@ -348,13 +339,16 @@ export default {
         openUpdateTime: false,
         openUpdateRuleTime: "",
         triggerUpdate: "",
+        openUpdateRule: false,
       },
       showRuleSetting: false,
       showSyncTimeSetting: true,
       apiSyncCaseRequest: {},
       pastQuantity: '',
       pastUnit: '',
-      showApiConfig: true
+      showApiConfig: true,
+      disabledRuleBtn: false,
+      openUpdateRule: true
     };
   },
   created() {
@@ -418,6 +412,13 @@ export default {
           }
           if (this.config.triggerUpdate) {
             this.apiSyncCaseRequest = JSON.parse(this.config.triggerUpdate);
+          } else {
+            if (!this.config.openUpdateRuleTime) {
+              this.config.openUpdateTime = true;
+              this.showSyncTimeSetting = true;
+              this.pastUnit = 'D'
+              this.pastQuantity = 3
+            }
           }
           if (this.config.openUpdateRuleTime) {
             this.pastUnit = this.config.openUpdateRuleTime.substring(this.config.openUpdateRuleTime.length - 1);
@@ -426,12 +427,14 @@ export default {
               this.showSyncTimeSetting = true;
             }
           }
+          this.openUpdateRule = this.config.openUpdateRule
+          this.disabledRuleBtn = !this.openUpdateRule
         }
       });
     },
     openRuleSetting() {
       this.showRuleSetting = true;
-      if (!this.apiSyncCaseRequest) {
+      if (JSON.stringify(this.apiSyncCaseRequest) === '{}') {
         this.apiSyncCaseRequest = {
           protocol: true,
           method: true,
@@ -440,13 +443,24 @@ export default {
           query: true,
           rest: true,
           body: true,
-          runError: false,
+          runError: true,
           unRun: false
         }
       }
       this.apiSyncCaseRequest.protocol = true;
       this.apiSyncCaseRequest.method = true;
       this.apiSyncCaseRequest.path = true;
+    },
+    openRule() {
+      let configs = [];
+      configs.push({
+        projectId: this.projectId,
+        typeValue: this.openUpdateRule,
+        type: 'OPEN_UPDATE_RULE'
+      });
+      let params = {configs};
+      this.startSaveData(params)
+      this.disabledRuleBtn = !this.disabledRuleBtn;
     },
     setSyncTime() {
       let configs = [];
