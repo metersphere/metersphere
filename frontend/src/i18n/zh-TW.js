@@ -1447,6 +1447,8 @@ export default {
       generate_report: "生成報告",
       rerun: "失敗重跑",
       rerun_warning: "連接異常，請檢查環境配置",
+      csv_warning: "請添加 csv 文件",
+      variable_warning: "變量名不能為空"
     },
     environment: {
       id: '環境ID',
@@ -1490,7 +1492,7 @@ export default {
       base_url: "基礎URL",
       base_url_description: "基礎URL作為所有請求的URL前綴",
       scenario_step_is_empty: "場景: {0} 的步驟為空，無法導入",
-      base_scenario_step_is_empty:"原場景步驟為空",
+      base_scenario_step_is_empty: "原場景步驟為空",
       variables: "自定義變量",
       headers: "請求頭",
       kv_description: "所有請求可以使用自定義變量",
