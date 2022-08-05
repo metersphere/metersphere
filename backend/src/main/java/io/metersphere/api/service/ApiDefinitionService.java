@@ -858,6 +858,8 @@ public class ApiDefinitionService {
         for (int i = 0; i < caseList.size(); i++) {
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
+            apiTestCaseWithBLOBs.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+            apiTestCaseWithBLOBs.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
             apiTestCaseWithBLOBs.setVersionId(apiDefinition.getVersionId());
             if (apiTestCaseWithBLOBs.getCreateTime() == null) {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
