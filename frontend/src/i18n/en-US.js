@@ -1442,6 +1442,8 @@ export default {
       generate_report: "Generate report",
       rerun: "fail and rerun",
       rerun_warning: "The connection is abnormal, please check the environment configuration",
+      csv_warning: "Please add csv file",
+      variable_warning: "Variable name cannot be empty"
     },
     environment: {
       id: 'Environment ID',
@@ -1485,7 +1487,7 @@ export default {
       base_url: "Base URL",
       base_url_description: "Base URL as URL prefix for all requests",
       scenario_step_is_empty: "Scenario: {0} has none step!",
-      base_scenario_step_is_empty:"Scenario step is empty!",
+      base_scenario_step_is_empty: "Scenario step is empty!",
       url_invalid: "Invalid URL",
       variables: "Variables",
       headers: "Headers",

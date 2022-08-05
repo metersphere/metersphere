@@ -1447,6 +1447,8 @@ export default {
       generate_report: "生成报告",
       rerun: "失败重跑",
       rerun_warning: "连接异常，请检查环境配置",
+      csv_warning: "请添加 csv 文件",
+      variable_warning: "变量名不能为空"
     },
     environment: {
       id: '环境ID',
@@ -1490,7 +1492,7 @@ export default {
       base_url: "基础URL",
       base_url_description: "基础URL作为所有请求的URL前缀",
       scenario_step_is_empty: "场景: {0} 的步骤为空,无法导入",
-      base_scenario_step_is_empty:"原场景步骤为空",
+      base_scenario_step_is_empty: "原场景步骤为空",
       variables: "自定义变量",
       headers: "请求头",
       kv_description: "所有请求可以使用自定义变量",
