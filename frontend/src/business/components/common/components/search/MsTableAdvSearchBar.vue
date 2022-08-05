@@ -111,10 +111,7 @@ export default {
     setCondition(condition, component) {
       // 某些字段储存在自定义表但是其 custom 的值是 false
       // 因为需求要把这些字段在有选项分类时归为 系统字段 ？
-      if (component.custom ||
-        (component.label === '严重程度' || component.label === '处理人' || component.label === '状态'
-          || component.label === '用例状态' || component.label === '责任人' || component.label === '用例等级'
-          || component.label === '测试阶段')) {
+      if (component.custom || ['严重程度', '处理人', '状态', '用例状态', '责任人', '用例等级'].indexOf(component.label) > -1) {
         this.handleCustomField(condition, component);
         return;
       }
