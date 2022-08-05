@@ -277,6 +277,7 @@ export default {
       versionEnable: false,
       isAsideHidden: true,
       ignoreTreeNodes: false,
+      hasRefreshDefault: true
     };
   },
   created() {
@@ -316,6 +317,13 @@ export default {
       this.isAsideHidden = this.activeName === 'default';
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
+      }
+      if (oldVal === 'trash' && newVal === 'default') {
+        // 在回收站恢复后，切到列表页面刷新
+        if (!this.hasRefreshDefault) {
+          this.refreshAll();
+          this.hasRefreshDefault = true;
+        }
       }
     },
     activeDom(newVal, oldVal) {
@@ -693,6 +701,7 @@ export default {
     },
     refreshTrashNode() {
       this.$refs.trashNodeTree.list();
+      this.hasRefreshDefault = false;
     },
     refreshTreeByCaseFilter() {
       if (this.publicEnable) {
