@@ -363,7 +363,7 @@ export default {
       return this.activeName === 'public';
     },
     showTrashNode() {
-      return this.activeName === 'trash';
+      return this.trashEnable;
     },
     projectId() {
       return getCurrentProjectID();
