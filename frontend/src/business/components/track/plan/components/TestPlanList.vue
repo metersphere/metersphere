@@ -495,6 +495,7 @@ export default {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     getPlanStageOption((data) => {
       this.stageOption = data;
+      this.setAdvSearchStageOption();
       if (this.stageOption.length > 0) {
         this.stageFilters = this.stageOption;
         this.stageFilters.forEach((stage) => {
@@ -510,6 +511,12 @@ export default {
     this.initTableData();
   },
   methods: {
+    setAdvSearchStageOption() {
+      let comp = this.condition.components.find(c => c.key === 'stage');
+      if (comp) {
+        comp.options = this.stageOption;
+      }
+    },
     currentUser: () => {
       return getCurrentUser();
     },
