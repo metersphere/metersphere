@@ -300,7 +300,7 @@ export default {
     addParameters(v) {
       v.id = getUUID();
       if (v.type === 'CSV') {
-        v.delimiter = ",";
+        v.delimiter = v.delimiter ? v.delimiter : ",";
       }
       this.variables.push(v);
       let index = 1;
