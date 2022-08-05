@@ -748,7 +748,10 @@ export default {
       });
     },
     enableTrash(data) {
-      this.trashEnable = data;
+      this.trashEnable = !data;
+      this.$nextTick(() => {
+        this.trashEnable = data;
+      })
     },
     enablePublic(data) {
       this.publicEnable = !data;
