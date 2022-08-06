@@ -3356,6 +3356,10 @@ export default {
     check_subitem: 'check subitem',
     pause: 'Pause',
     browser: "Browser",
+    inner_drag: "Drag in element",
+    set_coord: "Set Coordinate",
+    input_content_x: "input x coordinate",
+    input_content_y: "input y coordinate",
   },
   project_application: {
     workstation: {

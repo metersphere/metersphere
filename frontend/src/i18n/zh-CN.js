@@ -3365,6 +3365,10 @@ export default {
     check_subitem: '请选择子分类',
     pause: '等待时间',
     browser: "浏览器",
+    inner_drag: "元素内部拖拽",
+    set_coord: "设置鼠标坐标位置",
+    input_content_x: "请输入横坐标",
+    input_content_y: "请输入纵坐标",
   },
   project_application: {
     workstation: {
