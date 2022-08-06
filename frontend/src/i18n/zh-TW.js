@@ -3338,6 +3338,10 @@ export default {
     valiate_fail: "校驗失敗，請檢查必填項",
     pause: '等待時間',
     browser: "瀏覽器",
+    inner_drag: "元素內部拖拽",
+    set_coord: "設置鼠標坐標位置",
+    input_content_x: "請輸入橫坐標",
+    input_content_y: "請輸入縱坐標",
   },
   project_application: {
     workstation: {
