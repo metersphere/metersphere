@@ -359,6 +359,8 @@ export default {
       });
       this.selectVariable = "";
       this.searchType = "";
+      this.selectType = "CONSTANT";
+      this.editData = {};
       if (jsondiffpatch.diff(JSON.parse(JSON.stringify(this.variables)), this.variablesOld) || jsondiffpatch.diff(JSON.parse(JSON.stringify(this.headers)), this.headersOld)) {
         this.$emit('setVariables', saveVariables, this.headers);
       }
@@ -374,8 +376,14 @@ export default {
     },
     confirmVariable() {
       if (this.editData && (this.editData.name == undefined || this.editData.name == '')) {
-        this.$warning("变量名不能为空");
+        this.$warning(this.$t('api_test.automation.variable_warning'));
         return;
+      }
+      if (this.editData.type === 'CSV' && this.$refs.csv) {
+        if (this.editData.files.length === 0) {
+          this.$warning(this.$t('api_test.automation.csv_warning'));
+          return;
+        }
       }
       // 更新场景，修改左边数据
       if (this.showDelete) {

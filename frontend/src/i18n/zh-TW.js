@@ -1473,7 +1473,9 @@ export default {
       generate_report: "生成報告",
       rerun: "失敗重跑",
       rerun_warning: "連接異常，請檢查環境配置",
-      rerun_success: "已經開始重跑，稍後重繪結果查看"
+      rerun_success: "已經開始重跑，稍後重繪結果查看",
+      csv_warning: "請添加 csv 文件",
+      variable_warning: "變量名不能為空"
     },
     environment: {
       id: '環境ID',
