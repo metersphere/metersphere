@@ -67,6 +67,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
+    private static final String HTTP_PROTOCOL = "HTTP";
+
     public ApiModuleService() {
         super(ApiModuleDTO.class);
     }
@@ -589,32 +591,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
      * @return Return to the newly added module list and api list
      */
     public UpdateApiModuleDTO checkApiModule(ApiTestImportRequest request, ApiDefinitionImport apiImport, List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, boolean urlRepeat) {
-        Boolean fullCoverageApi = request.getCoverModule();
         String projectId = request.getProjectId();
         String protocol = request.getProtocol();
-        //上传文件时选的模块ID
-        String chooseModuleId = request.getModuleId();
+
+        if (StringUtils.isBlank(protocol)) {
+            protocol = HTTP_PROTOCOL;
+        }
 
         if (fullCoverage == null) {
             fullCoverage = false;
         }
 
-        if (fullCoverageApi == null) {
-            fullCoverageApi = false;
-        }
-
         //标准版ESB数据导入不区分是否覆盖，默认都为覆盖
-        if (apiImport.getEsbApiParamsMap() != null) {
+        if (MapUtils.isNotEmpty(apiImport.getEsbApiParamsMap())) {
             fullCoverage = true;
         }
 
-        String updateVersionId = getUpdateVersionId(request);
-        String versionId = getVersionId(request);
-
-        //需要新增的模块，key 为模块路径
-        Map<String, ApiModule> moduleMap = new HashMap<>();
-        //系统原有的需要更新的list，
-        List<ApiDefinitionWithBLOBs> toUpdateList = new ArrayList<>();
         //获取当前项目的当前协议下的所有模块的Tree
         List<ApiModuleDTO> apiModules = this.getApiModulesByProjectAndPro(projectId, protocol);
         List<ApiModuleDTO> nodeTreeByProjectId = this.getNodeTrees(apiModules);
@@ -632,173 +624,313 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         initParentModulePathMap.put("root", initParentModulePath);
         buildProcessData(nodeTreeByProjectId, pidChildrenMap, idPathMap, initParentModulePathMap);
 
+        //导入的case,导入的接口是有ID的，所以导入的case已经标记过一遍接口ID了,这里是处理覆盖时接口ID的变动
+        List<ApiTestCaseWithBLOBs> importCases = apiImport.getCases();
+
+        if (protocol.equals(HTTP_PROTOCOL)) {
+            return dealHttp(data, pidChildrenMap, idPathMap, idModuleMap, request, fullCoverage, urlRepeat, importCases);
+        } else {
+            Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap = apiImport.getEsbApiParamsMap();
+            return delOtherProtocol(data, pidChildrenMap, idPathMap, idModuleMap, request, fullCoverage, importCases, esbApiParamsMap);
+        }
+    }
+
+    private UpdateApiModuleDTO delOtherProtocol(List<ApiDefinitionWithBLOBs> data, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap, ApiTestImportRequest request, Boolean fullCoverage, List<ApiTestCaseWithBLOBs> importCases, Map<String, EsbApiParamsWithBLOBs> esbApiParamsMap) {
+        List<ApiDefinitionWithBLOBs> optionDatas = new ArrayList<>();
+        //系统原有的需要更新的list，
+        List<ApiDefinitionWithBLOBs> toUpdateList = new ArrayList<>();
+        //去重，TCP,SQL,DUBBO 模块下名称唯一
+        removeRepeatOrigin(data, fullCoverage, optionDatas);
+        //上传文件时选的模块ID
+        String chooseModuleId = request.getModuleId();
         //获取选中的模块
         ApiModuleDTO chooseModule = null;
         if (chooseModuleId != null) {
             chooseModule = idModuleMap.get(chooseModuleId);
         }
-        //导入的case,导入的接口是有ID的，所以导入的case已经标记过一遍接口ID了,这里是处理覆盖时接口ID的变动
-        List<ApiTestCaseWithBLOBs> importCases = apiImport.getCases();
         List<ApiTestCaseWithBLOBs> optionDataCases = new ArrayList<>();
-        //将ID,num全部置于null,覆盖的时候会增加ID，用以区分更新还是新增
+        //将ID,num全部置于null,覆盖的时候会增加ID，用以区分更新还是新增，处理导入文件里的重复的case，如果覆盖，则取重复的最后一个，否则取第一个
         removeRepeatCase(fullCoverage, importCases, optionDataCases);
+        //需要新增的模块，key 为模块路径
+        Map<String, ApiModule> moduleMap = new HashMap<>();
+        //处理模块
+        setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionDatas, chooseModule);
 
-        List<ApiDefinitionWithBLOBs> optionData = new ArrayList<>();
-        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs;
-        if (protocol.equals("HTTP")) {
-            //去重 如果url可重复 则模块+名称+请求方式+路径 唯一，否则 请求方式+路径唯一，
-            //覆盖模式留重复的最后一个，不覆盖留第一个
-            removeHTTPRepeat(data, fullCoverage, urlRepeat, optionData);
+        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = getApiDefinitionWithBLOBsList(request, optionDatas);
+        //重复接口的case
+        Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+            oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
+        }
+        Map<String, ApiDefinitionWithBLOBs> repeatDataMap = null;
+        Map<String, ApiDefinitionWithBLOBs> optionMap = new HashMap<>();
 
-            //处理模块
-            setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionData, chooseModule);
-            //系统内重复的数据
-            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionData, projectId);
-            //重复接口的case
-            Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
-            if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
-            }
-
-            //处理数据
-            if (urlRepeat) {
-                Map<String, ApiDefinitionWithBLOBs> methodPathMap;
-                Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap;
-                //按照原来的顺序
-                if (chooseModule != null) {
-                    String chooseModuleParentId = getChooseModuleParentId(chooseModule);
-                    String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
-                    methodPathMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, api -> api));
-                    ApiModuleDTO finalChooseModule = chooseModule;
-                    repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(finalChooseModule.getId())).collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
-                } else {
-                    methodPathMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + (t.getModulePath() == null ? "" : t.getModulePath()), api -> api));
-                    repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
-                }
-
-                //覆盖接口
+        if (chooseModule != null) {
+            if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                String chooseModuleParentId = getChooseModuleParentId(chooseModule);
+                String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
+                //这样的过滤规则下可能存在重复接口，如果是覆盖模块，需要按照去重规则再次去重，否则就加上接口原有的模块
                 if (fullCoverage) {
-                    //允许覆盖模块，用导入的重复数据的最后一条覆盖查询的所有重复数据; case 在覆盖的时候，是拼接到原来的case，name唯一；不覆盖，就用原来的
-                    if (fullCoverageApi) {
-                        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                            startCoverModule(toUpdateList, optionData, methodPathMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
-                        }
-                    } else {
-                        //覆盖但不覆盖模块
-                        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                            moduleMap = judgeModuleMap(moduleMap, methodPathMap, repeatDataMap);
-                            startCover(toUpdateList, optionData, methodPathMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
-                        }
-                    }
+                    List<ApiDefinitionWithBLOBs> singleOptionDatas = new ArrayList<>();
+                    removeOtherChooseModuleRepeat(optionDatas, singleOptionDatas, chooseModulePath);
+                    optionDatas = singleOptionDatas;
+                    optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, api -> api));
                 } else {
-                    //不覆盖,同一接口不做更新;可能创建新版本，case也直接创建，
-                    if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                        removeSameData(repeatDataMap, methodPathMap, optionData, moduleMap, versionId, optionDataCases);
-                    }
+                    getNoHChooseModuleUrlRepeatOptionMap(optionDatas, optionMap, chooseModulePath);
                 }
-                //最后在整个体统内检查一遍
-                if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                    Map<String, List<ApiDefinitionWithBLOBs>> repeatMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
-                    Map<String, ApiDefinitionWithBLOBs> optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath(), api -> api));
-                    if (fullCoverage) {
-                        startCover(toUpdateList, optionData, optionMap, repeatMap, updateVersionId, optionDataCases, oldCaseMap);
-                    } else {
-                        //不覆盖,同一接口不做更新
-                        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                            removeSameData(repeatMap, optionMap, optionData, moduleMap, versionId, optionDataCases);
-                        }
-                    }
+                repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
+            }
+        } else {
+            buildOptionMap(optionDatas, optionMap);
+            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
+        }
+        Boolean fullCoverageApi = getFullCoverageApi(request);
+        String updateVersionId = getUpdateVersionId(request);
+        String versionId = getVersionId(request);
+        //处理数据
+        if (fullCoverage) {
+            if (fullCoverageApi) {
+                coverModule(toUpdateList, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, esbApiParamsMap);
+            } else {
+                moduleMap = cover(moduleMap, toUpdateList, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, esbApiParamsMap);
+            }
+        } else {
+            //不覆盖
+            removeRepeat(optionDatas, optionMap, repeatDataMap, moduleMap, versionId, optionDataCases);
+        }
+
+        //系统内检查重复
+        if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
+            optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
+            if (fullCoverage) {
+                cover(moduleMap, toUpdateList, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, esbApiParamsMap);
+            } else {
+                //不覆盖,同一接口不做更新
+                removeRepeat(optionDatas, optionMap, repeatDataMap, moduleMap, versionId, optionDataCases);
+            }
+        }
+
+        if (optionDatas.isEmpty()) {
+            moduleMap = new HashMap<>();
+        }
+        return getUpdateApiModuleDTO(moduleMap, toUpdateList, optionDatas, optionDataCases);
+    }
+
+    private void getNoHChooseModuleUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiDefinitionWithBLOBs> optionMap, String chooseModulePath) {
+        for (ApiDefinitionWithBLOBs optionDatum : optionDatas) {
+            if (optionDatum.getModulePath() == null) {
+                optionMap.put(optionDatum.getName().concat(chooseModulePath), optionDatum);
+            } else {
+                optionMap.put(optionDatum.getName().concat(chooseModulePath).concat(optionDatum.getModulePath()), optionDatum);
+            }
+        }
+    }
+
+    private void removeOtherChooseModuleRepeat(List<ApiDefinitionWithBLOBs> optionDatas, List<ApiDefinitionWithBLOBs> singleOptionDatas, String chooseModulePath) {
+        LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = optionDatas.stream().collect(Collectors.groupingBy(t -> t.getName() + chooseModulePath, LinkedHashMap::new, Collectors.toList()));
+        methodPathMap.forEach((k, v) -> {
+            singleOptionDatas.add(v.get(v.size() - 1));
+        });
+    }
+
+    private List<ApiDefinitionWithBLOBs> getApiDefinitionWithBLOBsList(ApiTestImportRequest request, List<ApiDefinitionWithBLOBs> optionDatas) {
+        //处理数据
+        List<String> nameList = optionDatas.stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+        String projectId = request.getProjectId();
+        String protocol = request.getProtocol();
+        //获取系统内重复数据
+        return extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol, projectId);
+    }
+
+    private void buildOptionMap(List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiDefinitionWithBLOBs> optionMap) {
+        for (ApiDefinitionWithBLOBs optionDatum : optionDatas) {
+            if (optionDatum.getModulePath() == null) {
+                optionMap.put(optionDatum.getName(), optionDatum);
+            } else {
+                optionMap.put(optionDatum.getName() + optionDatum.getModulePath(), optionDatum);
+            }
+        }
+    }
+
+    private UpdateApiModuleDTO dealHttp(List<ApiDefinitionWithBLOBs> data, Map<String, List<ApiModule>> pidChildrenMap, Map<String, String> idPathMap, Map<String, ApiModuleDTO> idModuleMap, ApiTestImportRequest request, Boolean fullCoverage, boolean urlRepeat, List<ApiTestCaseWithBLOBs> importCases) {
+        List<ApiDefinitionWithBLOBs> optionDatas = new ArrayList<>();
+        //系统原有的需要更新的list，
+        List<ApiDefinitionWithBLOBs> toUpdateList = new ArrayList<>();
+        //去重 如果url可重复 则模块+名称+请求方式+路径 唯一，否则 请求方式+路径唯一，
+        //覆盖模式留重复的最后一个，不覆盖留第一个
+        removeHttpRepeat(data, fullCoverage, urlRepeat, optionDatas);
+
+        //上传文件时选的模块ID
+        String chooseModuleId = request.getModuleId();
+        //获取选中的模块
+        ApiModuleDTO chooseModule = null;
+        if (chooseModuleId != null) {
+            chooseModule = idModuleMap.get(chooseModuleId);
+        }
+        List<ApiTestCaseWithBLOBs> optionDataCases = new ArrayList<>();
+        //将ID,num全部置于null,覆盖的时候会增加ID，用以区分更新还是新增，处理导入文件里的重复的case，如果覆盖，则取重复的最后一个，否则取第一个
+        removeRepeatCase(fullCoverage, importCases, optionDataCases);
+        //需要新增的模块，key 为模块路径
+        Map<String, ApiModule> moduleMap = new HashMap<>();
+        //处理模块
+        setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionDatas, chooseModule);
+
+        if (urlRepeat) {
+            optionDatas = dealHttpUrlRepeat(chooseModule, idPathMap, optionDatas, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
+        } else {
+            dealHttpUrlNoRepeat(optionDatas, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
+        }
+
+        if (optionDatas.isEmpty()) {
+            moduleMap = new HashMap<>();
+        }
+
+        return getUpdateApiModuleDTO(moduleMap, toUpdateList, optionDatas, optionDataCases);
+    }
+
+    private void getUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiDefinitionWithBLOBs> optionMap) {
+        for (ApiDefinitionWithBLOBs optionDatum : optionDatas) {
+            if (optionDatum.getModulePath() == null) {
+                optionMap.put(optionDatum.getName() + optionDatum.getMethod() + optionDatum.getPath(), optionDatum);
+            } else {
+                optionMap.put(optionDatum.getName() + optionDatum.getMethod() + optionDatum.getPath() + optionDatum.getModulePath(), optionDatum);
+            }
+        }
+    }
+
+    private void dealHttpUrlNoRepeat(List<ApiDefinitionWithBLOBs> optionDatas, Boolean fullCoverage, ApiTestImportRequest request, Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+        //这个是名称加请求方式加路径加模块为key的map 就是为了去重
+        Map<String, ApiDefinitionWithBLOBs> optionMap;
+
+        String updateVersionId = getUpdateVersionId(request);
+        String versionId = getVersionId(request);
+        Boolean fullCoverageApi = getFullCoverageApi(request);
+        String projectId = request.getProjectId();
+        //系统内重复的数据
+        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionDatas, projectId);
+
+        //这个是系统内重复的数据
+        Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getMethod() + t.getPath()));
+
+        //按照原来的顺序
+        optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), api -> api));
+
+        Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
+
+        //重复接口的case
+        if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+            oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
+        }
+
+        if (fullCoverage) {
+            if (fullCoverageApi) {
+                if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                    startCoverModule(toUpdateList, optionDatas, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
                 }
             } else {
-                Map<String, ApiDefinitionWithBLOBs> methodPathMap;
-                Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getMethod() + t.getPath()));
-
-                //按照原来的顺序
-                methodPathMap = optionData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), api -> api));
-
-                if (fullCoverage) {
-                    if (fullCoverageApi) {
-                        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                            startCoverModule(toUpdateList, optionData, methodPathMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
-                        }
-                    } else {
-                        //不覆盖模块
-                        if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                            if (repeatDataMap.size() >= methodPathMap.size()) {
-                                //导入文件没有新增接口无需创建接口模块
-                                moduleMap = new HashMap<>();
-                            }
-                            startCover(toUpdateList, optionData, methodPathMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
-                        }
-                    }
-                } else {
-                    //不覆盖,同一接口不做更新
-                    if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                        removeSameData(repeatDataMap, methodPathMap, optionData, moduleMap, versionId, optionDataCases);
-                    }
+                //不覆盖模块
+                if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                    startCover(toUpdateList, optionDatas, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
                 }
             }
         } else {
-            //去重，TCP,SQL,DUBBO 模块下名称唯一
-            removeRepeatOrigin(data, fullCoverage, optionData);
-
-            //处理模块
-            setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionData, chooseModule);
-
-            //处理数据
-            List<String> nameList = optionData.stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
-
-            //获取系统内重复数据
-            repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByProtocol(nameList, protocol, projectId);
-            //重复接口的case
-            Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
-            if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
-            }
-            Map<String, ApiDefinitionWithBLOBs> repeatDataMap = null;
-
-            Map<String, ApiDefinitionWithBLOBs> nameModuleMap = null;
-            if (chooseModule != null) {
-                if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                    String chooseModuleParentId = getChooseModuleParentId(chooseModule);
-                    String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
-                    nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + chooseModulePath, api -> api));
-                    repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
-                }
-            } else {
-                nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), api -> api));
-                repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
-            }
-
-            //处理数据
-            if (fullCoverage) {
-                if (fullCoverageApi) {
-                    coverModule(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, apiImport.getEsbApiParamsMap());
-                } else {
-                    moduleMap = cover(moduleMap, toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap, apiImport.getEsbApiParamsMap());
-                }
-            } else {
-                //不覆盖
-                removeRepeat(optionData, nameModuleMap, repeatDataMap, moduleMap, versionId, optionDataCases);
-            }
-            //系统内检查重复
-            if (!repeatApiDefinitionWithBLOBs.isEmpty()) {
-                Map<String, ApiDefinitionWithBLOBs> repeatMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
-                Map<String, ApiDefinitionWithBLOBs> optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), api -> api));
-                if (fullCoverage) {
-                    cover(moduleMap, toUpdateList, optionMap, repeatMap, updateVersionId, optionDataCases, oldCaseMap, apiImport.getEsbApiParamsMap());
-                } else {
-                    //不覆盖,同一接口不做更新
-                    removeRepeat(optionData, optionMap, repeatMap, moduleMap, versionId, optionDataCases);
-                }
+            //不覆盖,同一接口不做更新
+            if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                removeSameData(repeatDataMap, optionMap, optionDatas, moduleMap, versionId, optionDataCases);
             }
         }
-
-        if (optionData.isEmpty()) {
-            moduleMap = new HashMap<>();
-        }
-        return getUpdateApiModuleDTO(moduleMap, toUpdateList, optionData, optionDataCases);
     }
+
+    private List<ApiDefinitionWithBLOBs> dealHttpUrlRepeat(ApiModuleDTO chooseModule, Map<String, String> idPathMap, List<ApiDefinitionWithBLOBs> optionDatas, Boolean fullCoverage, ApiTestImportRequest request, Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+        String updateVersionId = getUpdateVersionId(request);
+        String versionId = getVersionId(request);
+        Boolean fullCoverageApi = getFullCoverageApi(request);
+        String projectId = request.getProjectId();
+        //系统内重复的数据
+        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionDatas, projectId);
+
+        //这个是名称加请求方式加路径加模块为key的map 就是为了去重
+        Map<String, ApiDefinitionWithBLOBs> optionMap = new HashMap<>();
+        //这个是系统内重复的数据
+        Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap;
+        //按照原来的顺序
+        if (chooseModule != null) {
+            //如果有选中的模块，则在选中的模块下过滤 过滤规则是 选择的模块路径+名称+method+path
+            String chooseModuleParentId = getChooseModuleParentId(chooseModule);
+            String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
+            //这样的过滤规则下可能存在重复接口，如果是覆盖模块，需要按照去重规则再次去重，否则就加上接口原有的模块
+            if (fullCoverage) {
+                List<ApiDefinitionWithBLOBs> singleOptionDatas = new ArrayList<>();
+                removeHttpChooseModuleRepeat(optionDatas, singleOptionDatas, chooseModulePath);
+                optionDatas = singleOptionDatas;
+                optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, api -> api));
+            } else {
+                getChooseModuleUrlRepeatOptionMap(optionDatas, optionMap, chooseModulePath);
+            }
+            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(chooseModule.getId())).collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
+        } else {
+            //否则在整个系统中过滤
+            getUrlRepeatOptionMap(optionDatas, optionMap);
+            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
+        }
+        Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
+        //重复接口的case
+        if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+            oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
+        }
+        //覆盖接口
+        if (fullCoverage) {
+            //允许覆盖模块，用导入的重复数据的最后一条覆盖查询的所有重复数据; case 在覆盖的时候，是拼接到原来的case，name唯一；不覆盖，就用原来的
+            if (fullCoverageApi) {
+                if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                    startCoverModule(toUpdateList, optionDatas, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
+                }
+            } else {
+                //覆盖但不覆盖模块
+                if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                    //过滤同一层级重复模块，导入文件没有新增接口无需创建接口模块
+                    moduleMap = judgeModuleMap(moduleMap, optionMap, repeatDataMap);
+                    startCover(toUpdateList, optionDatas, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
+                }
+            }
+        } else {
+            //不覆盖,同一接口不做更新;可能创建新版本，case也直接创建，
+            if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                removeSameData(repeatDataMap, optionMap, optionDatas, moduleMap, versionId, optionDataCases);
+            }
+        }
+        //最后在整个体统内检查一遍（防止在有选择的模块时，未找到重复，直接创建的情况）
+        if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
+            optionMap = optionDatas.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath(), api -> api));
+            if (fullCoverage) {
+                startCover(toUpdateList, optionDatas, optionMap, repeatDataMap, updateVersionId, optionDataCases, oldCaseMap);
+            } else {
+                //不覆盖,同一接口不做更新
+                if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
+                    removeSameData(repeatDataMap, optionMap, optionDatas, moduleMap, versionId, optionDataCases);
+                }
+            }
+        }
+        return optionDatas;
+    }
+
+    private void removeHttpChooseModuleRepeat(List<ApiDefinitionWithBLOBs> optionDatas, List<ApiDefinitionWithBLOBs> singleOptionDatas, String chooseModulePath) {
+        LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = optionDatas.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, LinkedHashMap::new, Collectors.toList()));
+        methodPathMap.forEach((k, v) -> singleOptionDatas.add(v.get(v.size() - 1)));
+    }
+
+    private void getChooseModuleUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiDefinitionWithBLOBs> optionMap, String chooseModulePath) {
+        for (ApiDefinitionWithBLOBs optionDatum : optionDatas) {
+            if (optionDatum.getModulePath() == null) {
+                optionMap.put(optionDatum.getName() + optionDatum.getMethod() + optionDatum.getPath() + chooseModulePath, optionDatum);
+            } else {
+                optionMap.put(optionDatum.getName() + optionDatum.getMethod() + optionDatum.getPath() + chooseModulePath + optionDatum.getModulePath(), optionDatum);
+            }
+        }
+    }
+
 
     private void removeRepeatCase(Boolean fullCoverage, List<ApiTestCaseWithBLOBs> importCases, List<ApiTestCaseWithBLOBs> optionDataCases) {
         LinkedHashMap<String, List<ApiTestCaseWithBLOBs>> apiIdNameMap = importCases.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getApiDefinitionId(), LinkedHashMap::new, Collectors.toList()));
@@ -828,22 +960,29 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return oldCaseMap;
     }
 
+    private Boolean getFullCoverageApi(ApiTestImportRequest request) {
+        Boolean fullCoverageApi = request.getCoverModule();
+        if (fullCoverageApi == null) {
+            fullCoverageApi = false;
+        }
+        return fullCoverageApi;
+    }
 
-    private UpdateApiModuleDTO getUpdateApiModuleDTO(Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData, List<ApiTestCaseWithBLOBs> optionDataCases) {
+    private UpdateApiModuleDTO getUpdateApiModuleDTO(Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionDatas, List<ApiTestCaseWithBLOBs> optionDataCases) {
         UpdateApiModuleDTO updateApiModuleDTO = new UpdateApiModuleDTO();
         updateApiModuleDTO.setModuleList(new ArrayList<>(moduleMap.values()));
         updateApiModuleDTO.setNeedUpdateList(toUpdateList);
-        updateApiModuleDTO.setDefinitionWithBLOBs(optionData);
+        updateApiModuleDTO.setDefinitionWithBLOBs(optionDatas);
         updateApiModuleDTO.setCaseWithBLOBs(optionDataCases);
         return updateApiModuleDTO;
     }
 
-    private void removeRepeat(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> nameModuleMap,
+    private void removeRepeat(List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiDefinitionWithBLOBs> nameModuleMap,
                               Map<String, ApiDefinitionWithBLOBs> repeatDataMap, Map<String, ApiModule> moduleMap,
                               String versionId,
                               List<ApiTestCaseWithBLOBs> optionDataCases) {
         if (nameModuleMap != null) {
-            Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
+            Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionDatas.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
             repeatDataMap.forEach((k, v) -> {
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = nameModuleMap.get(k);
                 if (apiDefinitionWithBLOBs != null) {
@@ -858,7 +997,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     }
                     //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
                     if (v.getVersionId().equals(versionId)) {
-                        optionData.remove(apiDefinitionWithBLOBs);
+                        optionDatas.remove(apiDefinitionWithBLOBs);
                         if (CollectionUtils.isNotEmpty(distinctNameCases)) {
                             distinctNameCases.forEach(optionDataCases::remove);
                         }
@@ -979,40 +1118,40 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    private void removeRepeatOrigin(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, List<ApiDefinitionWithBLOBs> optionData) {
+    private void removeRepeatOrigin(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, List<ApiDefinitionWithBLOBs> optionDatas) {
         LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getName() + (t.getModulePath() == null ? "" : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
         if (fullCoverage) {
             methodPathMap.forEach((k, v) -> {
-                optionData.add(v.get(v.size() - 1));
+                optionDatas.add(v.get(v.size() - 1));
             });
         } else {
             methodPathMap.forEach((k, v) -> {
-                optionData.add(v.get(0));
+                optionDatas.add(v.get(0));
             });
         }
     }
 
-    private void removeHTTPRepeat(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, boolean urlRepeat, List<ApiDefinitionWithBLOBs> optionData) {
+    private void removeHttpRepeat(List<ApiDefinitionWithBLOBs> data, Boolean fullCoverage, boolean urlRepeat, List<ApiDefinitionWithBLOBs> optionDatas) {
         if (urlRepeat) {
             LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + (t.getModulePath() == null ? "" : t.getModulePath()), LinkedHashMap::new, Collectors.toList()));
             if (fullCoverage) {
                 methodPathMap.forEach((k, v) -> {
-                    optionData.add(v.get(v.size() - 1));
+                    optionDatas.add(v.get(v.size() - 1));
                 });
             } else {
                 methodPathMap.forEach((k, v) -> {
-                    optionData.add(v.get(0));
+                    optionDatas.add(v.get(0));
                 });
             }
         } else {
             LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = data.stream().collect(Collectors.groupingBy(t -> t.getMethod() + t.getPath(), LinkedHashMap::new, Collectors.toList()));
             if (fullCoverage) {
                 methodPathMap.forEach((k, v) -> {
-                    optionData.add(v.get(v.size() - 1));
+                    optionDatas.add(v.get(v.size() - 1));
                 });
             } else {
                 methodPathMap.forEach((k, v) -> {
-                    optionData.add(v.get(0));
+                    optionDatas.add(v.get(0));
                 });
             }
         }
@@ -1039,9 +1178,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     private void removeSameData(Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap,
-                                List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap, String versionId, List<ApiTestCaseWithBLOBs> optionDataCases) {
+                                List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiModule> moduleMap, String versionId, List<ApiTestCaseWithBLOBs> optionDataCases) {
 
-        Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
+        Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionDatas.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
             if (apiDefinitionWithBLOBs != null) {
@@ -1056,8 +1195,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 }
                 //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
                 List<ApiDefinitionWithBLOBs> sameVersionList = v.stream().filter(t -> t.getVersionId().equals(versionId)).collect(Collectors.toList());
-                if (!sameVersionList.isEmpty()) {
-                    optionData.remove(apiDefinitionWithBLOBs);
+                if (CollectionUtils.isNotEmpty(sameVersionList)) {
+                    optionDatas.remove(apiDefinitionWithBLOBs);
                     if (CollectionUtils.isNotEmpty(distinctNameCases)) {
                         distinctNameCases.forEach(optionDataCases::remove);
                     }
@@ -1068,14 +1207,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 }
             }
         });
-    }
-
-    private ArrayList<ApiTestCaseWithBLOBs> getDistinctNameCases(List<ApiTestCaseWithBLOBs> importCases) {
-        ArrayList<ApiTestCaseWithBLOBs> distinctNameCase = importCases.stream().collect(
-                Collectors.collectingAndThen(
-                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ApiTestCase::getName))), ArrayList::new)
-        );
-        return distinctNameCase;
     }
 
     private void setApiParam(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs, String versionId, ApiDefinitionWithBLOBs definitionWithBLOBs) {
@@ -1103,7 +1234,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     }
 
-    private void startCoverModule(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData,
+    private void startCoverModule(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionDatas,
                                   Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap,
                                   String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
                                   Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
@@ -1146,11 +1277,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     addNewVersionApi(apiDefinitionWithBLOBs, v.get(0), "update");
 
                 } else {
-                    optionData.remove(apiDefinitionWithBLOBs);
+                    optionDatas.remove(apiDefinitionWithBLOBs);
                 }
             }
         });
-        buildOtherParam(toUpdateList, optionData, coverApiList, updateApiList);
+        buildOtherParam(toUpdateList, optionDatas, coverApiList, updateApiList);
     }
 
     private void buildCaseList(Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap,
@@ -1160,7 +1291,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         List<ApiTestCaseWithBLOBs> apiTestCases = oldCaseMap.get(definitionWithBLOBs.getId());
         //map List 结构是因为表里可能一个接口有多个同名case的可能
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseNameMap;
-        if (apiTestCases != null && !apiTestCases.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(apiTestCases)) {
             oldCaseNameMap = apiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getName));
             caseNameMap.forEach((name, caseWithBLOBs1) -> {
                 //如果导入的有重名，覆盖，接口ID替换成系统内的
@@ -1222,7 +1353,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
-    private void startCover(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData,
+    private void startCover(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionDatas,
                             Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap,
                             String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
                             Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
@@ -1265,11 +1396,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     addNewVersionApi(apiDefinitionWithBLOBs, v.get(0), "update");
 
                 } else {
-                    optionData.remove(apiDefinitionWithBLOBs);
+                    optionDatas.remove(apiDefinitionWithBLOBs);
                 }
             }
         });
-        buildOtherParam(toUpdateList, optionData, coverApiList, updateApiList);
+        buildOtherParam(toUpdateList, optionDatas, coverApiList, updateApiList);
     }
 
     private Map<String, ApiModule> judgeModuleMap(Map<String, ApiModule> moduleMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap) {
@@ -1285,8 +1416,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return moduleMap;
     }
 
-    private void buildOtherParam(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionData, List<ApiDefinitionWithBLOBs> coverApiList, List<ApiDefinitionWithBLOBs> updateApiList) {
-        optionData.addAll(coverApiList);
+    private void buildOtherParam(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionDatas, List<ApiDefinitionWithBLOBs> coverApiList, List<ApiDefinitionWithBLOBs> updateApiList) {
+        optionDatas.addAll(coverApiList);
         toUpdateList.addAll(updateApiList);
 
     }
@@ -1388,7 +1519,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         for (int i = 0; i < tagTree.length; i++) {
             int finalI = i;
             List<ApiModule> collect = new ArrayList<>();
-            if (parentModuleList != null && !parentModuleList.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(parentModuleList)) {
                 collect = parentModuleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
             }
             if (collect.isEmpty()) {
@@ -1400,7 +1531,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     parentModule.setLevel(0);
                     parentModule.setProtocol(pidChildrenMap.get("root").get(0).getProtocol());
                 } else {
-                    if (parentModuleList != null && !parentModuleList.isEmpty() && parentModule == null) {
+                    if (CollectionUtils.isNotEmpty(parentModuleList) && parentModule == null) {
                         String parentId = parentModuleList.get(0).getParentId();
                         ApiModuleDTO apiModuleDTO = idModuleMap.get(parentId);
                         parentModule = JSON.parseObject(JSON.toJSONString(apiModuleDTO), ApiModule.class);
