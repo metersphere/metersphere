@@ -226,7 +226,7 @@ export default {
       if (!params) {
         return;
       }
-      if (params instanceof String) {
+      if (typeof params === "string") {
         let paramArr = params.split("edit:");
         if (paramArr.length !== 2) {
           return;
