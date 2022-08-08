@@ -16,6 +16,7 @@ import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.group.EditGroupUserRequest;
 import io.metersphere.dto.*;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -75,6 +76,15 @@ public class GroupService {
         put(UserGroupType.WORKSPACE, "工作空间");
         put(UserGroupType.PROJECT, "项目");
     }};
+
+    private static GroupJson groupJson = null;
+    static {
+        try (InputStream inputStream = GroupService.class.getResourceAsStream("/permission.json")){
+            groupJson = JSON.parseObject(inputStream, GroupJson.class);
+        } catch (IOException e) {
+            LogUtil.error("load permissions file error. ", e);
+        }
+    }
 
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
@@ -159,29 +169,19 @@ public class GroupService {
         userGroupPermissionMapper.deleteByExample(example);
     }
 
-    public GroupPermissionDTO getGroupResource(Group g) {
+    public GroupPermissionDTO getGroupResource(Group group) {
         GroupPermissionDTO dto = new GroupPermissionDTO();
-        InputStream permission = getClass().getResourceAsStream("/permission.json");
-        String type = g.getType();
-        String id = g.getId();
         UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
-        userGroupPermissionExample.createCriteria().andGroupIdEqualTo(id);
+        userGroupPermissionExample.createCriteria().andGroupIdEqualTo(group.getId());
         List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
         List<String> permissionList = userGroupPermissions.stream().map(UserGroupPermission::getPermissionId).collect(Collectors.toList());
-        if (permission == null) {
-            throw new RuntimeException("读取文件失败!");
-        } else {
-            GroupJson group;
-            try {
-                group = JSON.parseObject(permission, GroupJson.class);
-                List<GroupResource> resource = group.getResource();
-                List<GroupPermission> permissions = group.getPermissions();
-                List<GroupResourceDTO> dtoPermissions = dto.getPermissions();
-                dtoPermissions.addAll(getResourcePermission(resource, permissions, type, permissionList));
-            } catch (IOException e) {
-                LogUtil.error(e);
-            }
+        if (groupJson == null) {
+            MSException.throwException(Translator.get("read_permission_file_fail"));
         }
+        List<GroupResource> resource = groupJson.getResource();
+        List<GroupPermission> permissions = groupJson.getPermissions();
+        List<GroupResourceDTO> dtoPermissions = dto.getPermissions();
+        dtoPermissions.addAll(getResourcePermission(resource, permissions, group.getType(), permissionList));
         return dto;
     }
 
