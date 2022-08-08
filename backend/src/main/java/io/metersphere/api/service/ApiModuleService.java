@@ -733,8 +733,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         setModule(moduleMap, pidChildrenMap, idPathMap, idModuleMap, optionData, chooseModule);
 
         if (urlRepeat) {
-            dealHttpUrlRepeat(chooseModule, idPathMap, optionData, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
-
+            optionData = dealHttpUrlRepeat(chooseModule, idPathMap, optionData, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
         } else {
             dealHttpUrlNoRepeat(optionData, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
         }
@@ -796,9 +795,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         buildCases(optionDataCases, oldCaseMap, caseIds);
     }
 
-    private void dealHttpUrlRepeat(ApiModuleDTO chooseModule, Map<String, String> idPathMap, List<ApiDefinitionWithBLOBs> optionData,
-                                   Boolean fullCoverage, ApiTestImportRequest request, Map<String, ApiModule> moduleMap,
-                                   List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+    private List<ApiDefinitionWithBLOBs> dealHttpUrlRepeat(ApiModuleDTO chooseModule, Map<String, String> idPathMap, List<ApiDefinitionWithBLOBs> optionData,
+                                                           Boolean fullCoverage, ApiTestImportRequest request, Map<String, ApiModule> moduleMap,
+                                                           List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
         String updateVersionId = getUpdateVersionId(request);
         String versionId = getVersionId(request);
         Boolean fullCoverageApi = getFullCoverageApi(request);
@@ -812,10 +811,18 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap;
         //按照原来的顺序
         if (chooseModule != null) {
-            //如果有选中的模块，则在选中的模块下过滤
+            //如果有选中的模块，则在选中的模块下过滤 过滤规则是 选择的模块路径+名称+method+path
             String chooseModuleParentId = getChooseModuleParentId(chooseModule);
             String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
-            optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, api -> api));
+            //这样的过滤规则下可能存在重复接口，如果是覆盖模块，需要按照去重规则再次去重，否则就加上接口原有的模块
+            if (fullCoverage) {
+                List<ApiDefinitionWithBLOBs> singleOptionData = new ArrayList<>();
+                removeHTTPChooseModuleRepeat(optionData, singleOptionData, chooseModulePath);
+                optionData = singleOptionData;
+                optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, api -> api));
+            } else {
+                getChooseModuleUrlRepeatOptionMap(optionData, optionMap, chooseModulePath);
+            }
             repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(chooseModule.getId())).collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + t.getModulePath()));
         } else {
             //否则在整个系统中过滤
@@ -864,6 +871,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         //将原来的case和更改的case组合在一起，为了同步的设置
         List<String> caseIds = optionDataCases.stream().map(ApiTestCase::getId).filter(StringUtils::isNotBlank).collect(Collectors.toList());
         buildCases(optionDataCases, oldCaseMap, caseIds);
+        return optionData;
+    }
+
+    private void removeHTTPChooseModuleRepeat(List<ApiDefinitionWithBLOBs> optionData, List<ApiDefinitionWithBLOBs> singleOptionData, String chooseModulePath) {
+        LinkedHashMap<String, List<ApiDefinitionWithBLOBs>> methodPathMap = optionData.stream().collect(Collectors.groupingBy(t -> t.getName() + t.getMethod() + t.getPath() + chooseModulePath, LinkedHashMap::new, Collectors.toList()));
+        methodPathMap.forEach((k, v) -> singleOptionData.add(v.get(v.size() - 1)));
+    }
+
+    private void getChooseModuleUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> optionMap, String chooseModulePath) {
+        for (ApiDefinitionWithBLOBs optionDatum : optionData) {
+            if (optionDatum.getModulePath() == null) {
+                optionMap.put(optionDatum.getName() + optionDatum.getMethod() + optionDatum.getPath() + chooseModulePath, optionDatum);
+            } else {
+                optionMap.put(optionDatum.getName() + optionDatum.getMethod() + optionDatum.getPath() + chooseModulePath + optionDatum.getModulePath(), optionDatum);
+            }
+        }
     }
 
     private void getUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> optionMap) {
