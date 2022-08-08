@@ -1468,7 +1468,9 @@ export default {
       generate_report: "Generate report",
       rerun: "fail and rerun",
       rerun_warning: "The connection is abnormal, please check the environment configuration",
-      rerun_success: "Rerun has already started, refresh the results later to view"
+      rerun_success: "Rerun has already started, refresh the results later to view",
+      csv_warning: "Please add csv file",
+      variable_warning: "Variable name cannot be empty"
     },
     environment: {
       id: 'Environment ID',
