@@ -93,8 +93,11 @@ name: "TestReviewMinder",
           this.setIsChange(true);
         }
       });
-
-      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
+      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')], {
+        param: this.getParam(),
+        getCaseFuc: getReviewCasesForMinder,
+        setParamCallback: this.setParamCallback
+      });
     },
     getParam() {
       return {
