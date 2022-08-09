@@ -458,6 +458,11 @@
       "resourceId": "PROJECT_CUSTOM_CODE"
     },
     {
+      "id": "PROJECT_TRACK_HOME:READ",
+      "name": "permission.common.read",
+      "resourceId": "PROJECT_TRACK_HOME"
+    },
+    {
       "id": "PROJECT_TRACK_CASE:READ",
       "name": "permission.project_track_case.read",
       "resourceId": "PROJECT_TRACK_CASE"
@@ -663,6 +668,11 @@
       "id": "PROJECT_TRACK_REPORT:READ+EXPORT",
       "name": "permission.project_track_report.export",
       "resourceId": "PROJECT_TRACK_REPORT"
+    },
+    {
+      "id": "PROJECT_API_HOME:READ",
+      "name": "permission.common.read",
+      "resourceId": "PROJECT_API_HOME"
     },
     {
       "id": "PROJECT_API_DEFINITION:READ",
@@ -936,6 +946,11 @@
       "name": "permission.project_ui_report.delete",
       "resourceId": "PROJECT_UI_REPORT",
       "license": true
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_HOME:READ",
+      "name": "permission.common.read",
+      "resourceId": "PROJECT_PERFORMANCE_HOME"
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST:READ",
@@ -1257,6 +1272,10 @@
       "name": "permission.project_app_manager.name"
     },
     {
+      "id": "PROJECT_TRACK_HOME",
+      "name": "permission.common.home"
+    },
+    {
       "id": "PROJECT_TRACK_CASE",
       "name": "permission.project_track_case.name"
     },
@@ -1275,6 +1294,10 @@
     {
       "id": "PROJECT_TRACK_REPORT",
       "name": "permission.project_track_report.name"
+    },
+    {
+      "id": "PROJECT_API_HOME",
+      "name": "permission.common.home"
     },
     {
       "id": "PROJECT_API_DEFINITION",
@@ -1302,6 +1325,10 @@
       "id": "PROJECT_UI_REPORT",
       "name": "permission.project_ui_report.name",
       "license": true
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_HOME",
+      "name": "permission.common.home"
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",

@@ -2919,6 +2919,12 @@ export default {
     api_case: 'API Case',
   },
   permission: {
+    common: {
+      home: "HOME",
+      read: "READ",
+      first_level_menu: "First Level Menu",
+      second_level_menu: "Second Level Menu",
+    },
     project_error_report_library: {
       name: "Error report library",
       read: "READ",

@@ -2928,6 +2928,12 @@ export default {
     api_case: '接口用例'
   },
   permission: {
+    common: {
+      home: "首页",
+      read: "查看",
+      first_level_menu: "一级菜单",
+      second_level_menu: "二级菜单",
+    },
     project_error_report_library: {
       name: "误报库",
       read: "查看误报",

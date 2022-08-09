@@ -205,3 +205,26 @@ export const ENV_TYPE = {
 }
 
 export const DEFAULT_XSS_ATTR = ['style', 'class'];
+
+
+export const SECOND_LEVEL_ROUTE_PERMISSION_MAP = {
+  API: [
+    {router: '/api/home', permission: ['PROJECT_API_HOME:READ']},
+    {router: '/api/definition', permission: ['PROJECT_API_DEFINITION:READ']},
+    {router: '/api/automation', permission: ['PROJECT_API_SCENARIO:READ']},
+    {router: '/api/automation/report', permission: ['PROJECT_API_REPORT:READ']},
+  ],
+  TRACK: [
+    {router: '/track/home', permission: ['PROJECT_TRACK_HOME:READ']},
+    {router: '/track/case/all', permission: ['PROJECT_TRACK_CASE:READ']},
+    {router: '/track/review/all', permission: ['PROJECT_TRACK_REVIEW:READ']},
+    {router: '/track/plan/all', permission: ['PROJECT_TRACK_PLAN:READ']},
+    {router: '/track/issue', permission: ['PROJECT_TRACK_ISSUE:READ']},
+    {router: '/track/testPlan/reportList', permission: ['PROJECT_TRACK_REPORT:READ']},
+  ],
+  LOAD: [
+    {router: '/performance/home', permission: ['PROJECT_PERFORMANCE_HOME:READ']},
+    {router: '/performance/test/all', permission: ['PROJECT_PERFORMANCE_TEST:READ']},
+    {router: '/performance/report/all', permission: ['PROJECT_PERFORMANCE_REPORT:READ']},
+  ]
+}

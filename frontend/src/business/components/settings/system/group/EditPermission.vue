@@ -14,7 +14,7 @@
         style="width: 100%">
         <el-table-column
           prop="type"
-          :label="$t('group.functional_menu')"
+          :label="$t('permission.common.first_level_menu')"
           width="180">
           <template v-slot:default="scope">
             <span v-if="scope.row.type !== 'PROJECT'">
@@ -25,7 +25,7 @@
         </el-table-column>
         <el-table-column
           prop="resource"
-          :label="$t('group.operation_object')"
+          :label="$t('permission.common.second_level_menu')"
           width="180">
           <template v-slot:default="scope">
             {{ $t(scope.row.resource.name) }}
