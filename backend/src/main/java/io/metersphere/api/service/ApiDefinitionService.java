@@ -994,7 +994,7 @@ public class ApiDefinitionService {
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
             apiTestCaseWithBLOBs.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
             apiTestCaseWithBLOBs.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-            if (apiDefinition.getToBeUpdated() != null && !apiTestCaseWithBLOBs.getVersionId().equals("cover")) {
+            if (apiDefinition.getToBeUpdated() != null && !StringUtils.equalsIgnoreCase(apiTestCaseWithBLOBs.getVersionId(), "cover")) {
                 apiTestCaseWithBLOBs.setToBeUpdated(true);
                 //TODO:check setting
             } else {
@@ -1153,7 +1153,7 @@ public class ApiDefinitionService {
                     if (CollectionUtils.isEmpty(caseList)) {
                         apiDefinition.setToBeUpdated(false);
                     } else {
-                        List<ApiTestCaseWithBLOBs> cover = caseList.stream().filter(t -> !t.getVersionId().equals("cover") && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
+                        List<ApiTestCaseWithBLOBs> cover = caseList.stream().filter(t -> !StringUtils.equalsIgnoreCase("cover", t.getVersionId()) && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
                         if (CollectionUtils.isEmpty(cover)) {
                             apiDefinition.setToBeUpdated(false);
                         } else {
