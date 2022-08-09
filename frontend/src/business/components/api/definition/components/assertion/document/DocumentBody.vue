@@ -22,6 +22,7 @@
       row-key="id"
       border
       lazy
+      :key="tableId"
       :load="loadChild"
       :height="300"
       v-loading="loading"
@@ -159,6 +160,7 @@ export default {
       tableData: Array,
       originalData: Array,
       mapData: new Map(),
+      tableId: ''
     }
   },
 
@@ -188,6 +190,7 @@ export default {
       this.checked = false;
       this.document.data.jsonFollowAPI = "";
       this.document.data.xmlFollowAPI = "";
+      this.tableId = getUUID();
       //处理第一层级数据children为null
       this.tableDataList(data);
       if (this.document.type === "JSON") {
