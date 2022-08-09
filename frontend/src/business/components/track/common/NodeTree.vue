@@ -506,7 +506,11 @@ export default {
       return data.name === this.defaultLabel && data.level === 1;
     },
     getLocalDefaultName() {
-      return this.$t('commons.default_module.' + this.localSuffix);
+      if (this.localSuffix) {
+        return this.$t('commons.default_module.' + this.localSuffix);
+      } else {
+        return this.$t('commons.module_title');
+      }
     }
   }
 };

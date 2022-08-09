@@ -11,6 +11,7 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.exec.api.ApiRetryOnFailureService;
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.RemakeReportService;
@@ -27,9 +28,11 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +126,18 @@ public class GenerateHashTreeUtil {
     public static HashTree generateHashTree(ApiScenarioWithBLOBs item, Map<String, String> planEnvMap, JmeterRunRequestDTO runRequest) {
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
+        if (!runRequest.getPool().isPool()) {
+            // 获取自定义JAR
+            String projectId = item.getProjectId();
+            List<String> projectIds = new ArrayList<>();
+            projectIds.add(projectId);
+            if (MapUtils.isNotEmpty(planEnvMap)) {
+                planEnvMap.forEach((k, v) -> {
+                    projectIds.add(k);
+                });
+            }
+            testPlan.setJarPaths(NewDriverManager.getJars(projectIds));
+        }
         testPlan.setHashTree(new LinkedList<>());
         try {
             MsThreadGroup group = new MsThreadGroup();

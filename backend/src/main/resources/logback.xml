@@ -242,7 +242,7 @@
 
 
     <!-- 自定义JMETER输出日志 -->
-    <appender name="JMETER_LOG" class="io.metersphere.api.jmeter.JmeterLoggerAppender"/>
+    <appender name="JMETER_LOG" class="io.metersphere.api.jmeter.JMeterLoggerAppender"/>
 
     <root level="INFO">
         <appender-ref ref="infoAsyncAppender"/>

@@ -16,6 +16,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.TcpApiParamService;
 import io.metersphere.base.domain.*;
@@ -186,7 +187,8 @@ public class ApiExecuteService {
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
-
+        // 加载自定义JAR
+        NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         if (LoggerUtil.getLogger().isDebugEnabled()) {
             LoggerUtil.debug("生成执行JMX内容【 " + request.getTestElement().getJmx(hashTree) + " 】");
@@ -224,6 +226,11 @@ public class ApiExecuteService {
 
         // 测试计划
         MsTestPlan testPlan = new MsTestPlan();
+        // 获取自定义JAR
+        String projectId = testCaseWithBLOBs.getProjectId();
+        testPlan.setJarPaths(NewDriverManager.getJars(new ArrayList<>() {{
+            this.add(projectId);
+        }}));
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();
 

@@ -5,10 +5,21 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="size" jdbcType="BIGINT" property="size" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="size" jdbcType="BIGINT" property="size" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="storage" jdbcType="VARCHAR" property="storage" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+    <result column="load_jar" jdbcType="BIT" property="loadJar" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.FileMetadata">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,8 +80,28 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, create_time, update_time, `size`, project_id
+    id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
+    update_user, tags, module_id, load_jar, `path`, resource_type
   </sql>
+  <sql id="Blob_Column_List">
+    description
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from file_metadata
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -85,9 +116,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from file_metadata
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -103,11 +136,17 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata (id, `name`, `type`, 
-      create_time, update_time, `size`, 
-      project_id)
+      `size`, create_time, update_time, 
+      project_id, `storage`, create_user, 
+      update_user, tags, module_id, 
+      load_jar, `path`, resource_type, 
+      description)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{size,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR})
+      #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{projectId,jdbcType=VARCHAR}, #{storage,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
+      #{loadJar,jdbcType=BIT}, #{path,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata
@@ -121,17 +160,44 @@
       <if test="type != null">
         `type`,
       </if>
+      <if test="size != null">
+        `size`,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="size != null">
-        `size`,
-      </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="storage != null">
+        `storage`,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="tags != null">
+        tags,
+      </if>
+      <if test="moduleId != null">
+        module_id,
+      </if>
+      <if test="loadJar != null">
+        load_jar,
+      </if>
+      <if test="path != null">
+        `path`,
+      </if>
+      <if test="resourceType != null">
+        resource_type,
+      </if>
+      <if test="description != null">
+        description,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -144,17 +210,44 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
+      <if test="size != null">
+        #{size,jdbcType=BIGINT},
+      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="size != null">
-        #{size,jdbcType=BIGINT},
-      </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="storage != null">
+        #{storage,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="loadJar != null">
+        #{loadJar,jdbcType=BIT},
+      </if>
+      <if test="path != null">
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -176,19 +269,68 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
+      <if test="record.size != null">
+        `size` = #{record.size,jdbcType=BIGINT},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.size != null">
-        `size` = #{record.size,jdbcType=BIGINT},
-      </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.storage != null">
+        `storage` = #{record.storage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.loadJar != null">
+        load_jar = #{record.loadJar,jdbcType=BIT},
+      </if>
+      <if test="record.path != null">
+        `path` = #{record.path,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceType != null">
+        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update file_metadata
+    set id = #{record.id,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      `size` = #{record.size,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `storage` = #{record.storage,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      load_jar = #{record.loadJar,jdbcType=BIT},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -198,10 +340,18 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
+      `size` = #{record.size,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      `size` = #{record.size,jdbcType=BIGINT},
-      project_id = #{record.projectId,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `storage` = #{record.storage,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      load_jar = #{record.loadJar,jdbcType=BIT},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -215,29 +365,83 @@
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
+      <if test="size != null">
+        `size` = #{size,jdbcType=BIGINT},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="size != null">
-        `size` = #{size,jdbcType=BIGINT},
-      </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
+      <if test="storage != null">
+        `storage` = #{storage,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="loadJar != null">
+        load_jar = #{loadJar,jdbcType=BIT},
+      </if>
+      <if test="path != null">
+        `path` = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        resource_type = #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.FileMetadata">
+    update file_metadata
+    set `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      `size` = #{size,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `storage` = #{storage,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      load_jar = #{loadJar,jdbcType=BIT},
+      `path` = #{path,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileMetadata">
     update file_metadata
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
+      `size` = #{size,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      `size` = #{size,jdbcType=BIGINT},
-      project_id = #{projectId,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `storage` = #{storage,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      load_jar = #{loadJar,jdbcType=BIT},
+      `path` = #{path,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

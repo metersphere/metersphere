@@ -1,6 +1,7 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.api.dto.scenario.request.BodyFile;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
@@ -63,7 +64,7 @@ public class FileUtils {
             }
             for (int i = 0; i < bodyUploadIds.size(); i++) {
                 MultipartFile item = bodyFiles.get(i);
-                File file = new File(filePath + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
+                File file = new File(filePath + File.separator + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
                 try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                     file.createNewFile();
                     final int MAX = 4096;
@@ -86,7 +87,7 @@ public class FileUtils {
             if (!testDir.exists()) {
                 testDir.mkdirs();
             }
-            File file = new File(filePath + "/" + id + "_" + item.getOriginalFilename());
+            File file = new File(filePath + File.separator + id + "_" + item.getOriginalFilename());
             try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                 file.createNewFile();
                 final int MAX = 4096;
@@ -105,13 +106,13 @@ public class FileUtils {
 
     public static void createBodyFiles(String requestId, List<MultipartFile> bodyFiles) {
         if (CollectionUtils.isNotEmpty(bodyFiles) && StringUtils.isNotBlank(requestId)) {
-            String path = BODY_FILE_DIR + "/" + requestId;
+            String path = BODY_FILE_DIR + File.separator + requestId;
             File testDir = new File(path);
             if (!testDir.exists()) {
                 testDir.mkdirs();
             }
             bodyFiles.forEach(item -> {
-                File file = new File(path + "/" + item.getOriginalFilename());
+                File file = new File(path + File.separator + item.getOriginalFilename());
                 try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
                     file.createNewFile();
                     FileUtil.copyStream(in, out);
@@ -126,8 +127,8 @@ public class FileUtils {
 
     public static void copyBodyFiles(String sourceId, String targetId) {
         try {
-            String sourcePath = BODY_FILE_DIR + "/" + sourceId;
-            String targetPath = BODY_FILE_DIR + "/" + targetId;
+            String sourcePath = BODY_FILE_DIR + File.separator + sourceId;
+            String targetPath = BODY_FILE_DIR + File.separator + targetId;
             copyFolder(sourcePath, targetPath);
         } catch (Exception e) {
             LoggerUtil.error(e);
@@ -201,20 +202,20 @@ public class FileUtils {
 
 
     public static File getFileByName(String name) {
-        String path = BODY_FILE_DIR + "/" + name;
+        String path = BODY_FILE_DIR + File.separator + name;
         return new File(path);
     }
 
     public static File getBodyFileByName(String name, String requestId) {
-        String path = BODY_FILE_DIR + "/" + requestId + "/" + name;
+        String path = BODY_FILE_DIR + File.separator + requestId + File.separator + name;
         return new File(path);
     }
 
     public static void copyBdyFile(String originId, String toId) {
         try {
             if (StringUtils.isNotEmpty(originId) && StringUtils.isNotEmpty(toId) && !StringUtils.equals(originId, toId)) {
-                FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + "/" + originId),
-                        new File(FileUtils.BODY_FILE_DIR + "/" + toId));
+                FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + File.separator + originId),
+                        new File(FileUtils.BODY_FILE_DIR + File.separator + toId));
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -247,7 +248,7 @@ public class FileUtils {
     }
 
     public static void deleteBodyFiles(String requestId) {
-        File file = new File(BODY_FILE_DIR + "/" + requestId);
+        File file = new File(BODY_FILE_DIR + File.separator + requestId);
         FileUtil.deleteContents(file);
         if (file.exists()) {
             file.delete();
@@ -262,7 +263,7 @@ public class FileUtils {
         if (!testDir.exists()) {
             testDir.mkdirs();
         }
-        String filePath = testDir + "/" + name;
+        String filePath = testDir + File.separator + name;
         File file = new File(filePath);
         try (InputStream in = uploadFile.getInputStream(); OutputStream out = new FileOutputStream(file)) {
             file.createNewFile();
@@ -338,38 +339,38 @@ public class FileUtils {
             }
             buffer = bos.toByteArray();
         } catch (Exception e) {
+            LoggerUtil.error(e);
         }
         return buffer;
     }
 
-    public static File byteToFile(byte[] buf, String filePath, String fileName){
+    public static File byteToFile(byte[] buf, String filePath, String fileName) {
         BufferedOutputStream bos = null;
         FileOutputStream fos = null;
         File file = null;
-        try{
+        try {
             File dir = new File(filePath);
-            if (!dir.exists()){
+            if (!dir.exists()) {
                 dir.mkdirs();
             }
-            file = new File(filePath + "/" + fileName);
+            file = new File(filePath + File.separator + fileName);
             fos = new FileOutputStream(file);
             bos = new BufferedOutputStream(fos);
             bos.write(buf);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally{
-            if (bos != null){
-                try{
+        } finally {
+            if (bos != null) {
+                try {
                     bos.close();
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (fos != null){
-                try{
+            if (fos != null) {
+                try {
                     fos.close();
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -402,8 +403,8 @@ public class FileUtils {
         jars.forEach(jarConfig -> {
             String path = jarConfig.getPath();
             File file = new File(path);
-            if (file.isDirectory() && !path.endsWith("/")) {
-                file = new File(path + "/");
+            if (file.isDirectory() && !path.endsWith(File.separator)) {
+                file = new File(path + File.separator);
             }
             files.add(file);
         });
@@ -437,8 +438,8 @@ public class FileUtils {
             try {
                 String path = jarConfig.getPath();
                 File file = new File(path);
-                if (file.isDirectory() && !path.endsWith("/")) {
-                    file = new File(path + "/");
+                if (file.isDirectory() && !path.endsWith(File.separator)) {
+                    file = new File(path + File.separator);
                 }
                 FileSystemResource resource = new FileSystemResource(file);
                 byte[] fileByte = this.fileToByte(file);
@@ -503,4 +504,21 @@ public class FileUtils {
         }
     }
 
+    public static String getFilePath(BodyFile file) {
+        String type = StringUtils.isNotEmpty(file.getFileType()) ? file.getFileType().toLowerCase() : null;
+        String name = file.getName();
+        if (type != null && !name.endsWith(type)) {
+            name = StringUtils.join(name, ".", type);
+        }
+        return StringUtils.join(FileUtils.BODY_FILE_DIR, File.separator, file.getProjectId(), File.separator, name);
+    }
+
+    public static String getFilePath(FileMetadata fileMetadata) {
+        String type = StringUtils.isNotEmpty(fileMetadata.getType()) ? fileMetadata.getType().toLowerCase() : null;
+        String name = fileMetadata.getName();
+        if (type != null && !name.endsWith(type)) {
+            name = StringUtils.join(name, ".", type);
+        }
+        return StringUtils.join(FileUtils.BODY_FILE_DIR, File.separator, fileMetadata.getProjectId(), File.separator, name);
+    }
 }

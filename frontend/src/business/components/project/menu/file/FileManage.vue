@@ -1,37 +1,54 @@
 <template>
   <ms-container>
+    <ms-aside-container>
+      <ms-file-module @nodeSelectEvent="change" @myFile="myFile" @setNodeTree="setNodeTree" ref="module"/>
+    </ms-aside-container>
     <ms-main-container>
-      <div>
-        <ms-jar-config-list  ref="jarConfigList" class="file-manage-jar"/>
-      </div>
-
-      <div style="margin-top: 6px;">
-        <resource-manage ref="resourceManage" class="file-manage-resource"/>
-      </div>
+      <resource-manage ref="resourceManage" :moduleId="moduleId" :nodeTree="nodeTree" @refreshModule="refreshModule"/>
     </ms-main-container>
   </ms-container>
 </template>
 
 <script>
 
-import ResourceManage from "@/business/components/project/menu/file/ResourceManage";
+import ResourceManage from "@/business/components/project/menu/file/list/FileMetadataList";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsJarConfigList from "@/business/components/api/test/components/jar/JarConfigList";
+import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+import MsFileModule from "./module/FileModule";
 
 export default {
   name: "FileManager",
   components: {
+    MsFileModule,
     MsMainContainer,
     MsContainer,
     ResourceManage,
     MsJarConfigList,
+    MsAsideContainer,
   },
   data() {
     return {
-
+      moduleId: "",
+      nodeTree: []
     }
   },
+  methods: {
+    change(node, nodeIds, pNodes) {
+      this.moduleId = node.data.id;
+      this.$refs.resourceManage.moduleChange(nodeIds);
+    },
+    myFile() {
+      this.$refs.resourceManage.myFile();
+    },
+    setNodeTree(data) {
+      this.nodeTree = data;
+    },
+    refreshModule(){
+      this.$refs.module.refresh();
+    }
+  }
 }
 </script>
 

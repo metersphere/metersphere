@@ -66,6 +66,8 @@ public class ApiCaseParallelExecuteService {
                 HashTree hashTree = apiCaseSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
                 runRequest.setHashTree(hashTree);
             }
+            // 开始执行
+            runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
 
             LoggerUtil.info("进入并行模式，开始执行用例：[" + result.getName() + "] 报告ID [" + reportId + "]");
             jMeterService.run(runRequest);

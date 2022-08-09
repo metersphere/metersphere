@@ -40,7 +40,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/license/validate", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/files", "anon");
-        filterChainDefinitionMap.put("/api/jmeter/download/jar", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download/jar/**", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/plug/jar", "anon");
 
         // for swagger
@@ -74,6 +74,8 @@ public class ShiroUtils {
         //mock接口
         filterChainDefinitionMap.put("/mock/**", "anon");
         filterChainDefinitionMap.put("/ws/**", "anon");
+        filterChainDefinitionMap.put("/file/metadata/info/**", "anon");
+
     }
 
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {

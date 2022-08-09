@@ -29,6 +29,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.DefinitionReference;
+import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiCaseExecutionInfoService;
 import io.metersphere.service.FileService;
@@ -118,6 +119,8 @@ public class ApiTestCaseService {
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private FileAssociationService fileAssociationService;
     @Resource
     private ApiCaseBatchSyncService apiCaseSyncService;
     @Resource
@@ -353,6 +356,8 @@ public class ApiTestCaseService {
         esbApiParamService.deleteByResourceId(testId);
         testPlanApiCaseService.deleteByCaseId(testId);
         deleteBodyFiles(testId);
+        // 删除附件关系
+        fileAssociationService.deleteByResourceId(testId);
         deleteFollows(testId);
     }
 
@@ -466,6 +471,8 @@ public class ApiTestCaseService {
             apiTestCaseMapper.updateByPrimaryKeySelective(test);
             saveFollows(test.getId(), request.getFollows());
         }
+        // 存储附件关系
+        fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.CASE.name());
         return test;
     }
 
@@ -523,6 +530,8 @@ public class ApiTestCaseService {
             apiTestCaseMapper.insert(test);
             saveFollows(test.getId(), request.getFollows());
         }
+        // 存储附件关系
+        fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.CASE.name());
         return test;
     }
 
@@ -604,6 +613,8 @@ public class ApiTestCaseService {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
+        // 删除附件关系
+        fileAssociationService.deleteByResourceIds(ids);
     }
 
     public void deleteBatchByDefinitionId(List<String> definitionIds) {

@@ -7,7 +7,7 @@
         v-loading="tableIsLoading"
         :data="data"
         :default-sort="defaultSort"
-        :class="{'ms-select-all-fixed': showSelectAll, 'row-click': rowClickStyle}"
+        :class="{'ms-select-all-fixed': (showSelectAll && !hidePopover), 'row-click': rowClickStyle}"
         :height="screenHeight"
         :row-key="rowKey"
         :row-class-name="tableRowClassName"
@@ -27,7 +27,7 @@
           width="50"
           type="selection"/>
 
-      <ms-table-header-select-popover v-if="enableSelection && showSelectAll"
+      <ms-table-header-select-popover v-if="enableSelection && showSelectAll && !hidePopover"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :table-data-count-in-page="data.length"
                                       :total="total"
@@ -173,6 +173,12 @@ export default {
     screenHeight: {
       type: [String, Number],
       default: 400,
+    },
+    hidePopover: {
+      type: Boolean,
+      default() {
+        return false;
+      }
     },
     selectNodeIds: {
       type: Array,

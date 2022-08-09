@@ -109,7 +109,7 @@ public class JMeterService {
         LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtils.jmeterLogTask.size());
         if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
-            JMeterBase.addBackendListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
+            JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
         }
 
         if (MapUtils.isNotEmpty(request.getExtendedParameters())
@@ -124,7 +124,7 @@ public class JMeterService {
             addDebugListener(request.getReportId(), request.getHashTree());
         } else {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
-            JMeterBase.addBackendListener(request, request.getHashTree(), APISingleResultListener.class.getCanonicalName());
+            JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
         }
 
         LoggerUtil.info("资源：[" + request.getTestId() + "] 加入JMETER中开始执行", request.getReportId());
