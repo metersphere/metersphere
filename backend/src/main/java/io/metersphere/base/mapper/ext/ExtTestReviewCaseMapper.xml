@@ -383,8 +383,8 @@
             order by
             <foreach collection="request.orders" separator="," item="order">
                 <choose>
-                    <when test="order.name == 'num' || order.name == 'name' || order.name == 'priority'">
-                        test_case.num ${order.type}
+                    <when test="order.name == 'num' || order.name == 'name' || order.name == 'priority' || order.name == 'custom_num'">
+                        test_case.${order.name} ${order.type}
                     </when>
                     <otherwise>
                         test_case_review_test_case.${order.name} ${order.type}
