@@ -38,4 +38,16 @@
         where cft.template_id = #{templateId}
           and cf.name = #{fieldName}
     </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO
+        custom_field_template
+        VALUES
+        <foreach collection="customFieldTemplates" item="customFieldTemplate" separator="," >
+            (#{customFieldTemplate.id}, #{customFieldTemplate.fieldId}, #{customFieldTemplate.templateId}, #{customFieldTemplate.scene},
+            #{customFieldTemplate.required}, #{customFieldTemplate.order}, #{customFieldTemplate.defaultValue}, #{customFieldTemplate.customData},
+            #{customFieldTemplate.key})
+        </foreach>
+    </insert>
+
 </mapper>

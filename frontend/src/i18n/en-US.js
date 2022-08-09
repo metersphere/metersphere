@@ -574,6 +574,16 @@ export default {
     custom_field_setting: 'Custom Field Setting',
     create_issue_template: 'Create Issue Template',
     issue_template: 'Issue Template',
+    copy_issue_template: 'Copy Issue Template',
+    copy_issue_template_tips1: 'Note: The copied template will be added in the target project; this operation may affect the historical defects of the target project, it is recommended to use it only in the new project.',
+    copy_issue_template_tips2: 'Please operate with caution, this operation is irreversible!',
+    copy_issue_template_model_tips1: 'Copy mode',
+    copy_issue_template_model_tips2: '(system field option values and settings for custom fields and field option values)',
+    copy_issue_template_model_append: 'append',
+    copy_issue_template_model_cover: 'cover',
+    target_project: 'Target Project',
+    current_project: '（Current Project）',
+    no_custom_fields_permission: '（No custom fields permission）',
     issue_platform: 'Issue Platform',
     issue_content: 'Issue Content',
     template_create: 'Template Create',
@@ -2845,6 +2855,7 @@ export default {
     project_project_jar: "Project project jar",
     project_environment_setting: "Project environment setting",
     project_file_management: "Project file management",
+    project_template_management: "Project template management",
     personal_information_personal_settings: "Personal information personal settings",
     personal_information_apikeys: "Personal information API Keys",
     auth_title: "Auth",
@@ -3252,6 +3263,9 @@ export default {
       performance: "Performance",
       project: "Project",
       report: "Report Statistics"
+    },
+    template: {
+      name: "Template"
     }
   },
   env_options: {

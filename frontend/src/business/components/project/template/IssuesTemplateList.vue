@@ -69,6 +69,7 @@
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
+    <issue-template-copy ref="templateCopy" @refresh="initTableData"/>
     <issue-template-edit ref="templateEdit" @refresh="initTableData"/>
     <ms-delete-confirm :title="$t('commons.template_delete')" @delete="_handleDelete" ref="deleteConfirm"/>
   </el-card>
@@ -85,6 +86,7 @@ import MsTableOperators from "@/business/components/common/components/MsTableOpe
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import TestCaseReportTemplate from "@/business/components/project/template/TestCaseReportTemplate";
+import IssueTemplateCopy from "@/business/components/project/template/IssueTemplateCopy";
 import IssueTemplateEdit from "@/business/components/project/template/IssueTemplateEdit";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 
@@ -92,6 +94,7 @@ export default {
   name: "IssuesTemplateList",
   components: {
     IssueTemplateEdit,
+    IssueTemplateCopy,
     TestCaseReportTemplate,
     MsTableHeader,
     MsTablePagination,
@@ -122,12 +125,10 @@ export default {
           exec: this.handleEdit
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
-          exec: this.handleCopy,
-          isDisable: this.systemDisable
+          exec: this.handleCopy
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete,
-          isDisable: this.systemDisable
+          exec: this.handleDelete
         }
       ],
     };
@@ -168,8 +169,7 @@ export default {
     handleCopy(data) {
       let copyData = {};
       Object.assign(copyData, data);
-      copyData.name = data.name + '_copy';
-      this.$refs.templateEdit.open(copyData, true);
+      this.$refs.templateCopy.open(copyData);
     },
     handleDelete(data) {
       this.$refs.deleteConfirm.open(data);

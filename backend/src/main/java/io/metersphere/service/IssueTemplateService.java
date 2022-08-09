@@ -2,26 +2,28 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.CustomFieldMapper;
-import io.metersphere.base.mapper.CustomFieldTemplateMapper;
-import io.metersphere.base.mapper.IssueTemplateMapper;
+import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
+import io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtIssueTemplateMapper;
-import io.metersphere.commons.constants.TemplateConstants;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.BaseQueryRequest;
+import io.metersphere.controller.request.CopyIssueTemplateRequest;
+import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.controller.request.UpdateIssueTemplateRequest;
-import io.metersphere.dto.CustomFieldDao;
-import io.metersphere.dto.IssueTemplateDao;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,12 @@ public class IssueTemplateService extends TemplateBaseService {
 
     @Resource
     ExtIssueTemplateMapper extIssueTemplateMapper;
+
+    @Resource
+    ExtCustomFieldTemplateMapper extCustomFieldTemplateMapper;
+
+    @Resource
+    ExtCustomFieldMapper extCustomFieldMapper;
 
     @Resource
     IssueTemplateMapper issueTemplateMapper;
@@ -53,6 +61,18 @@ public class IssueTemplateService extends TemplateBaseService {
 
     @Resource
     CustomFieldTemplateMapper customFieldTemplateMapper;
+
+    @Resource
+    UserGroupMapper userGroupMapper;
+
+    @Resource
+    GroupMapper groupMapper;
+
+    @Resource
+    GroupService groupService;
+
+    @Resource
+    WorkspaceMapper workspaceMapper;
 
     public String add(UpdateIssueTemplateRequest request) {
         checkExist(request);
@@ -247,6 +267,180 @@ public class IssueTemplateService extends TemplateBaseService {
         return issueTemplateDao;
     }
 
+    public IssueTemplateCopyDTO getCopyProject(String userId, String workspaceId) {
+        IssueTemplateCopyDTO issueTemplateCopyDto = new IssueTemplateCopyDTO();
+        // 获取工作空间名称
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
+        if (workspace == null) {
+            MSException.throwException("workplace id is not exists");
+        }
+        issueTemplateCopyDto.setWorkspaceName(workspace.getName());
+        ProjectRequest projectRequest = new ProjectRequest();
+        projectRequest.setWorkspaceId(workspaceId);
+        projectRequest.setUserId(userId);
+        List<ProjectDTO> userProjectAndGroup = projectService.getUserProject(projectRequest);
+        if (userProjectAndGroup.size() == 0) {
+            issueTemplateCopyDto.setProjectDTOS(new ArrayList<>());
+        }
+        Iterator<ProjectDTO> iterator = userProjectAndGroup.iterator();
+        while (iterator.hasNext()) {
+            ProjectDTO projectDto = iterator.next();
+            UserGroupExample example = new UserGroupExample();
+            example.createCriteria().andSourceIdEqualTo(projectDto.getId())
+                    .andUserIdEqualTo(SessionUtils.getUserId()).andGroupIdIn(Arrays.asList(UserGroupConstants.PROJECT_ADMIN, UserGroupConstants.PROJECT_MEMBER));
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
+            List<GroupPermissionDTO> groupPermissions = getPermissionsByUserGroups(userGroups);
+            boolean isShow = false;
+            for (GroupPermissionDTO groupPermission : groupPermissions) {
+                GroupResourceDTO projectTemplatePermissions = groupPermission.getPermissions().stream()
+                        .filter(permission -> StringUtils.equals(CommonConstants.PROJECT_TEMPLATE, permission.getResource().getId()))
+                        .collect(Collectors.toList()).get(0);
+                if (projectTemplatePermissions == null) {
+                    //模板设置的权限为空
+                    continue;
+                }
+                // 否则校验模板设置中缺陷模板, 自定义字段的权限
+                boolean issueTemplateChecked = projectTemplatePermissions.getPermissions().stream()
+                        .anyMatch(permission -> permission.getChecked() && StringUtils.equals(PermissionConstants.PROJECT_TEMPLATE_READ_ISSUE_TEMPLATE, permission.getId()));
+                if (!issueTemplateChecked) {
+                    //模板设置中的缺陷模板权限未勾选
+                    continue;
+                }
+                // 模板设置中的缺陷模板权限已勾选
+                isShow = true;
+                boolean customChecked = projectTemplatePermissions.getPermissions().stream()
+                        .anyMatch(permission -> permission.getChecked() && StringUtils.equals(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM, permission.getId()));
+                if (customChecked) {
+                    // 模板设置中的自定义字段权限已勾选, 跳出整个用户组权限校验
+                    projectDto.setCustomPermissionFlag(Boolean.TRUE);
+                    break;
+                }
+            }
+
+            if (!isShow) {
+                iterator.remove();
+            }
+        }
+        issueTemplateCopyDto.setProjectDTOS(userProjectAndGroup);
+        return issueTemplateCopyDto;
+    }
+
+    public void copy(CopyIssueTemplateRequest request) {
+        if (CollectionUtils.isEmpty(request.getTargetProjectIds())) {
+            MSException.throwException("target project not checked");
+        }
+        if (request.getId() == null) {
+            MSException.throwException("source project is empty");
+        }
+        List<IssueTemplate> issueTemplateRecords = new ArrayList<>();
+        List<CustomField> customFieldRecords = new ArrayList<>();
+        List<CustomFieldTemplate> customFieldTemplateRecords = new ArrayList<>();
+        // 获取源缺陷模板
+        IssueTemplate sourceIssueTemplate = issueTemplateMapper.selectByPrimaryKey(request.getId());
+        // 获取源缺陷模板的自定义模板及字段数据
+        List<CustomFieldTemplate> sourceCustomFieldTemplates = customFieldTemplateService.getCustomFields(request.getId());
+        List<String> fields = sourceCustomFieldTemplates.stream().map(CustomFieldTemplate::getFieldId).collect(Collectors.toList());
+        List<CustomField> sourceCustomFields = customFieldService.getFieldByIds(fields);
+        request.getTargetProjectIds().forEach(targetProjectId -> {
+            IssueTemplate issueTemplateRecord = new IssueTemplate();
+            BaseQueryRequest baseQueryRequest = new BaseQueryRequest();
+            baseQueryRequest.setProjectId(targetProjectId);
+            List<IssueTemplate> targetIssueTemplates = list(baseQueryRequest);
+            boolean isExistTargetIssueTemplate = targetIssueTemplates.stream().anyMatch(issueTemplate -> StringUtils.equals(sourceIssueTemplate.getName(), issueTemplate.getName()));
+            String recordName;
+            if (isExistTargetIssueTemplate) {
+                recordName = sourceIssueTemplate.getName().concat("_copy");
+            } else {
+                recordName = sourceIssueTemplate.getName();
+            }
+            BeanUtils.copyBean(issueTemplateRecord, sourceIssueTemplate);
+            issueTemplateRecord.setId(UUID.randomUUID().toString());
+            issueTemplateRecord.setName(recordName);
+            issueTemplateRecord.setCreateTime(System.currentTimeMillis());
+            issueTemplateRecord.setUpdateTime(System.currentTimeMillis());
+            issueTemplateRecord.setCreateUser(SessionUtils.getUserId());
+            issueTemplateRecord.setProjectId(targetProjectId);
+            issueTemplateRecords.add(issueTemplateRecord);
+            // 根据复制模式设置自定义字段
+            sourceCustomFieldTemplates.forEach(sourceCustomFieldTemplate -> {
+                CustomFieldTemplate tarCustomFieldTemplate = new CustomFieldTemplate();
+                CustomField tarCustomField = new CustomField();
+                CustomField sourceCustomField = sourceCustomFields.stream()
+                        .filter(item -> StringUtils.equals(item.getId(), sourceCustomFieldTemplate.getFieldId()))
+                        .collect(Collectors.toList()).get(0);
+                CustomFieldExample example = new CustomFieldExample();
+                example.createCriteria().andNameEqualTo(sourceCustomField.getName()).andSystemEqualTo(sourceCustomField.getSystem())
+                        .andProjectIdEqualTo(targetProjectId);
+                List<CustomField> targetCustomFields = customFieldMapper.selectByExample(example);
+                if (CollectionUtils.isEmpty(targetCustomFields)) {
+                    BeanUtils.copyBean(tarCustomField, sourceCustomField);
+                    // 自定义字段不存在则新增
+                    tarCustomField.setId(UUID.randomUUID().toString());
+                    tarCustomField.setGlobal(Boolean.FALSE);
+                    tarCustomField.setCreateTime(System.currentTimeMillis());
+                    tarCustomField.setUpdateTime(System.currentTimeMillis());
+                    tarCustomField.setCreateUser(SessionUtils.getUserId());
+                    tarCustomField.setProjectId(targetProjectId);
+                    customFieldRecords.add(tarCustomField);
+                } else {
+                    // 否则按照复制模式进行设置
+                    BeanUtils.copyBean(tarCustomField, targetCustomFields.get(0));
+                    tarCustomField.setCreateTime(System.currentTimeMillis());
+                    tarCustomField.setUpdateTime(System.currentTimeMillis());
+                    tarCustomField.setCreateUser(SessionUtils.getUserId());
+                    if (StringUtils.equals("1", request.getCopyModel())) {
+                        // 覆盖模式
+                        tarCustomField.setOptions(sourceCustomField.getOptions());
+                        customFieldMapper.updateByPrimaryKeyWithBLOBs(tarCustomField);
+                    } else {
+                        //追加模式
+                        if (sourceCustomField.getSystem()) {
+                            // 系统字段
+                            String options;
+                            if (StringUtils.equals("select", sourceCustomField.getType())) {
+                                options = StringUtils.replace(tarCustomField.getOptions(), "]", ",") + StringUtils.replace(sourceCustomField.getOptions(), "[", "");
+                            } else {
+                                options = "[]";
+                            }
+                            tarCustomField.setOptions(options);
+                            customFieldMapper.updateByPrimaryKeyWithBLOBs(tarCustomField);
+                        } else {
+                            // 非系统字段, 则追加_copy
+                            tarCustomField.setId(UUID.randomUUID().toString());
+                            tarCustomField.setName(tarCustomField.getName().concat("_copy"));
+                            tarCustomField.setOptions(sourceCustomField.getOptions());
+                            customFieldRecords.add(tarCustomField);
+                        }
+                    }
+                }
+                BeanUtils.copyBean(tarCustomFieldTemplate, sourceCustomFieldTemplate);
+                tarCustomFieldTemplate.setId(UUID.randomUUID().toString());
+                tarCustomFieldTemplate.setFieldId(tarCustomField.getId());
+                tarCustomFieldTemplate.setTemplateId(issueTemplateRecord.getId());
+                String defaultValue;
+                if (sourceCustomFieldTemplate.getDefaultValue() != null && tarCustomField.getOptions().contains(sourceCustomFieldTemplate.getDefaultValue())) {
+                    defaultValue = sourceCustomFieldTemplate.getDefaultValue();
+                } else {
+                    defaultValue = "";
+                }
+                tarCustomFieldTemplate.setDefaultValue(defaultValue);
+                customFieldTemplateRecords.add(tarCustomFieldTemplate);
+            });
+        });
+        // 批量插入目标项目缺陷模板
+        if (CollectionUtils.isNotEmpty(issueTemplateRecords)) {
+            extIssueTemplateMapper.batchInsert(issueTemplateRecords);
+        }
+        // 批量插入自定义字段数据
+        if (CollectionUtils.isNotEmpty(customFieldTemplateRecords)) {
+            extCustomFieldTemplateMapper.batchInsert(customFieldTemplateRecords);
+        }
+        // 批量插入自定义字段模板数据
+        if (CollectionUtils.isNotEmpty(customFieldRecords)) {
+            extCustomFieldMapper.batchInsert(customFieldRecords);
+        }
+    }
+
     public String getLogDetails(String id, List<CustomFieldTemplate> newCustomFieldTemplates) {
         List<DetailColumn> columns = new LinkedList<>();
         IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
@@ -300,6 +494,28 @@ public class IssueTemplateService extends TemplateBaseService {
         List<DetailColumn> columnIssues = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
         columns.addAll(columnIssues);
         OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+        return JSON.toJSONString(details);
+    }
+
+    private List<GroupPermissionDTO> getPermissionsByUserGroups(List<UserGroup> userGroups) {
+        List<GroupPermissionDTO> permissionsByUserGroups = new ArrayList<>();
+        userGroups.forEach(userGroup -> {
+            Group group = groupMapper.selectByPrimaryKey(userGroup.getGroupId());
+            GroupPermissionDTO groupResource = groupService.getGroupResource(group);
+            permissionsByUserGroups.add(groupResource);
+        });
+        return permissionsByUserGroups;
+    }
+
+    @MsAuditLog(module = OperLogModule.PROJECT_TEMPLATE_MANAGEMENT, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#targetProjectId)", msClass = IssueTemplateService.class)
+    public void copyIssueTemplateLog(String targetProjectId) {
+    }
+
+    public String getLogDetails(String targetProjectId) {
+        if (targetProjectId == null) {
+            return null;
+        }
+        OperatingLogDetails details = new OperatingLogDetails(targetProjectId, targetProjectId, "缺陷模板复制", null, null);
         return JSON.toJSONString(details);
     }
 }

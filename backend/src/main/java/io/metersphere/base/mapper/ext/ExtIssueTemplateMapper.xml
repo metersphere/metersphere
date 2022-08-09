@@ -11,6 +11,16 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO
+        issue_template
+        VALUES
+        <foreach collection="issueTemplates" item="issueTemplate" separator="," >
+            ( #{issueTemplate.id}, #{issueTemplate.name}, #{issueTemplate.platform}, #{issueTemplate.description},
+             #{issueTemplate.title}, #{issueTemplate.system}, #{issueTemplate.global}, #{issueTemplate.content},
+            #{issueTemplate.createTime}, #{issueTemplate.updateTime}, #{issueTemplate.createUser}, #{issueTemplate.projectId})
+        </foreach>
+    </insert>
 
     <sql id="queryWhereCondition">
         <where>

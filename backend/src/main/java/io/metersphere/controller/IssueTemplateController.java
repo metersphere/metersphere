@@ -8,10 +8,13 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.BaseQueryRequest;
+import io.metersphere.controller.request.CopyIssueTemplateRequest;
 import io.metersphere.controller.request.UpdateIssueTemplateRequest;
+import io.metersphere.dto.IssueTemplateCopyDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.IssueTemplateService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -56,5 +59,21 @@ public class IssueTemplateController {
     @GetMapping("/get/relate/{projectId}")
     public IssueTemplateDao getTemplate(@PathVariable String projectId) {
         return issueTemplateService.getTemplate(projectId);
+    }
+
+    @GetMapping("/get/copy/project/{userId}/{workspaceId}")
+    public IssueTemplateCopyDTO getCopyProject(@PathVariable String userId, @PathVariable String workspaceId) {
+        return issueTemplateService.getCopyProject(userId, workspaceId);
+    }
+
+    @PostMapping("/copy")
+    public void copy(@RequestBody CopyIssueTemplateRequest request) {
+        issueTemplateService.copy(request);
+        // 目标项目操作日志
+        if (CollectionUtils.isNotEmpty(request.getTargetProjectIds())) {
+            request.getTargetProjectIds().forEach(targetProjectId -> {
+                issueTemplateService.copyIssueTemplateLog(targetProjectId);
+            });
+        }
     }
 }
