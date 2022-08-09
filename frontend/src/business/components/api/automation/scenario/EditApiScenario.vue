@@ -1434,7 +1434,7 @@ export default {
     mergeScenario(data) {
       data.forEach(item => {
         mergeRequestDocumentData(item);
-        if (item.hashTree && item.hashTree > 0) {
+        if (item.hashTree && item.hashTree.length > 0) {
           this.mergeScenario(item.hashTree);
         }
       })
