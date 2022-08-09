@@ -15,4 +15,6 @@ public interface ExtCustomFieldTemplateMapper {
     List<CustomFieldDao> lisSimple(@Param("request") CustomFieldTemplate request);
 
     List<String> getSystemCustomField(@Param("templateId") String templateId, @Param("fieldName") String fieldName);
+
+    void batchInsert(@Param("customFieldTemplates") List<CustomFieldTemplate> customFieldTemplates);
 }

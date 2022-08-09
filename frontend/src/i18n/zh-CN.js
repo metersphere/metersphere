@@ -580,6 +580,16 @@ export default {
     custom_field_setting: '设置自定义字段',
     create_issue_template: '创建缺陷模版',
     issue_template: '缺陷模版',
+    copy_issue_template: '复制缺陷模板',
+    copy_issue_template_tips1: '注意： 复制的模板会在目标项目中新增；此操作有可能会影响目标项目的历史缺陷，建议仅在新项目中使用。',
+    copy_issue_template_tips2: '请谨慎操作，此操作不可逆！',
+    copy_issue_template_model_tips1: '复制模式',
+    copy_issue_template_model_tips2: '（系统字段选项值和自定义字段及字段选项值的设置）',
+    copy_issue_template_model_append: '追加',
+    copy_issue_template_model_cover: '覆盖',
+    target_project: '目标项目',
+    current_project: '（当前项目）',
+    no_custom_fields_permission: '（没有自定义字段权限）',
     issue_platform: '缺陷平台',
     issue_content: '缺陷内容',
     template_create: '创建模板',
@@ -2854,6 +2864,7 @@ export default {
     project_project_jar: "項目-JAR包管理",
     project_environment_setting: "项目-环境设置",
     project_file_management: "项目-文件管理",
+    project_template_management: "项目-模板管理",
     personal_information_personal_settings: "个人信息-个人设置",
     personal_information_apikeys: "个人信息-API Keys",
     auth_title: "系统认证",
@@ -3262,6 +3273,9 @@ export default {
       performance: "性能测试",
       project: "项目设置",
       report: "报表统计",
+    },
+    template: {
+      name: "模板管理"
     }
   },
   env_options: {
