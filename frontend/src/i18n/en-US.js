@@ -467,8 +467,7 @@ export default {
       api_scenario: 'default',
       ui_element: 'default',
       ui_scenario: 'default'
-    },
-    template_delete: "Template delete"
+    }
   },
   login: {
     normal_Login: "Normal Login",
@@ -3358,6 +3357,11 @@ export default {
     set_coord: "Set Coordinate",
     input_content_x: "input x coordinate",
     input_content_y: "input y coordinate",
+    screenshot_config: "Screenshot configuration",
+    current_step_screenshot: "Screenshot of current step",
+    not_screentshot: "No screenshot",
+    error_step_screenshot: "Screenshot of exception",
+    downloadScreenshot: "Download screenshot file",
   },
   project_application: {
     workstation: {
