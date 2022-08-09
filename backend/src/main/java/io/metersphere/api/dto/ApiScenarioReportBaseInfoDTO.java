@@ -17,6 +17,8 @@ public class ApiScenarioReportBaseInfoDTO {
     private String rspCode;
     private long rspTime;
     private String uiImg;
+    private String uiScreenshots;
+    private String combinationImg;
     private Boolean isNotStep;
     private String reportId;
 }

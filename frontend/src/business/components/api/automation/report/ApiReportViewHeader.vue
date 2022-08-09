@@ -58,6 +58,9 @@
           <el-button v-if="showCancelButton" class="export-button" plain size="mini" @click="returnView">
             {{ $t('commons.cancel') }}
           </el-button>
+
+          <ui-download-screenshot :report="report" v-if="isUi"/>
+
         </div>
       </el-col>
     </el-row>
@@ -77,10 +80,12 @@
 import {generateShareInfoWithExpired} from "@/network/share";
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const UiDownloadScreenshot = requireComponent.keys().length > 0 ? requireComponent("./ui/automation/report/UiDownloadScreenshot.vue") : {};
 
 export default {
   name: "MsApiReportViewHeader",
-  components: {MsTag},
+  components: {MsTag, 'UiDownloadScreenshot': UiDownloadScreenshot.default},
   props: {
     report: {},
     projectEnvMap: {},

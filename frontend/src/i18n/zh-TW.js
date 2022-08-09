@@ -3344,6 +3344,11 @@ export default {
     set_coord: "設置鼠標坐標位置",
     input_content_x: "請輸入橫坐標",
     input_content_y: "請輸入縱坐標",
+    screenshot_config: "截圖配置",
+    current_step_screenshot: "當前步驟截圖",
+    not_screentshot: "不截圖",
+    error_step_screenshot: "出現異常截圖",
+    downloadScreenshot: "下載截圖文件",
   },
   project_application: {
     workstation: {

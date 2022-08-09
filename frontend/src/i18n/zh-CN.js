@@ -3367,6 +3367,12 @@ export default {
     set_coord: "设置鼠标坐标位置",
     input_content_x: "请输入横坐标",
     input_content_y: "请输入纵坐标",
+    screenshot_config: "截图配置",
+    current_step_screenshot: "当前步骤截图",
+    not_screentshot: "不截图",
+    error_step_screenshot: "出现异常截图",
+    downloadScreenshot: "下载截图文件",
+
   },
   project_application: {
     workstation: {
