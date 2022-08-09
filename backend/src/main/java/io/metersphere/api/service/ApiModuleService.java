@@ -1292,7 +1292,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = definitionIdCaseMAp.get(apiDefinitionWithBLOBs.getId());
         if (CollectionUtils.isNotEmpty(caseWithBLOBs)) {
-            return caseWithBLOBs.stream().filter(t -> !t.getVersionId().equals("create_repeat")).collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
+            return caseWithBLOBs.stream().filter(t -> !StringUtils.equalsIgnoreCase("create_repeat", t.getVersionId())).collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
         } else {
             return null;
         }
