@@ -6,6 +6,7 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
@@ -57,7 +58,7 @@ public class MsJSR223PostProcessor extends MsTestElement {
         //替换Metersphere环境变量
         script = StringUtils.replace(script, RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + this.getEnvironmentId() + ".\"");
 
-        if(config.isOperating()){
+        if (config.isOperating()) {
             if (StringUtils.isNotEmpty(script) && script.startsWith("io.metersphere.utils.JMeterVars.addVars")) {
                 return;
             }
@@ -87,7 +88,7 @@ public class MsJSR223PostProcessor extends MsTestElement {
             processor.setProperty("scriptLanguage", "rhino");
         }
         processor.setProperty("script", this.getScript());
-
+        processor.setProperty("projectId", StringUtils.isNotEmpty(this.getProjectId()) ? this.getProjectId() : SessionUtils.getCurrentProjectId());
         final HashTree jsr223PostTree = tree.add(processor);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

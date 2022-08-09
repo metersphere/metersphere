@@ -57,7 +57,7 @@
 
 
         <el-col v-if="isActive && item.type === 'file'" class="item">
-          <ms-api-body-file-upload :parameter="item"/>
+          <ms-api-body-file-upload :parameter="item" :id="id"/>
         </el-col>
 
         <el-col v-if="type === 'body'" class="item kv-select">
@@ -107,6 +107,7 @@ export default {
   name: "MsApiVariable",
   components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance, MsApiVariableJson},
   props: {
+    id: String,
     urlEncode: {
       type: Boolean,
       default: false

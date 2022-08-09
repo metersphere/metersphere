@@ -88,7 +88,6 @@ export default {
       }
     },
     addNew(e) {
-      this.$emit("onblur");
       if (e && (!this.addTagOnKeys.includes(e.keyCode)) && (e.type !== 'blur')) {
         return
       }
@@ -112,6 +111,7 @@ export default {
         this.tagChange()
         this.newTag = ''
       }
+      this.$emit("onblur");
     },
     addTag(tag) {
       tag = tag.trim()

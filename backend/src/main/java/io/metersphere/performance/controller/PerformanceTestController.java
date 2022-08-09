@@ -20,6 +20,7 @@ import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.performance.dto.LoadModuleDTO;
 import io.metersphere.performance.dto.LoadTestBatchRequest;
@@ -27,7 +28,6 @@ import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
-import io.metersphere.service.FileService;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +46,7 @@ public class PerformanceTestController {
     @Resource
     private PerformanceTestService performanceTestService;
     @Resource
-    private FileService fileService;
+    private FileMetadataService fileMetadataService;
     @Resource
     private CheckPermissionService checkPermissionService;
 
@@ -199,17 +199,17 @@ public class PerformanceTestController {
 
     @GetMapping("/file/getMetadataById/{metadataId}")
     public FileMetadata getMetadataById(@PathVariable String metadataId) {
-        return fileService.getFileMetadataById(metadataId);
+        return fileMetadataService.getFileMetadataById(metadataId);
     }
 
     @PostMapping("/file/{projectId}/getMetadataByName")
     public List<FileMetadata> getProjectMetadataByName(@PathVariable String projectId, @RequestBody QueryProjectFileRequest request) {
-        return fileService.getProjectFiles(projectId, request);
+        return fileMetadataService.getProjectFiles(projectId, request);
     }
 
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
-        byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
+        byte[] bytes = fileMetadataService.loadFileAsBytes(fileOperationRequest.getId());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getId()+".jmx" + "\"")

@@ -16,15 +16,21 @@ public interface FileMetadataMapper {
 
     int insertSelective(FileMetadata record);
 
+    List<FileMetadata> selectByExampleWithBLOBs(FileMetadataExample example);
+
     List<FileMetadata> selectByExample(FileMetadataExample example);
 
     FileMetadata selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FileMetadata record, @Param("example") FileMetadataExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") FileMetadata record, @Param("example") FileMetadataExample example);
+
     int updateByExample(@Param("record") FileMetadata record, @Param("example") FileMetadataExample example);
 
     int updateByPrimaryKeySelective(FileMetadata record);
+
+    int updateByPrimaryKeyWithBLOBs(FileMetadata record);
 
     int updateByPrimaryKey(FileMetadata record);
 }

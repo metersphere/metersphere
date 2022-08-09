@@ -36,6 +36,7 @@
         :urlEncode="body.type == 'WWW_FORM'"
         :isShowEnable="isShowEnable"
         :scenario-definition="scenarioDefinition"
+        :id="id"
         @editScenarioAdvance="editScenarioAdvance"
         type="body"/>
     </div>
@@ -136,6 +137,7 @@ export default {
       default: true
     },
     scenarioDefinition: Array,
+    id: String,
   },
   data() {
     return {

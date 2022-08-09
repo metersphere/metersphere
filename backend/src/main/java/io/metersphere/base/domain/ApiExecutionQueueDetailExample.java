@@ -693,6 +693,76 @@ public class ApiExecutionQueueDetailExample {
             addCriterion("retry_number not between", value1, value2, "retryNumber");
             return (Criteria) this;
         }
+
+        public Criteria andProjectIdsIsNull() {
+            addCriterion("project_ids is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsIsNotNull() {
+            addCriterion("project_ids is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsEqualTo(String value) {
+            addCriterion("project_ids =", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsNotEqualTo(String value) {
+            addCriterion("project_ids <>", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsGreaterThan(String value) {
+            addCriterion("project_ids >", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsGreaterThanOrEqualTo(String value) {
+            addCriterion("project_ids >=", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsLessThan(String value) {
+            addCriterion("project_ids <", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsLessThanOrEqualTo(String value) {
+            addCriterion("project_ids <=", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsLike(String value) {
+            addCriterion("project_ids like", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsNotLike(String value) {
+            addCriterion("project_ids not like", value, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsIn(List<String> values) {
+            addCriterion("project_ids in", values, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsNotIn(List<String> values) {
+            addCriterion("project_ids not in", values, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsBetween(String value1, String value2) {
+            addCriterion("project_ids between", value1, value2, "projectIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdsNotBetween(String value1, String value2) {
+            addCriterion("project_ids not between", value1, value2, "projectIds");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

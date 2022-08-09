@@ -17,6 +17,7 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.exec.utils.RequestParamsUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -45,14 +46,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiCaseSerialService {
+    private final static String PROJECT_ID = "projectId";
     @Resource
     private JMeterService jMeterService;
     @Resource
@@ -91,6 +90,7 @@ public class ApiCaseSerialService {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
             // 开始执行
+            runRequest.getExtendedParameters().put(PROJECT_ID, queue.getProjectIds());
             jMeterService.run(runRequest);
         } catch (Exception e) {
             RequestParamsUtil.rollback(runRequest, e);
@@ -135,8 +135,15 @@ public class ApiCaseSerialService {
                 String data = caseWithBLOBs.getRequest();
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
-                testPlan.setHashTree(new LinkedList<>());
 
+                if (!runRequest.getPool().isPool()) {
+                    // 获取自定义JAR
+                    String projectId = caseWithBLOBs.getProjectId();
+                    testPlan.setJarPaths(NewDriverManager.getJars(new ArrayList<>() {{
+                        this.add(projectId);
+                    }}));
+                }
+                testPlan.setHashTree(new LinkedList<>());
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(caseWithBLOBs.getName());
                 group.setName(runRequest.getReportId());

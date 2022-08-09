@@ -63,7 +63,7 @@
         <el-table
           :data="previewData"
           style="width: 100%"
-          height="240px"
+          height="200px"
           v-loading="loading">
           <!-- 自定义列的遍历-->
           <el-table-column v-for="(item, index) in columns" :key="index" :label="columns[index]" align="left" width="180">
@@ -165,6 +165,13 @@
             data: file,
             responseType: 'blob',
           };
+          if (file.storage === "FILE_REF") {
+            conf = {
+              url: "/file/metadata/download/" + file.fileId,
+              method: 'get',
+              responseType: 'blob',
+            };
+          }
           this.result = this.$request(conf).then(response => {
             const content = response.data;
             const blob = new Blob([content]);

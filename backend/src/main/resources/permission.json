@@ -383,23 +383,28 @@
       "resourceId": "PROJECT_FILE"
     },
     {
+      "id": "PROJECT_FILE:READ+DOWNLOAD+JAR",
+      "name": "permission.project_file.file_download",
+      "resourceId": "PROJECT_FILE"
+    },
+    {
       "id": "PROJECT_FILE:READ+DELETE+JAR",
       "name": "permission.project_file.delete_jar",
       "resourceId": "PROJECT_FILE"
     },
     {
-      "id": "PROJECT_FILE:READ+FILE",
-      "name": "permission.project_file.read",
+      "id": "PROJECT_FILE:READ+BATCH+DELETE",
+      "name": "permission.project_file.batch_delete",
       "resourceId": "PROJECT_FILE"
     },
     {
-      "id": "PROJECT_FILE:READ+UPLOAD+FILE",
-      "name": "permission.project_file.upload_file",
+      "id": "PROJECT_FILE:READ+BATCH+DOWNLOAD",
+      "name": "permission.project_file.batch_download",
       "resourceId": "PROJECT_FILE"
     },
     {
-      "id": "PROJECT_FILE:READ+DELETE+FILE",
-      "name": "permission.project_file.delete_file",
+      "id": "PROJECT_FILE:READ+BATCH+MOVE",
+      "name": "permission.project_file.batch_move",
       "resourceId": "PROJECT_FILE"
     },
     {

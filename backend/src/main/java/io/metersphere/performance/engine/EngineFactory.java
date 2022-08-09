@@ -2,7 +2,6 @@ package io.metersphere.performance.engine;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.TestResourcePool;
@@ -13,11 +12,11 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
 import io.metersphere.performance.service.PerformanceReportService;
-import io.metersphere.service.FileService;
 import io.metersphere.service.KubernetesTestEngine;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.beanutils.ConstructorUtils;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class EngineFactory {
-    private static FileService fileService;
+    private static FileMetadataService fileMetadataService;
     private static PerformanceReportService performanceReportService;
     private static TestResourcePoolService testResourcePoolService;
 
@@ -220,8 +219,8 @@ public class EngineFactory {
 
         if (CollectionUtils.isNotEmpty(resourceFiles)) {
             resourceFiles.forEach(cf -> {
-                FileContent csvContent = fileService.getFileContent(cf.getId());
-                testResourceFiles.put(cf.getName(), csvContent.getFile());
+                byte[] bytes = fileMetadataService.loadFileAsBytes(cf.getId());
+                testResourceFiles.put(cf.getName(), bytes);
             });
         }
         engineContext.setTestResourceFiles(testResourceFiles);
@@ -303,8 +302,9 @@ public class EngineFactory {
             Element hashTree = null;
             Document rootDocument = null;
             for (FileMetadata fileMetadata : jmxFiles) {
-                FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
-                InputStream inputSource = new ByteArrayInputStream(fileContent.getFile());
+                // 兼容处理
+                byte[] bytes = fileMetadataService.loadFileAsBytes(fileMetadata.getId());
+                InputStream inputSource = new ByteArrayInputStream(bytes);
                 if (hashTree == null) {
                     rootDocument = EngineSourceParserFactory.getDocument(inputSource);
                     Element jmeterTestPlan = rootDocument.getRootElement();
@@ -369,8 +369,8 @@ public class EngineFactory {
     }
 
     @Resource
-    private void setFileService(FileService fileService) {
-        EngineFactory.fileService = fileService;
+    private void setFileMetadataService(FileMetadataService fileMetadataService) {
+        EngineFactory.fileMetadataService = fileMetadataService;
     }
 
     @Resource

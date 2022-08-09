@@ -2,45 +2,80 @@
     <span>
       <el-row>
         <el-col :span="18">
-           <el-upload
-             action="#"
-             class="api-body-upload"
-             list-type="picture-card"
-             :http-request="upload"
-             :beforeUpload="uploadValidate"
-             :file-list="parameter.files"
-             :limit="1"
-             :on-exceed="exceed"
-             ref="upload">
-         <div class="upload-default">
-           <i class="el-icon-plus"/>
-         </div>
-         <div class="upload-item" slot="file" slot-scope="{file}">
-           <span>{{ file.file ? file.file.name : file.name }}</span>
-           <span class="el-upload-list__item-actions">
-            <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
-              <i class="el-icon-delete"/>
-            </span>
-           </span>
-          </div>
-      </el-upload>
+          <el-upload
+            action="#"
+            class="api-body-upload"
+            list-type="picture-card"
+            :file-list="parameter.files"
+            :beforeUpload="uploadValidate"
+            :on-exceed="exceed"
+            :limit="1"
+            ref="upload">
+            <div class="upload-default" @click.stop>
+              <el-popover
+                placement="right"
+                trigger="hover">
+                <div>
+                  <el-upload
+                    action="#"
+                    class="ms-body-upload"
+                    :http-request="upload"
+                    :limit="1"
+                    :on-exceed="exceed"
+                    :beforeUpload="uploadValidate"
+                    ref="uploadLocal">
+                    <el-button type="text"> {{ $t('permission.project_file.local_upload') }}</el-button>
+                    <span slot="file"/>
+                  </el-upload>
+                </div>
+                <el-button type="text" @click="associationFile">{{ $t('permission.project_file.associated_files') }}</el-button>
+                <i class="el-icon-plus" slot="reference"/>
+              </el-popover>
+            </div>
+            <div class="upload-item" slot="file" slot-scope="{file}">
+              <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
+              <span class="el-upload-list__item-actions" v-if="file.storage === 'FILE_REF'">
+                  <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUnlock(file)">
+                    <i class="el-icon-unlock"/>
+                  </span>
+              </span>
+              <span class="el-upload-list__item-actions" v-else>
+                  <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUpload(file)">
+                    <i class="el-icon-upload" style="font-size: 23px"/>
+                  </span>
+                  <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
+                    <i class="el-icon-delete"/>
+                  </span>
+               </span>
+            </div>
+          </el-upload>
         </el-col>
         <el-col :span="6">
           <el-button size="small" style="margin: 3px 5px" @click="download">下载</el-button>
         </el-col>
       </el-row>
+          <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
+    <ms-file-metadata-list ref="metadataList" @checkRows="checkRows"/>
+
     </span>
 </template>
 
 <script>
 import {downloadFile} from "@/common/js/utils";
+import MsFileBatchMove from "@/business/components/project/menu/file/module/FileBatchMove";
+import MsFileMetadataList from "@/business/components/project/menu/file/quote/QuoteFileList";
+import {getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
 
 export default {
-  name: "MsApiBodyFileUpload",
+  name: "MsCsvFileUpload",
   data() {
     return {
       disabled: false,
     };
+  },
+  components: {
+    MsFileBatchMove,
+    MsFileMetadataList
   },
   props: {
     parameter: Object,
@@ -49,6 +84,49 @@ export default {
     }
   },
   methods: {
+    setModuleId(moduleId) {
+      let files = [];
+      if (this.file && this.file.file) {
+        files.push(this.file.file);
+      }
+      let request = {id: getUUID(), resourceId: this.id, moduleId: moduleId, projectId: getCurrentProjectID(), fileName: this.file.name};
+      this.$fileUpload("/file/metadata/api/upload", null, files, request, (response) => {
+        this.$success(this.$t("organization.integration.successful_operation"));
+      });
+    },
+    handleUpload(file) {
+      this.$refs.module.init();
+      this.file = file;
+    },
+    associationFile() {
+      this.$refs.metadataList.open();
+    },
+    checkRows(rows) {
+      if (rows && rows.size !== 1 || this.parameter.files.length > 0) {
+        this.$warning(this.$t('test_track.case.import.upload_limit_count'));
+        return;
+      }
+      rows.forEach(item => {
+        if (!item.type || item.type.toLowerCase() !== "csv") {
+          this.$warning(this.$t('variables.cvs_info'));
+          return;
+        }
+        let file = {name: item.name, id: getUUID(), fileId: item.id, storage: "FILE_REF", projectId: item.projectId, fileType: item.type};
+        this.parameter.files.push(file);
+      })
+    },
+    handleUnlock(file) {
+      for (let i = 0; i < this.parameter.files.length; i++) {
+        let fileName = file.file ? file.file.name : file.name;
+        let paramFileName = this.parameter.files[i].file ?
+          this.parameter.files[i].file.name : this.parameter.files[i].name;
+        if (fileName === paramFileName) {
+          this.parameter.files.splice(i, 1);
+          this.$refs.upload.handleRemove(file);
+          break;
+        }
+      }
+    },
     download() {
       // 本地文件
       if (this.parameter.files && this.parameter.files.length > 0 && this.parameter.files[0].file) {
@@ -63,6 +141,13 @@ export default {
           data: file,
           responseType: 'blob',
         };
+        if (file.storage === "FILE_REF") {
+          conf = {
+            url: "/file/metadata/download/" + file.fileId,
+            method: 'get',
+            responseType: 'blob',
+          };
+        }
         this.result = this.$request(conf).then(response => {
           const content = response.data;
           if (content && this.parameter.files[0]) {
@@ -98,6 +183,10 @@ export default {
       this.parameter.files.push(file);
     },
     uploadValidate(file) {
+      if (this.parameter.files.length > 0) {
+        this.$warning(this.$t('test_track.case.import.upload_limit_count'));
+        return false;
+      }
       if (file.size / 1024 / 1024 > 500) {
         this.$warning(this.$t('api_test.request.body_upload_limit_size'));
         return false;
@@ -118,7 +207,6 @@ export default {
 </script>
 
 <style scoped>
-
 .el-upload {
   background-color: black;
 }
@@ -141,7 +229,7 @@ export default {
 .api-body-upload >>> .el-upload-list__item {
   height: 30px;
   width: auto;
-  padding: 6px;
+  padding: 2px 5px;
   margin-bottom: 0px;
 }
 
@@ -155,7 +243,19 @@ export default {
   border-radius: 4px;
 }
 
-.upload-item {
+.ms-body-upload {
+  min-height: 0px;
+  height: 30px;
+  border: 0px;
+  padding: 0px;
+  border-radius: 0px;
+
 }
 
+.upload-item {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 180px;
+}
 </style>

@@ -84,6 +84,7 @@ public class ApiScenarioSerialService {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
             // 开始执行
+            runRequest.getExtendedParameters().put("projectId", queue.getProjectIds());
             jMeterService.run(runRequest);
         } catch (Exception e) {
             RequestParamsUtil.rollback(runRequest, e);
