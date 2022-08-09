@@ -13,4 +13,6 @@ public interface ExtCustomFieldMapper {
     List<CustomField> listRelate(@Param("request") QueryCustomFieldRequest request);
 
     List<String> listIds(@Param("request") QueryCustomFieldRequest request);
+
+    void batchInsert(@Param("customFields") List<CustomField> customFields);
 }

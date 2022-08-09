@@ -21,6 +21,17 @@
         <include refid="queryWhereCondition"/>
     </select>
 
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO
+        custom_field
+        VALUES
+        <foreach collection="customFields" item="customField" separator="," >
+            (#{customField.id}, #{customField.name}, #{customField.scene}, #{customField.type},
+            #{customField.remark}, #{customField.options}, #{customField.system}, #{customField.global}, #{customField.createTime},
+            #{customField.updateTime}, #{customField.createUser}, #{customField.projectId}, #{customField.thirdPart})
+        </foreach>
+    </insert>
+
     <select id="listRelate" resultType="io.metersphere.base.domain.CustomField">
         select
         <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,

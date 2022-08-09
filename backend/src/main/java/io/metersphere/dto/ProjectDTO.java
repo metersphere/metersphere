@@ -9,4 +9,5 @@ import lombok.Setter;
 public class ProjectDTO extends Project {
     private String workspaceName;
     private String createUserName;
+    private Boolean customPermissionFlag;
 }
