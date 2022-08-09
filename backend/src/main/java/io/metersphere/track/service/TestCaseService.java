@@ -1667,16 +1667,18 @@ public class TestCaseService {
                     CustomFieldResource field = fields.get(index);
                     //进行key value对换
                     String id = field.getFieldId();
-                    String value = JSONObject.parse(field.getValue()).toString();
-                    if (customSelectValueMap.containsKey(id)) {
-                        if (customSelectValueMap.get(id).containsKey(value)) {
+                    if (StringUtils.isNotBlank(field.getValue())) {
+                        String value = JSONObject.parse(field.getValue()).toString();
+                        if (customSelectValueMap.containsKey(id)
+                            && customSelectValueMap.get(id).containsKey(value)) {
                             value = customSelectValueMap.get(id).get(value);
                         }
+                        map.put(customNameMap.get(id), value);
                     }
-                    map.put(customNameMap.get(id), value);
                 }
                 data.setCustomDatas(map);
             } catch (Exception e) {
+                LogUtil.error(e);
             }
             list.add(data);
         });
