@@ -92,6 +92,7 @@
               :isShowEnable="isShowEnable"
               :headers="headers"
               :body="request.body"
+              :id="request.id"
               v-if="activeName === 'body'"
           />
         </el-tab-pane>

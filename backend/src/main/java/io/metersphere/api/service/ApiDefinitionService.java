@@ -51,6 +51,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
+import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.*;
@@ -169,6 +170,8 @@ public class ApiDefinitionService {
     @Lazy
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private FileAssociationService fileAssociationService;
 
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -455,6 +458,8 @@ public class ApiDefinitionService {
         });
         // 删除用例和接口的关联关系
         testCaseService.deleteTestCaseTestByTestIds(List.of(apiId));
+        // 删除附件关系
+        fileAssociationService.deleteByResourceId(apiId);
     }
 
     private void deleteFollows(String apiId) {
@@ -470,6 +475,8 @@ public class ApiDefinitionService {
         apiExecutionInfoService.deleteByApiIdList(apiIds);
         apiDefinitionMapper.deleteByExample(example);
         apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+        // 删除附件关系
+        fileAssociationService.deleteByResourceIds(apiIds);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         relationshipEdgeService.delete(apiIds); // 删除关系图
         for (String apiId : apiIds) {
@@ -727,6 +734,9 @@ public class ApiDefinitionService {
         }
         ApiDefinitionWithBLOBs result = apiDefinitionMapper.selectByPrimaryKey(test.getId());
         checkAndSetLatestVersion(result.getRefId());
+
+        // 存储附件关系
+        fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
         return result;
     }
 
@@ -851,6 +861,9 @@ public class ApiDefinitionService {
             apiDefinitionMapper.insert(test);
             saveFollows(test.getId(), request.getFollows());
         }
+        // 存储附件关系
+        fileAssociationService.saveApi(test.getId(), request.getRequest(),FileAssociationType.API.name());
+
         return getById(test.getId());
     }
 

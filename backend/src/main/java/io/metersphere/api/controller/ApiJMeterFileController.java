@@ -31,6 +31,15 @@ public class ApiJMeterFileController {
                 .body(bytes);
     }
 
+    @GetMapping("download/jar/{projectId}")
+    public ResponseEntity<byte[]> downloadJmeterFiles(@PathVariable String projectId) {
+        byte[] bytes = apiJmeterFileService.downloadJmeterJar(projectId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
+                .body(bytes);
+    }
+
     @GetMapping("download")
     public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId,
                                                       @RequestParam("runMode") String runMode, @RequestParam("reportType") String reportType, @RequestParam("queueId") String queueId) {

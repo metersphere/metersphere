@@ -171,7 +171,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 this.setProjectId(config.getProjectId());
             }
             String projectId = this.getProjectId();
-            config.setConfig(ElementUtil.getEnvironmentConfig(this.useEnvironment, projectId, this.isMockEnvironment()));
+            config.setConfig(ElementUtil.getEnvironmentConfig(this.useEnvironment, projectId));
             this.setProjectId(projectId);
         }
 

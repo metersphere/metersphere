@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.metersphere.api.dto.scenario.request.BodyFile;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.json.JSONSchemaRunTest;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
@@ -149,7 +150,9 @@ public class Body {
             files.forEach(file -> {
                 String paramName = keyValue.getName() == null ? requestId : keyValue.getName();
                 String path = null;
-                if (StringUtils.isNotBlank(file.getId()) && !isBinary) {
+                if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                    path = FileUtils.getFilePath(file);
+                } else if (StringUtils.isNotBlank(file.getId()) && !isBinary) {
                     // 旧数据
                     path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
                 } else if (StringUtils.isNotBlank(this.tmpFilePath)) {

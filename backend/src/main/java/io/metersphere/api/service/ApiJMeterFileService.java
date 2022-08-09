@@ -15,8 +15,8 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.service.JarConfigService;
 import io.metersphere.service.PluginService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,9 +44,17 @@ public class ApiJMeterFileService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
-
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
+    // 接口测试 用例/接口
+    private static final List<String> CASE_MODES = new ArrayList<>() {{
+        this.add(ApiRunMode.DEFINITION.name());
+        this.add(ApiRunMode.JENKINS_API_PLAN.name());
+        this.add(ApiRunMode.API_PLAN.name());
+        this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
+        this.add(ApiRunMode.MANUAL_PLAN.name());
+
+    }};
 
     public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
         Map<String, String> planEnvMap = new HashMap<>();
@@ -92,7 +100,7 @@ public class ApiJMeterFileService {
             LoggerUtil.info("测试资源：【" + remoteTestId + "】, 报告【" + reportId + "】未重新选择环境");
         }
         HashTree hashTree = null;
-        if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
+        if (CASE_MODES.contains(runMode)) {
             hashTree = apiCaseSerialService.generateHashTree(remoteTestId, envMap, runRequest);
         } else {
             if (scenario == null) {
@@ -102,7 +110,7 @@ public class ApiJMeterFileService {
                 // 清除队列
                 executionQueueDetailMapper.deleteByPrimaryKey(queueId);
             }
-            if (envMap != null && !envMap.isEmpty()) {
+            if (MapUtils.isNotEmpty(envMap)) {
                 planEnvMap = envMap;
             } else if (!StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                 String envType = scenario.getEnvironmentType();
@@ -122,7 +130,20 @@ public class ApiJMeterFileService {
     public byte[] downloadJmeterJar() {
         Map<String, byte[]> files = new HashMap<>();
         // 获取JAR
-        Map<String, byte[]> jarFiles = this.getJar();
+        Map<String, byte[]> jarFiles = this.getJar(null);
+        if (!MapUtils.isEmpty(jarFiles)) {
+            for (String k : jarFiles.keySet()) {
+                byte[] v = jarFiles.get(k);
+                files.put(k, v);
+            }
+        }
+        return listBytesToZip(files);
+    }
+
+    public byte[] downloadJmeterJar(String projectId) {
+        Map<String, byte[]> files = new HashMap<>();
+        // 获取JAR
+        Map<String, byte[]> jarFiles = this.getJar(projectId);
         if (!MapUtils.isEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
@@ -136,7 +157,7 @@ public class ApiJMeterFileService {
         Map<String, byte[]> files = new HashMap<>();
         // 获取JAR
         Map<String, byte[]> jarFiles = this.getPlugJar();
-        if (!MapUtils.isEmpty(jarFiles)) {
+        if (MapUtils.isNotEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
                 files.put(k, v);
@@ -145,24 +166,20 @@ public class ApiJMeterFileService {
         return listBytesToZip(files);
     }
 
-    private Map<String, byte[]> getJar() {
+    private Map<String, byte[]> getJar(String projectId) {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
-        // jar 包
-        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
-        List<JarConfig> jars = jarConfigService.list();
-        jars.forEach(jarConfig -> {
-            try {
-                String path = jarConfig.getPath();
-                File file = new File(path);
-                if (file.isDirectory() && !path.endsWith("/")) {
-                    file = new File(path + "/");
-                }
-                byte[] fileByte = FileUtils.fileToByte(file);
-                if (fileByte != null) {
-                    jarFiles.put(file.getName(), fileByte);
-                }
-            } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
+        FileMetadataService jarConfigService = CommonBeanFactory.getBean(FileMetadataService.class);
+        List<String> files = jarConfigService.getJar(new ArrayList<>() {{
+            this.add(projectId);
+        }});
+        files.forEach(path -> {
+            File file = new File(path);
+            if (file.isDirectory() && !path.endsWith("/")) {
+                file = new File(path + "/");
+            }
+            byte[] fileByte = FileUtils.fileToByte(file);
+            if (fileByte != null) {
+                jarFiles.put(file.getName(), fileByte);
             }
         });
         return jarFiles;
@@ -172,7 +189,6 @@ public class ApiJMeterFileService {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
         // jar 包
         PluginService pluginService = CommonBeanFactory.getBean(PluginService.class);
-
         List<Plugin> plugins = pluginService.list();
         if (CollectionUtils.isNotEmpty(plugins)) {
             plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()

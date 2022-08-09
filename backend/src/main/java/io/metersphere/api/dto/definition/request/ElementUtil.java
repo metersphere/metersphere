@@ -11,9 +11,9 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
-import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
@@ -21,6 +21,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
@@ -78,15 +79,12 @@ public class ElementUtil {
         return null;
     }
 
-    public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId, boolean isMockEnvironment) {
+    public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId) {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
             if (StringUtils.isEmpty(projectId)) {
                 projectId = environment.getProjectId();
-            }
-            if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
-                isMockEnvironment = true;
             }
             // 单独接口执行
             if (StringUtils.isEmpty(projectId)) {
@@ -118,10 +116,15 @@ public class ElementUtil {
                     if (CollectionUtils.isEmpty(item.getFiles())) {
                         MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                     } else {
-                        if (!config.isOperating() && !new File(BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName()).exists()) {
+                        BodyFile file = item.getFiles().get(0);
+                        String path = BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
+                        if (StringUtils.equalsIgnoreCase(file.getStorage(), StorageConstants.FILE_REF.name())) {
+                            path = FileUtils.getFilePath(file);
+                        }
+                        if (!config.isOperating() && !new File(path).exists()) {
                             MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ " + Translator.get("csv_no_exist") + " ]");
                         }
-                        csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
+                        csvDataSet.setProperty("filename", path);
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setProperty("shareMode", shareMode);

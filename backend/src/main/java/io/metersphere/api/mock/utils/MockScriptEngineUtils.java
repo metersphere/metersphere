@@ -2,10 +2,11 @@ package io.metersphere.api.mock.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.mock.RequestMockParams;
-import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.service.JarConfigService;
+import io.metersphere.jmeter.MsClassLoader;
+import io.metersphere.jmeter.MsDynamicClassLoader;
+import io.metersphere.metadata.service.FileMetadataService;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.script.ScriptEngine;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -63,19 +65,15 @@ public class MockScriptEngineUtils {
     /**
      * 加载jar包
      */
-    private void loadJars(String projectId) {
-        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
+    private List<String> getJarPaths(String projectId) {
+        FileMetadataService jarConfigService = CommonBeanFactory.getBean(FileMetadataService.class);
         if (jarConfigService != null) {
-            List<JarConfig> jars = jarConfigService.listByProjectId(projectId);
-            jars.forEach(jarConfig -> {
-                try {
-                    this.loadJar(jarConfig.getPath());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    LogUtil.error(e.getMessage(), e);
-                }
-            });
+            List<String> jars = jarConfigService.getJar(new LinkedList<>() {{
+                this.add(projectId);
+            }});
+            return jars;
         }
+        return new ArrayList<>();
     }
 
     public ScriptEngine getBaseScriptEngine(String projectId, String scriptLanguage, String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
@@ -94,7 +92,8 @@ public class MockScriptEngineUtils {
                 engine = scriptEngineFactory.getEngineByName(scriptLanguage);
                 preScript = this.genPythonPreScript(url, headerMap, requestMockParams);
             }
-            this.loadJars(projectId);
+            MsDynamicClassLoader loader = MsClassLoader.loadJar(getJarPaths(projectId));
+            Thread.currentThread().setContextClassLoader(loader);
             engine.eval(preScript);
         } catch (Exception e) {
             LogUtil.error(e);

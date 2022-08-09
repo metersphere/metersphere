@@ -94,9 +94,6 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
             int size = Integer.parseInt(dto.getConcurrency());
             CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).setCorePoolSize(size);
         }
-
-        loadJars();
-
         initPythonEnv();
 
         //检查状态为开启的TCP-Mock服务端口
@@ -178,22 +175,5 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
             e.printStackTrace();
             LogUtil.error(e.getMessage(), e);
         }
-    }
-
-    /**
-     * 加载jar包
-     */
-    private void loadJars() {
-        List<JarConfig> jars = jarConfigService.list();
-
-        jars.forEach(jarConfig -> {
-            try {
-                NewDriverManager.loadJar(jarConfig.getPath());
-            } catch (Exception e) {
-                e.printStackTrace();
-                LogUtil.error(e.getMessage(), e);
-            }
-        });
-
     }
 }
