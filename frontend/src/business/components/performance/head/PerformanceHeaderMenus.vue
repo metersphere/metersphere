@@ -4,7 +4,7 @@
       <project-change :project-name="currentProject"/>
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active="pathName">
-          <el-menu-item :index="'/performance/home'">
+          <el-menu-item :index="'/performance/home'" v-permission="['PROJECT_PERFORMANCE_HOME:READ']">
             {{ $t("i18n.home") }}
           </el-menu-item>
           <el-menu-item :index="'/performance/test/all'" v-permission="['PROJECT_PERFORMANCE_TEST:READ']">

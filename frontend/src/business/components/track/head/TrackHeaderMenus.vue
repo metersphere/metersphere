@@ -6,7 +6,7 @@
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active="pathName">
-          <el-menu-item :index="'/track/home'">
+          <el-menu-item :index="'/track/home'" v-permission="['PROJECT_TRACK_HOME:READ']">
             {{ $t("i18n.home") }}
           </el-menu-item>
           <el-menu-item :index="'/track/case/all'" v-permission="['PROJECT_TRACK_CASE:READ']">

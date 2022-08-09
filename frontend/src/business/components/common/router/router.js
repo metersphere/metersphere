@@ -8,6 +8,7 @@ import Track from "@/business/components/track/router";
 import ReportStatistics from "@/business/components/reportstatistics/router";
 import Project from "@/business/components/project/router";
 import {getCurrentUser, getCurrentUserId, hasPermissions} from "@/common/js/utils";
+import {SECOND_LEVEL_ROUTE_PERMISSION_MAP} from "@/common/js/constants";
 
 Vue.use(VueRouter);
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
@@ -66,14 +67,58 @@ function redirectLoginPath(originPath, next) {
   sessionStorage.setItem('lastUser', getCurrentUserId());
   sessionStorage.setItem('redirectUrl', originPath);
   sessionStorage.removeItem('loginSuccess');
+  let defaultMenuRoute = sessionStorage.getItem('defaultMenuRoute');
 
   if (redirectUrl && loginSuccess) {
+    // 登录后只执行一次
     sessionStorage.removeItem('loginSuccess');
-    // router.push(redirectUrl);
+    redirectUrl = getDefaultSecondLevelMenu(redirectUrl);
     next({path: redirectUrl});
   } else {
-    next();
+    if (!defaultMenuRoute) {
+      // 记录标识，防止死循环
+      sessionStorage.setItem('defaultMenuRoute', 'sign');
+      originPath = getDefaultSecondLevelMenu(originPath);
+      next({path: originPath});
+      if (router.currentRoute.fullPath === originPath) {
+        sessionStorage.setItem('redirectUrl', originPath);
+        // 路径相同时，移除标识
+        sessionStorage.removeItem("defaultMenuRoute");
+      }
+    } else {
+      sessionStorage.setItem('redirectUrl', originPath);
+      sessionStorage.removeItem("defaultMenuRoute");
+      next();
+    }
   }
+}
+
+function getDefaultSecondLevelMenu(toPath) {
+  let {TRACK: tracks, API: apis, LOAD: loads} = SECOND_LEVEL_ROUTE_PERMISSION_MAP;
+  if (tracks.map(r => r.router).indexOf(toPath) > -1) {
+    return _getDefaultSecondLevelMenu(tracks, toPath);
+  } else if (apis.map(r => r.router).indexOf(toPath) > -1) {
+    return _getDefaultSecondLevelMenu(apis, toPath);
+  } else if (loads.map(r => r.router).indexOf(toPath) > -1) {
+    return _getDefaultSecondLevelMenu(loads, toPath);
+  } else {
+    return toPath;
+  }
+}
+
+function _getDefaultSecondLevelMenu(secondLevelRouters, toPath) {
+  let toRouter = secondLevelRouters.find(r => r['router'] === toPath);
+  if (toRouter && hasPermissions(...toRouter['permission'])) {
+    // 将要跳转的路由有权限则放行
+    return toPath;
+  }
+  for (let router of secondLevelRouters) {
+    if (hasPermissions(...router['permission'])) {
+      // 返回第一个有权限的路由路径
+      return router['router'];
+    }
+  }
+  return '/';
 }
 
 
