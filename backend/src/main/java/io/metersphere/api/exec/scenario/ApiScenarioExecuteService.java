@@ -14,6 +14,7 @@ import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ApiScenarioReportStructureService;
@@ -404,6 +405,8 @@ public class ApiScenarioExecuteService {
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
         this.testElement(request);
+        // 加载自定义JAR
+        NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);

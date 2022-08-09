@@ -11,13 +11,31 @@ public class FileMetadata implements Serializable {
 
     private String type;
 
+    private Long size;
+
     private Long createTime;
 
     private Long updateTime;
 
-    private Long size;
-
     private String projectId;
+
+    private String storage;
+
+    private String createUser;
+
+    private String updateUser;
+
+    private String tags;
+
+    private String moduleId;
+
+    private Boolean loadJar;
+
+    private String path;
+
+    private String resourceType;
+
+    private String description;
 
     private static final long serialVersionUID = 1L;
 }

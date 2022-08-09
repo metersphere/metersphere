@@ -6,7 +6,7 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 
-public class JmeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
     @Override
     public void append(ILoggingEvent event) {
         try {

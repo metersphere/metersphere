@@ -29,6 +29,7 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -128,6 +129,17 @@ public class ApiExecutionQueueService {
             sort[0]++;
             queue.setRetryEnable(config.isRetryEnable());
             queue.setRetryNumber(config.getRetryNum());
+            List<String> projectIds = new ArrayList<>();
+            // 获取当前所属项目ID用于后续区分资源隔离
+            if (MapUtils.isNotEmpty(v.getPlanEnvMap())) {
+                List<String> kyList = v.getPlanEnvMap().keySet()
+                        .stream()
+                        .collect(Collectors.toList());
+                projectIds.addAll(kyList);
+            } else {
+                projectIds.add(v.getReport().getProjectId());
+            }
+            queue.setProjectIds(JSON.toJSONString(projectIds));
             queueDetails.add(queue);
             detailMap.put(k, queue.getId());
         });
@@ -144,6 +156,9 @@ public class ApiExecutionQueueService {
             }
             queue.setRetryEnable(config.isRetryEnable());
             queue.setRetryNumber(config.getRetryNum());
+            queue.setProjectIds(JSON.toJSONString(new ArrayList<>() {{
+                runMap.get(k).getProjectId();
+            }}));
             queueDetails.add(queue);
             detailMap.put(k, queue.getId());
         }

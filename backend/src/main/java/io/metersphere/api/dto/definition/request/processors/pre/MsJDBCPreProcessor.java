@@ -90,7 +90,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
-            config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId(), isMockEnvironment()));
+            config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId()));
         }
 
         // 数据兼容处理

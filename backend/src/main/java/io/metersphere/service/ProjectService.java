@@ -28,8 +28,8 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.performance.request.DeleteTestPlanRequest;
-import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.issue.AbstractIssuePlatform;
@@ -53,7 +53,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,8 +78,6 @@ public class ProjectService {
     private APITestService apiTestService;
     @Resource
     private TestPlanProjectService testPlanProjectService;
-    @Resource
-    private FileService fileService;
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
@@ -130,6 +127,8 @@ public class ProjectService {
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
     @Resource
     private WorkspaceMapper workspaceMapper;
+    @Resource
+    private FileMetadataService fileMetadataService;
 
     public Project addProject(AddProjectRequest project) {
         this.checkCreateProjectParam(project);
@@ -700,36 +699,11 @@ public class ProjectService {
     }
 
     public List<FileMetadata> uploadFiles(String projectId, List<MultipartFile> files) {
-        List<FileMetadata> result = new ArrayList<>();
-        if (files != null) {
-            for (MultipartFile file : files) {
-                QueryProjectFileRequest request = new QueryProjectFileRequest();
-                request.setName(file.getOriginalFilename());
-                if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
-                    result.add(fileService.saveFile(file, projectId));
-                } else {
-                    MSException.throwException(Translator.get("project_file_already_exists"));
-                }
-            }
-        }
-        return result;
+        return fileMetadataService.uploadFiles(projectId, files);
     }
 
     public FileMetadata updateFile(String fileId, MultipartFile file) {
-        QueryProjectFileRequest request = new QueryProjectFileRequest();
-        request.setName(file.getOriginalFilename());
-        FileMetadata fileMetadata = fileService.getFileMetadataById(fileId);
-        if (fileMetadata != null) {
-            fileMetadata.setSize(file.getSize());
-            fileMetadata.setUpdateTime(System.currentTimeMillis());
-            fileService.updateFileMetadata(fileMetadata);
-            try {
-                fileService.setFileContent(fileId, file.getBytes());
-            } catch (IOException e) {
-                MSException.throwException(e);
-            }
-        }
-        return fileMetadata;
+        return fileMetadataService.updateFile(fileId, file);
     }
 
     public void deleteFile(String fileId) {
@@ -760,7 +734,7 @@ public class ProjectService {
         if (StringUtils.isNotBlank(errorMessage)) {
             MSException.throwException(errorMessage + Translator.get("project_file_in_use"));
         }
-        fileService.deleteFileById(fileId);
+        fileMetadataService.deleteFile(fileId);
     }
 
     public String getLogDetails(String id) {
@@ -770,7 +744,7 @@ public class ProjectService {
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(project.getId()), project.getId(), project.getName(), project.getCreateUser(), columns);
             return JSON.toJSONString(details);
         } else {
-            FileMetadata fileMetadata = fileService.getFileMetadataById(id);
+            FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(id);
             if (fileMetadata != null) {
                 List<DetailColumn> columns = ReflexObjectUtil.getColumns(fileMetadata, SystemReference.projectColumns);
                 OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(fileMetadata.getId()), fileMetadata.getProjectId(), fileMetadata.getName(), null, columns);

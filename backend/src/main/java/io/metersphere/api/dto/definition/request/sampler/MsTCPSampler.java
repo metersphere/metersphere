@@ -162,7 +162,7 @@ public class MsTCPSampler extends MsTestElement {
             if (StringUtils.isNotEmpty(config.getProjectId())) {
                 this.setProjectId(config.getProjectId());
             }
-            config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(this.getEnvironmentId()) ? this.getEnvironmentId() : useEnvironment, this.getProjectId(), this.isMockEnvironment()));
+            config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(this.getEnvironmentId()) ? this.getEnvironmentId() : useEnvironment, this.getProjectId()));
         }
         EnvironmentConfig envConfig = null;
         if (config.getConfig() != null) {

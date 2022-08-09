@@ -22,6 +22,7 @@ import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.scenario.ApiScenarioExecuteService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.mock.utils.MockApiUtils;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
@@ -44,6 +45,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.log.vo.schedule.ScheduleReference;
+import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -152,6 +154,10 @@ public class ApiAutomationService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ScenarioExecutionInfoService scenarioExecutionInfoService;
+    @Resource
+    private FileAssociationService fileAssociationService;
+    @Resource
+    private FileAssociationMapper fileAssociationMapper;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -294,7 +300,6 @@ public class ApiAutomationService {
             relationshipEdgeService.initRelationshipEdge(null, scenario);
         }
         uploadFiles(request, bodyFiles, scenarioFiles);
-
         return scenario;
     }
 
@@ -424,6 +429,8 @@ public class ApiAutomationService {
             relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
         }
         checkAndSetLatestVersion(beforeScenario.getRefId());
+        // 存储附件关系
+        fileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;
     }
 
@@ -516,6 +523,9 @@ public class ApiAutomationService {
             scenario.setVersionId(request.getVersionId());
         }
         scenario.setLastResult("");
+
+        // 存储附件关系
+        fileAssociationService.saveScenario(scenario.getId(), request.getScenarioDefinition());
         return scenario;
     }
 
@@ -606,6 +616,10 @@ public class ApiAutomationService {
         preDelAndResource(scenarioIdDefinitionMap);
         testPlanScenarioCaseService.bathDeleteByScenarioIds(scenarioIds);
         testCaseService.deleteTestCaseTestByTestIds(ids);
+
+        FileAssociationExample associationExample = new FileAssociationExample();
+        associationExample.createCriteria().andSourceIdIn(ids);
+        fileAssociationMapper.deleteByExample(associationExample);
         deleteScenarioByIds(scenarioIds);
     }
 
@@ -877,6 +891,11 @@ public class ApiAutomationService {
     private String generateJmx(ApiScenarioWithBLOBs apiScenario) {
         HashTree jmeterHashTree = new ListedHashTree();
         MsTestPlan testPlan = new MsTestPlan();
+        // 获取自定义JAR
+        String projectId = apiScenario.getProjectId();
+        List<String> projectIds = new ArrayList<>();
+        projectIds.add(projectId);
+        testPlan.setJarPaths(NewDriverManager.getJars(projectIds));
         testPlan.setName(apiScenario.getName());
         testPlan.setHashTree(new LinkedList<>());
         ParameterConfig config = new ParameterConfig();

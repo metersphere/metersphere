@@ -51,6 +51,7 @@ public class ApiScenarioParallelService {
             if (!pool.isPool()) {
                 runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
             }
+            runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
             LoggerUtil.info("进入并行模式，准备执行场景：[ " + executeQueue.get(reportId).getReport().getName() + " ]", reportId);
             jMeterService.run(runRequest);
         }
