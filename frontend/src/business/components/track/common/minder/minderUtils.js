@@ -51,47 +51,59 @@ export function getSelectedNodes() {
  * @param result
  */
 export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNodeFuc) {
-  let data = node.data;
-  if (!data.loaded && data.type === 'node') {
-    if (param.result) {
-      param.result.loading = true;
+  return new Promise((resolve) => {
+    let data = node.data;
+    if (!data.loaded && data.type === 'node') {
+      if (param.result) {
+        param.result.loading = true;
+      }
+      let request = param.request;
+      request.nodeId = data.id;
+      if (data.id === 'root') {
+        request.nodeId = '';
+      }
+      if (getCaseFuc) {
+        // 加载用例
+        getCaseFuc(request, (testCases) => {
+          initNodeCase(node, testCases, param, setParamCallback);
+          if (getExtraNodeFuc) {
+            param.result.loading = true;
+            // 加载临时节点
+            getExtraNodeFuc(getCurrentProjectID(), data.id, (nodes) => {
+              appendExtraNodes(node, nodes);
+              param.result.loading = false;
+              resolve();
+            });
+          } else {
+            resolve();
+          }
+        });
+      } else {
+        resolve();
+      }
+    } else if (data.type === 'nextPage') {
+      // 分页处理，如果某个模块下用例太多，则分步加载
+      if (param.result) {
+        param.result.loading = true;
+      }
+      let request = param.request;
+      request.nodeId = data.nodeId;
+      let minderPageInfo = minderPageInfoMap.get(request.nodeId);
+      minderPageInfo.pageNum++;
+      if (getCaseFuc) {
+        getCaseFuc(request, (testCases) => {
+          appendNodeCases(node.parent, testCases, param, setParamCallback);
+          window.minder.removeNode(node);
+          resolve();
+        });
+      } else {
+        resolve();
+      }
+    } else {
+      resolve();
     }
-    let request = param.request;
-    request.nodeId = data.id;
-    if (data.id === 'root') {
-      request.nodeId = '';
-    }
-    if (getCaseFuc) {
-      getCaseFuc(request, (testCases) => {
-        initNodeCase(node, testCases, param, setParamCallback);
-
-        if (getExtraNodeFuc) {
-          param.result.loading = true;
-          getExtraNodeFuc(getCurrentProjectID(), data.id, (nodes) => {
-            appendExtraNodes(node, nodes);
-            param.result.loading = false;
-          });
-        }
-
-      });
-    }
-  } else if (data.type === 'nextPage') {
-    // 分页处理，如果某个模块下用例太多，则分步加载
-    if (param.result) {
-      param.result.loading = true;
-    }
-    let request = param.request;
-    request.nodeId = data.nodeId;
-    let minderPageInfo = minderPageInfoMap.get(request.nodeId);
-    minderPageInfo.pageNum++;
-    if (getCaseFuc) {
-      getCaseFuc(request, (testCases) => {
-        appendNodeCases(node.parent, testCases, param, setParamCallback);
-        window.minder.removeNode(node);
-      });
-    }
-  }
-  data.loaded = true;
+    data.loaded = true;
+  });
 }
 
 /**
@@ -167,41 +179,50 @@ export function handTestCaeEdit(data) {
   });
 }
 
-export function tagChildren(node, resourceName, distinctTags) {
+export async function tagChildren(node, resourceName, distinctTags, loadNodeParam) {
+
+  // 先加载当前模块下的用例再打标签
+  if (isModuleNode(node)) {
+    await loadNode(node, loadNodeParam.param,
+      loadNodeParam.getCaseFuc, loadNodeParam.setParamCallback);
+  }
+
   let children = node.children;
   if (!children) {
     children = [];
   }
-  if (!resourceName || !/\S/.test(resourceName)) {return;}
-  children.forEach((item) => {
+
+  if (!resourceName || !/\S/.test(resourceName)) {
+    return;
+  }
+
+  for (const item of children) {
     let isCaseNode = item.data.resource && item.data.resource.indexOf(i18n.t('api_test.definition.request.case')) > -1;
     if (item.data.type === 'node' || isCaseNode) {
       let origin = item.data.resource;
       if (!origin) {
         origin = [];
       }
-      let index = origin.indexOf(resourceName);
       // 先删除排他的标签
       if (distinctTags.indexOf(resourceName) > -1) {
         for (let i = 0; i < origin.length; i++) {
-          if (distinctTags.indexOf(origin[i]) > -1) {
+          if (distinctTags.indexOf(origin[i]) > -1 && origin[i] !== resourceName) {
             origin.splice(i, 1);
             i--;
           }
         }
       }
-      if (index !== -1) {
-        origin.splice(index, 1);
-      } else {
+      if (origin.indexOf(resourceName) < 0) {
         origin.push(resourceName);
       }
       item.data.resource = origin;
       if (isCaseNode) {
         item.data.changed = true;
       }
-      tagChildren(item, resourceName, distinctTags);
+      await tagChildren(item, resourceName, distinctTags, loadNodeParam);
     }
-  });
+  }
+  return;
 }
 
 
@@ -424,20 +445,19 @@ function expandNode(node) {
  *  测试计划和评审支持给模块批量打标签
  * @param distinctTags
  */
-export function tagBatch(distinctTags) {
+export function tagBatch(distinctTags, loadNodeParam) {
   listenBeforeExecCommand((even) => {
     let minder = window.minder;
     let selectNodes = window.minder.getSelectedNodes();
     let args = even.commandArgs;
     if (selectNodes) {
-      selectNodes.forEach((node) => {
+      selectNodes.forEach(async (node) => {
         if (node.data.type === 'node' && even.commandName === 'resource') {
-          // let origin = minder.queryCommandValue('resource');
           if (args && args.length > 0) {
             let origin = args[0];
             if (origin && origin.length > 0) {
               let resourceName = origin[0];
-              tagChildren(node, resourceName, distinctTags);
+              await tagChildren(node, resourceName, distinctTags, loadNodeParam);
               let modifyTopNode = modifyParentNodeTag(node, resourceName);
               if (modifyTopNode) {
                 modifyTopNode.renderTree();
