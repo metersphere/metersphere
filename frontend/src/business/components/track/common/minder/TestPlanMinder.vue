@@ -140,7 +140,11 @@ name: "TestPlanMinder",
         }
       });
 
-      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
+      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')], {
+        param: this.getParam(),
+        getCaseFuc: getPlanCasesForMinder,
+        setParamCallback: this.setParamCallback
+      });
 
       addIssueHotBox(this);
     },
