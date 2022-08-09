@@ -205,6 +205,7 @@ public class TestReviewTestCaseService {
 
     public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {
         List<String> ids = request.getIds();
+        request.getCondition().setOrder(null);
         if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             ids = extTestReviewCaseMapper.selectTestCaseIds(request.getCondition());
             if (request.getCondition().getUnSelectIds() != null) {
