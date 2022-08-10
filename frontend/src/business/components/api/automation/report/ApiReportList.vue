@@ -8,12 +8,14 @@
               <el-button-group>
 
                 <el-tooltip class="item" effect="dark" content="left" :disabled="true" placement="left">
-                  <el-button plain :class="{active: leftActive}" @click="changeTab('left')">{{$t('commons.scenario')}}</el-button>
+                  <el-button plain :class="{active: leftActive}" @click="changeTab('left')">
+                    {{ $t('commons.scenario') }}
+                  </el-button>
                 </el-tooltip>
 
                 <el-tooltip class="item" effect="dark" content="right" :disabled="true" placement="right">
                   <el-button plain :class="{active: rightActive}" @click="changeTab('right')">
-                    {{$t('api_test.definition.request.case')}}
+                    {{ $t('api_test.definition.request.case') }}
                   </el-button>
                 </el-tooltip>
 
@@ -145,7 +147,7 @@
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
 import {REPORT_CASE_CONFIGS, REPORT_CONFIGS} from "../../../common/components/search/search-components";
-import {_filter, _sort, getLastTableSortField} from "@/common/js/tableUtils";
+import {_filter, _sort} from "@/common/js/tableUtils";
 import MsRenameReportDialog from "@/business/components/common/components/report/MsRenameReportDialog";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsRequestResultTail from "../../../api/definition/components/response/RequestResultTail";
@@ -195,7 +197,7 @@ export default {
         {text: 'Error', value: 'Error'},
         {text: "FakeError", value: 'errorReportResult'},
       ],
-      reportTypeFilters:[],
+      reportTypeFilters: [],
       reportScenarioFilters: [
         {text: this.$t('api_test.scenario.independent') + this.$t('commons.scenario'), value: 'SCENARIO_INDEPENDENT'},
         {text: this.$t('api_test.scenario.integrated') + this.$t('commons.scenario'), value: 'SCENARIO_INTEGRATED'}
@@ -223,13 +225,13 @@ export default {
       unSelection: [],
       selectDataCounts: 0,
       screenHeight: 'calc(100vh - 200px)',
-      trashActiveDom:'left'
+      trashActiveDom: 'left'
     }
   },
   watch: {
     '$route': 'init',
-    trashActiveDom(){
-      this.condition.filters={report_type:[]};
+    trashActiveDom() {
+      this.condition.filters = {report_type: []};
       this.search();
     }
   },
@@ -373,6 +375,7 @@ export default {
             sendParam.selectAllDate = this.isSelectAllDate;
             sendParam.unSelectIds = this.unSelection;
             sendParam = Object.assign(sendParam, this.condition);
+            sendParam.caseType = this.trashActiveDom === 'right' ? 'case' : 'scenario';
             this.$post('/api/scenario/report/batch/delete', sendParam, () => {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));
@@ -417,15 +420,15 @@ export default {
         this.$refs.renameDialog.close();
       });
     },
-    changeTab(tabType){
+    changeTab(tabType) {
       this.trashActiveDom = tabType;
-      if(tabType === 'right'){
+      if (tabType === 'right') {
         this.condition.components = REPORT_CASE_CONFIGS;
-      }else {
+      } else {
         this.condition.components = REPORT_CONFIGS;
       }
       this.loadIsOver = false;
-      this.$nextTick( () => {
+      this.$nextTick(() => {
         this.loadIsOver = true;
       });
     },
@@ -441,13 +444,14 @@ export default {
 .table-content {
   width: 100%;
 }
+
 .active {
-  border: solid 1px #6d317c!important;
-  background-color: var(--primary_color)!important;
-  color: #FFFFFF!important;
+  border: solid 1px #6d317c !important;
+  background-color: var(--primary_color) !important;
+  color: #FFFFFF !important;
 }
 
-.item{
+.item {
   height: 32px;
   padding: 5px 8px;
   border: solid 1px var(--primary_color);
