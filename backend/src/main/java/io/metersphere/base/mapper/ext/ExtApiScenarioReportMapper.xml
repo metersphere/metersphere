@@ -241,6 +241,7 @@
 
     <select id="idList" resultType="java.lang.String">
         select r.id from (
+        <if test="request.caseType == 'SCENARIO'">
             SELECT s_r.name AS test_name,
             s_r.end_time,
             s_r.user_id,
@@ -253,9 +254,10 @@
             s_r.trigger_mode,
             s_r.execute_type,
             s_r.report_type
-        FROM api_scenario_report s_r
-        union all
-        select a_r.name as test_name,
+            FROM api_scenario_report s_r
+        </if>
+        <if test="request.caseType == 'API'">
+            select a_r.name as test_name,
             a_r.end_time,
             a_r.user_id,
             a_r.name,
@@ -267,8 +269,9 @@
             a_r.trigger_mode,
             'Saved' as execute_type,
             'API_INDEPENDENT' as report_type
-        from api_definition_exec_result a_r
-        where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
+            from api_definition_exec_result a_r
+            where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
+        </if>
         ) r
         <where>
             <if test="request.combine != null">
