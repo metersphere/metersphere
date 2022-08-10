@@ -158,7 +158,7 @@ public class UserController {
     }
 
     @PostMapping("/project/member/list/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_USER_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public Pager<List<User>> getProjectMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
