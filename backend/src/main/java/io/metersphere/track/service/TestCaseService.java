@@ -72,6 +72,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -2511,17 +2512,24 @@ public class TestCaseService {
         AttachmentModuleRelationExample relationExample = new AttachmentModuleRelationExample();
         relationExample.createCriteria().andRelationTypeEqualTo(AttachmentType.TEST_CASE.type());
         List<AttachmentModuleRelation> relations = attachmentModuleRelationMapper.selectByExample(relationExample);
-        List<FileMetadata> allFileMeta = fileService.getAllFileMeta();
-        List<FileContent> allFileContent = fileService.getAllFileContent();
         Map<String, List<AttachmentModuleRelation>> relationGroup = relations.stream().collect(Collectors.groupingBy(AttachmentModuleRelation::getRelationId));
         for(Map.Entry<String, List<AttachmentModuleRelation>> entry : relationGroup.entrySet()) {
             final String caseId = entry.getKey();
-            final String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + AttachmentType.TEST_CASE.type() + "/" + caseId;
+            final String uploadPath = FileUtils.ATTACHMENT_DIR + File.separator + AttachmentType.TEST_CASE.type() + File.separator + caseId;
+            // 获取同一用例关联的文件ID
+            List<String> fileIds = entry.getValue().stream().map(AttachmentModuleRelation::getAttachmentId).collect(Collectors.toList());
+            // 只在每次循环时查询目标用例下附件数据, 防止附件数据过大OOM
+            FileMetadataExample fileMetadataExample = new FileMetadataExample();
+            fileMetadataExample.createCriteria().andIdIn(fileIds);
+            List<FileMetadata> allCaseFileMetadatas = fileMetadataMapper.selectByExample(fileMetadataExample);
+            FileContentExample fileContentExample = new FileContentExample();
+            fileContentExample.createCriteria().andFileIdIn(fileIds);
+            List<FileContent> allCaseFileContents = fileContentMapper.selectByExample(fileContentExample);
             entry.getValue().stream().forEach(relation -> {
                 String filename = "";
-                List<FileMetadata> fileMetadatas = allFileMeta.stream().filter(fileMetadata -> fileMetadata.getId().equals(relation.getAttachmentId()))
+                List<FileMetadata> fileMetadatas = allCaseFileMetadatas.stream().filter(fileMetadata -> fileMetadata.getId().equals(relation.getAttachmentId()))
                         .collect(Collectors.toList());
-                List<FileContent> fileContents = allFileContent.stream().filter(fileContent -> fileContent.getFileId().equals(relation.getAttachmentId()))
+                List<FileContent> fileContents = allCaseFileContents.stream().filter(fileContent -> fileContent.getFileId().equals(relation.getAttachmentId()))
                         .collect(Collectors.toList());
                 if (fileMetadatas.size() == 1) {
                     FileMetadata fileMetadata = fileMetadatas.get(0);
