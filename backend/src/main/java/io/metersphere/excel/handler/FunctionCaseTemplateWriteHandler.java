@@ -81,7 +81,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                 if(isNeedId){
                     Integer idIndex = rowDispseIndexMap.get("ID");
                     if(idIndex != null){
-                        Comment comment1 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, idIndex, 0, (short) 3, 1));
+                        Comment comment1 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, idIndex, 0, idIndex + 3, 1));
                         comment1.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order")+"，"+Translator.get("id_required")));
                         sheet.getRow(0).getCell(1).setCellComment(comment1);
                     }
@@ -91,15 +91,15 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                     Integer index = entry.getValue();
 
                     if(StringUtils.equalsAnyIgnoreCase(coloum,"Module")){
-                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3 , 1));
                         comment.setString(new XSSFRichTextString(Translator.get("module_created_automatically")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Maintainer")){
-                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("please_input_project_member")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Priority")){
-                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
                         List<String> list = new ArrayList<>();
                         if(caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseLevel")){
                             list = caseLevelAndStatusValueMap.get("caseLevel");
@@ -111,7 +111,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                         }
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Tag")){
-                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("tag_tip_pattern")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Status")){
@@ -120,12 +120,12 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                             list = caseLevelAndStatusValueMap.get("caseStatus");
                         }
                         if(!CollectionUtils.isEmpty(list)){
-                            Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                            Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
                             comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
                             sheet.getRow(0).getCell(1).setCellComment(comment);
                         }
                     } else if (StringUtils.equalsAnyIgnoreCase(coloum, "StepModel")) {
-                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("step_model_tip")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }
