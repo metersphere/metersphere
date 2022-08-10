@@ -1027,7 +1027,7 @@ public class TestPlanService {
         if (reportInfoDTO.getPerformanceIdMap() != null) {
             //执行性能测试任务
             LoggerUtil.info("开始执行测试计划性能用例 " + planReportId);
-            loadCaseReportMap = perfExecService.run(planReportId, runModeConfig, triggerMode, reportInfoDTO.getPerformanceIdMap());
+            loadCaseReportMap = perfExecService.run(planReportId, runModeConfig, transformationPerfTriggerMode(triggerMode), reportInfoDTO.getPerformanceIdMap());
         }
 
         if (reportInfoDTO.getUiScenarioIdMap() != null) {
@@ -1041,6 +1041,24 @@ public class TestPlanService {
         }
 
         return planReportId;
+    }
+
+    /**
+     * 将测试计划运行时的triggerMode转化为性能测试中辨别更明确的值
+     *
+     * @param triggerMode
+     * @return
+     */
+    private String transformationPerfTriggerMode(String triggerMode) {
+        if (StringUtils.equalsIgnoreCase(triggerMode, ReportTriggerMode.SCHEDULE.name())) {
+            return ReportTriggerMode.TEST_PLAN_SCHEDULE.name();
+        } else if (StringUtils.equalsIgnoreCase(triggerMode, ReportTriggerMode.MANUAL.name())) {
+            return ReportTriggerMode.TEST_PLAN_MANUAL.name();
+        } else if (StringUtils.equalsIgnoreCase(triggerMode, ReportTriggerMode.API.name())) {
+            return ReportTriggerMode.TEST_PLAN_API.name();
+        } else {
+            return triggerMode;
+        }
     }
 
     private RunModeConfigDTO buildRunModeConfigDTO() {

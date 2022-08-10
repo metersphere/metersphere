@@ -566,7 +566,7 @@ public class PerformanceReportService {
 
     public void cleanUpReport(long time, String projectId) {
         LoadTestReportExample example = new LoadTestReportExample();
-        example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId);
+        example.createCriteria().andCreateTimeLessThan(time).andProjectIdEqualTo(projectId).andRelevanceTestPlanReportIdIsNull();
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
         List<String> ids = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
         DeleteReportRequest request = new DeleteReportRequest();

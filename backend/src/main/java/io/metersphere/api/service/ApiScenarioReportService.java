@@ -877,7 +877,7 @@ public class ApiScenarioReportService {
         return map;
     }
 
-    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userId, RunModeConfigDTO config) {
+    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userId, RunModeConfigDTO config, String relevanceTestPlanReportId) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
             triggerMode = ReportTriggerMode.MANUAL.name();
@@ -917,6 +917,7 @@ public class ApiScenarioReportService {
         if (config != null) {
             report.setEnvConfig(JSON.toJSONString(config));
         }
+        report.setRelevanceTestPlanReportId(relevanceTestPlanReportId);
         if (config instanceof UiRunModeConfigDTO) {
             report.setReportType(ReportTypeConstants.UI_INDEPENDENT.name());
         } else {
@@ -929,7 +930,7 @@ public class ApiScenarioReportService {
                                                               String scenarioNames, String reportScenarioIds) {
         APIScenarioReportResult report = this.init(request.getConfig().getReportId(), reportScenarioIds,
                 scenarioNames, request.getTriggerMode(), ExecuteType.Saved.name(), request.getProjectId(),
-                request.getReportUserID(), request.getConfig());
+                request.getReportUserID(), request.getConfig(), request.getTestPlanReportId());
         report.setName(request.getConfig().getReportName());
         report.setId(serialReportId);
         report.setReportType(ReportTypeConstants.SCENARIO_INTEGRATED.name());
@@ -1060,7 +1061,7 @@ public class ApiScenarioReportService {
 
     public APIScenarioReportResult initResult(String reportId, String testPlanScenarioId, String name, RunScenarioRequest request) {
         return this.init(reportId, testPlanScenarioId, name, request.getTriggerMode(),
-                request.getExecuteType(), request.getProjectId(), request.getReportUserID(), request.getConfig());
+                request.getExecuteType(), request.getProjectId(), request.getReportUserID(), request.getConfig(), request.getTestPlanReportId());
     }
 
     public APIScenarioReportResult initDebugResult(RunDefinitionRequest request) {
@@ -1071,6 +1072,6 @@ public class ApiScenarioReportService {
                 request.getExecuteType(),
                 request.getProjectId(),
                 SessionUtils.getUserId(),
-                request.getConfig());
+                request.getConfig(), null);
     }
 }

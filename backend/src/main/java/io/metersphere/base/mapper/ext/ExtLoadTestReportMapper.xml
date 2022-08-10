@@ -79,6 +79,7 @@
         join project on project.id = ltr.project_id
         JOIN project_version on project.id = project_version.project_id AND ltr.version_id = project_version.id
         <where>
+            ltr.relevance_test_plan_report_id IS NULL
             <if test="reportRequest.combine != null">
                 <include refid="combine">
                     <property name="condition" value="reportRequest.combine"/>

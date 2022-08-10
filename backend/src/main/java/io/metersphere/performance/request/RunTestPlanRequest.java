@@ -24,4 +24,6 @@ public class RunTestPlanRequest extends TestPlanRequest {
      * 测试计划中生成的报告ID
      */
     private String reportId;
+
+    private String testPlanReportId;
 }
