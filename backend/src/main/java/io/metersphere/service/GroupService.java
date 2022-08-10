@@ -23,6 +23,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -178,8 +179,9 @@ public class GroupService {
         if (groupJson == null) {
             MSException.throwException(Translator.get("read_permission_file_fail"));
         }
-        List<GroupResource> resource = groupJson.getResource();
-        List<GroupPermission> permissions = groupJson.getPermissions();
+        GroupJson groupJsonCopy = SerializationUtils.clone(groupJson);
+        List<GroupResource> resource = groupJsonCopy.getResource();
+        List<GroupPermission> permissions = groupJsonCopy.getPermissions();
         List<GroupResourceDTO> dtoPermissions = dto.getPermissions();
         dtoPermissions.addAll(getResourcePermission(resource, permissions, group.getType(), permissionList));
         return dto;
