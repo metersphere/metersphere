@@ -182,7 +182,12 @@ public class ApiScenarioReportService {
     public List<String> idList(QueryAPIReportRequest request) {
         request = this.initRequest(request);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extApiScenarioReportMapper.idList(request);
+        //检查必填参数caseType
+        if (StringUtils.equalsAny(request.getCaseType(), ReportTypeConstants.API.name(), ReportTypeConstants.SCENARIO.name())) {
+            return extApiScenarioReportMapper.idList(request);
+        } else {
+            return new ArrayList<>(0);
+        }
     }
 
     private void checkNameExist(APIScenarioReportResult request) {
@@ -271,7 +276,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(ResultDTO dto) {
-         String status = getStatus(dto);
+        String status = getStatus(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
@@ -648,13 +653,19 @@ public class ApiScenarioReportService {
     }
 
     public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
-        List<String> ids = getIdsByDeleteBatchRequest(reportRequest);
-        ids = batchDeleteReportResource(reportRequest, ids, true);
+        if (reportRequest.getIsUi()) {
+            //ui报告对应的用例类型也是scenario
+            reportRequest.setCaseType(ReportTypeConstants.SCENARIO.name());
+        }
+        if (StringUtils.isNotBlank(reportRequest.getCaseType())) {
+            List<String> ids = getIdsByDeleteBatchRequest(reportRequest);
+            ids = batchDeleteReportResource(reportRequest, ids, true);
 
-        //处理最后剩余的数据
-        if (!ids.isEmpty()) {
-            deleteScenarioReportByIds(ids);
-            deleteApiDefinitionResultByIds(ids);
+            //处理报告关联数据
+            if (!ids.isEmpty()) {
+                deleteScenarioReportByIds(ids);
+                deleteApiDefinitionResultByIds(ids);
+            }
         }
     }
 
@@ -873,7 +884,6 @@ public class ApiScenarioReportService {
 
         long errorReportResultSize = dto.getRequestResults().stream().filter(requestResult ->
                 StringUtils.equalsIgnoreCase(requestResult.getStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())).count();
-
         String status = dto.getRequestResults().isEmpty() ? ExecuteResult.UN_EXECUTE.toString() : ScenarioStatus.Success.name();
         if (errorSize > 0) {
             status = ScenarioStatus.Error.name();
