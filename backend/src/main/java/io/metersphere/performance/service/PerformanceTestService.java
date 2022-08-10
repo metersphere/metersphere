@@ -48,6 +48,7 @@ import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +62,6 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -456,6 +456,7 @@ public class PerformanceTestService {
         testReport.setName(loadTest.getName());
         testReport.setTriggerMode(request.getTriggerMode());
         testReport.setVersionId(loadTest.getVersionId());
+        testReport.setRelevanceTestPlanReportId(request.getTestPlanReportId());
         if (SessionUtils.getUser() == null) {
             testReport.setUserId(loadTest.getUserId());
         } else {
@@ -1169,5 +1170,13 @@ public class PerformanceTestService {
         param.put("id", request.getIds());
         request2.setFilters(param);
         return this.list(request2);
+    }
+
+    public void deleteByRelevanceTestPlanReportIds(List<String> testPlanReportIdList) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
+            loadTestReportExample.createCriteria().andRelevanceTestPlanReportIdIn(testPlanReportIdList);
+            loadTestReportMapper.deleteByExample(loadTestReportExample);
+        }
     }
 }

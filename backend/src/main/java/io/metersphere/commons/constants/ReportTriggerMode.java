@@ -11,6 +11,7 @@ public enum ReportTriggerMode {
     CASE,
     TEST_PLAN_SCHEDULE,
     TEST_PLAN_API,
+    TEST_PLAN_MANUAL,
     API_PLAN,
     BATCH
 }

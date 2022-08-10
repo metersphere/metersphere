@@ -537,4 +537,12 @@ public class ApiDefinitionExecResultService {
             return new ArrayList<>();
         }
     }
+
+    public void deleteByRelevanceTestPlanReportIds(List<String> testPlanReportIdList) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
+            apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(testPlanReportIdList);
+            apiDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
+        }
+    }
 }

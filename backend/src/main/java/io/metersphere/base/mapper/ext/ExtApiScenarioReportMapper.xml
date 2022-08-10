@@ -230,6 +230,7 @@
                 </foreach>
             </if>
             AND s_r.execute_type = 'Saved'
+            AND s_r.relevance_test_plan_report_id IS NULL
             <if test="request.orders != null and request.orders.size() > 0">
                 order by
                 <foreach collection="request.orders" separator="," item="order">
@@ -255,22 +256,24 @@
             s_r.execute_type,
             s_r.report_type
             FROM api_scenario_report s_r
+            WHERE s_r.relevance_test_plan_report_id IS NULL
         </if>
         <if test="request.caseType == 'API'">
-            select a_r.name as test_name,
+            SELECT a_r.name AS test_name,
             a_r.end_time,
             a_r.user_id,
             a_r.name,
             a_r.id,
             a_r.project_id,
             a_r.create_time,
-            a_r.create_time as update_time,
+            a_r.create_time AS update_time,
             a_r.status,
             a_r.trigger_mode,
-            'Saved' as execute_type,
-            'API_INDEPENDENT' as report_type
-            from api_definition_exec_result a_r
-            where a_r.integrated_report_id is null or a_r.integrated_report_id = 'null'
+            'Saved' AS execute_type,
+            'API_INDEPENDENT' AS report_type
+            FROM api_definition_exec_result a_r
+            WHERE a_r.relevance_test_plan_report_id IS NULL
+            AND (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
         </if>
         ) r
         <where>
@@ -480,6 +483,7 @@
         from api_scenario_report
         where create_time &lt; #{time}
           and project_id = #{projectId}
+          and relevance_test_plan_report_id IS NULL
     </select>
 
     <update id="updateAllStatus">

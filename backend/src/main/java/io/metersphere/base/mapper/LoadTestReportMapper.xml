@@ -21,6 +21,7 @@
     <result column="test_end_time" jdbcType="BIGINT" property="testEndTime" />
     <result column="test_duration" jdbcType="BIGINT" property="testDuration" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="relevance_test_plan_report_id" jdbcType="VARCHAR" property="relevanceTestPlanReportId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -90,7 +91,7 @@
   <sql id="Base_Column_List">
     id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, file_id, 
     max_users, avg_response_time, tps, project_id, test_name, test_resource_pool_id, 
-    test_start_time, test_end_time, test_duration, version_id
+    test_start_time, test_end_time, test_duration, version_id, relevance_test_plan_report_id
   </sql>
   <sql id="Blob_Column_List">
     description, load_configuration, jmx_content, advanced_configuration, env_info
@@ -150,18 +151,18 @@
       max_users, avg_response_time, tps, 
       project_id, test_name, test_resource_pool_id, 
       test_start_time, test_end_time, test_duration, 
-      version_id, description, load_configuration, 
-      jmx_content, advanced_configuration, 
-      env_info)
+      version_id, relevance_test_plan_report_id, description, 
+      load_configuration, jmx_content, 
+      advanced_configuration, env_info)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
       #{maxUsers,jdbcType=VARCHAR}, #{avgResponseTime,jdbcType=VARCHAR}, #{tps,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
       #{testStartTime,jdbcType=BIGINT}, #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, 
-      #{versionId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
-      #{jmxContent,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
-      #{envInfo,jdbcType=LONGVARCHAR})
+      #{versionId,jdbcType=VARCHAR}, #{relevanceTestPlanReportId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{jmxContent,jdbcType=LONGVARCHAR}, 
+      #{advancedConfiguration,jdbcType=LONGVARCHAR}, #{envInfo,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     insert into load_test_report
@@ -222,6 +223,9 @@
       </if>
       <if test="versionId != null">
         version_id,
+      </if>
+      <if test="relevanceTestPlanReportId != null">
+        relevance_test_plan_report_id,
       </if>
       <if test="description != null">
         description,
@@ -296,6 +300,9 @@
       </if>
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="relevanceTestPlanReportId != null">
+        #{relevanceTestPlanReportId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -380,6 +387,9 @@
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
       </if>
+      <if test="record.relevanceTestPlanReportId != null">
+        relevance_test_plan_report_id = #{record.relevanceTestPlanReportId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -421,6 +431,7 @@
       test_end_time = #{record.testEndTime,jdbcType=BIGINT},
       test_duration = #{record.testDuration,jdbcType=BIGINT},
       version_id = #{record.versionId,jdbcType=VARCHAR},
+      relevance_test_plan_report_id = #{record.relevanceTestPlanReportId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
@@ -450,7 +461,8 @@
       test_start_time = #{record.testStartTime,jdbcType=BIGINT},
       test_end_time = #{record.testEndTime,jdbcType=BIGINT},
       test_duration = #{record.testDuration,jdbcType=BIGINT},
-      version_id = #{record.versionId,jdbcType=VARCHAR}
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      relevance_test_plan_report_id = #{record.relevanceTestPlanReportId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -512,6 +524,9 @@
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
       </if>
+      <if test="relevanceTestPlanReportId != null">
+        relevance_test_plan_report_id = #{relevanceTestPlanReportId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -550,6 +565,7 @@
       test_end_time = #{testEndTime,jdbcType=BIGINT},
       test_duration = #{testDuration,jdbcType=BIGINT},
       version_id = #{versionId,jdbcType=VARCHAR},
+      relevance_test_plan_report_id = #{relevanceTestPlanReportId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
@@ -576,7 +592,8 @@
       test_start_time = #{testStartTime,jdbcType=BIGINT},
       test_end_time = #{testEndTime,jdbcType=BIGINT},
       test_duration = #{testDuration,jdbcType=BIGINT},
-      version_id = #{versionId,jdbcType=VARCHAR}
+      version_id = #{versionId,jdbcType=VARCHAR},
+      relevance_test_plan_report_id = #{relevanceTestPlanReportId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -216,7 +216,8 @@
         a_r.report_type,
         'Saved' as execute_type
         from api_definition_exec_result a_r
-        where (a_r.integrated_report_id is null or a_r.integrated_report_id = 'null')
+        where a_r.relevance_test_plan_report_id IS NULL AND (a_r.integrated_report_id is null or
+        a_r.integrated_report_id = 'null')
         <if test="request.combine != null">
             <include refid="listCombine">
                 <property name="condition" value="request.combine"/>
@@ -425,6 +426,7 @@
         from api_definition_exec_result
         where project_id = #{projectId}
           and create_time &lt; #{time}
+          and relevance_test_plan_report_id IS NULL
     </select>
 
     <update id="updateAllStatus">

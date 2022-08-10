@@ -45,6 +45,7 @@ public class PerfExecService {
                 request.setTestPlanLoadId(k);
                 request.setReportId(reportId);
                 request.setTriggerMode(triggerMode);
+                request.setTestPlanReportId(planReportId);
                 if (StringUtils.isNotBlank(config.getResourcePoolId())) {
                     request.setTestResourcePoolId(config.getResourcePoolId());
                 }
