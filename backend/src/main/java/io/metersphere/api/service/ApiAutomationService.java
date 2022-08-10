@@ -578,6 +578,7 @@ public class ApiAutomationService {
         List<String> ids = list.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
         APIReportBatchRequest reportRequest = new APIReportBatchRequest();
         reportRequest.setIds(ids);
+        reportRequest.setCaseType(ReportTypeConstants.SCENARIO.name());
         apiReportService.deleteAPIReportBatch(reportRequest);
     }
 
