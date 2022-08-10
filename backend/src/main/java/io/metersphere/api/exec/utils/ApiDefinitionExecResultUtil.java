@@ -75,6 +75,7 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setType(ApiRunMode.API_PLAN.name());
         apiResult.setStatus(status);
         apiResult.setContent(request.getPlanReportId());
+        apiResult.setRelevanceTestPlanReportId(request.getPlanReportId());
         apiResult.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
 
         return apiResult;

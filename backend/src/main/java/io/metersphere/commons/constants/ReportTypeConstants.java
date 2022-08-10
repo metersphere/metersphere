@@ -15,5 +15,8 @@ public enum ReportTypeConstants {
     API_INDEPENDENT,
     UI_INTEGRATED,
     UI_INDEPENDENT,
-    TEST_PLAN
+    TEST_PLAN,
+    TEST_PLAN_API,
+    TEST_PLAN_SCENARIO,
+    TEST_PLAN_UI
 }

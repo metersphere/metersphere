@@ -19,6 +19,7 @@ import io.metersphere.dto.TestPlanExecuteReportDTO;
 import io.metersphere.dto.TestPlanUiScenarioDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.EnvironmentGroupService;
 import io.metersphere.service.ProjectService;
@@ -81,6 +82,8 @@ public class TestPlanReportService {
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+    @Resource
+    private PerformanceTestService performanceTestService;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
@@ -778,14 +781,22 @@ public class TestPlanReportService {
     }
 
     public void delete(List<String> testPlanReportIdList) {
-        for (String testPlanReportId : testPlanReportIdList) {
-            testPlanReportMapper.deleteByPrimaryKey(testPlanReportId);
-            TestPlanReportDataExample example = new TestPlanReportDataExample();
-            example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
-            testPlanReportDataMapper.deleteByExample(example);
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            TestPlanReportExample example = new TestPlanReportExample();
+            example.createCriteria().andIdIn(testPlanReportIdList);
+            testPlanReportMapper.deleteByExample(example);
+            TestPlanReportDataExample testPlanReportDataExample = new TestPlanReportDataExample();
+            testPlanReportDataExample.createCriteria().andTestPlanReportIdIn(testPlanReportIdList);
+            testPlanReportDataMapper.deleteByExample(testPlanReportDataExample);
             TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-            contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
+            contentExample.createCriteria().andTestPlanReportIdIn(testPlanReportIdList);
             testPlanReportContentMapper.deleteByExample(contentExample);
+
+            //删除关联资源对应的报告ID
+            apiDefinitionExecResultService.deleteByRelevanceTestPlanReportIds(testPlanReportIdList);
+            apiScenarioReportService.deleteByRelevanceTestPlanReportIds(testPlanReportIdList);
+            performanceTestService.deleteByRelevanceTestPlanReportIds(testPlanReportIdList);
+
         }
     }
 
@@ -800,20 +811,7 @@ public class TestPlanReportService {
         if (request.isSelectAllDate()) {
             deleteReportIds = this.getAllApiIdsByFrontedSelect(request.getFilters(), request.getName(), request.getProjectId(), request.getUnSelectIds(), request.getCombine());
         }
-        if (CollectionUtils.isNotEmpty(deleteReportIds)) {
-            TestPlanReportExample deleteReportExample = new TestPlanReportExample();
-            deleteReportExample.createCriteria().andIdIn(deleteReportIds);
-            testPlanReportMapper.deleteByExample(deleteReportExample);
-
-
-            TestPlanReportDataExample example = new TestPlanReportDataExample();
-            example.createCriteria().andTestPlanReportIdIn(deleteReportIds);
-            testPlanReportDataMapper.deleteByExample(example);
-
-            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-            contentExample.createCriteria().andTestPlanReportIdIn(deleteReportIds);
-            testPlanReportContentMapper.deleteByExample(contentExample);
-        }
+        this.delete(deleteReportIds);
     }
 
     private void deleteReportBatch(List<String> reportIds) {
@@ -824,6 +822,10 @@ public class TestPlanReportService {
         TestPlanReportMapper planReportMapper = sqlSession.getMapper(TestPlanReportMapper.class);
         TestPlanReportDataMapper planReportDataMapper = sqlSession.getMapper(TestPlanReportDataMapper.class);
         TestPlanReportContentMapper planReportContentMapper = sqlSession.getMapper(TestPlanReportContentMapper.class);
+
+        ApiDefinitionExecResultMapper batchDefinitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+        ApiScenarioReportMapper batchScenarioReportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+        LoadTestReportMapper batchLoadTestReportMapper = sqlSession.getMapper(LoadTestReportMapper.class);
 
         try {
             while (reportIds.size() > handleCount) {
@@ -849,6 +851,21 @@ public class TestPlanReportService {
                 contentExample.createCriteria().andTestPlanReportIdIn(handleIdList);
                 planReportContentMapper.deleteByExample(contentExample);
 
+                //删除关联的接口用例报告
+                ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
+                apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(handleIdList);
+                batchDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
+
+                //删除关联的场景和ui用例报告
+                ApiScenarioReportExample apiScenarioReportExample = new ApiScenarioReportExample();
+                apiScenarioReportExample.createCriteria().andRelevanceTestPlanReportIdIn(handleIdList);
+                batchScenarioReportMapper.deleteByExample(apiScenarioReportExample);
+
+                //删除关联的性能测试用例报告
+                LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
+                loadTestReportExample.createCriteria().andRelevanceTestPlanReportIdIn(handleIdList);
+                batchLoadTestReportMapper.deleteByExample(loadTestReportExample);
+
                 sqlSession.flushStatements();
 
                 reportIds = otherIdList;
@@ -867,6 +884,21 @@ public class TestPlanReportService {
                 TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
                 contentExample.createCriteria().andTestPlanReportIdIn(reportIds);
                 planReportContentMapper.deleteByExample(contentExample);
+
+                //删除关联的接口用例报告
+                ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
+                apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(reportIds);
+                batchDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
+
+                //删除关联的场景和ui用例报告
+                ApiScenarioReportExample apiScenarioReportExample = new ApiScenarioReportExample();
+                apiScenarioReportExample.createCriteria().andRelevanceTestPlanReportIdIn(reportIds);
+                batchScenarioReportMapper.deleteByExample(apiScenarioReportExample);
+
+                //删除关联的性能测试用例报告
+                LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
+                loadTestReportExample.createCriteria().andRelevanceTestPlanReportIdIn(reportIds);
+                batchLoadTestReportMapper.deleteByExample(loadTestReportExample);
 
                 sqlSession.flushStatements();
             }

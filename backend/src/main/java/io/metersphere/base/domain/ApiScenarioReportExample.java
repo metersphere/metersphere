@@ -1253,6 +1253,76 @@ public class ApiScenarioReportExample {
             addCriterion("report_type not between", value1, value2, "reportType");
             return (Criteria) this;
         }
+
+        public Criteria andRelevanceTestPlanReportIdIsNull() {
+            addCriterion("relevance_test_plan_report_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdIsNotNull() {
+            addCriterion("relevance_test_plan_report_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdEqualTo(String value) {
+            addCriterion("relevance_test_plan_report_id =", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdNotEqualTo(String value) {
+            addCriterion("relevance_test_plan_report_id <>", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdGreaterThan(String value) {
+            addCriterion("relevance_test_plan_report_id >", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("relevance_test_plan_report_id >=", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdLessThan(String value) {
+            addCriterion("relevance_test_plan_report_id <", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdLessThanOrEqualTo(String value) {
+            addCriterion("relevance_test_plan_report_id <=", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdLike(String value) {
+            addCriterion("relevance_test_plan_report_id like", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdNotLike(String value) {
+            addCriterion("relevance_test_plan_report_id not like", value, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdIn(List<String> values) {
+            addCriterion("relevance_test_plan_report_id in", values, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdNotIn(List<String> values) {
+            addCriterion("relevance_test_plan_report_id not in", values, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdBetween(String value1, String value2) {
+            addCriterion("relevance_test_plan_report_id between", value1, value2, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andRelevanceTestPlanReportIdNotBetween(String value1, String value2) {
+            addCriterion("relevance_test_plan_report_id not between", value1, value2, "relevanceTestPlanReportId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -45,7 +45,8 @@ public class APISingleResultListener implements MsExecListener {
             queues = RetryResultUtil.clearLoops(queues);
             JMeterBase.resultFormatting(queues, dto);
             if (dto.isRetryEnable()) {
-                LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】开始");
+                LoggerUtil.info("重试 " +
+                        "结果处理【" + dto.getReportId() + " 】开始");
                 RetryResultUtil.mergeRetryResults(dto.getRequestResults());
                 LoggerUtil.info("重试结果处理【" + dto.getReportId() + " 】结束");
             }

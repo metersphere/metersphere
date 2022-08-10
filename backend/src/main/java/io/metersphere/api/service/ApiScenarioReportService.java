@@ -5,10 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.*;
-import io.metersphere.api.dto.automation.APIScenarioReportResult;
-import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.jmeter.FixedCapacityUtils;
@@ -877,13 +874,17 @@ public class ApiScenarioReportService {
         return map;
     }
 
-    public APIScenarioReportResult init(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userId, RunModeConfigDTO config) {
-        APIScenarioReportResult report = new APIScenarioReportResult();
-        if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
-            triggerMode = ReportTriggerMode.MANUAL.name();
+    public APIScenarioReportResult init(ApiScenarioReportInitDTO initModel) {
+        if (initModel == null) {
+            initModel = new ApiScenarioReportInitDTO();
         }
-        report.setId(id);
-        report.setTestId(id);
+        APIScenarioReportResult report = new APIScenarioReportResult();
+        if (StringUtils.equalsAny(initModel.getTriggerMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.DEFINITION.name())) {
+            initModel.setTriggerMode(ReportTriggerMode.MANUAL.name());
+        }
+        report.setId(initModel.getId());
+        report.setTestId(initModel.getId());
+        String scenarioName = initModel.getScenarioName();
         if (StringUtils.isNotEmpty(scenarioName)) {
             scenarioName = scenarioName.length() >= 3000 ? scenarioName.substring(0, 2000) : scenarioName;
             report.setName(scenarioName);
@@ -893,31 +894,32 @@ public class ApiScenarioReportService {
         report.setUpdateTime(System.currentTimeMillis());
         report.setCreateTime(System.currentTimeMillis());
 
-        String status = config != null && StringUtils.equals(config.getMode(), RunModeConstants.SERIAL.toString())
+        String status = initModel.getConfig() != null && StringUtils.equals(initModel.getConfig().getMode(), RunModeConstants.SERIAL.toString())
                 ? APITestStatus.Waiting.name() : APITestStatus.Running.name();
         report.setStatus(status);
-        if (StringUtils.isNotEmpty(userId)) {
-            report.setUserId(userId);
-            report.setCreateUser(userId);
+        if (StringUtils.isNotEmpty(initModel.getUserId())) {
+            report.setUserId(initModel.getUserId());
+            report.setCreateUser(initModel.getUserId());
         } else {
             report.setUserId(SessionUtils.getUserId());
             report.setCreateUser(SessionUtils.getUserId());
         }
-        if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
-            report.setActuator(config.getResourcePoolId());
+        if (initModel.getConfig() != null && StringUtils.isNotBlank(initModel.getConfig().getResourcePoolId())) {
+            report.setActuator(initModel.getConfig().getResourcePoolId());
         } else {
             report.setActuator("LOCAL");
         }
-        report.setTriggerMode(triggerMode);
+        report.setTriggerMode(initModel.getTriggerMode());
         report.setReportVersion(2);
-        report.setExecuteType(execType);
-        report.setProjectId(projectId);
+        report.setExecuteType(initModel.getExecType());
+        report.setProjectId(initModel.getProjectId());
         report.setScenarioName(scenarioName);
-        report.setScenarioId(scenarioId);
-        if (config != null) {
-            report.setEnvConfig(JSON.toJSONString(config));
+        report.setScenarioId(initModel.getScenarioId());
+        if (initModel.getConfig() != null) {
+            report.setEnvConfig(JSON.toJSONString(initModel.getConfig()));
         }
-        if (config instanceof UiRunModeConfigDTO) {
+        report.setRelevanceTestPlanReportId(initModel.getRelevanceTestPlanReportId());
+        if (initModel.getConfig() instanceof UiRunModeConfigDTO) {
             report.setReportType(ReportTypeConstants.UI_INDEPENDENT.name());
         } else {
             report.setReportType(ReportTypeConstants.SCENARIO_INDEPENDENT.name());
@@ -927,9 +929,9 @@ public class ApiScenarioReportService {
 
     public APIScenarioReportResult getApiScenarioReportResult(RunScenarioRequest request, String serialReportId,
                                                               String scenarioNames, String reportScenarioIds) {
-        APIScenarioReportResult report = this.init(request.getConfig().getReportId(), reportScenarioIds,
+        APIScenarioReportResult report = this.init(new ApiScenarioReportInitDTO(request.getConfig().getReportId(), reportScenarioIds,
                 scenarioNames, request.getTriggerMode(), ExecuteType.Saved.name(), request.getProjectId(),
-                request.getReportUserID(), request.getConfig());
+                request.getReportUserID(), request.getConfig(), request.getTestPlanReportId()));
         report.setName(request.getConfig().getReportName());
         report.setId(serialReportId);
         report.setReportType(ReportTypeConstants.SCENARIO_INTEGRATED.name());
@@ -1059,18 +1061,26 @@ public class ApiScenarioReportService {
     }
 
     public APIScenarioReportResult initResult(String reportId, String testPlanScenarioId, String name, RunScenarioRequest request) {
-        return this.init(reportId, testPlanScenarioId, name, request.getTriggerMode(),
-                request.getExecuteType(), request.getProjectId(), request.getReportUserID(), request.getConfig());
+        return this.init(new ApiScenarioReportInitDTO(reportId, testPlanScenarioId, name, request.getTriggerMode(),
+                request.getExecuteType(), request.getProjectId(), request.getReportUserID(), request.getConfig(), request.getTestPlanReportId()));
     }
 
     public APIScenarioReportResult initDebugResult(RunDefinitionRequest request) {
-        return this.init(request.getId(),
+        return this.init(new ApiScenarioReportInitDTO(request.getId(),
                 request.getScenarioId(),
                 request.getScenarioName(),
                 ReportTriggerMode.MANUAL.name(),
                 request.getExecuteType(),
                 request.getProjectId(),
                 SessionUtils.getUserId(),
-                request.getConfig());
+                request.getConfig(), null));
+    }
+
+    public void deleteByRelevanceTestPlanReportIds(List<String> testPlanReportIdList) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            ApiScenarioReportExample apiScenarioReportExample = new ApiScenarioReportExample();
+            apiScenarioReportExample.createCriteria().andRelevanceTestPlanReportIdIn(testPlanReportIdList);
+            apiScenarioReportMapper.deleteByExample(apiScenarioReportExample);
+        }
     }
 }
