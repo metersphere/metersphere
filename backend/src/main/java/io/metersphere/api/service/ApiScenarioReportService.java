@@ -203,7 +203,12 @@ public class ApiScenarioReportService {
     public List<String> idList(QueryAPIReportRequest request) {
         request = this.initRequest(request);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extApiScenarioReportMapper.idList(request);
+        //检查必填参数caseType
+        if (StringUtils.equalsAny(request.getCaseType(), ReportTypeConstants.API.name(), ReportTypeConstants.SCENARIO.name())) {
+            return extApiScenarioReportMapper.idList(request);
+        } else {
+            return new ArrayList<>(0);
+        }
     }
 
     private void checkNameExist(APIScenarioReportResult request) {
@@ -694,13 +699,19 @@ public class ApiScenarioReportService {
     }
 
     public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
-        List<String> ids = getIdsByDeleteBatchRequest(reportRequest);
-        ids = batchDeleteReportResource(reportRequest, ids, true);
+        if (reportRequest.getIsUi()) {
+            //ui报告对应的用例类型也是scenario
+            reportRequest.setCaseType(ReportTypeConstants.SCENARIO.name());
+        }
+        if (StringUtils.isNotBlank(reportRequest.getCaseType())) {
+            List<String> ids = getIdsByDeleteBatchRequest(reportRequest);
+            ids = batchDeleteReportResource(reportRequest, ids, true);
 
-        //处理最后剩余的数据
-        if (!ids.isEmpty()) {
-            deleteScenarioReportByIds(ids);
-            deleteApiDefinitionResultByIds(ids);
+            //处理报告关联数据
+            if (!ids.isEmpty()) {
+                deleteScenarioReportByIds(ids);
+                deleteApiDefinitionResultByIds(ids);
+            }
         }
     }
 
@@ -952,10 +963,10 @@ public class ApiScenarioReportService {
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
             try {
                 errorSize = dto.getRequestResults().stream().filter(requestResult ->
-                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
-                                && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
-                                r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                        ).count() > 0)
+                                StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
+                                        && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
+                                        r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
+                                ).count() > 0)
                         .count();
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败

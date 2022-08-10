@@ -23,5 +23,10 @@ public class QueryAPIReportRequest {
     private Map<String, List<String>> filters;
     private Map<String, Object> combine;
 
+    /**
+     * 查询哪种用例的报告 SCENARIO/API
+     */
+    private String caseType;
+
     private String limit;
 }
