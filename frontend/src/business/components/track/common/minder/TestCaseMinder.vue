@@ -464,6 +464,14 @@ name: "TestCaseMinder",
       let steps = [];
       let stepNum = 1;
       if (node.children) {
+        let prerequisiteNodes = node.children.filter(childNode => childNode.data.resource && childNode.data.resource.indexOf(this.$t('test_track.case.prerequisite'))  > -1);
+        if (prerequisiteNodes.length > 1) {
+          this.throwError('[' + testCase.name + ']' + this.$t('test_track.case.exists_multiple_prerequisite_node'));
+        }
+        let remarkNodes = node.children.filter(childNode => childNode.data.resource && childNode.data.resource.indexOf(this.$t('commons.remark'))  > -1);
+        if (remarkNodes.length > 1) {
+          this.throwError('[' + testCase.name + ']' + this.$t('test_track.case.exists_multiple_remark_node'));
+        }
         node.children.forEach((childNode) => {
           let childData = childNode.data;
           if (childData.type === 'issue') return;

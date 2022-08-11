@@ -2213,6 +2213,8 @@ export default {
       passing_rate: '用例通过率',
       version: "版本",
       sync_to_new_version: "复制以下信息到新版本",
+      exists_multiple_prerequisite_node: "下存在多个前置条件",
+      exists_multiple_remark_node: "下存在多个备注",
     },
     plan: {
       test_plan: "测试计划",
