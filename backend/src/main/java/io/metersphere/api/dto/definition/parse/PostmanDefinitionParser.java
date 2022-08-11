@@ -29,11 +29,6 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         Object info = jsonObject.get("info");
         if (info == null) {
             MSException.throwException("wrong format");
-        } else {
-            JSONObject jsonObject1 = JSON.parseObject(info.toString());
-            if (jsonObject1.get("_postman_id") == null) {
-                MSException.throwException("wrong format");
-            }
         }
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class, Feature.DisableSpecialKeyDetect);
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
