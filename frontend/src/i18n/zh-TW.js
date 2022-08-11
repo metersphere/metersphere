@@ -2207,6 +2207,8 @@ export default {
       case_desc: "用例描述",
       passing_rate: '用例通過率',
       sync_to_new_version: "復製以下信息到新版本",
+      exists_multiple_prerequisite_node: "下存在多個前置條件",
+      exists_multiple_remark_node: "下存在多個備註"
     },
     plan: {
       test_plan: "測試計劃",

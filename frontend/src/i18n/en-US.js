@@ -2213,7 +2213,9 @@ export default {
         export_tip: "Switch to Case List and check Use Case Export"
       },
       case_desc: "Case Desc",
-      passing_rate: 'Case Pass Rate'
+      passing_rate: 'Case Pass Rate',
+      exists_multiple_prerequisite_node: "Exists multiple precondition node",
+      exists_multiple_remark_node: "Exists multiple remark node",
     },
     plan: {
       test_plan: "Plan",
