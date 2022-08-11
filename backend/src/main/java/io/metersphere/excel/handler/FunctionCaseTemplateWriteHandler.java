@@ -120,7 +120,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                             list = caseLevelAndStatusValueMap.get("caseStatus");
                         }
                         if (!CollectionUtils.isEmpty(list)) {
-                            Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                            Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, index + 3, 1));
                             comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
                             sheet.getRow(0).getCell(1).setCellComment(comment);
                         }
