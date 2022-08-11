@@ -39,7 +39,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             try {
                 //  使用 url 导入 swagger
-                swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, true);
+                swagger = new SwaggerParser().read(request.getSwaggerUrl(), auths, false);
             } catch (Exception e) {
                 LoggerUtil.error(e);
                 MSException.throwException(e.getMessage());
