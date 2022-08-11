@@ -617,6 +617,18 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return extApiModuleMapper.getNameById(moduleId);
     }
 
+    public Map<String, String> getApiModuleNameDicByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new LinkedHashMap<>(0);
+        }
+        Map<String, String> returnMap = new LinkedHashMap<>(ids.size());
+        List<ApiModuleDTO> apiModuleList = extApiModuleMapper.selectNameByIds(ids);
+        apiModuleList.forEach(item -> {
+            returnMap.put(item.getId(), item.getName());
+        });
+        return returnMap;
+    }
+
     /**
      * 上传文件时对文件的模块进行检测
      *

@@ -17,4 +17,6 @@ public interface ExtApiModuleMapper {
     void updatePos(String id, Double pos);
 
     String getNameById(String moduleId);
+
+    List<ApiModuleDTO> selectNameByIds(List<String> ids);
 }
