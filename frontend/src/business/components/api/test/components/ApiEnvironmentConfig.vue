@@ -72,7 +72,8 @@ export default {
       selectEnvironmentId: '',
       ifCreate: false, //是否是创建环境
       delDialogVisible: false,
-      currentIndex: -1
+      currentIndex: -1,
+      isCopy: false
     }
   },
   props: {
@@ -129,6 +130,7 @@ export default {
     },
     copyEnvironment(environment) {
       this.ifCreate = false;
+      this.isCopy = true;
       //点击复制的时候先选择改行，否则会出现解析错误
       this.environmentSelected(environment);
       this.currentEnvironment = environment;
@@ -144,7 +146,7 @@ export default {
         return;
       }
       this.$refs.environmentEdit._save(newEnvironment);
-      this.environments.push(newEnvironment);
+      this.environments.unshift(newEnvironment);
       this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
     },
     validateEnvironment(environment) {
@@ -210,9 +212,12 @@ export default {
     },
     close() {
       this.$emit('close');
-      this.visible = false;
+      if (!this.isCopy) {
+        this.visible = false;
+      }
       this.$refs.environmentEdit.clearValidate();
       removeGoBackListener(this.close);
+      this.isCopy = false;
     },
     openDelEnv(environment, index) {
       this.currentEnvironment = environment;
