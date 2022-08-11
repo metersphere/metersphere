@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtShareInfoMapper">
-    <select id="findApiDocumentSimpleInfoByRequest" resultType="io.metersphere.api.dto.share.ApiDocumentInfoDTO">
-        SELECT api.id,api.name FROM api_definition api WHERE api.protocol = 'HTTP'
+
+    <sql id="Api_Where_Clause">
         <if test="request.trashEnable == true">
             AND api.status = 'Trash'
         </if>
@@ -42,6 +42,15 @@
         <if test="request.orderCondition == 'editTimeDesc'">
             ORDER BY api.update_time DESC
         </if>
+    </sql>
+
+    <select id="findIdByRequest" resultType="java.lang.String">
+        SELECT api.id FROM api_definition api WHERE api.protocol = 'HTTP'
+        <include refid="Api_Where_Clause"/>
+    </select>
+    <select id="findApiDocumentSimpleInfoByRequest" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
+        SELECT api.* FROM api_definition api WHERE api.protocol = 'HTTP'
+        <include refid="Api_Where_Clause"/>
     </select>
 
 

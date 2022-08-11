@@ -33,6 +33,15 @@
         order by api_module.pos asc
     </select>
 
+    <select id="selectNameByIds" resultType="io.metersphere.api.dto.definition.ApiModuleDTO">
+        SELECT name
+        FROM api_module
+        WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="getNameById" resultType="java.lang.String">
         select name
         from api_module

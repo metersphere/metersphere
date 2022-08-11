@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-bottom: 50px;border-bottom-width: 2px" ref="baseDiv">
+  <div style="border-bottom-width: 2px" ref="baseDiv">
     <div style="font-size: 17px">
       <el-popover
         v-if="projectId"
@@ -41,33 +41,38 @@
       </div>
     </el-row>
     <!--api请求头-->
-    <api-info-collapse :table-can-expand="false" table-coloum-type="nameAndValue"
+    <api-info-collapse :table-can-expand="false" v-if="isArrayHasData(apiInfo.requestHead)"
+                       table-coloum-type="nameAndValue"
                        :title="$t('api_test.definition.document.request_head')"
                        :string-data="apiInfo.requestHead"/>
     <!--QUERY参数-->
-    <api-info-collapse table-coloum-type="simple" :title="'QUERY'+$t('api_test.definition.document.request_param')"
+    <api-info-collapse v-if="isArrayHasData(apiInfo.urlParams)" table-coloum-type="simple"
+                       :title="'QUERY'+$t('api_test.definition.document.request_param')"
                        :string-data="apiInfo.urlParams"/>
     <!--REST参数-->
-    <api-info-collapse table-coloum-type="simple" :title="'REST'+$t('api_test.definition.document.request_param')"
+    <api-info-collapse v-if="isArrayHasData(apiInfo.restParams)" table-coloum-type="simple"
+                       :title="'REST'+$t('api_test.definition.document.request_param')"
                        :string-data="apiInfo.restParams"/>
     <!--api请求体 以及表格-->
-    <api-info-collapse :is-request="true" :remarks="apiInfo.requestBodyParamType"
+    <api-info-collapse v-if="hasRequestParams(apiInfo)" :is-request="true" :remarks="apiInfo.requestBodyParamType"
                        :title="$t('api_test.definition.document.request_body')">
       <api-request-info slot="request" :api-info="apiInfo"></api-request-info>
     </api-info-collapse>
 
     <!--响应头-->
-    <api-info-collapse :table-can-expand="false" table-coloum-type="nameAndValue"
+    <api-info-collapse :table-can-expand="false" v-if="isArrayHasData(apiInfo.responseHead)"
+                       table-coloum-type="nameAndValue"
                        :title="$t('api_test.definition.document.response_head')"
                        :string-data="apiInfo.responseHead"/>
     <!--响应体-->
-    <api-info-collapse :is-response="true" :remarks="apiInfo.responseBodyParamType"
+    <api-info-collapse v-if="hasResponseBody(apiInfo)" :is-response="true" :remarks="apiInfo.responseBodyParamType"
                        :title="$t('api_test.definition.document.response_body')">
       <api-response-info slot="response" :api-info="apiInfo"></api-response-info>
     </api-info-collapse>
 
     <!--响应状态码-->
-    <api-info-collapse :table-can-expand="false" :is-text="true" :string-data="getName(apiInfo.responseCode)"
+    <api-info-collapse :table-can-expand="false" v-if="hasResponseCode(apiInfo.responseCode)" :is-text="true"
+                       :string-data="getName(apiInfo.responseCode)"
                        :title="$t('api_test.definition.document.response_code')"/>
     <!--  备注  -->
     <api-remark-show :data="apiInfo.remark"></api-remark-show>
@@ -159,6 +164,94 @@ export default {
   computed: {},
   watch: {},
   methods: {
+    isArrayHasData(arrayData) {
+      if (!arrayData) {
+        return false;
+      }
+      let jsonArr = JSON.parse(arrayData);
+      let hasData = false;
+      for (let index = 0; index < jsonArr.length; index++) {
+        let item = jsonArr[index];
+        if (item.name) {
+          hasData = true;
+        }
+      }
+      return hasData;
+    },
+    hasRequestParams(apiInfo) {
+      let hasParams = false;
+      if (apiInfo) {
+        if (this.formParamTypes.includes(apiInfo.requestBodyParamType)) {
+          if (apiInfo.requestBodyFormData && apiInfo.requestBodyFormData !== '无') {
+            let jsonArr = JSON.parse(apiInfo.requestBodyFormData);
+            //遍历，把必填项空的数据去掉
+            for (let index = 0; index < jsonArr.length; index++) {
+              let item = jsonArr[index];
+              if (item.name) {
+                hasParams = true;
+              }
+            }
+          }
+        } else if (apiInfo.requestBodyParamType === 'JSON-SCHEMA' || apiInfo.requestBodyParamType === 'JSON') {
+          if (apiInfo.jsonSchemaBody && apiInfo.jsonSchemaBody !== '' && apiInfo.jsonSchemaBody !== '[]') {
+            hasParams = true;
+          }
+        } else if (apiInfo.requestBodyStrutureData && apiInfo.requestBodyStrutureData !== '') {
+          hasParams = true;
+        }
+      }
+      return hasParams;
+    },
+    hasResponseBody(apiInfo) {
+      let hasParams = false;
+      if (apiInfo) {
+        if (this.formParamTypes.includes(apiInfo.responseBodyParamType)) {
+          if (apiInfo.responseBodyFormData && apiInfo.responseBodyFormData !== '无') {
+            let jsonArr = JSON.parse(apiInfo.responseBodyFormData);
+            //遍历，把必填项空的数据去掉
+            for (let index = 0; index < jsonArr.length; index++) {
+              let item = jsonArr[index];
+              if (item.name) {
+                hasParams = true;
+              }
+            }
+          }
+        } else if (apiInfo.responseBodyParamType == 'JSON-SCHEMA') {
+          if (apiInfo.jsonSchemaResponseBody && apiInfo.jsonSchemaResponseBody !== '' && apiInfo.jsonSchemaResponseBody !== '[]') {
+            hasParams = true;
+          }
+        } else if (apiInfo.responseBodyStrutureData && apiInfo.responseBodyStrutureData !== '') {
+          try {
+            JSON.parse(apiInfo.responseBodyStrutureData);
+            hasParams = true;
+          } catch (e) {
+            hasParams = true;
+          }
+        }
+      }
+      return hasParams;
+    },
+    hasResponseCode(codeString) {
+      if (codeString === '无' || codeString === null) {
+        return false;
+      } else {
+        let hasCode = false;
+        try {
+          let jsonArr = JSON.parse(codeString);
+          //遍历，把必填项空的数据去掉
+          for (let index = 0; index < jsonArr.length; index++) {
+            let item = jsonArr[index];
+            if (item.name) {
+              hasCode = true;
+              break;
+            }
+          }
+        } catch (e) {
+          hasCode = false;
+        }
+        return hasCode;
+      }
+    },
     getId() {
       return this.apiInfo.id;
     },
@@ -168,23 +261,10 @@ export default {
     shareApiDocument(isBatchShare) {
       this.shareUrl = "";
       this.batchShareUrl = "";
-      let shareIdArr = [];
       let shareType = "Single";
-      if (isBatchShare == 'true') {
-        this.apiInfoArray.forEach(f => {
-          if (!f.id) {
-            return;
-          }
-          shareIdArr.push(f.id);
-        });
-        shareType = "Batch";
-      } else {
-        // shareIdArr.push(this.apiInfoArray[this.apiStepIndex].id);
-        shareIdArr.push(this.apiInfo.id);
-      }
       let genShareInfoParam = {};
-      genShareInfoParam.shareApiIdList = shareIdArr;
       genShareInfoParam.shareType = shareType;
+      genShareInfoParam.shareId = this.apiInfo.id;
 
       generateApiDocumentShareInfo(genShareInfoParam, (data) => {
         let thisHost = window.location.host;
