@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
@@ -73,6 +74,8 @@ public class IssueTemplateService extends TemplateBaseService {
 
     @Resource
     WorkspaceMapper workspaceMapper;
+
+    private static final String CUSTOM_FIELD_TYPE = "select";
 
     public String add(UpdateIssueTemplateRequest request) {
         checkExist(request);
@@ -325,12 +328,12 @@ public class IssueTemplateService extends TemplateBaseService {
         return issueTemplateCopyDto;
     }
 
-    public void copy(CopyIssueTemplateRequest request) {
+    public List<IssueTemplate> copy(CopyIssueTemplateRequest request) {
         if (CollectionUtils.isEmpty(request.getTargetProjectIds())) {
-            MSException.throwException("target project not checked");
+            MSException.throwException("cannot copy, target project not checked");
         }
         if (request.getId() == null) {
-            MSException.throwException("source project is empty");
+            MSException.throwException("copy error, source project is empty");
         }
         List<IssueTemplate> issueTemplateRecords = new ArrayList<>();
         List<CustomField> customFieldRecords = new ArrayList<>();
@@ -397,9 +400,18 @@ public class IssueTemplateService extends TemplateBaseService {
                         if (sourceCustomField.getSystem()) {
                             // 系统字段
                             String options;
-                            if (StringUtils.equals("select", sourceCustomField.getType())) {
-                                options = StringUtils.replace(tarCustomField.getOptions(), "]", ",") + StringUtils.replace(sourceCustomField.getOptions(), "[", "");
+                            if (StringUtils.equals(CUSTOM_FIELD_TYPE, sourceCustomField.getType())) {
+                                // 下拉框选项
+                                List<JSONObject> sourceOptions = JSONObject.parseArray(sourceCustomField.getOptions(), JSONObject.class);
+                                sourceOptions.removeIf(sourceOption -> StringUtils.contains(tarCustomField.getOptions(), sourceOption.get("text").toString()));
+                                if (CollectionUtils.isNotEmpty(sourceOptions)) {
+                                    String appendSourceOption = JSONObject.toJSONString(sourceOptions);
+                                    options = StringUtils.replace(tarCustomField.getOptions(), "]", ",") + StringUtils.replace(appendSourceOption, "[", "");
+                                } else {
+                                    options = tarCustomField.getOptions();
+                                }
                             } else {
+                                // 普通值
                                 options = "[]";
                             }
                             tarCustomField.setOptions(options);
@@ -439,6 +451,7 @@ public class IssueTemplateService extends TemplateBaseService {
         if (CollectionUtils.isNotEmpty(customFieldRecords)) {
             extCustomFieldMapper.batchInsert(customFieldRecords);
         }
+        return issueTemplateRecords;
     }
 
     public String getLogDetails(String id, List<CustomFieldTemplate> newCustomFieldTemplates) {
@@ -507,15 +520,15 @@ public class IssueTemplateService extends TemplateBaseService {
         return permissionsByUserGroups;
     }
 
-    @MsAuditLog(module = OperLogModule.PROJECT_TEMPLATE_MANAGEMENT, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#targetProjectId)", msClass = IssueTemplateService.class)
-    public void copyIssueTemplateLog(String targetProjectId) {
+    @MsAuditLog(module = OperLogModule.PROJECT_TEMPLATE_MANAGEMENT, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#targetProjectId, #targetProjectName)", msClass = IssueTemplateService.class)
+    public void copyIssueTemplateLog(String targetProjectId, String targetProjectName) {
     }
 
-    public String getLogDetails(String targetProjectId) {
+    public String getLogDetails(String targetProjectId, String targetProjectName) {
         if (targetProjectId == null) {
             return null;
         }
-        OperatingLogDetails details = new OperatingLogDetails(targetProjectId, targetProjectId, "缺陷模板复制", null, null);
+        OperatingLogDetails details = new OperatingLogDetails(targetProjectId, targetProjectId, targetProjectName, null, null);
         return JSON.toJSONString(details);
     }
 }
