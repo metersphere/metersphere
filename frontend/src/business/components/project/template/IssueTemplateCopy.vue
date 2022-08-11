@@ -6,8 +6,8 @@
     <span style="font-size:13px; margin-left: 10px">{{$t('custom_field.copy_issue_template_model_tips1')}}</span>
     <i style="font-size: 12px">{{$t('custom_field.copy_issue_template_model_tips2')}}</i>
     <el-checkbox-group v-model="copyModelVal" @change="checkModelChanged" style="margin-top: 15px">
-      <el-checkbox false-label="null" true-label="0" :label="$t('custom_field.copy_issue_template_model_append')" style="margin-left: 10px"></el-checkbox>
-      <el-checkbox false-label="null" true-label="1" :label="$t('custom_field.copy_issue_template_model_cover')" style="margin-left: 25px"></el-checkbox>
+      <el-checkbox false-label="0" true-label="0" :label="$t('custom_field.copy_issue_template_model_append')" style="margin-left: 10px"></el-checkbox>
+      <el-checkbox false-label="1" true-label="1" :label="$t('custom_field.copy_issue_template_model_cover')" style="margin-left: 25px"></el-checkbox>
     </el-checkbox-group>
     <div class="copyTargetProjectTree" style="margin-top: 20px; margin-left: 10px">
       <span>{{$t('custom_field.target_project')}}</span>
@@ -59,7 +59,6 @@ export default {
       copyData: null,
       copyProjects: [],
       copyModelVal: "0",
-      preCopyModelVal: "",
       defaultProps: {
         children: 'children',
         label: 'name',
@@ -81,8 +80,9 @@ export default {
       this.initCopyProjects();
     },
     checkModelChanged(val) {
-      this.copyModelVal = (val == 'null' || !val) ? this.preCopyModelVal : val;
-      this.preCopyModelVal = this.copyModelVal;
+      if (val !== "null") {
+        this.copyModelVal = this.copyModelVal !== val ? val : this.copyModelVal;
+      }
     },
     initCopyProjects() {
       let issueTemplateId = this.copyData.id;

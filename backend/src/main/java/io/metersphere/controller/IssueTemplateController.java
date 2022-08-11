@@ -68,11 +68,11 @@ public class IssueTemplateController {
 
     @PostMapping("/copy")
     public void copy(@RequestBody CopyIssueTemplateRequest request) {
-        issueTemplateService.copy(request);
+        List<IssueTemplate> copyRecords = issueTemplateService.copy(request);
         // 目标项目操作日志
-        if (CollectionUtils.isNotEmpty(request.getTargetProjectIds())) {
-            request.getTargetProjectIds().forEach(targetProjectId -> {
-                issueTemplateService.copyIssueTemplateLog(targetProjectId);
+        if (CollectionUtils.isNotEmpty(copyRecords)) {
+            copyRecords.forEach(copyRecord -> {
+                issueTemplateService.copyIssueTemplateLog(copyRecord.getProjectId(), copyRecord.getName());
             });
         }
     }
