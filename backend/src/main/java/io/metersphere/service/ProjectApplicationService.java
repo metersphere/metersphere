@@ -363,4 +363,14 @@ public class ProjectApplicationService {
             }
         }
     }
+
+    public Boolean checkCustomNumByProjectId(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria()
+                .andProjectIdEqualTo(projectId)
+                .andTypeEqualTo(ProjectApplicationType.CASE_CUSTOM_NUM.name())
+                .andTypeValueEqualTo("true");
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        return projectApplications.size() > 0;
+    }
 }
