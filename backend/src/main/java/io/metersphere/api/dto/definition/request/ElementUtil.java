@@ -32,6 +32,7 @@ import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
@@ -417,7 +418,7 @@ public class ElementUtil {
                 } else if (element != null && element.get("type").toString().equals("HTTPSamplerProxy")) {
                     MsHTTPSamplerProxy httpSamplerProxy = JSON.toJavaObject(element, MsHTTPSamplerProxy.class);
                     if (httpSamplerProxy != null
-                            && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && httpSamplerProxy.getIsRefEnvironment()))) {
+                            && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment())))) {
                         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                         if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                             LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
