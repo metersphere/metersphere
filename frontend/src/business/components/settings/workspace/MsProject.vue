@@ -442,7 +442,7 @@ export default {
       this.dialogWsMemberVisible = true;
       let param = this.dialogCondition;
       this.$set(param, 'projectId', row.id);
-      let path = "/user/project/member/list";
+      let path = "/user/ws/project/member/list/" + row.workspaceId;
       this.result = this.$post(this.buildPagePath(path), param, res => {
         let data = res.data;
         this.memberLineData = data.listObject;
