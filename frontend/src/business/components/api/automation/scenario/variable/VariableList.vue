@@ -344,6 +344,9 @@ export default {
       this.headersOld = JSON.parse(JSON.stringify(this.headers));
       this.visible = true;
       this.disabled = disabled;
+      this.$nextTick(() => {
+        this.$refs.variableTable.doLayout();
+      });
     },
     save() {
       this.visible = false;
