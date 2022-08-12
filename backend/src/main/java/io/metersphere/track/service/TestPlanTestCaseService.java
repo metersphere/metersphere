@@ -80,6 +80,9 @@ public class TestPlanTestCaseService {
     @Resource
     private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
 
+    private static final String CUSTOM_NUM = "custom_num";
+    private static final String NUM = "num";
+
     public List<TestPlanTestCaseWithBLOBs> listAll() {
         TestPlanTestCaseExample example = new TestPlanTestCaseExample();
         example.createCriteria();
@@ -92,6 +95,17 @@ public class TestPlanTestCaseService {
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
+        // CUSTOM_NUM ORDER
+        boolean customOrderFlag =  orders.stream().anyMatch(order -> StringUtils.equals(order.getName(), CUSTOM_NUM));
+        if (customOrderFlag) {
+            // 判断当前项目时候开启自定义字段的配置
+            boolean customNumEnable =  projectApplicationService.checkCustomNumByProjectId(request.getProjectId());
+            orders.forEach(order -> {
+                if (StringUtils.equals(order.getName(), CUSTOM_NUM)) {
+                    order.setName(customNumEnable ? CUSTOM_NUM : NUM);
+                }
+            });
+        }
         request.setOrders(orders);
 
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
