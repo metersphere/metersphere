@@ -41,7 +41,8 @@
       </div>
     </el-row>
     <!--api请求头-->
-    <api-info-collapse table-coloum-type="nameAndValue" :title="$t('api_test.definition.document.request_head')"
+    <api-info-collapse :table-can-expand="false" table-coloum-type="nameAndValue"
+                       :title="$t('api_test.definition.document.request_head')"
                        :string-data="apiInfo.requestHead"/>
     <!--QUERY参数-->
     <api-info-collapse table-coloum-type="simple" :title="'QUERY'+$t('api_test.definition.document.request_param')"
@@ -56,7 +57,8 @@
     </api-info-collapse>
 
     <!--响应头-->
-    <api-info-collapse table-coloum-type="nameAndValue" :title="$t('api_test.definition.document.response_head')"
+    <api-info-collapse :table-can-expand="false" table-coloum-type="nameAndValue"
+                       :title="$t('api_test.definition.document.response_head')"
                        :string-data="apiInfo.responseHead"/>
     <!--响应体-->
     <api-info-collapse :is-response="true" :remarks="apiInfo.responseBodyParamType"
@@ -65,7 +67,7 @@
     </api-info-collapse>
 
     <!--响应状态码-->
-    <api-info-collapse :is-text="true" :string-data="getName(apiInfo.responseCode)"
+    <api-info-collapse :table-can-expand="false" :is-text="true" :string-data="getName(apiInfo.responseCode)"
                        :title="$t('api_test.definition.document.response_code')"/>
     <!--  备注  -->
     <api-remark-show :data="apiInfo.remark"></api-remark-show>

@@ -145,7 +145,7 @@ public class ShareInfoService {
                         JSONArray headArr = requestObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
                             JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj != null && headObj.containsKey("name") && headObj.containsKey("value")) {
+                            if (this.isObjectHasKey(headObj, "name")) {
                                 requestHeadDataArr.add(headObj);
                             }
                         }
@@ -157,9 +157,8 @@ public class ShareInfoService {
                         try {
                             JSONArray headArr = requestObj.getJSONArray("arguments");
                             for (int index = 0; index < headArr.size(); index++) {
-
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                                if (this.isObjectHasKey(headObj, "name")) {
                                     urlParamArr.add(headObj);
                                 }
                             }
@@ -175,7 +174,7 @@ public class ShareInfoService {
                             JSONArray headArr = requestObj.getJSONArray("rest");
                             for (int index = 0; index < headArr.size(); index++) {
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name")) {
+                                if (this.isObjectHasKey(headObj, "name")) {
                                     restParamArr.add(headObj);
                                 }
                             }
@@ -189,7 +188,7 @@ public class ShareInfoService {
                     if (requestObj.containsKey("body")) {
                         try {
                             JSONObject bodyObj = requestObj.getJSONObject("body");
-                            if (bodyObj.containsKey("type")) {
+                            if (this.isObjectHasKey(bodyObj, "type")) {
                                 String type = bodyObj.getString("type");
                                 if (StringUtils.equals(type, "WWW_FORM")) {
                                     apiInfoDTO.setRequestBodyParamType("x-www-from-urlencoded");
@@ -237,7 +236,7 @@ public class ShareInfoService {
                                         Map<String, String> previewObjMap = new LinkedHashMap<>();
                                         for (int i = 0; i < kvsArr.size(); i++) {
                                             JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("name")) {
+                                            if (this.isObjectHasKey(kv, "name")) {
                                                 String value = "";
                                                 if (kv.containsKey("value")) {
                                                     value = String.valueOf(kv.get("value"));
@@ -257,14 +256,14 @@ public class ShareInfoService {
                                         Map<String, String> previewObjMap = new LinkedHashMap<>();
                                         for (int i = 0; i < kvsArr.size(); i++) {
                                             JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("description") && kv.containsKey("files")) {
+                                            if (this.isObjectHasKey(kv, "description") && this.isObjectHasKey(kv, "files")) {
                                                 Map<String, String> bodyMap = new HashMap<>();
                                                 String name = kv.getString("description");
                                                 JSONArray fileArr = kv.getJSONArray("files");
                                                 String value = "";
                                                 for (int j = 0; j < fileArr.size(); j++) {
                                                     JSONObject fileObj = fileArr.getJSONObject(j);
-                                                    if (fileObj.containsKey("name")) {
+                                                    if (this.isObjectHasKey(fileObj, "name")) {
                                                         value += fileObj.getString("name") + " ;";
                                                     }
                                                 }
@@ -292,13 +291,13 @@ public class ShareInfoService {
             //赋值响应头
             if (apiModel.getResponse() != null) {
                 JSONObject responseJsonObj = this.genJSONObject(apiModel.getResponse());
-                if (responseJsonObj != null && responseJsonObj.containsKey("headers")) {
+                if (this.isObjectHasKey(responseJsonObj, "headers")) {
                     try {
                         JSONArray responseHeadDataArr = new JSONArray();
                         JSONArray headArr = responseJsonObj.getJSONArray("headers");
                         for (int index = 0; index < headArr.size(); index++) {
                             JSONObject headObj = headArr.getJSONObject(index);
-                            if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                            if (this.isObjectHasKey(headObj, "name")) {
                                 responseHeadDataArr.add(headObj);
                             }
                         }
@@ -308,10 +307,10 @@ public class ShareInfoService {
                     }
                 }
                 // 赋值响应体
-                if (responseJsonObj != null && responseJsonObj.containsKey("body")) {
+                if (this.isObjectHasKey(responseJsonObj, "body")) {
                     try {
                         JSONObject bodyObj = responseJsonObj.getJSONObject("body");
-                        if (bodyObj.containsKey("type")) {
+                        if (this.isObjectHasKey(bodyObj, "type")) {
                             String type = bodyObj.getString("type");
                             if (StringUtils.equals(type, "WWW_FORM")) {
                                 apiInfoDTO.setResponseBodyParamType("x-www-from-urlencoded");
@@ -345,7 +344,7 @@ public class ShareInfoService {
                                     JSONArray kvsArr = bodyObj.getJSONArray("kvs");
                                     for (int i = 0; i < kvsArr.size(); i++) {
                                         JSONObject kv = kvsArr.getJSONObject(i);
-                                        if (kv.containsKey("name")) {
+                                        if (this.isObjectHasKey(kv, "name")) {
                                             bodyParamArr.add(kv);
                                         }
                                     }
@@ -365,7 +364,7 @@ public class ShareInfoService {
                                             String value = "";
                                             for (int j = 0; j < fileArr.size(); j++) {
                                                 JSONObject fileObj = fileArr.getJSONObject(j);
-                                                if (fileObj.containsKey("name")) {
+                                                if (this.isObjectHasKey(fileObj, "name")) {
                                                     value += fileObj.getString("name") + " ;";
                                                 }
                                             }
@@ -384,13 +383,13 @@ public class ShareInfoService {
 
                 }
                 // 赋值响应码
-                if (responseJsonObj != null && responseJsonObj.containsKey("statusCode")) {
+                if (this.isObjectHasKey(responseJsonObj, "statusCode")) {
                     try {
                         JSONArray responseStatusDataArr = new JSONArray();
                         JSONArray statusArr = responseJsonObj.getJSONArray("statusCode");
                         for (int index = 0; index < statusArr.size(); index++) {
                             JSONObject statusObj = statusArr.getJSONObject(index);
-                            if (statusObj.containsKey("name") && statusObj.containsKey("value")) {
+                            if (this.isObjectHasKey(statusObj, "name")) {
                                 responseStatusDataArr.add(statusObj);
                             }
                         }
@@ -633,10 +632,7 @@ public class ShareInfoService {
         return planId;
     }
 
-    public void scenarioReportValidate(String shareId, String reportId) {
-        TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.selectByReportId(reportId);
-        if (!StringUtils.equals(getPlanId(shareId), testPlanApiScenario.getTestPlanId())) {
-            MSException.throwException("validate failure!");
-        }
+    private boolean isObjectHasKey(JSONObject object, String key) {
+        return object != null && object.containsKey(key);
     }
 }

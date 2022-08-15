@@ -28,10 +28,12 @@
                            show-overflow-tooltip/>
         </el-table>
         <div v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
-          <ms-json-code-edit :json-schema-disable="true" :show-preview="false" :body="apiInfo.jsonSchemaResponseBody" ref="jsonCodeEdit"/>
+          <ms-json-code-edit :json-schema-disable="true" :show-preview="false" :body="apiInfo.jsonSchemaResponseBody"
+                             ref="jsonCodeEdit"/>
         </div>
         <div v-else-if="formatRowDataToJsonSchema(apiInfo,'response') " style="margin-left: 10px">
-          <ms-json-code-edit :json-schema-disable="true" :show-preview="false" :body="apiInfo.responseJsonSchema" ref="jsonCodeEdit"/>
+          <ms-json-code-edit :json-schema-disable="true" :show-preview="false" :body="apiInfo.responseJsonSchema"
+                             ref="jsonCodeEdit"/>
         </div>
         <div v-else class="showDataDiv">
           <br/>
@@ -132,11 +134,6 @@ export default {
 <style scoped>
 .apiInfoRow {
   margin: 10px 10px;
-}
-
-.blackFontClass {
-  font-weight: bold;
-  font-size: 14px;
 }
 
 .showDataDiv {

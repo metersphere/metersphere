@@ -553,11 +553,6 @@ export default {
   margin-left: 10px;
 }
 
-.blackFontClass {
-  font-weight: bold;
-  font-size: 14px;
-}
-
 .smallFontClass {
   font-size: 13px;
   margin: 20px 5px;
