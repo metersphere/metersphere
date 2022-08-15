@@ -107,7 +107,7 @@ public class TestCaseController {
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
-        return testCaseService.listTestCaseMthod(request);
+        return testCaseService.listTestCaseMethod(request);
     }
 
     @GetMapping("/relationship/case/{id}/{relationshipType}")
