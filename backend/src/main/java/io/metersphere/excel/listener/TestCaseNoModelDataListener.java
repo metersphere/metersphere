@@ -9,11 +9,16 @@ import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldOption;
 import io.metersphere.excel.annotation.NotRequired;
+import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.excel.domain.ExcelErrData;
+import io.metersphere.excel.domain.ExcelMergeInfo;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.domain.TestCaseExcelDataFactory;
 import io.metersphere.excel.utils.ExcelValidateHelper;
@@ -23,11 +28,11 @@ import io.metersphere.track.request.testcase.TestCaseImportRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,7 +52,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     private Map<Integer, String> headMap;
     private Map<String, String> excelHeadToFieldNameDic = new HashMap<>();
-
 
     /**
      * 每隔2000条存储数据库，然后清理list ，方便内存回收
@@ -71,13 +75,36 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     private TestCaseImportRequest request;
 
+    private Set<ExcelMergeInfo> mergeInfoSet;
+
+    // 存储当前合并的一条完整数据，其中步骤没有合并是多行
+    private TestCaseExcelData currentMergeData;
+
+    private static final String ERROR_MSG_SEPARATOR = ";";
+
+    /**
+     * 标记下当前遍历的行是不是有合并单元格
+     */
+    private Boolean isMergeRow;
+
+    /**
+     * 标记下当前遍历的行是不是合并单元格的最后一行
+     */
+    private Boolean isMergeLastRow;
+
+    /**
+     * 存储合并单元格对应的数据，key 为重写了 compareTo 的 ExcelMergeInfo
+     */
+    private HashMap<ExcelMergeInfo, String> mergeCellDataMap = new HashMap<>();
+
     public boolean isUpdated() {
         return isUpdated;
     }
 
-    public TestCaseNoModelDataListener(TestCaseImportRequest request, Class c) {
+    public TestCaseNoModelDataListener(TestCaseImportRequest request, Class c, Set<ExcelMergeInfo> mergeInfoSet) {
+        this.mergeInfoSet = mergeInfoSet;
         this.excelDataClass = c;
-        this.testCaseService = (TestCaseService) CommonBeanFactory.getBean("testCaseService");
+        this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
         customIds = new HashSet<>();
 
         this.request = request;
@@ -89,11 +116,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 if (StringUtils.isNotEmpty(name)) {
                     name = name.trim();
                 }
-                if (StringUtils.equalsAny(name, "责任人", "維護人", "Maintainer")) {
+                if (TestCaseImportFiled.MAINTAINER.getFiledLangMap().values().contains(name)) {
                     customFieldsMap.put("maintainer", dto);
-                } else if (StringUtils.equalsAny(name, "用例等级", "用例等級", "Priority")) {
+                } else if (TestCaseImportFiled.PRIORITY.getFiledLangMap().values().contains(name)) {
                     customFieldsMap.put("priority", dto);
-                } else if (StringUtils.equalsAny(name, "用例状态", "用例狀態", "Case status")) {
+                } else if (TestCaseImportFiled.STATUS.getFiledLangMap().values().contains(name)) {
                     customFieldsMap.put("status", dto);
                 } else {
                     customFieldsMap.put(name, dto);
@@ -115,98 +142,249 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     }
 
     public void invoke(Map<Integer, String> data, AnalysisContext analysisContext) {
-        String errMsg;
+
         Integer rowIndex = analysisContext.readRowHolder().getRowIndex();
-        String updateMsg = "update_testcase";
-        TestCaseExcelData testCaseExcelData = this.parseDataToModel(data);
+
+        handleMergeData(data, rowIndex);
+
+        TestCaseExcelData testCaseExcelData;
+        // 读取名称列，如果该列是合并单元格，则读取多行数据后合并步骤
+        if (this.isMergeRow) {
+            if (currentMergeData == null) {
+                // 如果是合并单元格的首行
+                testCaseExcelData = this.parseDataToModel(data);
+                testCaseExcelData.setMergeStepDesc(new ArrayList<>() {{
+                    add(testCaseExcelData.getStepDesc());
+                }});
+                testCaseExcelData.setMergeStepResult(new ArrayList<>() {{
+                    add(testCaseExcelData.getStepResult());
+                }});
+                // 记录下数据并返回
+                this.currentMergeData = testCaseExcelData;
+                return;
+            } else {
+                // 获取存储的数据，并添加多个步骤
+                this.currentMergeData.getMergeStepDesc()
+                        .add(data.get(getStepDescColIndex()));
+                this.currentMergeData.getMergeStepResult()
+                        .add(data.get(getStepResultColIndex()));
+                // 是最后一行的合并单元格，保存并清空 currentMergeData，走之后的逻辑
+                if (this.isMergeLastRow) {
+                    testCaseExcelData = this.currentMergeData;
+                    this.currentMergeData = null;
+                } else {
+                    return;
+                }
+            }
+        } else {
+            testCaseExcelData = this.parseDataToModel(data);
+        }
+
+        StringBuilder errMsg;
         try {
             //根据excel数据实体中的javax.validation + 正则表达式来校验excel数据
-            errMsg = ExcelValidateHelper.validateEntity(testCaseExcelData);
+            errMsg = new StringBuilder(ExcelValidateHelper.validateEntity(testCaseExcelData));
             //自定义校验规则
             if (StringUtils.isEmpty(errMsg)) {
-                errMsg = validate(testCaseExcelData, errMsg);
+                validate(testCaseExcelData, errMsg);
             }
         } catch (NoSuchFieldException e) {
-            errMsg = Translator.get("parse_data_error");
+            errMsg = new StringBuilder(Translator.get("parse_data_error"));
             LogUtil.error(e.getMessage(), e);
         }
 
         if (!StringUtils.isEmpty(errMsg)) {
-
-            //如果errMsg只有"update testcase"，说明用例待更新
-            if (!errMsg.equals(updateMsg)) {
-                ExcelErrData excelErrData = new ExcelErrData(testCaseExcelData, rowIndex,
-                        Translator.get("number") + " " + rowIndex + " " + Translator.get("row") + Translator.get("error")
-                                + "：" + errMsg);
-                errList.add(excelErrData);
-            }
+            ExcelErrData excelErrData = new ExcelErrData(testCaseExcelData, rowIndex,
+                    Translator.get("number")
+                            .concat(" ")
+                            .concat(rowIndex.toString()).concat(" ")
+                            .concat(Translator.get("row"))
+                            .concat(Translator.get("error"))
+                            .concat("：")
+                            .concat(errMsg.toString()));
+            errList.add(excelErrData);
         } else {
-            list.add(testCaseExcelData);
+            if (isCreateModel()) {
+                list.add(testCaseExcelData);
+            }
         }
-        if (list.size() > BATCH_COUNT) {
+        if (list.size() > BATCH_COUNT || updateList.size() > BATCH_COUNT) {
             saveData();
             list.clear();
+            updateList.clear();
         }
     }
 
-    public String validate(TestCaseExcelData data, String errMsg) {
-        Set<String> savedCustomIds = request.getSavedCustomIds();
-        String importType = request.getImportType();
-        StringBuilder stringBuilder = new StringBuilder(errMsg);
-        if (request.isUseCustomId() || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
-            if (data.getCustomNum() == null) {
-                stringBuilder.append(Translator.get("id_required") + ";");
-            } else {
-                String customId = data.getCustomNum();
-                if (StringUtils.isEmpty(customId)) {
-                    stringBuilder.append(Translator.get("id_required") + ";");
-                } else if (customIds.contains(customId.toLowerCase())) {
-                    stringBuilder.append(Translator.get("id_repeat_in_table") + ";");
-                } else if (StringUtils.equals(FunctionCaseImportEnum.Create.name(), importType) && savedCustomIds.contains(customId)) {
-                    stringBuilder.append(Translator.get("custom_num_is_exist") + ";");
-                } else if (StringUtils.equals(FunctionCaseImportEnum.Update.name(), importType) && !savedCustomIds.contains(customId)) {
-                    stringBuilder.append(Translator.get("custom_num_is_not_exist") + ";");
-                } else {
-                    customIds.add(customId.toLowerCase());
+    /**
+     * 处理合并单元格
+     *
+     * @param data
+     * @param rowIndex
+     */
+    private void handleMergeData(Map<Integer, String> data, Integer rowIndex) {
+        this.isMergeRow = false;
+        this.isMergeLastRow = false;
+        data.keySet().forEach(col -> {
+            Iterator<ExcelMergeInfo> iterator = mergeInfoSet.iterator();
+            while (iterator.hasNext()) {
+                ExcelMergeInfo mergeInfo = iterator.next();
+                // 如果单元格的行号在合并单元格的范围之间，并且列号相等，说明该单元格是合并单元格中的一部分
+                if (mergeInfo.getFirstRowIndex() <= rowIndex && rowIndex <= mergeInfo.getLastRowIndex()
+                        && col.equals(mergeInfo.getFirstColumnIndex())) {
+                    // 根据名称列是否是合并单元格判断是不是同一条用例
+                    if (getNameColIndex().equals(col)) {
+                        this.isMergeRow = true;
+                    }
+                    // 如果是合并单元格的第一个cell，则把这个单元格的数据存起来
+                    if (rowIndex.equals(mergeInfo.getFirstRowIndex())) {
+                        if (StringUtils.isNotBlank(data.get(col))) {
+                            mergeCellDataMap.put(mergeInfo, data.get(col));
+                        }
+                    } else {
+                        // 非第一个，获取存储的数据填充
+                        String cellData = mergeCellDataMap.get(mergeInfo);
+                        if (StringUtils.isNotBlank(cellData)) {
+                            data.put(col, cellData);
+                        }
+                        // 如果合并单元格的最后一个单元格，标记下
+                        if (rowIndex == mergeInfo.getLastRowIndex()) {
+                            // 根据名称列是否是合并单元格判断是不是同一条用例
+                            if (getNameColIndex().equals(col)) {
+                                this.isMergeLastRow = true;
+                            }
+                        }
+                    }
+                } else if (rowIndex > mergeInfo.getLastRowIndex()) {
+                    // TreeSet 按照行号排序了
+                    // 清除掉上一次已经遍历完成的数据，提高查询效率
+                    iterator.remove();
                 }
             }
-        }
+        });
+    }
 
-        String nodePath = data.getNodePath();
-        //校验”所属模块"
-        if (nodePath != null) {
-            String[] nodes = nodePath.split("/");
-            //校验模块深度
-            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-                stringBuilder.append(Translator.get("test_case_node_level_tip") +
-                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level") + "; ");
+    public void validate(TestCaseExcelData data, StringBuilder errMsg) {
+
+        validateCustomNum(data, errMsg);
+
+        validateModule(data, errMsg);
+
+        validateCustomField(data, errMsg);
+
+        validateIdExist(data, errMsg);
+
+        validateDbExist(data, errMsg);
+    }
+
+    private void validateDbExist(TestCaseExcelData data, StringBuilder stringBuilder) {
+        if (request.getTestCaseNames().contains(data.getName())) {
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            BeanUtils.copyBean(testCase, data);
+            testCase.setProjectId(request.getProjectId());
+            String steps = getSteps(data);
+            testCase.setSteps(steps);
+            testCase.setType(TestCaseConstants.Type.Functional.getValue());
+
+            boolean dbExist = testCaseService.exist(testCase);
+            boolean excelExist = false;
+
+            if (dbExist) {
+                // db exist
+                stringBuilder.append(
+                        Translator.get("test_case_already_exists")
+                                .concat("：")
+                                .concat(data.getName())
+                                .concat(ERROR_MSG_SEPARATOR));
+            } else {
+                // @Data 重写了 equals 和 hashCode 方法
+                excelExist = excelDataList.contains(data);
             }
-            //模块名不能为空
-            for (int i = 0; i < nodes.length; i++) {
-                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
-                    stringBuilder.append(Translator.get("module_not_null") + "; ");
-                    break;
+
+            if (excelExist) {
+                // excel exist
+                stringBuilder.append(
+                        Translator.get("test_case_already_exists_excel")
+                                .concat("：")
+                                .concat(data.getName())
+                                .concat(ERROR_MSG_SEPARATOR));
+            } else {
+                if (!dbExist) {
+                    excelDataList.add(data);
                 }
             }
-            //增加字数校验，每一层不能超过100字
-            for (int i = 0; i < nodes.length; i++) {
-                String nodeStr = nodes[i];
-                if (StringUtils.isNotEmpty(nodeStr)) {
-                    if (nodeStr.trim().length() > 100) {
-                        stringBuilder.append(Translator.get("module") + Translator.get("test_track.length_less_than") + "100:" + nodeStr);
-                        break;
+
+        } else {
+            request.getTestCaseNames().add(data.getName());
+            excelDataList.add(data);
+        }
+    }
+
+    /**
+     * 校验Excel中是否有ID
+     * 有的话校验ID是否已在当前项目中存在，存在则更新用例，
+     * 不存在则继续校验看是否重复，不重复则新建用例
+     *
+     * @param data
+     * @param stringBuilder
+     */
+    @Nullable
+    private void validateIdExist(TestCaseExcelData data, StringBuilder stringBuilder) {
+
+        //当前读取的数据有ID
+        if (null != data.getCustomNum()) {
+            if (isUpdateModel()) {
+                String checkResult = null;
+                if (request.isUseCustomId()) {
+                    checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), request.getProjectId());
+                } else {
+                    int customNumId = -1;
+                    try {
+                        customNumId = Integer.parseInt(data.getCustomNum());
+                    } catch (Exception e) {
+                        LogUtil.error(e);
+                    }
+                    if (customNumId < 0) {
+                        stringBuilder.append(Translator.get("id_not_rightful"))
+                                .append("[")
+                                .append(data.getCustomNum())
+                                .append("]; ");
+                    } else {
+                        checkResult = testCaseService.checkIdExist(customNumId, request.getProjectId());
                     }
                 }
+                //该ID在当前项目中存在
+                if (null != checkResult) {
+                    //如果前面所经过的校验都没报错
+                    if (StringUtils.isEmpty(stringBuilder)) {
+                        data.setId(checkResult);
+                        //将当前数据存入更新列表
+                        updateList.add(data);
+                    }
+                } else {
+                    // 该ID在当前数据库中不存在，应当继续校验用例是否重复,
+                    // 在下面的校验过程中，num的值会被用于判断是否重复，所以应当先设置为null
+                    data.setNum(null);
+                }
             }
         }
+    }
 
+    private boolean isUpdateModel() {
+        return StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Update.name());
+    }
+
+    private boolean isCreateModel() {
+        return StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Create.name());
+    }
+
+    private void validateCustomField(TestCaseExcelData data, StringBuilder stringBuilder) {
         //校验自定义必填字段
         for (Map.Entry<String, CustomFieldDao> customEntry : customFieldsMap.entrySet()) {
             String customName = customEntry.getKey();
             CustomFieldDao field = customEntry.getValue();
 
             if (field.getRequired()) {
-                String value = null;
+                String value;
                 if (StringUtils.equals(customName, "status")) {
                     Map<String, String> valueMap = new HashMap<>() {{
                         put("Prepare", Translator.get("test_case_status_prepare"));
@@ -221,11 +399,14 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 } else if (StringUtils.equals(customName, "maintainer")) {
                     value = data.getMaintainer();
                     //校验维护人
-                    if (StringUtils.isBlank(data.getMaintainer())) {
+                    if (StringUtils.isBlank(value)) {
                         data.setMaintainer(SessionUtils.getUserId());
                     } else {
-                        if (!request.getUserIds().contains(data.getMaintainer())) {
-                            stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
+                        if (!request.getUserIds().contains(value)) {
+                            stringBuilder.append(Translator.get("user_not_exists"))
+                                    .append( "：")
+                                    .append(value)
+                                    .append(ERROR_MSG_SEPARATOR);
                         }
                     }
                     continue;
@@ -233,93 +414,80 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     value = data.getCustomDatas().get(customName);
                 }
                 if (StringUtils.isEmpty(value)) {
-                    stringBuilder.append(field.getName() + " " + Translator.get("required") + "; ");
+                    stringBuilder.append(field.getName())
+                            .append(" ")
+                            .append(Translator.get("required"))
+                            .append(ERROR_MSG_SEPARATOR);
                 }
             }
         }
+    }
 
-        /*
-        校验Excel中是否有ID
-            有的话校验ID是否已在当前项目中存在，存在则更新用例，
-            不存在则继续校验看是否重复，不重复则新建用例。
-         */
-        if (null != data.getCustomNum()) {  //当前读取的数据有ID
-
-            if (StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Update.name())) {
-                String checkResult = null;
-                if (request.isUseCustomId()) {
-                    checkResult = testCaseService.checkCustomIdExist(data.getCustomNum(), request.getProjectId());
-                } else {
-                    int customNumId = -1;
-                    try {
-                        customNumId = Integer.parseInt(data.getCustomNum());
-                    } catch (Exception e) {
-                    }
-                    if (customNumId < 0) {
-                        stringBuilder.append(Translator.get("id_not_rightful") + "[" + data.getCustomNum() + "]; ");
-                    } else {
-                        checkResult = testCaseService.checkIdExist(customNumId, request.getProjectId());
-                    }
-                }
-                if (null != checkResult) {  //该ID在当前项目中存在
-                    //如果前面所经过的校验都没报错
-                    if (StringUtils.isEmpty(stringBuilder)) {
-                        data.setId(checkResult);
-                        updateList.add(data);   //将当前数据存入更新列表
-                        stringBuilder.append("update_testcase");   //该信息用于在invoke方法中判断是否该更新用例
-                    }
-                    return stringBuilder.toString();
-                } else {
-                /*
-                该ID在当前数据库中不存在，应当继续校验用例是否重复,
-                在下面的校验过程中，num的值会被用于判断是否重复，所以应当先设置为null
-                 */
-                    data.setNum(null);
+    private void validateModule(TestCaseExcelData data, StringBuilder stringBuilder) {
+        String nodePath = data.getNodePath();
+        //校验”所属模块"
+        if (nodePath != null) {
+            String[] nodes = nodePath.split("/");
+            //校验模块深度
+            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                stringBuilder.append(Translator.get("test_case_node_level_tip"))
+                        .append(TestCaseConstants.MAX_NODE_DEPTH)
+                        .append(Translator.get("test_case_node_level"))
+                        .append("; ");
+            }
+            //模块名不能为空
+            for (int i = 0; i < nodes.length; i++) {
+                if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    stringBuilder.append(Translator.get("module_not_null"))
+                            .append(ERROR_MSG_SEPARATOR);
+                    break;
                 }
             }
-
+            //增加字数校验，每一层不能超过100字
+            for (int i = 0; i < nodes.length; i++) {
+                String nodeStr = nodes[i];
+                if (StringUtils.isNotEmpty(nodeStr)) {
+                    if (nodeStr.trim().length() > 100) {
+                        stringBuilder.append(Translator.get("module"))
+                                .append(Translator.get("test_track.length_less_than"))
+                                .append("100:")
+                                .append(nodeStr);
+                        break;
+                    }
+                }
+            }
         }
+    }
 
-        /*
-        校验用例
-         */
-        if (request.getTestCaseNames().contains(data.getName())) {
-            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-            BeanUtils.copyBean(testCase, data);
-            testCase.setProjectId(request.getProjectId());
-            String steps = getSteps(data);
-            testCase.setSteps(steps);
-            testCase.setType("functional");
-
-            boolean dbExist = testCaseService.exist(testCase);
-            boolean excelExist = false;
-
-            if (dbExist) {
-                // db exist
-                stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
+    private void validateCustomNum(TestCaseExcelData data, StringBuilder stringBuilder) {
+        if (request.isUseCustomId() || isUpdateModel()) {
+            if (data.getCustomNum() == null) {
+                stringBuilder.append(Translator.get("id_required"))
+                        .append(ERROR_MSG_SEPARATOR);
             } else {
-                // @Data 重写了 equals 和 hashCode 方法
-                excelExist = excelDataList.contains(data);
-            }
-
-            if (excelExist) {
-                // excel exist
-                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
-            } else {
-                if (!dbExist) {
-                    excelDataList.add(data);
+                String customId = data.getCustomNum();
+                if (StringUtils.isEmpty(customId)) {
+                    stringBuilder.append(Translator.get("id_required"))
+                            .append(ERROR_MSG_SEPARATOR);
+                } else if (customIds.contains(customId.toLowerCase())) {
+                    stringBuilder.append(Translator.get("id_repeat_in_table"))
+                            .append(ERROR_MSG_SEPARATOR);
+                } else if (isCreateModel() && request.getSavedCustomIds().contains(customId)) {
+                    stringBuilder.append(Translator.get("custom_num_is_exist"))
+                            .append(ERROR_MSG_SEPARATOR);
+                } else if (isUpdateModel() && !request.getSavedCustomIds().contains(customId)) {
+                    stringBuilder.append(Translator.get("custom_num_is_not_exist"))
+                            .append(ERROR_MSG_SEPARATOR);
+                } else {
+                    customIds.add(customId.toLowerCase());
                 }
             }
-
-        } else {
-            request.getTestCaseNames().add(data.getName());
-            excelDataList.add(data);
         }
-        return stringBuilder.toString();
     }
 
     /**
      * 根据自定义字段的选项值获取对应的选项id
+     *
      * @param name
      * @param text
      * @param optionsStr
@@ -394,33 +562,22 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     }
 
-    /**
-     * 检验导入功能用例的状态
-     *
-     * @param status
-     * @return
-     */
-    private boolean checkCaseStatus(String status) {
-        if (StringUtils.equalsAnyIgnoreCase(status, "Underway", "进行中", "進行中")) {
-            return true;
-        } else if (StringUtils.equalsAnyIgnoreCase(status, "Prepare", "未开始", "未開始")) {
-            return true;
-        } else if (StringUtils.equalsAnyIgnoreCase(status, "Completed", "已完成", "已完成")) {
-            return true;
-        }
-        return false;
-    }
-
     private TestCaseWithBLOBs convert2TestCase(TestCaseExcelData data) {
-        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-        BeanUtils.copyBean(testCase, data);
+        TestCaseWithBLOBs testCase = parseData(data);
         testCase.setId(UUID.randomUUID().toString());
-        testCase.setProjectId(request.getProjectId());
         testCase.setCreateTime(System.currentTimeMillis());
-        testCase.setUpdateTime(System.currentTimeMillis());
         if (request.isUseCustomId()) {
             testCase.setCustomNum(data.getCustomNum());
         }
+        return testCase;
+    }
+
+    @NotNull
+    private TestCaseWithBLOBs parseData(TestCaseExcelData data) {
+        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+        BeanUtils.copyBean(testCase, data);
+        testCase.setProjectId(request.getProjectId());
+        testCase.setUpdateTime(System.currentTimeMillis());
 
         String nodePath = data.getNodePath();
 
@@ -435,21 +592,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         //将标签设置为前端可解析的格式
         String modifiedTags = modifyTagPattern(data);
         testCase.setTags(modifiedTags);
-        testCase.setType("functional");
-
-        String caseStatusValue = "";
-        if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway", "进行中", "進行中")) {
-            caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare", "未开始", "未開始")) {
-            caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed", "已完成", "已完成")) {
-            caseStatusValue = "Completed";
-        }
-        data.setStatus(caseStatusValue);
+        testCase.setType(TestCaseConstants.Type.Functional.getValue());
+        data.setStatus(data.getStatus());
 
         // todo 这里要获取模板的自定义字段再新建关联关系
-//        String customFieldsJson = this.getCustomFieldsJson(data);
-//        testCase.setCustomFields(customFieldsJson);
         if (StringUtils.isNotBlank(data.getMaintainer())) {
             testCase.setMaintainer(data.getMaintainer());
         }
@@ -472,51 +618,12 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
      * @return
      */
     private TestCaseWithBLOBs convert2TestCaseForUpdate(TestCaseExcelData data) {
-        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-        BeanUtils.copyBean(testCase, data);
-        testCase.setProjectId(request.getProjectId());
+        TestCaseWithBLOBs testCase = parseData(data);
         testCase.setUpdateTime(System.currentTimeMillis());
-
-        //调整nodePath格式
-        String nodePath = data.getNodePath();
-        if (!nodePath.startsWith("/")) {
-            nodePath = "/" + nodePath;
-        }
-        if (nodePath.endsWith("/")) {
-            nodePath = nodePath.substring(0, nodePath.length() - 1);
-        }
-        testCase.setNodePath(nodePath);
-
-        String steps = getSteps(data);
-        testCase.setSteps(steps);
-
-        JSONArray customArr = new JSONArray();
-        String caseStatusValue = "";
-        if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Underway", "进行中", "進行中")) {
-            caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Prepare", "未开始", "未開始")) {
-            caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAnyIgnoreCase(data.getStatus(), "Completed", "已完成", "已完成")) {
-            caseStatusValue = "Completed";
-        }
-        data.setStatus(caseStatusValue);
-
-        // todo
-//        String customFieldsJson = this.getCustomFieldsJson(data);
-//        testCase.setCustomFields(customFieldsJson);
-        if (StringUtils.isNotBlank(data.getMaintainer())) {
-            testCase.setMaintainer(data.getMaintainer());
-        }
-
-        //将标签设置为前端可解析的格式
-        String modifiedTags = modifyTagPattern(data);
-        testCase.setTags(modifiedTags);
-
         if (!request.isUseCustomId()) {
             testCase.setNum(Integer.parseInt(data.getCustomNum()));
             testCase.setCustomNum(null);
         }
-
         return testCase;
     }
 
@@ -549,9 +656,21 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     public String getSteps(TestCaseExcelData data) {
         JSONArray jsonArray = new JSONArray();
 
+        // 如果是合并单元格，则组合多条单元格的数据
+        if (CollectionUtils.isNotEmpty(data.getMergeStepDesc())
+                || CollectionUtils.isNotEmpty(data.getMergeStepResult())) {
+            for (int i = 0; i < data.getMergeStepDesc().size(); i++) {
+                JSONObject step = new JSONObject(true);
+                step.put("num", i + 1);
+                step.put("desc", Optional.ofNullable(data.getMergeStepDesc().get(i)).orElse(""));
+                step.put("result", Optional.ofNullable(data.getMergeStepResult().get(i)).orElse(""));
+                jsonArray.add(step);
+            }
+            return jsonArray.toJSONString();
+        }
+
         List<String> stepDescList = new ArrayList<>();
         List<String> stepResList = new ArrayList<>();
-        ListUtils<String> listUtils = new ListUtils<>();
 
         Set<Integer> rowNums = new HashSet<>();
         if (data.getStepDesc() != null) {
@@ -643,6 +762,27 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         return rowInfo;
     }
 
+    private Integer getNameColIndex() {
+        return findColIndex("name");
+    }
+
+    private Integer getStepResultColIndex() {
+        return findColIndex("stepResult");
+    }
+
+    private Integer getStepDescColIndex() {
+        return findColIndex("stepDesc");
+    }
+
+    private Integer findColIndex(String colName) {
+        for (Integer key : headMap.keySet()) {
+            if (StringUtils.equals(headMap.get(key), colName)) {
+                return key;
+            }
+        }
+        return null;
+    }
+
     private TestCaseExcelData parseDataToModel(Map<Integer, String> row) {
         TestCaseExcelData data = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
         for (Map.Entry<Integer, String> headEntry : headMap.entrySet()) {
@@ -712,64 +852,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
     }
 
-    private String getCustomFieldsJson(TestCaseExcelData data) {
-        JSONArray customArr = new JSONArray();
-        for (Map.Entry<String, CustomFieldDao> customEntry : customFieldsMap.entrySet()) {
-            String customName = customEntry.getKey();
-            CustomFieldDao field = customEntry.getValue();
-
-            String value = null;
-            if (StringUtils.equals(customName, "status")) {
-                value = data.getStatus();
-            } else if (StringUtils.equals(customName, "priority")) {
-                value = data.getPriority();
-            } else if (StringUtils.equals(customName, "maintainer")) {
-                value = data.getMaintainer();
-            } else {
-                value = data.getCustomDatas().get(customName);
-            }
-            if (StringUtils.isEmpty(value)) {
-                value = "";
-            }
-            if (field.getType().equalsIgnoreCase("multipleSelect")) {
-                value = modifyMultipleSelectPattern(value);
-            }
-            JSONObject statusObj = new JSONObject();
-            statusObj.put("id", UUID.randomUUID().toString());
-            statusObj.put("name", field.getName());
-            statusObj.put("value", value);
-            statusObj.put("customData", null);
-            statusObj.put("type", field.getType());
-            customArr.add(statusObj);
-        }
-        return customArr.toJSONString();
-    }
-
-    /**
-     * 调整自定义多选下拉框格式，便于前端进行解析。
-     * 例如对于：下拉值1，下拉值2。将调整为:["下拉值1","下拉值2"]。
-     */
-    public String modifyMultipleSelectPattern(String values) {
-        try {
-            if (StringUtils.isNotBlank(values)) {
-                JSONArray array = JSONArray.parseArray(values);
-                return array.toJSONString();
-            }
-            return "[]";
-        } catch (Exception e) {
-            if (values != null) {
-                Stream<String> stringStream = Arrays.stream(values.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
-                List<String> valueList = stringStream.map(multip -> multip = "\"" + multip + "\"")
-                        .collect(Collectors.toList());
-                String modifiedValues = StringUtils.join(valueList, ",");
-                modifiedValues = "[" + modifiedValues + "]";
-                return modifiedValues;
-            } else {
-                return "[]";
-            }
-        }
-    }
-
     /**
      * @description: 获取注解里ExcelProperty的value
      */
@@ -800,14 +882,5 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     class RowInfo {
         public int index;
         public String rowInfo;
-    }
-
-    public static boolean isNumericzidai(String str) {
-        Pattern pattern = Pattern.compile("-?[0-9]+(\\.[0-9]+)?");
-        Matcher isNum = pattern.matcher(str);
-        if (!isNum.matches()) {
-            return false;
-        }
-        return true;
     }
 }
