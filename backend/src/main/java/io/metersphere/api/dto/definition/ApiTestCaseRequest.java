@@ -40,12 +40,17 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
     /**
      * 是否进入待更新列表
      */
-    private Boolean toBeUpdated;
+    private boolean toBeUpdated;
 
     /**
      * 当前时间减去进入待更新的时间
      */
     private Long toBeUpdateTime;
+
+    /**
+     * 进入待更新列表用例状态集合
+     */
+    private List<String> statusList;
     /**
      * 是否需要查询环境字段
      */

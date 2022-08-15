@@ -120,9 +120,13 @@ public class ApiTestCaseService {
     private ProjectApplicationMapper projectApplicationMapper;
     @Resource
     private ApiCaseBatchSyncService apiCaseSyncService;
+    @Resource
+    private ApiTestCaseSyncService apiTestCaseSyncService;
 
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
+
+    private static final String DEFAULT_TIME_DATE = "-3D";
 
     //查询测试用例详情
     public ApiTestCaseWithBLOBs getInfoJenkins(String id) {
@@ -162,20 +166,26 @@ public class ApiTestCaseService {
         example.createCriteria().andTypeEqualTo(ProjectApplicationType.OPEN_UPDATE_TIME.name())
                 .andProjectIdEqualTo(projectId);
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
-        if (projectApplications == null || projectApplications.size() == 0) {
-            return null;
+        if (CollectionUtils.isEmpty(projectApplications)) {
+            return getTimeMills(System.currentTimeMillis(), DEFAULT_TIME_DATE);
         }
+        example = new ProjectApplicationExample();
+        example.createCriteria().andTypeEqualTo(ProjectApplicationType.TRIGGER_UPDATE.name())
+                .andProjectIdEqualTo(projectId);
+        List<ProjectApplication> projectApplicationRules = projectApplicationMapper.selectByExample(example);
         ProjectApplication projectApplication = projectApplications.get(0);
         String typeValue = projectApplication.getTypeValue();
-        if (typeValue.equals("false")) {
+        if (CollectionUtils.isEmpty(projectApplicationRules) && StringUtils.equals(typeValue, "false")) {
+            return getTimeMills(System.currentTimeMillis(), DEFAULT_TIME_DATE);
+        } else if (StringUtils.equals(typeValue, "false")) {
             return null;
         }
         example = new ProjectApplicationExample();
         example.createCriteria().andTypeEqualTo(ProjectApplicationType.OPEN_UPDATE_RULE_TIME.name())
                 .andProjectIdEqualTo(projectId);
         List<ProjectApplication> projectApplicationTimes = projectApplicationMapper.selectByExample(example);
-        if (projectApplicationTimes == null || projectApplicationTimes.size() == 0) {
-            return null;
+        if (CollectionUtils.isEmpty(projectApplications)) {
+            return getTimeMills(System.currentTimeMillis(), DEFAULT_TIME_DATE);
         }
         ProjectApplication projectApplicationTime = projectApplicationTimes.get(0);
         String time = projectApplicationTime.getTypeValue();
@@ -452,6 +462,7 @@ public class ApiTestCaseService {
             } else {
                 test.setTags(request.getTags());
             }
+            apiTestCaseSyncService.setCaseUpdateValue(test);
             apiTestCaseMapper.updateByPrimaryKeySelective(test);
             saveFollows(test.getId(), request.getFollows());
         }
@@ -1271,5 +1282,21 @@ public class ApiTestCaseService {
 
     public List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId) {
         return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId);
+    }
+
+    public void initRequestBySearch(ApiTestCaseRequest request) {
+        if (!request.isToBeUpdated() || StringUtils.isBlank(request.getProjectId())) {
+            return;
+        }
+        
+        Long toBeUpdatedTime = this.getToBeUpdatedTime(request.getProjectId());
+        if (toBeUpdatedTime != null) {
+            request.setToBeUpdateTime(toBeUpdatedTime);
+        }
+        List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
+        if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
+            syncRuleCaseStatus = new ArrayList<>();
+        }
+        request.setStatusList(syncRuleCaseStatus);
     }
 }
