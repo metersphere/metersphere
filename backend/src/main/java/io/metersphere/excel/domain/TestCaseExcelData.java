@@ -47,6 +47,11 @@ public class TestCaseExcelData {
     @ExcelIgnore
     Map<String, String> customDatas = new LinkedHashMap<>();
 
+    @ExcelIgnore
+    List<String> mergeStepDesc;
+    @ExcelIgnore
+    List<String> mergeStepResult;
+
     public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields) {
         return new ArrayList<>();
     }
