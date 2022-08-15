@@ -215,7 +215,6 @@ public class TestCaseService {
             request.setCustomNum(request.getNum().toString());
         }
         request.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-        request.setStatus(TestCaseReviewStatus.Prepare.name());
         request.setDemandId(request.getDemandId());
         request.setDemandName(request.getDemandName());
         request.setCreateUser(SessionUtils.getUserId());
