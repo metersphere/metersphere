@@ -2,8 +2,11 @@ package io.metersphere.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.excel.constants.TestCaseImportFiled;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -47,7 +50,45 @@ public class TestCaseExcelData {
     @ExcelIgnore
     Map<String, String> customDatas = new LinkedHashMap<>();
 
+    @ExcelIgnore
+    List<String> mergeStepDesc;
+    @ExcelIgnore
+    List<String> mergeStepResult;
+
     public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields) {
         return new ArrayList<>();
+    }
+
+    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields, Locale lang) {
+        List<List<String>> heads = new ArrayList<>();
+        TestCaseImportFiled[] fields = TestCaseImportFiled.values();
+        for (TestCaseImportFiled field : fields) {
+            heads.add(Arrays.asList(field.getFiledLangMap().get(lang)));
+        }
+
+        Iterator<List<String>> iterator = heads.iterator();
+
+        while (iterator.hasNext()) {
+            List<String> head = iterator.next();
+            if (StringUtils.equals(head.get(0), TestCaseImportFiled.ID.getFiledLangMap().get(lang)) && !needNum) {
+                iterator.remove();
+                break;
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            for (CustomFieldDao dto : customFields) {
+                if (StringUtils.equalsAny(dto.getName(),
+                        TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE),
+                        TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE),
+                        TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE).concat("(ID)"))) {
+                    continue;
+                }
+                heads.add(new ArrayList<>() {{
+                    add(dto.getName());
+                }});
+            }
+        }
+        return heads;
     }
 }
