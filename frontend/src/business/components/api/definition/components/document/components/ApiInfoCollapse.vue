@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row class="apiInfoRow">
-      <div class="blackFontClass">
+      <div>
         <el-row>
           <div class="tip" style="float: left">
             <span>{{ title }}</span>
@@ -30,18 +30,30 @@
                   <br/>
                 </div>
               </div>
-              <div v-else-if="getJsonArr(stringData).length===0">
+              <div v-else-if="tableData.length===0">
                 <div class="simpleFontClass" style="margin-top: 10px">
                   {{ $t('api_test.definition.document.data_set.none') }}
                 </div>
               </div>
               <div v-else>
-                <el-table border :show-header="true"
-                          :data="getJsonArr(stringData)" class="test-content document-table">
+                <el-table border :show-header="true" row-key="id"
+                          :data="tableData" :class="getTableClass()" ref="expandTable">
                   <el-table-column v-for="item in tableColoumArr" :key="item.id"
                                    :prop="item.prop"
                                    :label="item.label"
-                                   show-overflow-tooltip/>
+                                   show-overflow-tooltip>
+                  </el-table-column>
+                  <el-table-column type="expand" v-if="tableCanExpand" :label="getCollapseOption()"
+                                   width="80px">
+                    <template slot="header">
+                      <el-button type="text" size="mini" @click="expandAllRows">
+                        {{ expandAllRow ? $t("commons.close_all") : $t("commons.expand_all") }}
+                      </el-button>
+                    </template>
+                    <template v-slot:default="scope">
+                      <table-advanced-setting :table-data="scope.row"></table-advanced-setting>
+                    </template>
+                  </el-table-column>
                 </el-table>
               </div>
             </div>
@@ -56,12 +68,20 @@
 
 <script>
 
+import {getCurrentUser, getUUID} from "@/common/js/utils";
+import tableAdvancedSetting
+  from "@/business/components/api/definition/components/document/components/plugin/TableAdvancedSetting";
+
 export default {
   name: "ApiInfoCollapse",
-  components: {},
+  components: {tableAdvancedSetting},
   data() {
     return {
       active: true,
+      expandAllRow: false,
+      language: "zh_CN",
+      tableData: [],
+      expandTitle: this.$t("commons.expand_all"),
       tableColoumArr: [
         {id: 1, prop: "name", label: this.$t('api_test.definition.document.table_coloum.name')},
         {id: 2, prop: "isRequired", label: this.$t('api_test.definition.document.table_coloum.is_required')},
@@ -76,7 +96,13 @@ export default {
     remarks: String,
     isRequest: Boolean,
     isResponse: Boolean,
-    isText:Boolean,
+    tableCanExpand: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    },
+    isText: Boolean,
     stringData: {
       type: String,
       default() {
@@ -87,6 +113,11 @@ export default {
   activated() {
   },
   created: function () {
+    //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
+    let user = getCurrentUser();
+    if (user) {
+      this.language = user.language;
+    }
   },
   mounted() {
   },
@@ -95,25 +126,67 @@ export default {
       return this.isRequest || this.isResponse;
     }
   },
-  watch: {},
+  watch: {
+    stringData() {
+      this.tableData = this.getJsonArr(this.stringData);
+    },
+    expandAllRow() {
+      if (this.$refs.expandTable) {
+        let expand = this.expandAllRow;
+        if (this.tableData) {
+          this.$nextTick(() => {
+            this.tableData.forEach(i => {
+              this.$refs.expandTable.toggleRowExpansion(i, expand)
+            });
+            this.$refs.expandTable.doLayout();
+          })
+        }
+      }
+      this.expandTitle = this.expandAllRow ? this.$t("commons.close_all") : this.$t("commons.expand_all");
+    }
+  },
   methods: {
+    getTableClass() {
+      if (this.language === "zh_TW") {
+        return "test-content document-table tw-table";
+      } else if (this.language === "en_US") {
+        return "test-content document-table us-table";
+      } else {
+        return "test-content document-table cn-table";
+      }
+    },
+    getCollapseOption() {
+      if (this.expandAllRow) {
+        return this.$t('api_test.definition.document.close');
+      } else {
+        return this.$t('api_test.definition.document.open');
+      }
+    },
+    expandAllRows() {
+      this.expandAllRow = !this.expandAllRow;
+    },
     getJsonArr(jsonString) {
       let returnJsonArr = [];
       if (jsonString === '无' || jsonString === null) {
         return returnJsonArr;
       }
-      let jsonArr = JSON.parse(jsonString);
-      //遍历，把必填项空的数据去掉
-      for (var index = 0; index < jsonArr.length; index++) {
-        var item = jsonArr[index];
-        if (item.name !== "" && item.name !== null) {
-          if (item.required) {
-            item.isRequired = "true";
-          } else {
-            item.isRequired = "false";
+      try {
+        let jsonArr = JSON.parse(jsonString);
+        //遍历，把必填项空的数据去掉
+        for (var index = 0; index < jsonArr.length; index++) {
+          var item = jsonArr[index];
+          if (item.name !== "" && item.name !== null) {
+            if (item.required) {
+              item.isRequired = "true";
+            } else {
+              item.isRequired = "false";
+            }
+            item.id = getUUID();
+            returnJsonArr.push(item);
           }
-          returnJsonArr.push(item);
         }
+      } catch (e) {
+        returnJsonArr = [];
       }
       return returnJsonArr;
     },
@@ -164,9 +237,59 @@ export default {
   border-right: 0px solid #EBEEF5
 }
 
+/*修改展开按钮时不旋转*/
+.document-table /deep/ .el-table__expand-icon {
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+
+.document-table /deep/ .el-table__expanded-cell {
+  padding: 5px;
+}
+
+.document-table /deep/ .el-icon-arrow-right {
+  position: unset;
+}
+
 .document-table /deep/ th {
   background-color: #FAFAFA;
   border-right: 0px solid #EBEEF5
+}
+
+/*展开按钮未点击的样式是加号带边框*/
+.cn-table /deep/ .el-table__expand-icon .el-icon-arrow-right:before {
+  position: unset;
+  content: "展开";
+  padding: 2px;
+}
+
+/*展开按钮点击后的样式是减号带边框*/
+.cn-table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+  position: unset;
+  content: "收起";
+}
+
+.tw-table /deep/ .el-table__expand-icon .el-icon-arrow-right:before {
+  position: unset;
+  content: "展開";
+  padding: 2px;
+}
+
+.tw-table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+  position: unset;
+  content: "收起";
+}
+
+.us-table /deep/ .el-table__expand-icon .el-icon-arrow-right:before {
+  position: unset;
+  content: "Open";
+  padding: 2px;
+}
+
+.us-table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+  position: unset;
+  content: "Close";
+  padding: 2px;
 }
 
 .right-button {
