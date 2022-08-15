@@ -16,7 +16,7 @@
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
       highlight-current
-      :draggable="!disabled"
+      :draggable="!disabled&&!hideOpretor"
       ref="tree">
 
       <template v-slot:default="{node,data}">
