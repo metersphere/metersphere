@@ -462,8 +462,7 @@ export default {
       this.startSaveData(params)
       this.disabledRuleBtn = !this.disabledRuleBtn;
     },
-    setSyncTime() {
-      let configs = [];
+    buildSyncTime(configs) {
       if (this.config.openUpdateTime) {
         if (!this.pastQuantity) {
           this.$message.error("请选择时间");
@@ -483,8 +482,13 @@ export default {
         });
       }
       configs.push({projectId: this.projectId, typeValue: this.config.openUpdateTime, type: 'OPEN_UPDATE_TIME'});
+      return configs;
+    },
+    setSyncTime() {
+      let configs = [];
+      this.buildSyncTime(configs);
       let params = {configs};
-      this.startSaveData(params)
+      this.startSaveData(params);
     },
     saveSync() {
       let configs = [];
@@ -493,9 +497,10 @@ export default {
         typeValue: JSON.stringify(this.apiSyncCaseRequest),
         type: 'TRIGGER_UPDATE'
       });
+      this.buildSyncTime(configs);
       let params = {configs};
-      this.startSaveData(params)
-      this.showRuleSetting = false
+      this.startSaveData(params);
+      this.showRuleSetting = false;
     }
   }
 };
