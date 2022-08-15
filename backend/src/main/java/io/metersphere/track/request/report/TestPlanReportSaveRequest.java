@@ -21,14 +21,15 @@ public class TestPlanReportSaveRequest {
     private boolean countResources;
     private boolean apiCaseIsExecuting;
     private boolean scenarioIsExecuting;
+    private boolean uiScenarioIsExecuting;
     private boolean performanceIsExecuting;
 
 //    private String apiCaseIdListJSON;
 //    private String scenarioIdListJSON;
 //    private String performanceIdListJSON;
-    Map<String,String> apiCaseIdMap;
-    Map<String,String> scenarioIdMap;
-    Map<String,String> performanceIdMap;
+    Map<String, String> apiCaseIdMap;
+    Map<String, String> scenarioIdMap;
+    Map<String, String> performanceIdMap;
 
     public TestPlanReportSaveRequest(String reportID, String planId, String userId, String triggerMode) {
         this.reportID = reportID;
@@ -39,8 +40,8 @@ public class TestPlanReportSaveRequest {
         this.countResources = true;
     }
 
-    public TestPlanReportSaveRequest(String reportID, String planId, String userId, String triggerMode, boolean apiCaseIsExecuting, boolean scenarioIsExecuting, boolean performanceIsExecuting,
-                                     Map<String,String> apiCaseIdMap, Map<String,String> scenarioIdMap, Map<String,String> performanceIdMap) {
+    public TestPlanReportSaveRequest(String reportID, String planId, String userId, String triggerMode, boolean apiCaseIsExecuting, boolean scenarioIsExecuting, boolean performanceIsExecuting, boolean uiScenarioIsExecuting,
+                                     Map<String, String> apiCaseIdMap, Map<String, String> scenarioIdMap, Map<String, String> performanceIdMap) {
         this.reportID = reportID;
         this.planId = planId;
         this.userId = userId;
@@ -51,6 +52,7 @@ public class TestPlanReportSaveRequest {
         this.apiCaseIsExecuting = apiCaseIsExecuting;
         this.scenarioIsExecuting = scenarioIsExecuting;
         this.performanceIsExecuting = performanceIsExecuting;
+        this.uiScenarioIsExecuting = uiScenarioIsExecuting;
 
         this.apiCaseIdMap = apiCaseIdMap;
         this.scenarioIdMap = scenarioIdMap;
