@@ -18,6 +18,7 @@
     <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="components" jdbcType="VARCHAR" property="components" />
     <result column="is_new" jdbcType="BIT" property="isNew" />
+    <result column="is_ui_scenario_executing" jdbcType="BIT" property="isUiScenarioExecuting" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanReport">
     <result column="run_info" jdbcType="LONGVARCHAR" property="runInfo" />
@@ -83,7 +84,7 @@
   <sql id="Base_Column_List">
     id, test_plan_id, create_time, update_time, `name`, `status`, trigger_mode, creator, 
     start_time, end_time, is_api_case_executing, is_scenario_executing, is_performance_executing, 
-    principal, components, is_new
+    principal, components, is_new, is_ui_scenario_executing
   </sql>
   <sql id="Blob_Column_List">
     run_info
@@ -142,13 +143,15 @@
       trigger_mode, creator, start_time, 
       end_time, is_api_case_executing, is_scenario_executing, 
       is_performance_executing, principal, components, 
-      is_new, run_info)
+      is_new, is_ui_scenario_executing, run_info
+      )
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{triggerMode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{isApiCaseExecuting,jdbcType=BIT}, #{isScenarioExecuting,jdbcType=BIT}, 
       #{isPerformanceExecuting,jdbcType=BIT}, #{principal,jdbcType=VARCHAR}, #{components,jdbcType=VARCHAR}, 
-      #{isNew,jdbcType=BIT}, #{runInfo,jdbcType=LONGVARCHAR})
+      #{isNew,jdbcType=BIT}, #{isUiScenarioExecuting,jdbcType=BIT}, #{runInfo,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReport">
     insert into test_plan_report
@@ -200,6 +203,9 @@
       </if>
       <if test="isNew != null">
         is_new,
+      </if>
+      <if test="isUiScenarioExecuting != null">
+        is_ui_scenario_executing,
       </if>
       <if test="runInfo != null">
         run_info,
@@ -253,6 +259,9 @@
       </if>
       <if test="isNew != null">
         #{isNew,jdbcType=BIT},
+      </if>
+      <if test="isUiScenarioExecuting != null">
+        #{isUiScenarioExecuting,jdbcType=BIT},
       </if>
       <if test="runInfo != null">
         #{runInfo,jdbcType=LONGVARCHAR},
@@ -316,6 +325,9 @@
       <if test="record.isNew != null">
         is_new = #{record.isNew,jdbcType=BIT},
       </if>
+      <if test="record.isUiScenarioExecuting != null">
+        is_ui_scenario_executing = #{record.isUiScenarioExecuting,jdbcType=BIT},
+      </if>
       <if test="record.runInfo != null">
         run_info = #{record.runInfo,jdbcType=LONGVARCHAR},
       </if>
@@ -342,6 +354,7 @@
       principal = #{record.principal,jdbcType=VARCHAR},
       components = #{record.components,jdbcType=VARCHAR},
       is_new = #{record.isNew,jdbcType=BIT},
+      is_ui_scenario_executing = #{record.isUiScenarioExecuting,jdbcType=BIT},
       run_info = #{record.runInfo,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -364,7 +377,8 @@
       is_performance_executing = #{record.isPerformanceExecuting,jdbcType=BIT},
       principal = #{record.principal,jdbcType=VARCHAR},
       components = #{record.components,jdbcType=VARCHAR},
-      is_new = #{record.isNew,jdbcType=BIT}
+      is_new = #{record.isNew,jdbcType=BIT},
+      is_ui_scenario_executing = #{record.isUiScenarioExecuting,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -417,6 +431,9 @@
       <if test="isNew != null">
         is_new = #{isNew,jdbcType=BIT},
       </if>
+      <if test="isUiScenarioExecuting != null">
+        is_ui_scenario_executing = #{isUiScenarioExecuting,jdbcType=BIT},
+      </if>
       <if test="runInfo != null">
         run_info = #{runInfo,jdbcType=LONGVARCHAR},
       </if>
@@ -440,6 +457,7 @@
       principal = #{principal,jdbcType=VARCHAR},
       components = #{components,jdbcType=VARCHAR},
       is_new = #{isNew,jdbcType=BIT},
+      is_ui_scenario_executing = #{isUiScenarioExecuting,jdbcType=BIT},
       run_info = #{runInfo,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -459,7 +477,8 @@
       is_performance_executing = #{isPerformanceExecuting,jdbcType=BIT},
       principal = #{principal,jdbcType=VARCHAR},
       components = #{components,jdbcType=VARCHAR},
-      is_new = #{isNew,jdbcType=BIT}
+      is_new = #{isNew,jdbcType=BIT},
+      is_ui_scenario_executing = #{isUiScenarioExecuting,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
