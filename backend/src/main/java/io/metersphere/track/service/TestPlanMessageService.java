@@ -58,7 +58,7 @@ public class TestPlanMessageService {
         if (testPlanReportContent != null) {
             report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
         }
-        if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting()) {
+        if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting() && !report.getIsUiScenarioExecuting()) {
             //更新TestPlan状态为完成
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
             if (testPlan != null && !StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
