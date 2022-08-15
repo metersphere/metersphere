@@ -1143,6 +1143,66 @@ public class TestPlanReportExample {
             addCriterion("is_new not between", value1, value2, "isNew");
             return (Criteria) this;
         }
+
+        public Criteria andIsUiScenarioExecutingIsNull() {
+            addCriterion("is_ui_scenario_executing is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingIsNotNull() {
+            addCriterion("is_ui_scenario_executing is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingEqualTo(Boolean value) {
+            addCriterion("is_ui_scenario_executing =", value, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingNotEqualTo(Boolean value) {
+            addCriterion("is_ui_scenario_executing <>", value, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingGreaterThan(Boolean value) {
+            addCriterion("is_ui_scenario_executing >", value, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_ui_scenario_executing >=", value, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingLessThan(Boolean value) {
+            addCriterion("is_ui_scenario_executing <", value, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_ui_scenario_executing <=", value, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingIn(List<Boolean> values) {
+            addCriterion("is_ui_scenario_executing in", values, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingNotIn(List<Boolean> values) {
+            addCriterion("is_ui_scenario_executing not in", values, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_ui_scenario_executing between", value1, value2, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsUiScenarioExecutingNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_ui_scenario_executing not between", value1, value2, "isUiScenarioExecuting");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
