@@ -7,6 +7,8 @@ export default {
     trash: "回收站",
     yes: "是",
     no: "否",
+    expand_all: "一键展开",
+    close_all: "一键收起",
     example: "示例",
     subject: "主题",
     excelFile: "表格文件.xls",

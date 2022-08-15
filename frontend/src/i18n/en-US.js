@@ -7,6 +7,8 @@ export default {
     trash: "Trash",
     yes: "yes",
     no: "no",
+    expand_all: "Expand all",
+    close_all: "Close all",
     example: "Demo",
     subject: "Subject",
     excelFile: "Excel",
