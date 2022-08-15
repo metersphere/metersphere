@@ -285,7 +285,7 @@ public class TestPlanReportService {
         }
 
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(planReportId, planId, userId, triggerMode,
-                planTestCaseIdMap.size() > 0, planScenarioIdMap.size() > 0, performanceIdMap.size() > 0,
+                planTestCaseIdMap.size() > 0, planScenarioIdMap.size() > 0, performanceIdMap.size() > 0, !uiScenarioIdMap.isEmpty(),
                 apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
 
         if (testPlanReport == null) {
@@ -383,6 +383,9 @@ public class TestPlanReportService {
             List<String> scenarioIdList = testPlanApiScenarioList.stream().map(TestPlanApiScenarioInfoDTO::getApiScenarioId).collect(Collectors.toList());
             testPlanReport.setIsScenarioExecuting(!scenarioIdList.isEmpty());
 
+            List<TestPlanUiScenario> testPlanUiScenarioList = extTestPlanUiScenarioCaseMapper.selectLegalDataByTestPlanId(saveRequest.getPlanId());
+            testPlanReport.setIsUiScenarioExecuting(!testPlanUiScenarioList.isEmpty());
+
             LoadCaseRequest loadCaseRequest = new LoadCaseRequest();
             loadCaseRequest.setTestPlanId(saveRequest.getPlanId());
             loadCaseRequest.setProjectId(testPlan.getProjectId());
@@ -393,9 +396,13 @@ public class TestPlanReportService {
             testPlanReport.setIsApiCaseExecuting(saveRequest.isApiCaseIsExecuting());
             testPlanReport.setIsScenarioExecuting(saveRequest.isScenarioIsExecuting());
             testPlanReport.setIsPerformanceExecuting(saveRequest.isPerformanceIsExecuting());
+            testPlanReport.setIsUiScenarioExecuting(saveRequest.isUiScenarioIsExecuting());
         }
 
-        if (testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()) {
+        if (testPlanReport.getIsScenarioExecuting()
+                || testPlanReport.getIsApiCaseExecuting()
+                || testPlanReport.getIsPerformanceExecuting()
+                || testPlanReport.getIsUiScenarioExecuting()) {
             testPlanReport.setStatus(TestPlanReportStatus.RUNNING.name());
         } else {
             testPlanReport.setStatus(TestPlanReportStatus.COMPLETED.name());
@@ -572,6 +579,7 @@ public class TestPlanReportService {
             testPlanReport.setIsApiCaseExecuting(false);
             testPlanReport.setIsScenarioExecuting(false);
             testPlanReport.setIsPerformanceExecuting(false);
+            testPlanReport.setIsUiScenarioExecuting(false);
 
             TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
             testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
@@ -1344,6 +1352,41 @@ public class TestPlanReportService {
                     }
                 } catch (Exception e) {
                     LogUtil.error("Parse test plan report cenario case error!", e);
+                }
+            }
+
+            if (!hasErrorCase && StringUtils.isNotEmpty(content.getPlanUiScenarioReportStruct())) {
+                try {
+                    List<TestPlanUiScenarioDTO> scenarioCases = JSONArray.parseArray(content.getPlanUiScenarioReportStruct(), TestPlanUiScenarioDTO.class);
+                    List<String> reportIdList = new ArrayList<>();
+                    scenarioCases.forEach(item -> {
+                        if (StringUtils.isNotEmpty(item.getReportId())) {
+                            reportIdList.add(item.getReportId());
+                        }
+                    });
+                    String defaultStatus = "Fail";
+                    Map<String, String> reportStatus = apiScenarioReportService.getReportStatusByReportIds(reportIdList);
+
+                    for (TestPlanUiScenarioDTO dto : scenarioCases) {
+                        String reportId = dto.getReportId();
+                        if (StringUtils.isNotEmpty(reportId)) {
+                            String execStatus = reportStatus.get(reportId);
+                            if (execStatus == null) {
+                                execStatus = defaultStatus;
+                            } else {
+                                if (StringUtils.equalsIgnoreCase(execStatus, "Error")) {
+                                    execStatus = "Fail";
+                                }
+                            }
+                            dto.setLastResult(execStatus);
+                            dto.setStatus(execStatus);
+                            if (!StringUtils.equalsAnyIgnoreCase(execStatus, "success")) {
+                                hasErrorCase = true;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtil.error("Parse test plan report ui scenario case error!", e);
                 }
             }
         }
