@@ -69,14 +69,7 @@ public class ApiTestCaseController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestCaseDTO>> listSimple(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
-        if (request.getToBeUpdated() != null && request.getToBeUpdated()) {
-            if (request.getProjectId() != null) {
-                Long toBeUpdatedTime = apiTestCaseService.getToBeUpdatedTime(request.getProjectId());
-                if (toBeUpdatedTime != null) {
-                    request.setToBeUpdateTime(toBeUpdatedTime);
-                }
-            }
-        }
+        apiTestCaseService.initRequestBySearch(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setSelectEnvironment(true);
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
