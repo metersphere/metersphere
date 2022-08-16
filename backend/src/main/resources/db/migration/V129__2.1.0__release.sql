@@ -78,3 +78,159 @@ ALTER TABLE `ui_scenario` ADD INDEX index_project_id (`project_id`);
 ALTER TABLE `ui_scenario` ADD INDEX index_module_id (`module_id`);
 
 ALTER TABLE `ui_scenario` ADD INDEX index_project_id_status_module_id (`project_id`,`STATUS`,`module_id`);
+
+-- V128__2-1-0_feat_file_manage
+-- file_metadata 新增字段
+ALTER TABLE `file_metadata`
+    ADD storage VARCHAR(50) DEFAULT 'LOCAL' COMMENT '文件存储方式';
+
+ALTER TABLE `file_metadata`
+    ADD create_user VARCHAR(100) DEFAULT '' COMMENT '创建人';
+
+ALTER TABLE `file_metadata`
+    ADD update_user VARCHAR(100) DEFAULT '' COMMENT '修改人';
+
+ALTER TABLE `file_metadata`
+    ADD tags VARCHAR(2000) DEFAULT NULL COMMENT '标签';
+
+ALTER TABLE `file_metadata`
+    ADD description LONGTEXT DEFAULT NULL COMMENT '描述';
+
+ALTER TABLE `file_metadata`
+    ADD module_id VARCHAR(50) DEFAULT NULL COMMENT '文件所属模块';
+
+ALTER TABLE `file_metadata`
+    ADD load_jar TINYINT(1) DEFAULT 1 COMMENT '是否加载jar（开启后用于接口测试执行时使用）';
+
+ALTER TABLE `file_metadata`
+    ADD path VARCHAR(1000) DEFAULT NULL COMMENT '文件存储路径';
+
+ALTER TABLE `file_metadata`
+    ADD resource_type VARCHAR(50) DEFAULT NULL COMMENT '资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据';
+
+-- 补充索引
+ALTER TABLE file_metadata
+    ADD INDEX module_id_index (`module_id`),
+    ADD INDEX project_id_index (`project_id`);
+
+
+-- jar_config 数据合并到 file_metadata
+-- 合并项目级数据
+INSERT INTO file_metadata (id,
+                           NAME,
+                           type,
+                           create_time,
+                           update_time,
+                           project_id,
+                           create_user,
+                           update_user,
+                           load_jar,
+                           path,
+                           resource_type,
+                           description,
+                           size)
+SELECT id,
+       NAME,
+       'JAR',
+       create_time,
+       update_time,
+       resource_id,
+       creator,
+       creator,
+       1,
+       path,
+       resource_type,
+       description,
+       0
+FROM jar_config
+WHERE resource_type = 'PROJECT';
+
+
+-- 合并工作空间级别数据
+INSERT INTO file_metadata (id,
+                           NAME,
+                           type,
+                           create_time,
+                           update_time,
+                           project_id,
+                           create_user,
+                           update_user,
+                           load_jar,
+                           path,
+                           resource_type,
+                           description,
+                           size)
+SELECT UUID(),
+       j.NAME,
+       'JAR',
+       j.create_time,
+       j.update_time,
+       p.id project_id,
+       j.creator,
+       j.creator,
+       1,
+       j.path,
+       j.resource_type,
+       j.description,
+       0
+FROM jar_config j
+         JOIN workspace w ON j.resource_id = w.id
+         JOIN project p ON w.id = p.workspace_id;
+
+
+-- 初始化权限
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+DOWNLOAD+JAR', 'PROJECT_FILE');
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+BATCH+DELETE', 'PROJECT_FILE');
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+BATCH+DOWNLOAD', 'PROJECT_FILE');
+
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+BATCH+MOVE', 'PROJECT_FILE');
+
+
+-- 附件引用关系表
+CREATE TABLE IF NOT EXISTS `file_association`
+(
+    `id`               varchar(50) NOT NULL,
+    `type`             varchar(50) NOT NULL COMMENT '模块类型,服务拆分后就是各个服务',
+    `source_id`        varchar(50) NOT NULL COMMENT '各个模块关联时自身Id/比如API/CASE/SCENAEIO',
+    `source_item_id`   varchar(50) NOT NULL COMMENT '对应资源引用时具体id，如一个用例引用多个文件',
+    `file_metadata_id` varchar(50) NOT NULL COMMENT '文件id',
+    `file_type`        varchar(50) NOT NULL COMMENT '文件类型',
+    `project_id`       varchar(50) NOT NULL COMMENT '项目id',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `source_id` (`source_id`) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
+
+-- 补充关系表索引
+ALTER TABLE file_association
+    ADD INDEX file_metadata_id_index (`file_metadata_id`),
+    ADD INDEX project_id_index (`project_id`);
+
+
+-- V128__2-1-1_feat_file_manage
+--
+CREATE TABLE `file_module`
+(
+    `id`          varchar(50) NOT NULL COMMENT 'ID',
+    `project_id`  varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
+    `name`        varchar(64) NOT NULL COMMENT 'Node name',
+    `parent_id`   varchar(50)  DEFAULT NULL COMMENT 'Parent node ID',
+    `level`       int(10)      DEFAULT '1' COMMENT 'Node level',
+    `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `pos`         double       DEFAULT NULL,
+    `create_user` varchar(100) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci;
