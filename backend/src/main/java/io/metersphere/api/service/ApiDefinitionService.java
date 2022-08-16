@@ -181,16 +181,21 @@ public class ApiDefinitionService {
             buildProjectInfo(resList, request.getProjectId());
             calculateResult(resList, request.getProjectId());
         } else {
-            buildProjectInfoWidthoutProject(resList);
+            buildProjectInfoWithoutProject(resList);
         }
         return resList;
     }
 
-    private void buildProjectInfoWidthoutProject(List<ApiDefinitionResult> resList) {
+    private void buildProjectInfoWithoutProject(List<ApiDefinitionResult> resList) {
         resList.forEach(i -> {
             Project project = projectMapper.selectByPrimaryKey(i.getProjectId());
-            i.setProjectName(project.getName());
-            i.setVersionEnable(project.getVersionEnable());
+            if (project == null) {
+                i.setProjectName("");
+                i.setVersionEnable(false);
+            } else {
+                i.setProjectName(project.getName());
+                i.setVersionEnable(project.getVersionEnable());
+            }
         });
     }
 
