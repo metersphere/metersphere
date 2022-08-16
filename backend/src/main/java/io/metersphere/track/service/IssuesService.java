@@ -32,7 +32,6 @@ import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
-import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -142,13 +141,15 @@ public class IssuesService {
         return issues;
     }
 
-    public void updateIssues(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs updateIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
         });
         customFieldIssuesService.editFields(issuesRequest.getId(), issuesRequest.getEditFields());
         customFieldIssuesService.addFields(issuesRequest.getId(), issuesRequest.getAddFields());
+
+        return getIssue(issuesRequest.getId());
     }
 
     public void saveFollows(String issueId, List<String> follows) {
