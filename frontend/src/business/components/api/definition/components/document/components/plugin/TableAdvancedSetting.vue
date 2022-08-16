@@ -34,16 +34,16 @@ export default {
     initAdvancedValue() {
       if (this.tableData) {
         this.advancedValue = {};
-        if (this.tableData["min"] && this.isNotEmptyValue(this.tableData["min"])) {
+        if (this.isNotEmptyValue(this.tableData["min"])) {
           this.advancedValue["schema.minLength"] = this.tableData["min"];
         }
-        if (this.tableData["max"] && this.isNotEmptyValue(this.tableData["max"])) {
+        if (this.isNotEmptyValue(this.tableData["max"])) {
           this.advancedValue["schema.maxLength"] = this.tableData["max"];
         }
         if (this.tableData["urlEncode"]) {
           this.advancedValue["commons.encode"] = this.$t("commons.yes");
         }
-        if (this.tableData["description"] && this.isNotEmptyValue(this.tableData["description"])) {
+        if (this.isNotEmptyValue(this.tableData["description"])) {
           this.advancedValue["commons.description"] = this.tableData["description"];
         }
         if (JSON.stringify(this.advancedValue) === "{}") {
