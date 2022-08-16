@@ -20,6 +20,7 @@ import io.metersphere.performance.controller.request.RenameReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.service.PerformanceReportService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,7 @@ public class PerformanceReportController {
     private PerformanceReportService performanceReportService;
 
     @PostMapping("/recent/{count}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
+    @RequiresPermissions(value = {"PROJECT_PERFORMANCE_REPORT:READ", "PROJECT_PERFORMANCE_HOME:READ"}, logical = Logical.OR)
     public List<ReportDTO> recentProjects(@PathVariable int count, @RequestBody ReportRequest request) {
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);

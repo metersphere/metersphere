@@ -226,5 +226,10 @@ export const SECOND_LEVEL_ROUTE_PERMISSION_MAP = {
     {router: '/performance/home', permission: ['PROJECT_PERFORMANCE_HOME:READ']},
     {router: '/performance/test/all', permission: ['PROJECT_PERFORMANCE_TEST:READ']},
     {router: '/performance/report/all', permission: ['PROJECT_PERFORMANCE_REPORT:READ']},
+  ],
+  UI: [
+    {router: '/ui/automation', permission: ['PROJECT_UI_SCENARIO:READ']},
+    {router: '/ui/element', permission: ['PROJECT_UI_ELEMENT:READ']},
+    {router: '/ui/report', permission: ['PROJECT_UI_REPORT:READ']},
   ]
 }

@@ -98,7 +98,8 @@ export default {
       if (!redirectUrl) {
         return '/setting';
       }
-      if (redirectUrl.startsWith("/track") || redirectUrl.startsWith("/performance") || redirectUrl.startsWith("/api")) {
+      if (redirectUrl.startsWith("/track") || redirectUrl.startsWith("/performance")
+        || redirectUrl.startsWith("/api") || redirectUrl.startsWith("/ui")) {
         // 获取有权限的跳转路径
         redirectUrl = getDefaultSecondLevelMenu(redirectUrl);
       } else {
