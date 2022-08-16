@@ -2,10 +2,10 @@
   <test-plan-report-container id='summary' :title="$t('test_track.report.report_summary')">
     <template v-slot:title>
       <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && !isEdit" @click="isEdit = true">
-        {{ $t('commons.edit') }}
+        <i class="el-icon-edit">{{ $t('commons.edit') }}</i>
       </el-link>
       <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && isEdit" @click="saveSummary">
-        {{ $t('commons.save')}}
+        <i class="el-icon-circle-check">{{ $t('commons.save') }}</i>
       </el-link>
     </template>
     <el-form class="form-info" v-loading="result.loading">
