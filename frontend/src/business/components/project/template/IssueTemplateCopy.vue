@@ -100,6 +100,7 @@ export default {
       let request = {id: self.copyData.id, copyModel: self.copyModelVal, targetProjectIds: checkProjectIds}
       self.$post('field/template/issue/copy', request, (response) => {
         this.showDialog = false;
+        this.$emit('refresh')
         this.$message({
           type: 'success',
           message: this.$t('commons.copy_success'),
