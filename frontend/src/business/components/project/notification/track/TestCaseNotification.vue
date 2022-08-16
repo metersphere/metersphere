@@ -131,10 +131,6 @@ export default {
           value:'num',
         },
         {
-          label:this.$t('test_track.other_test_name'),
-          value:'otherTestName',
-        },
-        {
           label:this.$t('test_track.review.review_status'),
           value:'reviewStatus',
         },

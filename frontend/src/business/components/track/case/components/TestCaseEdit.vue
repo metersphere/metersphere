@@ -235,7 +235,6 @@ export default {
         method: '',
         prerequisite: '',
         testId: '',
-        otherTestName: '',
         steps: [{
           num: 1,
           desc: '',
