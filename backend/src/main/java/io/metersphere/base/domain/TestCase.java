@@ -33,8 +33,6 @@ public class TestCase implements Serializable {
 
     private Integer num;
 
-    private String otherTestName;
-
     private String reviewStatus;
 
     private String tags;

@@ -62,3 +62,9 @@ ALTER TABLE `api_scenario_report`
     ADD INDEX index_relevance_test_plan_report_id (`relevance_test_plan_report_id`);
 ALTER TABLE `load_test_report`
     ADD INDEX index_relevance_test_plan_report_id (`relevance_test_plan_report_id`);
+
+-- V129__2-1-0_drop_useless_column
+--
+ALTER TABLE test_case DROP COLUMN other_test_name;
+ALTER TABLE test_plan DROP COLUMN test_case_match_rule;
+ALTER TABLE test_plan DROP COLUMN executor_match_rule;

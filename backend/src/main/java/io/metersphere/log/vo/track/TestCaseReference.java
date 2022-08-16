@@ -19,7 +19,6 @@ public class TestCaseReference {
         testCaseColumns.put("remark", "备注");
         testCaseColumns.put("customNum", "ID");
         testCaseColumns.put("steps", "用例步骤");
-        testCaseColumns.put("other_test_name", "其他名称");
         testCaseColumns.put("review_status", "评审状态");
         testCaseColumns.put("tags", "标签");
         testCaseColumns.put("demand_name", "需求名称");
