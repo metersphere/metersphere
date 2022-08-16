@@ -36,6 +36,7 @@ import {
   stopFullScreenLoading
 } from "@/common/js/utils";
 import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
+import {getDefaultSecondLevelMenu} from "@/business/components/common/router/router";
 
 export default {
   name: "MsHeaderWs",
@@ -87,17 +88,27 @@ export default {
       });
     },
     getRedirectUrl(user) {
+      // todo refactor permission check
       if (!user.lastProjectId || !user.lastWorkspaceId) {
         // 没有项目级的权限直接回到 /setting/project/:type
         // 只是某一个工作空间的用户组也转到 /setting/project/:type
         return "/setting/project/:type";
       }
       let redirectUrl = sessionStorage.getItem('redirectUrl');
-      if (redirectUrl.startsWith("/")) {
-        redirectUrl = redirectUrl.substring(1);
+      if (!redirectUrl) {
+        return '/setting';
       }
-      redirectUrl = redirectUrl.split("/")[0];
-      return '/' + redirectUrl + '/';
+      if (redirectUrl.startsWith("/track") || redirectUrl.startsWith("/performance") || redirectUrl.startsWith("/api")) {
+        // 获取有权限的跳转路径
+        redirectUrl = getDefaultSecondLevelMenu(redirectUrl);
+      } else {
+        if (redirectUrl.startsWith("/")) {
+          redirectUrl = redirectUrl.substring(1);
+        }
+        redirectUrl = redirectUrl.split("/")[0];
+        redirectUrl = '/' + redirectUrl + '/';
+      }
+      return redirectUrl;
     },
     changeWs(data) {
       let workspaceId = data.id;

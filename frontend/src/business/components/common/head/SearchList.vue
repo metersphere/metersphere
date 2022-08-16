@@ -37,6 +37,7 @@ import {
   stopFullScreenLoading
 } from "@/common/js/utils";
 import {PROJECT_ID} from "@/common/js/constants";
+import {getDefaultSecondLevelMenu} from "@/business/components/common/router/router";
 
 export default {
   name: "SearchList",
@@ -98,35 +99,43 @@ export default {
       };
     },
     reloadPage: function () {
+      // todo refactor permission check
       let redirectUrl = sessionStorage.getItem('redirectUrl');
-
-      let trackPermission = hasPermissions('PROJECT_TRACK_CASE:READ', 'PROJECT_TRACK_PLAN:READ', 'PROJECT_TRACK_REVIEW:READ', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_REPORT:READ');
-      let apiPermission = hasPermissions('PROJECT_API_DEFINITION:READ', 'PROJECT_API_SCENARIO:READ', 'PROJECT_API_REPORT:READ');
-      let performancePermission = hasPermissions('PROJECT_PERFORMANCE_TEST:READ', 'PROJECT_PERFORMANCE_REPORT:READ');
+      let copyRedirectUrl = redirectUrl;
+      if (!copyRedirectUrl) {
+        this.$router.push("/");
+        this.reload();
+        return;
+      }
+      if (copyRedirectUrl.startsWith("/track") || copyRedirectUrl.startsWith("/performance") || copyRedirectUrl.startsWith("/api")) {
+        // 获取有权限的跳转路径
+        copyRedirectUrl = getDefaultSecondLevelMenu(copyRedirectUrl);
+        if (copyRedirectUrl !== '/') {
+          this.$router.push(copyRedirectUrl);
+          this.reloadTopMenus();
+          this.reload();
+          return;
+        }
+      }
+      // 跳转至下一个有权限的菜单
       let projectPermission = hasPermissions('PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_CUSTOM_CODE:READ');
       let uiPermission = hasPermissions('PROJECT_UI_ELEMENT:READ', 'PROJECT_UI_SCENARIO:READ', 'PROJECT_UI_REPORT:READ');
-
       let redirectMap = {
-        track: trackPermission,
-        api: apiPermission,
-        performance: performancePermission,
         project: projectPermission,
         ui: uiPermission,
       };
       let locations = redirectUrl.split('/');
-      if (locations.length > 2) {
-        if (!redirectMap[locations[1]]) {
-          let v = true;
-          for (const k in redirectMap) {
-            if (redirectMap[k]) {
-              this.$router.push("/" + k);
-              v = false;
-              break;
-            }
+      if (locations.length > 2 && !redirectMap[locations[1]]) {
+        let v = true;
+        for (const k in redirectMap) {
+          if (redirectMap[k]) {
+            this.$router.push("/" + k);
+            v = false;
+            break;
           }
-          if (v) {
-            this.$router.push("/");
-          }
+        }
+        if (v) {
+          this.$router.push("/");
         }
       }
       this.reloadTopMenus();
