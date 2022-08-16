@@ -764,7 +764,7 @@ public class ApiScenarioReportService {
         reportRequest.setIds(myList);
         //为预防数量太多，调用删除方法时引起SQL过长的Bug，此处采取分批执行的方式。
         //每次处理的数据数量
-        int handleCount = 5000;
+        int handleCount = 2000;
         //每次处理的集合
         while (ids.size() > handleCount) {
             List<String> handleIdList = new ArrayList<>(handleCount);
@@ -963,10 +963,10 @@ public class ApiScenarioReportService {
         if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
             try {
                 errorSize = dto.getRequestResults().stream().filter(requestResult ->
-                                StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
-                                        && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
-                                        r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                                ).count() > 0)
+                        StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
+                                && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
+                                r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
+                        ).count() > 0)
                         .count();
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
