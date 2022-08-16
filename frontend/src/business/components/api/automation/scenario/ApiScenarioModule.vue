@@ -26,7 +26,7 @@
 
       <template v-slot:header>
         <ms-search-bar
-          :show-operator="showOperator"
+          :show-operator="showOperator && !isTrashData"
           :condition="condition"
           :commands="operators"/>
         <module-trash-button v-if="!isReadOnly && !isTrashData" :condition="condition" :exe="enableTrash"
