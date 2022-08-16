@@ -165,8 +165,6 @@ public class ApiDefinitionService {
     private ApiDefinitionSyncService apiDefinitionSyncService;
     @Resource
     private ApiCaseBatchSyncService apiCaseSyncService;
-
-
     @Lazy
     @Resource
     private ApiAutomationService apiAutomationService;
@@ -888,9 +886,8 @@ public class ApiDefinitionService {
         }
         if (apiDefinition.getUserId() == null) {
             apiDefinition.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-        } else {
-            apiDefinition.setUserId(apiDefinition.getUserId());
         }
+
         apiDefinition.setDescription(apiDefinition.getDescription());
         List<ApiDefinitionWithBLOBs> collect = updateList.stream().filter(t -> t.getId().equals(apiDefinition.getId())).collect(Collectors.toList());
 
@@ -918,6 +915,7 @@ public class ApiDefinitionService {
                 String requestStr = setImportHashTree(apiDefinition);
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 apiDefinition.setRequest(requestStr);
+                sendImportApiCreateNotice(apiDefinition);
                 batchMapper.insert(apiDefinition);
                 importCase(apiDefinition, apiTestCaseMapper, caseList);
                 extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
@@ -934,17 +932,14 @@ public class ApiDefinitionService {
     }
 
     private void importCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper, List<ApiTestCaseWithBLOBs> caseList) {
-        if (caseList == null || caseList.isEmpty()) {
+        if (CollectionUtils.isEmpty(caseList)) {
             return;
         }
         for (int i = 0; i < caseList.size(); i++) {
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
-            apiTestCaseWithBLOBs.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-            apiTestCaseWithBLOBs.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-            if (apiDefinition.getToBeUpdated() != null && !StringUtils.equalsIgnoreCase(apiTestCaseWithBLOBs.getVersionId(), "cover")) {
+            if (apiDefinition.getToBeUpdated() && StringUtils.equalsIgnoreCase(apiTestCaseWithBLOBs.getVersionId(), "old_case")) {
                 apiTestCaseWithBLOBs.setToBeUpdated(true);
-                //TODO:check setting
             } else {
                 apiTestCaseWithBLOBs.setToBeUpdated(false);
             }
@@ -976,9 +971,13 @@ public class ApiDefinitionService {
             }
 
             if (StringUtils.isNotBlank(apiTestCaseWithBLOBs.getId())) {
+                sendImportCaseUpdateNotice(apiTestCaseWithBLOBs);
                 apiTestCaseMapper.updateByPrimaryKeyWithBLOBs(apiTestCaseWithBLOBs);
             } else {
                 apiTestCaseWithBLOBs.setId(UUID.randomUUID().toString());
+                apiTestCaseWithBLOBs.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                apiTestCaseWithBLOBs.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                sendImportCaseCreateNotice(apiTestCaseWithBLOBs);
                 apiTestCaseMapper.insert(apiTestCaseWithBLOBs);
             }
         }
@@ -1036,16 +1035,16 @@ public class ApiDefinitionService {
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setRequest(request);
+                sendImportApiCreateNotice(apiDefinition);
                 batchMapper.insert(apiDefinition);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     setImportTCPHashTree(apiDefinition);
                 }
+                sendImportApiCreateNotice(apiDefinition);
                 batchMapper.insert(apiDefinition);
             }
             importCase(apiDefinition, apiTestCaseMapper, caseList);
-            extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
-            extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         } else { //如果存在则修改
             if (StringUtils.isEmpty(apiTestImportRequest.getUpdateVersionId())) {
                 apiTestImportRequest.setUpdateVersionId(apiTestImportRequest.getDefaultVersion());
@@ -1073,7 +1072,9 @@ public class ApiDefinitionService {
                 if (sameRequest.get(0).getUserId() != null) {
                     apiDefinition.setUserId(sameRequest.get(0).getUserId());
                 }
+                sendImportApiCreateNotice(apiDefinition);
                 batchMapper.insert(apiDefinition);
+                sendImportApiCreateNotice(apiDefinition);
                 importCase(apiDefinition, apiTestCaseMapper, caseList);
             } else {
                 ApiDefinitionWithBLOBs existApi = apiOp.get();
@@ -1101,11 +1102,10 @@ public class ApiDefinitionService {
                     if (CollectionUtils.isEmpty(caseList)) {
                         apiDefinition.setToBeUpdated(false);
                     } else {
-                        List<ApiTestCaseWithBLOBs> cover = caseList.stream().filter(t -> !StringUtils.equalsIgnoreCase("cover", t.getVersionId()) && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
-                        if (CollectionUtils.isEmpty(cover)) {
+                        List<ApiTestCaseWithBLOBs> oldCaseList = caseList.stream().filter(t -> StringUtils.equalsIgnoreCase("old_case", t.getVersionId())
+                                && StringUtils.isNotBlank(t.getId())).collect(Collectors.toList());
+                        if (CollectionUtils.isEmpty(oldCaseList)) {
                             apiDefinition.setToBeUpdated(false);
-                        } else {
-                            apiDefinition.setToBeUpdated(true);
                         }
                     }
                 } else {
@@ -1122,6 +1122,7 @@ public class ApiDefinitionService {
                     apiDefinition.setOrder(existApi.getOrder());
                     apiDefinition.setRequest(request);
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
+                    sendImportApiUpdateNotice(existApi);
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 } else {
                     apiDefinition.setId(existApi.getId());
@@ -1130,13 +1131,84 @@ public class ApiDefinitionService {
                     }
                     apiDefinition.setOrder(existApi.getOrder());
                     reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
+                    sendImportApiUpdateNotice(existApi);
                     batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 }
                 importCase(apiDefinition, apiTestCaseMapper, caseList);
             }
-            extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
-            extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
         }
+        extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
+        extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());
+    }
+
+    public void sendImportApiUpdateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, apiDefinitionWithBLOBs.getProjectId(), SessionUtils.getUserId(), apiDefinitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getName(), apiDefinitionWithBLOBs.getCreateUser());
+        paramMap.put("userId", apiDefinitionWithBLOBs.getUserId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(apiDefinitionWithBLOBs.getId())
+                .subject(Translator.get("api_update_notice"))
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.UPDATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
+
+    public void sendImportApiCreateNotice(ApiDefinitionWithBLOBs apiDefinitionWithBLOBs) {
+        String context = SessionUtils.getUserId().concat(Translator.get("create_api")).concat(":").concat(apiDefinitionWithBLOBs.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, apiDefinitionWithBLOBs.getProjectId(), SessionUtils.getUserId(), apiDefinitionWithBLOBs.getId(), apiDefinitionWithBLOBs.getName(), apiDefinitionWithBLOBs.getCreateUser());
+        paramMap.put("userId", apiDefinitionWithBLOBs.getUserId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(apiDefinitionWithBLOBs.getId())
+                .subject(Translator.get("api_create_notice"))
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.CREATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
+
+    public void sendImportCaseUpdateNotice(ApiTestCase apiTestCase) {
+        String context = SessionUtils.getUserId().concat(Translator.get("update_api_case")).concat(":").concat(apiTestCase.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, apiTestCase.getProjectId(), SessionUtils.getUserId(), apiTestCase.getId(), apiTestCase.getName(), apiTestCase.getCreateUserId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(apiTestCase.getId())
+                .subject(Translator.get("api_case_update_notice"))
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.CASE_UPDATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
+
+    public void sendImportCaseCreateNotice(ApiTestCase apiTestCase) {
+        String context = SessionUtils.getUserId().concat(Translator.get("create_api_case")).concat(":").concat(apiTestCase.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, apiTestCase.getProjectId(), SessionUtils.getUserId(), apiTestCase.getId(), apiTestCase.getName(), apiTestCase.getCreateUserId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(apiTestCase.getId())
+                .subject(Translator.get("api_case_create_notice"))
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.CASE_CREATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
+    }
+
+    private void getParamMap(Map<String, Object> paramMap, String projectId, String userId, String id, String name, String createUser) {
+        paramMap.put("projectId", projectId);
+        paramMap.put("operator", userId);
+        paramMap.put("id", id);
+        paramMap.put("name", name);
+        paramMap.put("createUser", createUser);
     }
 
     public Boolean checkIsSynchronize(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
@@ -1156,22 +1228,23 @@ public class ApiDefinitionService {
             e.printStackTrace();
         }
         ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
+        Boolean toUpdate = false;
         if (apiDefinitionSyncService != null) {
+            toUpdate = apiDefinitionSyncService.getProjectApplications(existApi.getProjectId());
             apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(existApi.getProjectId());
         }
-
         //Compare the basic information of the API. If it contains the comparison that needs to be done for the synchronization information,
         // put the data into the to-be-synchronized
         if (!StringUtils.equals(exApiString, apiString)) {
             if (!StringUtils.equals(apiDefinition.getMethod(), existApi.getMethod())) {
-                if (apiSyncCaseRequest.getMethod()) {
+                if (apiSyncCaseRequest.getMethod() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
                 return true;
             }
             if (!StringUtils.equals(apiDefinition.getProtocol(), existApi.getProtocol())) {
-                if (apiSyncCaseRequest.getProtocol()) {
+                if (apiSyncCaseRequest.getProtocol() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1179,7 +1252,7 @@ public class ApiDefinitionService {
             }
 
             if (!StringUtils.equals(apiDefinition.getPath(), existApi.getPath())) {
-                if (apiSyncCaseRequest.getPath()) {
+                if (apiSyncCaseRequest.getPath() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1202,7 +1275,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("headers") != null && apiRequest.get("headers") != null) {
             if (!StringUtils.equals(exApiRequest.get("headers").toString(), apiRequest.get("headers").toString())) {
-                if (apiSyncCaseRequest.getHeaders()) {
+                if (apiSyncCaseRequest.getHeaders() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1212,7 +1285,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("arguments") != null && apiRequest.get("arguments") != null) {
             if (!StringUtils.equals(exApiRequest.get("arguments").toString(), apiRequest.get("arguments").toString())) {
-                if (apiSyncCaseRequest.getQuery()) {
+                if (apiSyncCaseRequest.getQuery() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1222,7 +1295,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("rest") != null && apiRequest.get("rest") != null) {
             if (!StringUtils.equals(exApiRequest.get("rest").toString(), apiRequest.get("rest").toString())) {
-                if (apiSyncCaseRequest.getRest()) {
+                if (apiSyncCaseRequest.getRest() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
@@ -1232,7 +1305,7 @@ public class ApiDefinitionService {
 
         if (exApiRequest.get("body") != null && apiRequest.get("body") != null) {
             if (!StringUtils.equals(exApiRequest.get("body").toString(), apiRequest.get("body").toString())) {
-                if (apiSyncCaseRequest.getBody()) {
+                if (apiSyncCaseRequest.getBody() && toUpdate) {
                     apiDefinition.setToBeUpdated(true);
                     apiDefinition.setToBeUpdateTime(System.currentTimeMillis());
                 }
