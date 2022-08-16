@@ -36,7 +36,7 @@
                 </div>
               </div>
               <div v-else>
-                <el-table border :show-header="true" row-key="id"
+                <el-table border :show-header="true" row-key="id" :row-class-name="getRowClassName"
                           :data="tableData" :class="getTableClass()" ref="expandTable">
                   <el-table-column v-for="item in tableColoumArr" :key="item.id"
                                    :prop="item.prop"
@@ -136,7 +136,9 @@ export default {
         if (this.tableData) {
           this.$nextTick(() => {
             this.tableData.forEach(i => {
-              this.$refs.expandTable.toggleRowExpansion(i, expand)
+              if (i.hasAdvancedSetting) {
+                this.$refs.expandTable.toggleRowExpansion(i, expand)
+              }
             });
             this.$refs.expandTable.doLayout();
           })
@@ -146,6 +148,30 @@ export default {
     }
   },
   methods: {
+    getRowClassName({row, rowIndex}) {
+      let classname = 'autofix-table-row ';
+      // 通过判断给不需要展开行功能的数据设置样式，通过样式去隐藏展开行图标
+      if (!row.hasAdvancedSetting) {
+        classname += ' hide-expand'
+      }
+      return classname;
+    },
+    isNotEmptyValue(value) {
+      return value && value !== '';
+    },
+    rowHasAdvancedSetting(tableData) {
+      let hasAdvancedSetting = false;
+      if (this.isNotEmptyValue(tableData['min'])) {
+        hasAdvancedSetting = true;
+      } else if (this.isNotEmptyValue(tableData['max'])) {
+        hasAdvancedSetting = true;
+      } else if (tableData['urlEncode']) {
+        hasAdvancedSetting = true;
+      } else if (this.isNotEmptyValue(tableData['description'])) {
+        hasAdvancedSetting = true;
+      }
+      return hasAdvancedSetting;
+    },
     getTableClass() {
       if (this.language === "zh_TW") {
         return "test-content document-table tw-table";
@@ -182,6 +208,11 @@ export default {
               item.isRequired = "false";
             }
             item.id = getUUID();
+            if (this.rowHasAdvancedSetting(item)) {
+              item.hasAdvancedSetting = true;
+            } else {
+              item.hasAdvancedSetting = false;
+            }
             returnJsonArr.push(item);
           }
         }
@@ -254,6 +285,11 @@ export default {
 .document-table /deep/ th {
   background-color: #FAFAFA;
   border-right: 0px solid #EBEEF5
+}
+
+/*通过样式隐藏图标*/
+.document-table /deep/ .hide-expand .el-table__expand-column .cell {
+  visibility: hidden;
 }
 
 /*展开按钮未点击的样式是加号带边框*/
