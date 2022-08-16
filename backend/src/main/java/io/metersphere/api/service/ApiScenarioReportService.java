@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.*;
@@ -882,6 +883,20 @@ public class ApiScenarioReportService {
 
         long errorReportResultSize = dto.getRequestResults().stream().filter(requestResult ->
                 StringUtils.equalsIgnoreCase(requestResult.getStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())).count();
+        //类型为ui时的统计
+        if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
+            try {
+                errorSize = dto.getRequestResults().stream().filter(requestResult ->
+                                StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
+                                        && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
+                                        r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
+                                ).count() > 0)
+                        .count();
+            } catch (Exception e) {
+                // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
+                errorSize = 1;
+            }
+        }
         String status = dto.getRequestResults().isEmpty() ? ExecuteResult.UN_EXECUTE.toString() : ScenarioStatus.Success.name();
         if (errorSize > 0) {
             status = ScenarioStatus.Error.name();
