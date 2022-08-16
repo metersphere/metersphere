@@ -5,7 +5,7 @@
                class="group-member">
       <template v-slot:title>
         <ms-table-header :condition.sync="condition" @create="addMemberBtn" @search="search"
-                         :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+                         :create-permission="createPermission" :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
       <el-table :border="true" class="adjust-table" :data="memberData" style="width: 100%;margin-top:5px;">
         <el-table-column prop="id" label="ID"/>
@@ -41,6 +41,8 @@
             <div>
               <ms-table-operator :tip2="$t('commons.remove')"
                                  :show-edit="showTypeLabel"
+                                 :delete-permission="deletePermission"
+                                 :edit-permission="editPermission"
                                  @editClick="editMemberBtn(scope.row)"
                                  @deleteClick="removeMember(scope.row)"/>
             </div>
@@ -141,6 +143,26 @@ export default {
         sourceIds: {required: true, message: this.$t('group.select_belong_source'), trigger: 'blur'}
       }
     };
+  },
+  props: {
+    editPermission: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    deletePermission: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    createPermission: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
   },
   computed: {
     typeLabel() {
