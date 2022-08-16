@@ -66,8 +66,7 @@ public class IssuesController {
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
-            event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
     public IssuesWithBLOBs addIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return issuesService.addIssues(issuesRequest, files);
     }
@@ -75,10 +74,9 @@ public class IssuesController {
     @PostMapping(value = "/update")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
-            event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
-    public void updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
-        issuesService.updateIssues(issuesRequest);
+    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
+    public IssuesWithBLOBs updateIssues(@RequestPart(value = "request") IssuesUpdateRequest issuesRequest) {
+        return issuesService.updateIssues(issuesRequest);
     }
 
     @GetMapping("/get/case/{refType}/{id}")

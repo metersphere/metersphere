@@ -2,10 +2,12 @@ package io.metersphere.notice.sender;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.NotificationConstants;
@@ -14,10 +16,12 @@ import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.service.CustomFieldService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.service.TestCaseReviewService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -55,24 +59,14 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     @Resource
     @Lazy
     private TestCaseReviewService testCaseReviewService;
+    @Resource
+    private CustomFieldService customFieldService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
         // 如果有自定义字段
-        if (noticeModel.getParamMap().containsKey("customFields")) {
-            String customFields = (String) noticeModel.getParamMap().get("customFields");
-            JSONArray array = JSON.parseArray(customFields);
-            if (CollectionUtils.isNotEmpty(array)) {
-                for (Object o : array) {
-                    JSONObject jsonObject = JSON.parseObject(o.toString());
-                    String name = jsonObject.getString("name");
-                    Object value = jsonObject.getObject("value", Object.class);
-                    noticeModel.getParamMap().put(name, value); // 处理人
-                    if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
-                        noticeModel.getParamMap().put("processor", value); // 处理人
-                    }
-                }
-            }
-        }
+        handleCustomFields(noticeModel);
 
         // 处理 userIds 中包含的特殊值
         noticeModel.setReceivers(getRealUserIds(messageDetail, noticeModel, messageDetail.getEvent()));
@@ -110,6 +104,39 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             context = noticeModel.getContext();
         }
         return getContent(context, noticeModel.getParamMap());
+    }
+
+    private void handleCustomFields(NoticeModel noticeModel) {
+        if (!noticeModel.getParamMap().containsKey("fields")) {
+            return;
+        }
+        try {
+            Object customFields = noticeModel.getParamMap().get("fields");
+            List<Object> fields;
+            if (customFields instanceof String) {
+                fields = objectMapper.readValue((String) customFields, new TypeReference<>() {
+                });
+            } else {
+                fields = (List<Object>) customFields;
+            }
+            if (CollectionUtils.isNotEmpty(fields)) {
+                for (Object o : fields) {
+                    Map jsonObject = new BeanMap(o);
+                    String id = (String) jsonObject.get("id");
+                    CustomField customField = customFieldService.get(id);
+                    Object value = jsonObject.get("value");
+                    if (value instanceof String && StringUtils.isNotEmpty((String) value)) {
+                        String v = StringUtils.unwrap((String) value, "\"");
+                        noticeModel.getParamMap().put(customField.getName(), v); // 处理人
+                        if (StringUtils.equals(customField.getName(), "处理人")) {
+                            noticeModel.getParamMap().put("processor", v); // 处理人
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     protected String getContent(String template, Map<String, Object> context) {
