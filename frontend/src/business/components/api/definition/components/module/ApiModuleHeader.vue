@@ -14,7 +14,7 @@
       </el-col>
       <el-col :span="15">
         <ms-search-bar
-          :show-operator="showOperator"
+          :show-operator="showOperator && !isTrashData"
           :condition="condition"
           :commands="operators"/>
       </el-col>
