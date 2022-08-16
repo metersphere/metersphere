@@ -47,3 +47,18 @@ CREATE TABLE api_sync_rule_relation
 ) ENGINE = INNODB
   CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci;
+
+-- V129__2-1-0_update_test_plan_report
+--
+ALTER TABLE test_plan_report
+    ADD COLUMN `is_ui_scenario_executing` TINYINT(1) DEFAULT NULL COMMENT 'is Ui Scenario executing' AFTER is_scenario_executing;
+
+
+-- V129__2-1-0_add_index
+--
+ALTER TABLE `api_definition_exec_result`
+    ADD INDEX index_relevance_test_plan_report_id (`relevance_test_plan_report_id`);
+ALTER TABLE `api_scenario_report`
+    ADD INDEX index_relevance_test_plan_report_id (`relevance_test_plan_report_id`);
+ALTER TABLE `load_test_report`
+    ADD INDEX index_relevance_test_plan_report_id (`relevance_test_plan_report_id`);
