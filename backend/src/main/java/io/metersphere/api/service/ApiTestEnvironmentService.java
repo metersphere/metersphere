@@ -8,9 +8,12 @@ import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.FileAssociationExample;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestEnvironmentMapper;
+import io.metersphere.commons.constants.FileAssociationType;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -25,6 +28,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.ProjectService;
@@ -50,6 +54,10 @@ public class ApiTestEnvironmentService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private ExtApiTestEnvironmentMapper extApiTestEnvironmentMapper;
+    @Resource
+    private FileAssociationService fileAssociationService;
+    @Resource
+    private FileAssociationMapper fileAssociationMapper;
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -85,6 +93,9 @@ public class ApiTestEnvironmentService {
     public void delete(String id) {
         apiTestEnvironmentMapper.deleteByPrimaryKey(id);
         environmentGroupProjectService.deleteRelateEnv(id);
+        FileAssociationExample associationExample = new FileAssociationExample();
+        associationExample.createCriteria().andSourceIdEqualTo(id);
+        fileAssociationMapper.deleteByExample(associationExample);
     }
 
     public void update(ApiTestEnvironmentWithBLOBs apiTestEnvironment) {
@@ -99,16 +110,19 @@ public class ApiTestEnvironmentService {
         return apiTestEnvironmentWithBLOBs.getId();
     }
 
-    public String add(ApiTestEnvironmentDTO request, List<MultipartFile> sslFiles) {
+    public String add(ApiTestEnvironmentDTO request, List<MultipartFile> sslFiles, List<MultipartFile> variableFile) {
         request.setId(UUID.randomUUID().toString());
         request.setCreateUser(SessionUtils.getUserId());
         checkEnvironmentExist(request);
         FileUtils.createFiles(request.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
+        FileUtils.createBodyFiles(request.getVariablesFilesIds(), variableFile);
         //检查Config，判断isMock参数是否给True
         request = this.updateConfig(request, false);
         request.setCreateTime(System.currentTimeMillis());
         request.setUpdateTime(System.currentTimeMillis());
         apiTestEnvironmentMapper.insert(request);
+        // 存储附件关系
+        fileAssociationService.saveEnvironment(request.getId(), request.getConfig(), FileAssociationType.ENVIRONMENT.name());
         return request.getId();
     }
 
@@ -128,10 +142,13 @@ public class ApiTestEnvironmentService {
         return request;
     }
 
-    public void update(ApiTestEnvironmentDTO apiTestEnvironment, List<MultipartFile> sslFiles) {
+    public void update(ApiTestEnvironmentDTO apiTestEnvironment, List<MultipartFile> sslFiles, List<MultipartFile> variablesFiles) {
         checkEnvironmentExist(apiTestEnvironment);
         FileUtils.createFiles(apiTestEnvironment.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
+        FileUtils.createBodyFiles(apiTestEnvironment.getVariablesFilesIds(), variablesFiles);
         apiTestEnvironment.setUpdateTime(System.currentTimeMillis());
+        // 存储附件关系
+        fileAssociationService.saveEnvironment(apiTestEnvironment.getId(), apiTestEnvironment.getConfig(), FileAssociationType.ENVIRONMENT.name());
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
     }
 

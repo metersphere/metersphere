@@ -11,7 +11,6 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
-import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -68,7 +67,7 @@ public class ElementUtil {
             arguments.setName(StringUtils.isNoneBlank(name) ? name : "Arguments");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+            config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(ScenarioVariable::isConstantValid).filter(ScenarioVariable::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
             if (arguments.getArguments().size() > 0) {
@@ -100,9 +99,9 @@ public class ElementUtil {
 
     public static void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
         if (CollectionUtils.isNotEmpty(variables)) {
-            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(list) && CollectionUtils.isNotEmpty(config.getTransferVariables())) {
-                list = config.getTransferVariables().stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
+                list = config.getTransferVariables().stream().filter(ScenarioVariable::isCSVValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             }
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(item -> {
@@ -139,7 +138,7 @@ public class ElementUtil {
 
     public static void addCounter(HashTree tree, List<ScenarioVariable> variables, boolean isInternal) {
         if (CollectionUtils.isNotEmpty(variables)) {
-            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).collect(Collectors.toList());
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(item -> {
                     CounterConfig counterConfig = new CounterConfig();
@@ -165,7 +164,7 @@ public class ElementUtil {
 
     public static void addRandom(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
-            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isRandom).collect(Collectors.toList());
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isRandom).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
                 list.forEach(item -> {
                     RandomVariableConfig randomVariableConfig = new RandomVariableConfig();
@@ -793,4 +792,62 @@ public class ElementUtil {
             return evlValue;
         }
     }
+
+    public static Arguments getConfigArguments(ParameterConfig config, String name, String projectId, List<ScenarioVariable> variables) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(name) ? name : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+
+        // 场景变量
+        if (CollectionUtils.isNotEmpty(variables)) {
+            variables.stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+
+            List<ScenarioVariable> variableList = variables.stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
+            variableList.forEach(item -> {
+                String[] arrays = item.getValue().split(",");
+                for (int i = 0; i < arrays.length; i++) {
+                    arguments.addArgument(item.getName() + "_" + (i + 1), arrays[i], "=");
+                }
+            });
+        }
+        // 环境通用变量
+        if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
+            //常量
+            List<ScenarioVariable> constants = config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(ScenarioVariable::isConstantValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
+            constants.forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // List类型的变量
+            List<ScenarioVariable> variableList = config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(ScenarioVariable::isListValid).filter(ScenarioVariable::isEnable).collect(Collectors.toList());
+            variableList.forEach(item -> {
+                String[] arrays = item.getValue().split(",");
+                for (int i = 0; i < arrays.length; i++) {
+                    arguments.addArgument(item.getName() + "_" + (i + 1), arrays[i], "=");
+                }
+            });
+            // 清空变量，防止重复添加
+            config.getConfig().get(projectId).getCommonConfig().getVariables().remove(constants);
+            config.getConfig().get(projectId).getCommonConfig().getVariables().remove(variableList);
+        }
+
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
+    }
+
+    public static void addOtherVariables(ParameterConfig config, HashTree httpSamplerTree, String projectId) {
+        if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
+            ElementUtil.addCsvDataSet(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), config, "shareMode.group");
+            ElementUtil.addCounter(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables(), false);
+            ElementUtil.addRandom(httpSamplerTree, config.getConfig().get(projectId).getCommonConfig().getVariables());
+        }
+    }
+
 }

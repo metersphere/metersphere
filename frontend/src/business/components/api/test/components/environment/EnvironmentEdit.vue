@@ -2,19 +2,27 @@
   <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
     <el-form :model="environment" :rules="rules" ref="environment" label-width="80px">
       <el-row>
-        <el-col :span="20">
-          <el-form-item prop="name" :label="$t('api_test.environment.name')">
-            <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
-                      clearable/>
+        <el-col :span="10" v-if="!isProject">
+          <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
+            <el-select @change="handleProjectChange" v-model="environment.currentProjectId" filterable clearable
+                       size="small">
+              <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+            </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="4" v-if="!hideButton">
+        <el-col :span="10">
+          <el-form-item prop="name" :label="$t('api_test.environment.name')">
+            <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')"
+                      clearable size="small"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4" v-if="!hideButton" :offset="isProject ? 10 : 0">
           <div style="float: right;width: fit-content;">
             <div style="float: left; margin-right: 8px;">
               <slot name="other"></slot>
             </div>
             <div class="ms_btn">
-              <el-button type="primary" @click="confirm" @keydown.enter.native.prevent>
+              <el-button type="primary" @click="confirm" @keydown.enter.native.prevent size="small">
                 {{ $t('commons.confirm') }}
               </el-button>
             </div>
@@ -30,7 +38,7 @@
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.environment.http_config')" name="http">
-          <ms-environment-http-config :project-id="projectId" :http-config="environment.config.httpConfig"
+          <ms-environment-http-config :project-id="environment.projectId" :http-config="environment.config.httpConfig"
                                       ref="httpConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.environment.database_config')" name="sql">
@@ -40,7 +48,7 @@
           <ms-tcp-config :config="environment.config.tcpConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('commons.ssl.config')" name="ssl">
-          <ms-environment-s-s-l-config :project-id="projectId" :ssl-config="environment.config.sslConfig"
+          <ms-environment-s-s-l-config :project-id="environment.projectId" :ssl-config="environment.config.sslConfig"
                                        :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
@@ -95,9 +103,10 @@
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item style="margin-bottom: 0px;"
-                  :label="$t('error_report_library.use_error_report')"
-                  prop="status">
-                  <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px" :disabled="isReadOnly"/>
+                              :label="$t('error_report_library.use_error_report')"
+                              prop="status">
+                  <el-switch v-model="environment.config.useErrorCode" style="margin-right: 10px"
+                             :disabled="isReadOnly"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -128,11 +137,7 @@
                              :is-show-json-path-suggest="false"/>
         </el-tab-pane>
       </el-tabs>
-      <!--      <div class="environment-footer">-->
-      <!--        <ms-dialog-footer-->
-      <!--          @cancel="cancel"-->
-      <!--          @confirm="save()"/>-->
-      <!--      </div>-->
+
     </el-form>
     <ms-change-history ref="changeHistory"/>
   </el-main>
@@ -158,6 +163,7 @@ import EnvironmentGlobalScript from "@/business/components/api/test/components/e
 import GlobalAssertions from "@/business/components/api/definition/components/assertion/GlobalAssertions";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import MsDialogHeader from "../../../../common/components/MsDialogHeader";
+import {getUploadConfig, request} from "@/common/js/ajax";
 
 export default {
   name: "EnvironmentEdit",
@@ -185,6 +191,13 @@ export default {
       type: Boolean,
       default: false
     },
+    projectList: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
+    isProject: Boolean
   },
   data() {
     return {
@@ -195,6 +208,9 @@ export default {
         name: [
           {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
           {max: 64, message: this.$t('commons.input_limit', [1, 64]), trigger: 'blur'}
+        ],
+        currentProjectId: [
+          {required: true, message: "", trigger: 'blur'},
         ],
       },
       headerSuggestions: REQUEST_HEADERS,
@@ -295,6 +311,15 @@ export default {
         this.isRefresh = true;
       });
       this.envEnable = o.enable;
+    },
+    //当创建及复制环境所选择的项目变化时，改变当前环境对应的projectId
+    'environment.currentProjectId'() {
+      // el-select什么都不选时值为''，为''的话也会被当成有效的projectId传给后端，转化使其无效
+      if (!this.environment.currentProjectId) {
+        this.environment.projectId = null;
+      } else {
+        this.environment.projectId = this.environment.currentProjectId;
+      }
     }
   },
   computed: {
@@ -361,6 +386,29 @@ export default {
       }
       return uploadFiles;
     },
+    getVariablesFiles(obj) {
+      let variablesFiles = [];
+      obj.variablesFilesIds = [];
+      // 场景变量csv 文件
+      if (obj.config.commonConfig.variables) {
+        obj.config.commonConfig.variables.forEach(param => {
+          if (param.type === 'CSV' && param.files) {
+            param.files.forEach(item => {
+              if (item.file && item.file.name) {
+                if (!item.id) {
+                  let fileId = getUUID().substring(0, 12);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                }
+                obj.variablesFilesIds.push(item.id);
+                variablesFiles.push(item.file);
+              }
+            })
+          }
+        });
+      }
+      return variablesFiles;
+    },
     check(items) {
       let repeatKey = "";
       items.forEach((item, index) => {
@@ -373,7 +421,7 @@ export default {
       return repeatKey;
     },
     _save(environment) {
-      if (!this.projectId) {
+      if (!environment.projectId) {
         this.$warning(this.$t('api_test.select_project'));
         return;
       }
@@ -401,25 +449,47 @@ export default {
           }
         })
       }
+      environment.config.commonConfig.variables.forEach(variable => {
+        if (variable.type === 'CSV' && variable.files.length === 0) {
+          message = this.$t('api_test.automation.csv_warning');
+          return;
+        }
+      })
       if (message) {
         this.$warning(message);
         return;
       }
+
       let bodyFiles = this.geFiles(environment);
+      let variablesFiles = this.getVariablesFiles(environment);
+      let formData = new FormData();
+      if (bodyFiles) {
+        bodyFiles.forEach(f => {
+          formData.append("files", f);
+        })
+      }
+      if (variablesFiles) {
+        variablesFiles.forEach(f => {
+          formData.append("variablesFiles", f);
+        })
+      }
       let param = this.buildParam(environment);
       let url = '/api/environment/add';
       if (param.id) {
         url = '/api/environment/update';
       }
-      this.$fileUpload(url, null, bodyFiles, param, response => {
-        //this.result = this.$post(url, param, response => {
-        if (!param.id) {
-          environment.id = response.data;
+      formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
+      let axiosRequestConfig = getUploadConfig(url, formData);
+      request(axiosRequestConfig, (response) => {
+        if (response.success) {
+          this.$success(this.$t('commons.save_success'));
+          this.$emit('refreshAfterSave');   //在EnvironmentList.vue中监听，使在数据修改后进行刷新
+          this.cancel()
         }
-        this.$success(this.$t('commons.save_success'));
-        this.$emit('refreshAfterSave');   //在EnvironmentList.vue中监听，使在数据修改后进行刷新
-        this.cancel();
+      }, error => {
+        this.$emit('errorRefresh', error);
       });
+
     },
     buildParam: function (environment) {
       let param = {};
@@ -447,6 +517,9 @@ export default {
     clearValidate() {
       this.$refs["environment"].clearValidate();
     },
+    handleProjectChange() {   //项目选择下拉框选择其他项目后清空“启用条件”,因为项目变了模块也就变了。
+      this.environment.config.httpConfig.conditions = [];
+    },
   },
 }
 </script>
@@ -468,10 +541,11 @@ span:not(:first-child) {
   margin-top: 15px;
 }
 
-.errorReportConfigSwitch /deep/ .el-switch__label{
+.errorReportConfigSwitch /deep/ .el-switch__label {
   color: #D8DAE2;
 }
-.errorReportConfigSwitch /deep/ .is-active{
+
+.errorReportConfigSwitch /deep/ .is-active {
   color: var(--count_number);
 }
 </style>

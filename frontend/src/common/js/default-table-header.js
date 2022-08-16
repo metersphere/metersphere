@@ -246,6 +246,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '2', label: 'api_test.variable_name'},
     {id: 'type', key: '3', label: 'test_track.case.type'},
     {id: 'value', key: '4', label: 'api_test.value'},
+    {id: 'description', key: '5', label: 'commons.description'}
   ],
 
   //缺陷列表

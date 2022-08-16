@@ -226,10 +226,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             setHeader(httpSamplerTree, config.getHeaders());
         }
         // 环境通用请求头
-        Arguments arguments = getConfigArguments(config);
+        Arguments arguments = ElementUtil.getConfigArguments(config, this.getName(), this.getProjectId(), null);
         if (arguments != null) {
             httpSamplerTree.add(arguments);
         }
+        //添加csv
+        ElementUtil.addOtherVariables(config, httpSamplerTree, this.getProjectId());
         //判断是否要开启DNS
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
@@ -353,6 +355,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             }
                         }
                     } catch (Exception e) {
+                        LogUtil.error(e.getMessage(), e);
                     }
                 }
                 if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
@@ -682,7 +685,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             arguments.addArgument(httpArgument);
                         }
                     } catch (Exception e) {
-
+                        LogUtil.error(e.getMessage(), e);
                     }
                 }
         );
@@ -726,30 +729,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (headerManager.getHeaders().size() > 0 && isAdd) {
             tree.add(headerManager);
         }
-    }
-
-    /**
-     * 环境通用变量，这里只适用用接口定义和用例，场景自动化会加到场景中
-     */
-    private Arguments getConfigArguments(ParameterConfig config) {
-        Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        // 环境通用变量
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-            // 清空变量，防止重复添加
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
-        }
-        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
-            return arguments;
-        }
-        return null;
     }
 
     private void addArguments(HashTree tree, String key, String value) {
