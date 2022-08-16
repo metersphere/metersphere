@@ -9,4 +9,7 @@ public interface ApiDefinitionSyncService {
 
     ApiSyncCaseRequest getApiSyncCaseRequest(String projectId);
 
+    Boolean getProjectApplications(String projectId);
+
+
 }

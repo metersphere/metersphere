@@ -1333,56 +1333,43 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private void buildCaseList(Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap,
                                Map<String, ApiTestCaseWithBLOBs> caseNameMap,
                                ApiDefinitionWithBLOBs definitionWithBLOBs, List<ApiTestCaseWithBLOBs> optionDataCases) {
-        //找出系统内重复接口每个接口的case
-        List<ApiTestCaseWithBLOBs> apiTestCases = oldCaseMap.get(definitionWithBLOBs.getId());
-        //map List 结构是因为表里可能一个接口有多个同名case的可能
+        //找出系统内重复接口的case，表里可能一个接口有多个同名case的可能
+        List<ApiTestCaseWithBLOBs> oldApiTestCases = oldCaseMap.get(definitionWithBLOBs.getId());
+
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseNameMap;
-        //如果有重复接口，处理重复接口
-        if (CollectionUtils.isNotEmpty(apiTestCases)) {
-            oldCaseNameMap = apiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getName));
-            caseNameMap.forEach((name, caseWithBLOBs1) -> {
+        //如果重复用例有多个，则覆盖最后的那个
+        if (CollectionUtils.isNotEmpty(oldApiTestCases)) {
+            oldCaseNameMap = oldApiTestCases.stream().collect(Collectors.groupingBy(ApiTestCase::getName));
+            caseNameMap.forEach((name, importCaseWithBLOBs) -> {
                 //如果导入的有重名，覆盖，接口ID替换成系统内的
-                caseWithBLOBs1.setApiDefinitionId(definitionWithBLOBs.getId());
+                importCaseWithBLOBs.setApiDefinitionId(definitionWithBLOBs.getId());
                 List<ApiTestCaseWithBLOBs> caseWithBLOBs = oldCaseNameMap.get(name);
                 if (CollectionUtils.isNotEmpty(caseWithBLOBs)) {
-                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = caseWithBLOBs.get(0);
-                    if (apiTestCaseWithBLOBs1 != null) {
-                        if (caseWithBLOBs.size() > 1) {
-                            for (int i = 0; i < caseWithBLOBs.size(); i++) {
-                                int version = 0;
-                                if (caseWithBLOBs.get(i).getVersion() != null) {
-                                    version = caseWithBLOBs.get(i).getVersion() + 1;
-                                }
-                                if (i == 0) {
-                                    caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
-                                    caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
-                                    caseWithBLOBs1.setVersion(version);
-                                } else {
-                                    ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
-                                    BeanUtils.copyBean(apiTestCaseWithBLOBs, caseWithBLOBs1);
-                                    apiTestCaseWithBLOBs.setId(caseWithBLOBs.get(i).getId());
-                                    apiTestCaseWithBLOBs.setNum(caseWithBLOBs.get(i).getNum());
-                                    apiTestCaseWithBLOBs.setVersion(version);
-                                    apiTestCaseWithBLOBs.setVersionId("create_repeat");
-                                    optionDataCases.add(apiTestCaseWithBLOBs);
-                                }
-                            }
-                        } else {
-                            caseWithBLOBs1.setId(apiTestCaseWithBLOBs1.getId());
-                            caseWithBLOBs1.setNum(apiTestCaseWithBLOBs1.getNum());
-                            caseWithBLOBs1.setVersion(apiTestCaseWithBLOBs1.getVersion() == null ? 0 : apiTestCaseWithBLOBs1.getVersion() + 1);
+                    for (int i = 0; i < caseWithBLOBs.size(); i++) {
+                        int version = 0;
+                        if (caseWithBLOBs.get(i).getVersion() != null) {
+                            version = caseWithBLOBs.get(i).getVersion() + 1;
                         }
-                        oldCaseNameMap.remove(name);
-                    } else {
-                        caseWithBLOBs1.setVersion(0);
+                        if (i == 0) {
+                            //被覆盖数据
+                            importCaseWithBLOBs.setId(caseWithBLOBs.get(i).getId());
+                            importCaseWithBLOBs.setNum(caseWithBLOBs.get(i).getNum());
+                            importCaseWithBLOBs.setVersion(version);
+                            importCaseWithBLOBs.setCreateUserId(caseWithBLOBs.get(i).getCreateUserId());
+                            importCaseWithBLOBs.setUpdateUserId(caseWithBLOBs.get(i).getCreateUserId());
+                        } else {
+                            caseWithBLOBs.get(i).setVersionId("old_case");
+                            optionDataCases.add(caseWithBLOBs.get(i));
+                        }
                     }
+                    oldCaseNameMap.remove(name);
                 }
             });
         } else {
-            //否则直接给新增接口赋值新的接口ID
+            //否则直接给新增用例赋值新的接口ID
             caseNameMap.forEach((name, caseWithBLOBs1) -> {
-                //如果导入的有重名，覆盖，接口ID替换成系统内的
                 caseWithBLOBs1.setApiDefinitionId(definitionWithBLOBs.getId());
+                caseWithBLOBs1.setVersion(0);
             });
         }
     }
@@ -1393,7 +1380,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = definitionIdCaseMAp.get(apiDefinitionWithBLOBs.getId());
         if (CollectionUtils.isNotEmpty(caseWithBLOBs)) {
-            return caseWithBLOBs.stream().filter(t -> !StringUtils.equalsIgnoreCase("create_repeat", t.getVersionId())).collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
+            return caseWithBLOBs.stream().filter(t -> !StringUtils.equalsIgnoreCase("old_case", t.getVersionId())).collect(Collectors.toMap(ApiTestCase::getName, testCase -> testCase));
         } else {
             return null;
         }
