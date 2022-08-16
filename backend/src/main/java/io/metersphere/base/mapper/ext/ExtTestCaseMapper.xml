@@ -262,7 +262,7 @@
             test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
             test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
             test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.other_test_name, test_case.review_status, test_case.tags,
+            test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,
             test_case.ref_id
@@ -286,7 +286,7 @@
             test_case.version_id,
             test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
             test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.other_test_name, test_case.review_status, test_case.tags,
+            test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.`status`,
             test_case.custom_num, test_case.step_model, test_case.create_user,
             test_case.custom_fields,test_case.case_public ,
@@ -425,7 +425,7 @@
         test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
         test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
         test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-        test_case.other_test_name, test_case.review_status, test_case.tags,
+        test_case.review_status, test_case.tags,
         test_case.demand_id, test_case.demand_name, test_case.`status`,
         test_case.custom_num, test_case.step_model, test_case.create_user,
         test_case.custom_fields,test_case.case_public,test_case.ref_id ,test_case.`order`
@@ -1263,9 +1263,6 @@
             </if>
             <if test="record.num != null">
                 num = #{record.num,jdbcType=INTEGER},
-            </if>
-            <if test="record.otherTestName != null">
-                other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
             </if>
             <if test="record.reviewStatus != null">
                 review_status = #{record.reviewStatus,jdbcType=VARCHAR},
