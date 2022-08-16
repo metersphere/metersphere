@@ -2084,7 +2084,6 @@ export default {
     ui_scenario_test_case: "UI 測試用例",
     report_statistics: "報告統計",
     sort: '種類',
-    other_test_name: '其他測試名稱',
     automatic_status_update: "自動狀態更新",
     case: {
       list: "列表",

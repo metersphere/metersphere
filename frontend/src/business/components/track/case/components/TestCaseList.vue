@@ -236,7 +236,6 @@ import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-compon
 import BatchEdit from "./BatchEdit";
 import {TEST_CASE_LIST} from "@/common/js/constants";
 import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
-import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import MsTag from "@/business/components/common/components/MsTag";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus.vue";
@@ -317,7 +316,6 @@ export default {
     MsTableHeader,
     BatchEdit,
     StatusTableItem,
-    TestCaseDetail,
     ReviewStatus,
     MsTag, ApiStatus,
     "relationshipGraphDrawer": relationshipGraphDrawer.default,
@@ -1010,9 +1008,6 @@ export default {
     refreshAll() {
       this.$refs.table.clear();
       this.$emit('refreshAll');
-    },
-    showDetail(row, event, column) {
-      this.$emit('testCaseDetail', row);
     },
     importTestCase() {
       if (!this.projectId) {

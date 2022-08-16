@@ -53,7 +53,6 @@
               :version-enable="versionEnable"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
-              @testCaseDetail="showTestCaseDetail"
               @getTrashList="getTrashList"
               @getPublicList="getPublicList"
               @refresh="refreshTrashNode"
@@ -77,7 +76,6 @@
             @testCaseEdit="editTestCase"
             @testCaseEditShow="editTestCaseShow"
             @testCaseCopy="copyTestCase"
-            @testCaseDetail="showTestCaseDetail"
             @getTrashList="getTrashList"
             @getPublicList="getPublicList"
             @refresh="refresh"
@@ -112,7 +110,6 @@
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
-              @testCaseDetail="showTestCaseDetail"
               @getTrashList="getTrashList"
               @getPublicList="getPublicList"
               @refresh="refresh"
@@ -688,9 +685,6 @@ export default {
       this.testCaseReadOnly = false;
       testCase.isCopy = true;
       this.addTab({name: 'edit', testCaseInfo: testCase});
-    },
-    showTestCaseDetail(testCase) {
-      this.testCaseReadOnly = true;
     },
     refresh(data) {
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {

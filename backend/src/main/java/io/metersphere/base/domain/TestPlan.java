@@ -19,10 +19,6 @@ public class TestPlan implements Serializable {
 
     private String stage;
 
-    private String testCaseMatchRule;
-
-    private String executorMatchRule;
-
     private Long createTime;
 
     private Long updateTime;
