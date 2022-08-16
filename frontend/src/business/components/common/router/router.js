@@ -93,7 +93,7 @@ function redirectLoginPath(originPath, next) {
   }
 }
 
-function getDefaultSecondLevelMenu(toPath) {
+export function getDefaultSecondLevelMenu(toPath) {
   let {TRACK: tracks, API: apis, LOAD: loads} = SECOND_LEVEL_ROUTE_PERMISSION_MAP;
   if (tracks.map(r => r.router).indexOf(toPath) > -1) {
     return _getDefaultSecondLevelMenu(tracks, toPath);
