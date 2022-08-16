@@ -330,10 +330,10 @@ public class IssueTemplateService extends TemplateBaseService {
 
     public List<IssueTemplate> copy(CopyIssueTemplateRequest request) {
         if (CollectionUtils.isEmpty(request.getTargetProjectIds())) {
-            MSException.throwException("cannot copy, target project not checked");
+            MSException.throwException(Translator.get("target_issue_template_not_checked"));
         }
         if (request.getId() == null) {
-            MSException.throwException("copy error, source project is empty");
+            MSException.throwException(Translator.get("source_issue_template_is_empty"));
         }
         List<IssueTemplate> issueTemplateRecords = new ArrayList<>();
         List<CustomField> customFieldRecords = new ArrayList<>();
