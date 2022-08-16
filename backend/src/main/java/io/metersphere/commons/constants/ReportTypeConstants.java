@@ -9,6 +9,7 @@ public enum ReportTypeConstants {
      * 所有接口类型，包括接口、接口用例
      */
     API,
+    UI,
     SCENARIO_INTEGRATED,
     SCENARIO_INDEPENDENT,
     API_INTEGRATED,

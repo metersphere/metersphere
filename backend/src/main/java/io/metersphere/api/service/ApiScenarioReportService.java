@@ -478,7 +478,7 @@ public class ApiScenarioReportService {
             if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
                 scenario.setLastResult(status);
             } else {
-                scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+                scenario.setLastResult(errorSize > 0 ? ScenarioStatus.Fail.name() : ScenarioStatus.Success.name());
             }
 
             long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
@@ -884,13 +884,13 @@ public class ApiScenarioReportService {
         long errorReportResultSize = dto.getRequestResults().stream().filter(requestResult ->
                 StringUtils.equalsIgnoreCase(requestResult.getStatus(), ExecuteResult.ERROR_REPORT_RESULT.toString())).count();
         //类型为ui时的统计
-        if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith("UI")) {
+        if (StringUtils.isNotEmpty(dto.getRunMode()) && dto.getRunMode().startsWith(ReportTypeConstants.UI.name())) {
             try {
                 errorSize = dto.getRequestResults().stream().filter(requestResult ->
                                 StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
                                         && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
                                         r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                                ).count() > 0)
+                                ).anyMatch())
                         .count();
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
