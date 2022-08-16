@@ -37,9 +37,23 @@
                   <el-button size="small" style="margin-left: 10px" type="primary" @click="addVariable">
                     {{ $t('commons.add') }}
                   </el-button>
-                  <el-link @click="batchAddParameter" type="primary" :disabled="disabled" style="margin-left: 10px">
-                    {{ $t("commons.batch_add") }}
-                  </el-link>
+                  <el-dropdown style="margin-left: 10px">
+                    <el-button size="small">
+                      <span class="tip-font">{{ $t('commons.more_operator') }}</span>
+                      <i class="el-icon-arrow-down el-icon--right"/>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item @click.native.stop="importVariable" @mergeData="mergeData" :disabled="disabled">
+                        {{ $t("commons.import_variable") }}
+                      </el-dropdown-item>
+                      <el-dropdown-item @click.native.stop="exportVariable" :disabled="disabled">
+                        {{ $t("commons.export_variable") }}
+                      </el-dropdown-item>
+                      <el-dropdown-item @click.native.stop="batchAddParameter" :disabled="disabled">
+                        {{ $t("commons.batch_add") }}
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
                 </div>
               </el-row>
               <el-row>
@@ -92,6 +106,13 @@
                               :field="item"
                               :fields-width="fieldsWidth"
                               :label="$t('api_test.value')"
+                              sortable>
+                            </ms-table-column>
+                            <ms-table-column
+                              prop="description"
+                              :field="item"
+                              :fields-width="fieldsWidth"
+                              :label="$t('commons.description')"
                               sortable>
                             </ms-table-column>
                           </span>
@@ -149,6 +170,7 @@
         </template>
       </el-collapse-transition>
     </fieldset>
+    <variable-import ref="variableImport"></variable-import>
   </el-dialog>
 </template>
 
@@ -161,7 +183,7 @@ import MsEditCounter from "./EditCounter";
 import MsEditRandom from "./EditRandom";
 import MsEditListValue from "./EditListValue";
 import MsEditCsv from "./EditCsv";
-import {getUUID} from "@/common/js/utils";
+import {downloadFile, getUUID} from "@/common/js/utils";
 import MsApiKeyValue from "../../../definition/components/ApiKeyValue";
 import BatchAddParameter from "../../../definition/components/basis/BatchAddParameter";
 import {KeyValue} from "../../../definition/model/ApiTestModel";
@@ -170,6 +192,7 @@ import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getCustomTableHeader, getCustomTableWidth} from "@/common/js/tableUtils";
+import VariableImport from "@/business/components/api/automation/scenario/variable/VariableImport";
 
 const jsondiffpatch = require('jsondiffpatch');
 
@@ -188,6 +211,7 @@ export default {
     BatchAddParameter,
     MsTableColumn,
     MsTable,
+    VariableImport
   },
   data() {
     return {
@@ -230,6 +254,46 @@ export default {
     };
   },
   methods: {
+    importVariable() {
+      this.$refs.variableImport.open();
+    },
+    mergeData(data, modeId) {
+      JSON.parse(data).map(importData => {
+        importData.id = getUUID();
+        importData.enable = true;
+        importData.showMore = false;
+        let sameNameIndex = this.variables.findIndex(d => d.name === importData.name);
+        if (sameNameIndex !== -1) {
+          if (modeId === 'fullCoverage') {
+            this.variables.splice(sameNameIndex, 1, importData);
+          }
+        } else {
+          this.variables.splice(this.variables.length - 1, 0, importData);
+        }
+      })
+    },
+    exportVariable() {
+      if (this.$refs.variableTable.selectIds.length < 1) {
+        this.$warning(this.$t('api_test.environment.select_environment'));
+        return;
+      }
+      let variablesJson = [];
+      let messages = '';
+      let rows = this.$refs.variableTable.selectRows;
+      rows.forEach(row => {
+        if (row.type === 'CSV') {
+          messages = this.$t('variables.csv_download')
+        }
+        if (row.name) {
+          variablesJson.push(row);
+        }
+      })
+      if (messages !== '') {
+        this.$warning(messages);
+        return;
+      }
+      downloadFile('MS_' + variablesJson.length + '_Environments_variables.json', JSON.stringify(variablesJson));
+    },
     batchAddParameter() {
       this.$refs.batchAddParameter.open();
     },
@@ -241,20 +305,21 @@ export default {
         let params = data.split("\n");
         let keyValues = [];
         params.forEach(item => {
-          let line = item.split(/：|:/);
-          let required = false;
-          keyValues.unshift(new KeyValue({
-            name: line[0],
-            required: required,
-            value: line[1],
-            description: line[2],
-            type: "text",
-            valid: false,
-            file: false,
-            encode: true,
-            enable: true,
-            contentType: "text/plain"
-          }));
+          if (item) {
+            let line = item.split(/：|:/);
+            let required = false;
+            keyValues.push(new KeyValue({
+              name: line[0],
+              required: required,
+              value: line[1],
+              description: line[2],
+              type: "CONSTANT",
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+            }));
+          }
         })
         return keyValues;
       }
@@ -278,7 +343,7 @@ export default {
           }
         }
         if (isAdd) {
-          this.headers.unshift(obj);
+          this.headers.splice(this.headers.indexOf(h => !h.name), 0, obj);
         }
       }
     },
@@ -346,6 +411,18 @@ export default {
       this.disabled = disabled;
       this.$nextTick(() => {
         this.$refs.variableTable.doLayout();
+        let variable = [];
+        let messages = '';
+        this.variables.forEach(item => {
+          if (variable.indexOf(item.name) !== -1) {
+            messages += item.name + ' ,';
+          } else {
+            variable.push(item.name);
+          }
+        })
+        if (messages !== '') {
+          this.$alert(this.$t('api_test.scenario.variables') + "【" + messages.substr(0, messages.length - 1) + "】" + this.$t('load_test.param_is_duplicate'));
+        }
       });
     },
     save() {
@@ -382,6 +459,18 @@ export default {
         this.$warning(this.$t('api_test.automation.variable_warning'));
         return;
       }
+      let repeatKey = "";
+      if (!this.showDelete) {
+        this.variables.forEach((item, index) => {
+          if (item.name === this.editData.name) {
+            repeatKey = item.name;
+          }
+        });
+      }
+      if (repeatKey !== "") {
+        this.$warning(this.$t('api_test.scenario.variables') + "【" + repeatKey + "】" + this.$t('load_test.param_is_duplicate'));
+        return;
+      }
       if (this.editData.type === 'CSV' && this.$refs.csv) {
         if (this.editData.files.length === 0) {
           this.$warning(this.$t('api_test.automation.csv_warning'));
@@ -407,7 +496,7 @@ export default {
     deleteVariable() {
       let ids = [this.editData.id];
       if (ids.length == 0) {
-        this.$warning("请选择一条数据删除");
+        this.$warning(this.$t('api_test.environment.delete_info'));
         return;
       }
       let message = "";
@@ -419,7 +508,7 @@ export default {
       });
       if (message !== "") {
         message = message.substr(0, message.length - 1);
-        this.$alert('是否确认删除变量：【 ' + message + " 】？", '', {
+        this.$alert(this.$t('api_test.environment.variables_delete_info') + '：【 ' + message + " 】？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -442,7 +531,7 @@ export default {
       }
     },
     handleDeleteBatch() {
-      this.$alert("是否确认删除所选变量" + ' ' + " ？", '', {
+      this.$alert(this.$t('api_test.environment.variables_delete_info') + ' ' + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {

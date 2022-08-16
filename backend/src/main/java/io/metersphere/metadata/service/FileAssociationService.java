@@ -1,5 +1,6 @@
 package io.metersphere.metadata.service;
 
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
@@ -104,7 +105,7 @@ public class FileAssociationService {
         }
     }
 
-    public void saveApi(String id, MsTestElement request,String type) {
+    public void saveApi(String id, MsTestElement request, String type) {
         this.deleteByResourceId(id);
         if (StringUtils.isNotEmpty(id) && request != null && StringUtils.equalsIgnoreCase(request.getType(), HTTPSamplerProxy.class.getSimpleName())) {
             MsHTTPSamplerProxy samplerProxy = (MsHTTPSamplerProxy) request;
@@ -131,6 +132,22 @@ public class FileAssociationService {
                 List<BodyFile> list = files.stream().distinct().collect(Collectors.toList());
                 this.save(list, FileAssociationType.SCENARIO.name(), id);
             }
+        }
+    }
+
+    public void saveEnvironment(String id, String config, String type) {
+        this.deleteByResourceId(id);
+        List<BodyFile> files = new ArrayList<>();
+        if (StringUtils.isNotEmpty(config)) {
+            JSONObject commonConfig = JSONObject.parseObject(config).getJSONObject("commonConfig");
+            List<ScenarioVariable> list = JSONObject.parseArray(commonConfig.getString("variables"), ScenarioVariable.class);
+            list.stream().filter(ScenarioVariable::isCSVValid).forEach(keyValue -> {
+                files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
+            });
+        }
+        if (!CollectionUtils.isEmpty(files)) {
+            List<BodyFile> list = files.stream().distinct().collect(Collectors.toList());
+            this.save(list, type, id);
         }
     }
 

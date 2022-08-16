@@ -165,11 +165,12 @@ public class MsJDBCSampler extends MsTestElement {
             tree.add(arguments);
         }
         // 环境通用请求头
-        Arguments envArguments = getConfigArguments(config);
+        Arguments envArguments = ElementUtil.getConfigArguments(config, this.getName(), this.getProjectId(), null);
         if (envArguments != null) {
             tree.add(envArguments);
         }
-
+        //添加csv
+        ElementUtil.addOtherVariables(config, tree, this.getProjectId());
         //增加误报、全局断言
         HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
 
@@ -190,30 +191,6 @@ public class MsJDBCSampler extends MsTestElement {
         //根据配置将脚本放置在私有脚本之后
         JMeterScriptUtil.setScriptByEnvironmentConfig(envConfig, samplerHashTree, GlobalScriptFilterRequest.JDBC.name(), environmentId, config, true);
 
-    }
-
-    /**
-     * 环境通用变量
-     */
-    private Arguments getConfigArguments(ParameterConfig config) {
-        Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        // 环境通用变量
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), ElementUtil.getEvlValue(keyValue.getValue()), "=")
-            );
-            // 清空变量，防止重复添加
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
-        }
-        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
-            return arguments;
-        }
-        return null;
     }
 
     private boolean isDataSource(List<DatabaseConfig> databaseConfigs) {

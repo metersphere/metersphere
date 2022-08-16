@@ -171,11 +171,12 @@ public class MsTCPSampler extends MsTestElement {
         }
 
         // 添加环境中的公共变量
-        Arguments arguments = ElementUtil.addArguments(config, this.getProjectId(), this.getName());
+        Arguments arguments = ElementUtil.getConfigArguments(config, this.getName(), this.getProjectId(), null);
         if (arguments != null) {
             tree.add(arguments);
         }
-
+        //添加csv
+        ElementUtil.addOtherVariables(config, tree, this.getProjectId());
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(config), samplerHashTree);

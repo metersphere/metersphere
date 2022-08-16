@@ -32,7 +32,9 @@
             <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
               <template v-slot="scope">
                 <span v-if="parseDomainName(scope.row)!='SHOW_INFO'">{{ parseDomainName(scope.row) }}</span>
-                <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>{{ $t('workspace.env_group.view_details') }}</el-button>
+                <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>
+                  {{ $t('workspace.env_group.view_details') }}
+                </el-button>
               </template>
             </el-table-column>
             <el-table-column :label="$t('commons.operating')">
@@ -57,18 +59,20 @@
         </el-card>
 
         <!-- 创建、编辑、复制环境时的对话框 -->
-        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px">
+        <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px"
+                   :fullscreen="isFullScreen">
           <template #title>
             <ms-dialog-header :title="dialogTitle" :hide-button="true"
                               @cancel="dialogVisible = false"
-                              @confirm="save"/>
+                              @confirm="save" @fullScreen="fullScreen"/>
           </template>
           <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
-                            @confirm="save"
-                            :project-id="currentProjectId" @refreshAfterSave="refresh">
+                            @confirm="save" :is-project="true"
+                            :project-list="projectList" @refreshAfterSave="refresh">
           </environment-edit>
         </el-dialog>
-        <environment-import :project-list="projectList" :to-import-project-id="currentProjectId" @refresh="refresh" ref="envImport"></environment-import>
+        <environment-import :project-list="projectList" :to-import-project-id="currentProjectId" @refresh="refresh"
+                            ref="envImport"></environment-import>
 
         <el-dialog title="域名列表" :visible.sync="domainVisible">
           <el-table :data="conditions">
@@ -94,12 +98,14 @@
                 {{ row.conditionType ? "-" : getDetails(row) }}
               </template>
             </el-table-column>
-            <el-table-column prop="description" show-overflow-tooltip min-width="120px" :label="$t('commons.description')">
+            <el-table-column prop="description" show-overflow-tooltip min-width="120px"
+                             :label="$t('commons.description')">
               <template v-slot:default="{row}">
                 <span>{{ row.description ? row.description : "-" }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
+            <el-table-column prop="createTime" show-overflow-tooltip min-width="120px"
+                             :label="$t('commons.create_time')">
               <template v-slot:default="{row}">
                 <span v-if="!row.conditionType">{{ row.time | timestampFormatDate }}</span>
                 <span v-else>-</span>
@@ -170,6 +176,7 @@ export default {
       projectFilters: [],
       screenHeight: 'calc(100vh - 155px)',
       ifCreate: false, //是否是创建环境
+      isFullScreen: false //是否全屏
     }
   },
   created() {
@@ -180,6 +187,9 @@ export default {
   },
 
   methods: {
+    fullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+    },
     showInfo(row) {
       const config = JSON.parse(row.config);
       this.conditions = config.httpConfig.conditions;
@@ -193,7 +203,7 @@ export default {
       }
       this.domainVisible = true;
     },
-    save(){
+    save() {
       this.$refs.environmentEdit.save();
     },
     getName(row) {
@@ -387,8 +397,7 @@ export default {
       } else {  //旧版本没有对应的config数据,其域名保存在protocol和domain中
         return environment.protocol + '://' + environment.domain;
       }
-    }
-
+    },
   },
 
 
