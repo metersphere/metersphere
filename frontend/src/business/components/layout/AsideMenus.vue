@@ -29,7 +29,7 @@
       </div>
     </el-menu-item>
     <el-menu-item index="/ui" @click="active()" v-if="hasLicense() && check('ui')" onselectstart="return false"
-                  v-permission="['PROJECT_UI_SCENARIO:READ','PROJECT_UI_REPORT:READ']">
+                  v-permission="['PROJECT_UI_SCENARIO:READ','PROJECT_UI_REPORT:READ', 'PROJECT_UI_ELEMENT:READ']">
       <div>
         <svg-icon iconClass="ui" class-name="ms-menu-img"/>
         <span slot="title" class="ms-menu-item-title">{{ $t('commons.ui') }}</span>
