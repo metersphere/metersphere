@@ -28,6 +28,7 @@
       :batch-operators="buttons"
       @handlePageChange="initTableData"
       @handleRowClick="showDetail"
+      row-key="id"
       :fields.sync="fields"
       :remember-order="true"
       :enable-order-drag="enableOrderDrag"
