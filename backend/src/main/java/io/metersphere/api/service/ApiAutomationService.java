@@ -45,6 +45,8 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.log.vo.schedule.ScheduleReference;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.*;
@@ -158,6 +160,8 @@ public class ApiAutomationService {
     private FileAssociationService fileAssociationService;
     @Resource
     private FileAssociationMapper fileAssociationMapper;
+    @Resource
+    private NoticeSendService noticeSendService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -1289,6 +1293,7 @@ public class ApiAutomationService {
             }
 
             checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
+            sendImportScenarioCreateNotice(scenarioWithBLOBs);
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
             extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
@@ -1311,6 +1316,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setRefId(sameRequest.get(0).getRefId() == null ? sameRequest.get(0).getId() : sameRequest.get(0).getRefId());
                 scenarioWithBLOBs.setNum(sameRequest.get(0).getNum()); // 使用第一个num当作本次的num
                 scenarioWithBLOBs.setOrder(sameRequest.get(0).getOrder());
+                sendImportScenarioCreateNotice(scenarioWithBLOBs);
                 batchMapper.insert(scenarioWithBLOBs);
             } else {
                 ApiScenarioWithBLOBs existScenario = scenarioOp.get();
@@ -1319,6 +1325,7 @@ public class ApiAutomationService {
                 scenarioWithBLOBs.setVersionId(apiTestImportRequest.getUpdateVersionId());
                 scenarioWithBLOBs.setOrder(existScenario.getOrder());
                 scenarioWithBLOBs.setNum(existScenario.getNum());
+                sendImportScenarioUpdateNotice(scenarioWithBLOBs);
                 batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
             }
             checkReferenceCase(scenarioWithBLOBs, apiTestCaseMapper, apiDefinitionMapper);
@@ -1403,6 +1410,7 @@ public class ApiAutomationService {
                 if (scenarioWithBLOBs.getRefId() == null) {
                     scenarioWithBLOBs.setRefId(scenarioWithBLOBs.getId());
                 }
+                sendImportScenarioCreateNotice(scenarioWithBLOBs);
                 batchMapper.insert(scenarioWithBLOBs);
                 // 存储依赖关系
                 ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
@@ -1418,6 +1426,46 @@ public class ApiAutomationService {
             _importCreate(sameList, batchMapper, extApiScenarioMapper, scenarioWithBLOBs, apiTestImportRequest, apiTestCaseMapper, apiDefinitionMapper);
         }
         return scenarioWithBLOBs;
+    }
+
+    public void sendImportScenarioUpdateNotice(ApiScenario apiScenario) {
+        String context = SessionUtils.getUserId().concat(Translator.get("update_scenario")).concat(":").concat(apiScenario.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, apiScenario.getProjectId(), SessionUtils.getUserId(), apiScenario.getId(), apiScenario.getName(), apiScenario.getCreateUser());
+        paramMap.put("userId", apiScenario.getUserId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(apiScenario.getId())
+                .subject(Translator.get("scenario_update_notice"))
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.UPDATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
+    }
+
+    public void sendImportScenarioCreateNotice(ApiScenario apiScenario) {
+        String context = SessionUtils.getUserId().concat(Translator.get("create_scenario")).concat(":").concat(apiScenario.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, apiScenario.getProjectId(), SessionUtils.getUserId(), apiScenario.getId(), apiScenario.getName(), apiScenario.getCreateUser());
+        paramMap.put("userId", apiScenario.getUserId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(apiScenario.getId())
+                .subject(Translator.get("scenario_create_notice"))
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.CREATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
+    }
+
+    private void getParamMap(Map<String, Object> paramMap, String projectId, String userId, String id, String name, String createUser) {
+        paramMap.put("projectId", projectId);
+        paramMap.put("operator", userId);
+        paramMap.put("id", id);
+        paramMap.put("name", name);
+        paramMap.put("createUser", createUser);
     }
 
     private void editScenario(ApiTestImportRequest request, ScenarioImport apiImport) {
