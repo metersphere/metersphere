@@ -67,7 +67,12 @@
           <ms-table-pagination :change="initData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                                :total="total"/>
         </el-card>
-        <group-member ref="groupMember" @refresh="initData"/>
+        <group-member
+          ref="groupMember"
+          :edit-permission="['PROJECT_GROUP:READ+EDIT']"
+          :delete-permission="['PROJECT_GROUP:READ+EDIT']"
+          :create-permission="['PROJECT_GROUP:READ+EDIT']"
+          @refresh="initData"/>
         <edit-user-group ref="editUserGroup" @refresh="initData"/>
         <edit-permission ref="editPermission"/>
         <ms-delete-confirm :title="$t('group.delete')" @delete="_handleDel" ref="deleteConfirm"/>
