@@ -41,12 +41,11 @@
              {{ (element.value && isKv ? '(' : '') + element.value + (element.value && isKv ? ')' : '')}}
           </span>
         </span>
-        <i class="operator-icon" v-for="(item, index) in operators"
-           :key="index"
-           :class="item.icon"
-           :disabled="disable"
-           @click="item.click(element, idx)"/>
 
+        <el-link :underline="false" v-for="item in operators" :disabled="element.system && item.isEdit" :key="item.id">
+          <i :class="item.icon"
+             @click="item.click(element, idx)" />
+        </el-link>
       </div>
     </draggable>
 
@@ -84,7 +83,9 @@ export default {
       default() {
         return  [
           {
+            id: 1,
             icon: 'el-icon-edit',
+            isEdit: true,
             click: (element, idx) => {
               if (this.disable) {
                 return;
@@ -95,7 +96,9 @@ export default {
             }
           },
           {
+            id: 2,
             icon: 'el-icon-close',
+            isEdit: false,
             click: (element, idx) => {
               if (this.disable) {
                 return;
