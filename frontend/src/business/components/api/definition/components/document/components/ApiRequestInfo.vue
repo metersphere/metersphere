@@ -29,7 +29,9 @@
           <el-table-column type="expand" :label="getCollapseOption()" width="80px">
             <template slot="header">
               <el-button type="text" size="mini" @click="expandAllRows">
-                {{ expandAllRow ? $t("commons.close_all") : $t("commons.expand_all") }}
+                  <span :id="tableExpandButtonId">
+                  {{ expandTitle }}
+                  </span>
               </el-button>
             </template>
             <template v-slot:default="scope">
@@ -82,8 +84,10 @@ export default {
     return {
       tableData: [],
       language: "zh_CN",
+      tableExpandButtonId: "docTableExpandBtn" + getUUID(),
       active: true,
       expandAllRow: false,
+      expandTitle: this.$t("commons.expand_all"),
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
     };
   },
@@ -91,6 +95,14 @@ export default {
     apiInfo: Object,
   },
   activated() {
+    if (this.apiInfo && this.apiInfo.requestBodyFormData) {
+      this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
+    }
+    //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
+    let user = getCurrentUser();
+    if (user) {
+      this.language = user.language;
+    }
   },
   created: function () {
     if (this.apiInfo && this.apiInfo.requestBodyFormData) {
@@ -103,6 +115,14 @@ export default {
     }
   },
   mounted() {
+    if (this.apiInfo && this.apiInfo.requestBodyFormData) {
+      this.tableData = this.getJsonArr(this.apiInfo.requestBodyFormData);
+    }
+    //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
+    let user = getCurrentUser();
+    if (user) {
+      this.language = user.language;
+    }
   },
   computed: {},
   watch: {
@@ -127,6 +147,8 @@ export default {
         }
       }
       this.expandTitle = this.expandAllRow ? this.$t("commons.close_all") : this.$t("commons.expand_all");
+      let tableHeaderDom = document.getElementById(this.tableExpandButtonId);
+      tableHeaderDom.innerText = this.expandTitle;
     }
   },
   methods: {
