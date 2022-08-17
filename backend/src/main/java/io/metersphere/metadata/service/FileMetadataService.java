@@ -1,5 +1,6 @@
 package io.metersphere.metadata.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
@@ -9,6 +10,10 @@ import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.metadata.utils.MetadataUtils;
 import io.metersphere.metadata.vo.DownloadRequest;
 import io.metersphere.metadata.vo.DumpFileRequest;
@@ -355,5 +360,15 @@ public class FileMetadataService {
         FileMetadataExample fileMetadata = new FileMetadataExample();
         fileMetadata.createCriteria().andProjectIdEqualTo(projectId).andCreateUserEqualTo(createUser);
         return fileMetadataMapper.countByExample(fileMetadata);
+    }
+
+    public String getLogDetails(String id) {
+        FileMetadata fileMetadata = this.getFileMetadataById(id);
+        if (fileMetadata != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(fileMetadata, SystemReference.projectColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(fileMetadata.getId()), fileMetadata.getProjectId(), fileMetadata.getName(), null, columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

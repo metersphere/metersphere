@@ -42,13 +42,12 @@ public class FileMetadataController {
     }
 
     @PostMapping(value = "/create")
-    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = FileMetadataService.class)
+    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)
     public List<FileMetadata> create(@RequestPart("request") FileMetadata request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return fileMetadataService.create(request, files);
     }
 
     @PostMapping(value = "/upload")
-    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = FileMetadataService.class)
     public FileMetadata upload(@RequestPart("request") FileMetadata request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return fileMetadataService.reLoad(request, files);
     }
@@ -72,13 +71,12 @@ public class FileMetadataController {
     }
 
     @GetMapping(value = "/delete/{fileId}")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#fileId)", msClass = FileMetadataService.class)
+    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#fileId)", msClass = FileMetadataService.class)
     public void deleteFile(@PathVariable String fileId) {
         fileMetadataService.deleteFile(fileId);
     }
 
     @PostMapping(value = "/delete/batch")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#fileId)", msClass = FileMetadataService.class)
     public void deleteBatch(@RequestBody List<String> ids) {
         fileMetadataService.deleteBatch(ids);
     }
@@ -89,17 +87,19 @@ public class FileMetadataController {
     }
 
     @PostMapping(value = "/move")
+    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)
     public void move(@RequestBody MoveFIleMetadataRequest request) {
         fileMetadataService.move(request);
     }
 
     @PostMapping(value = "/update")
+    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = FileMetadataService.class)
     public void update(@RequestBody FileMetadata request) {
         fileMetadataService.update(request);
     }
 
-    @PostMapping(value = "/api/upload", consumes = {"multipart/form-data"})
-    public void apiUpload(@RequestPart("request") DumpFileRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+    @PostMapping(value = "/dump/file", consumes = {"multipart/form-data"})
+    public void dumpFile(@RequestPart("request") DumpFileRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         fileMetadataService.dumpFile(request, files);
     }
 
