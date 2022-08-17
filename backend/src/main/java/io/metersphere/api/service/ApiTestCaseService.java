@@ -1317,10 +1317,6 @@ public class ApiTestCaseService {
         ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
         apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo(ReportTriggerMode.CASE.name()).andReferenceTypeEqualTo(MsTestElementConstants.REF.name()).andReferenceIdEqualTo(testId);
         List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
-        if (CollectionUtils.isEmpty(apiScenarioReferenceIds)) {
-            return 0;
-        } else {
-            return apiScenarioReferenceIds.size();
-        }
+        return apiScenarioReferenceIds.size();
     }
 }
