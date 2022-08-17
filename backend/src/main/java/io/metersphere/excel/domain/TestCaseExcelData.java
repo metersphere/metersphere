@@ -81,7 +81,7 @@ public class TestCaseExcelData {
                 if (StringUtils.equalsAny(dto.getName(),
                         TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE),
                         TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE),
-                        TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE).concat("(ID)"))) {
+                        TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
                     continue;
                 }
                 heads.add(new ArrayList<>() {{
