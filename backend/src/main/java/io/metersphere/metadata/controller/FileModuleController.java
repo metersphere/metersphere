@@ -41,7 +41,7 @@ public class FileModuleController {
     }
 
     @PostMapping("/delete")
-    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#nodeIds)", msClass = FileModule.class)
+    @MsAuditLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#nodeIds)", msClass = FileModuleService.class)
     public int deleteNode(@RequestBody List<String> nodeIds) {
         return fileModuleService.deleteNode(nodeIds);
     }

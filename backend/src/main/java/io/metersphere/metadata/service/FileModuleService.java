@@ -10,7 +10,6 @@ import io.metersphere.base.mapper.FileModuleMapper;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
 import io.metersphere.base.mapper.ext.ExtFileModuleMapper;
 import io.metersphere.commons.constants.ApiTestConstants;
-import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -170,10 +169,6 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
     }
 
     private void validateNode(FileModule node) {
-        if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
-            MSException.throwException(Translator.get("test_case_node_level_tip")
-                    + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
-        }
         checkApiModuleExist(node);
     }
 
@@ -275,9 +270,6 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
 
     private void buildUpdateDefinition(FileModuleVo rootNode, List<FileModule> updateNodes, String rootPath, String pId, int level) {
         rootPath = rootPath + rootNode.getName();
-        if (level > 8) {
-            MSException.throwException(Translator.get("node_deep_limit"));
-        }
         if ("root".equals(rootNode.getId())) {
             rootPath = "";
         }
