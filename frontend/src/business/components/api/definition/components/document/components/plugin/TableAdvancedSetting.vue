@@ -4,7 +4,9 @@
       <el-form label-position="left" v-model="advancedValue">
         <div :span="8" v-for="(item, key) in advancedValue" :key="key">
           <el-form-item :label="$t(key) + ' : '" style="margin: 0">
-            {{ advancedValue[key] }}
+            <span style="display: inline-block;overflow-wrap: break-word;text-align: left;max-width: 100%;">
+              {{ advancedValue[key] }}
+            </span>
           </el-form-item>
         </div>
       </el-form>
