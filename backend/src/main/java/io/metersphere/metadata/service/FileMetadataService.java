@@ -253,9 +253,11 @@ public class FileMetadataService {
         if (fileMetadataMapper.selectByPrimaryKey(fileMetadata.getId()) != null) {
             fileMetadata.setUpdateTime(System.currentTimeMillis());
             fileMetadata.setUpdateUser(SessionUtils.getUserId());
-            fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
+            // 历史数据的路径不做更新
+            if (StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
+                fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
+            }
             fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
-
         }
     }
 
@@ -343,6 +345,7 @@ public class FileMetadataService {
             FileMetadataExample fileMetadata = new FileMetadataExample();
             fileMetadata.createCriteria().andProjectIdIn(projectIds).andLoadJarEqualTo(true);
             List<FileMetadata> files = fileMetadataMapper.selectByExample(fileMetadata);
+            files = files.stream().filter(s -> StringUtils.isNotEmpty(s.getPath())).collect(Collectors.toList());
             return files.stream().map(FileMetadata::getPath).collect(Collectors.toList());
         }
         return new LinkedList<>();
