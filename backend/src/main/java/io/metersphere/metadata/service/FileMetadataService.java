@@ -61,41 +61,22 @@ public class FileMetadataService {
             for (MultipartFile file : files) {
                 QueryProjectFileRequest request = new QueryProjectFileRequest();
                 request.setName(file.getOriginalFilename());
-                if (CollectionUtils.isEmpty(this.getProjectFiles(fileMetadata.getProjectId(), request))) {
-                    result.add(this.saveFile(file, fileMetadata));
-                } else {
-                    MSException.throwException(Translator.get("project_file_already_exists"));
-                }
+                result.add(this.saveFile(file, fileMetadata));
+
             }
         }
         return result;
     }
 
     public FileMetadata saveFile(MultipartFile file, FileMetadata fileMetadata) {
-        if (StringUtils.isEmpty(fileMetadata.getId())) {
-            fileMetadata.setId(UUID.randomUUID().toString());
-        }
+        this.initBase(fileMetadata);
         if (StringUtils.isEmpty(fileMetadata.getName())) {
             fileMetadata.setName(file.getOriginalFilename());
         }
-        if (StringUtils.isEmpty(fileMetadata.getStorage())) {
-            fileMetadata.setStorage(StorageConstants.LOCAL.name());
-        }
-        if (StringUtils.isEmpty(fileMetadata.getModuleId())) {
-            fileMetadata.setModuleId(fileModuleService.getDefaultNode(fileMetadata.getProjectId()).getId());
-        }
+        checkName(fileMetadata);
         fileMetadata.setSize(file.getSize());
-        fileMetadata.setCreateTime(System.currentTimeMillis());
-        fileMetadata.setUpdateTime(System.currentTimeMillis());
         String fileType = MetadataUtils.getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType);
-        if (StringUtils.isEmpty(fileMetadata.getCreateUser())) {
-            fileMetadata.setCreateUser(SessionUtils.getUserId());
-        }
-        if (StringUtils.isEmpty(fileMetadata.getUpdateUser())) {
-            fileMetadata.setUpdateUser(SessionUtils.getUserId());
-        }
-
         // 上传文件
         FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
         String path = fileManagerService.upload(file, request);
@@ -110,8 +91,10 @@ public class FileMetadataService {
     }
 
 
-    public FileMetadata saveFile(MultipartFile file) {
-        return saveFile(file, null);
+    public FileMetadata saveFile(MultipartFile file, String projectId) {
+        FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setProjectId(projectId);
+        return saveFile(file, fileMetadata);
     }
 
     public List<FileMetadata> getProjectFiles(String projectId, QueryProjectFileRequest request) {
@@ -280,16 +263,23 @@ public class FileMetadataService {
         if (CollectionUtils.isEmpty(files)) {
             return fileMetadata;
         }
+        fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileMetadata.getId());
+        if (fileMetadata == null) {
+            MSException.throwException("数据已经被删除！");
+        }
         fileMetadata.setSize(files.get(0).getSize());
         String fileType = MetadataUtils.getFileType(files.get(0).getOriginalFilename());
         fileMetadata.setType(fileType);
         if (StringUtils.isEmpty(fileMetadata.getStorage())) {
             fileMetadata.setStorage(StorageConstants.LOCAL.name());
         }
+        // 上传文件
         FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
         fileManagerService.coverFile(files.get(0), request);
-
-        this.update(fileMetadata);
+        // 更新关系数据
+        fileMetadata.setUpdateTime(System.currentTimeMillis());
+        fileMetadata.setUpdateUser(SessionUtils.getUserId());
+        fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
         return fileMetadata;
     }
 
@@ -325,23 +315,25 @@ public class FileMetadataService {
     }
 
     public void dumpFile(DumpFileRequest request, List<MultipartFile> files) {
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setProjectId(request.getProjectId());
-        fileMetadata.setModuleId(request.getModuleId());
         if (CollectionUtils.isEmpty(files)) {
             // 文件已经存储过了
-            String path = FileUtils.BODY_FILE_DIR + '/' + request.getResourceId() + '/' + request.getFileName();
+            String path = StringUtils.join(FileUtils.BODY_FILE_DIR, File.separator, request.getResourceId(), File.separator, request.getFileName());
+            if (request.isCsv()) {
+                path = StringUtils.join(FileUtils.BODY_FILE_DIR, File.separator, request.getResourceId(), "_", request.getFileName());
+            }
             File file = new File(path);
             if (!file.exists()) {
                 MSException.throwException("文件不存在！");
             }
-            MultipartFile multipartFile = fileManagerService.getMultipartFile(file);
-            if (multipartFile != null) {
-                this.create(fileMetadata, new ArrayList<>() {{
-                    this.add(multipartFile);
-                }});
+            if (request.isCsv()) {
+                this.saveFile(file, request.getFileName());
+            } else {
+                this.saveFile(file);
             }
         } else {
+            FileMetadata fileMetadata = new FileMetadata();
+            fileMetadata.setProjectId(request.getProjectId());
+            fileMetadata.setModuleId(request.getModuleId());
             this.create(fileMetadata, files);
         }
     }
@@ -370,5 +362,73 @@ public class FileMetadataService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public boolean isFileExits(String fileId) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(fileId);
+        long fileCount = fileMetadataMapper.countByExample(example);
+        if (fileCount > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public FileMetadata saveFile(File file) {
+        if (file.exists()) {
+            byte[] bytes = FileUtils.fileToByte(file);
+            this.saveFile(bytes, file.getName(), file.length());
+        }
+        return null;
+    }
+
+    public void saveFile(File file, String name) {
+        if (file.exists()) {
+            byte[] bytes = FileUtils.fileToByte(file);
+            this.saveFile(bytes, name, file.length());
+        }
+    }
+
+    public FileMetadata saveFile(byte[] fileByte, String fileName, Long fileSize) {
+        final FileMetadata fileMetadata = new FileMetadata();
+        this.initBase(fileMetadata);
+        fileMetadata.setName(fileName);
+        fileMetadata.setSize(fileSize);
+        String fileType = MetadataUtils.getFileType(fileName);
+        fileMetadata.setType(fileType);
+        checkName(fileMetadata);
+        FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
+        String path = fileManagerService.upload(fileByte, request);
+        fileMetadata.setPath(path);
+        fileMetadataMapper.insert(fileMetadata);
+        return fileMetadata;
+    }
+
+    private void initBase(FileMetadata fileMetadata) {
+        if (fileMetadata == null) {
+            fileMetadata = new FileMetadata();
+        }
+        if (StringUtils.isEmpty(fileMetadata.getId())) {
+            fileMetadata.setId(UUID.randomUUID().toString());
+        }
+        if (StringUtils.isEmpty(fileMetadata.getStorage())) {
+            fileMetadata.setStorage(StorageConstants.LOCAL.name());
+        }
+        if (StringUtils.isEmpty(fileMetadata.getProjectId())) {
+            fileMetadata.setProjectId(SessionUtils.getCurrentProjectId());
+        }
+        if (StringUtils.isEmpty(fileMetadata.getModuleId())) {
+            fileMetadata.setModuleId(fileModuleService.getDefaultNode(fileMetadata.getProjectId()).getId());
+        }
+        fileMetadata.setCreateTime(System.currentTimeMillis());
+        fileMetadata.setUpdateTime(System.currentTimeMillis());
+
+        if (StringUtils.isEmpty(fileMetadata.getCreateUser())) {
+            fileMetadata.setCreateUser(SessionUtils.getUserId());
+        }
+        if (StringUtils.isEmpty(fileMetadata.getUpdateUser())) {
+            fileMetadata.setUpdateUser(SessionUtils.getUserId());
+        }
     }
 }

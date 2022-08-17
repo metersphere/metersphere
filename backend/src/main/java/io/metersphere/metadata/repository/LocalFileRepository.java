@@ -2,6 +2,7 @@ package io.metersphere.metadata.repository;
 
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.metadata.vo.FileRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -16,13 +17,7 @@ public class LocalFileRepository implements FileRepository {
         if (multipartFile == null || request == null || StringUtils.isEmpty(request.getFileName()) || StringUtils.isEmpty(request.getProjectId())) {
             return null;
         }
-        String path = StringUtils.join(FileUtils.BODY_FILE_DIR, "/", request.getProjectId());
-        File fileDir = new File(path);
-        if (!fileDir.exists()) {
-            fileDir.mkdirs();
-        }
-
-        File file = new File(StringUtils.join(path, "/", request.getFileName()));
+        File file = createFile(request);
         try (InputStream in = multipartFile.getInputStream(); OutputStream out = new FileOutputStream(file)) {
             file.createNewFile();
             final int MAX = 4096;
@@ -34,6 +29,18 @@ public class LocalFileRepository implements FileRepository {
             MSException.throwException(Translator.get("upload_fail"));
         }
         return file.getPath();
+    }
+
+    @Override
+    public String saveFile(byte[] bytes, FileRequest request) throws IOException {
+        File file = createFile(request);
+        try (OutputStream ops = new FileOutputStream(file);) {
+            ops.write(bytes);
+            return file.getPath();
+        } catch (Exception e) {
+            LogUtil.info(e);
+        }
+        return null;
     }
 
     @Override
@@ -81,5 +88,15 @@ public class LocalFileRepository implements FileRepository {
             return file.renameTo(newFile);
         }
         return false;
+    }
+
+    private File createFile(FileRequest request) {
+        String path = StringUtils.join(FileUtils.BODY_FILE_DIR, "/", request.getProjectId());
+        File fileDir = new File(path);
+        if (!fileDir.exists()) {
+            fileDir.mkdirs();
+        }
+        File file = new File(StringUtils.join(path, "/", request.getFileName()));
+        return file;
     }
 }
