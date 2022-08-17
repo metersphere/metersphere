@@ -71,13 +71,9 @@ ALTER TABLE test_plan DROP COLUMN executor_match_rule;
 
 -- V130_2-1-0_Add_Ui_Index
 --
-ALTER TABLE `ui_scenario_module` ADD INDEX index_project_id (`project_id`);
+ALTER TABLE `ui_scenario_module`    ADD INDEX index_project_id (`project_id`);
 
-ALTER TABLE `ui_scenario` ADD INDEX index_project_id (`project_id`);
-
-ALTER TABLE `ui_scenario` ADD INDEX index_module_id (`module_id`);
-
-ALTER TABLE `ui_scenario` ADD INDEX index_project_id_status_module_id (`project_id`,`STATUS`,`module_id`);
+ALTER TABLE `ui_scenario`    ADD INDEX index_project_id_status_module_id (`project_id`,`status`,`module_id`);
 
 -- V128__2-1-0_feat_file_manage
 -- file_metadata 新增字段
