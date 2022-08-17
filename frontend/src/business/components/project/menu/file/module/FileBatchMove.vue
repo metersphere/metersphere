@@ -90,7 +90,7 @@ export default {
       });
     },
     save() {
-      if (!this.currentKey) {
+      if (!this.currentKey || this.currentKey ==='') {
         this.$warning(this.$t('test_track.case.input_module'));
         return;
       }

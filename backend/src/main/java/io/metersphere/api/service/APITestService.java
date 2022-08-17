@@ -33,9 +33,9 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections.CollectionUtils;
@@ -67,7 +67,7 @@ public class APITestService {
     @Resource
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
-    private FileService fileService;
+    private FileMetadataService fileMetadataService;
     @Resource
     private JMeterService jMeterService;
     @Resource
@@ -145,31 +145,6 @@ public class APITestService {
     }
 
     public void copy(SaveAPITestRequest request) {
-
-        ApiTestExample example = new ApiTestExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
-        if (apiTestMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("load_test_already_exists"));
-        }
-
-        // copy test
-        ApiTest copy = get(request.getId());
-        copy.setId(UUID.randomUUID().toString());
-        copy.setName(request.getName());
-        copy.setCreateTime(System.currentTimeMillis());
-        copy.setUpdateTime(System.currentTimeMillis());
-        copy.setStatus(APITestStatus.Saved.name());
-        copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-        apiTestMapper.insert(copy);
-        // copy test file
-        ApiTestFile apiTestFile = getFileByTestId(request.getId());
-        if (apiTestFile != null) {
-            FileMetadata fileMetadata = fileService.copyFile(apiTestFile.getFileId());
-            apiTestFile.setTestId(copy.getId());
-            apiTestFile.setFileId(fileMetadata.getId());
-            apiTestFileMapper.insert(apiTestFile);
-        }
-        copyBodyFiles(copy.getId(), request.getId());
     }
 
     public void copyBodyFiles(String target, String source) {
@@ -228,7 +203,7 @@ public class APITestService {
         if (file == null) {
             MSException.throwException(Translator.get("file_cannot_be_null"));
         }
-        byte[] bytes = fileService.loadFileAsBytes(file.getFileId());
+        byte[] bytes = new byte[0];
         // 解析 xml 处理 mock 数据
         bytes = JmeterDocumentParser.parse(bytes);
         InputStream is = new ByteArrayInputStream(bytes);
@@ -293,7 +268,7 @@ public class APITestService {
     }
 
     private void saveFile(ApiTest apiTest, MultipartFile file) {
-        final FileMetadata fileMetadata = fileService.saveFile(file, apiTest.getProjectId());
+        final FileMetadata fileMetadata = fileMetadataService.saveFile(file, apiTest.getProjectId());
         ApiTestFile apiTestFile = new ApiTestFile();
         apiTestFile.setTestId(apiTest.getId());
         apiTestFile.setFileId(fileMetadata.getId());
@@ -308,7 +283,7 @@ public class APITestService {
 
         if (!CollectionUtils.isEmpty(ApiTestFiles)) {
             final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());
-            fileService.deleteFileByIds(fileIds);
+            fileMetadataService.deleteBatch(fileIds);
         }
     }
 
@@ -503,7 +478,7 @@ public class APITestService {
                 File file = new File(filePath);
                 if (file.exists() && file.isFile()) {
                     try {
-                        FileMetadata fileMetadata = fileService.insertFileByFileName(file, FileUtil.readAsByteArray(file), projectId);
+                        FileMetadata fileMetadata = fileMetadataService.saveFile(FileUtil.readAsByteArray(file), file.getName(), file.length());
                         if (fileMetadata != null) {
                             fileMetadataList.add(fileMetadata);
                             attachmentFiles.put(fileMetadata.getId(), fileMetadata.getName());
