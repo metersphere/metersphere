@@ -323,7 +323,8 @@ export default {
       caseSyncRuleRelation: {
         scenarioCreator: true,
         showUpdateRule: false,
-      }
+      },
+      citedScenarioCount: 0,
     }
   },
   props: {
@@ -395,6 +396,7 @@ export default {
     if (hasLicense()) {
       this.beforeUpdateRequest = deepClone(this.apiCase.request);
       this.getSyncRule();
+      this.getCitedScenarioCount();
       this.$EventBus.$on('showXpackCaseSet', noShowSyncRuleRelation => {
         this.handleXpackCaseSetChange(noShowSyncRuleRelation);
       });
@@ -707,6 +709,9 @@ export default {
     },
     validCaseRestChange() {
       let syncCaseVisible = false;
+      if (this.citedScenarioCount === 0) {
+        return false;
+      }
       if (this.apiCase.request.headers && this.beforeUpdateRequest.headers) {
         let submitRequestHeaders = JSON.stringify(this.apiCase.request.headers);
         let beforeRequestHeaders = JSON.stringify(this.beforeUpdateRequest.headers);
@@ -869,6 +874,13 @@ export default {
     },
     handleXpackCaseSetChange(noShowSyncRuleRelation) {
       this.noShowSyncRuleRelation = noShowSyncRuleRelation
+    },
+    getCitedScenarioCount() {
+      this.$get('/api/testcase/be/cited/scenario/' + this.apiCase.id, response => {
+        if (response.data) {
+          this.citedScenarioCount = response.data;
+        }
+      });
     }
   }
 }
