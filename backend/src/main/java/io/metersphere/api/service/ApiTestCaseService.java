@@ -1305,6 +1305,7 @@ public class ApiTestCaseService {
         Long toBeUpdatedTime = this.getToBeUpdatedTime(request.getProjectId());
         if (toBeUpdatedTime != null) {
             request.setToBeUpdateTime(toBeUpdatedTime);
+            request.setUpdateTime(toBeUpdatedTime);
         }
         List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
         if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
