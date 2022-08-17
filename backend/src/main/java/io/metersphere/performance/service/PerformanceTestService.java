@@ -32,6 +32,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.performance.base.GranularityData;
 import io.metersphere.performance.base.VumProcessedStatus;
 import io.metersphere.performance.dto.LoadModuleDTO;
@@ -41,7 +42,6 @@ import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.request.*;
 import io.metersphere.service.ApiPerformanceService;
-import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
@@ -55,7 +55,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.aspectj.util.FileUtil;
 import org.mybatis.spring.SqlSessionUtils;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -66,7 +65,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -89,7 +87,7 @@ public class PerformanceTestService {
     @Resource
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
-    private FileService fileService;
+    private FileMetadataService fileMetadataService;
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
@@ -219,7 +217,7 @@ public class PerformanceTestService {
     }
 
     private boolean loadTestFileExsits(String testId, String metaFileId) {
-        boolean fileExsits = fileService.isFileExsits(metaFileId);
+        boolean fileExsits = fileMetadataService.isFileExits(metaFileId);
         LoadTestFileExample example = new LoadTestFileExample();
         example.createCriteria().andTestIdEqualTo(testId).andFileIdEqualTo(metaFileId);
         long loadTestFiles = loadTestFileMapper.countByExample(example);
@@ -235,7 +233,7 @@ public class PerformanceTestService {
         if (files != null) {
             for (int i = 0; i < files.size(); i++) {
                 MultipartFile file = files.get(i);
-                FileMetadata fileMetadata = fileService.saveFile(file, loadTest.getProjectId());
+                FileMetadata fileMetadata = fileMetadataService.saveFile(file, loadTest.getProjectId());
                 LoadTestFile loadTestFile = new LoadTestFile();
                 loadTestFile.setTestId(loadTest.getId());
                 loadTestFile.setFileId(fileMetadata.getId());
@@ -248,7 +246,7 @@ public class PerformanceTestService {
     private void importFiles(List<String> importFileIds, String testId, Map<String, Integer> fileSorts) {
         for (int i = 0; i < importFileIds.size(); i++) {
             String fileId = importFileIds.get(i);
-            FileMetadata fileMetadata = fileService.getFileMetadataById(fileId);
+            FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(fileId);
             LoadTestFile loadTestFile = new LoadTestFile();
             loadTestFile.setTestId(testId);
             loadTestFile.setFileId(fileId);
@@ -626,8 +624,8 @@ public class PerformanceTestService {
         List<LoadTestExportJmx> results = new ArrayList<>();
         for (FileMetadata metadata : fileMetadataList) {
             if (FileType.JMX.name().equals(metadata.getType())) {
-                FileContent fileContent = fileService.getFileContent(metadata.getId());
-                results.add(new LoadTestExportJmx(metadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
+                byte[] content = fileMetadataService.loadFileAsBytes(metadata.getId());
+                results.add(new LoadTestExportJmx(metadata.getName(), new String(content, StandardCharsets.UTF_8)));
             }
         }
         return results;
@@ -814,9 +812,9 @@ public class PerformanceTestService {
         }
         List<LoadTestExportJmx> results = new ArrayList<>();
         fileIds.forEach(id -> {
-            FileMetadata fileMetadata = fileService.getFileMetadataById(id);
-            FileContent fileContent = fileService.getFileContent(id);
-            results.add(new LoadTestExportJmx(fileMetadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
+            FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(id);
+            byte[] content = fileMetadataService.loadFileAsBytes(id);
+            results.add(new LoadTestExportJmx(fileMetadata.getName(), new String(content, StandardCharsets.UTF_8)));
         });
 
         return results;
@@ -923,7 +921,7 @@ public class PerformanceTestService {
     private void saveJmxFile(String jmx, String name, String projectId, String loadTestId) {
         byte[] jmxBytes = jmx.getBytes(StandardCharsets.UTF_8);
         String jmxName = name + "_" + System.currentTimeMillis() + ".jmx";
-        FileMetadata fileMetadata = fileService.saveFile(jmxBytes, jmxName, (long) jmxBytes.length);
+        FileMetadata fileMetadata = fileMetadataService.saveFile(jmxBytes, jmxName, (long) jmxBytes.length);
         fileMetadata.setProjectId(projectId);
         saveLoadTestFile(fileMetadata, loadTestId, 0);
     }
@@ -952,15 +950,15 @@ public class PerformanceTestService {
         example.createCriteria()
                 .andTestIdEqualTo(testId);
         loadTestFileMapper.deleteByExample(example);
-        fileService.deleteFileByIds(originFileIds);
+        fileMetadataService.deleteBatch(originFileIds);
     }
 
     private void saveUploadFile(File file, String loadTestId, int sort) {
         if (file != null) {
             FileMetadata fileMetadata = null;
             try {
-                fileMetadata = fileService.saveFile(file, FileUtil.readAsByteArray(file));
-            } catch (IOException e) {
+                fileMetadata = fileMetadataService.saveFile(file);
+            } catch (Exception e) {
                 LogUtil.error(e);
             }
             saveLoadTestFile(fileMetadata, loadTestId, sort);

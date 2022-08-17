@@ -4,18 +4,24 @@ import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.metadata.vo.FileRequest;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.entity.ContentType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 @Service
 public class FileManagerService {
     public String upload(MultipartFile file, FileRequest request) {
+        try {
+            this.initStorage(request);
+            return FileCenter.getRepository(request.getStorage()).saveFile(file, request);
+        } catch (IOException e) {
+            LogUtil.error(e);
+            return null;
+        }
+    }
+
+    public String upload(byte[] file, FileRequest request) {
         try {
             this.initStorage(request);
             return FileCenter.getRepository(request.getStorage()).saveFile(file, request);
@@ -62,18 +68,6 @@ public class FileManagerService {
     private void initStorage(FileRequest request) {
         if (StringUtils.isEmpty(request.getStorage())) {
             request.setStorage(StorageConstants.LOCAL.name());
-        }
-    }
-
-    public MultipartFile getMultipartFile(File file) {
-        try {
-            FileInputStream inputStream = new FileInputStream(file);
-            MultipartFile multipartFile = new MockMultipartFile(file.getName(), file.getName(),
-                    ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
-            return multipartFile;
-        } catch (Exception e) {
-            LogUtil.error(e);
-            return null;
         }
     }
 

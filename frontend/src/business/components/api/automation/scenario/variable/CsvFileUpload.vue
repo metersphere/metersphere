@@ -89,7 +89,7 @@ export default {
       if (this.file && this.file.file) {
         files.push(this.file.file);
       }
-      let request = {id: getUUID(), resourceId: this.id, moduleId: moduleId, projectId: getCurrentProjectID(), fileName: this.file.name};
+      let request = {id: getUUID(), csv: true, resourceId: this.file.id, moduleId: moduleId, projectId: getCurrentProjectID(), fileName: this.file.name};
       this.$fileUpload("/file/metadata/dump/file", null, files, request, (response) => {
         this.$success(this.$t("organization.integration.successful_operation"));
       });
