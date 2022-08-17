@@ -35,7 +35,7 @@
     </el-row>
     <div>
       <el-collapse-transition>
-        <div v-show="collapseStatus" :style="{marginLeft:`${10*deep+10}px`}">
+        <div v-show="collapseStatus && hasAdvancedSetting" :style="{marginLeft:`${10*deep+10}px`}">
           <json-advanced-setting :json-data=" pickValue"/>
         </div>
       </el-collapse-transition>
