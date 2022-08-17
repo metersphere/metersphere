@@ -3401,7 +3401,7 @@ export default {
       no_show_setting_tip: "勾選後，不再彈出彈窗，會默認按照設置的內容執行同步和變更通知：如果需要更改設置，可以在保存按鈕旁的下拉選項中，打開設置項。",
       go_to_api_message: '接口API更新消息通知',
       go_to_case_message: 'CASE更新消息通知',
-      update_case_tip: '當CASE發生變化時，引用CASE的自動化場景創建人回收到站內消息提醒'
+      update_case_tip: '當CASE發生變化時，引用CASE的自動化場景創建人會收到站內消息提醒'
     }
   }
 };

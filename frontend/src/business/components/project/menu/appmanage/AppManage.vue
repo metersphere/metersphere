@@ -427,7 +427,7 @@ export default {
               this.showSyncTimeSetting = true;
             }
           }
-          this.openUpdateRule = this.config.openUpdateRule
+          this.openUpdateRule = this.config.openUpdateRule !== false;
           this.disabledRuleBtn = !this.openUpdateRule
         }
       });
