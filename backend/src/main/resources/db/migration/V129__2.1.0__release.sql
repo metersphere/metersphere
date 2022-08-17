@@ -33,17 +33,17 @@ WHERE type = 'PROJECT';
 --
 CREATE TABLE api_sync_rule_relation
 (
-    id                    varchar(50)          NOT NULL,
-    resource_id           varchar(50)          NOT NULL COMMENT '来源id',
-    resource_type         varchar(50)          NOT NULL COMMENT '来源类型',
+    id                    varchar(50) NOT NULL,
+    resource_id           varchar(50) NOT NULL COMMENT '来源id',
+    resource_type         varchar(50) NOT NULL COMMENT '来源类型',
     show_update_rule      tinyint(1) DEFAULT 0 NULL COMMENT '是否显示',
-    api_sync_case_request longtext             NULL COMMENT '同步规则',
+    api_sync_case_request longtext NULL COMMENT '同步规则',
     case_creator          tinyint(1) DEFAULT 1 NULL,
     scenario_creator      tinyint(1) DEFAULT 1 NULL,
     sync_case             tinyint(1) DEFAULT 0 NULL COMMENT '是否同步用例',
     send_notice           tinyint(1) DEFAULT 0 NULL COMMENT '是否发送通知',
     PRIMARY KEY (`id`),
-    INDEX `resource_id_index` (`resource_id`)
+    INDEX                 `resource_id_index` (`resource_id`)
 ) ENGINE = INNODB
   CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci;
@@ -71,13 +71,11 @@ ALTER TABLE test_plan DROP COLUMN executor_match_rule;
 
 -- V130_2-1-0_Add_Ui_Index
 --
-ALTER TABLE `ui_scenario_module` ADD INDEX index_project_id (`project_id`);
+ALTER TABLE `ui_scenario_module`
+    ADD INDEX index_project_id (`project_id`);
 
-ALTER TABLE `ui_scenario` ADD INDEX index_project_id (`project_id`);
-
-ALTER TABLE `ui_scenario` ADD INDEX index_module_id (`module_id`);
-
-ALTER TABLE `ui_scenario` ADD INDEX index_project_id_status_module_id (`project_id`,`STATUS`,`module_id`);
+ALTER TABLE `ui_scenario`
+    ADD INDEX index_project_id_status_module_id (`project_id`,`status`,`module_id`);
 
 -- V128__2-1-0_feat_file_manage
 -- file_metadata 新增字段
@@ -198,18 +196,46 @@ VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+BATCH+MOVE', 'PROJECT_FILE')
 -- 附件引用关系表
 CREATE TABLE IF NOT EXISTS `file_association`
 (
-    `id`               varchar(50) NOT NULL,
-    `type`             varchar(50) NOT NULL COMMENT '模块类型,服务拆分后就是各个服务',
-    `source_id`        varchar(50) NOT NULL COMMENT '各个模块关联时自身Id/比如API/CASE/SCENAEIO',
-    `source_item_id`   varchar(50) NOT NULL COMMENT '对应资源引用时具体id，如一个用例引用多个文件',
-    `file_metadata_id` varchar(50) NOT NULL COMMENT '文件id',
-    `file_type`        varchar(50) NOT NULL COMMENT '文件类型',
-    `project_id`       varchar(50) NOT NULL COMMENT '项目id',
-    PRIMARY KEY (`id`) USING BTREE,
-    INDEX `source_id` (`source_id`) USING BTREE
-) ENGINE = InnoDB
-  CHARACTER SET = utf8mb4
-  COLLATE = utf8mb4_general_ci;
+    `id` varchar
+(
+    50
+) NOT NULL,
+    `type` varchar
+(
+    50
+) NOT NULL COMMENT '模块类型,服务拆分后就是各个服务',
+    `source_id` varchar
+(
+    50
+) NOT NULL COMMENT '各个模块关联时自身Id/比如API/CASE/SCENAEIO',
+    `source_item_id` varchar
+(
+    50
+) NOT NULL COMMENT '对应资源引用时具体id，如一个用例引用多个文件',
+    `file_metadata_id` varchar
+(
+    50
+) NOT NULL COMMENT '文件id',
+    `file_type` varchar
+(
+    50
+) NOT NULL COMMENT '文件类型',
+    `project_id` varchar
+(
+    50
+) NOT NULL COMMENT '项目id',
+    PRIMARY KEY
+(
+    `id`
+) USING BTREE,
+    INDEX `source_id`
+(
+    `source_id`
+)
+  USING BTREE
+    ) ENGINE = InnoDB
+    CHARACTER SET = utf8mb4
+    COLLATE = utf8mb4_general_ci;
 
 -- 补充关系表索引
 ALTER TABLE file_association
@@ -225,9 +251,9 @@ CREATE TABLE `file_module`
     `project_id`  varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
     `name`        varchar(64) NOT NULL COMMENT 'Node name',
     `parent_id`   varchar(50)  DEFAULT NULL COMMENT 'Parent node ID',
-    `level`       int(10)      DEFAULT '1' COMMENT 'Node level',
-    `create_time` bigint(13)  NOT NULL COMMENT 'Create timestamp',
-    `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    `level`       int(10) DEFAULT '1' COMMENT 'Node level',
+    `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
+    `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     `pos`         double       DEFAULT NULL,
     `create_user` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`)
