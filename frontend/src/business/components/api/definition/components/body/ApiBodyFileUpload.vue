@@ -79,7 +79,7 @@ export default {
         files.push(this.file.file);
       }
       let request = {id: getUUID(), resourceId: this.id, moduleId: moduleId, projectId: getCurrentProjectID(), fileName: this.file.name};
-      this.$fileUpload("/file/metadata/api/upload", null, files, request, (response) => {
+      this.$fileUpload("/file/metadata/dump/file", null, files, request, (response) => {
         this.$success(this.$t("organization.integration.successful_operation"));
       });
     },

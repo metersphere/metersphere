@@ -78,13 +78,13 @@ ALTER TABLE `ui_scenario`    ADD INDEX index_project_id_status_module_id (`proje
 -- V128__2-1-0_feat_file_manage
 -- file_metadata 新增字段
 ALTER TABLE `file_metadata`
-    ADD storage VARCHAR(50) DEFAULT 'LOCAL' COMMENT '文件存储方式';
+    ADD storage VARCHAR(50) DEFAULT NULL COMMENT '文件存储方式';
 
 ALTER TABLE `file_metadata`
-    ADD create_user VARCHAR(100) DEFAULT '' COMMENT '创建人';
+    ADD create_user VARCHAR(100) DEFAULT NULL COMMENT '创建人';
 
 ALTER TABLE `file_metadata`
-    ADD update_user VARCHAR(100) DEFAULT '' COMMENT '修改人';
+    ADD update_user VARCHAR(100) DEFAULT NULL COMMENT '修改人';
 
 ALTER TABLE `file_metadata`
     ADD tags VARCHAR(2000) DEFAULT NULL COMMENT '标签';
@@ -96,13 +96,16 @@ ALTER TABLE `file_metadata`
     ADD module_id VARCHAR(50) DEFAULT NULL COMMENT '文件所属模块';
 
 ALTER TABLE `file_metadata`
-    ADD load_jar TINYINT(1) DEFAULT 1 COMMENT '是否加载jar（开启后用于接口测试执行时使用）';
+    ADD load_jar TINYINT(1) DEFAULT 0 COMMENT '是否加载jar（开启后用于接口测试执行时使用）';
 
 ALTER TABLE `file_metadata`
     ADD path VARCHAR(1000) DEFAULT NULL COMMENT '文件存储路径';
 
 ALTER TABLE `file_metadata`
     ADD resource_type VARCHAR(50) DEFAULT NULL COMMENT '资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据';
+
+ALTER TABLE api_execution_queue_detail
+    ADD COLUMN project_ids VARCHAR(2000) DEFAULT "[]" COMMENT '项目ID集合';
 
 -- 补充索引
 ALTER TABLE file_metadata

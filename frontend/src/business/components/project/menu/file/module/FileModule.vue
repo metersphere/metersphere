@@ -141,19 +141,12 @@ export default {
     add(param) {
       param.projectId = this.projectId;
       param.protocol = this.condition.protocol;
-      if (param && param.level >= 9) {
+      this.$post("/file/module/add", param, () => {
+        this.$success(this.$t('commons.save_success'));
         this.list();
-        this.$error(this.$t('commons.warning_module_add'));
-        return;
-      } else {
-        this.$post("/file/module/add", param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.list();
-        }, (error) => {
-          this.list();
-        });
-      }
-
+      }, (error) => {
+        this.list();
+      });
     },
     remove(nodeIds) {
       this.$post("/file/module/delete", nodeIds, () => {
