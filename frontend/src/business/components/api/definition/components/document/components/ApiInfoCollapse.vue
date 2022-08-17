@@ -47,7 +47,9 @@
                                    width="80px">
                     <template slot="header">
                       <el-button type="text" size="mini" @click="expandAllRows">
-                        {{ expandAllRow ? $t("commons.close_all") : $t("commons.expand_all") }}
+                        <span :id="tableExpandButtonId">
+                        {{ expandTitle }}
+                        </span>
                       </el-button>
                     </template>
                     <template v-slot:default="scope">
@@ -81,6 +83,7 @@ export default {
       expandAllRow: false,
       language: "zh_CN",
       tableData: [],
+      tableExpandButtonId: "docTableExpandBtn" + getUUID(),
       expandTitle: this.$t("commons.expand_all"),
       tableColoumArr: [
         {id: 1, prop: "name", label: this.$t('api_test.definition.document.table_coloum.name')},
@@ -111,6 +114,12 @@ export default {
     },
   },
   activated() {
+    //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
+    let user = getCurrentUser();
+    if (user) {
+      this.language = user.language;
+    }
+    this.tableData = this.getJsonArr(this.stringData);
   },
   created: function () {
     //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
@@ -118,8 +127,15 @@ export default {
     if (user) {
       this.language = user.language;
     }
+    this.tableData = this.getJsonArr(this.stringData);
   },
   mounted() {
+    //获取language，用于改变表格的展开、收起文字  zh_CN/zh_TW/en_US
+    let user = getCurrentUser();
+    if (user) {
+      this.language = user.language;
+    }
+    this.tableData = this.getJsonArr(this.stringData);
   },
   computed: {
     showSlotCompnent() {
@@ -145,6 +161,9 @@ export default {
         }
       }
       this.expandTitle = this.expandAllRow ? this.$t("commons.close_all") : this.$t("commons.expand_all");
+      let tableHeaderDom = document.getElementById(this.tableExpandButtonId);
+      tableHeaderDom.innerText = this.expandTitle;
+
     }
   },
   methods: {
