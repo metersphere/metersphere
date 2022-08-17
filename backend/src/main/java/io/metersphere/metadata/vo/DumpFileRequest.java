@@ -8,4 +8,5 @@ public class DumpFileRequest {
     private String moduleId;
     private String fileName;
     private String projectId;
+    private boolean isCsv;
 }

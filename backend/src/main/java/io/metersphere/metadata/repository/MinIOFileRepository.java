@@ -13,6 +13,11 @@ public class MinIOFileRepository implements FileRepository {
     }
 
     @Override
+    public String saveFile(byte[] bytes, FileRequest request) throws IOException {
+        return null;
+    }
+
+    @Override
     public void delete(FileRequest request) throws Exception {
 
     }
