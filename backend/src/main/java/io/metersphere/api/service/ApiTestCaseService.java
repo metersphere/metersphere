@@ -125,6 +125,8 @@ public class ApiTestCaseService {
     private ApiCaseBatchSyncService apiCaseSyncService;
     @Resource
     private ApiTestCaseSyncService apiTestCaseSyncService;
+    @Resource
+    private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
 
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
@@ -1299,7 +1301,7 @@ public class ApiTestCaseService {
         if (!request.isToBeUpdated() || StringUtils.isBlank(request.getProjectId())) {
             return;
         }
-        
+
         Long toBeUpdatedTime = this.getToBeUpdatedTime(request.getProjectId());
         if (toBeUpdatedTime != null) {
             request.setToBeUpdateTime(toBeUpdatedTime);
@@ -1309,5 +1311,16 @@ public class ApiTestCaseService {
             syncRuleCaseStatus = new ArrayList<>();
         }
         request.setStatusList(syncRuleCaseStatus);
+    }
+
+    public Integer getCitedScenarioCount(String testId) {
+        ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
+        apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo(ReportTriggerMode.CASE.name()).andReferenceTypeEqualTo(MsTestElementConstants.REF.name()).andReferenceIdEqualTo(testId);
+        List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
+        if (CollectionUtils.isEmpty(apiScenarioReferenceIds)) {
+            return 0;
+        } else {
+            return apiScenarioReferenceIds.size();
+        }
     }
 }

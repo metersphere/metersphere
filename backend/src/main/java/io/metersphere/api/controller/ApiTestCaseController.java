@@ -233,4 +233,9 @@ public class ApiTestCaseController {
     public void saveFollows(@PathVariable String testId, @RequestBody List<String> follows) {
         apiTestCaseService.saveFollows(testId, follows);
     }
+
+    @GetMapping("/be/cited/scenario/{testId}")
+    public Integer getCitedScenarioCount(@PathVariable String testId) {
+        return apiTestCaseService.getCitedScenarioCount(testId);
+    }
 }

@@ -3414,7 +3414,7 @@ export default {
       no_show_setting_tip: "After checking, the pop-up window will no longer pop up, and the synchronization and change notification will be performed according to the setting content by default: If you need to change the setting, you can open the setting item in the drop-down option next to the save button。",
       go_to_api_message: 'Interface API update message notification',
       go_to_case_message: 'CASE update message notification',
-      update_case_tip: 'When the CASE changes, the creator of the automation scene referring to the CASE recycles the message reminder in the station'
+      update_case_tip: 'When the CASE changes, the creator of the automation scene referring to the CASE will receive an in-site message reminder'
     }
   }
 };

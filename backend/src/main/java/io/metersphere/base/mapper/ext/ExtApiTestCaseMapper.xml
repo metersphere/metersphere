@@ -362,6 +362,7 @@
         t1.update_user_id,
         t1.create_time,
         t1.update_time,
+        t1.to_be_updated,
         t1.num,
         a.module_id,
         a.path,
