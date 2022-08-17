@@ -513,10 +513,11 @@
             and t1.to_be_updated = #{request.toBeUpdated}
         </if>
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true and request.toBeUpdateTime !=null and request.statusList.size() > 0">
-            and (t1.to_be_update_time >= #{request.toBeUpdateTime} or t1.status in
+            and (t1.to_be_update_time >= #{request.toBeUpdateTime} or ( t1.status in
             <foreach collection="request.statusList" item="value" separator="," open="(" close=")">
                 #{value}
-            </foreach>)
+            </foreach>
+            and t1.update_time>= #{request.updateTime} ))
         </if>
         <if test="request.toBeUpdated !=null and request.toBeUpdated == true and request.toBeUpdateTime !=null and request.statusList.size() == 0">
             and t1.to_be_update_time >= #{request.toBeUpdateTime}

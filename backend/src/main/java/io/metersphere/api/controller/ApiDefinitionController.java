@@ -389,4 +389,9 @@ public class ApiDefinitionController {
         apiDefinitionService.deleteApiDefinitionByVersion(refId, version);
     }
 
+    @GetMapping("/be/cited/scenario/{definitionId}")
+    public Integer getCitedScenarioCount(@PathVariable String definitionId) {
+        return apiDefinitionService.getCitedScenarioCount(definitionId);
+    }
+
 }

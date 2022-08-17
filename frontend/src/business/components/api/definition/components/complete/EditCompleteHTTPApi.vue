@@ -370,7 +370,8 @@ export default {
         syncCase: true,
         sendNotice: true,
       },
-      noShowSyncRuleRelation: false
+      noShowSyncRuleRelation: false,
+      citedScenarioCount: 0
     };
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
@@ -583,7 +584,7 @@ export default {
               this.httpForm.versionId = this.$refs.versionHistory.currentVersion.id;
             }
           }
-          if (hasLicense() && this.httpForm.caseTotal > 0 && !this.httpForm.isCopy) {
+          if (hasLicense() && (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) && !this.httpForm.isCopy) {
             if ((this.httpForm.method !== this.beforeHttpForm.method) && !this.noShowSyncRuleRelation) {
               this.batchSyncApiVisible = true;
             }
@@ -964,6 +965,13 @@ export default {
         this.noShowSyncRuleRelation = false;
         this.saveApi();
       }
+    },
+    getCitedScenarioCount() {
+      this.$get('/api/definition/be/cited/scenario/' + this.httpForm.id, response => {
+        if (response.data) {
+          this.citedScenarioCount = response.data;
+        }
+      });
     }
   },
 
@@ -993,6 +1001,7 @@ export default {
     if (hasLicense()) {
       this.getVersionHistory();
       this.getSyncRule();
+      this.getCitedScenarioCount();
     }
   },
   mounted() {

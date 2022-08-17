@@ -170,9 +170,12 @@ public class ApiDefinitionService {
     private ApiAutomationService apiAutomationService;
     @Resource
     private FileAssociationService fileAssociationService;
+    @Resource
+    private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
 
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
+    private static final String COPY = "Copy";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -860,7 +863,7 @@ public class ApiDefinitionService {
             saveFollows(test.getId(), request.getFollows());
         }
         // 存储附件关系
-        fileAssociationService.saveApi(test.getId(), request.getRequest(),FileAssociationType.API.name());
+        fileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationType.API.name());
 
         return getById(test.getId());
     }
@@ -938,7 +941,7 @@ public class ApiDefinitionService {
         for (int i = 0; i < caseList.size(); i++) {
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = caseList.get(i);
             apiTestCaseWithBLOBs.setApiDefinitionId(apiDefinition.getId());
-            if (apiDefinition.getToBeUpdated() && StringUtils.equalsIgnoreCase(apiTestCaseWithBLOBs.getVersionId(), "old_case")) {
+            if (apiDefinition.getToBeUpdated() != null && apiDefinition.getToBeUpdated() && StringUtils.equalsIgnoreCase(apiTestCaseWithBLOBs.getVersionId(), "old_case")) {
                 apiTestCaseWithBLOBs.setToBeUpdated(true);
             } else {
                 apiTestCaseWithBLOBs.setToBeUpdated(false);
@@ -2694,5 +2697,12 @@ public class ApiDefinitionService {
         if (StringUtils.isNoneEmpty(projectId, protocol, id)) {
             extApiDefinitionMapper.updateNoModuleApiToDefaultModule(projectId, protocol, status, versionId, id);
         }
+    }
+
+    public Integer getCitedScenarioCount(String testId) {
+        ApiScenarioReferenceIdExample apiScenarioReferenceIdExample = new ApiScenarioReferenceIdExample();
+        apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo(ReportTriggerMode.API.name()).andReferenceTypeEqualTo(COPY).andReferenceIdEqualTo(testId);
+        List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
+        return apiScenarioReferenceIds.size();
     }
 }
