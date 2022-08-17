@@ -352,7 +352,7 @@ public class IssueTemplateService extends TemplateBaseService {
             boolean isExistTargetIssueTemplate = targetIssueTemplates.stream().anyMatch(issueTemplate -> StringUtils.equals(sourceIssueTemplate.getName(), issueTemplate.getName()));
             String recordName;
             if (isExistTargetIssueTemplate) {
-                recordName = sourceIssueTemplate.getName().concat("_copy");
+                recordName = sourceIssueTemplate.getName().concat("_copy").concat(UUID.randomUUID().toString().substring(0, 8));
             } else {
                 recordName = sourceIssueTemplate.getName();
             }
