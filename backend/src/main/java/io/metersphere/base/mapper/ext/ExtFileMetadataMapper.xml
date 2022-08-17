@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtFileMetadataMapper">
     <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
         SELECT file_metadata.* FROM file_metadata
-        WHERE project_id = #{projectId,jdbcType=VARCHAR}
+        WHERE project_id = #{projectId,jdbcType=VARCHAR} AND type != 'RSA_KEY'
         <if test="request.name != null and request.name !=''">
             AND ( file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
             OR file_metadata.tags LIKE CONCAT('%', #{request.name}, '%')
@@ -64,7 +64,7 @@
         </if>
     </select>
     <select id="getTypes" resultType="java.lang.String">
-       SELECT type FROM file_metadata GROUP BY type
+       SELECT type FROM file_metadata GROUP BY type HAVING type != 'RSA_KEY'
     </select>
 
     <update id="move">
