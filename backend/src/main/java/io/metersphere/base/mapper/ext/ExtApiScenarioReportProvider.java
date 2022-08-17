@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -49,11 +50,16 @@ public class ExtApiScenarioReportProvider {
                     .append("','")
                     .append(result.getReportType())
                     .append("','")
-                    .append(result.getEnvConfig())
-                    .append("','")
-                    .append(result.getRelevanceTestPlanReportId())
-                    .append("'")
-                    .append(")");
+                    .append(result.getEnvConfig());
+            //判断有没有关联的测试报告ID
+            if (StringUtils.isBlank(result.getRelevanceTestPlanReportId())) {
+                sqlList.append("', null");
+            } else {
+                sqlList.append("','")
+                        .append(result.getRelevanceTestPlanReportId())
+                        .append("'");
+            }
+            sqlList.append(")");
             if (i < list.size() - 1) {
                 sqlList.append(",");
             }
