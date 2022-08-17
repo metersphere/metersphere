@@ -24,13 +24,13 @@ import io.metersphere.base.mapper.ext.ExtProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.ProjectVersionRequest;
 import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.*;
+import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.handler.FunctionCaseMergeWriteHandler;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
@@ -1422,46 +1422,24 @@ public class TestCaseService {
         for (TestCaseExcelData model : data) {
             List<Object> fields = new ArrayList<>();
             Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomDatas()).orElse(new HashMap<>());
+            TestCaseImportFiled[] importFields = TestCaseImportFiled.values();
 
             for (String head : headList) {
-                if (StringUtils.equalsAnyIgnoreCase(head, "ID")) {
-                    fields.add(model.getCustomNum());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Name", "用例名稱", "用例名称")) {
-                    fields.add(model.getName());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Module", "所屬模塊", "所属模块")) {
-                    fields.add(model.getNodePath());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Tag", "標簽", "标签")) {
-                    String tags = "";
-                    try {
-                        if (model.getTags() != null) {
-                            JSONArray arr = JSONArray.parseArray(model.getTags());
-                            for (int i = 0; i < arr.size(); i++) {
-                                tags += arr.getString(i) + ",";
-                            }
-                        }
-                    } catch (Exception e) {
+                boolean isSystemField = false;
+                for (TestCaseImportFiled importFiled : importFields) {
+                    if (importFiled.getFiledLangMap().values().contains(head)) {
+                        fields.add(importFiled.parseExcelDataValue(model));
+                        isSystemField = true;
                     }
-                    fields.add(tags);
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Prerequisite", "前置條件", "前置条件")) {
-                    fields.add(model.getPrerequisite());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Remark", "備註", "备注")) {
-                    fields.add(model.getRemark());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Step description", "步驟描述", "步骤描述")) {
-                    fields.add(model.getStepDesc());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Step result", "預期結果", "预期结果")) {
-                    fields.add(model.getStepResult());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Edit Model", "編輯模式", "编辑模式")) {
-                    fields.add(model.getStepModel());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Priority", "用例等級", "用例等级")) {
-                    fields.add(model.getPriority());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Case status", "用例状态", "用例狀態")) {
-                    fields.add(model.getStatus());
-                } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
-                    fields.add(model.getMaintainer());
-                } else {
-                    String value = Optional.ofNullable(customDataMaps.get(head)).orElse("");
+                }
+                if (!isSystemField) {
+                    String value = customDataMaps.get(head);
+                    if (value == null) {
+                        value = "";
+                    }
                     fields.add(value);
                 }
+
             }
             result.add(fields);
         }
