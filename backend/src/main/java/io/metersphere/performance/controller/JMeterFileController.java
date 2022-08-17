@@ -33,10 +33,10 @@ public class JMeterFileController {
     @GetMapping("ready")
     @NoResultHolder
     public long ready(@RequestParam("reportId") String reportId, @RequestParam("ratio") String ratio,
-                      @RequestParam("resourceIndex") int resourceIndex) {
+                      @RequestParam("resourceIndex") String resourceIndex) {
         try {
             List<Double> ratios = readyMap.getOrDefault(reportId, Arrays.stream(ratio.split(",")).map(Double::parseDouble).collect(Collectors.toList()));
-            ratios.set(resourceIndex, -1.0);
+            ratios.set(Integer.parseInt(resourceIndex), -1.0);
             readyMap.put(reportId, ratios);
             return ratios.stream().filter(r -> r > 0).count();
         } catch (Exception e) {
@@ -47,9 +47,9 @@ public class JMeterFileController {
     @GetMapping("download")
     public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("ratio") String ratio,
                                                       @RequestParam("reportId") String reportId,
-                                                      @RequestParam("resourceIndex") int resourceIndex) {
+                                                      @RequestParam("resourceIndex") String resourceIndex) {
         double[] ratios = Arrays.stream(ratio.split(",")).mapToDouble(Double::parseDouble).toArray();
-        ZipDTO zipDTO = jmeterFileService.downloadZip(reportId, ratios, resourceIndex);
+        ZipDTO zipDTO = jmeterFileService.downloadZip(reportId, ratios, Integer.parseInt(resourceIndex));
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipDTO.getTestId() + ".zip\"")
