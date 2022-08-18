@@ -652,8 +652,10 @@
 
     <select id="moduleCount" resultType="java.lang.Integer">
         SELECT count(api_test_case.id) FROM api_test_case
-        left join project on api_test_case.project_id = project.id
+        inner join project on api_test_case.project_id = project.id
+        inner JOIN api_definition a ON api_test_case.api_definition_id = a.id
         <include refid="criCondition"/>
+        and a.latest is not null
     </select>
 
     <select id="getRequest" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
