@@ -112,7 +112,7 @@ export default {
         let line = item.split(/：|:/);
         let values = item.split(line[0] + ":");
         let required = false;
-        keyValues.unshift(new KeyValue({
+        keyValues.push(new KeyValue({
           name: line[0],
           required: required,
           value: values[1],

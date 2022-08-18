@@ -17,7 +17,7 @@
       <el-tab-pane :label="$t('variables.config')" name="config">
         <el-row>
           <el-col :span="5" style="margin-top: 5px">
-            <span>{{$t('variables.add_file')}}</span>
+            <span>{{ $t('variables.add_file') }}</span>
           </el-col>
           <el-col :span="19">
             <ms-csv-file-upload :parameter="editData"/>
@@ -40,7 +40,7 @@
         </el-row>
         <el-row style="margin-top: 10px">
           <el-col :span="5" style="margin-top: 5px">
-            <span>{{$t('variables.delimiter')}}</span>
+            <span>{{ $t('variables.delimiter') }}</span>
           </el-col>
           <el-col :span="19">
             <el-input v-model="editData.delimiter" size="small" :disabled="disabled"/>
@@ -48,7 +48,7 @@
         </el-row>
         <el-row style="margin-top: 10px">
           <el-col :span="5" style="margin-top: 5px">
-            <span>{{$t('variables.quoted_data')}}</span>
+            <span>{{ $t('variables.quoted_data') }}</span>
           </el-col>
           <el-col :span="19">
             <el-select v-model="editData.quotedData" size="small" :disabled="disabled">
@@ -66,10 +66,11 @@
           height="200px"
           v-loading="loading">
           <!-- 自定义列的遍历-->
-          <el-table-column v-for="(item, index) in columns" :key="index" :label="columns[index]" align="left" width="180">
+          <el-table-column v-for="(item, index) in columns" :key="index" :label="columns[index]" align="left"
+                           width="180">
             <!-- 数据的遍历  scope.row就代表数据的每一个对象-->
             <template slot-scope="scope">
-              <span>{{scope.row[index]}}</span>
+              <span>{{ scope.row[index] }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -79,70 +80,70 @@
 </template>
 
 <script>
-  import MsCsvFileUpload from "./CsvFileUpload";
+import MsCsvFileUpload from "./CsvFileUpload";
 
-  export default {
-    name: "MsEditCsv",
-    components: {
-      MsCsvFileUpload
+export default {
+  name: "MsEditCsv",
+  components: {
+    MsCsvFileUpload
+  },
+  props: {
+    editData: {},
+  },
+  data() {
+    return {
+      activeName: "config",
+      visible: false,
+      loading: false,
+      editFlag: false,
+      previewData: [],
+      columns: [],
+      allData: [],
+      showMessage: false,
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+        ],
+      },
+    }
+  },
+  computed: {
+    disabled() {
+      return !(this.editData.name && this.editData.name !== "");
+    }
+  },
+  watch: {
+    'editData.name': {
+      handler(v) {
+        this.handleClick();
+      }
+    }
+  },
+  methods: {
+    complete(results) {
+      if (results.errors && results.errors.length > 0) {
+        this.$error(results.errors);
+        return;
+      }
+      if (this.allData) {
+        this.columns = this.allData[0];
+        this.allData.splice(0, 1);
+        this.previewData = this.allData;
+      }
+      this.loading = false;
     },
-    props: {
-      editData: {},
+    cleanPreview() {
+      this.allData = [];
+      this.columns = [];
+      this.previewData = [];
     },
-    data() {
-      return {
-        activeName: "config",
-        visible: false,
-        loading: false,
-        editFlag: false,
-        previewData: [],
-        columns: [],
-        allData: [],
-        showMessage: false,
-        rules: {
-          name: [
-            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          ],
-        },
+    step(results, parser) {
+      if (this.allData.length < 500) {
+        this.allData.push(results.data);
+      } else {
+        this.showMessage = true;
       }
     },
-    computed: {
-      disabled() {
-        return !(this.editData.name && this.editData.name !== "");
-      }
-    },
-    watch: {
-      'editData.name': {
-        handler(v) {
-          this.handleClick();
-        }
-      }
-    },
-    methods: {
-      complete(results) {
-        if (results.errors && results.errors.length > 0) {
-          this.$error(results.errors);
-          return;
-        }
-        if (this.allData) {
-          this.columns = this.allData[0];
-          this.allData.splice(0, 1);
-          this.previewData = this.allData;
-        }
-        this.loading = false;
-      },
-      cleanPreview() {
-        this.allData = [];
-        this.columns = [];
-        this.previewData = [];
-      },
-      step(results, parser) {
-        if (this.allData.length < 500) {
-          this.allData.push(results.data);
-        } else {
-          this.showMessage = true;
-        }
-      },
 
       handleClick() {
         let config = {
@@ -152,12 +153,12 @@
         };
         this.allData = [];
         // 本地文件
-        if (this.editData.files && this.editData.files.length > 0 && this.editData.files[0].file) {
+        if (this.editData.files && this.editData.files.length > 0 && this.editData.files[0].file && this.editData.files[0].file.name) {
           this.loading = true;
           this.$papa.parse(this.editData.files[0].file, config);
         }
         // 远程下载文件
-        if (this.editData.files && this.editData.files.length > 0 && !this.editData.files[0].file) {
+        if (this.editData.files && this.editData.files.length > 0 && (!this.editData.files[0].file || !this.editData.files[0].file.name)) {
           let file = this.editData.files[0];
           let conf = {
             url: "/api/automation/file/download",
@@ -186,19 +187,19 @@
         };
       },
 
-      querySearch(queryString, cb) {
-        let restaurants = [{value: "UTF-8"}, {value: "UTF-16"},{value: "GB2312"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
-        let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
-        // 调用 callback 返回建议列表的数据
-        cb(results);
-      },
+    querySearch(queryString, cb) {
+      let restaurants = [{value: "UTF-8"}, {value: "UTF-16"}, {value: "GB2312"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
+      let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
 
-    }
   }
+}
 </script>
 
 <style scoped>
-  ms-is-leaf >>> .is-leaf {
-    color: red;
-  }
+ms-is-leaf >>> .is-leaf {
+  color: red;
+}
 </style>

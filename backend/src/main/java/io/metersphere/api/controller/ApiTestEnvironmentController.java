@@ -65,16 +65,18 @@ public class ApiTestEnvironmentController {
 
     @PostMapping("/add")
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
-    public String create(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
+    public String create(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles,
+                         @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironmentWithBLOBs);
-        return apiTestEnvironmentService.add(apiTestEnvironmentWithBLOBs, sslFiles);
+        return apiTestEnvironmentService.add(apiTestEnvironmentWithBLOBs, sslFiles, variableFile);
     }
 
     @PostMapping(value = "/update")
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = ApiTestEnvironmentService.class)
-    public void update(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
+    public void update(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles,
+                       @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironment);
-        apiTestEnvironmentService.update(apiTestEnvironment, sslFiles);
+        apiTestEnvironmentService.update(apiTestEnvironment, sslFiles, variableFile);
     }
 
     private void checkParams(ApiTestEnvironmentDTO apiTestEnvironment) {

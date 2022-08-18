@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -127,7 +126,7 @@ public class MsScenario extends MsTestElement {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(this.getVariables()) &&  (this.variableEnable == null || this.variableEnable)) {
+        if (CollectionUtils.isNotEmpty(this.getVariables()) && (this.variableEnable == null || this.variableEnable)) {
             config.setVariables(this.variables);
         }
         HashTree scenarioTree = tree;
@@ -145,7 +144,8 @@ public class MsScenario extends MsTestElement {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
         }
         // 环境变量
-        Arguments arguments = arguments(this.isEnvironmentEnable() ? newConfig : config);
+        Arguments arguments = ElementUtil.getConfigArguments(this.isEnvironmentEnable() ? newConfig : config, this.getName(), this.getProjectId(), this.getVariables());
+
         if (arguments != null && (this.variableEnable == null || this.variableEnable)) {
             Arguments valueSupposeMock = ParameterConfig.valueSupposeMock(arguments);
             // 这里加入自定义变量解决ForEach循环控制器取值问题，循环控制器无法从vars中取值
@@ -307,41 +307,6 @@ public class MsScenario extends MsTestElement {
                 tree.add(headerManager);
             }
         }
-    }
-
-    private Arguments arguments(ParameterConfig config) {
-        Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        // 场景变量
-        if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            this.getVariables().stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-
-            List<ScenarioVariable> variableList = this.getVariables().stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
-            variableList.forEach(item -> {
-                String[] arrays = item.getValue().split(",");
-                for (int i = 0; i < arrays.length; i++) {
-                    arguments.addArgument(item.getName() + "_" + (i + 1), arrays[i], "=");
-                }
-            });
-        }
-        // 环境通用变量
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-            // 清空变量，防止重复添加
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
-        }
-        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
-            return arguments;
-        }
-        return null;
     }
 
     private void setEnv(Map<String, String> environmentMap, Map<String, EnvironmentConfig> envConfig) {

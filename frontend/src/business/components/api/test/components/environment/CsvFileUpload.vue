@@ -28,7 +28,9 @@
                     <span slot="file"/>
                   </el-upload>
                 </div>
-                <el-button type="text" @click="associationFile">{{ $t('permission.project_file.associated_files') }}</el-button>
+                <el-button type="text" @click="associationFile">{{
+                    $t('permission.project_file.associated_files')
+                  }}</el-button>
                 <i class="el-icon-plus" slot="reference"/>
               </el-popover>
             </div>
@@ -50,9 +52,6 @@
             </div>
           </el-upload>
         </el-col>
-        <el-col :span="6">
-          <el-button size="small" style="margin: 3px 5px" @click="download">下载</el-button>
-        </el-col>
       </el-row>
           <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
     <ms-file-metadata-list ref="metadataList" @checkRows="checkRows"/>
@@ -64,7 +63,7 @@
 import {downloadFile} from "@/common/js/utils";
 import MsFileBatchMove from "@/business/components/project/menu/file/module/FileBatchMove";
 import MsFileMetadataList from "@/business/components/project/menu/file/quote/QuoteFileList";
-import {getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
 export default {
   name: "MsCsvFileUpload",
@@ -89,8 +88,14 @@ export default {
       if (this.file && this.file.file) {
         files.push(this.file.file);
       }
-      let request = {id: getUUID(), csv: true, resourceId: this.file.id, moduleId: moduleId, projectId: getCurrentProjectID(), fileName: this.file.name};
-      this.$fileUpload("/file/metadata/dump/file", null, files, request, (response) => {
+      let request = {
+        id: getUUID(),
+        resourceId: this.id,
+        moduleId: moduleId,
+        projectId: getCurrentProjectID(),
+        fileName: this.file.name
+      };
+      this.$fileUpload("/file/metadata/api/upload", null, files, request, (response) => {
         this.$success(this.$t("organization.integration.successful_operation"));
       });
     },
@@ -111,7 +116,14 @@ export default {
           this.$warning(this.$t('variables.cvs_info'));
           return;
         }
-        let file = {name: item.name, id: getUUID(), fileId: item.id, storage: "FILE_REF", projectId: item.projectId, fileType: item.type};
+        let file = {
+          name: item.name,
+          id: getUUID(),
+          fileId: item.id,
+          storage: "FILE_REF",
+          projectId: item.projectId,
+          fileType: item.type
+        };
         this.parameter.files.push(file);
       })
     },
@@ -129,11 +141,11 @@ export default {
     },
     download() {
       // 本地文件
-      if (this.parameter.files && this.parameter.files.length > 0 && this.parameter.files[0].file && this.parameter.files[0].file.name) {
+      if (this.parameter.files && this.parameter.files.length > 0 && this.parameter.files[0].file) {
         downloadFile(this.parameter.files[0].file.name, this.parameter.files[0].file);
       }
       // 远程下载文件
-      if (this.parameter.files && this.parameter.files.length > 0 && (!this.parameter.files[0].file || !this.parameter.files[0].file.name)) {
+      if (this.parameter.files && this.parameter.files.length > 0 && !this.parameter.files[0].file) {
         let file = this.parameter.files[0];
         let conf = {
           url: "/api/automation/file/download",
@@ -157,7 +169,7 @@ export default {
       }
     },
     handleRemove(file) {
-      let fileName = file.name ? file.name : file.file.name
+      let fileName = file.file.name ? file.file.name : file.name
       this.$alert(this.$t('api_test.environment.csv_delete') + '：【 ' + fileName + " 】？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
@@ -257,6 +269,5 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 180px;
 }
 </style>

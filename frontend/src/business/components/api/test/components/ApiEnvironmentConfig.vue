@@ -8,9 +8,9 @@
                        :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                        :env-add-permission="ENV_CREATE"
                        :delete-fuc="openDelEnv" @itemSelected="environmentSelected" ref="environmentItems"/>
-        <environment-edit :if-create="ifCreate" :project-id="projectId" :environment="currentEnvironment"
+        <environment-edit :if-create="ifCreate" :environment="currentEnvironment"
                           ref="environmentEdit" :is-read-only="isReadOnly"
-                          @confirm="save"
+                          @confirm="save" :is-project="true"
                           @close="close"/>
       </el-container>
     </el-dialog>
