@@ -30,12 +30,10 @@
                             </foreach>
                         </when>
                         <when test="key=='moduleIds'">
-                            and
-                            ( file_metadata.module_id in
+                            and file_metadata.module_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
-                            OR file_metadata.module_id is null)
                         </when>
                     </choose>
                 </if>
