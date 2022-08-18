@@ -755,7 +755,7 @@ export default {
       if (routeParamObj) {
         let dataRange = routeParamObj.dataSelectRange;
         let dataType = routeParamObj.dataType;
-        if (dataRange && dataRange instanceof String) {
+        if (dataRange && typeof dataRange === 'string') {
           let selectParamArr = dataRange.split("edit:");
           if (selectParamArr.length === 2) {
             let scenarioId = selectParamArr[1];
@@ -769,7 +769,7 @@ export default {
       } else {
         let dataRange = this.$route.params.dataSelectRange;
         let dataType = this.$route.params.dataType;
-        if (dataRange && dataRange instanceof String) {
+        if (dataRange && typeof dataRange === 'string') {
           let selectParamArr = dataRange.split("edit:");
           if (selectParamArr.length === 2) {
             let scenarioId = selectParamArr[1];

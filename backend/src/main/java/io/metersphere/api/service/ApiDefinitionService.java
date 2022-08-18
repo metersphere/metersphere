@@ -1155,6 +1155,7 @@ public class ApiDefinitionService {
                 .testId(apiDefinitionWithBLOBs.getId())
                 .subject(Translator.get("api_update_notice"))
                 .paramMap(paramMap)
+                .excludeSelf(true)
                 .event(NoticeConstants.Event.UPDATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
@@ -1171,6 +1172,7 @@ public class ApiDefinitionService {
                 .testId(apiDefinitionWithBLOBs.getId())
                 .subject(Translator.get("api_create_notice"))
                 .paramMap(paramMap)
+                .excludeSelf(true)
                 .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
@@ -1186,6 +1188,7 @@ public class ApiDefinitionService {
                 .testId(apiTestCase.getId())
                 .subject(Translator.get("api_case_update_notice"))
                 .paramMap(paramMap)
+                .excludeSelf(true)
                 .event(NoticeConstants.Event.CASE_UPDATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
@@ -1201,6 +1204,7 @@ public class ApiDefinitionService {
                 .testId(apiTestCase.getId())
                 .subject(Translator.get("api_case_create_notice"))
                 .paramMap(paramMap)
+                .excludeSelf(true)
                 .event(NoticeConstants.Event.CASE_CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
