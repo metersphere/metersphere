@@ -848,12 +848,15 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             int finalI = i;
             //在选择的模块下建模块，查看选择的模块下有没有同名的模块
             List<ApiScenarioModule> moduleList = pidChildrenMap.get(parentModule.getId());
-            List<ApiScenarioModule> collect1 = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
-            if (collect1.isEmpty()) {
+            List<ApiScenarioModule> filterModuleList = null;
+            if (!CollectionUtils.isEmpty(moduleList)) {
+                filterModuleList = moduleList.stream().filter(t -> t.getName().equals(tagTree[finalI])).collect(Collectors.toList());
+            }
+            if (CollectionUtils.isEmpty(filterModuleList)) {
                 return createModule(tagTree, i, parentModule, moduleMap, pidChildrenMap, idPathMap);
             } else {
-                returnModule = collect1.get(0);
-                parentModule = collect1.get(0);
+                returnModule = filterModuleList.get(0);
+                parentModule = filterModuleList.get(0);
             }
         }
         return returnModule;
