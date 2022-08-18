@@ -113,6 +113,7 @@
                               :field="item"
                               :fields-width="fieldsWidth"
                               :label="$t('commons.description')"
+                              min-width="70"
                               sortable>
                             </ms-table-column>
                           </span>
@@ -147,7 +148,7 @@
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
                         slot="label">
           <span>{{ $t('api_test.request.headers') }}
-            <div class="el-step__icon is-text ms-api-col ms-variable-header" v-if="headers.length>1">
+            <div class="el-step__icon is-text ms-api-col" v-if="headers.length>1">
               <div class="el-step__icon-inner">{{ headers.length - 1 }}</div>
             </div>
           </span>
@@ -632,8 +633,20 @@ fieldset {
   border: 0px;
 }
 
+.ms-fieldset .ms-step-tree-cell::-webkit-scrollbar {
+  width: 0 !important;
+}
+
 .ms-select {
   width: 100px;
   margin-right: 10px;
+}
+
+.el-dialog__body {
+  padding: 0 20px 30px 20px;
+}
+
+.ms-select-all-fixed .table-select-icon {
+  display: none !important;
 }
 </style>

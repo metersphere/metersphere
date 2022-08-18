@@ -52,8 +52,8 @@
           </el-col>
           <el-col :span="19">
             <el-select v-model="editData.quotedData" size="small" :disabled="disabled">
-              <el-option label="True" :value="true"/>
-              <el-option label="False" :value="false"/>
+              <el-option label="true" :value="true"/>
+              <el-option label="false" :value="false"/>
             </el-select>
           </el-col>
         </el-row>
