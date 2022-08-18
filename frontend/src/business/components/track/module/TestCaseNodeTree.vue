@@ -62,7 +62,7 @@ import NodeEdit from "../common/NodeEdit";
 import MsNodeTree from "../common/NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/components/track/case/components/import/TestCaseImport";
-import TestCaseExport from "@/business/components/track/case/components/TestCaseExport";
+import TestCaseExport from "@/business/components/track/case/components/export/TestCaseExport";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
@@ -244,8 +244,8 @@ export default {
       }
       this.$refs.testCaseExport.open();
     },
-    exportTestCase(type){
-      this.$emit('exportTestCase',type);
+    exportTestCase(type, param){
+      this.$emit('exportTestCase', type, param);
     },
     remove(nodeIds) {
       this.$post("/case/node/delete", nodeIds, () => {
@@ -290,6 +290,9 @@ export default {
     },
     changeConfirm(isSave) {
       this.$emit('importChangeConfirm', isSave);
+    },
+    closeExport() {
+      this.$refs.testCaseExport.close();
     }
   }
 };
