@@ -1,6 +1,7 @@
 package io.metersphere.metadata.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.nacos.common.utils.ByteUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
@@ -190,7 +191,8 @@ public class FileMetadataService {
         // 兼容历史数据
         if (StringUtils.isEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
             bytes = getContent(fileMetadata.getId());
-        } else {
+        }
+        if (ByteUtils.isEmpty(bytes)) {
             FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
             request.setResourceType(fileMetadata.getResourceType());
             request.setPath(fileMetadata.getPath());
@@ -244,21 +246,20 @@ public class FileMetadataService {
     public void update(FileMetadata fileMetadata) {
         this.checkName(fileMetadata);
         String beforeName = getBeforeName(fileMetadata);
-        if (!StringUtils.equalsIgnoreCase(beforeName, fileMetadata.getName())) {
+        if (!StringUtils.equalsIgnoreCase(beforeName, fileMetadata.getName())
+                && StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
             boolean isReName = fileManagerService.reName(beforeName, fileMetadata.getName(), fileMetadata.getProjectId());
             if (!isReName) {
                 MSException.throwException("重命名失败！");
             }
         }
-        if (fileMetadataMapper.selectByPrimaryKey(fileMetadata.getId()) != null) {
-            fileMetadata.setUpdateTime(System.currentTimeMillis());
-            fileMetadata.setUpdateUser(SessionUtils.getUserId());
-            // 历史数据的路径不做更新
-            if (StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
-                fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
-            }
-            fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
+        fileMetadata.setUpdateTime(System.currentTimeMillis());
+        fileMetadata.setUpdateUser(SessionUtils.getUserId());
+        // 历史数据的路径不做更新
+        if (StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
+            fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
         }
+        fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
     }
 
     public FileMetadata reLoad(FileMetadata fileMetadata, List<MultipartFile> files) {
@@ -277,8 +278,9 @@ public class FileMetadataService {
         }
         // 上传文件
         FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
-        fileManagerService.coverFile(files.get(0), request);
+        String path = fileManagerService.coverFile(files.get(0), request);
         // 更新关系数据
+        fileMetadata.setPath(path);
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         fileMetadata.setUpdateUser(SessionUtils.getUserId());
         fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
