@@ -437,6 +437,7 @@ export default {
     },
     'caseSyncRuleRelation.showUpdateRule': {
       handler(v) {
+        this.noShowSyncRuleRelation = v;
         this.$EventBus.$emit('showXpackCaseBtn', v);
       }
     }
