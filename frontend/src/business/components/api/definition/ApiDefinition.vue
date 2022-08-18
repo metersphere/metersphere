@@ -90,11 +90,15 @@
             </ms-tab-button>
           </el-tab-pane>
 
-          <el-tab-pane v-for="(item) in apiTabs"
+          <el-tab-pane v-for="(item, index) in apiTabs"
                        :key="item.name"
                        :label="item.title"
                        :closable="item.closable"
                        :name="item.name">
+            <el-tooltip v-if="index > 0" slot="label" effect="dark" :content="item.title" placement="bottom-start"
+                        class="ms-tab-name-width">
+              <span>{{ item.title }}</span>
+            </el-tooltip>
             <ms-tab-button
               v-if="item.type === 'list'"
               :active-dom.sync="activeDom"
@@ -1002,5 +1006,14 @@ export default {
 
 .version-select {
   padding-left: 10px;
+}
+
+.ms-tab-name-width {
+  display: inline-block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 200px;
 }
 </style>
