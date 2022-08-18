@@ -557,6 +557,7 @@
         from api_scenario
         where project_id = #{projectId}
           and status = 'Trash'
+          and latest IS TRUE
     </select>
 
     <select id="selectNameById" resultType="java.lang.String">

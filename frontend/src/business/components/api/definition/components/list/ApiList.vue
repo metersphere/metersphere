@@ -68,8 +68,8 @@
 
         <ms-table-column
           prop="status"
-          sortable="custom"
-          :filters="!trashEnable ? statusFilters : statusFiltersTrash"
+          :sortable="trashEnable ? false:'custom'"
+          :filters="!trashEnable ? statusFilters : null"
           :field="item"
           :fields-width="fieldsWidth"
           min-width="120px"
