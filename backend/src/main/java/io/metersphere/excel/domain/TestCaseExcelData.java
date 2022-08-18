@@ -54,6 +54,8 @@ public class TestCaseExcelData {
     List<String> mergeStepDesc;
     @ExcelIgnore
     List<String> mergeStepResult;
+    @ExcelIgnore
+    Map<String, String> otherFields;
 
     public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields) {
         return new ArrayList<>();
