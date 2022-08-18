@@ -321,7 +321,8 @@ import {
   hasLicense,
   hasPermission,
   objToStrMap,
-  strMapToObj
+  strMapToObj,
+  getCurrentUserId
 } from "@/common/js/utils";
 import {
   API_SCENARIO_CONFIGS,
@@ -1178,11 +1179,15 @@ export default {
         }
       });
     },
+
     copy(row) {
       let rowParam = JSON.parse(JSON.stringify(row));
       rowParam.copy = true;
       rowParam.name = 'copy_' + rowParam.name;
       rowParam.customNum = '';
+      rowParam.principal = getCurrentUserId();
+      rowParam.createUser = getCurrentUserId();
+      rowParam.userId = getCurrentUserId();
       this.$emit('edit', rowParam);
     },
     showReport(row) {
