@@ -40,13 +40,13 @@ public class IssueTemplateController {
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = OperLogModule.WORKSPACE_TEMPLATE_SETTINGS_ISSUE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssueTemplateService.class)
+    @MsAuditLog(module = OperLogModule.PROJECT_TEMPLATE_MANAGEMENT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssueTemplateService.class)
     public void delete(@PathVariable(value = "id") String id) {
         issueTemplateService.delete(id);
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = OperLogModule.WORKSPACE_TEMPLATE_SETTINGS_ISSUE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id,#request.customFields)", content = "#msClass.getLogDetails(#request)", msClass = IssueTemplateService.class)
+    @MsAuditLog(module = OperLogModule.PROJECT_TEMPLATE_MANAGEMENT, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id, #request.customFields)", content = "#msClass.getLogDetails(#request)", msClass = IssueTemplateService.class)
     public void update(@RequestBody UpdateIssueTemplateRequest request) {
         issueTemplateService.update(request);
     }

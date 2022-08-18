@@ -510,7 +510,7 @@ public class IssueTemplateService extends TemplateBaseService {
         }
         List<DetailColumn> columnIssues = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
         columns.addAll(columnIssues);
-        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), templateWithBLOBs.getProjectId(), templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
         return JSON.toJSONString(details);
     }
 
@@ -533,6 +533,18 @@ public class IssueTemplateService extends TemplateBaseService {
             return null;
         }
         OperatingLogDetails details = new OperatingLogDetails(targetProjectId, targetProjectId, targetProjectName, null, null);
+        return JSON.toJSONString(details);
+    }
+
+    public String getLogDetails(String issueTemplateId) {
+        if (StringUtils.isEmpty(issueTemplateId)) {
+            return null;
+        }
+        IssueTemplate issueTemplate = issueTemplateMapper.selectByPrimaryKey(issueTemplateId);
+        if (issueTemplate == null) {
+            return null;
+        }
+        OperatingLogDetails details = new OperatingLogDetails(issueTemplateId, issueTemplate.getProjectId(), issueTemplate.getName(), issueTemplate.getCreateUser(), null);
         return JSON.toJSONString(details);
     }
 }
