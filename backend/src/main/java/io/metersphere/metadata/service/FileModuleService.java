@@ -60,7 +60,12 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
 
     public List<FileModuleVo> getNodeTreeByProjectId(String projectId) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
+        FileModule defaultNode = this.getDefaultNode(projectId);
+        // 历史数据统计
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andModuleIdIsNull();
+        long defaultCount = fileMetadataMapper.countByExample(example);
+
         List<FileModuleVo> modules = extFileModuleMapper.getNodeTreeByProjectId(projectId);
         List<String> ids = modules.stream().map(FileModuleVo::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(ids)) {
@@ -80,6 +85,7 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
                         countNum += moduleCountMap.get(moduleId).intValue();
                     }
                 }
+                countNum += defaultCount;
                 node.setCaseNum(countNum);
             });
         }
