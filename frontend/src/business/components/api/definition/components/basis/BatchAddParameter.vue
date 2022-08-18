@@ -6,6 +6,7 @@
         <el-row>
           <el-col :span="14">
             <div v-html="$t('api_test.batch_add_parameter')"/>
+            <div v-if="isScenario" v-html="$t('api_test.bach_add_type_info')"/>
           </el-col>
           <el-col :span="10" class="buttons">
             <el-button size="mini" @click="handleClose">{{ $t('commons.cancel') }}</el-button>
@@ -42,10 +43,14 @@ export default {
     return {
       dialogVisible: false,
       parameters: "",
+      isScenario: false
     }
   },
   methods: {
-    open() {
+    open(data) {
+      if (data && data === 'scenario') {
+        this.isScenario = true;
+      }
       this.dialogVisible = true;
       listenGoBack(this.handleClose);
     },
