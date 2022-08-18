@@ -606,7 +606,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
             }*/
             //直接导出完整路径
-            if (apiDefinition.getModulePath() != null) {
+            if (StringUtils.isNotBlank(apiDefinition.getModulePath())) {
                 String[] split = new String[0];
                 String modulePath = apiDefinition.getModulePath();
                 String substring = modulePath.substring(0, 1);
@@ -620,6 +620,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     split = new String[]{modulePath};
                 }
                 swaggerApiInfo.setTags(Arrays.asList(split));
+            } else {
+                swaggerApiInfo.setTags(new ArrayList<>());
             }
 
             //  设置请求体
@@ -1018,6 +1020,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private String getModulePath(List<String> tagTree, StringBuilder modulePath) {
+        if (CollectionUtils.isEmpty(tagTree)) {
+            return "/未规划接口";
+        }
         for (String s : tagTree) {
             if (s.contains("/")) {
                 String[] split = s.split("/");
