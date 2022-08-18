@@ -98,10 +98,10 @@
 
           <ms-table-column prop="status"
                            :label="$t('test_track.plan.plan_status')"
-                           sortable
+                           :sortable="trashEnable ? false : true"
                            :field="item"
                            :fields-width="fieldsWidth"
-                           :filters="!trashEnable ? apiscenariofilters.STATUS_FILTERS : apiscenariofilters.TRASH_FILTERS"
+                           :filters="!trashEnable ? apiscenariofilters.STATUS_FILTERS : null"
                            min-width="120px">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.status"/>
@@ -317,12 +317,12 @@
 import {
   downloadFile,
   getCurrentProjectID,
+  getCurrentUserId,
   getUUID,
   hasLicense,
   hasPermission,
   objToStrMap,
-  strMapToObj,
-  getCurrentUserId
+  strMapToObj
 } from "@/common/js/utils";
 import {
   API_SCENARIO_CONFIGS,
