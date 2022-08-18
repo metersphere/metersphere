@@ -107,18 +107,7 @@ public class FileMetadataService {
                 this.add(req);
             }});
         }
-        List<FileMetadata> list = extFileMetadataMapper.getProjectFiles(projectId, request);
-        long size = list.stream().filter(t -> StringUtils.isEmpty(t.getModuleId())).count();
-        if (size > 0) {
-            // 历史数据处理
-            String moduleId = fileModuleService.getDefaultNode(projectId).getId();
-            list.forEach(item -> {
-                if (StringUtils.isEmpty(item.getModuleId())) {
-                    item.setModuleId(moduleId);
-                }
-            });
-        }
-        return list;
+        return extFileMetadataMapper.getProjectFiles(projectId, request);
     }
 
     public void deleteFile(String fileId) {
@@ -424,7 +413,7 @@ public class FileMetadataService {
             fileMetadata.setProjectId(SessionUtils.getCurrentProjectId());
         }
         if (StringUtils.isEmpty(fileMetadata.getModuleId())) {
-            fileMetadata.setModuleId(fileModuleService.getDefaultNode(fileMetadata.getProjectId()).getId());
+            fileMetadata.setModuleId(fileModuleService.getDefaultNodeId(fileMetadata.getProjectId()));
         }
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
