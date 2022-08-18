@@ -11,11 +11,9 @@ public class TestCaseExportExecuteResultConverter implements TestCaseExportConve
     private Map<String, String> planCaseStatusMap = new HashMap<>();
 
     public TestCaseExportExecuteResultConverter() {
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Pass.name(), "execute_pass");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Underway.name(), "test_case_status_prepare");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Blocking.name(), "plan_case_status_blocking");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Failure.name(), "test_case_status_error");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Skip.name(), "plan_case_status_skip");
+        for (TestPlanTestCaseStatus value : TestPlanTestCaseStatus.values()) {
+            planCaseStatusMap.put(value.name(), value.getI18nKey());
+        }
     }
 
     @Override

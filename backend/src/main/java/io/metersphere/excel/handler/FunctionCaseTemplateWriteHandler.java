@@ -7,6 +7,8 @@ import com.alibaba.fastjson.JSONArray;
 import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
+
+import org.apache.commons.collections.MapUtils;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -14,7 +16,6 @@ import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,6 @@ import java.util.Map;
 public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
 
     private boolean isNeedId;
-    Map<String, Integer> rowDisposeIndexMap;
     Map<String, List<String>> caseLevelAndStatusValueMap;
 
     private Integer idIndex;
@@ -37,15 +37,16 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
     private Integer statusIndex;
     private Integer stepModelIndex;
 
+    private Sheet sheet;
+    private Drawing<?> drawingPatriarch;
+
     public FunctionCaseTemplateWriteHandler(boolean isNeedId, List<List<String>> headList, Map<String, List<String>> caseLevelAndStatusValueMap) {
         this.isNeedId = isNeedId;
-        rowDisposeIndexMap = this.buildFiledMap(headList);
+        this.initIndex(headList);
         this.caseLevelAndStatusValueMap = caseLevelAndStatusValueMap;
     }
 
-    private Map<String, Integer> buildFiledMap(List<List<String>> headList) {
-        Map<String, Integer> returnMap = new HashMap<>();
-
+    private void initIndex(List<List<String>> headList) {
         int index = 0;
         for (List<String> list : headList) {
             for (String head : list) {
@@ -67,48 +68,46 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                 index++;
             }
         }
-        return returnMap;
     }
 
     @Override
     public void afterRowDispose(RowWriteHandlerContext context) {
 
         if (BooleanUtils.isTrue(context.getHead())) {
-            Sheet sheet = context.getWriteSheetHolder().getSheet();
-            Drawing<?> drawingPatriarch = sheet.createDrawingPatriarch();
+            sheet = context.getWriteSheetHolder().getSheet();
+            drawingPatriarch = sheet.createDrawingPatriarch();
 
-            if (rowDisposeIndexMap != null) {
-                if (isNeedId) {
-                    setComment(sheet, drawingPatriarch, idIndex, Translator.get("do_not_modify_header_order") + "，" + Translator.get("id_required"));
-                }
+            if (isNeedId) {
+                setComment(idIndex, Translator.get("do_not_modify_header_order").concat("，").concat(Translator.get("id_required")));
+            }
 
-                setComment(sheet, drawingPatriarch, moduleIndex, Translator.get("module_created_automatically"));
-                setComment(sheet, drawingPatriarch, maintainerIndex, Translator.get("please_input_project_member"));
-                setComment(sheet, drawingPatriarch, tagIndex, Translator.get("tag_tip_pattern"));
-                setComment(sheet, drawingPatriarch, stepModelIndex, Translator.get("step_model_tip"));
+            setComment(moduleIndex, Translator.get("module_created_automatically"));
+            setComment(maintainerIndex, Translator.get("please_input_project_member"));
+            setComment(tagIndex, Translator.get("tag_tip_pattern"));
+            setComment(stepModelIndex, Translator.get("step_model_tip"));
 
-                List<String> list = new ArrayList<>();
-                if (caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseLevel")) {
-                    list = caseLevelAndStatusValueMap.get("caseLevel");
-                }
-                if (CollectionUtils.isEmpty(list)) {
-                    setComment(sheet, drawingPatriarch, priorityIndex, Translator.get("options") + "（P0、P1、P2、P3）");
-                } else {
-                    setComment(sheet, drawingPatriarch, priorityIndex, Translator.get("options") + JSONArray.toJSONString(list));
-                }
+            List<String> list = new ArrayList<>();
+            if (MapUtils.isNotEmpty(caseLevelAndStatusValueMap) && caseLevelAndStatusValueMap.containsKey("caseLevel")) {
+                list = caseLevelAndStatusValueMap.get("caseLevel");
+            }
+            if (CollectionUtils.isEmpty(list)) {
+                setComment(priorityIndex, Translator.get("options").concat("（P0、P1、P2、P3）"));
+            } else {
+                setComment(priorityIndex, Translator.get("options").concat(JSONArray.toJSONString(list)));
+            }
 
-                list.clear();
-                if (caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseStatus")) {
-                    list = caseLevelAndStatusValueMap.get("caseStatus");
-                }
-                if (CollectionUtils.isNotEmpty(list)) {
-                    setComment(sheet, drawingPatriarch, statusIndex, Translator.get("options") + JSONArray.toJSONString(list));
-                }
+            list.clear();
+            if (MapUtils.isNotEmpty(caseLevelAndStatusValueMap) && caseLevelAndStatusValueMap.containsKey("caseStatus")) {
+                list = caseLevelAndStatusValueMap.get("caseStatus");
+            }
+            if (CollectionUtils.isNotEmpty(list)) {
+                setComment(statusIndex, Translator.get("options").concat(JSONArray.toJSONString(list)));
             }
         }
+
     }
 
-    private void setComment(Sheet sheet, Drawing<?> drawingPatriarch, Integer index, String text) {
+    private void setComment(Integer index, String text) {
         if (index == null) {
             return;
         }

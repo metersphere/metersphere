@@ -242,6 +242,9 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
+      this.$emit('handleExportCheck')
+    },
+    openExport() {
       this.$refs.testCaseExport.open();
     },
     exportTestCase(type, param){

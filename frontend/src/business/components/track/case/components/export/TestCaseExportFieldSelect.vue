@@ -73,7 +73,8 @@ export default {
           id: 'name',
           key: 'B',
           name: this.$t("test_track.case.name"),
-          enable: true
+          enable: true,
+          disabled: true
         },
         {
           id: 'nodeId',

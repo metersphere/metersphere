@@ -21,19 +21,17 @@ public class TestCaseExportCommendConverter implements TestCaseExportConverter {
     private HashMap<String, String> reviewCaseStatusMap = new HashMap<>();
 
     public TestCaseExportCommendConverter() {
-        commendTypeMap.put(TestCaseCommentType.CASE.name(), "test_case_comment");
-        commendTypeMap.put(TestCaseCommentType.PLAN.name(), "test_case_plan_comment");
-        commendTypeMap.put(TestCaseCommentType.REVIEW.name(), "test_case_review_comment");
+        for (TestCaseCommentType value : TestCaseCommentType.values()) {
+            commendTypeMap.put(value.name(), value.getI18nKey());
+        }
 
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Pass.name(), "execute_pass");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Underway.name(), "test_case_status_prepare");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Blocking.name(), "plan_case_status_blocking");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Failure.name(), "test_case_status_error");
-        planCaseStatusMap.put(TestPlanTestCaseStatus.Skip.name(), "plan_case_status_skip");
+        for (TestPlanTestCaseStatus value : TestPlanTestCaseStatus.values()) {
+            planCaseStatusMap.put(value.name(), value.getI18nKey());
+        }
 
-        reviewCaseStatusMap.put(TestReviewCaseStatus.Prepare.name(), "test_case_status_prepare");
-        reviewCaseStatusMap.put(TestReviewCaseStatus.Pass.name(), "execute_pass");
-        reviewCaseStatusMap.put(TestReviewCaseStatus.UnPass.name(), "execute_not_pass");
+        for (TestReviewCaseStatus value : TestReviewCaseStatus.values()) {
+            reviewCaseStatusMap.put(value.name(), value.getI18nKey());
+        }
     }
 
     @Override

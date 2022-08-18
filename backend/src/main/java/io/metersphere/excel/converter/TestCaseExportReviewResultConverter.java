@@ -11,9 +11,9 @@ public class TestCaseExportReviewResultConverter implements TestCaseExportConver
     private Map<String, String> reviewCaseStatusMap = new HashMap<>();
 
     public TestCaseExportReviewResultConverter() {
-        reviewCaseStatusMap.put(TestReviewCaseStatus.Prepare.name(), "test_case_status_prepare");
-        reviewCaseStatusMap.put(TestReviewCaseStatus.Pass.name(), "execute_pass");
-        reviewCaseStatusMap.put(TestReviewCaseStatus.UnPass.name(), "execute_not_pass");
+        for (TestReviewCaseStatus value : TestReviewCaseStatus.values()) {
+            reviewCaseStatusMap.put(value.name(), value.getI18nKey());
+        }
     }
 
     @Override
