@@ -60,11 +60,7 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
 
     public List<FileModuleVo> getNodeTreeByProjectId(String projectId) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        FileModule defaultNode = this.getDefaultNode(projectId);
-        // 历史数据统计
-        FileMetadataExample example = new FileMetadataExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andModuleIdIsNull();
-        long defaultCount = fileMetadataMapper.countByExample(example);
+        this.initDefaultNode(projectId);
 
         List<FileModuleVo> modules = extFileModuleMapper.getNodeTreeByProjectId(projectId);
         List<String> ids = modules.stream().map(FileModuleVo::getId).collect(Collectors.toList());
@@ -85,7 +81,6 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
                         countNum += moduleCountMap.get(moduleId).intValue();
                     }
                 }
-                countNum += defaultCount;
                 node.setCaseNum(countNum);
             });
         }
@@ -355,7 +350,7 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
         return fileModuleMapper.countByExample(example);
     }
 
-    public FileModule getDefaultNode(String projectId) {
+    private FileModule initDefaultNode(String projectId) {
         FileModuleExample example = new FileModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ApiTestConstants.DEF_MODULE).andParentIdIsNull();
         List<FileModule> list = fileModuleMapper.selectByExample(example);
@@ -379,15 +374,14 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
         }
     }
 
-    public FileModule getDefaultNodeUnCreateNew(String projectId) {
+    public String getDefaultNodeId(String projectId) {
         FileModuleExample example = new FileModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ApiTestConstants.DEF_MODULE).andParentIdIsNull();
         List<FileModule> list = fileModuleMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(list)) {
-            return null;
-        } else {
-            return list.get(0);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0).getId();
         }
+        return null;
     }
 
     public String getModuleNameById(String moduleId) {
