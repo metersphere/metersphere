@@ -388,6 +388,9 @@ export default {
       if (!this.request.arguments) {
         this.request.arguments = [];
       }
+      if (this.headers && this.headers.length === 0) {
+        this.headers.push(new KeyValue({enable: true, name: '', value: ''}));
+      }
       if (this.request.hashTree) {
         this.initStepSize(this.request.hashTree);
         this.historicalDataProcessing(this.request.hashTree);
