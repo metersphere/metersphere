@@ -185,7 +185,7 @@
                   :value="getCustomFieldValue(scope.row, field, scope.row.priority)"/>
             </span>
             <span v-else-if="field.name === '用例状态'">
-                {{ getCustomFieldValue(scope.row, field, scope.row.status) }}
+                {{ getCustomFieldValue(scope.row, field, scope.row.status)  === 'Trash' ? $t('test_track.plan.plan_status_trash') : getCustomFieldValue(scope.row, field, scope.row.status)}}
             </span>
             <span v-else>
               {{ getCustomFieldValue(scope.row, field) }}
@@ -282,6 +282,7 @@ import MsSearch from "@/business/components/common/components/search/MsSearch";
 import RelateDemand from "@/business/components/track/case/components/RelateDemand";
 import TestCaseReviewStatusTableItem from "@/business/components/track/common/tableItems/TestCaseReviewStatusTableItem";
 import TestPlanCaseStatusTableItem from "@/business/components/track/common/tableItems/TestPlanCaseStatusTableItem";
+import i18n from "@/i18n/i18n";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -651,6 +652,14 @@ export default {
         // todo 处理高级搜索自定义字段部分
         this.condition.components = this.condition.components.filter(item => item.custom !== true);
         let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
+        // 回收站TAB页处理高级搜索用例状态字段
+        if (this.trashEnable) {
+          comp.filter(element => {
+            if (element.label === '用例状态') {
+              element.options = [{text: i18n.t('test_track.plan.plan_status_trash'), value: 'Trash'}];
+            }
+          })
+        }
         this.condition.components.push(...comp);
         this.setTestCaseDefaultValue(template);
         this.typeArr = [];
@@ -700,12 +709,16 @@ export default {
     getCustomFieldFilter(field) {
       if (field.name === '用例状态') {
         let option = [];
-        field.options.forEach((item) => {
-          option.push({
-            text: this.$t(item.text),
-            value: item.value
-          })
-        });
+        if (this.trashEnable) {
+          option.push({text: i18n.t('test_track.plan.plan_status_trash'), value: 'Trash'});
+        } else {
+          field.options.forEach((item) => {
+            option.push({
+              text: this.$t(item.text),
+              value: item.value
+            })
+          });
+        }
         return option;
       }
       return getCustomFieldFilter(field, this.userFilter);

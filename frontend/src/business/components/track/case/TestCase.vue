@@ -38,7 +38,7 @@
 
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="closeConfirm">
-        <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
+        <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')" :closable="true">
           <ms-tab-button
             :isShowChangeButton="false">
             <template v-slot:version>
@@ -317,11 +317,16 @@ export default {
         this.$refs.minder.refresh();
       }
       if (oldVal === 'trash' && newVal === 'default') {
+        this.condition.filters.status = [];
         // 在回收站恢复后，切到列表页面刷新
         if (!this.hasRefreshDefault) {
           this.refreshAll();
           this.hasRefreshDefault = true;
+        } else {
+          this.refresh();
         }
+      } else if (newVal === 'default') {
+        this.refresh();
       }
     },
     activeDom(newVal, oldVal) {
@@ -550,6 +555,14 @@ export default {
       }
     },
     closeConfirm(targetName) {
+      this.activeName = 'default';
+      if (targetName === 'trash') {
+        this.trashEnable = false;
+      } else {
+        this.closeTabWithSave(targetName);
+      }
+    },
+    closeTabWithSave(targetName) {
       let t = this.tabs.filter(tab => tab.name === targetName);
       let message = "";
       if (t && this.$store.state.testCaseMap.has(t[0].testCaseInfo.id) && this.$store.state.testCaseMap.get(t[0].testCaseInfo.id) > 0) {

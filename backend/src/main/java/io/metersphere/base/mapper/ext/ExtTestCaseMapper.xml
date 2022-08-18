@@ -1351,4 +1351,15 @@
         and p.workspace_id = #{request.workspaceId}
         group by tcn.id;
     </select>
+
+    <update id="updateNoModuleTrashNodeToDefault">
+        update test_case
+        set node_id = #{defaultNodeId},
+            node_path = #{defaultNodePath}
+        where project_id = #{projectId}
+        and status = 'Trash'
+        and node_id not in (
+            select id from test_case_node where project_id = #{projectId}
+            )
+    </update>
 </mapper>
