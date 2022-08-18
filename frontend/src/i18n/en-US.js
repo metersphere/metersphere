@@ -1199,6 +1199,7 @@ export default {
     please_select_case: "Please select case",
     fail_to_stop: "Fail to stop",
     batch_add_parameter: "Format: parameter name: parameter value <br/> like：Accept-Encoding:utf-8 <br/> Note: The parameter names in batch addition are repeated, and the last data is the latest data by default",
+    bach_add_type_info: "Note: only constants can be added in batch",
     params_format_warning: "Incorrect data format at line {0}",
     create_performance_test_tips: 'This operation cannot be completed without permission to create performance tests',
     jar_config: {
