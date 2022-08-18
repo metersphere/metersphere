@@ -45,9 +45,9 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.log.vo.schedule.ScheduleReference;
+import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.metadata.service.FileAssociationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -1439,6 +1439,7 @@ public class ApiAutomationService {
                 .testId(apiScenario.getId())
                 .subject(Translator.get("scenario_update_notice"))
                 .paramMap(paramMap)
+                .excludeSelf(true)
                 .event(NoticeConstants.Event.UPDATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
@@ -1455,6 +1456,7 @@ public class ApiAutomationService {
                 .testId(apiScenario.getId())
                 .subject(Translator.get("scenario_create_notice"))
                 .paramMap(paramMap)
+                .excludeSelf(true)
                 .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
