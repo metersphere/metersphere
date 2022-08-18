@@ -5,7 +5,10 @@
           :key="item.id">
       <el-col :span="6"
               v-if="Math.floor(index / colCountEachRow) === rowIndex - 1">
-        <el-checkbox v-model="item.enable" @change="change">
+        <el-checkbox
+          v-model="item.enable"
+          :disabled="item.disabled"
+          @change="change">
           {{ item.name }}
         </el-checkbox>
       </el-col>

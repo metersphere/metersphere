@@ -1,5 +1,8 @@
 <template>
-  <el-dialog class="testcase-import" :title="$t('test_track.case.import.case_export')" :visible.sync="dialogVisible"
+  <el-dialog class="testcase-import"
+             v-loading="loading"
+             :title="$t('test_track.case.import.case_export')"
+             :visible.sync="dialogVisible"
              @close="close">
 
     <span class="format-title">
@@ -39,28 +42,32 @@ export default {
     return {
       exportType: "excel",
       dialogVisible: false,
-      projectId: ""
+      projectId: "",
+      loading: false
     }
   },
   activated() {
   },
   methods: {
     handleError(err, file, fileList) {
-      this.isLoading = false;
+      this.loading = false;
       this.$error(err.message);
     },
     open() {
       listenGoBack(this.close);
       this.projectId = getCurrentProjectID();
       this.dialogVisible = true;
+      this.loading = false;
     },
     close() {
       removeGoBackListener(this.close);
       this.dialogVisible = false;
+      this.loading = false;
     },
     exportTestCase() {
       let param = this.$refs.testCaseExportFieldSelect.getExportParam();
       this.$emit('exportTestCase', this.exportType, param);
+      this.loading = true;
     }
   }
 }
