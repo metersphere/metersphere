@@ -280,6 +280,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getTrashCaseNode(String projectId, QueryTestCaseRequest request) {
+        // 初始化回收站中模块被删除的用例, 挂在默认未规划模块, 获取回收站模块节点数据
+        TestCaseNode defaultNode = this.getDefaultNode(projectId);
+        extTestCaseMapper.updateNoModuleTrashNodeToDefault(projectId, defaultNode.getId(), defaultNode.getName());
         request.setProjectId(projectId);
         request.setNodeIds(null);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getCountNodes(request);
