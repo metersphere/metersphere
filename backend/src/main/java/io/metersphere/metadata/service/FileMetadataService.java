@@ -5,6 +5,7 @@ import com.alibaba.nacos.common.utils.ByteUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtFileMetadataMapper;
+import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
@@ -412,7 +413,7 @@ public class FileMetadataService {
         if (StringUtils.isEmpty(fileMetadata.getProjectId())) {
             fileMetadata.setProjectId(SessionUtils.getCurrentProjectId());
         }
-        if (StringUtils.isEmpty(fileMetadata.getModuleId())) {
+        if (StringUtils.isEmpty(fileMetadata.getModuleId()) || StringUtils.equals(ApiTestConstants.ROOT, fileMetadata.getModuleId())) {
             fileMetadata.setModuleId(fileModuleService.getDefaultNodeId(fileMetadata.getProjectId()));
         }
         fileMetadata.setCreateTime(System.currentTimeMillis());
