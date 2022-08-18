@@ -107,6 +107,7 @@
               :public-enable="false"
               :current-version="currentVersion"
               :version-enable="versionEnable"
+              @closeExport="closeExport"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -584,12 +585,15 @@ export default {
         this.activeName = "default";
       }
     },
-    exportTestCase(type) {
+    exportTestCase(type, param) {
       if (this.activeDom !== 'left') {
         this.$warning(this.$t('test_track.case.export.export_tip'));
         return;
       }
-      this.$refs.testCaseList.exportTestCase(type);
+      this.$refs.testCaseList.exportTestCase(type, param);
+    },
+    closeExport() {
+      this.$refs.nodeTree.closeExport();
     },
     init(route) {
       let path = route.path;

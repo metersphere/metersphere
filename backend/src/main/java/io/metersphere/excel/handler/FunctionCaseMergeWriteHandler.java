@@ -24,9 +24,9 @@ public class FunctionCaseMergeWriteHandler implements RowWriteHandler {
         for (int i = 0; i < headList.size(); i++) {
             List<String> list = headList.get(i);
             for (String head : list) {
-                if (TestCaseImportFiled.STEP_DESC.getFiledLangMap().values().contains(head)) {
+                if (TestCaseImportFiled.STEP_DESC.containsHead(head)) {
                     stepDescRowIndex = i;
-                } else if (TestCaseImportFiled.STEP_RESULT.getFiledLangMap().values().contains(head)) {
+                } else if (TestCaseImportFiled.STEP_RESULT.containsHead(head)) {
                     stepResultRowIndex = i;
                 }
             }

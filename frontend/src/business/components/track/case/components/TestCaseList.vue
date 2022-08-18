@@ -222,7 +222,6 @@
 
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import TestCaseImport from './import/TestCaseImport';
-import TestCaseExport from '../components/TestCaseExport';
 import MsTablePagination from '../../../../components/common/pagination/TablePagination';
 import NodeBreadcrumb from '../../common/NodeBreadcrumb';
 import MsTableHeader from '../../../../components/common/components/MsTableHeader';
@@ -310,7 +309,6 @@ export default {
     TypeTableItem,
     PriorityTableItem,
     TestCaseImport,
-    TestCaseExport,
     MsTablePagination,
     NodeBreadcrumb,
     MsTableHeader,
@@ -1016,12 +1014,13 @@ export default {
       }
       this.$refs.testCaseImport.open();
     },
-    exportTestCase(exportType) {
+    exportTestCase(exportType, fieldParam) {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-
+      let param = buildBatchParam(this, this.$refs.table.selectIds);
+      Object.assign(param, fieldParam);
       let config = {};
       let fileNameSuffix = "";
       if (exportType === 'xmind') {
@@ -1029,7 +1028,7 @@ export default {
           url: '/test/case/export/testcase/xmind',
           method: 'post',
           responseType: 'blob',
-          data: buildBatchParam(this, this.$refs.table.selectIds)
+          data: param
         };
         fileNameSuffix = ".xmind";
       } else {
@@ -1037,7 +1036,7 @@ export default {
           url: '/test/case/export/testcase',
           method: 'post',
           responseType: 'blob',
-          data: buildBatchParam(this, this.$refs.table.selectIds)
+          data: param
         };
         fileNameSuffix = ".xlsx";
       }
@@ -1056,8 +1055,10 @@ export default {
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
           URL.revokeObjectURL(aTag.href);
+          this.$emit('closeExport');
         } else {
           navigator.msSaveBlob(blob, filename);
+          this.$emit('closeExport');
         }
       });
     },
