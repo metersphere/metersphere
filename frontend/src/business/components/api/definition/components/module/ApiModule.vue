@@ -4,23 +4,23 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-        :is-display="getIsRelevance"
-        v-loading="result.loading"
-        :tree-nodes="data"
-        :type="isReadOnly ? 'view' : 'edit'"
-        :allLabel="$t('api_test.definition.api_all')"
-        :default-label="$t('api_test.definition.unplanned_api')"
-        local-suffix="api_definition"
-        @add="add"
-        @edit="edit"
-        @drag="drag"
-        @remove="remove"
-        @refresh="list"
-        @filter="filter"
-        :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
-        :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
-        :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-        @nodeSelectEvent="nodeChange"
+      :is-display="getIsRelevance"
+      v-loading="result.loading"
+      :tree-nodes="data"
+      :type="isReadOnly ? 'view' : 'edit'"
+      :allLabel="$t('api_test.definition.api_all')"
+      :default-label="$t('api_test.definition.unplanned_api')"
+      local-suffix="api_definition"
+      @add="add"
+      @edit="edit"
+      @drag="drag"
+      @remove="remove"
+      @refresh="list"
+      @filter="filter"
+      :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
+      :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
+      :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+      @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
       <template v-slot:header>
@@ -67,210 +67,232 @@ export default {
   },
   data() {
     return {
-        openType: 'relevance',
-        result: {},
-        condition: {
-          protocol: OPTIONS[0].value,
-          filterText: "",
-          trashEnable: false
-        },
-        data: [],
-        currentModule: {},
+      openType: 'relevance',
+      result: {},
+      condition: {
+        protocol: OPTIONS[0].value,
+        filterText: "",
+        trashEnable: false
+      },
+      data: [],
+      currentModule: {},
+    }
+  },
+  props: {
+    isReadOnly: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
-    props: {
-      isReadOnly: {
-        type: Boolean,
-        default() {
-          return false;
-        }
-      },
-      showOperator: Boolean,
-      planId: String,
-      currentVersion: String,
-      relevanceProjectId: String,
-      reviewId: String,
-      pageSource: String,
-      total: Number,
-      isRelevance: Boolean,
-      options: {
-        type: Array,
-        default() {
-          return OPTIONS;
-        }
+    showOperator: Boolean,
+    planId: String,
+    currentVersion: String,
+    relevanceProjectId: String,
+    reviewId: String,
+    pageSource: String,
+    total: Number,
+    isRelevance: Boolean,
+    options: {
+      type: Array,
+      default() {
+        return OPTIONS;
       }
+    }
+  },
+  computed: {
+    isPlanModel() {
+      return this.planId ? true : false;
     },
-    computed: {
-      isPlanModel() {
-        return this.planId ? true : false;
-      },
-      isRelevanceModel() {
-        return this.relevanceProjectId ? true : false;
-      },
-      isReviewModel() {
-        return this.reviewId ? true : false;
-      },
-      projectId() {
-        return getCurrentProjectID();
-      },
-      getIsRelevance(){
-        if(this.pageSource !== 'definition'){
-          return this.openType;
-        }else {
-          return "definition";
-        }
+    isRelevanceModel() {
+      return this.relevanceProjectId ? true : false;
+    },
+    isReviewModel() {
+      return this.reviewId ? true : false;
+    },
+    projectId() {
+      return getCurrentProjectID();
+    },
+    getIsRelevance() {
+      if (this.pageSource !== 'definition') {
+        return this.openType;
+      } else {
+        return "definition";
       }
-    },
-    mounted() {
-      this.initProtocol();
-    },
+    }
+  },
+  mounted() {
+    this.initProtocol();
+  },
 
-    watch: {
-      'condition.filterText'() {
-        this.filter();
-      },
-      'condition.protocol'() {
+  watch: {
+    'condition.filterText'() {
+      this.filter();
+    },
+    'condition.protocol'() {
+      this.$emit('protocolChange', this.condition.protocol);
+      this.list();
+    },
+    'condition.trashEnable'() {
+      this.$emit('enableTrash', this.condition.trashEnable);
+    },
+    planId() {
+      this.list();
+    },
+    relevanceProjectId() {
+      this.list();
+    },
+    reviewId() {
+      this.list();
+    }
+  },
+  methods: {
+    initProtocol() {
+      if (this.$route.params.type) {
+        this.condition.protocol = this.$route.params.type;
         this.$emit('protocolChange', this.condition.protocol);
         this.list();
-      },
-      'condition.trashEnable'() {
-        this.$emit('enableTrash', this.condition.trashEnable);
-      },
-      planId() {
-        this.list();
-      },
-      relevanceProjectId() {
-        this.list();
-      },
-      reviewId() {
+      } else if (!this.isRelevance) {
+        //展示页面是非引用页面才会查询上一次接口类型
+        this.$get('/api/module/getUserDefaultApiType/', response => {
+          this.condition.protocol = response.data;
+          this.$emit('protocolChange', this.condition.protocol);
+          this.list();
+        });
+      } else {
+        this.$emit('protocolChange', this.condition.protocol);
         this.list();
       }
     },
-    methods: {
-      initProtocol() {
-        if(this.$route.params.type){
-          this.condition.protocol = this.$route.params.type;
-          this.$emit('protocolChange', this.condition.protocol);
-          this.list();
-        }else if (!this.isRelevance) {
-          //展示页面是非引用页面才会查询上一次接口类型
-          this.$get('/api/module/getUserDefaultApiType/', response => {
-            this.condition.protocol = response.data;
-            this.$emit('protocolChange', this.condition.protocol);
-            this.list();
+    filter() {
+      this.$refs.nodeTree.filter(this.condition.filterText);
+    },
+    list(projectId) {
+      let url = undefined;
+      if (this.isPlanModel) {
+        url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
+      } else if (this.isRelevanceModel) {
+        url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      } else {
+        url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+        if (!this.projectId) {
+          return;
+        }
+      }
+      this.result = this.$get(url, response => {
+        if (response.data != undefined && response.data != null) {
+          this.data = response.data;
+          this.data.forEach(node => {
+            node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
+            buildTree(node, {path: ''});
           });
-        } else {
-          this.$emit('protocolChange', this.condition.protocol);
-          this.list();
-        }
-      },
-      filter() {
-        this.$refs.nodeTree.filter(this.condition.filterText);
-      },
-      list(projectId) {
-        let url = undefined;
-        if (this.isPlanModel) {
-          url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
-        } else if (this.isRelevanceModel) {
-          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
-        } else {
-          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
-          if (!this.projectId) {
-            return;
+          this.$emit('setModuleOptions', this.data);
+          this.$emit('setNodeTree', this.data);
+          if (this.$refs.nodeTree) {
+            this.$refs.nodeTree.filter(this.condition.filterText);
           }
         }
-        this.result = this.$get(url, response => {
-          if (response.data != undefined && response.data != null) {
-            this.data = response.data;
-            this.data.forEach(node => {
-              node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
-              buildTree(node, {path: ''});
-            });
-            this.$emit('setModuleOptions', this.data);
-            this.$emit('setNodeTree', this.data);
-            if (this.$refs.nodeTree) {
-              this.$refs.nodeTree.filter(this.condition.filterText);
-            }
-          }
-        });
-      },
-      edit(param) {
-        param.projectId = this.projectId;
-        param.protocol = this.condition.protocol;
-        this.$post("/api/module/edit", param, () => {
+      });
+    },
+    edit(param) {
+      param.projectId = this.projectId;
+      param.protocol = this.condition.protocol;
+      this.$post("/api/module/edit", param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.list();
+        this.refresh();
+      }, (error) => {
+        this.list();
+      });
+    },
+    add(param) {
+      param.projectId = this.projectId;
+      param.protocol = this.condition.protocol;
+      if (param && param.level >= 9) {
+        this.list();
+        this.$error(this.$t('commons.warning_module_add'));
+        return;
+      } else {
+        this.$post("/api/module/add", param, () => {
           this.$success(this.$t('commons.save_success'));
           this.list();
-          this.refresh();
         }, (error) => {
           this.list();
         });
-      },
-      add(param) {
-        param.projectId = this.projectId;
-        param.protocol = this.condition.protocol;
-        if (param && param.level >= 9) {
-          this.list();
-          this.$error(this.$t('commons.warning_module_add'));
-          return;
-        } else {
-          this.$post("/api/module/add", param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.list();
-          }, (error) => {
-            this.list();
-          });
-        }
-      },
-      remove(nodeIds) {
-        this.$post("/api/module/delete", nodeIds, () => {
-          this.list();
-          this.refresh();
-        }, (error) => {
-          this.list();
-        });
-      },
-      drag(param, list) {
-        this.$post("/api/module/drag", param, () => {
-          this.$post("/api/module/pos", list, () => {
-            this.list();
-          });
-        }, (error) => {
-          this.list();
-        });
-      },
-      nodeChange(node, nodeIds, pNodes) {
-        this.currentModule = node.data;
-        this.condition.trashEnable = false;
-        if (node.data.id === 'root') {
-          this.$emit("nodeSelectEvent", node, [], pNodes);
-        } else {
-          this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
-        }
-      },
-      //创建根目录的模块---供父类使用
-      createRootModel() {
-        let dataArr = this.$refs.nodeTree.extendTreeNodes;
-        if (dataArr.length > 0) {
-          this.$refs.nodeTree.append({}, dataArr[0]);
-        }
-      },
-      exportAPI(type) {
-        this.$emit('exportAPI', type, this.data);
-      },
-      debug() {
-        this.$emit('debug');
-      },
-      saveAsEdit(data) {
-        this.$emit('saveAsEdit', data);
-      },
-      refresh() {
+      }
+    },
+    remove(nodeIds) {
+      this.$post("/api/module/delete", nodeIds, () => {
         this.list();
-        this.$emit('refreshTable');
-      },
+        this.refresh();
+        this.removeModuleId(nodeIds);
+      }, (error) => {
+        this.list();
+      });
+    },
+    drag(param, list) {
+      this.$post("/api/module/drag", param, () => {
+        this.$post("/api/module/pos", list, () => {
+          this.list();
+        });
+      }, (error) => {
+        this.list();
+      });
+    },
+    nodeChange(node, nodeIds, pNodes) {
+      this.currentModule = node.data;
+      this.condition.trashEnable = false;
+      if (node.data.id === 'root') {
+        this.$emit("nodeSelectEvent", node, [], pNodes);
+      } else {
+        this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
+      }
+    },
+    //创建根目录的模块---供父类使用
+    createRootModel() {
+      let dataArr = this.$refs.nodeTree.extendTreeNodes;
+      if (dataArr.length > 0) {
+        this.$refs.nodeTree.append({}, dataArr[0]);
+      }
+    },
+    exportAPI(type) {
+      this.$emit('exportAPI', type, this.data);
+    },
+    debug() {
+      this.$emit('debug');
+    },
+    saveAsEdit(data) {
+      this.$emit('saveAsEdit', data);
+    },
+    refresh() {
+      this.list();
+      this.$emit('refreshTable');
+    },
+    removeModuleId(nodeIds) {
+      if (localStorage.getItem('tcp') || localStorage.getItem('http') || localStorage.getItem('sql') || localStorage.getItem('dubbo')) {
+        if (this.condition.protocol === 'TCP') {
+          if (localStorage.getItem('tcp') === nodeIds[0]) {
+            localStorage.setItem('tcp', undefined);
+          }
+        } else if (this.condition.protocol === 'HTTP') {
+          if (localStorage.getItem('http') === nodeIds[0]) {
+            localStorage.setItem('http', undefined);
+          }
+        } else if (this.condition.protocol === 'SQL') {
+          if (localStorage.getItem('sql') === nodeIds[0]) {
+            localStorage.setItem('sql', undefined);
+          }
+        } else if (this.condition.protocol === 'DUBBO') {
+          if (localStorage.getItem('dubbo') === nodeIds[0]) {
+            localStorage.setItem('dubbo', undefined);
+          }
+        }
+      }
     }
   }
+}
 </script>
 
 <style scoped>
