@@ -238,6 +238,7 @@ export default {
       this.$post("/api/automation/module/delete", nodeIds, () => {
         this.list();
         this.refresh();
+        this.removeModuleId(nodeIds);
       }, (error) => {
         this.list();
       });
@@ -281,6 +282,11 @@ export default {
     enableTrash() {
       this.condition.trashEnable = true;
       this.$emit('enableTrash', this.condition.trashEnable);
+    },
+    removeModuleId(nodeIds) {
+      if (localStorage.getItem('scenarioModule') && localStorage.getItem('scenarioModule') === nodeIds[0]) {
+        localStorage.setItem('scenarioModule', undefined);
+      }
     }
   }
 }

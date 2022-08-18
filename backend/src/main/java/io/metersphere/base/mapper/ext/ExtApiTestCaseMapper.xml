@@ -655,7 +655,7 @@
         inner join project on api_test_case.project_id = project.id
         inner JOIN api_definition a ON api_test_case.api_definition_id = a.id
         <include refid="criCondition"/>
-        and a.latest is not null
+        and a.latest = 1
     </select>
 
     <select id="getRequest" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">

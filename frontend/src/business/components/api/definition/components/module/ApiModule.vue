@@ -251,17 +251,18 @@ export default {
     add(param) {
       param.projectId = this.projectId;
       param.protocol = this.condition.protocol;
-        this.$post("/api/module/add", param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.list();
-        }, (error) => {
-          this.list();
-        });
+      this.$post("/api/module/add", param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.list();
+      }, (error) => {
+        this.list();
+      });
     },
     remove(nodeIds) {
       this.$post("/api/module/delete", nodeIds, () => {
         this.list();
         this.refresh();
+        this.removeModuleId(nodeIds);
       }, (error) => {
         this.list();
       });
@@ -303,6 +304,27 @@ export default {
       this.list();
       this.$emit('refreshTable');
     },
+    removeModuleId(nodeIds) {
+      if (localStorage.getItem('tcp') || localStorage.getItem('http') || localStorage.getItem('sql') || localStorage.getItem('dubbo')) {
+        if (this.condition.protocol === 'TCP') {
+          if (localStorage.getItem('tcp') === nodeIds[0]) {
+            localStorage.setItem('tcp', undefined);
+          }
+        } else if (this.condition.protocol === 'HTTP') {
+          if (localStorage.getItem('http') === nodeIds[0]) {
+            localStorage.setItem('http', undefined);
+          }
+        } else if (this.condition.protocol === 'SQL') {
+          if (localStorage.getItem('sql') === nodeIds[0]) {
+            localStorage.setItem('sql', undefined);
+          }
+        } else if (this.condition.protocol === 'DUBBO') {
+          if (localStorage.getItem('dubbo') === nodeIds[0]) {
+            localStorage.setItem('dubbo', undefined);
+          }
+        }
+      }
+    }
   }
 }
 </script>
