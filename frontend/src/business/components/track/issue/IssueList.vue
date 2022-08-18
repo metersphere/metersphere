@@ -261,10 +261,10 @@ export default {
         this.userFilter = data.map(u => {
           return {text: u.name, value: u.id};
         });
-      });
-      getIssuePartTemplateWithProject((template) => {
-        this.initFields(template);
-        this.page.result.loading = false;
+        getIssuePartTemplateWithProject((template) => {
+          this.initFields(template);
+          this.page.result.loading = false;
+        });
       });
       this.getIssues();
     });
