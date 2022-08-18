@@ -79,7 +79,7 @@
                 <div class="div-item">
                   <div style="float: left">
                     <i class="el-icon-s-cooperation icon-color"
-                       @click="click('/project/file/manage', ['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE'])">
+                       @click="click('/project/file/manage', ['PROJECT_FILE:READ', 'PROJECT_FILE:READ+FILE'])">
                     </i>
                   </div>
                   <div style="float: left">
