@@ -1041,11 +1041,6 @@ export default {
         fileNameSuffix = ".xlsx";
       }
 
-      if (config.data.ids === undefined || config.data.ids.length < 1) {
-        this.$warning(this.$t("test_track.case.check_select"));
-        return;
-      }
-
       this.page.result = this.$request(config).then(response => {
         const filename = "Metersphere_case_" + this.projectName + fileNameSuffix;
         const blob = new Blob([response.data]);
@@ -1197,6 +1192,14 @@ export default {
         }
 
       }
+    },
+    checkSelected() {
+      let selectIds = this.$refs.table.selectIds;
+      if (!selectIds || selectIds.length < 1) {
+        this.$warning(this.$t("test_track.case.check_select"));
+        return false;
+      }
+      return true;
     },
     getMaintainerOptions() {
       this.$get('/user/project/member/list', response => {

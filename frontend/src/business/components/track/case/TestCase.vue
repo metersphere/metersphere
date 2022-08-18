@@ -8,6 +8,7 @@
         :show-operator="true"
         :public-total="publicTotal"
         :case-condition="condition"
+        @handleExportCheck="handleExportCheck"
         @refreshTable="refresh"
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
@@ -583,6 +584,11 @@ export default {
         this.activeName = this.tabs[this.tabs.length - 1].name;
       } else {
         this.activeName = "default";
+      }
+    },
+    handleExportCheck() {
+      if (this.$refs.testCaseList.checkSelected()) {
+        this.$refs.nodeTree.openExport();
       }
     },
     exportTestCase(type, param) {

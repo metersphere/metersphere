@@ -66,7 +66,9 @@ export default {
     selectAllChange(value) {
       this.selectAll = value;
       this.fields.forEach(i => {
-        i.enable = value;
+        if (!i.disabled) {
+          i.enable = value;
+        }
       });
       this.persistenceValues();
     },
@@ -91,7 +93,7 @@ export default {
         }
       }
 
-      this.selectAllChange(isSelectAll);
+      this.selectAll = isSelectAll;
     }
   }
 }
