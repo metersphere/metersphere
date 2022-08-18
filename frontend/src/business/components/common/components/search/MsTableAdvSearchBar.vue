@@ -125,6 +125,9 @@ export default {
         condition['customs'] = [];
       }
       let value = component.value;
+      if (component.label === '用例状态' && value.length === 1 && value.indexOf('Trash') > -1) {
+        return;
+      }
       if (component.type === "multipleMember" || component.type === "checkbox" || component.type === "multipleSelect") {
         try {
           value = JSON.stringify(component.value);

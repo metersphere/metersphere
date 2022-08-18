@@ -651,6 +651,26 @@ export default {
         // todo 处理高级搜索自定义字段部分
         this.condition.components = this.condition.components.filter(item => item.custom !== true);
         let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);
+        // 系统字段国际化处理
+        comp.filter(element => {
+          if (element.label === '责任人') {
+            element.label = this.$t('custom_field.case_maintainer')
+          }
+          if (element.label === '用例等级') {
+            element.label = this.$t('custom_field.case_priority')
+          }
+          if (element.label === '用例状态') {
+            element.label = this.$t('custom_field.case_status')
+            // 回收站TAB页处理高级搜索用例状态字段
+            if (this.trashEnable) {
+              element.options = [{text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'}];
+            } else {
+              element.options.forEach(option => {
+                option.text = this.$t(option.text)
+              })
+            }
+          }
+        })
         this.condition.components.push(...comp);
         this.setTestCaseDefaultValue(template);
         this.typeArr = [];
@@ -694,18 +714,24 @@ export default {
         return row.priority;
       } else if (field.name === '责任人') {
         return row.maintainerName;
+      } else if (field.name === '用例状态') {
+        value = value === 'Trash' ? this.$t('test_track.plan.plan_status_trash') : value
       }
       return value ? value : defaultVal;
     },
     getCustomFieldFilter(field) {
       if (field.name === '用例状态') {
         let option = [];
-        field.options.forEach((item) => {
-          option.push({
-            text: this.$t(item.text),
-            value: item.value
-          })
-        });
+        if (this.trashEnable) {
+          option.push({text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'});
+        } else {
+          field.options.forEach((item) => {
+            option.push({
+              text: this.$t(item.text),
+              value: item.value
+            })
+          });
+        }
         return option;
       }
       return getCustomFieldFilter(field, this.userFilter);
