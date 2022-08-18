@@ -295,7 +295,7 @@ export default {
       downloadFile('MS_' + variablesJson.length + '_Environments_variables.json', JSON.stringify(variablesJson));
     },
     batchAddParameter() {
-      this.$refs.batchAddParameter.open();
+      this.$refs.batchAddParameter.open('scenario');
     },
     batchAddHeader() {
       this.$refs.batchAddHeader.open();

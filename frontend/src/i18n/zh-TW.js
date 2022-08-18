@@ -1206,6 +1206,7 @@ export default {
     please_select_case: "請選擇用例",
     fail_to_stop: "失敗停止",
     batch_add_parameter: "格式：參數名:參數值 <br/> 如：Accept-Encoding:utf-8 <br/> 注：批量添加里的參數名重複，默認以最後一條數據為最新數據",
+    bach_add_type_info: "注：批量添加只能添加常數",
     params_format_warning: "第{0}行數據格式有誤",
     create_performance_test_tips: '沒有創建性能測試的權限，無法完成此操作',
     jar_config: {
