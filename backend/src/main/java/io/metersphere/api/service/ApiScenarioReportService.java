@@ -890,7 +890,7 @@ public class ApiScenarioReportService {
                                 StringUtils.isNotEmpty(requestResult.getResponseResult().getHeaders())
                                         && JSONArray.parseArray(requestResult.getResponseResult().getHeaders()).stream().filter(
                                         r -> ((JSONObject) r).containsKey("success") && !((JSONObject) r).getBoolean("success")
-                                ).anyMatch())
+                                ).count() > 0)
                         .count();
             } catch (Exception e) {
                 // UI 返回的结果在 headers 里面，格式不符合规范的直接认定结果为失败
