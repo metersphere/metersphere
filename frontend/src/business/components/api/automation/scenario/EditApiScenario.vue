@@ -2393,12 +2393,6 @@ export default {
   vertical-align: center;
 }
 
-/deep/ .show-more-btn {
-  width: 0px;
-  height: 17px;
-  line-height: 10px;
-}
-
 /deep/ .ms-main-container {
   padding: 5px 5px 5px 10px;
 }

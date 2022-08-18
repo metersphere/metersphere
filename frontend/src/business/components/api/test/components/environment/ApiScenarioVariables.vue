@@ -70,7 +70,7 @@
           </template>
         </ms-table-column>
 
-        <ms-table-column :label="$t('commons.operating')" width="150" fixed="right">
+        <ms-table-column :label="$t('commons.operating')" width="150">
           <template v-slot:default="scope">
           <span>
               <el-switch v-model="scope.row.enable" size="mini"/>
@@ -395,5 +395,9 @@ export default {
 
 .kv-delete {
   width: 60px;
+}
+
+/deep/ .table-select-icon {
+  display: none !important;
 }
 </style>
