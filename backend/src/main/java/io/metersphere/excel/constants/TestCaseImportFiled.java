@@ -61,4 +61,8 @@ public enum TestCaseImportFiled {
         }
         return tags;
     }
+
+    public boolean containsHead(String head) {
+       return filedLangMap.values().contains(head);
+    }
 }

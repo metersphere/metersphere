@@ -31,6 +31,8 @@ import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestCaseImportFiled;
+import io.metersphere.excel.converter.TestCaseExportConverter;
+import io.metersphere.excel.converter.TestCaseExportConverterFactory;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.handler.FunctionCaseMergeWriteHandler;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
@@ -63,6 +65,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -1326,38 +1329,73 @@ public class TestCaseService {
         return list;
     }
 
-
-
-    public void testCaseExport(HttpServletResponse response, TestCaseBatchRequest request) {
+    public void testCaseExport(HttpServletResponse response, TestCaseExportRequest request) {
         String projectId = request.getProjectId();
         request.getCondition().setStatusIsNot(CommonConstants.TrashStatus);
-        List<TestCaseDTO> testCaseList = getExportData(request);
-        testCaseExport(response, projectId, testCaseList, true);
-    }
+        List<TestCaseDTO> testCases = getExportData(request);
+        List<List<String>> headList = getTestcaseExportHeads(request);
 
-    public void testCaseExport(HttpServletResponse response, String projectId, List<TestCaseDTO> testCaseList, boolean needIdCol) {
-        TestCaseExcelData testCaseExcelData = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
         Map<Integer, Integer> rowMergeInfo = new HashMap<>();
-        TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
-        List<CustomFieldDao> customFields = Optional.ofNullable(testCaseTemplate.getCustomFields()).orElse(new ArrayList<>());
-        List<List<String>> headList = testCaseExcelData.getHead(needIdCol, customFields);
         FunctionCaseMergeWriteHandler writeHandler = new FunctionCaseMergeWriteHandler(rowMergeInfo, headList);
         boolean isUseCustomId = projectService.useCustomNum(projectId);
 
         Map<String, List<String>> caseLevelAndStatusValueMap = testCaseTemplateService.getCaseLevelAndStatusMapByProjectId(projectId);
-        FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(needIdCol, headList, caseLevelAndStatusValueMap);
+        FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(true, headList, caseLevelAndStatusValueMap);
 
-        List<TestCaseExcelData> excelData = parseCaseData2ExcelData(testCaseList, rowMergeInfo, isUseCustomId);
+        List<TestCaseExcelData> excelData = parseCaseData2ExcelData(testCases, rowMergeInfo, isUseCustomId, request.getOtherHeaders());
         List<List<Object>> data = parseExcelData2List(headList, excelData);
-        new EasyExcelExporter(testCaseExcelData.getClass())
+        new EasyExcelExporter(new TestCaseExcelDataFactory().getTestCaseExcelDataLocal().getClass())
                 .exportByCustomWriteHandler(response, headList, data, Translator.get("test_case_import_template_name"),
                         Translator.get("test_case_import_template_sheet"), handler, writeHandler);
+    }
+
+    @NotNull
+    private List<List<String>> getTestcaseExportHeads(TestCaseExportRequest request) {
+        List<List<String>> headList = new ArrayList<>() {{
+           addAll(request.getBaseHeaders()
+                   .stream()
+                   .map(item -> Arrays.asList(item.getName()))
+                   .collect(Collectors.toList()));
+            addAll(request.getCustomHeaders()
+                    .stream()
+                    .map(item -> Arrays.asList(item.getName()))
+                    .collect(Collectors.toList()));
+            addAll(request.getOtherHeaders()
+                    .stream()
+                    .map(item -> Arrays.asList(item.getName()))
+                    .collect(Collectors.toList()));
+        }};
+        return headList;
     }
 
     public void testCaseTemplateExport(String projectId, String importType, HttpServletResponse response) {
         //导入更新 or 开启使用自定义ID时，导出ID列
         boolean needIdCol = projectService.useCustomNum(projectId) || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name());
-        testCaseExport(response, projectId, generateExportData(projectId), needIdCol);
+
+        List<List<String>> heads = getExportTemplateHeads(projectId, needIdCol);
+
+        TestCaseExcelData testCaseExcelData = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
+        Map<Integer, Integer> rowMergeInfo = new HashMap<>();
+
+        FunctionCaseMergeWriteHandler writeHandler = new FunctionCaseMergeWriteHandler(rowMergeInfo, heads);
+        boolean isUseCustomId = projectService.useCustomNum(projectId);
+
+        Map<String, List<String>> caseLevelAndStatusValueMap = testCaseTemplateService.getCaseLevelAndStatusMapByProjectId(projectId);
+        FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(needIdCol, heads, caseLevelAndStatusValueMap);
+
+        List<TestCaseExcelData> excelData = parseCaseData2ExcelData(generateExportData(projectId),
+                rowMergeInfo, isUseCustomId, null);
+        List<List<Object>> data = parseExcelData2List(heads, excelData);
+        new EasyExcelExporter(testCaseExcelData.getClass())
+                .exportByCustomWriteHandler(response, heads, data, Translator.get("test_case_import_template_name"),
+                        Translator.get("test_case_import_template_sheet"), handler, writeHandler);
+    }
+
+    private List<List<String>> getExportTemplateHeads(String projectId, boolean needIdCol) {
+        TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
+        List<CustomFieldDao> customFields = Optional.ofNullable(testCaseTemplate.getCustomFields()).orElse(new ArrayList<>());
+        List<List<String>> heads = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal().getHead(needIdCol, customFields);
+        return heads;
     }
 
 
@@ -1419,15 +1457,19 @@ public class TestCaseService {
             }
         }
 
+        TestCaseImportFiled[] importFields = TestCaseImportFiled.values();
+
+
         for (TestCaseExcelData model : data) {
             List<Object> fields = new ArrayList<>();
-            Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomDatas()).orElse(new HashMap<>());
-            TestCaseImportFiled[] importFields = TestCaseImportFiled.values();
-
+            Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomDatas())
+                    .orElse(new HashMap<>());
+            Map<String, String> otherFieldMaps = Optional.ofNullable(model.getOtherFields())
+                    .orElse(new HashMap<>());
             for (String head : headList) {
                 boolean isSystemField = false;
                 for (TestCaseImportFiled importFiled : importFields) {
-                    if (importFiled.getFiledLangMap().values().contains(head)) {
+                    if (importFiled.containsHead(head)) {
                         fields.add(importFiled.parseExcelDataValue(model));
                         isSystemField = true;
                     }
@@ -1435,11 +1477,13 @@ public class TestCaseService {
                 if (!isSystemField) {
                     String value = customDataMaps.get(head);
                     if (value == null) {
+                        value = otherFieldMaps.get(head);
+                    }
+                    if (value == null) {
                         value = "";
                     }
                     fields.add(value);
                 }
-
             }
             result.add(fields);
         }
@@ -1467,8 +1511,8 @@ public class TestCaseService {
         return testCaseList;
     }
 
-    private List<TestCaseExcelData> parseCaseData2ExcelData(List<TestCaseDTO> testCaseList,
-                                                          Map<Integer, Integer> rowMergeInfo, Boolean isUseCustomId) {
+    private List<TestCaseExcelData> parseCaseData2ExcelData(List<TestCaseDTO> testCaseList, Map<Integer, Integer> rowMergeInfo,
+                                                            Boolean isUseCustomId, List<TestCaseExportRequest.TestCaseExportHeader> otherHeaders) {
         if (CollectionUtils.isEmpty(testCaseList)) {
             return new ArrayList<>();
         }
@@ -1491,46 +1535,78 @@ public class TestCaseService {
             TestCaseDTO t = testCaseList.get(rowIndex);
             List<String> stepDescList = new ArrayList<>();
             List<String> stepResultList = new ArrayList<>();
+            TestCaseExcelData data = new TestCaseExcelData();
 
             setExportSystemField(t, customNameMap, customSelectValueMap);
-            TestCaseExcelData data = new TestCaseExcelData();
             BeanUtils.copyBean(data, t);
-            if (isUseCustomId) {
-                data.setCustomNum(t.getCustomNum());
-            } else {
-                if (t.getNum() == null) {
-                    data.setCustomNum("");
-                } else {
-                    data.setCustomNum(String.valueOf(t.getNum()));
-                }
-            }
+            buildExportCustomNum(isUseCustomId, t, data);
             buildExportStep(t, stepDescList, stepResultList, data);
             buildExportCustomField(customSelectValueMap, customNameMap, t, data);
+            buildExportOtherField(data, t, otherHeaders);
 
             if (CollectionUtils.isNotEmpty(stepDescList)) {
                 // 如果有多条步骤则添加多条数据，之后合并单元格
-                for (int i = 0; i < stepDescList.size(); i++) {
-                    TestCaseExcelData excelData;
-                    if (i == 0) {
-                        // 第一行存全量元素
-                        excelData = data;
-                        if (stepDescList.size() > 1) {
-                            // 保存合并单元格的下标和数量
-                            rowMergeInfo.put(list.size() + 1, stepDescList.size());
-                        }
-                    } else {
-                        // 之后的行只存步骤
-                        excelData = new TestCaseExcelData();
-                    }
-                    excelData.setStepDesc(stepDescList.get(i));
-                    excelData.setStepResult(stepResultList.get(i));
-                    list.add(excelData);
-                }
+                buildExportMergeData(rowMergeInfo, list, stepDescList, stepResultList, data);
             } else {
                 list.add(data);
             }
         }
         return list;
+    }
+
+    private void buildExportOtherField(TestCaseExcelData data, TestCaseDTO t, List<TestCaseExportRequest.TestCaseExportHeader> otherHeaders) {
+        if (CollectionUtils.isEmpty(otherHeaders)) {
+            return;
+        }
+        List<String> keys = otherHeaders.stream()
+                .map(TestCaseExportRequest.TestCaseExportHeader::getId)
+                .collect(Collectors.toList());
+        Map<String, TestCaseExportConverter> converterMaps = TestCaseExportConverterFactory.getConverters(keys);
+        HashMap<String, String> otherFields = new HashMap<>();
+        otherHeaders.forEach(header -> {
+            TestCaseExportConverter converter = converterMaps.get(header.getId());
+            if (converter != null) {
+                otherFields.put(header.getName(), converter.parse(t));
+            } else {
+                otherFields.put(header.getName(), "");
+            }
+        });
+        data.setOtherFields(otherFields);
+    }
+
+    private void buildExportCustomNum(Boolean isUseCustomId, TestCaseDTO t, TestCaseExcelData data) {
+        if (isUseCustomId) {
+            data.setCustomNum(t.getCustomNum());
+        } else {
+            if (t.getNum() == null) {
+                data.setCustomNum("");
+            } else {
+                data.setCustomNum(String.valueOf(t.getNum()));
+            }
+        }
+    }
+
+    @NotNull
+    private void buildExportMergeData(Map<Integer, Integer> rowMergeInfo,
+                                      List<TestCaseExcelData> list, List<String> stepDescList,
+                                      List<String> stepResultList, TestCaseExcelData data) {
+        for (int i = 0; i < stepDescList.size(); i++) {
+            TestCaseExcelData excelData;
+            if (i == 0) {
+                // 第一行存全量元素
+                excelData = data;
+                if (stepDescList.size() > 1) {
+                    // 保存合并单元格的下标和数量
+                    rowMergeInfo.put(list.size() + 1, stepDescList.size());
+                }
+            } else {
+                // 之后的行只存步骤
+                excelData = new TestCaseExcelData();
+            }
+            excelData.setStepDesc(stepDescList.get(i));
+            excelData.setStepResult(stepResultList.get(i));
+            list.add(excelData);
+        }
     }
 
     private void buildExportCustomField(Map<String, Map<String, String>> customSelectValueMap, Map<String, String> customNameMap, TestCaseDTO t, TestCaseExcelData data) {
