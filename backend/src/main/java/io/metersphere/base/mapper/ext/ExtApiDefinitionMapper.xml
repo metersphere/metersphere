@@ -1197,6 +1197,9 @@
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
+        <if test="versionId == null">
+            AND latest IS TRUE
+        </if>
     </select>
     <sql id="Same_Where_Clause">
         <where>
