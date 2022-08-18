@@ -103,7 +103,7 @@
               icon="el-icon-view"
               type="primary"
               :tip="$t('permission.project_report_analysis.read')"
-              v-permission="['PROJECT_FILE:READ+JAR']"
+              v-permission="['PROJECT_FILE:READ']"
               @exec="handleView(scope.row)">
             </ms-table-operator-button>
 

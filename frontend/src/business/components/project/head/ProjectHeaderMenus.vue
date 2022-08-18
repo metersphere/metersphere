@@ -19,7 +19,7 @@
             {{ $t('project.env') }}
           </el-menu-item>
           <el-menu-item :index="'/project/file/manage'"
-                        v-permission="['PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE']"
+                        v-permission="['PROJECT_FILE:READ', 'PROJECT_FILE:READ+FILE']"
                         popper-class="submenu">
             {{ $t('project.file_manage') }}
           </el-menu-item>
