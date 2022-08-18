@@ -29,7 +29,11 @@ export default {
     },
     list() {
       this.result = getTestCaseTrashNodes(this.caseCondition, data => {
-        this.trashTreeNodes = data;
+        if (data && data.length > 0) {
+          this.trashTreeNodes = data[0].children;
+        } else {
+          this.trashTreeNodes = [];
+        }
         if (this.$refs.trashNodeTree) {
           this.trashTreeNodes.forEach(firstLevel => {
               this.$refs.trashNodeTree.nodeExpand(firstLevel);
