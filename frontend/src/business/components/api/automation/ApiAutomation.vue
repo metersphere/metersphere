@@ -77,6 +77,10 @@
           :label="item.label"
           :name="item.name"
           closable>
+          <el-tooltip slot="label" effect="dark" :content="item.label" placement="bottom-start"
+                      class="ms-tab-name-width">
+            <span>{{ item.label }}</span>
+          </el-tooltip>
           <div class="ms-api-scenario-div">
             <ms-edit-api-scenario @refresh="refresh" @openScenario="editScenario" @closePage="closePage"
                                   :currentScenario="item.currentScenario"
@@ -765,4 +769,14 @@ export default {
   max-width: 100%;
   padding-right: 100%;
 }
+
+.ms-tab-name-width {
+  display: inline-block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 200px;
+}
+
 </style>
