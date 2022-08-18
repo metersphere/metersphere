@@ -19,14 +19,14 @@
             </el-link>
           </el-row>
           <ms-api-key-value
-              @editScenarioAdvance="editScenarioAdvance"
-              :scenario-definition="scenarioDefinition"
-              :show-desc="true"
-              :is-read-only="isReadOnly"
-              :isShowEnable="isShowEnable"
-              :suggestions="headerSuggestions"
-              :items="headers"
-              :need-mock="true" v-if="activeName === 'headers'"/>
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            :show-desc="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :suggestions="headerSuggestions"
+            :items="headers"
+            :need-mock="true" v-if="activeName === 'headers'"/>
         </el-tab-pane>
 
         <!--query 参数-->
@@ -45,13 +45,13 @@
             </el-link>
           </el-row>
           <ms-api-variable
-              @editScenarioAdvance="editScenarioAdvance"
-              :scenario-definition="scenarioDefinition"
-              :with-mor-setting="true"
-              :is-read-only="isReadOnly"
-              :isShowEnable="isShowEnable"
-              :parameters="request.arguments"
-              v-if="activeName === 'parameters'"
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            :with-mor-setting="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :parameters="request.arguments"
+            v-if="activeName === 'parameters'"
           />
         </el-tab-pane>
 
@@ -72,13 +72,13 @@
             </el-link>
           </el-row>
           <ms-api-variable
-              @editScenarioAdvance="editScenarioAdvance"
-              :scenario-definition="scenarioDefinition"
-              :with-mor-setting="true"
-              :is-read-only="isReadOnly"
-              :isShowEnable="isShowEnable"
-              :parameters="request.rest"
-              v-if="activeName === 'rest'"
+            @editScenarioAdvance="editScenarioAdvance"
+            :scenario-definition="scenarioDefinition"
+            :with-mor-setting="true"
+            :is-read-only="isReadOnly"
+            :isShowEnable="isShowEnable"
+            :parameters="request.rest"
+            v-if="activeName === 'rest'"
           />
         </el-tab-pane>
 
@@ -105,17 +105,17 @@
           </el-tooltip>
 
           <ms-api-auth-config
-              :is-read-only="isReadOnly"
-              :request="request"
-              v-if="activeName === 'authConfig'"
+            :is-read-only="isReadOnly"
+            :request="request"
+            v-if="activeName === 'authConfig'"
           />
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
           <ms-api-advanced-config
-              :is-read-only="isReadOnly"
-              :request="request"
-              v-if="activeName === 'advancedConfig'"
+            :is-read-only="isReadOnly"
+            :request="request"
+            v-if="activeName === 'advancedConfig'"
           />
         </el-tab-pane>
 
@@ -128,13 +128,13 @@
             </div>
           </span>
           <ms-jmx-step
-              :request="request"
-              :apiId="request.id"
-              :response="response"
-              :tab-type="'pre'"
-              :scenarioId="scenarioId"
-              ref="preStep"
-              v-if="activeName === 'preOperate'"
+            :request="request"
+            :apiId="request.id"
+            :response="response"
+            :tab-type="'pre'"
+            :scenarioId="scenarioId"
+            ref="preStep"
+            v-if="activeName === 'preOperate'"
           />
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.post_operation')" name="postOperate" v-if="showScript">
@@ -145,13 +145,13 @@
             </div>
           </span>
           <ms-jmx-step
-              :request="request"
-              :apiId="request.id"
-              :response="response"
-              :tab-type="'post'"
-              :scenarioId="scenarioId"
-              ref="postStep"
-              v-if="activeName === 'postOperate'"
+            :request="request"
+            :apiId="request.id"
+            :response="response"
+            :tab-type="'post'"
+            :scenarioId="scenarioId"
+            ref="postStep"
+            v-if="activeName === 'postOperate'"
           />
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.definition.request.assertions_rule')" name="assertionsRule" v-if="showScript">
@@ -162,14 +162,14 @@
             </div>
           </span>
           <ms-jmx-step
-              :request="request"
-              :apiId="request.id"
-              :scenarioId="scenarioId"
-              :response="response"
-              @reload="reloadBody"
-              :tab-type="'assertionsRule'"
-              ref="assertionsRule"
-              v-if="activeName === 'assertionsRule'"/>
+            :request="request"
+            :apiId="request.id"
+            :scenarioId="scenarioId"
+            :response="response"
+            @reload="reloadBody"
+            :tab-type="'assertionsRule'"
+            ref="assertionsRule"
+            v-if="activeName === 'assertionsRule'"/>
         </el-tab-pane>
 
       </el-tabs>
@@ -424,13 +424,13 @@ export default {
         if (isAdd) {
           switch (this.activeName) {
             case "parameters":
-              this.request.arguments.unshift(obj);
+              this.request.arguments.splice(this.request.arguments.indexOf(h => !h.name), 0, obj);
               break;
             case "rest":
-              this.request.rest.unshift(obj);
+              this.request.rest.splice(this.request.rest.indexOf(h => !h.name), 0, obj);
               break;
             case "headers":
-              this.request.headers.unshift(obj);
+              this.request.headers.splice(this.request.headers.indexOf(h => !h.name), 0, obj);
               break;
             default:
               break;
@@ -443,20 +443,22 @@ export default {
         let params = data.split("\n");
         let keyValues = [];
         params.forEach(item => {
-          let line = item.split(/：|:/);
-          let values = item.split(line[0] + ":");
-          let required = false;
-          keyValues.unshift(new KeyValue({
-            name: line[0],
-            required: required,
-            value: values[1],
-            type: "text",
-            valid: false,
-            file: false,
-            encode: true,
-            enable: true,
-            contentType: "text/plain"
-          }));
+          if (item) {
+            let line = item.split(/：|:/);
+            let values = item.split(line[0] + ":");
+            let required = false;
+            keyValues.push(new KeyValue({
+              name: line[0],
+              required: required,
+              value: values[1],
+              type: "text",
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+              contentType: "text/plain"
+            }));
+          }
         })
 
         keyValues.forEach(item => {

@@ -13,7 +13,7 @@ public class ScenarioVariable {
     /**
      * CONSTANT LIST CSV COUNTER RANDOM
      */
-    private String type;
+    private String type = VariableTypeConstants.CONSTANT.name();
     private String id;
     private String name;
 
@@ -40,6 +40,8 @@ public class ScenarioVariable {
      */
     private String minNumber;
     private String maxNumber;
+
+    private boolean enable = true;
 
     public ScenarioVariable() {
 

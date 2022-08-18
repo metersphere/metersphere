@@ -6,7 +6,8 @@
         <el-row type="flex" justify="space-between">
           <el-col :span="14">
             <span class="ms-env-span" style="line-height: 30px;">{{ $t('api_test.environment.socket') }}</span>
-            <el-input v-model="condition.socket" style="width: 85%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
+            <el-input v-model="condition.socket" style="width: 85%"
+                      :placeholder="$t('api_test.request.url_description')" clearable size="small">
               <template slot="prepend">
                 <el-select v-model="condition.protocol" class="request-protocol-select" size="small">
                   <el-option label="http://" value="http"/>
@@ -17,7 +18,8 @@
           </el-col>
           <el-col :span="10">
             <span style="margin-right: 12px; line-height: 30px;">{{ $t('commons.description') }}</span>
-            <el-input v-model="condition.description" maxlength="200" :show-word-limit="true" size="small" style="width: 70%;"/>
+            <el-input v-model="condition.description" maxlength="200" :show-word-limit="true" size="small"
+                      style="width: 70%;"/>
           </el-col>
         </el-row>
       </el-form-item>
@@ -29,7 +31,8 @@
           <el-radio label="PATH">{{ $t('api_test.definition.api_path') }}</el-radio>
         </el-radio-group>
         <div v-if="condition.type === 'MODULE'" style="margin-top: 6px">
-          <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule" :obj="moduleObj" clearable :checkStrictly="true" multiple v-if="!loading"/>
+          <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule"
+                          :obj="moduleObj" clearable :checkStrictly="true" multiple v-if="!loading"/>
         </div>
         <div v-if="condition.type === 'PATH'" style="margin-top: 6px">
           <el-input v-model="pathDetails.name" :placeholder="$t('api_test.value')" clearable size="small">
@@ -70,7 +73,8 @@
             {{ getUrl(row) }}
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip min-width="100px">
+        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip
+                         min-width="100px">
           <template v-slot:default="{row}">
             {{ getName(row) }}
           </template>
@@ -153,7 +157,15 @@ export default {
       },
       loading: false,
       pathDetails: new KeyValue({name: "", value: "contains"}),
-      condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]},
+      condition: {
+        type: "NONE",
+        details: [new KeyValue({name: "", value: "contains"})],
+        protocol: "http",
+        socket: "",
+        domain: "",
+        port: 0,
+        headers: [new KeyValue()]
+      },
       beforeCondition: {}
     };
   },
@@ -174,7 +186,16 @@ export default {
         this.condition.description = this.httpConfig.description;
         this.add();
       }
-      this.condition = {id: undefined, type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
+      this.condition = {
+        id: undefined,
+        type: "NONE",
+        details: [new KeyValue({name: "", value: "contains"})],
+        protocol: "http",
+        socket: "",
+        domain: "",
+        port: 0,
+        headers: [new KeyValue()]
+      };
     },
   },
   methods: {
@@ -216,7 +237,15 @@ export default {
       }
     },
     selectRow(row) {
-      this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
+      this.condition = {
+        type: "NONE",
+        details: [new KeyValue({name: "", value: "contains"})],
+        protocol: "http",
+        socket: "",
+        domain: "",
+        port: 0,
+        headers: [new KeyValue()]
+      };
       if (row) {
         this.httpConfig.socket = row.socket;
         this.httpConfig.protocol = row.protocol;
@@ -309,7 +338,14 @@ export default {
       this.$refs.envTable.setCurrentRow(0);
     },
     clear() {
-      this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", headers: [new KeyValue()]};
+      this.condition = {
+        type: "NONE",
+        details: [new KeyValue({name: "", value: "contains"})],
+        protocol: "http",
+        socket: "",
+        domain: "",
+        headers: [new KeyValue()]
+      };
       this.$refs.envTable.setCurrentRow(0);
     },
     reload() {
@@ -336,8 +372,15 @@ export default {
       }
       this.validateSocket();
       let obj = {
-        id: getUUID(), type: this.condition.type, socket: this.condition.socket, protocol: this.condition.protocol, headers: this.condition.headers,
-        domain: this.condition.domain, port: this.condition.port, time: new Date().getTime(), description: this.condition.description
+        id: getUUID(),
+        type: this.condition.type,
+        socket: this.condition.socket,
+        protocol: this.condition.protocol,
+        headers: this.condition.headers,
+        domain: this.condition.domain,
+        port: this.condition.port,
+        time: new Date().getTime(),
+        description: this.condition.description
       };
       if (this.condition.type === "PATH") {
         obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];
@@ -358,7 +401,16 @@ export default {
         return;
       }
       const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
-      let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(row.headers)), domain: row.domain, time: new Date().getTime()};
+      let obj = {
+        id: getUUID(),
+        type: row.type,
+        socket: row.socket,
+        details: row.details,
+        protocol: row.protocol,
+        headers: JSON.parse(JSON.stringify(row.headers)),
+        domain: row.domain,
+        time: new Date().getTime()
+      };
       if (index != -1) {
         this.httpConfig.conditions.splice(index, 0, obj);
       } else {
@@ -402,7 +454,7 @@ export default {
         let line = item.split(/：|:/);
         let values = item.split(line[0] + ":");
         let required = false;
-        keyValues.unshift(new KeyValue({
+        keyValues.push(new KeyValue({
           name: line[0],
           required: required,
           value: values[1],
@@ -429,7 +481,7 @@ export default {
             }
           }
           if (isAdd) {
-            this.condition.headers.unshift(keyValue);
+            this.condition.headers.splice(this.condition.headers.indexOf(h => !h.name), 0, keyValue);
           }
         })
       }

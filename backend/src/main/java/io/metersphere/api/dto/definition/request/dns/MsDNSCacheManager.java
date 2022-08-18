@@ -2,8 +2,8 @@ package io.metersphere.api.dto.definition.request.dns;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.HttpConfig;
-import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.Host;
 import io.metersphere.plugin.core.MsParameter;
@@ -65,14 +65,14 @@ public class MsDNSCacheManager extends MsTestElement {
         }
     }
 
-    private static Arguments arguments(String name, List<KeyValue> variables) {
+    private static Arguments arguments(String name, List<ScenarioVariable> variables) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
         arguments.setName(name);
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+        variables.stream().filter(ScenarioVariable::isConstantValid).filter(ScenarioVariable::isEnable).forEach(ScenarioVariable ->
+                arguments.addArgument(ScenarioVariable.getName(), ScenarioVariable.getValue(), "=")
         );
         return arguments;
     }

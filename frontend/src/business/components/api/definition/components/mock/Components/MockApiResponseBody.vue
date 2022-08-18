@@ -19,51 +19,51 @@
         <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA"/>
       </div>
       <ms-json-code-edit
-          v-if="body.format==='JSON-SCHEMA'"
-          :body="body"
-          :show-mock-vars="true"
-          ref="jsonCodeEdit"/>
+        v-if="body.format==='JSON-SCHEMA'"
+        :body="body"
+        :show-mock-vars="true"
+        ref="jsonCodeEdit"/>
       <ms-code-edit
-          v-else-if="codeEditActive && loadIsOver"
-          :read-only="isReadOnly"
-          :data.sync="body.raw"
-          :modes="modes"
-          :mode="'json'"
-          height="90%"
-          ref="codeEdit"/>
+        v-else-if="codeEditActive && loadIsOver"
+        :read-only="isReadOnly"
+        :data.sync="body.raw"
+        :modes="modes"
+        :mode="'json'"
+        height="90%"
+        ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'fromApi'">
       <ms-code-edit
-          :read-only="true"
-          :data.sync="body.apiRspRaw"
-          :modes="modes"
-          :mode="'text'"
-          v-if="loadIsOver"
-          height="90%"
-          ref="fromApiCodeEdit"/>
+        :read-only="true"
+        :data.sync="body.apiRspRaw"
+        :modes="modes"
+        :mode="'text'"
+        v-if="loadIsOver"
+        height="90%"
+        ref="fromApiCodeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
       <el-input v-model="body.xmlHeader" size="small" style="width: 400px;margin-bottom: 5px"/>
       <ms-code-edit
-          :read-only="isReadOnly"
-          :data.sync="body.xmlRaw"
-          :modes="modes"
-          :mode="'xml'"
-          v-if="loadIsOver"
-          height="90%"
-          ref="codeEdit"/>
+        :read-only="isReadOnly"
+        :data.sync="body.xmlRaw"
+        :modes="modes"
+        :mode="'xml'"
+        v-if="loadIsOver"
+        height="90%"
+        ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">
       <ms-code-edit
-          :read-only="isReadOnly"
-          :data.sync="body.raw"
-          :modes="modes"
-          v-if="loadIsOver"
-          height="90%"
-          ref="codeEdit"/>
+        :read-only="isReadOnly"
+        :data.sync="body.raw"
+        :modes="modes"
+        v-if="loadIsOver"
+        height="90%"
+        ref="codeEdit"/>
     </div>
 
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
@@ -309,22 +309,24 @@ export default {
         let params = data.split("\n");
         let keyValues = [];
         params.forEach(item => {
-          let line = [];
-          line[0] = item.substring(0, item.indexOf(":"));
-          line[1] = item.substring(item.indexOf(":") + 1, item.length);
-          let required = false;
-          keyValues.unshift(new KeyValue({
-            name: line[0],
-            required: required,
-            value: line[1],
-            description: line[2],
-            type: "text",
-            valid: false,
-            file: false,
-            encode: true,
-            enable: true,
-            contentType: "text/plain"
-          }));
+          if (item) {
+            let line = [];
+            line[0] = item.substring(0, item.indexOf(":"));
+            line[1] = item.substring(item.indexOf(":") + 1, item.length);
+            let required = false;
+            keyValues.push(new KeyValue({
+              name: line[0],
+              required: required,
+              value: line[1],
+              description: line[2],
+              type: "text",
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+              contentType: "text/plain"
+            }));
+          }
         })
         keyValues.forEach(item => {
           this.format(this.body.kvs, item);

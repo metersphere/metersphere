@@ -274,22 +274,24 @@ export default {
         let params = data.split("\n");
         let keyValues = [];
         params.forEach(item => {
-          let line = [];
-          line[0] = item.substring(0,item.indexOf(":"));
-          line[1] = item.substring(item.indexOf(":")+1,item.length);
-          let required = false;
-          keyValues.unshift(new KeyValue({
-            name: line[0],
-            required: required,
-            value: line[1],
-            description: line[2],
-            type: "text",
-            valid: false,
-            file: false,
-            encode: true,
-            enable: true,
-            contentType: "text/plain"
-          }));
+          if (item) {
+            let line = [];
+            line[0] = item.substring(0, item.indexOf(":"));
+            line[1] = item.substring(item.indexOf(":") + 1, item.length);
+            let required = false;
+            keyValues.push(new KeyValue({
+              name: line[0],
+              required: required,
+              value: line[1],
+              description: line[2],
+              type: "text",
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+              contentType: "text/plain"
+            }));
+          }
         })
         keyValues.forEach(item => {
           this.format(this.body.kvs, item);

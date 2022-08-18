@@ -2,7 +2,12 @@
 
   <div class="msDialogHeader">
     <span style="float: left;font-size: 18px;color: #303133;">{{ title }}</span>
-
+    <div style="float: right; margin-right: 30px">
+      <el-tooltip effect="dark" :content="$t('commons.full_screen_editing')"
+                  placement="top-start">
+        <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
+      </el-tooltip>
+    </div>
     <div v-if="!hideButton" style="float: right;width: fit-content;">
       <div style="float: left; margin-right: 8px;">
         <slot name="other"></slot>
@@ -39,6 +44,9 @@ export default {
     },
     confirm() {
       this.$emit("confirm");
+    },
+    fullScreen() {
+      this.$emit("fullScreen");
     }
   }
 }
@@ -52,5 +60,10 @@ export default {
 
 .msDialogHeader {
   margin-bottom: 5px;
+}
+
+.alt-ico {
+  font-size: 13px;
+  color: #8c939d;
 }
 </style>

@@ -30,7 +30,7 @@
 
 <script>
 import {CommonConfig} from "../../model/EnvironmentModel";
-import MsApiScenarioVariables from "../ApiScenarioVariables";
+import MsApiScenarioVariables from "@/business/components/api/test/components/environment/ApiScenarioVariables";
 import MsApiHostTable from "../ApiHostTable";
 
 export default {

@@ -38,7 +38,9 @@
         <el-table-column :label="$t('api_test.environment.socket')" show-overflow-tooltip>
           <template v-slot="scope">
             <span v-if="parseDomainName(scope.row)!='SHOW_INFO'">{{ parseDomainName(scope.row) }}</span>
-            <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>{{ $t('workspace.env_group.view_details') }}</el-button>
+            <el-button size="mini" icon="el-icon-s-data" @click="showInfo(scope.row)" v-else>
+              {{ $t('workspace.env_group.view_details') }}
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -62,26 +64,16 @@
     </el-card>
 
     <!-- 创建、编辑、复制环境时的对话框 -->
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%"
+               :fullscreen="isFullScreen">
       <template #title>
         <ms-dialog-header :title="dialogTitle"
-                          @cancel="dialogVisible = false"
-                          @confirm="save"/>
+                          @cancel="dialogVisible = false" :hide-button="true"
+                          @confirm="save" @fullScreen="fullScreen"/>
       </template>
-      <el-row>
-        <el-col :span="20">
-          <el-form label-width="80px" :rules="rules" style="display: flow-root">
-            <el-form-item class="project-item" prop="currentProjectId" :label="$t('project.select')">
-              <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
-                <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-form>
-        </el-col>
-      </el-row>
       <environment-edit :if-create="ifCreate" :environment="currentEnvironment" ref="environmentEdit" @close="close"
-                        :hide-button="true"
-                        :project-id="currentProjectId" @refreshAfterSave="refresh">
+                        :project-list="projectList" @confirm="save" :is-project="false"
+                        @refreshAfterSave="refresh">
       </environment-edit>
     </el-dialog>
     <environment-import :project-list="projectList" @refresh="refresh" ref="envImport"></environment-import>
@@ -203,6 +195,7 @@ export default {
         },
       ],
       ifCreate: false, //是否是创建环境
+      isFullScreen: false
     };
   },
   created() {
@@ -227,6 +220,9 @@ export default {
   },
 
   methods: {
+    fullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+    },
     showInfo(row) {
       const config = JSON.parse(row.config);
       this.conditions = config.httpConfig.conditions;
@@ -316,6 +312,7 @@ export default {
     editEnv(environment) {
       this.dialogTitle = this.$t('api_test.environment.config_environment');
       this.currentProjectId = environment.projectId;
+      environment.currentProjectId = environment.projectId;
       const temEnv = {};
       Object.assign(temEnv, environment);
       parseEnvironment(temEnv);   //parseEnvironment会改变环境对象的内部结构，从而影响前端列表的显示，所以复制一个环境对象作为代替
@@ -323,11 +320,12 @@ export default {
       this.dialogVisible = true;
       this.ifCreate = false;
     },
-    save(){
+    save() {
       this.$refs.environmentEdit.save();
     },
     copyEnv(environment) {
       this.currentProjectId = environment.projectId;  //复制时默认选择所要复制环境对应的项目
+      environment.currentProjectId = environment.projectId;
       this.dialogTitle = this.$t('api_test.environment.copy_environment');
       const temEnv = {};
       Object.assign(temEnv, environment);
@@ -458,7 +456,7 @@ export default {
       this.selectRow.forEach(row => {
         map.set(row.projectId, row.id);
       })
-      this.$post("/environment/group/batch/add", {map: strMapToObj(map), groupIds:value}, () => {
+      this.$post("/environment/group/batch/add", {map: strMapToObj(map), groupIds: value}, () => {
         this.$success(this.$t('commons.save_success'));
         this.getEnvironments();
       })
