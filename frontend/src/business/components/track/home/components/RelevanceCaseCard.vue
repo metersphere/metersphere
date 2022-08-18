@@ -12,7 +12,7 @@
         <count-rectangle-chart :content="relevanceCountData.allRelevanceCaseCount"/>
       </el-aside>
       <el-main style="padding-left: 0px;padding-right: 0px;display: block">
-        <div style="width:200px;float:right;margin:0 auto;overflow: auto">
+        <div style="float:right;margin:0 auto;overflow: auto">
           <el-row align="right">
             <el-col :span="8"
                     style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
@@ -22,7 +22,8 @@
                     style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="relevanceCountData.scenarioCaseStr"></div>
             </el-col>
-            <el-col :span="8" style="">
+            <el-col :span="8"
+                    style="border-right-style: solid;border-right-width: 1px;border-right-color: rgba(220, 38, 38, 0);">
               <div class="count-info-div" v-html="relevanceCountData.performanceCaseCountStr"></div>
             </el-col>
           </el-row>

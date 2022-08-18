@@ -12,7 +12,7 @@
         <count-rectangle-chart :content="trackCountData.allCaseCountNumber"/>
       </el-aside>
       <el-main style="padding-left: 0px;padding-right: 0px;display: block">
-        <div style="width:200px;float:right;margin:0;overflow: auto">
+        <div style="float:right;margin:0;overflow: auto">
           <el-row align="right">
             <el-col :span="6"
                     style="border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
