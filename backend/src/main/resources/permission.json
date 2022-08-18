@@ -373,7 +373,7 @@
       "resourceId": "PROJECT_OPERATING_LOG"
     },
     {
-      "id": "PROJECT_FILE:READ+JAR",
+      "id": "PROJECT_FILE:READ",
       "name": "permission.project_file.jar",
       "resourceId": "PROJECT_FILE"
     },

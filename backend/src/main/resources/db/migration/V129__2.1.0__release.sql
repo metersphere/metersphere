@@ -179,6 +179,9 @@ FROM jar_config j
 
 -- 初始化权限
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ', 'PROJECT_FILE');
+
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_FILE:READ+DOWNLOAD+JAR', 'PROJECT_FILE');
 
 

@@ -31,7 +31,7 @@
       </el-col>
 
       <el-col :span="13">
-        <el-form :model="data" label-position="right" label-width="80px" size="small">
+        <el-form :model="data" :rules="rules" label-position="right" label-width="80px" size="small" ref="form">
           <!-- 基础信息 -->
           <el-form-item :label="$t('commons.description')" prop="description">
             <el-input class="ms-http-textarea"
@@ -53,14 +53,14 @@
           </el-form-item>
 
           <el-form-item :label="$t('load_test.file_size')" prop="size">
-            <span>{{ data.size }} KB</span>
+            <span>{{ formatFileSize(data.size) }}</span>
           </el-form-item>
 
           <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
             <ms-input-tag :currentScenario="data" ref="tag" @onblur="save"/>
           </el-form-item>
 
-          <el-form-item :label="$t('test_track.case.module')" prop="name">
+          <el-form-item :label="$t('test_track.case.module')" prop="moduleId">
             <ms-select-tree size="small" :data="moduleOptions" :defaultKey="data.moduleId"
                             @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
 
@@ -78,10 +78,11 @@
             <el-switch v-model="data.loadJar" :active-text="$t('project.file_jar_message')" @change="save"/>
           </el-form-item>
 
-          <el-form-item :label="$t('project.upload_file_again')" prop="name">
+          <el-form-item :label="$t('project.upload_file_again')" prop="files">
             <el-upload
               style="width: 38px; float: left;"
               action="#"
+              :before-upload="beforeUploadFile"
               :http-request="handleUpload"
               :show-file-list="false">
               <el-button icon="el-icon-plus" size="mini"/>
@@ -114,11 +115,19 @@ export default {
         id: 'id',
         label: 'name',
       },
+      rules: {
+        name: [
+          {min: 1, max: 200, message: this.$t('commons.input_limit', [1, 200]), trigger: 'blur'}
+        ],
+        description: [
+          {max: 3000, message: this.$t('commons.input_limit', [0, 3000]), trigger: 'blur'}
+        ]
+      },
       total: 0,
       pageSize: 10,
       loading: false,
       currentPage: 1,
-      images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng"]
+      images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng", "jpeg"]
     };
   },
   props: {
@@ -137,6 +146,19 @@ export default {
     },
   },
   methods: {
+    beforeUploadFile(file) {
+      if (!this.fileValidator(file)) {
+        return false;
+      }
+      if (file.size / 1024 / 1024 > 500) {
+        this.$warning(this.$t('api_test.request.body_upload_limit_size'));
+        return false;
+      }
+      return true;
+    },
+    fileValidator(file) {
+      return file.size > 0;
+    },
     setModule(id, data) {
       if (this.data.moduleId !== id) {
         this.data.moduleId = id;
@@ -160,9 +182,19 @@ export default {
       this.visible = true;
     },
     save() {
-      let request = JSON.parse(JSON.stringify(this.data));
-      request.tags = JSON.stringify(request.tags);
-      this.$post('/file/metadata/update', request, () => {
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          let request = JSON.parse(JSON.stringify(this.data));
+          request.tags = JSON.stringify(request.tags);
+          if (request.tags && request.tags.length > 1000) {
+            this.$warning(this.$t('api_test.automation.tag') + this.$t('commons.input_limit', [0, 1000]));
+            return;
+          }
+          this.$post('/file/metadata/update', request, () => {
+          }, err => {
+            this.$emit("reload");
+          });
+        }
       });
     },
     getType(type) {
@@ -240,6 +272,22 @@ export default {
           this.getProjectFiles(true);
         }
       }
+    },
+    formatFileSize(val) {
+      if (isNaN(val)) {
+        return "";
+      }
+      let list = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+      let temp = Math.floor(Math.log(val) / Math.log(2));
+      if (temp < 1) {
+        temp = 0;
+      }
+      let num = Math.floor(temp / 10);
+      val = val / Math.pow(2, 10 * num);
+      if (val.toString().length > val.toFixed(2).toString().length) {
+        val = val.toFixed(2);
+      }
+      return val + " " + list[num];
     },
     nextData() {
       const index = this.results.findIndex(e => e.id === this.data.id);
