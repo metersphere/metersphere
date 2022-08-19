@@ -642,11 +642,4 @@ fieldset {
   margin-right: 10px;
 }
 
-.el-dialog__body {
-  padding: 0 20px 30px 20px;
-}
-
-.ms-select-all-fixed .table-select-icon {
-  display: none !important;
-}
 </style>
