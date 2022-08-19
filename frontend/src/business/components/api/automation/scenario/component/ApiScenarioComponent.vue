@@ -42,7 +42,8 @@
       </el-tag>
       <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
       <el-tooltip v-if="(!scenario.hashTree || scenario.hashTree.length === 0) && scenario.referenced==='REF'"
-                  class="ms-num" effect="dark" :content="$t('api_test.scenario.base_scenario_step_is_empty')" placement="top" style="margin-left: 5px">
+                  class="ms-num" effect="dark" :content="$t('api_test.scenario.base_scenario_step_is_empty')"
+                  placement="top" style="margin-left: 5px">
         <i class="el-icon-warning"/>
       </el-tooltip>
     </template>
@@ -117,7 +118,9 @@ export default {
   },
   watch: {
     message() {
-      this.scenario.run = this.message !== "stop";
+      if (this.message === 'stop') {
+        this.scenario.run = false;
+      }
       this.reload();
     },
     'node.data.isBatchProcess'() {
