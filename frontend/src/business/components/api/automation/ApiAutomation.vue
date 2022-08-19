@@ -659,7 +659,6 @@ export default {
         this.activeName = index.name;
       }
     },
-
     nodeChange(node, nodeIds, pNodes) {
       this.initApiTableOpretion = "nodeChange";
       this.selectNodeIds = nodeIds;
@@ -776,7 +775,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 200px;
+  max-width: 200px;
 }
 
 </style>
