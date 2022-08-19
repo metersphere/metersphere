@@ -39,6 +39,7 @@
         <ms-table-column
           sortable
           prop="type"
+          :min-width="120"
           :filters="typeFilters"
           :label="$t('load_test.file_type')">
         </ms-table-column>
@@ -72,16 +73,19 @@
         <ms-table-column
           sortable
           prop="createUser"
+          :min-width="120"
           :label="$t('commons.create_user')">
         </ms-table-column>
         <ms-table-column
           sortable
           prop="updateUser"
+          :min-width="120"
           :label="$t('ui.update_user')">
         </ms-table-column>
         <ms-table-column
           sortable
           :label="$t('commons.create_time')"
+          :min-width="120"
           prop="createTime">
           <template v-slot="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -90,6 +94,7 @@
 
         <ms-table-column
           sortable
+          :min-width="120"
           :label="$t('commons.update_time')"
           prop="updateTime">
           <template v-slot="scope">
