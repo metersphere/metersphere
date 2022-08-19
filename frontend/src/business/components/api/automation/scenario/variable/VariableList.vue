@@ -608,7 +608,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .ms-variable-hidden-row {
   display: none;
 }
@@ -640,6 +640,10 @@ fieldset {
 .ms-select {
   width: 100px;
   margin-right: 10px;
+}
+
+/deep/ .table-select-icon {
+  display: none !important;
 }
 
 </style>
