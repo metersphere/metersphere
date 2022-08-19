@@ -62,8 +62,7 @@ public class IssuesController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
-            event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, event = NoticeConstants.Event.CREATE, subject = "缺陷通知")
     public IssuesWithBLOBs addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
         return issuesService.addIssues(issuesRequest);
     }
@@ -71,10 +70,9 @@ public class IssuesController {
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#issuesRequest",
-            event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
-    public void updateIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
-        issuesService.updateIssues(issuesRequest);
+    @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, event = NoticeConstants.Event.UPDATE, subject = "缺陷通知")
+    public IssuesWithBLOBs updateIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
+        return issuesService.updateIssues(issuesRequest);
     }
 
     @GetMapping("/get/case/{refType}/{id}")
