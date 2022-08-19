@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <el-card>
+      <el-card class="report-body">
         <section class="report-container">
           <div style="margin-top: 10px">
             <ms-api-report-view-header
@@ -587,6 +587,10 @@ export default {
 
 .scenario-result .icon.is-active {
   transform: rotate(90deg);
+}
+
+.report-body {
+  min-width: 750px !important;
 }
 
 </style>

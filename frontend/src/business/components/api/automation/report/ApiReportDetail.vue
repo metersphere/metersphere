@@ -1,7 +1,7 @@
 <template>
   <ms-container v-loading="loading">
     <ms-main-container class="api-report-content">
-      <el-card>
+      <el-card class="report-body">
         <section class="report-container" v-if="this.report.testId">
           <ms-api-report-view-header :show-cancel-button="showCancelButton" :is-plan="isPlan" :is-template="isTemplate"
                                      :debug="debug" :report="report" @reportExport="handleExport"
@@ -714,5 +714,9 @@ export default {
 
 .scenario-result .icon.is-active {
   transform: rotate(90deg);
+}
+
+.report-body{
+  min-width: 750px!important;
 }
 </style>
