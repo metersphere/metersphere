@@ -109,7 +109,9 @@ export default {
   },
   watch: {
     message() {
-      this.scenario.run = this.message !== "stop";
+      if (this.message === 'stop') {
+        this.scenario.run = false;
+      }
       this.reload();
     },
     'node.data.isBatchProcess'() {
