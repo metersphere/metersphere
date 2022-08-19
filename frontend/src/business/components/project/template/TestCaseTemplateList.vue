@@ -145,6 +145,9 @@ export default {
   created() {
     this.initTableData();
   },
+  activated() {
+    this.initTableData();
+  },
   computed: {
     fields() {
       return CUSTOM_FIELD_LIST;
