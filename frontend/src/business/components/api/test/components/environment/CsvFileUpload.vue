@@ -3,27 +3,27 @@
       <el-row>
         <el-col :span="18">
           <el-upload
-            action="#"
-            class="api-body-upload"
-            list-type="picture-card"
-            :file-list="parameter.files"
-            :beforeUpload="uploadValidate"
-            :on-exceed="exceed"
-            :limit="1"
-            ref="upload">
+              action="#"
+              class="api-body-upload"
+              list-type="picture-card"
+              :file-list="parameter.files"
+              :beforeUpload="uploadValidate"
+              :on-exceed="exceed"
+              :limit="1"
+              ref="upload">
             <div class="upload-default" @click.stop>
               <el-popover
-                placement="right"
-                trigger="hover">
+                  placement="right"
+                  trigger="hover">
                 <div>
                   <el-upload
-                    action="#"
-                    class="ms-body-upload"
-                    :http-request="upload"
-                    :limit="1"
-                    :on-exceed="exceed"
-                    :beforeUpload="uploadValidate"
-                    ref="uploadLocal">
+                      action="#"
+                      class="ms-body-upload"
+                      :http-request="upload"
+                      :limit="1"
+                      :on-exceed="exceed"
+                      :beforeUpload="uploadValidate"
+                      ref="uploadLocal">
                     <el-button type="text"> {{ $t('permission.project_file.local_upload') }}</el-button>
                     <span slot="file"/>
                   </el-upload>
@@ -90,12 +90,13 @@ export default {
       }
       let request = {
         id: getUUID(),
-        resourceId: this.id,
+        csv: true,
+        resourceId: this.file.id,
         moduleId: moduleId,
         projectId: getCurrentProjectID(),
         fileName: this.file.name
       };
-      this.$fileUpload("/file/metadata/api/upload", null, files, request, (response) => {
+      this.$fileUpload("/file/metadata/dump/file", null, files, request, (response) => {
         this.$success(this.$t("organization.integration.successful_operation"));
       });
     },
@@ -131,7 +132,7 @@ export default {
       for (let i = 0; i < this.parameter.files.length; i++) {
         let fileName = file.file ? file.file.name : file.name;
         let paramFileName = this.parameter.files[i].file ?
-          this.parameter.files[i].file.name : this.parameter.files[i].name;
+            this.parameter.files[i].file.name : this.parameter.files[i].name;
         if (fileName === paramFileName) {
           this.parameter.files.splice(i, 1);
           this.$refs.upload.handleRemove(file);
@@ -177,7 +178,7 @@ export default {
             this.$refs.upload.handleRemove(file);
             for (let i = 0; i < this.parameter.files.length; i++) {
               let paramFileName = this.parameter.files[i].name ?
-                this.parameter.files[i].name : this.parameter.files[i].file.name;
+                  this.parameter.files[i].name : this.parameter.files[i].file.name;
               if (fileName === paramFileName) {
                 this.parameter.files.splice(i, 1);
                 this.$refs.upload.handleRemove(file);
