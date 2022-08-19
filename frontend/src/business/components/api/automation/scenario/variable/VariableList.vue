@@ -351,10 +351,20 @@ export default {
     batchSaveParameter(data) {
       if (data) {
         let keyValues = this._handleBatchVars(data);
-        keyValues.forEach(item => {
-          item.type = 'CONSTANT';
-          this.addParameters(item);
+        keyValues.forEach(keyValue => {
+          let isAdd = true;
+          keyValue.id = getUUID();
+          this.variables.forEach(item => {
+            if (item.name === keyValue.name) {
+              item.value = keyValue.value;
+              isAdd = false;
+            }
+          })
+          if (isAdd) {
+            this.variables.splice(this.variables.length, 0, keyValue);
+          }
         });
+        this.sortParameters();
       }
     },
     handleClick(command) {
@@ -461,13 +471,11 @@ export default {
         return;
       }
       let repeatKey = "";
-      if (!this.showDelete) {
-        this.variables.forEach((item, index) => {
-          if (item.name === this.editData.name) {
-            repeatKey = item.name;
-          }
-        });
-      }
+      this.variables.forEach((item) => {
+        if (item.name === this.editData.name) {
+          repeatKey = item.name;
+        }
+      });
       if (repeatKey !== "") {
         this.$warning(this.$t('api_test.scenario.variables') + "【" + repeatKey + "】" + this.$t('load_test.param_is_duplicate'));
         return;
