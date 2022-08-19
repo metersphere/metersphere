@@ -1014,6 +1014,6 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 200px;
+  max-width: 200px;
 }
 </style>
