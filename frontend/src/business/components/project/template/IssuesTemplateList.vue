@@ -136,6 +136,9 @@ export default {
   created() {
     this.initTableData();
   },
+  activated() {
+    this.initTableData();
+  },
   computed: {
     fields() {
       return ISSUE_TEMPLATE_LIST;
