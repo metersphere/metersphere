@@ -289,8 +289,7 @@ public class IssueTemplateService extends TemplateBaseService {
         while (iterator.hasNext()) {
             ProjectDTO projectDto = iterator.next();
             UserGroupExample example = new UserGroupExample();
-            example.createCriteria().andSourceIdEqualTo(projectDto.getId())
-                    .andUserIdEqualTo(SessionUtils.getUserId()).andGroupIdIn(Arrays.asList(UserGroupConstants.PROJECT_ADMIN, UserGroupConstants.PROJECT_MEMBER));
+            example.createCriteria().andSourceIdEqualTo(projectDto.getId()).andUserIdEqualTo(SessionUtils.getUserId());
             List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
             List<GroupPermissionDTO> groupPermissions = getPermissionsByUserGroups(userGroups);
             boolean isShow = false;
