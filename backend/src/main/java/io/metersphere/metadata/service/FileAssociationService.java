@@ -165,12 +165,16 @@ public class FileAssociationService {
 
     private List<BodyFile> getRefFiles(Body body) {
         List<BodyFile> files = new ArrayList<>();
-        body.getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
-        });
-        body.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
-        });
+        if (body != null && !CollectionUtils.isEmpty(body.getKvs())) {
+            body.getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
+                files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
+            });
+        }
+        if (body != null && !CollectionUtils.isEmpty(body.getBinary())) {
+            body.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
+                files.addAll(keyValue.getFiles().stream().filter(BodyFile::isRef).collect(Collectors.toList()));
+            });
+        }
         return files;
     }
 }
