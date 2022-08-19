@@ -43,7 +43,7 @@
                       <i class="el-icon-arrow-down el-icon--right"/>
                     </el-button>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item @click.native.stop="importVariable" @mergeData="mergeData" :disabled="disabled">
+                      <el-dropdown-item @click.native.stop="importVariable" :disabled="disabled">
                         {{ $t("commons.import_variable") }}
                       </el-dropdown-item>
                       <el-dropdown-item @click.native.stop="exportVariable" :disabled="disabled">
@@ -171,7 +171,7 @@
         </template>
       </el-collapse-transition>
     </fieldset>
-    <variable-import ref="variableImport"></variable-import>
+    <variable-import ref="variableImport" @mergeData="mergeData"></variable-import>
   </el-dialog>
 </template>
 
@@ -269,8 +269,9 @@ export default {
             this.variables.splice(sameNameIndex, 1, importData);
           }
         } else {
-          this.variables.splice(this.variables.length - 1, 0, importData);
+          this.variables.splice(this.variables.length, 0, importData);
         }
+        this.sortParameters();
       })
     },
     exportVariable() {
