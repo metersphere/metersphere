@@ -3,8 +3,8 @@
              @close="saveAndClose" destroy-on-close ref="editFile">
      <span slot="title" class="dialog-footer">
        <span>{{ data.name }}</span>
-       <i class="el-icon-download ms-header-menu" @click="download"/>
-       <i class="el-icon-delete ms-header-menu" @click="deleteData"/>
+       <i class="el-icon-download ms-header-menu" @click="download" v-permission="['PROJECT_FILE:READ+DOWNLOAD+JAR']"/>
+       <i class="el-icon-delete ms-header-menu" @click="deleteData" v-permission="['PROJECT_FILE:READ+DELETE+JAR']"/>
      </span>
     <el-row align="center" v-loading="loading">
       <el-col style="margin: 10px" :span="10">
@@ -84,7 +84,8 @@
               action="#"
               :before-upload="beforeUploadFile"
               :http-request="handleUpload"
-              :show-file-list="false">
+              :show-file-list="false"
+              v-permission="['PROJECT_FILE:READ+UPLOAD+JAR']">
               <el-button icon="el-icon-plus" size="mini"/>
             </el-upload>
           </el-form-item>
@@ -97,6 +98,7 @@
 
 <script>
 import {getCurrentProjectID, operationConfirm} from "@/common/js/utils";
+import {hasPermission} from "../../../../../../common/js/utils";
 
 export default {
   name: "MsEditFileMetadata",
