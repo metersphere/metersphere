@@ -984,6 +984,9 @@ export default {
     if (this.basisData.moduleId && this.basisData.moduleId === 'default-module') {
       this.basisData.moduleId = this.moduleOptions[0].id;
     }
+    if (this.basisData.isCopy) {
+      this.basisData.caseTotal = 0;
+    }
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
 
     this.$get('/api/definition/follow/' + this.basisData.id, response => {
