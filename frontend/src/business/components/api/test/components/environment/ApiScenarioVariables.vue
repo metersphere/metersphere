@@ -80,7 +80,7 @@
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top-start">
               <el-button icon="el-icon-setting" circle size="mini" style="margin-left: 10px"
-                         @click="openSetting(scope.row)" v-if="scope.row.type !=='LIST'"/>
+                         @click="openSetting(scope.row)" v-if="scope.row.type !=='LIST'" @change="change"/>
             </el-tooltip>
 
           </span>

@@ -148,7 +148,7 @@
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
                         slot="label">
           <span>{{ $t('api_test.request.headers') }}
-            <div class="el-step__icon is-text ms-api-col" v-if="headers.length>1">
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length>1">
               <div class="el-step__icon-inner">{{ headers.length - 1 }}</div>
             </div>
           </span>
@@ -645,5 +645,14 @@ fieldset {
 /deep/ .table-select-icon {
   display: none !important;
 }
+
+.ms-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  font-size: xx-small;
+  border-radius: 50%;
+}
+
 
 </style>
