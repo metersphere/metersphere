@@ -138,7 +138,7 @@ public class IssuesService {
                 });
             }
         }
-        return issues;
+        return getIssue(issues.getId());
     }
 
     public IssuesWithBLOBs updateIssues(IssuesUpdateRequest issuesRequest) {
@@ -372,10 +372,6 @@ public class IssuesService {
         request.setBelongId(id);
         request.setBelongType(AttachmentType.ISSUE.type());
         attachmentService.deleteAttachment(request);
-    }
-
-    public IssuesWithBLOBs get(String id) {
-        return issuesMapper.selectByPrimaryKey(id);
     }
 
     public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
