@@ -108,16 +108,17 @@ public class IssuesService {
             });
         }
         saveFollows(issuesRequest.getId(), issuesRequest.getFollows());
-        return issues;
+        return getIssue(issues.getId());
     }
 
 
-    public void updateIssues(IssuesUpdateRequest issuesRequest) {
+    public IssuesWithBLOBs updateIssues(IssuesUpdateRequest issuesRequest) {
         issuesRequest.getId();
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
             platform.updateIssue(issuesRequest);
         });
+        return getIssue(issuesRequest.getId());
         // todo 缺陷更新事件？
     }
 
@@ -349,10 +350,6 @@ public class IssuesService {
         issuesRequest.setWorkspaceId(project.getWorkspaceId());
         AbstractIssuePlatform platform = IssueFactory.createPlatform(issuesWithBLOBs.getPlatform(), issuesRequest);
         platform.deleteIssue(id);
-    }
-
-    public IssuesWithBLOBs get(String id) {
-        return issuesMapper.selectByPrimaryKey(id);
     }
 
     public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {

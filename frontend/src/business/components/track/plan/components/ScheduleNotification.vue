@@ -197,14 +197,6 @@ export default {
           value:'stage',
         },
         {
-          label:this.$t('test_track.case.match_rule'),
-          value:'testCaseMatchRule',
-        },
-        {
-          label:this.$t('test_track.plan.plan_stage'),
-          value:'executorMatchRule',
-        },
-        {
           label:this.$t('commons.create_time'),
           value:'createTime',
         },
@@ -235,10 +227,6 @@ export default {
         {
           label:this.$t('project.id'),
           value: 'projectId',
-        },
-        {
-          label: this.$t('commons.execution_times'),
-          value: 'executionTimes',
         },
         {
           label: this.$t('test_track.automatic_status_update'),
