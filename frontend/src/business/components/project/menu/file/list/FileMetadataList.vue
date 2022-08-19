@@ -33,7 +33,7 @@
         <ms-table-column
           prop="name"
           show-overflow-tooltip
-          :width="100"
+          :min-width="120"
           :label="$t('load_test.file_name')">
         </ms-table-column>
         <ms-table-column
@@ -73,13 +73,13 @@
         <ms-table-column
           sortable
           prop="createUser"
-          :min-width="120"
+          :min-width="100"
           :label="$t('commons.create_user')">
         </ms-table-column>
         <ms-table-column
           sortable
           prop="updateUser"
-          :min-width="120"
+          :min-width="100"
           :label="$t('ui.update_user')">
         </ms-table-column>
         <ms-table-column
