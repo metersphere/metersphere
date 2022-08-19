@@ -176,9 +176,10 @@ export default {
     };
   },
   created() {
-    this.getCustomFields();
-    this.fieldFilters = getTranslateOptions(CUSTOM_FIELD_TYPE_OPTION);
-    this.sceneFilters = getTranslateOptions(CUSTOM_FIELD_SCENE_OPTION);
+    this.initTableData();
+  },
+  activated() {
+    this.initTableData();
   },
   computed: {
     fieldTypeMap() {
@@ -195,6 +196,11 @@ export default {
     }
   },
   methods: {
+    initTableData() {
+      this.getCustomFields();
+      this.fieldFilters = getTranslateOptions(CUSTOM_FIELD_TYPE_OPTION);
+      this.sceneFilters = getTranslateOptions(CUSTOM_FIELD_SCENE_OPTION);
+    },
     getCustomFields() {
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('custom/field/list/' + this.currentPage + '/' + this.pageSize, this.condition, (response) => {
