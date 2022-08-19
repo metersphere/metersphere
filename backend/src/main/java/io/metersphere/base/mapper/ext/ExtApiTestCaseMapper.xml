@@ -77,11 +77,12 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    id, project_id, name,api_definition_id,priority,description, create_user_id, update_user_id, create_time, update_time
-  </sql>
+        id
+        , project_id, name,api_definition_id,priority,description, create_user_id, update_user_id, create_time, update_time
+    </sql>
     <sql id="Blob_Column_List">
-    request
-  </sql>
+        request
+    </sql>
     <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestCaseExample"
             resultMap="ResultMapWithBLOBs">
         select
@@ -276,14 +277,15 @@
     </sql>
 
     <select id="selectApiCaseInfoByPrimaryKey" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
-        SELECT
-            t1.*,
-            a.method AS apiMethod, project_version.name as version_name, project.version_enable
-        FROM
-            api_test_case t1
-            inner join api_definition a on  t1.api_definition_id = a.id
-            LEFT JOIN project_version on a.project_id = project_version.project_id AND project_version.id = t1.version_id
-            LEFT JOIN project on a.project_id = project.id
+        SELECT t1.*,
+               a.method             AS apiMethod,
+               project_version.name as version_name,
+               project.version_enable
+        FROM api_test_case t1
+                 inner join api_definition a on t1.api_definition_id = a.id
+                 LEFT JOIN project_version
+                           on a.project_id = project_version.project_id AND project_version.id = t1.version_id
+                 LEFT JOIN project on a.project_id = project.id
         WHERE t1.id = #{0}
     </select>
 
@@ -314,25 +316,25 @@
 
     <select id="findPassRateByIds" resultType="io.metersphere.api.dto.definition.ParamsDTO">
         SELECT
-         t2.resource_id as id,
-            CONCAT(
-                FORMAT(
-                    SUM(
-                    IF
-                    ( t2.`status` = 'success', 1, 0 ))/ COUNT( t2.id )* 100,
-                    2
-                ),
-                '%'
-            ) value
+        t2.resource_id as id,
+        CONCAT(
+        FORMAT(
+        SUM(
+        IF
+        ( t2.`status` = 'success', 1, 0 ))/ COUNT( t2.id )* 100,
+        2
+        ),
+        '%'
+        ) value
         FROM
-            api_definition_exec_result t2
+        api_definition_exec_result t2
         WHERE
-            t2.resource_id IN
-            <foreach collection="ids" item="id" separator="," open="(" close=")">
-                #{id}
-            </foreach>
+        t2.resource_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
         GROUP BY
-            t2.resource_id
+        t2.resource_id
     </select>
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
@@ -551,14 +553,15 @@
         where c.project_id = #{projectId}
           and c.id not in (
             select pc.api_case_id
-          from test_plan_api_case pc
-          where pc.test_plan_id = #{planId}
+            from test_plan_api_case pc
+            where pc.test_plan_id = #{planId}
         )
     </select>
     <select id="selectIdsNotExistsInReview" resultType="java.lang.String">
         select c.id
         from api_test_case c
-        where c.project_id = #{projectId} and c.id not in (
+        where c.project_id = #{projectId}
+          and c.id not in (
             select pc.api_case_id
             from test_case_review_api_case pc
             where pc.test_case_review_id = #{reviewId}
@@ -566,29 +569,40 @@
     </select>
 
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase
-        INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{0} AND (testCase.status IS NULL or testCase.status != "Trash") and latest = 1
+        SELECT apiDef.protocol AS groupField, COUNT(testCase.id) AS countNumber
+        FROM api_test_case testCase
+                 INNER JOIN api_definition apiDef ON testCase.api_definition_id = apiDef.id
+        WHERE testCase.project_id = #{0}
+          AND (testCase.status IS NULL or testCase.status != "Trash")
+          and latest = 1
         GROUP BY apiDef.protocol
     </select>
     <select id="findApiUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
-        SELECT method,path FROM api_definition WHERE id IN (
-            SELECT api_definition_id FROM api_test_case WHERE id = #{0}
+        SELECT method, path
+        FROM api_definition
+        WHERE id IN (
+            SELECT api_definition_id
+            FROM api_test_case
+            WHERE id = #{0}
         )
     </select>
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
-        SELECT count(testCase.id) AS countNumber FROM api_test_case testCase
-        INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
+        SELECT count(testCase.id) AS countNumber
+        FROM api_test_case testCase
+                 INNER JOIN api_definition apiDef ON testCase.api_definition_id = apiDef.id
         WHERE testCase.project_id = #{projectId}AND apiDef.status != "Trash"
-          AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+          AND testCase.create_time BETWEEN #{firstDayTimestamp}
+          AND #{lastDayTimestamp}
           and latest = 1
     </select>
 
     <select id="moduleCount" resultType="java.lang.Integer">
         SELECT count(api_test_case.id) FROM api_test_case
-        left join project on api_test_case.project_id = project.id
+        inner join project on api_test_case.project_id = project.id
+        inner JOIN api_definition a ON api_test_case.api_definition_id = a.id
         <include refid="criCondition"/>
+        and a.latest is not null
     </select>
 
     <select id="getRequest" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
@@ -627,11 +641,12 @@
         SELECT *
         FROM api_test_case
         WHERE api_test_case.api_definition_id = #{definitionId}
-        ORDER BY num DESC
-        LIMIT 1;
+        ORDER BY num DESC LIMIT 1;
     </select>
     <select id="selectEffectiveTestCaseByProjectId" resultType="io.metersphere.base.domain.ApiTestCase">
-        select id,api_definition_id from api_test_case where project_id = #{projectId}
+        select id, api_definition_id
+        from api_test_case
+        where project_id = #{projectId}
     </select>
 
     <select id="getCannotReductionApiCaseList" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
@@ -661,7 +676,8 @@
     </select>
 
     <select id="selectNameById" resultType="java.lang.String">
-        SELECT testCase.name FROM api_test_case testCase
+        SELECT testCase.name
+        FROM api_test_case testCase
         WHERE testCase.id = #{0}
     </select>
 
@@ -754,10 +770,14 @@
         <include refid="queryWhereCondition"/>
     </select>
     <select id="selectProjectIds" resultType="java.lang.String">
-        select DISTINCT project_id from api_test_case;
+        select DISTINCT project_id
+        from api_test_case;
     </select>
     <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
-        select id from api_test_case where project_id = #{projectId} order by update_time ASC;
+        select id
+        from api_test_case
+        where project_id = #{projectId}
+        order by update_time ASC;
     </select>
     <select id="getPreOrder" resultType="java.lang.Long">
         select `order` from api_test_case where project_id = #{projectId}
@@ -832,12 +852,33 @@
     </sql>
 
     <insert id="insertNewVersionCases">
-        INSERT INTO api_test_case(id, project_id, name, priority, api_definition_id, description, request, create_user_id,
-        update_user_id, create_time, update_time, num, tags, last_result_id, status, original_status,
-        delete_time, delete_user_id, version, `order`, case_status, version_id)
-        SELECT UUID(), project_id, name, priority, #{api.id}, description, request, #{api.createUser}, update_user_id,
-        create_time, update_time, num, tags, last_result_id, status, original_status, delete_time, delete_user_id,
-        version, `order`, case_status, #{api.versionId}
+        INSERT INTO api_test_case(id, project_id, name, priority, api_definition_id, description, request,
+                                  create_user_id,
+                                  update_user_id, create_time, update_time, num, tags, last_result_id, status,
+                                  original_status,
+                                  delete_time, delete_user_id, version, `order`, case_status, version_id)
+        SELECT UUID(),
+               project_id,
+               name,
+               priority,
+               #{api.id},
+               description,
+               request,
+               #{api.createUser},
+               update_user_id,
+               create_time,
+               update_time,
+               num,
+               tags,
+               last_result_id,
+               status,
+               original_status,
+               delete_time,
+               delete_user_id,
+               version,
+               `order`,
+               case_status,
+               #{api.versionId}
         FROM api_test_case
         WHERE api_definition_id = #{old.id};
     </insert>

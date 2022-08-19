@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,10 +42,11 @@ public class WorkstationService {
         apiTestCaseRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         //@see io/metersphere/base/mapper/ext/ExtApiTestCaseMapper.xml:103
         Map<String, Object> combine = new HashMap<>(2);
-        Map<String,String>operatorValue = new HashMap<>(2);
-        operatorValue.put("operator","current user");
-        operatorValue.put("value","current user");
-        combine.put("creator",operatorValue);
+        Map<String, String> operatorValue = new HashMap<>(2);
+        operatorValue.put("operator", "current user");
+        operatorValue.put("value", "current user");
+        combine.put("creator", operatorValue);
+        Map<String, List<String>> filter = new HashMap<>(2);
         testPlanRequest.setCombine(combine);
         apiTestCaseRequest.setCombine(combine);
         ApiScenarioRequest apiScenarioRequest = new ApiScenarioRequest();
@@ -52,17 +55,23 @@ public class WorkstationService {
         QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
         testCaseRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         testCaseRequest.setCombine(combine);
+        List<String> status = new ArrayList<>();
+        status.add("Prepare");
+        status.add("Pass");
+        status.add("UnPass");
+        filter.put("reviewStatus", status);
+        testCaseRequest.setFilters(filter);
         //query db
         int apiScenarioCaseCount = extApiScenarioMapper.listModule(apiScenarioRequest);
         int apiTestCaseCount = extApiTestCaseMapper.moduleCount(apiTestCaseRequest);
         int testCaseCount = extTestCaseMapper.moduleCount(testCaseRequest);
         int loadTestCount = extLoadTestMapper.moduleCount(testPlanRequest);
         //build result
-        Map<String, Integer>map = new HashMap<>(4);
-        map.put("apiScenarioCaseCount",apiScenarioCaseCount);
-        map.put("apiTestCaseCount",apiTestCaseCount);
-        map.put("testCaseCount",testCaseCount);
-        map.put("loadTestCount",loadTestCount);
+        Map<String, Integer> map = new HashMap<>(4);
+        map.put("apiScenarioCaseCount", apiScenarioCaseCount);
+        map.put("apiTestCaseCount", apiTestCaseCount);
+        map.put("testCaseCount", testCaseCount);
+        map.put("loadTestCount", loadTestCount);
         return map;
 
     }
