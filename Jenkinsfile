@@ -13,7 +13,9 @@ pipeline {
             label 'metersphere'
         }
     }
-    options { quietPeriod(600) }
+    triggers {
+        pollSCM('0 * * * *')
+    }
     environment { 
         IMAGE_NAME = 'metersphere'
         IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
