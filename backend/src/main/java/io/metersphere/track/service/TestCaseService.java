@@ -1462,7 +1462,7 @@ public class TestCaseService {
 
         for (TestCaseExcelData model : data) {
             List<Object> fields = new ArrayList<>();
-            Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomDatas())
+            Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomData())
                     .orElse(new HashMap<>());
             Map<String, String> otherFieldMaps = Optional.ofNullable(model.getOtherFields())
                     .orElse(new HashMap<>());
@@ -1626,7 +1626,7 @@ public class TestCaseService {
                     map.put(customNameMap.get(id), value);
                 }
             }
-            data.setCustomDatas(map);
+            data.setCustomData(map);
         } catch (Exception e) {
             LogUtil.error(e);
         }

@@ -627,7 +627,7 @@ public class TestPlanService {
                     Long nextScenarioOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
 
                     for (TestCaseTest l : list) {
-                        if (StringUtils.equals(l.getTestType(), TestCaseStatus.performance.name())) {
+                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.performance.name())) {
                             String id = l.getTestId();
                             LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
                             TestPlanLoadCaseWithBLOBs t = new TestPlanLoadCaseWithBLOBs();
@@ -650,7 +650,7 @@ public class TestPlanService {
                             }
 
                         }
-                        if (StringUtils.equals(l.getTestType(), TestCaseStatus.testcase.name())) {
+                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.testcase.name())) {
                             TestPlanApiCase t = new TestPlanApiCase();
                             ApiTestCaseWithBLOBs apitest = apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
                             if (null != apitest) {
@@ -674,7 +674,7 @@ public class TestPlanService {
 
 
                         }
-                        if (StringUtils.equals(l.getTestType(), TestCaseStatus.automation.name())) {
+                        if (StringUtils.equals(l.getTestType(), TestCaseTestStatus.automation.name())) {
                             TestPlanApiScenario t = new TestPlanApiScenario();
                             ApiScenarioWithBLOBs testPlanApiScenario = apiScenarioMapper.selectByPrimaryKey(l.getTestId());
                             if (testPlanApiScenario != null) {

@@ -58,7 +58,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                     maintainerIndex = index;
                 } else if (TestCaseImportFiled.PRIORITY.containsHead(head)) {
                     priorityIndex = index;
-                } else if (TestCaseImportFiled.TAG.containsHead(head)) {
+                } else if (TestCaseImportFiled.TAGS.containsHead(head)) {
                     tagIndex = index;
                 } else if (TestCaseImportFiled.STATUS.containsHead(head)) {
                     statusIndex = index;
