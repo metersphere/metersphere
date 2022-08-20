@@ -8,13 +8,12 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.exception.CustomFieldValidateException;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.CustomFieldDao;
-import io.metersphere.dto.CustomFieldOption;
 import io.metersphere.excel.annotation.NotRequired;
 import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.excel.domain.ExcelErrData;
@@ -26,6 +25,8 @@ import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.request.testcase.TestCaseImportRequest;
 import io.metersphere.track.service.TestCaseService;
+import io.metersphere.track.validate.AbstractCustomFieldValidator;
+import io.metersphere.track.validate.CustomFieldValidatorFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -97,6 +98,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
      */
     private HashMap<ExcelMergeInfo, String> mergeCellDataMap = new HashMap<>();
 
+    private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
+
     public boolean isUpdated() {
         return isUpdated;
     }
@@ -109,23 +112,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         this.request = request;
 
+        this.customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+
         List<CustomFieldDao> customFields = request.getCustomFields();
         if (CollectionUtils.isNotEmpty(customFields)) {
-            for (CustomFieldDao dto : customFields) {
-                String name = dto.getName();
-                if (StringUtils.isNotEmpty(name)) {
-                    name = name.trim();
-                }
-                if (TestCaseImportFiled.MAINTAINER.getFiledLangMap().values().contains(name)) {
-                    customFieldsMap.put("maintainer", dto);
-                } else if (TestCaseImportFiled.PRIORITY.getFiledLangMap().values().contains(name)) {
-                    customFieldsMap.put("priority", dto);
-                } else if (TestCaseImportFiled.STATUS.getFiledLangMap().values().contains(name)) {
-                    customFieldsMap.put("status", dto);
-                } else {
-                    customFieldsMap.put(name, dto);
-                }
-            }
+            customFieldsMap = customFields.stream().collect(Collectors.toMap(CustomFieldDao::getName, i -> i));
         }
     }
 
@@ -377,48 +368,36 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         return StringUtils.equals(request.getImportType(), FunctionCaseImportEnum.Create.name());
     }
 
+    /**
+     * 校验自定义字段，并记录错误提示
+     * 如果填写的是自定义字段的选项值，则转换成ID保存
+     * @param data
+     * @param stringBuilder
+     */
     private void validateCustomField(TestCaseExcelData data, StringBuilder stringBuilder) {
-        //校验自定义必填字段
-        for (Map.Entry<String, CustomFieldDao> customEntry : customFieldsMap.entrySet()) {
-            String customName = customEntry.getKey();
-            CustomFieldDao field = customEntry.getValue();
-
-            if (field.getRequired()) {
-                String value;
-                if (StringUtils.equals(customName, "status")) {
-                    Map<String, String> valueMap = new HashMap<>() {{
-                        put("Prepare", Translator.get("test_case_status_prepare"));
-                        put("Underway", Translator.get("test_case_status_running"));
-                        put("Completed", Translator.get("test_case_status_finished"));
-                    }};
-                    value = getCustomFieldValue(Translator.get("test_case_status"), data.getStatus(), field.getOptions(),
-                            stringBuilder, valueMap);
-                    data.setStatus(value);
-                } else if (StringUtils.equals(customName, "priority")) {
-                    value = data.getPriority();
-                } else if (StringUtils.equals(customName, "maintainer")) {
-                    value = data.getMaintainer();
-                    //校验维护人
-                    if (StringUtils.isBlank(value)) {
-                        data.setMaintainer(SessionUtils.getUserId());
-                    } else {
-                        if (!request.getUserIds().contains(value)) {
-                            stringBuilder.append(Translator.get("user_not_exists"))
-                                    .append( "：")
-                                    .append(value)
-                                    .append(ERROR_MSG_SEPARATOR);
-                        }
-                    }
-                    continue;
-                } else {
-                    value = data.getCustomDatas().get(customName);
-                }
-                if (StringUtils.isEmpty(value)) {
-                    stringBuilder.append(field.getName())
-                            .append(" ")
-                            .append(Translator.get("required"))
-                            .append(ERROR_MSG_SEPARATOR);
-                }
+        Map<String, String> customData = data.getCustomData();
+        for (String fieldName : customData.keySet()) {
+            String value = customData.get(fieldName);
+            CustomFieldDao customField = customFieldsMap.get(fieldName);
+            if (customField == null) {
+                continue;
+            }
+            AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(customField.getType());
+            try {
+                customFieldValidator.validate(customField, value);
+            } catch (CustomFieldValidateException e) {
+                stringBuilder.append(e.getMessage().concat(ERROR_MSG_SEPARATOR));
+            }
+            if (customFieldValidator.isKVOption) {
+                // 这里如果填的是选项值，替换成选项ID，保存
+                customData.put(fieldName, customFieldValidator.parse2Key(value, customField));
+            }
+            if (StringUtils.equals(fieldName, TestCaseImportFiled.STATUS.getValue())) {
+                data.setStatus(value);
+            } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getValue())) {
+                data.setPriority(value);
+            } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getValue())) {
+                data.setMaintainer(value);
             }
         }
     }
@@ -483,37 +462,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 }
             }
         }
-    }
-
-    /**
-     * 根据自定义字段的选项值获取对应的选项id
-     *
-     * @param name
-     * @param text
-     * @param optionsStr
-     * @return
-     */
-    public String getCustomFieldValue(String name, String text, String optionsStr, StringBuilder error,
-                                      Map<String, String> systemValueMap) {
-        List<String> textList = new ArrayList<>();
-        if (StringUtils.isNotEmpty(optionsStr)) {
-            List<CustomFieldOption> options = JSONObject.parseArray(optionsStr, CustomFieldOption.class);
-            for (CustomFieldOption option : options) {
-                // 系统字段需要翻译
-                String i18nText = systemValueMap.get(option.getValue());
-                if (i18nText != null) {
-                    option.setText(i18nText);
-                }
-                if (StringUtils.equals(option.getValue(), text) ||
-                        // 系统字段填写对应内容，而不是key的情况，比如用例状态填未开始而不是 Prepare
-                        StringUtils.equals(option.getText(), text)) {
-                    return option.getValue();
-                }
-                textList.add(option.getText());
-            }
-        }
-        error.append(String.format(Translator.get("custom_field_option_not_exist"), name, textList.toString()));
-        return text;
     }
 
     public List<String> getNames() {
@@ -820,14 +768,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 data.setStepResult(value);
             } else if (StringUtils.equals(field, "stepModel")) {
                 data.setStepModel(value);
-            } else if (StringUtils.equals(field, "status")) {
-                data.setStatus(value);
-            } else if (StringUtils.equals(field, "maintainer")) {
-                data.setMaintainer(value);
-            } else if (StringUtils.equals(field, "priority")) {
-                data.setPriority(value);
             } else {
-                data.getCustomDatas().put(field, value);
+                data.getCustomData().put(field, value);
             }
         }
         return data;
