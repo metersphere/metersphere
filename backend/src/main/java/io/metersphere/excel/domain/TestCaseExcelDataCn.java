@@ -61,18 +61,6 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     @Pattern(regexp = "(^TEXT$)|(^STEP$)|(.{0})", message = "{test_case_step_model_validate}")
     private String stepModel;
 
-    @ColumnWidth(50)
-    @ExcelProperty("用例状态")
-    private String status;
-
-    @ExcelProperty(value = "责任人(ID)")
-    private String maintainer;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("用例等级")
-    @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
-    private String priority;
-
     @Override
     public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields) {
         return super.getHead(needNum, customFields, Locale.SIMPLIFIED_CHINESE);
