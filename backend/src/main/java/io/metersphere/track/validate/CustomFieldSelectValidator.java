@@ -107,8 +107,9 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
 
     @NotNull
     private Map<String, String> getTextMap(List<CustomFieldOption> options) {
-        return options.stream()
-                .collect(Collectors.toMap(CustomFieldOption::getValue, CustomFieldOption::getText));
+        HashMap<String, String> textMap = new HashMap<>();
+        options.forEach(item -> textMap.put(item.getText(), item.getValue()));
+        return textMap;
     }
 
     @NotNull
