@@ -7,6 +7,8 @@ import com.alibaba.excel.metadata.CellExtra;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.excel.domain.ExcelMergeInfo;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -14,15 +16,25 @@ import java.util.Set;
  */
 public class TestCasePretreatmentListener extends AnalysisEventListener {
 
-
     Set<ExcelMergeInfo> mergeInfoSet;
+    private Integer lastRowIndex = 0;
+    Map<Integer, Integer> emptyRowIndexMap = new HashMap<>();
 
     public TestCasePretreatmentListener(Set<ExcelMergeInfo> mergeInfoSet) {
         this.mergeInfoSet = mergeInfoSet;
     }
 
     @Override
-    public void invoke(Object integerStringMap, AnalysisContext analysisContext) {}
+    public void invoke(Object integerStringMap, AnalysisContext analysisContext) {
+        Integer rowIndex = analysisContext.readRowHolder().getRowIndex();
+        if (rowIndex - lastRowIndex > 1) {
+            // 记录空行的行号
+            for (int i = lastRowIndex + 1; i < rowIndex; i++) {
+                emptyRowIndexMap.put(i, lastRowIndex);
+            }
+        }
+        this.lastRowIndex = rowIndex;
+    }
 
     @Override
     public void extra(CellExtra extra, AnalysisContext context) {
@@ -30,6 +42,10 @@ public class TestCasePretreatmentListener extends AnalysisEventListener {
             // 将合并单元格信息保留
             ExcelMergeInfo mergeInfo = new ExcelMergeInfo();
             BeanUtils.copyBean(mergeInfo, extra);
+            if (emptyRowIndexMap.keySet().contains(mergeInfo.getLastRowIndex())) {
+                // 如果合并单元格的最后一行是空行，则将最后一行设置成非空的行
+                mergeInfo.setLastRowIndex(emptyRowIndexMap.get(mergeInfo.getLastRowIndex()));
+            }
             this.mergeInfoSet.add(mergeInfo);
         }
     }
