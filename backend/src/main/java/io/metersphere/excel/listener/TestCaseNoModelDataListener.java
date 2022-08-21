@@ -3,10 +3,12 @@ package io.metersphere.excel.listener;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.ext.CustomFieldResource;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.CustomFieldValidateException;
 import io.metersphere.commons.exception.MSException;
@@ -36,6 +38,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.metersphere.xpack.ui.constants.ArgTypeEnum.testCase;
 
 /**
  * 由于功能案例中含有自定义字段。导入的时候使用无模板对象的读取方式
@@ -99,6 +103,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private HashMap<ExcelMergeInfo, String> mergeCellDataMap = new HashMap<>();
 
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
+
+    private Map<String, List<CustomFieldResource>> testCaseCustomFieldMap = new HashMap<>();
 
     public boolean isUpdated() {
         return isUpdated;
@@ -215,6 +221,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private void handleMergeData(Map<Integer, String> data, Integer rowIndex) {
         this.isMergeRow = false;
         this.isMergeLastRow = false;
+        if (getNameColIndex() == null) {
+            MSException.throwException("缺少名称表头");
+        }
         data.keySet().forEach(col -> {
             Iterator<ExcelMergeInfo> iterator = mergeInfoSet.iterator();
             while (iterator.hasNext()) {
@@ -268,6 +277,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     }
 
     private void validateDbExist(TestCaseExcelData data, StringBuilder stringBuilder) {
+        if (this.isUpdateModel()) {
+            return;
+        }
         if (request.getTestCaseNames().contains(data.getName())) {
             TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
             BeanUtils.copyBean(testCase, data);
@@ -491,7 +503,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
-            testCaseService.saveImportData(result, request);
+            testCaseService.saveImportData(result, request, testCaseCustomFieldMap);
             this.names = result.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result.stream().map(TestCase::getId).collect(Collectors.toList());
             this.isUpdated = true;
@@ -501,13 +513,13 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result2 = updateList.stream()
                     .map(item -> this.convert2TestCaseForUpdate(item))
                     .collect(Collectors.toList());
-            testCaseService.updateImportData(result2, request);
+            testCaseService.updateImportData(result2, request, testCaseCustomFieldMap);
             this.isUpdated = true;
             this.names = result2.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result2.stream().map(TestCase::getId).collect(Collectors.toList());
             updateList.clear();
         }
-
+        customFieldsMap.clear();
     }
 
     private TestCaseWithBLOBs convert2TestCase(TestCaseExcelData data) {
@@ -517,7 +529,35 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         if (request.isUseCustomId()) {
             testCase.setCustomNum(data.getCustomNum());
         }
+
+        buildTestCaseCustomFieldMap(data, testCase);
+
         return testCase;
+    }
+
+    /**
+     * 暂存功能自定义字段
+     * @param data
+     * @param testCase
+     */
+    private void buildTestCaseCustomFieldMap(TestCaseExcelData data, TestCaseWithBLOBs testCase) {
+        Map<String, String> customData = data.getCustomData();
+        List<CustomFieldResource> testCaseCustomFields = new ArrayList<>();
+        customData.forEach((k, v) -> {
+            if (StringUtils.isNotBlank(v)) {
+                CustomFieldDao customFieldDao = customFieldsMap.get(k);
+                if (customFieldDao != null) {
+                    CustomFieldResource customFieldResource = new CustomFieldResource();
+                    customFieldResource.setFieldId(customFieldDao.getId());
+                    customFieldResource.setValue(JSON.toJSONString(v));
+                    customFieldResource.setResourceId(testCase.getId());
+                    testCaseCustomFields.add(customFieldResource);
+                }
+            }
+        });
+        if (CollectionUtils.isNotEmpty(testCaseCustomFields)) {
+            testCaseCustomFieldMap.put(testCase.getId(), testCaseCustomFields);
+        }
     }
 
     @NotNull
@@ -572,6 +612,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             testCase.setNum(Integer.parseInt(data.getCustomNum()));
             testCase.setCustomNum(null);
         }
+        buildTestCaseCustomFieldMap(data, testCase);
         return testCase;
     }
 
