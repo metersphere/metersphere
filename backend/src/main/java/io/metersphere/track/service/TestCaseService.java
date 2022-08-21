@@ -59,6 +59,7 @@ import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
 import io.metersphere.xmind.utils.XmindExportUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -993,12 +994,12 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
-                        this.saveImportData(xmindParser.getTestCase(), request);
+                        this.saveImportData(xmindParser.getTestCase(), request, null);
                         names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
                         ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
-                        this.updateImportData(xmindParser.getUpdateTestCase(), request);
+                        this.updateImportData(xmindParser.getUpdateTestCase(), request, null);
                         names.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getId).collect(Collectors.toList()));
                     }
@@ -1010,7 +1011,7 @@ public class TestCaseService {
                 if (CollectionUtils.isNotEmpty(continueCaseList) || CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                         continueCaseList.removeAll(xmindParser.getUpdateTestCase());
-                        this.updateImportData(xmindParser.getUpdateTestCase(), request);
+                        this.updateImportData(xmindParser.getUpdateTestCase(), request, null);
                         names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
                         ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
                     }
@@ -1019,7 +1020,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(nodePathList, projectId);
                     }
                     if (CollectionUtils.isNotEmpty(continueCaseList)) {
-                        this.saveImportData(continueCaseList, request);
+                        this.saveImportData(continueCaseList, request, null);
                         names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
 
@@ -1105,12 +1106,15 @@ public class TestCaseService {
         return getImportResponse(errList, isUpdated);
     }
 
-    public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request) {
+    public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request,
+                               Map<String, List<CustomFieldResource>> testCaseCustomFieldMap) {
         String projectId = request.getProjectId();
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        CustomFieldTestCaseMapper customFieldTestCaseMapper = sqlSession.getMapper(CustomFieldTestCaseMapper.class);
+
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
         boolean customNum = config.getCaseCustomNum();
         try {
@@ -1118,7 +1122,9 @@ public class TestCaseService {
                 Integer num = importCreateNum.get();
                 Integer beforeInsertId = beforeImportCreateNum.get();
                 for (TestCaseWithBLOBs testCase : testCases) {
-                    testCase.setId(UUID.randomUUID().toString());
+                    if (StringUtils.isBlank(testCase.getId())) {
+                        testCase.setId(UUID.randomUUID().toString());
+                    }
                     testCase.setCreateUser(SessionUtils.getUserId());
                     testCase.setCreateTime(System.currentTimeMillis());
                     testCase.setUpdateTime(System.currentTimeMillis());
@@ -1148,6 +1154,8 @@ public class TestCaseService {
                     testCase.setVersionId(request.getVersionId());
                     testCase.setLatest(true);
                     mapper.insert(testCase);
+
+                    batchInsertCustomFieldTestCase(testCaseCustomFieldMap, customFieldTestCaseMapper, testCase);
                 }
 
                 importCreateNum.set(num);
@@ -1167,13 +1175,15 @@ public class TestCaseService {
      * @param testCases
      * @param request
      */
-    public void updateImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request) {
+    public void updateImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request, Map<String, List<CustomFieldResource>>  testCaseCustomFieldMap) {
 
         String projectId = request.getProjectId();
         List<TestCase> insertCases = new ArrayList<>();
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        CustomFieldTestCaseMapper customFieldTestCaseMapper = sqlSession.getMapper(CustomFieldTestCaseMapper.class);
+
         TestCaseExample example = new TestCaseExample();
         TestCaseExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdEqualTo(projectId);
@@ -1216,36 +1226,47 @@ public class TestCaseService {
 
         try {
             if (!testCases.isEmpty()) {
-                testCases.forEach(testcase -> {
-                    testcase.setUpdateTime(System.currentTimeMillis());
-                    testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
-                    TestCase dbCase = request.isUseCustomId() ? customIdMap.get(testcase.getCustomNum()) : customIdMap.get(testcase.getNum());
-                    testcase.setId(dbCase.getId());
-                    testcase.setRefId(dbCase.getRefId());
+                testCases.forEach(testCase -> {
+                    testCase.setUpdateTime(System.currentTimeMillis());
+                    testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
+                    TestCase dbCase = request.isUseCustomId() ? customIdMap.get(testCase.getCustomNum()) : customIdMap.get(testCase.getNum());
+                    testCase.setId(dbCase.getId());
+                    testCase.setRefId(dbCase.getRefId());
                     if (StringUtils.isBlank(request.getVersionId())) {
                         request.setVersionId(extProjectVersionMapper.getDefaultVersion(projectId));
                     }
                     // 选了版本就更新到对应的版本
                     if (dbCase.getVersionId().equals(request.getVersionId())) {
-                        mapper.updateByPrimaryKeySelective(testcase);
-                    } else { // 没有对应的版本就新建对应版本用例
-                        testcase.setCreateTime(System.currentTimeMillis());
-                        testcase.setVersionId(request.getVersionId());
-                        testcase.setId(UUID.randomUUID().toString());
-                        testcase.setOrder(dbCase.getOrder());
-                        testcase.setCreateUser(SessionUtils.getUserId());
-                        testcase.setCreateUser(SessionUtils.getUserId());
-                        testcase.setCreateUser(SessionUtils.getUserId());
-                        testcase.setCustomNum(dbCase.getCustomNum());
-                        testcase.setNum(dbCase.getNum());
-                        testcase.setLatest(false);
-                        testcase.setType(dbCase.getType());
-                        if (StringUtils.isBlank(testcase.getStatus())) {
-                            testcase.setStatus(TestCaseReviewStatus.Prepare.name());
+                        mapper.updateByPrimaryKeySelective(testCase);
+
+                        // 先删除
+                        if (MapUtils.isNotEmpty(testCaseCustomFieldMap)) {
+                            CustomFieldTestCaseExample customFieldTestCaseExample = new CustomFieldTestCaseExample();
+                            customFieldTestCaseExample.createCriteria().andResourceIdEqualTo(testCase.getId());
+                            customFieldTestCaseMapper.deleteByExample(customFieldTestCaseExample);
                         }
-                        testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                        insertCases.add(testcase); // 由于是批处理，这里先保存，最后再执行
-                        mapper.insert(testcase);
+
+                        // 再添加
+                        batchInsertCustomFieldTestCase(testCaseCustomFieldMap, customFieldTestCaseMapper, testCase);
+
+                    } else { // 没有对应的版本就新建对应版本用例
+                        testCase.setCreateTime(System.currentTimeMillis());
+                        testCase.setVersionId(request.getVersionId());
+                        testCase.setId(UUID.randomUUID().toString());
+                        testCase.setOrder(dbCase.getOrder());
+                        testCase.setCreateUser(SessionUtils.getUserId());
+                        testCase.setCustomNum(dbCase.getCustomNum());
+                        testCase.setNum(dbCase.getNum());
+                        testCase.setLatest(false);
+                        testCase.setType(dbCase.getType());
+                        if (StringUtils.isBlank(testCase.getStatus())) {
+                            testCase.setStatus(TestCaseReviewStatus.Prepare.name());
+                        }
+                        testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                        insertCases.add(testCase); // 由于是批处理，这里先保存，最后再执行
+                        mapper.insert(testCase);
+
+                        batchInsertCustomFieldTestCase(testCaseCustomFieldMap, customFieldTestCaseMapper, testCase);
                     }
                 });
             }
@@ -1258,6 +1279,17 @@ public class TestCaseService {
             LogUtil.error(e);
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void batchInsertCustomFieldTestCase(Map<String, List<CustomFieldResource>> testCaseCustomFieldMap,
+                                                CustomFieldTestCaseMapper customFieldTestCaseMapper, TestCaseWithBLOBs testCase) {
+        if (MapUtils.isEmpty(testCaseCustomFieldMap)) {
+            return;
+        }
+        List<CustomFieldResource> customFieldResources = testCaseCustomFieldMap.get(testCase.getId());
+        if (CollectionUtils.isNotEmpty(customFieldResources)) {
+            customFieldResources.forEach(customFieldTestCaseMapper::insert);
         }
     }
 
