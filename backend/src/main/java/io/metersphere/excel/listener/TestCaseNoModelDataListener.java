@@ -39,8 +39,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.metersphere.xpack.ui.constants.ArgTypeEnum.testCase;
-
 /**
  * 由于功能案例中含有自定义字段。导入的时候使用无模板对象的读取方式
  *
@@ -158,7 +156,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 }});
                 // 记录下数据并返回
                 this.currentMergeData = testCaseExcelData;
-                return;
+                if (!this.isMergeLastRow) {
+                    return;
+                } else {
+                    this.currentMergeData = null;
+                }
             } else {
                 // 获取存储的数据，并添加多个步骤
                 this.currentMergeData.getMergeStepDesc()
@@ -246,18 +248,17 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                         if (StringUtils.isNotBlank(cellData)) {
                             data.put(col, cellData);
                         }
-                        // 如果合并单元格的最后一个单元格，标记下
-                        if (rowIndex == mergeInfo.getLastRowIndex()) {
-                            // 根据名称列是否是合并单元格判断是不是同一条用例
-                            if (getNameColIndex().equals(col)) {
-                                this.isMergeLastRow = true;
-                            }
+                    }
+                    // 如果合并单元格的最后一个单元格，标记下
+                    if (rowIndex == mergeInfo.getLastRowIndex()) {
+                        // 根据名称列是否是合并单元格判断是不是同一条用例
+                        if (getNameColIndex().equals(col)) {
+                            this.isMergeLastRow = true;
+                            // 清除掉上一次已经遍历完成的数据，提高查询效率
+                            iterator.remove();
+                            break;
                         }
                     }
-                } else if (rowIndex > mergeInfo.getLastRowIndex()) {
-                    // TreeSet 按照行号排序了
-                    // 清除掉上一次已经遍历完成的数据，提高查询效率
-                    iterator.remove();
                 }
             }
         });
@@ -404,11 +405,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 // 这里如果填的是选项值，替换成选项ID，保存
                 customData.put(fieldName, customFieldValidator.parse2Key(value, customField));
             }
-            if (StringUtils.equals(fieldName, TestCaseImportFiled.STATUS.getValue())) {
+            if (StringUtils.equals(fieldName, TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
                 data.setStatus(value);
-            } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getValue())) {
+            } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
                 data.setPriority(value);
-            } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getValue())) {
+            } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
                 data.setMaintainer(value);
             }
         }
