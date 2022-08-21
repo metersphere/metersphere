@@ -129,7 +129,7 @@
             <span v-show="showUnExecuteReport && isUi" class="ms-point-unexecute"/>
             <div v-show="showUnExecuteReport && isUi" class="metric-box">
               <div class="value">{{
-                  content.unExecute ? content.unExecute : 0
+                  content.scenarioStepUnExecuteReport ? content.scenarioStepUnExecuteReport : 0
                 }}
               </div>
               <div class="name">{{ $t('api_test.home_page.detail_card.unexecute') }}</div>
