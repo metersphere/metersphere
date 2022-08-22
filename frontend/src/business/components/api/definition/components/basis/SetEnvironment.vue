@@ -3,28 +3,21 @@
     <el-dialog
       :title="$t('api_test.environment.select_environment')"
       :visible.sync="dialogVisible"
-      width="15%"
+      width="400px"
       :destroy-on-close="true"
-      @close="handleClose"
-    >
-      <el-form  ref="form">
-        <el-form-item prop="type">
-          <el-select v-model="environmentId" value-key="id"  class="ms-htt-width"
-                     :placeholder="$t('api_test.definition.request.run_env')"
-                     clearable>
-            <el-option v-for="(environment, index) in environments" :key="index"
-                       :label="environment.name"
-                       :value="environment.id"/>
-            <template v-slot:empty>
-              <div class="empty-environment">
-              </div>
-            </template>
-          </el-select>
-        </el-form-item>
-      </el-form>
-
+      @close="handleClose">
+      <el-select v-model="environmentId" value-key="id" class="ms-htt-width"
+                 :placeholder="$t('api_test.definition.request.run_env')"
+                 clearable>
+        <el-option v-for="(environment, index) in environments" :key="index"
+                   :label="environment.name"
+                   :value="environment.id"/>
+        <template v-slot:empty>
+          <div class="empty-environment">
+          </div>
+        </template>
+      </el-select>
       <template v-slot:footer>
-        <!--        <el-button onclick="this.handleClose">{{ $t('commons.cancel') }}</el-button>-->
         <el-button type="primary" @click="createPerformance" @keydown.enter.native.prevent>
           {{ $t('commons.confirm') }}
         </el-button>
@@ -103,7 +96,7 @@ export default {
     createPerformance() {
       this.$get('/api/testcase/findById/' + this.testCase.id, response => {
         let testCaseInfo = response.data;
-        if(testCaseInfo!=null){
+        if (testCaseInfo != null) {
           this.$emit("createPerformance", testCaseInfo, this.environment);
         }
       });
@@ -113,5 +106,7 @@ export default {
 </script>
 
 <style scoped>
-
+.ms-htt-width {
+  width: 100%;
+}
 </style>
