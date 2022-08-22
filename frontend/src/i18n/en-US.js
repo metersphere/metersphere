@@ -961,7 +961,7 @@ export default {
     test_execute_again: 'Test Execute Again',
     export: 'Export',
     export_to_ms_format: 'Export to MeterSphere format',
-    export_jmeter_format: 'Export to Jmeter format',
+    export_jmeter_format: 'Export to JMeter format',
     export_to_swagger3_format: 'Export to Swagger3.0 format',
     compare: 'Compare',
     generation_error: 'Report generation error, unable to view, please check log details!',
