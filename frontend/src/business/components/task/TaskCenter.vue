@@ -330,10 +330,10 @@ export default {
     getModeName(item) {
       switch (item.executionModule) {
         case "SCENARIO":
-          if (item.reportType !== "UI_INDEPENDENT") {
-            return this.$t('test_track.scenario_test_case');
-          } else {
+          if (item.reportType === "UI_INDEPENDENT" || item.reportType === "UI_INTEGRATED") {
             return this.$t("test_track.ui_scenario_test_case");
+          } else {
+            return this.$t('test_track.scenario_test_case');
           }
         case "PERFORMANCE":
           return this.$t('test_track.performance_test_case');
