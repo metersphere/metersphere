@@ -18,6 +18,7 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
         if (StringUtils.isBlank(value)) {
             return;
         }
+        prepareCatch(customField);
         Set<String> idSet = optionValueSetCache.get(customField.getId());
         Set<String> textSet = optionTextSetCache.get(customField.getId());
         for (String item : parse2Array(customField.getName(), value)) {
@@ -29,6 +30,9 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
 
     @Override
     public String parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
+        if (StringUtils.isBlank(keyOrValuesStr)) {
+            return "";
+        }
         List<String> keyOrValues = JSONArray.parseArray(keyOrValuesStr, String.class);
         Map<String, String> nameMap = optionTextMapCache.get(customField.getId());
         for (int i = 0; i < keyOrValues.size(); i++) {

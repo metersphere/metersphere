@@ -68,7 +68,7 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
      *
      * @param customField
      */
-    private void prepareCatch(CustomFieldDao customField) {
+    protected void prepareCatch(CustomFieldDao customField) {
         if (optionValueSetCache.get(customField.getId()) == null) {
             List<CustomFieldOption> options = getOptions(customField.getId(), customField.getOptions());
 
