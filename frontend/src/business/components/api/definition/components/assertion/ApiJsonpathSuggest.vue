@@ -68,9 +68,10 @@ export default {
     open(objStr) {
       this.data = {};
       try {
+        let stringedJSON = objStr.replace(/:\s*([-+Ee0-9.]+)/g, ': "$1"');
         // 解决精度丢失问题
         let JSONBig = require('json-bigint')({"storeAsString": true});
-        let param = JSON.parse(JSON.stringify(JSONBig.parse(objStr)));
+        let param = JSON.parse(JSON.stringify(JSONBig.parse(stringedJSON)));
         if (param instanceof Array) {
           this.$warning('不支持解析JSON数组');
           return;
