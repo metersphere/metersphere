@@ -1561,7 +1561,8 @@ public class TestCaseService {
             customFieldList = testCaseTemplate.getCustomFields();
         }
 
-        buildExportCustomFieldMap(customSelectValueMap, customNameMap, customFieldList);
+        Set<String> textFields = new HashSet<>();
+        buildExportCustomFieldMap(customSelectValueMap, customNameMap, customFieldList, textFields);
 
         for (int rowIndex = 0; rowIndex < testCaseList.size(); rowIndex++) {
             TestCaseDTO t = testCaseList.get(rowIndex);
@@ -1573,7 +1574,7 @@ public class TestCaseService {
             BeanUtils.copyBean(data, t);
             buildExportCustomNum(isUseCustomId, t, data);
             buildExportStep(t, stepDescList, stepResultList, data);
-            buildExportCustomField(customSelectValueMap, customNameMap, t, data);
+            buildExportCustomField(customSelectValueMap, customNameMap, t, data, textFields);
             buildExportOtherField(data, t, otherHeaders);
 
             if (CollectionUtils.isNotEmpty(stepDescList)) {
@@ -1641,7 +1642,8 @@ public class TestCaseService {
         }
     }
 
-    private void buildExportCustomField(Map<String, Map<String, String>> customSelectValueMap, Map<String, String> customNameMap, TestCaseDTO t, TestCaseExcelData data) {
+    private void buildExportCustomField(Map<String, Map<String, String>> customSelectValueMap,
+                                        Map<String, String> customNameMap, TestCaseDTO t, TestCaseExcelData data, Set<String> textFields) {
         try {
             List<CustomFieldResource> fields = customFieldTestCaseService.getByResourceId(t.getId());
             Map<String, String> map = new HashMap<>();
@@ -1649,13 +1651,28 @@ public class TestCaseService {
                 CustomFieldResource field = fields.get(index);
                 //进行key value对换
                 String id = field.getFieldId();
+                if (textFields.contains(id)) {
+                    map.put(customNameMap.get(id), field.getTextValue());
+                    continue;
+                }
                 if (StringUtils.isNotBlank(field.getValue())) {
-                    String value = JSONObject.parse(field.getValue()).toString();
-                    if (customSelectValueMap.containsKey(id)
-                            && customSelectValueMap.get(id).containsKey(value)) {
-                        value = customSelectValueMap.get(id).get(value);
+                    Object value = JSONObject.parse(field.getValue());
+                    Map<String, String> optionMap = customSelectValueMap.get(id);
+                    if (value instanceof String) {
+                        if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(value)) {
+                            value = optionMap.get(value);
+                        }
+                        map.put(customNameMap.get(id), value.toString());
+                    } else if (value instanceof JSONArray) {
+                        List<String> results = new ArrayList<>();
+                        JSONArray values = (JSONArray) value;
+                        values.forEach(item -> {
+                            if (MapUtils.isNotEmpty(optionMap) && optionMap.containsKey(item.toString())) {
+                                results.add(optionMap.get(item.toString()));
+                            }
+                        });
+                        map.put(customNameMap.get(id), results.toString());
                     }
-                    map.put(customNameMap.get(id), value);
                 }
             }
             data.setCustomData(map);
@@ -1698,31 +1715,34 @@ public class TestCaseService {
         }
     }
 
-    private void buildExportCustomFieldMap(Map<String, Map<String, String>> customSelectValueMap, Map<String, String> customNameMap, List<CustomFieldDao> customFieldList) {
+    private void buildExportCustomFieldMap(Map<String, Map<String, String>> customSelectValueMap, Map<String, String> customNameMap,
+                                           List<CustomFieldDao> customFieldList, Set<String> textFields) {
         for (CustomFieldDao dto : customFieldList) {
             Map<String, String> map = new HashMap<>();
-            if (StringUtils.equals("select", dto.getType())) {
+            if (CustomFieldType.getHasOptionValueSet().contains(dto.getType())) {
                 try {
-                    JSONArray optionsArr = JSONArray.parseArray(dto.getOptions());
-                    for (int i = 0; i < optionsArr.size(); i++) {
-                        JSONObject obj = optionsArr.getJSONObject(i);
-                        if (obj.containsKey("text") && obj.containsKey("value")) {
-                            String value = obj.getString("value");
-                            String text = obj.getString("text");
-                            if (StringUtils.equals(text, "test_track.case.status_finished")) {
-                                text = Translator.get("test_case_status_finished");
-                            } else if (StringUtils.equals(text, "test_track.case.status_prepare")) {
-                                text = Translator.get("test_case_status_prepare");
-                            } else if (StringUtils.equals(text, "test_track.case.status_running")) {
-                                text = Translator.get("test_case_status_running");
-                            }
-                            if (StringUtils.isNotEmpty(value)) {
-                                map.put(value, text);
-                            }
+                    List<CustomFieldOption> options = JSONArray.parseArray(dto.getOptions(), CustomFieldOption.class);
+                    options.forEach(option -> {
+                        String text = option.getText();
+                        String value = option.getValue();
+                        if (StringUtils.equals(text, "test_track.case.status_finished")) {
+                            text = Translator.get("test_case_status_finished");
+                        } else if (StringUtils.equals(text, "test_track.case.status_prepare")) {
+                            text = Translator.get("test_case_status_prepare");
+                        } else if (StringUtils.equals(text, "test_track.case.status_running")) {
+                            text = Translator.get("test_case_status_running");
                         }
-                    }
+                        if (StringUtils.isNotEmpty(value)) {
+                            map.put(value, text);
+                        }
+                    });
+
                 } catch (Exception e) {
+                    LogUtil.error(e);
                 }
+            }
+            if (StringUtils.equalsAny(dto.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue())) {
+                textFields.add(dto.getId());
             }
             customSelectValueMap.put(dto.getId(), map);
             customNameMap.put(dto.getId(), dto.getName());
