@@ -1010,7 +1010,7 @@ export default {
     downloadZipFile: '下載執行文件',
     export: '導出',
     export_to_ms_format: '導出 MeterSphere 格式',
-    export_jmeter_format: '導出 Jmeter 格式',
+    export_jmeter_format: '導出 JMeter 格式',
     export_to_swagger3_format: '導出 Swagger3.0 格式',
     compare: '報告對比',
     generation_error: '報告生成錯誤, 無法查看, 請檢查日誌詳情!',

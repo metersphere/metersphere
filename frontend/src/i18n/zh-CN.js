@@ -1013,7 +1013,7 @@ export default {
     downloadZipFile: '下载执行文件',
     export: '导出',
     export_to_ms_format: '导出 MeterSphere 格式',
-    export_jmeter_format: '导出 Jmeter 格式',
+    export_jmeter_format: '导出 JMeter 格式',
     export_to_swagger3_format: '导出 Swagger3.0 格式',
     compare: '报告对比',
     generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
