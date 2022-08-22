@@ -2,7 +2,7 @@
   <div>
     <ms-drawer class="drawer-content"
                direction="left"
-               :class="{'move-bar' : needMoveBar}"
+               :class="moveBarClass"
                :visible="true"
                :size="10"
                :show-full-screen="false"
@@ -66,7 +66,8 @@ export default {
           link: 'load',
           title: this.$t('test_track.report.analysis_load'),
         }
-      ]
+      ],
+      moveBarClass: '',
     }
   },
   watch: {
@@ -91,7 +92,12 @@ export default {
     },
     uiEnable() {
       this.setData();
-    }
+    },
+    '$store.state.appFixed'(newVal){
+      if (this.needMoveBar) {
+        this.toggleMoveBarClass(newVal);
+      }
+    },
   },
   computed: {
     navBtnClass() {
@@ -107,10 +113,13 @@ export default {
       } else {
         return 'zh-button-span';
       }
-    }
+    },
   },
   mounted() {
     this.setData();
+    if (this.needMoveBar) {
+      this.toggleMoveBarClass(this.$store.state.appFixed);
+    }
   },
   methods: {
     setData() {
@@ -128,6 +137,9 @@ export default {
           this.data.push(item);
         }
       });
+    },
+    toggleMoveBarClass(val) {
+      this.moveBarClass = val ? 'fixed-move-bar' : 'move-bar';
     }
   }
 }
@@ -197,7 +209,11 @@ export default {
 }
 
 .move-bar {
-  margin-left: 50px;
+  margin-left: 53px;
+}
+
+.fixed-move-bar {
+  margin-left: 159px;
 }
 
 .drawer-content {

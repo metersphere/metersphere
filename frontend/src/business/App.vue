@@ -109,7 +109,8 @@ export default {
       localStorage.setItem("store", JSON.stringify(this.$store.state));
     });
     this.isFixed = localStorage.getItem('app-fixed') === 'true' || false;
-    this.isCollapse = this.isFixed === true ? false : true;
+    this.isCollapse = !this.isFixed;
+    this.$store.commit('setAppFixed', this.isFixed);
   },
   beforeCreate() {
     this.$get("/isLogin").then(response => {
@@ -187,6 +188,7 @@ export default {
       }
       localStorage.removeItem('app-fixed');
       localStorage.setItem('app-fixed', this.isFixed);
+      this.$store.commit('setAppFixed', this.isFixed);
     },
     collapseOpen() {
       this.isCollapse = false;
