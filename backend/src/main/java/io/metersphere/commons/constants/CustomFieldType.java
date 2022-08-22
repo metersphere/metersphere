@@ -1,25 +1,42 @@
 package io.metersphere.commons.constants;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public enum CustomFieldType {
-    INPUT("input"),
-    TEXTAREA("textarea"),
-    SELECT("select"),
-    MULTIPLE_SELECT("multipleSelect"),
-    RADIO("radio"),
-    CHECKBOX("checkbox"),
-    MEMBER("member"),
-    MULTIPLE_MEMBER("multipleMember"),
-    DATE("date"),
-    DATETIME("datetime"),
-    INT("int"),
-    FLOAT("float"),
-    MULTIPLE_INPUT("multipleInput"),
-    RICH_TEXT("richText");
+    INPUT("input", false),
+    TEXTAREA("textarea", false),
+    SELECT("select", true),
+    MULTIPLE_SELECT("multipleSelect", true),
+    RADIO("radio", true),
+    CHECKBOX("checkbox", true),
+    MEMBER("member", true),
+    MULTIPLE_MEMBER("multipleMember", true),
+    DATE("date", false),
+    DATETIME("datetime", false),
+    INT("int", false),
+    FLOAT("float", false),
+    MULTIPLE_INPUT("multipleInput", false),
+    RICH_TEXT("richText", false);
 
-    String value;
+    private String value;
+    private Boolean hasOption;
 
-    CustomFieldType(String value) {
+    CustomFieldType(String value, Boolean hasOption) {
         this.value = value;
+        this.hasOption = hasOption;
+    }
+
+    public Boolean getHasOption() {
+        return this.hasOption;
+    }
+
+    public static Set<String> getHasOptionValueSet() {
+        return Arrays.stream(CustomFieldType.values())
+                .filter(CustomFieldType::getHasOption)
+                .map(CustomFieldType::getValue)
+                .collect(Collectors.toSet());
     }
 
     public String getValue() {
