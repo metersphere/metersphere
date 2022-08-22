@@ -17,7 +17,7 @@
       </template>
 
       <template v-slot:button>
-        <el-button @click="runDebug" :disabled="!controller.enable" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
+        <el-button @click="conn" :disabled="!controller.enable" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
       </template>
       <div v-if="controller.loopType==='LOOP_COUNT'" draggable v-loading="loading">
         <el-row>
@@ -90,6 +90,7 @@ import ApiResponseComponent from "./ApiResponseComponent";
 import MsRun from "../DebugRun";
 import {getUUID} from "@/common/js/utils";
 import {STEP} from "../Setting";
+import {getReportMessageSocket} from "@/business/components/api/automation/api-automation";
 
 export default {
   name: "MsLoopController",
@@ -167,6 +168,7 @@ export default {
       },
       stepFilter: new STEP,
       messageWebSocket: {},
+      uuid: "",
     };
   },
   watch: {
@@ -176,16 +178,15 @@ export default {
   },
   methods: {
     initMessageSocket() {
-      let protocol = "ws://";
-      if (window.location.protocol === 'https:') {
-        protocol = "wss://";
-      }
-      const uri = protocol + window.location.host + "/ws/" + this.reportId;
-      this.requestResult = new Map();
-      this.messageWebSocket = new WebSocket(uri);
+      this.uuid = getUUID();
+      this.messageWebSocket = getReportMessageSocket(this.uuid);
       this.messageWebSocket.onmessage = this.onDebugMessage;
     },
     onDebugMessage(e) {
+      // 确认连接建立成功，开始执行
+      if (e && e.data === "CONN_SUCCEEDED") {
+        this.runDebug();
+      }
       if (e.data && e.data.startsWith("result_")) {
         let data = JSON.parse(e.data.substring(7));
         this.debugCode(data);
@@ -199,14 +200,28 @@ export default {
         this.loading = false;
         this.node.expanded = true;
         this.messageWebSocket.close();
-        // 把请求结果分给各个请求
+        // // 把请求结果分给各个请求
         this.setResult(this.controller.hashTree);
         this.$store.state.currentApiCase = {debugLoop: getUUID()};
         this.reload();
       }
     },
-    debugCode(data){
-      if(data && this.node && this.node.data) {
+    clear(hashTree) {
+      if (hashTree) {
+        hashTree.forEach((item) => {
+          if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+            item.requestResult = [];
+            item.result = undefined;
+            item.code = undefined;
+          }
+          if (item.hashTree && item.hashTree.length > 0) {
+            this.setResult(item.hashTree);
+          }
+        });
+      }
+    },
+    debugCode(data) {
+      if (data && this.node && this.node.data) {
         if (data.error > 0) {
           this.node.data.code = "error";
         } else {
@@ -259,8 +274,7 @@ export default {
         }
       }
     },
-
-    runDebug() {
+    conn() {
       if (!this.controller.hashTree || this.controller.hashTree.length < 1) {
         this.$warning("当前循环下没有请求，不能执行");
         return;
@@ -269,11 +283,17 @@ export default {
         this.$warning(this.$t('api_test.automation.debug_message'));
         return;
       }
+      this.requestResult.clear();
+      this.clear(this.controller.hashTree);
+      this.initMessageSocket();
+    },
+    runDebug() {
       this.loading = true;
       let currentEnvironmentId;
+      let resourceId = this.currentScenario.id + "_" + this.controller.projectId;
       if (this.$store.state.scenarioEnvMap && this.$store.state.scenarioEnvMap instanceof Map
-        && this.$store.state.scenarioEnvMap.has((this.currentScenario.id + "_" + this.controller.projectId))) {
-        currentEnvironmentId = this.$store.state.scenarioEnvMap.get((this.currentScenario.id + "_" + this.controller.projectId));
+        && this.$store.state.scenarioEnvMap.has(resourceId)) {
+        currentEnvironmentId = this.$store.state.scenarioEnvMap.get(resourceId);
       }
       this.debugData = {
         id: this.currentScenario.id,
@@ -289,8 +309,8 @@ export default {
       if (this.node && this.node.data) {
         this.node.data.debug = true;
       }
-      this.reportId = getUUID().substring(0, 8);
-      this.node.data.code="";
+      this.reportId = this.uuid;
+      this.node.data.code = "";
       this.node.data.testing = false;
       this.node.data.debug = true;
     },
@@ -324,7 +344,6 @@ export default {
       });
     },
     runRefresh() {
-      this.initMessageSocket();
     },
     errorRefresh() {
       this.loading = false;
@@ -332,7 +351,7 @@ export default {
     setResult(hashTree) {
       if (hashTree) {
         hashTree.forEach((item) => {
-          if (item.type === "HTTPSamplerProxy" || item.type === "DubboSampler" || item.type === "JDBCSampler" || item.type === "TCPSampler") {
+          if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1 && this.requestResult.has(item.id)) {
             item.activeName = "0";
             item.active = true;
             item.requestResult = this.requestResult.get(item.id);
