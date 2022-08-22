@@ -473,7 +473,7 @@ export default {
       }
       let repeatKey = "";
       this.variables.forEach((item) => {
-        if (item.name === this.editData.name) {
+        if (item.name === this.editData.name && item.id !== this.editData.id) {
           repeatKey = item.name;
         }
       });

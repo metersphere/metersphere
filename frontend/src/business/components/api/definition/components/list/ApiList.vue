@@ -181,7 +181,6 @@
           prop="caseStatus"
           :fields-width="fieldsWidth"
           min-width="100px"
-          :filters="caseStatusFilters"
           :label="$t('api_test.definition.api_case_status')"/>
 
         <ms-table-column
