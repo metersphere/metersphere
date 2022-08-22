@@ -1044,7 +1044,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap;
         List<String> definitionIds = repeatApiDefinitionWithBLOBs.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
-        testCaseExample.createCriteria().andApiDefinitionIdIn(definitionIds).andStatusNotEqualTo("Trash");
+        testCaseExample.createCriteria().andApiDefinitionIdIn(definitionIds);
+        testCaseExample.or(testCaseExample.createCriteria().andStatusNotEqualTo(ScenarioStatus.Trash.name()).andStatusIsNull());
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = apiTestCaseMapper.selectByExampleWithBLOBs(testCaseExample);
         oldCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         return oldCaseMap;
@@ -1370,12 +1371,24 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                             importCaseWithBLOBs.setCreateUserId(caseWithBLOBs.get(i).getCreateUserId());
                             importCaseWithBLOBs.setUpdateUserId(caseWithBLOBs.get(i).getCreateUserId());
                         } else {
+                            //同名的旧数据处理
                             caseWithBLOBs.get(i).setVersionId("old_case");
                             optionDataCases.add(caseWithBLOBs.get(i));
                         }
                     }
                     oldCaseNameMap.remove(name);
                 }
+                //不同名的旧数据处理
+                oldCaseNameMap.forEach((k, v) -> {
+                    if (!StringUtils.equals(k, name)) {
+                        if (CollectionUtils.isNotEmpty(v)) {
+                            for (ApiTestCaseWithBLOBs apiTestCaseWithBLOBs : v) {
+                                apiTestCaseWithBLOBs.setVersionId("old_case");
+                                optionDataCases.add(apiTestCaseWithBLOBs);
+                            }
+                        }
+                    }
+                });
             });
         } else {
             //否则直接给新增用例赋值新的接口ID

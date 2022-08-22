@@ -52,6 +52,10 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
      */
     private List<String> statusList;
     /**
+     * 不需要查用例状态
+     */
+    private boolean noSearchStatus;
+    /**
      * 是否需要查询环境字段
      */
     private boolean selectEnvironment = false;
