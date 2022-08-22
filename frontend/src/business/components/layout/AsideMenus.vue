@@ -50,7 +50,10 @@
       </div>
     </el-menu-item>
     <el-menu-item index="/report" v-if="check('reportStat')" onselectstart="return false"
-                  v-permission="['PROJECT_REPORT_ANALYSIS:READ']">
+                  v-permission="['PROJECT_REPORT_ANALYSIS:READ','PROJECT_ENTERPRISE_REPORT:READ+EXPORT',
+                  'PROJECT_ENTERPRISE_REPORT:READ+CREATE', 'PROJECT_ENTERPRISE_REPORT:READ+DELETE',
+                  'PROJECT_ENTERPRISE_REPORT:READ+COPY', 'PROJECT_ENTERPRISE_REPORT:READ+SCHEDULE',
+                  'PROJECT_ENTERPRISE_REPORT:READ+EDIT']">
       <div>
         <svg-icon iconClass="report" class-name="ms-menu-img"/>
         <span slot="title" class="ms-menu-item-title">{{ $t('commons.report_statistics.title') }}</span>
