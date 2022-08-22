@@ -6,7 +6,7 @@
     </div>
     <el-card class="card-content">
 
-      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right" style="height: 100%">
+      <el-form :model="api" ref="apiData" :inline="true" label-position="right" style="height: 100%">
 
         <!-- 操作按钮 -->
         <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
@@ -116,9 +116,6 @@ export default {
       environments: [],
       refreshSign: "",
       createCase: "",
-      rules: {
-        environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
-      },
       runData: [],
       reportId: "",
       showXpackCompnent: false,
@@ -187,6 +184,10 @@ export default {
       this.$emit('refresh');
     },
     runTest() {
+      if (!this.api.environmentId) {
+        this.$warning(this.$t('api_test.environment.select_environment'));
+        return;
+      }
       this.$refs['apiData'].validate((valid) => {
         if (valid) {
           this.runLoading = true;

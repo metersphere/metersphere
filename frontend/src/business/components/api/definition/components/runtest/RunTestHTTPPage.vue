@@ -127,7 +127,6 @@ export default {
       rules: {
         method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
-        environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
       },
       runData: [],
       reportId: "",
@@ -218,6 +217,10 @@ export default {
       }
     },
     runTest() {
+      if (!this.api.environmentId) {
+        this.$warning(this.$t('api_test.environment.select_environment'));
+        return;
+      }
       this.$refs['apiData'].validate((valid) => {
         if (valid) {
           this.runLoading = true;
