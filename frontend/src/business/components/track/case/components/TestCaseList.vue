@@ -588,9 +588,6 @@ export default {
     },
     selectNodeIds() {
       this.page.currentPage = 1;
-      if (!this.trashEnable) {
-        this.condition.filters.status = [];
-      }
       initCondition(this.condition, false);
       this.initTableData();
     },
