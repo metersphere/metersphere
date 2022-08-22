@@ -33,4 +33,6 @@ public class ApiDefinitionResult extends ApiDefinitionWithBLOBs {
     private String versionName;
 
     private Boolean versionEnable;
+
+    private boolean updated;
 }

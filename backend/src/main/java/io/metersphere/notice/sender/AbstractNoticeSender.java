@@ -77,7 +77,13 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             JSONArray array = JSON.parseArray(specialReceivers);
             if (CollectionUtils.isNotEmpty(array)) {
                 for (Object o : array) {
-                    noticeModel.getReceivers().add(new Receiver(o.toString(), NotificationConstants.Type.MENTIONED_ME.name()));
+                    List<Receiver> receivers = noticeModel.getReceivers();
+                    if (CollectionUtils.isNotEmpty(receivers)) {
+                        List<Receiver> collect = receivers.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getType(), NotificationConstants.Type.MENTIONED_ME.name()) && StringUtils.equalsIgnoreCase(t.getUserId(), o.toString())).collect(Collectors.toList());
+                        if (CollectionUtils.isEmpty(collect)) {
+                            noticeModel.getReceivers().add(new Receiver(o.toString(), NotificationConstants.Type.MENTIONED_ME.name()));
+                        }
+                    }
                 }
             }
         }
