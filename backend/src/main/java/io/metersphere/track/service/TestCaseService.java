@@ -197,7 +197,6 @@ public class TestCaseService {
     private TestCaseTemplateService testCaseTemplateService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
-    private ThreadLocal<Integer> beforeImportCreateNum = new ThreadLocal<>();
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -932,7 +931,6 @@ public class TestCaseService {
             }
             int nextNum = getNextNum(request.getProjectId());
             importCreateNum.set(nextNum);
-            beforeImportCreateNum.set(nextNum);
         }
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
             return testCaseXmindImport(multipartFile, request, httpRequest);
@@ -1118,10 +1116,12 @@ public class TestCaseService {
         ProjectConfig config = projectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
         boolean customNum = config.getCaseCustomNum();
         try {
+            Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
+
             if (!testCases.isEmpty()) {
-                Integer num = importCreateNum.get();
-                Integer beforeInsertId = beforeImportCreateNum.get();
-                for (TestCaseWithBLOBs testCase : testCases) {
+                Integer num = Math.max(importCreateNum.get(), getNextNum(request.getProjectId()));
+                for (int i = testCases.size() - 1; i > - 1; i--) { // 反向遍历，保持和文件顺序一致
+                    TestCaseWithBLOBs testCase = testCases.get(i);
                     if (StringUtils.isBlank(testCase.getId())) {
                         testCase.setId(UUID.randomUUID().toString());
                     }
@@ -1149,12 +1149,12 @@ public class TestCaseService {
                     if (StringUtils.isBlank(testCase.getStatus())) {
                         testCase.setStatus(TestCaseReviewStatus.Prepare.name());
                     }
-                    testCase.setOrder(Long.valueOf(testCases.size() - (num - beforeInsertId)) * ServiceUtils.ORDER_STEP);
+                    testCase.setOrder(nextOrder);
                     testCase.setRefId(testCase.getId());
                     testCase.setVersionId(request.getVersionId());
                     testCase.setLatest(true);
                     mapper.insert(testCase);
-
+                    nextOrder += ServiceUtils.ORDER_STEP;
                     batchInsertCustomFieldTestCase(testCaseCustomFieldMap, customFieldTestCaseMapper, testCase);
                 }
 
