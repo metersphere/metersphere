@@ -406,11 +406,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 customData.put(fieldName, customFieldValidator.parse2Key(value, customField));
             }
             if (StringUtils.equals(fieldName, TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setStatus(value);
+                data.setStatus(customData.get(fieldName));
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setPriority(value);
+                data.setPriority(customData.get(fieldName));
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setMaintainer(value);
+                data.setMaintainer(customData.get(fieldName));
             }
         }
     }
