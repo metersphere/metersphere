@@ -1307,11 +1307,15 @@ public class ApiTestCaseService {
             request.setToBeUpdateTime(toBeUpdatedTime);
             request.setUpdateTime(toBeUpdatedTime);
         }
-        List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
-        if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
-            syncRuleCaseStatus = new ArrayList<>();
+        if (request.isNoSearchStatus()) {
+            request.setStatusList(new ArrayList<>());
+        } else {
+            List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
+            if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
+                syncRuleCaseStatus = new ArrayList<>();
+            }
+            request.setStatusList(syncRuleCaseStatus);
         }
-        request.setStatusList(syncRuleCaseStatus);
     }
 
     public Integer getCitedScenarioCount(String testId) {
