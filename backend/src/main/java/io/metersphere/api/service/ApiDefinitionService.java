@@ -421,10 +421,24 @@ public class ApiDefinitionService {
         mockConfigService.updateMockReturnMsgByApi(returnModel);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
 
+        String context = SessionUtils.getUserId().concat(Translator.get("update_api")).concat(":").concat(returnModel.getName());
+        Map<String, Object> paramMap = new HashMap<>();
+        getParamMap(paramMap, returnModel.getProjectId(), SessionUtils.getUserId(), returnModel.getId(), returnModel.getName(), returnModel.getCreateUser());
+        paramMap.put("userId", returnModel.getUserId());
         // 发送通知
         if (apiCaseSyncService != null) {
-            apiCaseSyncService.sendApiNotice(returnModel);
+            apiCaseSyncService.sendApiNotice(returnModel, paramMap);
         }
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .testId(returnModel.getId())
+                .subject(Translator.get("api_update_notice"))
+                .paramMap(paramMap)
+                .excludeSelf(true)
+                .event(NoticeConstants.Event.UPDATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
         return getById(returnModel.getId());
     }
 
