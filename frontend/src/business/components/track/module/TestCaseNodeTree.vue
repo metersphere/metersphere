@@ -147,12 +147,12 @@ export default {
     },
   },
   methods: {
-    addTestCase(){
+    addTestCase() {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-     this.$refs.testCaseCreate.open(this.currentModule)
+      this.$refs.testCaseCreate.open(this.currentModule)
     },
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
@@ -248,7 +248,7 @@ export default {
     openExport() {
       this.$refs.testCaseExport.open();
     },
-    exportTestCase(type, param){
+    exportTestCase(type, param) {
       this.$emit('exportTestCase', type, param);
     },
     remove(nodeIds) {
@@ -284,11 +284,19 @@ export default {
       this.currentNode = node;
 
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
+      this.syncCaseNum(node);
+    },
+    syncCaseNum(node) {
+      this.$get("/case/node/countById/" + node.data.id, response => {
+        if (response.data) {
+          node.data.caseNum = response.data;
+        }
+      });
     },
     openMinderConfirm() {
       let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
       if (isTestCaseMinderChanged) {
-          this.$refs.isChangeConfirm.open();
+        this.$refs.isChangeConfirm.open();
       }
       return isTestCaseMinderChanged;
     },

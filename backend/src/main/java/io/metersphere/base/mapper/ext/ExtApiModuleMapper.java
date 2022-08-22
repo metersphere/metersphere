@@ -19,4 +19,6 @@ public interface ExtApiModuleMapper {
     String getNameById(String moduleId);
 
     List<ApiModuleDTO> selectNameByIds(List<String> ids);
+
+    List<String> selectChildrenIdsByIds(@Param("ids") Collection<String> ids);
 }

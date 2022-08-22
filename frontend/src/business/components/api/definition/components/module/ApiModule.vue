@@ -283,6 +283,14 @@ export default {
       } else {
         this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       }
+      this.syncCaseNum(node);
+    },
+    syncCaseNum(node) {
+      this.$get("/api/module/countById/" + node.data.id, response => {
+        if (response.data) {
+          node.data.caseNum = response.data;
+        }
+      });
     },
     //创建根目录的模块---供父类使用
     createRootModel() {

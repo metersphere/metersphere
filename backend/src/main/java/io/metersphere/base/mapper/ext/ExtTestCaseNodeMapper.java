@@ -3,6 +3,7 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtTestCaseNodeMapper {
@@ -18,4 +19,6 @@ public interface ExtTestCaseNodeMapper {
     List<String> getNodes(@Param("parentId") String parentId);
 
     List<TestCaseNodeDTO> getNodeTreeByIds(@Param("nodeIds") List<String> nodeIds);
+
+    List<String> selectChildrenIdsByIds(@Param("ids") Collection<String> ids);
 }

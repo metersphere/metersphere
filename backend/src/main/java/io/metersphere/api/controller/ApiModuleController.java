@@ -57,6 +57,11 @@ public class ApiModuleController {
         return apiModuleService.countTrashApiData(projectId, protocol);
     }
 
+    @GetMapping("/countById/{id}")
+    public long countById(@PathVariable String id) {
+        return apiModuleService.countApiDataById(id);
+    }
+
     @GetMapping("/getUserDefaultApiType")
     public String getUserDefaultApiType() {
         String returnStr = ApiDefinitionDefaultApiTypeUtil.HTTP;

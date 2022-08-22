@@ -146,4 +146,9 @@ public class TestCaseNodeController {
     public void treeSort(@RequestBody List<String> ids) {
         testCaseNodeService.sort(ids);
     }
+
+    @GetMapping("/countById/{id}")
+    public long countById(@PathVariable String id) {
+        return testCaseNodeService.countDataById(id);
+    }
 }

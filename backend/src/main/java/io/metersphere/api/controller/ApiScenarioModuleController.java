@@ -33,6 +33,11 @@ public class ApiScenarioModuleController {
         checkPermissionService.checkProjectOwner(projectId);
         return apiScenarioModuleService.getTrashNodeTreeByProjectId(projectId);
     }
+    
+    @GetMapping("/countById/{id}")
+    public long countById(@PathVariable String id) {
+        return apiScenarioModuleService.countApiDataById(id);
+    }
 
     @PostMapping("/add")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = ApiScenarioModuleService.class)

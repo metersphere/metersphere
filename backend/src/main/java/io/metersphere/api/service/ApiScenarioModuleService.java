@@ -58,6 +58,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     private ProjectService projectService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
     public ApiScenarioModuleService() {
         super(ApiScenarioModuleDTO.class);
@@ -1025,5 +1027,29 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             IdModuleMap.put(scenarioModuleDTO.getId(), moduleList);
         }
         return scenarioModule;
+    }
+
+    public long countApiDataById(String id) {
+        //获取包含当前节点的所有children节点id
+        List<String> structIdList = this.selectTreeStructId(new ArrayList<String>() {{
+            this.add(id);
+        }});
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(structIdList)) {
+            return 0;
+        } else {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andApiScenarioModuleIdIn(structIdList).andLatestEqualTo(true).andStatusNotEqualTo(ScenarioStatus.Trash.name());
+            return apiScenarioMapper.countByExample(example);
+        }
+    }
+
+    private List<String> selectTreeStructId(Collection<String> ids) {
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>(0);
+        }
+        List<String> returnIds = new ArrayList<>(ids);
+        List<String> childrenIds = extApiScenarioModuleMapper.selectChildrenIdsByIds(ids);
+        returnIds.addAll(this.selectTreeStructId(childrenIds));
+        return returnIds;
     }
 }

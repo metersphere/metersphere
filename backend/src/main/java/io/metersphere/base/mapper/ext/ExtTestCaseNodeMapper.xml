@@ -43,4 +43,12 @@
         set pos = #{pos}
         where id = #{id}
     </update>
+    <select id="selectChildrenIdsByIds" resultType="java.lang.String">
+        SELECT id
+        from test_case_node
+        where parent_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
