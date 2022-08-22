@@ -49,7 +49,8 @@ const state = {
   refreshUiScenario: false,
   showLicenseCountWarning: false,
   temWorkspaceId: null,
-  fileDownloadList: [], // 文件下载进度列表
+  fileDownloadList: [], // 文件下载进度列表,
+  appFixed: null,
 }
 
 const store = new Vuex.Store({
