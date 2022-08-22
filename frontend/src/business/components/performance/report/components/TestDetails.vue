@@ -241,6 +241,7 @@
         <el-row>
           <el-col :offset="2" :span="20">
             <el-table
+              v-if="refresh"
               :data="tableData"
               stripe
               border
@@ -506,6 +507,12 @@ export default {
     },
     handleGetTotalChart(res) {
       res = res.filter(v => !!v);
+      if (res.length === 0) {
+        this.refresh = false;
+        this.result.loading = false;
+      } else {
+        this.refresh = true;
+      }
       for (let i = 0; i < res.length; i++) {
         if (i === 0) {
           this.baseOption.yAxis.push({
