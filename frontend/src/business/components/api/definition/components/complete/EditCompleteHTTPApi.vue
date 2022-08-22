@@ -640,7 +640,7 @@ export default {
       });
     },
     batchSync() {
-      if (hasLicense() && this.httpForm.caseTotal > 0) {
+      if (hasLicense() && (this.httpForm.caseTotal > 0 || this.citedScenarioCount > 0) && !this.httpForm.isCopy) {
         if (this.$refs.synSetting && this.$refs.synSetting.fromData) {
           let fromData = this.$refs.synSetting.fromData;
           fromData.method = true;
