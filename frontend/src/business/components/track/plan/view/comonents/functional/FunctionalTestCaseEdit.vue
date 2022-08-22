@@ -603,4 +603,12 @@ p {
 .comment-card >>> .executeCard {
   margin-bottom: 5px;
 }
+
+/deep/ .el-form-item__content {
+  z-index: 1;
+}
+
+.head-bar {
+  z-index: 1;
+}
 </style>
