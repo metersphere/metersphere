@@ -26,6 +26,9 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
 
     @Override
     public String parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
+        if (StringUtils.isBlank(keyOrValuesStr)) {
+            return "";
+        }
         List<String> keyOrValues = JSONArray.parseArray(keyOrValuesStr, String.class);
 
         for (int i = 0; i < keyOrValues.size(); i++) {
