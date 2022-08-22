@@ -184,6 +184,7 @@ export default {
     },
     list() {
       if (this.projectId) {
+        this.caseCondition.casePublic = false;
         this.result = getTestCaseNodesByCaseFilter(this.projectId, this.caseCondition, data => {
           this.treeNodes = data;
           this.treeNodes.forEach(node => {
