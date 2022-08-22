@@ -19,4 +19,5 @@ public class ApiTestCaseDTO extends ApiTestCase {
     private String environment;
     private String execResult;
     private String versionName;
+    private boolean updated;
 }
