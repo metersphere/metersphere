@@ -196,7 +196,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             ExcelErrData excelErrData = new ExcelErrData(testCaseExcelData, rowIndex,
                     Translator.get("number")
                             .concat(" ")
-                            .concat(rowIndex.toString()).concat(" ")
+                            .concat(String.valueOf(rowIndex  + 1)).concat(" ")
                             .concat(Translator.get("row"))
                             .concat(Translator.get("error"))
                             .concat("：")
