@@ -131,6 +131,16 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         }
     }
 
+    private List<String> selectTreeStructId(Collection<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>(0);
+        }
+        List<String> returnIds = new ArrayList<>(ids);
+        List<String> childrenIds = extApiModuleMapper.selectChildrenIdsByIds(ids);
+        returnIds.addAll(this.selectTreeStructId(childrenIds));
+        return returnIds;
+    }
+
     private void initTrashDataModule(String projectId, String protocol, String versionId) {
         ApiModule defaultModule = this.getDefaultNode(projectId, protocol);
         if (defaultModule != null) {
@@ -611,6 +621,20 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andStatusEqualTo("Trash");
         return extApiDefinitionMapper.countByExample(example);
+    }
+
+    public long countApiDataById(String id) {
+        //获取包含当前节点的所有children节点id
+        List<String> structIdList = this.selectTreeStructId(new ArrayList<String>() {{
+            this.add(id);
+        }});
+        if (CollectionUtils.isEmpty(structIdList)) {
+            return 0;
+        } else {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andModuleIdIn(structIdList).andLatestEqualTo(true).andStatusNotEqualTo(ScenarioStatus.Trash.name());
+            return extApiDefinitionMapper.countByExample(example);
+        }
     }
 
     public String getModuleNameById(String moduleId) {

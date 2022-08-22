@@ -25,4 +25,12 @@
         </foreach>
         order by api_scenario_module.pos asc
     </select>
+    <select id="selectChildrenIdsByIds" resultType="java.lang.String">
+        SELECT id
+        from api_scenario_module
+        where parent_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

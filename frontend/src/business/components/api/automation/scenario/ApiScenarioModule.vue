@@ -259,13 +259,18 @@ export default {
       } else {
         this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       }
+      this.syncCaseNum(node);
+    },
+    syncCaseNum(node) {
+      this.$get("/api/automation/module/countById/" + node.data.id, response => {
+        if (response.data) {
+          node.data.caseNum = response.data;
+        }
+      });
     },
     exportAPI() {
       this.$emit('exportAPI', this.data);
     },
-    // debug() {
-    //   this.$emit('debug');
-    // },
     saveAsEdit(data) {
       this.$emit('saveAsEdit', data);
     },

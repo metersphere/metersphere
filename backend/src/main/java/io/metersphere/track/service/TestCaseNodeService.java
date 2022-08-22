@@ -3,6 +3,7 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.AtomicDouble;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
@@ -30,6 +31,7 @@ import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.*;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -37,7 +39,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -711,5 +712,29 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
         List<Map<String, Object>> moduleCountList = extTestCaseMapper.moduleExtraNodeCount(nodeIds);
         return this.parseModuleCountList(moduleCountList);
+    }
+
+    public long countDataById(String id) {
+        //获取包含当前节点的所有children节点id
+        List<String> structIdList = this.selectTreeStructId(new ArrayList<String>() {{
+            this.add(id);
+        }});
+        if (CollectionUtils.isEmpty(structIdList)) {
+            return 0;
+        } else {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andNodeIdIn(structIdList).andLatestEqualTo(true).andStatusNotEqualTo(ScenarioStatus.Trash.name());
+            return testCaseMapper.countByExample(example);
+        }
+    }
+
+    private List<String> selectTreeStructId(Collection<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>(0);
+        }
+        List<String> returnIds = new ArrayList<>(ids);
+        List<String> childrenIds = extTestCaseNodeMapper.selectChildrenIdsByIds(ids);
+        returnIds.addAll(this.selectTreeStructId(childrenIds));
+        return returnIds;
     }
 }

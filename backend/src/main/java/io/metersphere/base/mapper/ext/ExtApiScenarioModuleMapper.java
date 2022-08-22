@@ -12,4 +12,6 @@ public interface ExtApiScenarioModuleMapper {
     void updatePos(String id, Double pos);
 
     List<ApiScenarioModuleDTO> selectByIds(@Param("ids") Collection<String> ids);
+
+    List<String> selectChildrenIdsByIds(@Param("ids") Collection<String> ids);
 }
