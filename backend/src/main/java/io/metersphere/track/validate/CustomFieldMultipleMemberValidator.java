@@ -18,10 +18,13 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
         }
 
         for (String item : parse2Array(customField.getName(), value)) {
-            if (!userIdMap.containsKey(item) && !userNameMap.containsKey(item)) {
-                CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_member_tip"), customField.getName()));
+            long count = userIdMap.entrySet().stream().filter(e -> e.getKey().toLowerCase().equals(item.toLowerCase()) ||
+                    e.getValue().toLowerCase().equals(item.toLowerCase())).count();
+            if(count > 0){
+                return;
             }
         }
+        CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_member_tip"), customField.getName()));
     }
 
     @Override
