@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.UserService;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -32,7 +33,8 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         if (StringUtils.isBlank(value)) {
             return;
         }
-        if (userIdMap.containsKey(value) || userNameMap.containsKey(value)) {
+        long count = userIdMap.entrySet().stream().filter(e -> e.getKey().toLowerCase().equals(value.toLowerCase()) || e.getValue().toLowerCase().equals(value.toLowerCase())).count();
+        if(count > 0){
             return;
         }
         throw new CustomFieldValidateException(String.format(Translator.get("custom_field_member_tip"), customField.getName()));
