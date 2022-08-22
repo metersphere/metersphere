@@ -20,6 +20,7 @@ import io.metersphere.performance.engine.AbstractEngine;
 import io.metersphere.performance.engine.request.StartTestRequest;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -28,8 +29,16 @@ import java.util.UUID;
 
 public class DockerTestEngine extends AbstractEngine {
     private static final String BASE_URL = "http://%s:%d";
-    private RestTemplate restTemplate;
-    private RestTemplate restTemplateWithTimeOut;
+    private static final RestTemplate restTemplate = new RestTemplate();
+    private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
+
+    static {
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectionRequestTimeout(2000);
+        httpRequestFactory.setConnectTimeout(2000);
+        httpRequestFactory.setReadTimeout(10000);
+        restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
+    }
 
     public DockerTestEngine(LoadTestReportWithBLOBs loadTestReport) {
         this.init(loadTestReport);
@@ -38,8 +47,6 @@ public class DockerTestEngine extends AbstractEngine {
     @Override
     protected void init(LoadTestReportWithBLOBs loadTestReport) {
         super.init(loadTestReport);
-        this.restTemplate = (RestTemplate) CommonBeanFactory.getBean("restTemplate");
-        this.restTemplateWithTimeOut = (RestTemplate) CommonBeanFactory.getBean("restTemplateWithTimeOut");
     }
 
     @Override
