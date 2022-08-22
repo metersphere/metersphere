@@ -266,8 +266,8 @@
       <sync-setting ref="synSetting"></sync-setting>
       <span style="color: red">{{ $t('workstation.batch_sync_api_tips') }}</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="batchSyncCaseVisible = false">取 消</el-button>
-        <el-button type="primary" @click="batchSync()">确 定</el-button>
+        <el-button @click="batchSyncCaseVisible = false">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" @click="batchSync()">{{ $t('commons.confirm') }}</el-button>
       </span>
     </el-dialog>
   </span>
