@@ -94,6 +94,26 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
+        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
+        if (CollectionUtils.isNotEmpty(list)) {
+            // 设置版本信息
+            ServiceUtils.buildVersionInfo(list);
+            ServiceUtils.buildProjectInfo(list);
+            ServiceUtils.buildCustomNumInfo(list);
+
+            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
+            queryMemberRequest.setProjectId(request.getProjectId());
+            Map<String, String> userMap = userService.getProjectMemberList(queryMemberRequest)
+                    .stream().collect(Collectors.toMap(User::getId, User::getName));
+            list.forEach(item -> {
+                item.setExecutorName(userMap.get(item.getExecutor()));
+                item.setMaintainerName(userMap.get(item.getMaintainer()));
+            });
+        }
+        return list;
+    }
+
+    public QueryTestPlanCaseRequest setCustomNumOrderParam(QueryTestPlanCaseRequest request) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         // CUSTOM_NUM ORDER
         boolean customOrderFlag =  orders.stream().anyMatch(order -> StringUtils.equals(order.getName(), CUSTOM_NUM));
@@ -111,25 +131,7 @@ public class TestPlanTestCaseService {
             });
         }
         request.setOrders(orders);
-
-        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
-        if (CollectionUtils.isNotEmpty(list)) {
-
-            // 设置版本信息
-            ServiceUtils.buildVersionInfo(list);
-            ServiceUtils.buildProjectInfo(list);
-            ServiceUtils.buildCustomNumInfo(list);
-
-            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-            queryMemberRequest.setProjectId(request.getProjectId());
-            Map<String, String> userMap = userService.getProjectMemberList(queryMemberRequest)
-                    .stream().collect(Collectors.toMap(User::getId, User::getName));
-            list.forEach(item -> {
-                item.setExecutorName(userMap.get(item.getExecutor()));
-                item.setMaintainerName(userMap.get(item.getMaintainer()));
-            });
-        }
-        return list;
+        return request;
     }
 
     public QueryTestPlanCaseRequest wrapQueryTestPlanCaseRequest(QueryTestPlanCaseRequest request) {
