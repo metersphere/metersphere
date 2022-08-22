@@ -43,6 +43,7 @@ const mutations = {
   deleteDownloadFile: (state, props) => {
     state.fileDownloadList.splice(state.fileDownloadList.findIndex(item => item.id === props), 1);
   },
+  setAppFixed: (state, value) => state.appFixed = value,
 }
 
 export default mutations;
