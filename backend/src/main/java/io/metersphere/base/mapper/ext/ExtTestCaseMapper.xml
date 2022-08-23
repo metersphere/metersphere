@@ -112,7 +112,14 @@
                 select resource_id from custom_field_test_case where field_id = #{custom.id}
                 <choose>
                     <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
-                        and JSON_CONTAINS(`value`, #{custom.value})
+                        <choose>
+                            <when test="custom.operator == 'in'">
+                                and JSON_CONTAINS(`value`, #{custom.value})
+                            </when>
+                            <otherwise>
+                                and NOT JSON_CONTAINS(`value`, #{custom.value})
+                            </otherwise>
+                        </choose>
                     </when>
                     <when test="custom.type == 'date' or custom.type == 'datetime'">
                         and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
