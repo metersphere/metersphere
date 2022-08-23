@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -61,8 +62,10 @@ public class TestPlanMessageService {
         if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting()) {
             //更新TestPlan状态为完成
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
-            if (testPlan != null && !StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
-                testPlan.setStatus(TestPlanStatus.Completed.name());
+            if (testPlan != null
+                    && !StringUtils.equalsAny(testPlan.getStatus(), TestPlanStatus.Completed.name(), TestPlanStatus.Finished.name())) {
+
+                testPlan.setStatus(calcTestPlanStatusWithPassRate(testPlan));
                 testPlanService.editTestPlan(testPlan);
             }
             try {
@@ -78,6 +81,27 @@ public class TestPlanMessageService {
                 LogUtil.error(e);
             }
         }
+    }
+
+    public String calcTestPlanStatusWithPassRate(TestPlanWithBLOBs testPlan) {
+        try {
+            // 计算通过率
+            TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
+            testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
+            //测试进度
+            Double testRate = Optional.ofNullable(testPlanDTOWithMetric.getTestRate()).orElse(0.0);
+            //通过率
+            Double passRate = Optional.ofNullable(testPlanDTOWithMetric.getPassRate()).orElse(0.0);
+
+            //只有通过率 与 测试进度 都为100% 才为已完成状态
+            if (testRate >= 100 && passRate >= 100) {
+                return TestPlanStatus.Completed.name();
+            }
+        } catch (Exception e) {
+            LogUtil.error("计算通过率失败！", e);
+        }
+
+        return TestPlanStatus.Finished.name();
     }
 
     @Async
