@@ -540,7 +540,7 @@ export default {
 
 .title-link {
   display: inline-block;
-  max-width: 300px;
+  max-width: 830px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
