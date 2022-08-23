@@ -496,7 +496,7 @@ export default {
     },
     openTestTestCase(item) {
       let TestCaseData = this.$router.resolve(
-        {path: '/track/case/all', query: {redirectID: getUUID(), dataType: "testCase", dataSelectRange: item.caseId}}
+        {path: '/track/case/all', query: {redirectID: getUUID(), dataType: "testCase", dataSelectRange: item.caseId, projectId: item.projectId}}
       );
       window.open(TestCaseData.href, '_blank');
     },
