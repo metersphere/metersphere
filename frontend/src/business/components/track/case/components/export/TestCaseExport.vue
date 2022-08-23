@@ -65,7 +65,10 @@ export default {
       this.loading = false;
     },
     exportTestCase() {
-      let param = this.$refs.testCaseExportFieldSelect.getExportParam();
+      let param = null;
+      if (this.$refs.testCaseExportFieldSelect) {
+        param = this.$refs.testCaseExportFieldSelect.getExportParam();
+      }
       this.$emit('exportTestCase', this.exportType, param);
       this.loading = true;
     }
