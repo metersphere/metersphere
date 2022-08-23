@@ -24,6 +24,7 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -408,7 +409,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         customFields.forEach(item -> {
             String fieldName = item.getCustomData();
             if (StringUtils.isNotBlank(fieldName)) {
-                if (item.getValue() != null) {
+                if (ObjectUtils.isNotEmpty(item.getValue())) {
                     if (StringUtils.isNotBlank(item.getType())) {
                         if (StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
                             JSONObject param = new JSONObject();
