@@ -49,6 +49,8 @@ public class TestCaseExcelData {
     private String priority;
     @ExcelIgnore
     Map<String, Object> customData = new LinkedHashMap<>();
+    @ExcelIgnore
+    Set<String> textFieldSet = new HashSet<>(2);
 
     @ExcelIgnore
     List<String> mergeStepDesc;
