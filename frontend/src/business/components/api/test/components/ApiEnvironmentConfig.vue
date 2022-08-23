@@ -11,7 +11,7 @@
         <environment-edit :if-create="ifCreate" :environment="currentEnvironment"
                           ref="environmentEdit" :is-read-only="isReadOnly"
                           @confirm="save" :is-project="true"
-                          @close="close"/>
+                          @close="close" @refreshAfterSave="refresh"/>
       </el-container>
     </el-dialog>
     <el-dialog
@@ -226,7 +226,10 @@ export default {
     },
     delEnvironment() {
       this.deleteEnvironment(this.currentEnvironment, this.currentIndex)
-    }
+    },
+    refresh() {
+      this.getEnvironments();
+    },
   }
 }
 </script>
