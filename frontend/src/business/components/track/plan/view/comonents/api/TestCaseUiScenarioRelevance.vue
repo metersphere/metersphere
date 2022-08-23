@@ -151,6 +151,15 @@ export default {
       param.envGroupId = envGroupId;
       param.selectIds = selectIds;
 
+      //查找所有数据
+      let params = this.$refs.apiScenarioList.condition;
+      if (params.selectAll) {
+        let result = await this.$post("/ui/automation/listAllIds", {
+          projectId: params.projectId
+        });
+        param.selectIds = result.data.data;
+      }
+
       this.result = this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$emit('refresh');
@@ -186,6 +195,14 @@ export default {
 
 /deep/ .module-input {
   width: 243px;
+}
+
+/deep/ .table-select-icon {
+  position: absolute;
+  display: inline-block;
+  top: -13px !important;
+  left: -30px;
+  width: 30px;
 }
 
 </style>
