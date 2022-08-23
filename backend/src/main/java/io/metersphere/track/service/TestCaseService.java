@@ -1494,7 +1494,7 @@ public class TestCaseService {
 
         for (TestCaseExcelData model : data) {
             List<Object> fields = new ArrayList<>();
-            Map<String, String> customDataMaps = Optional.ofNullable(model.getCustomData())
+            Map<String, Object> customDataMaps = Optional.ofNullable(model.getCustomData())
                     .orElse(new HashMap<>());
             Map<String, String> otherFieldMaps = Optional.ofNullable(model.getOtherFields())
                     .orElse(new HashMap<>());
@@ -1507,7 +1507,7 @@ public class TestCaseService {
                     }
                 }
                 if (!isSystemField) {
-                    String value = customDataMaps.get(head);
+                    Object value = customDataMaps.get(head);
                     if (value == null) {
                         value = otherFieldMaps.get(head);
                     }
@@ -1646,7 +1646,7 @@ public class TestCaseService {
                                         Map<String, String> customNameMap, TestCaseDTO t, TestCaseExcelData data, Set<String> textFields) {
         try {
             List<CustomFieldResource> fields = customFieldTestCaseService.getByResourceId(t.getId());
-            Map<String, String> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             for (int index = 0; index < fields.size(); index++) {
                 CustomFieldResource field = fields.get(index);
                 //进行key value对换

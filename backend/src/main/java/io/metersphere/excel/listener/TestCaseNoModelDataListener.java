@@ -388,29 +388,29 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
      * @param stringBuilder
      */
     private void validateCustomField(TestCaseExcelData data, StringBuilder stringBuilder) {
-        Map<String, String> customData = data.getCustomData();
+        Map<String, Object> customData = data.getCustomData();
         for (String fieldName : customData.keySet()) {
-            String value = customData.get(fieldName);
+            Object value = customData.get(fieldName);
             CustomFieldDao customField = customFieldsMap.get(fieldName);
             if (customField == null) {
                 continue;
             }
             AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(customField.getType());
             try {
-                customFieldValidator.validate(customField, value);
+                customFieldValidator.validate(customField, value.toString());
+                if (customFieldValidator.isKVOption) {
+                    // 这里如果填的是选项值，替换成选项ID，保存
+                    customData.put(fieldName, customFieldValidator.parse2Key(value.toString(), customField));
+                }
             } catch (CustomFieldValidateException e) {
                 stringBuilder.append(e.getMessage().concat(ERROR_MSG_SEPARATOR));
             }
-            if (customFieldValidator.isKVOption) {
-                // 这里如果填的是选项值，替换成选项ID，保存
-                customData.put(fieldName, customFieldValidator.parse2Key(value, customField));
-            }
             if (StringUtils.equals(fieldName, TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setStatus(customData.get(fieldName));
+                data.setStatus(customData.get(fieldName).toString());
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setPriority(customData.get(fieldName));
+                data.setPriority(customData.get(fieldName).toString());
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setMaintainer(customData.get(fieldName));
+                data.setMaintainer(customData.get(fieldName).toString());
             }
         }
     }
@@ -542,10 +542,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
      * @param testCase
      */
     private void buildTestCaseCustomFieldMap(TestCaseExcelData data, TestCaseWithBLOBs testCase) {
-        Map<String, String> customData = data.getCustomData();
+        Map<String, Object> customData = data.getCustomData();
         List<CustomFieldResource> testCaseCustomFields = new ArrayList<>();
         customData.forEach((k, v) -> {
-            if (StringUtils.isNotBlank(v)) {
+            if ((v instanceof List && CollectionUtils.isNotEmpty((List)v))
+                    || StringUtils.isNotBlank(v.toString())) {
                 CustomFieldDao customFieldDao = customFieldsMap.get(k);
                 if (customFieldDao != null) {
                     CustomFieldResource customFieldResource = new CustomFieldResource();

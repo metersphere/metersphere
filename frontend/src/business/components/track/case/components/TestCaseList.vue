@@ -718,10 +718,9 @@ export default {
     },
     getCustomFieldFilter(field) {
       if (field.name === '用例状态') {
-        let option = [];
-        if (this.trashEnable) {
-          option.push({text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'});
-        } else {
+        let option = null;
+        if (!this.trashEnable) {
+          option = [];
           field.options.forEach((item) => {
             option.push({
               text: this.$t(item.text),

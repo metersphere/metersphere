@@ -40,7 +40,7 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
     }
 
     @Override
-    public String parse2Key(String keyOrValue, CustomFieldDao customField) {
+    public Object parse2Key(String keyOrValue, CustomFieldDao customField) {
         if (userNameMap.containsKey(keyOrValue)) {
             return userNameMap.get(keyOrValue);
         }
