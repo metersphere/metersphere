@@ -6,6 +6,7 @@ import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class LoadReportStatusEvent implements LoadTestFinishEvent {
             if (StringUtils.equals(PerformanceTestStatus.Completed.name(), status)) {
                 result = TestPlanLoadCaseStatus.success.name();
             }
+            LogUtil.info("update plan load case status: " + result);
             extTestPlanLoadCaseMapper.updateCaseStatus(reportId, result);
         }
     }
