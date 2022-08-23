@@ -2,7 +2,7 @@ package io.metersphere.track.constants;
 
 public enum TestCaseStatus {
     Prepare("test_case_status_prepare"),
-    Underway("test_case_status_prepare"),
+    Underway("test_case_status_running"),
     Completed("test_case_status_finished");
 
     private String i18nKey;
