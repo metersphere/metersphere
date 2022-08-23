@@ -17,6 +17,7 @@
         @enableTrash="enableTrash"
         @enablePublic="enablePublic"
         @toPublic="toPublic"
+        @importRefresh="importRefresh"
         @importChangeConfirm="importChangeConfirm"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         ref="nodeTree"
@@ -746,6 +747,14 @@ export default {
       }
       this.$refs.nodeTree.list();
       this.setTable(data);
+    },
+    importRefresh() {
+      this.refreshAll();
+      if (this.$refs.testCaseEdit) {
+        setTimeout(() => {
+          this.$info(this.$t('test_track.case.import.import_refresh_tips'));
+        }, 3000)
+      }
     },
     minderSaveRefresh() {
       if (this.$refs.testCaseList) {
