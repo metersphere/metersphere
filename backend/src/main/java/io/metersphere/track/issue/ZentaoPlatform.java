@@ -430,8 +430,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         RestTemplate restTemplate = new RestTemplate();
         try {
             String fileUpload = zentaoClient.requestUrl.getFileUpload();
-            ResponseEntity<String> responseEntity = restTemplate.exchange(fileUpload + session,
-                    HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(fileUpload, HttpMethod.POST, requestEntity,
+                    String.class, "bug", null, session);
             String body = responseEntity.getBody();
             JSONObject obj = JSONObject.parseObject(body);
             JSONObject data = obj.getJSONObject("data");
@@ -579,8 +579,14 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         List<FileAttachmentMetadata> allMsAttachments = attachmentService.listMetadata(request);
         List<String> msAttachmentsName = allMsAttachments.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
         JSONObject bugInfo = zentaoClient.getBugById(issue.getPlatformId());
-        JSONObject zenFiles = bugInfo.getJSONObject("files");
-        // 同步Jira中新的附件
+        Object files = bugInfo.get("files");
+        JSONObject zenFiles;
+        if (files instanceof JSONArray && ((JSONArray) files).size() == 0) {
+            zenFiles = null;
+        } else {
+            zenFiles = (JSONObject) files;
+        }
+        // 同步禅道中新的附件
         if (zenFiles != null) {
             for (String fileId : zenFiles.keySet()) {
                 JSONObject fileInfo = zenFiles.getJSONObject(fileId);
@@ -602,7 +608,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             }
         }
 
-        // 删除Jira中不存在的附件
+        // 删除禅道中不存在的附件
         if (CollectionUtils.isNotEmpty(allMsAttachments)) {
             List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
                     .filter(msAttachment -> !znetaoAttachmentsName.contains(msAttachment.getName())).collect(Collectors.toList());
