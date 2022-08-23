@@ -1693,10 +1693,10 @@ public class ApiDefinitionService {
             }
             if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTOS)) {
                 for (ApiImportSendNoticeDTO apiImportSendNoticeDTO : apiImportSendNoticeDTOS) {
-                    if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
+                    if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && !apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
                         sendImportApiCreateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
                     }
-                    if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && !apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
+                    if (apiImportSendNoticeDTO.getApiDefinitionResult() != null && apiImportSendNoticeDTO.getApiDefinitionResult().isUpdated()) {
                         sendImportApiUpdateNotice(apiImportSendNoticeDTO.getApiDefinitionResult());
                     }
                     if (CollectionUtils.isNotEmpty(apiImportSendNoticeDTO.getCaseDTOList())) {
