@@ -35,7 +35,7 @@
       </template>
     </ms-node-tree>
     <test-case-import
-      @refreshAll="refreshAll"
+      @refreshAll="importRefresh"
       ref="testCaseImport"/>
     <test-case-export
       @refreshAll="refreshAll"
@@ -168,6 +168,9 @@ export default {
     },
     refreshAll() {
       this.$emit('refreshAll');
+    },
+    importRefresh() {
+      this.$emit('importRefresh');
     },
     enableTrash() {
       this.condition.trashEnable = true;

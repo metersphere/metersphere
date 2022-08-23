@@ -164,6 +164,7 @@ export default {
       import_format: "导入格式",
       select_import_field: "选择导出字段",
       select_import_all_field: "选择所有字段",
+      import_refresh_tips: "内容已更新，请重新打开编辑页！",
       base_field: "基础字段",
       custom_field: "自定义字段",
       other_field: "其他字段",
