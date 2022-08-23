@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.domain.ext.CustomFieldResource;
+import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.CustomFieldValidateException;
 import io.metersphere.commons.exception.MSException;
@@ -410,6 +411,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                     // 这里如果填的是选项值，替换成选项ID，保存
                     customData.put(fieldName, customFieldValidator.parse2Key(value.toString(), customField));
                 }
+                if (StringUtils.equalsAny(customField.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue())) {
+                    data.getTextFieldSet().add(fieldName);
+                }
             } catch (CustomFieldValidateException e) {
                 stringBuilder.append(e.getMessage().concat(ERROR_MSG_SEPARATOR));
             }
@@ -554,6 +558,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
      */
     private void buildTestCaseCustomFieldMap(TestCaseExcelData data, TestCaseWithBLOBs testCase) {
         Map<String, Object> customData = data.getCustomData();
+        Set<String> textFieldSet = data.getTextFieldSet();
         List<CustomFieldResource> testCaseCustomFields = new ArrayList<>();
         customData.forEach((k, v) -> {
             if ((v instanceof List && CollectionUtils.isNotEmpty((List)v))
@@ -562,7 +567,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 if (customFieldDao != null) {
                     CustomFieldResource customFieldResource = new CustomFieldResource();
                     customFieldResource.setFieldId(customFieldDao.getId());
-                    customFieldResource.setValue(JSON.toJSONString(v));
+                    if (textFieldSet.contains(customFieldDao.getId())) {
+                        customFieldResource.setTextValue(v.toString());
+                    } else {
+                        customFieldResource.setValue(JSON.toJSONString(v));
+                    }
                     customFieldResource.setResourceId(testCase.getId());
                     testCaseCustomFields.add(customFieldResource);
                 }
