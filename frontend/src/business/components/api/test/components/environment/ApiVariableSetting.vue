@@ -1,7 +1,7 @@
 <template>
   <ms-edit-dialog
     :visible.sync="visible"
-    width="700px"
+    width="70%"
     :title="$t('schema.adv_setting')"
     :with-footer="false"
     append-to-body
