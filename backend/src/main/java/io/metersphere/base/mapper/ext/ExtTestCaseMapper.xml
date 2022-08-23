@@ -1131,6 +1131,7 @@
                              where workspace_id = #{workSpaceId})
           and case_public = true
           and test_case.status != 'Trash'
+          and test_case.latest = 1
     </select>
 
     <select id="trashCount" resultType="java.lang.Long">
