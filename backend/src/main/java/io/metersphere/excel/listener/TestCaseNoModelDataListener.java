@@ -499,8 +499,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         if (!errList.isEmpty() && !request.isIgnore()) {
             return;
         }
+        if ((isCreateModel() && CollectionUtils.isEmpty(list)) || (isUpdateModel() && CollectionUtils.isEmpty(updateList))) {
+           MSException.throwException(Translator.get("no_legitimate_case_tip"));
+        }
 
-        if (!(list.size() == 0)) {
+        if (CollectionUtils.isNotEmpty(list)) {
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
@@ -510,7 +513,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             this.isUpdated = true;
         }
 
-        if (!(updateList.size() == 0)) {
+        if (CollectionUtils.isNotEmpty(updateList)) {
             List<TestCaseWithBLOBs> result2 = updateList.stream()
                     .map(item -> this.convert2TestCaseForUpdate(item))
                     .collect(Collectors.toList());
