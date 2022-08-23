@@ -32,24 +32,11 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.variable')">
         <el-row>
-          <el-col :span="6" class="col-height">
-            <div v-if="environment">
-              <p>{{ $t('api_test.environment.environment') }}</p>
-              <el-tree :data="environmentParams" :props="treeProps" @node-click="selectVariable"></el-tree>
-            </div>
-            <div v-if="scenario">
-              <p>{{ $t('api_test.scenario.scenario') }}</p>
-              <el-tree :data="scenarioParams" :props="treeProps" @node-click="selectVariable"></el-tree>
-            </div>
-            <div v-if="preRequestParams">
-              <p>{{ $t('api_test.request.parameters_pre_request') }}</p>
-              <el-tree :data="preRequestParams" :props="treeProps" @node-click="selectVariable"></el-tree>
-            </div>
-          </el-col>
-          <el-col :span="18" class="col-height">
+          <el-col class="col-height">
             <div>
               <h1>{{ $t('api_test.request.jmeter_func') }}</h1>
-              <el-table border :data="jmeterFuncs" class="adjust-table table-content" height="400">
+              <el-table border :data="jmeterFuncs" class="adjust-table table-content" height="400"
+                        @row-click="handleRowClick">
                 <el-table-column prop="type" label="Type" width="150"/>
                 <el-table-column prop="name" label="Functions" width="250"/>
                 <el-table-column prop="description" label="Description"/>
@@ -59,21 +46,27 @@
         </el-row>
       </el-tab-pane>
     </el-tabs>
-    <el-form>
-      <el-form-item>
-        <el-input :placeholder="valueText" size="small"
-                  v-model="itemValue"/>
-      </el-form-item>
-    </el-form>
     <div style="padding-top: 10px;">
-      <el-row type="flex" align="middle">
-        <el-col :span="12">
-          <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
-            {{ $t('api_test.request.parameters_advance_add_func') }}
-          </el-button>
-          <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
-            {{ $t('api_test.request.parameters_preview') }}
-          </el-button>
+      <el-row type="flex">
+        <el-col :span="16">
+          <div>
+            <el-form :inline="true" class="demo-form-inline">
+              <el-form-item>
+                <el-input :placeholder="valueText" size="small" v-model="itemValue"/>
+              </el-form-item>
+              <el-form-item>
+                <el-button size="small" type="primary" plain @click="saveAdvanced()">
+                  {{ $t('commons.save') }}
+                </el-button>
+                <el-button size="small" type="info" plain @click="addFunc()" v-if="currentTab === 0">
+                  {{ $t('api_test.request.parameters_advance_add_func') }}
+                </el-button>
+                <el-button size="small" type="success" plain @click="showPreview()" v-if="currentTab === 0">
+                  {{ $t('api_test.request.parameters_preview') }}
+                </el-button>
+              </el-form-item>
+            </el-form>
+          </div>
         </el-col>
         <el-col>
           <div> {{ itemValuePreview }}</div>
@@ -293,7 +286,12 @@ export default {
       this.mockVariableFuncs = [];
       this.$emit('advancedRefresh', this.currentItem.value);
 
-    }
+    },
+    handleRowClick(row) {
+      if (row && row.name) {
+        this.itemValue = row.name;
+      }
+    },
   }
 }
 </script>
