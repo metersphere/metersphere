@@ -11,6 +11,7 @@
       :default-label="$t('api_test.definition.unplanned_api')"
       :hide-opretor="isTrashData"
       local-suffix="api_definition"
+      :current-node-key="currentNodeKey"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -75,6 +76,7 @@ export default {
         filterText: "",
         trashEnable: false
       },
+      currentNodeKey: null,
       data: [],
       currentModule: {},
     }
@@ -206,6 +208,7 @@ export default {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
     list(projectId) {
+      this.currentNodeKey = null;
       let url = undefined;
       if (this.isPlanModel) {
         url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
@@ -283,6 +286,46 @@ export default {
       } else {
         this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       }
+      this.nohupReloadTree(node.data.id);
+    },
+    nohupReloadTree(selectNodeId) {
+      this.currentNodeKey = null;
+      let url = undefined;
+      if (this.isPlanModel) {
+        url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
+      } else if (this.isRelevanceModel) {
+        url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      } else if (this.isTrashData) {
+        if (!this.projectId) {
+          return;
+        }
+        url = "/api/module/trash/list/" + this.projectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      } else {
+        if (!this.projectId) {
+          return;
+        }
+        url = "/api/module/list/" + this.projectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      }
+      this.$get(url, response => {
+        if (response.data != undefined && response.data != null) {
+          this.data = response.data;
+          this.data.forEach(node => {
+            node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
+            buildTree(node, {path: ''});
+          });
+          this.$nextTick(() => {
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+              if (selectNodeId) {
+                this.currentNodeKey = selectNodeId;
+              }
+            }
+          })
+        }
+      });
     },
     //创建根目录的模块---供父类使用
     createRootModel() {

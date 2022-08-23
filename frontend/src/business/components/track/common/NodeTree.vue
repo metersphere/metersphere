@@ -5,11 +5,13 @@
     </slot>
 
     <el-tree
+      :key="Math.random()"
       class="filter-tree node-tree"
       :data="extendTreeNodes"
       :default-expanded-keys="expandedNode"
       :default-expand-all="defaultExpandAll"
       node-key="id"
+      :current-node-key="currentNodeKey"
       @node-drag-end="handleDragEnd"
       @node-expand="nodeExpand"
       @node-collapse="nodeCollapse"
@@ -116,6 +118,10 @@ export default {
     type: {
       type: String,
       default: "view"
+    },
+    currentNodeKey: {
+      type: String,
+      default: null
     },
     treeNodes: {
       type: Array
