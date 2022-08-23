@@ -183,7 +183,7 @@ public class ApiDefinitionService {
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {
             buildProjectInfo(resList, request.getProjectId());
-            calculateResult(resList, request.getProjectId());
+            calculateResult(resList, request.getProjectId(), request);
         } else {
             buildProjectInfoWithoutProject(resList);
         }
@@ -2119,31 +2119,48 @@ public class ApiDefinitionService {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
             List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
-            Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
-            for (ApiDefinitionResult res : resList) {
-                ApiComputeResult compRes = resultMap.get(res.getId());
-                if (compRes != null) {
-                    res.setCaseType("apiCase");
-                    res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
-                    res.setCasePassingRate(compRes.getPassRate());
-                    // 状态优先级 未执行，未通过，通过
-                    if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
-                        res.setCaseStatus(Translator.get("not_execute"));
-                    } else if (compRes.getError() > 0) {
-                        res.setCaseStatus(Translator.get("execute_not_pass"));
-                    } else {
-                        res.setCaseStatus(Translator.get("execute_pass"));
-                    }
+            calculateResultList(resList, results);
+        }
+    }
+
+    private void calculateResultList(List<ApiDefinitionResult> resList, List<ApiComputeResult> results) {
+        Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
+        for (ApiDefinitionResult res : resList) {
+            ApiComputeResult compRes = resultMap.get(res.getId());
+            if (compRes != null) {
+                res.setCaseType("apiCase");
+                res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
+                res.setCasePassingRate(compRes.getPassRate());
+                // 状态优先级 未执行，未通过，通过
+                if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
+                    res.setCaseStatus(Translator.get("not_execute"));
+                } else if (compRes.getError() > 0) {
+                    res.setCaseStatus(Translator.get("execute_not_pass"));
                 } else {
-                    res.setCaseType("apiCase");
-                    res.setCaseTotal("0");
-                    res.setCasePassingRate("-");
-                    res.setCaseStatus("-");
+                    res.setCaseStatus(Translator.get("execute_pass"));
                 }
-                if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
-                    esbApiParamService.handleApiEsbParams(res);
-                }
+            } else {
+                res.setCaseType("apiCase");
+                res.setCaseTotal("0");
+                res.setCasePassingRate("-");
+                res.setCaseStatus("-");
             }
+            if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
+                esbApiParamService.handleApiEsbParams(res);
+            }
+        }
+    }
+
+    public void calculateResult(List<ApiDefinitionResult> resList, String projectId, ApiDefinitionRequest request) {
+        if (!resList.isEmpty()) {
+            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            List<ApiComputeResult> results = new ArrayList<>();
+            if (request != null && request.getFilters().containsKey("status") && request.getFilters().get("status").get(0).equals("Trash")) {
+                results = extApiDefinitionMapper.selectByIdsAndStatusIsTrash(ids, projectId);
+            } else {
+                results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
+            }
+            calculateResultList(resList, results);
         }
     }
 
