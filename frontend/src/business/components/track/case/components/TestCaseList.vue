@@ -24,7 +24,6 @@
       :row-order-group-id="projectId"
       :row-order-func="editTestCaseOrder"
       @handlePageChange="initTableData"
-      @handleRowClick="handleEdit"
       :fields.sync="fields"
       :field-key="tableHeaderKey"
       @filter="search"
@@ -80,15 +79,28 @@
           prop="num"
           sortable
           :label="$t('commons.id')"
-          min-width="80"/>
+          min-width="80">
+          <template v-slot:default="scope">
+            <el-tooltip :content="$t('commons.edit')">
+              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           v-if="item.id === 'num' && customNum"
+          :field="item"
           :fields-width="fieldsWidth"
           prop="customNum"
           sortable
           :label="$t('commons.id')"
-          min-width="80"/>
+          min-width="80">
+          <template v-slot:default="scope">
+            <el-tooltip :content="$t('commons.edit')">
+              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="name"
@@ -823,17 +835,15 @@ export default {
     testCaseCreate() {
       this.$emit('testCaseEdit');
     },
-    handleEdit(testCase, column) {
-      if (column.label !== this.$t('test_track.case.case_desc')) {
-        if (this.publicEnable) {
-          return;
-        } else {
-          this.$get('test/case/get/' + testCase.id, response => {
-            let testCase = response.data;
-            testCase.trashEnable = this.trashEnable;
-            this.$emit('testCaseEdit', testCase);
-          });
-        }
+    handleEdit(testCase) {
+      if (this.publicEnable) {
+        return;
+      } else {
+        this.$get('test/case/get/' + testCase.id, response => {
+          let testCase = response.data;
+          testCase.trashEnable = this.trashEnable;
+          this.$emit('testCaseEdit', testCase);
+        });
       }
     },
     handleEditPublic(testCase, column) {
