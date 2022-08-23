@@ -50,7 +50,7 @@ export default {
   data() {
     return {
       modes: ['text', 'html'],
-      robotTitle: "${operator}执行接口测试成功: ${name}, 报告: ${planShareUrl}",
+      robotTitle: "${operator}执行测试计划成功: ${name}, 报告: ${planShareUrl}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",
