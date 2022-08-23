@@ -32,7 +32,8 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         if (StringUtils.isBlank(value)) {
             return;
         }
-        if (userIdMap.containsKey(value) || userNameMap.containsKey(value)) {
+        long count = userIdMap.entrySet().stream().filter(e -> StringUtils.equalsAnyIgnoreCase(value,e.getKey(),e.getValue())).count();
+        if(count > 0){
             return;
         }
         throw new CustomFieldValidateException(String.format(Translator.get("custom_field_member_tip"), customField.getName()));
