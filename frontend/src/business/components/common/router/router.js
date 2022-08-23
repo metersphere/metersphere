@@ -94,7 +94,7 @@ function redirectLoginPath(originPath, next) {
 }
 
 export function getDefaultSecondLevelMenu(toPath) {
-  let {TRACK: tracks, API: apis, LOAD: loads, UI: ui} = SECOND_LEVEL_ROUTE_PERMISSION_MAP;
+  let {TRACK: tracks, API: apis, LOAD: loads, UI: ui, REPORT: report} = SECOND_LEVEL_ROUTE_PERMISSION_MAP;
   if (tracks.map(r => r.router).indexOf(toPath) > -1) {
     return _getDefaultSecondLevelMenu(tracks, toPath);
   } else if (apis.map(r => r.router).indexOf(toPath) > -1) {
@@ -103,6 +103,8 @@ export function getDefaultSecondLevelMenu(toPath) {
     return _getDefaultSecondLevelMenu(loads, toPath);
   } else if (ui.map(r => r.router).indexOf(toPath) > -1) {
     return _getDefaultSecondLevelMenu(ui, toPath);
+  } else if (report.map(r => r.router).indexOf(toPath) > -1) {
+    return _getDefaultSecondLevelMenu(report, toPath);
   } else {
     return toPath;
   }
