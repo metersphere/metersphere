@@ -218,4 +218,9 @@ export default {
   display: none;
 }
 
+
+/deep/ .v-note-op .v-left-item.transition .add-image-link-wrapper .add-image-link .op-btn.sure {
+  background: #783887;
+}
+
 </style>
