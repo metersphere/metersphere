@@ -14,7 +14,7 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
 
     @Override
     public void validate(CustomFieldDao customField, String value) throws CustomFieldValidateException {
-        validateRequired(customField, value);
+        validateArrayRequired(customField, value);
         if (StringUtils.isBlank(value)) {
             return;
         }
@@ -29,11 +29,11 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
     }
 
     @Override
-    public String parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
+    public Object parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
         if (StringUtils.isBlank(keyOrValuesStr)) {
             return "";
         }
-        List<String> keyOrValues = JSONArray.parseArray(keyOrValuesStr, String.class);
+        List<String> keyOrValues = parse2Array(keyOrValuesStr);
         Map<String, String> nameMap = optionTextMapCache.get(customField.getId());
         for (int i = 0; i < keyOrValues.size(); i++) {
             String item = keyOrValues.get(i);
@@ -41,6 +41,6 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
                 keyOrValues.set(i, nameMap.get(item));
             }
         }
-        return JSONArray.toJSONString(keyOrValues);
+        return keyOrValues;
     }
 }

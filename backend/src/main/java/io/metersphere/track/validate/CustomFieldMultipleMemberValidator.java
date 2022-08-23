@@ -12,7 +12,7 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
 
     @Override
     public void validate(CustomFieldDao customField, String value) throws CustomFieldValidateException {
-        validateRequired(customField, value);
+        validateArrayRequired(customField, value);
         if (StringUtils.isBlank(value)) {
             return;
         }
@@ -27,11 +27,11 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
     }
 
     @Override
-    public String parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
+    public Object parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
         if (StringUtils.isBlank(keyOrValuesStr)) {
             return "";
         }
-        List<String> keyOrValues = JSONArray.parseArray(keyOrValuesStr, String.class);
+        List<String> keyOrValues = parse2Array(keyOrValuesStr);
 
         for (int i = 0; i < keyOrValues.size(); i++) {
             String item = keyOrValues.get(i);
@@ -39,6 +39,6 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
                 keyOrValues.set(i, userNameMap.get(item));
             }
         }
-        return JSONArray.toJSONString(keyOrValues);
+        return keyOrValues;
     }
 }

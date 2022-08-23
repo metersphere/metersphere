@@ -54,7 +54,7 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
     }
 
     @Override
-    public String parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
+    public Object parse2Key(String keyOrValuesStr, CustomFieldDao customField) {
         Map<String, String> textMap = optionTextMapCache.get(customField.getId());
         if (MapUtils.isNotEmpty(textMap) && textMap.containsKey(keyOrValuesStr)) {
             return textMap.get(keyOrValuesStr);
