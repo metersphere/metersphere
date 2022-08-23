@@ -259,13 +259,48 @@ export default {
       } else {
         this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       }
+      this.nohupReloadTree(node.data.id);
+    },
+    //后台更新节点数据
+    nohupReloadTree(selectNodeId) {
+      let url = undefined;
+      if (this.isPlanModel) {
+        url = '/api/automation/module/list/plan/' + this.planId;
+      } else if (this.isRelevanceModel) {
+        url = "/api/automation/module/list/" + this.relevanceProjectId;
+      } else if (this.isTrashData) {
+        if (!this.projectId) {
+          return;
+        }
+        url = "/api/automation/module/trash/list/" + this.projectId;
+      } else {
+        if (!this.projectId) {
+          return;
+        }
+        url = "/api/automation/module/list/" + this.projectId;
+      }
+      this.$get(url, response => {
+        if (response.data != undefined && response.data != null) {
+          this.data = response.data;
+          this.data.forEach(node => {
+            node.name = node.name === '未规划场景' ? this.$t('api_test.automation.unplanned_scenario') : node.name
+            buildTree(node, {path: ''});
+          });
+
+          this.$nextTick(() => {
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+              if (selectNodeId) {
+                this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
+              }
+            }
+          })
+        }
+      });
     },
     exportAPI() {
       this.$emit('exportAPI', this.data);
     },
-    // debug() {
-    //   this.$emit('debug');
-    // },
     saveAsEdit(data) {
       this.$emit('saveAsEdit', data);
     },
