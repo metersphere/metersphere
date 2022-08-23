@@ -218,6 +218,10 @@ export default {
   display: none;
 }
 
+/deep/ .v-note-op .v-left-item.transition .op-icon.fa.fa-mavon-picture-o.dropdown.dropdown-wrapper .op-image.popup-dropdown.transition {
+  margin-left: 45px;
+}
+
 
 /deep/ .v-note-op .v-left-item.transition .add-image-link-wrapper .add-image-link .op-btn.sure {
   background: #783887;
