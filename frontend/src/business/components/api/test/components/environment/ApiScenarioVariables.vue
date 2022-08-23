@@ -54,15 +54,15 @@
           </template>
         </ms-table-column>
 
-        <ms-table-column prop="value" :label="$t('api_test.value')"
-                         min-width="200px" sortable>
+        <el-table-column prop="value" :label="$t('api_test.value')"
+                         min-width="200px" sortable show-overflow-tooltip>
           <template slot-scope="scope">
             <el-input v-model="scope.row.value" size="mini" v-if="scope.row.type !=='CSV'"
                       :placeholder="valueText(scope.row)"
                       :disabled="scope.row.type === 'COUNTER' || scope.row.type === 'RANDOM'"/>
             <csv-file-upload :parameter="scope.row" v-if="scope.row.type ==='CSV'"/>
           </template>
-        </ms-table-column>
+        </el-table-column>
         <ms-table-column prop="description" :label="$t('commons.remark')"
                          min-width="160" sortable>
           <template slot-scope="scope">

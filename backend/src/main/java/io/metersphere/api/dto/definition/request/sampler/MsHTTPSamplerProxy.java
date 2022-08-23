@@ -397,7 +397,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         url = url.replace(this.getPort(), "10990");
                     }
                     try {
-                        if (StringUtils.startsWithAny(url, "http://", "https://")) {
+                        if (!StringUtils.startsWithAny(url, "http://", "https://")) {
                             url = "http://" + url;
                         }
                         URL urlObject = new URL(url);
