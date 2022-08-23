@@ -1,5 +1,6 @@
 <template>
-  <ms-drawer class="json-path-picker" :visible="visible" :size="30" @close="close" direction="right" v-clickoutside="close">
+  <ms-drawer class="json-path-picker" :visible="visible" :size="30" @close="close" direction="right"
+             v-clickoutside="close">
     <template v-slot:header>
       <ms-instructions-icon :content="tip"/>
       {{ tip }}
@@ -69,9 +70,14 @@ export default {
       this.data = {};
       try {
         let stringedJSON = objStr.replace(/:\s*([-+Ee0-9.]+)/g, ': "$1"');
-        // 解决精度丢失问题
+        let param;
         let JSONBig = require('json-bigint')({"storeAsString": true});
-        let param = JSON.parse(JSON.stringify(JSONBig.parse(stringedJSON)));
+        // 解决精度丢失问题
+        try {
+          param = JSON.parse(JSON.stringify(JSONBig.parse(stringedJSON)));
+        } catch (e) {
+          param = JSON.parse(JSON.stringify(JSONBig.parse(objStr)));
+        }
         if (param instanceof Array) {
           this.$warning('不支持解析JSON数组');
           return;
