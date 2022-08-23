@@ -545,6 +545,8 @@ public class TestPlanService {
 
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {
         LinkedHashMap<String, String> userMap;
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+
         boolean isSelectAll = request.getRequest() != null && request.getRequest().isSelectAll();
         if (isSelectAll) {
             List<TestCase> maintainerMap = extTestCaseMapper.getMaintainerMap(request.getRequest());
@@ -557,6 +559,11 @@ public class TestPlanService {
             userMap = testCaseList.stream()
                     .collect(LinkedHashMap::new, (m, v) -> m.put(v.getId(), v.getMaintainer()), LinkedHashMap::putAll);
         }
+
+        Set<String> projectMemberSet = userService.getProjectMemberOption(testPlan.getProjectId())
+                .stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
@@ -580,7 +587,10 @@ public class TestPlanService {
             TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
             testPlanTestCase.setId(UUID.randomUUID().toString());
             testPlanTestCase.setCreateUser(SessionUtils.getUserId());
-            String maintainer = Optional.ofNullable(userMap.get(caseId)).orElse(SessionUtils.getUserId());
+            String maintainer = userMap.get(caseId);
+            if (StringUtils.isBlank(maintainer) || !projectMemberSet.contains(maintainer)) {
+                maintainer = SessionUtils.getUserId();
+            }
             testPlanTestCase.setExecutor(maintainer);
             testPlanTestCase.setCaseId(caseId);
             testPlanTestCase.setCreateTime(System.currentTimeMillis());
@@ -597,7 +607,6 @@ public class TestPlanService {
 
         caseTestRelevance(request, testCaseIds);
 
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
                 || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
             testPlan.setStatus(TestPlanStatus.Underway.name());
