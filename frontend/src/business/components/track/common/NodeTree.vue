@@ -209,7 +209,9 @@ export default {
     },
     filter(val) {
       this.$nextTick(() => {
-        this.$refs.tree.filter(val);
+        if (this.$refs.tree) {
+          this.$refs.tree.filter(val);
+        }
       });
     },
     nodeExpand(data) {
@@ -351,6 +353,9 @@ export default {
       } else {
         this.expandedNode.push(param.parentId);
         this.$emit('add', param);
+      }
+      if (!data.level) {
+        data.level = param.level;
       }
       this.$set(data, 'isEdit', false);
     },
@@ -499,6 +504,13 @@ export default {
         this.$nextTick(() => {
           this.handleNodeSelect(currentNode);
           this.$refs.tree.setCurrentKey(currentNode.data.id);
+        })
+      }
+    },
+    justSetCurrentKey(id) {
+      if (id) {
+        this.$nextTick(() => {
+          this.$refs.tree.setCurrentKey(id);
         })
       }
     },

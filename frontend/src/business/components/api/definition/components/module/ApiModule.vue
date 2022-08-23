@@ -4,6 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
+      v-if="refreshDataOver"
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
@@ -70,6 +71,7 @@ export default {
   data() {
     return {
       result: {},
+      refreshDataOver: true,
       condition: {
         protocol: OPTIONS[0].value,
         filterText: "",
@@ -242,7 +244,6 @@ export default {
       param.protocol = this.condition.protocol;
       this.$post("/api/module/edit", param, () => {
         this.$success(this.$t('commons.save_success'));
-        this.list();
         this.refresh();
       }, (error) => {
         this.list();
@@ -283,6 +284,47 @@ export default {
       } else {
         this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       }
+      this.nohupReloadTree(node.data.id);
+    },
+    nohupReloadTree(selectNodeId) {
+      let url = undefined;
+      if (this.isPlanModel) {
+        url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
+      } else if (this.isRelevanceModel) {
+        url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      } else if (this.isTrashData) {
+        if (!this.projectId) {
+          return;
+        }
+        url = "/api/module/trash/list/" + this.projectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      } else {
+        if (!this.projectId) {
+          return;
+        }
+        url = "/api/module/list/" + this.projectId + "/" + this.condition.protocol +
+          (this.currentVersion ? '/' + this.currentVersion : '');
+      }
+      this.$get(url, response => {
+        if (response.data != undefined && response.data != null) {
+          let treeData = response.data;
+          treeData.forEach(node => {
+            node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
+            buildTree(node, {path: ''});
+          });
+          this.data = treeData;
+
+          this.$nextTick(() => {
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+              if (selectNodeId) {
+                this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
+              }
+            }
+          })
+        }
+      });
     },
     //创建根目录的模块---供父类使用
     createRootModel() {

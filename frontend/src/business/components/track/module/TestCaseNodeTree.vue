@@ -147,12 +147,12 @@ export default {
     },
   },
   methods: {
-    addTestCase(){
+    addTestCase() {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-     this.$refs.testCaseCreate.open(this.currentModule)
+      this.$refs.testCaseCreate.open(this.currentModule)
     },
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
@@ -248,7 +248,7 @@ export default {
     openExport() {
       this.$refs.testCaseExport.open();
     },
-    exportTestCase(type, param){
+    exportTestCase(type, param) {
       this.$emit('exportTestCase', type, param);
     },
     remove(nodeIds) {
@@ -275,7 +275,6 @@ export default {
       this.$store.commit('setTestCaseModuleOptions', moduleOptions);
     },
     nodeChange(node, nodeIds, pNodes) {
-
       this.$store.commit('setTestCaseSelectNode', node);
       this.$store.commit('setTestCaseSelectNodeIds', nodeIds);
       this.condition.trashEnable = false;
@@ -284,11 +283,32 @@ export default {
       this.currentNode = node;
 
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
+      this.nohupReloadTree(node.data.id);
+    },
+    nohupReloadTree(selectNodeId) {
+      if (this.projectId) {
+        this.caseCondition.casePublic = false;
+        getTestCaseNodesByCaseFilter(this.projectId, this.caseCondition, data => {
+          this.treeNodes = data;
+          this.treeNodes.forEach(node => {
+            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+            buildTree(node, {path: ''});
+          });
+          this.$nextTick(() => {
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+              if (selectNodeId) {
+                this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
+              }
+            }
+          })
+        });
+      }
     },
     openMinderConfirm() {
       let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
       if (isTestCaseMinderChanged) {
-          this.$refs.isChangeConfirm.open();
+        this.$refs.isChangeConfirm.open();
       }
       return isTestCaseMinderChanged;
     },
