@@ -42,5 +42,5 @@ public interface ExtIssuesMapper {
 
     List<IssuesDao> getIssueCustomFields(List<String> ids);
 
-    List<IssuesDao> getPlatformIssueByIds(@Param("ids") List<String> ids);
+    List<IssuesDao> getPlatformIssueByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 }

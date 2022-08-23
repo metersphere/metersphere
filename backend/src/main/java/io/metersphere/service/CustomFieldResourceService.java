@@ -407,8 +407,8 @@ public class CustomFieldResourceService {
         }
     }
 
-    public List<IssuesDao> getPlatformIssueByIds(List<String> platformIds) {
-        List<IssuesDao> issues = extIssuesMapper.getPlatformIssueByIds(platformIds);
+    public List<IssuesDao> getPlatformIssueByIds(List<String> platformIds, String projectId) {
+        List<IssuesDao> issues = extIssuesMapper.getPlatformIssueByIds(platformIds, projectId);
         if (CollectionUtils.isEmpty(issues)) {
             return issues;
         }
@@ -416,26 +416,15 @@ public class CustomFieldResourceService {
         List<IssuesDao> issuesList = extIssuesMapper.getIssueCustomFields(issueIds);
         Map<String, List<CustomFieldItemDTO>> map = new HashMap<>();
         issuesList.forEach(f -> {
-            List<CustomFieldItemDTO> list = map.get(f.getId());
-            if (list == null) {
-                list = new ArrayList<>();
-                CustomFieldItemDTO dto = new CustomFieldItemDTO();
-                dto.setId(f.getFieldId());
-                dto.setName(f.getFieldName());
-                dto.setType(f.getFieldType());
-                dto.setValue(f.getFieldValue());
-                dto.setCustomData(f.getCustomData());
-                list.add(dto);
-                map.put(f.getId(), list);
-            } else {
-                CustomFieldItemDTO dto = new CustomFieldItemDTO();
-                dto.setId(f.getFieldId());
-                dto.setName(f.getFieldName());
-                dto.setType(f.getFieldType());
-                dto.setValue(f.getFieldValue());
-                dto.setCustomData(f.getCustomData());
-                list.add(dto);
-            }
+            CustomFieldItemDTO dto = new CustomFieldItemDTO();
+            dto.setId(f.getFieldId());
+            dto.setName(f.getFieldName());
+            dto.setType(f.getFieldType());
+            dto.setValue(f.getFieldValue());
+            dto.setCustomData(f.getCustomData());
+            List<CustomFieldItemDTO> list = Optional.ofNullable(map.get(f.getId())).orElse(new ArrayList<>());
+            map.put(f.getId(), list);
+            list.add(dto);
         });
         issues.forEach(i -> i.setCustomFieldList(map.getOrDefault(i.getId(), new ArrayList<>())));
         return issues;
