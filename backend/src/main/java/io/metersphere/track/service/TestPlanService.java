@@ -1055,8 +1055,6 @@ public class TestPlanService {
     private String transformationPerfTriggerMode(String triggerMode) {
         if (StringUtils.equalsIgnoreCase(triggerMode, ReportTriggerMode.SCHEDULE.name())) {
             return ReportTriggerMode.TEST_PLAN_SCHEDULE.name();
-        } else if (StringUtils.equalsIgnoreCase(triggerMode, ReportTriggerMode.MANUAL.name())) {
-            return ReportTriggerMode.TEST_PLAN_MANUAL.name();
         } else if (StringUtils.equalsIgnoreCase(triggerMode, ReportTriggerMode.API.name())) {
             return ReportTriggerMode.TEST_PLAN_API.name();
         } else {
