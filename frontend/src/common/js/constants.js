@@ -193,10 +193,10 @@ export const CONFIG_TYPE = {
   ABNORMAL: "ABNORMAL"
 }
 
-export const WORKSTATION={
-  UPCOMING:"upcoming",
-  FOCUS:"focus",
-  NODE:"node"
+export const WORKSTATION = {
+  UPCOMING: "upcoming",
+  FOCUS: "focus",
+  NODE: "node"
 }
 
 export const ENV_TYPE = {
@@ -231,5 +231,16 @@ export const SECOND_LEVEL_ROUTE_PERMISSION_MAP = {
     {router: '/ui/automation', permission: ['PROJECT_UI_SCENARIO:READ']},
     {router: '/ui/element', permission: ['PROJECT_UI_ELEMENT:READ']},
     {router: '/ui/report', permission: ['PROJECT_UI_REPORT:READ']},
+  ],
+  REPORT: [
+    {router: '/report/projectStatistics', permission: ['PROJECT_REPORT_ANALYSIS:READ']},
+    {
+      router: '/report/projectReport',
+      permission: [
+        'PROJECT_ENTERPRISE_REPORT:READ+EXPORT', 'PROJECT_ENTERPRISE_REPORT:READ+CREATE',
+        'PROJECT_ENTERPRISE_REPORT:READ+DELETE', 'PROJECT_ENTERPRISE_REPORT:READ+COPY',
+        'PROJECT_ENTERPRISE_REPORT:READ+SCHEDULE', 'PROJECT_ENTERPRISE_REPORT:READ+EDIT'
+      ]
+    }
   ]
 }
