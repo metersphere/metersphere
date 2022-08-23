@@ -27,7 +27,7 @@
           />
         </div>
       </div>
-      <div class="browser-row wrap">
+      <div class="browser-row wrap" v-if="haveUICase">
         <div class="title">{{ $t("ui.browser") }}：</div>
         <div class="content">
           <el-select
