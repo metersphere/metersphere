@@ -60,7 +60,7 @@ public abstract class AbstractCustomFieldValidator {
             }
             return JSONArray.parseArray(value, String.class);
         } catch (Exception e) {
-            CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_required_tip"), name));
+            CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_array_tip"), name));
         }
         return new ArrayList<>();
     }
