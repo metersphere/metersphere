@@ -140,7 +140,7 @@
         where cfi.resource_id = #{issueId}
     </select>
     <select id="getPlatformIssueByIds" resultType="io.metersphere.base.domain.IssuesDao">
-        select * from issues where platform_id in
+        select * from issues where project_id = #{projectId} and platform_id in
         <foreach collection="ids" item="value" separator="," open="(" close=")">
             #{value}
         </foreach>
