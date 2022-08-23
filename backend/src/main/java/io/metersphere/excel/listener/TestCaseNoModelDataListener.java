@@ -95,6 +95,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
      */
     private Boolean isMergeLastRow;
 
+    private Integer firstMergeRowIndex;
+
     /**
      * 存储合并单元格对应的数据，key 为重写了 compareTo 的 ExcelMergeInfo
      */
@@ -146,6 +148,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         // 读取名称列，如果该列是合并单元格，则读取多行数据后合并步骤
         if (this.isMergeRow) {
             if (currentMergeData == null) {
+                this.firstMergeRowIndex = rowIndex;
                 // 如果是合并单元格的首行
                 testCaseExcelData = this.parseDataToModel(data);
                 testCaseExcelData.setMergeStepDesc(new ArrayList<>() {{
@@ -176,6 +179,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 }
             }
         } else {
+            this.firstMergeRowIndex = null;
             testCaseExcelData = this.parseDataToModel(data);
         }
 
@@ -193,10 +197,14 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
 
         if (!StringUtils.isEmpty(errMsg)) {
+            Integer errorRowIndex = rowIndex;
+            if (firstMergeRowIndex != null) {
+                errorRowIndex = firstMergeRowIndex;
+            }
             ExcelErrData excelErrData = new ExcelErrData(testCaseExcelData, rowIndex,
                     Translator.get("number")
                             .concat(" ")
-                            .concat(String.valueOf(rowIndex  + 1)).concat(" ")
+                            .concat(String.valueOf(errorRowIndex + 1)).concat(" ")
                             .concat(Translator.get("row"))
                             .concat(Translator.get("error"))
                             .concat("：")
