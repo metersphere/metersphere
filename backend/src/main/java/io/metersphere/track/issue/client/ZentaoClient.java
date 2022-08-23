@@ -226,7 +226,7 @@ public abstract class ZentaoClient extends BaseClient {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, authHeader);
 
         try {
-            restTemplate.exchange(requestUrl.getFileUpload(), HttpMethod.POST, requestEntity,
+           restTemplate.exchange(requestUrl.getFileUpload(), HttpMethod.POST, requestEntity,
                     String.class, objectType, objectId, sessionId);
         } catch (Exception e) {
             LogUtil.info("upload zentao attachment error");
