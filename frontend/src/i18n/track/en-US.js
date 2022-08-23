@@ -170,6 +170,7 @@ export default {
       import_tip1: "The ID is required when the \"Test Case Custom ID\" switch is turned on in the project settings",
       import_tip2: "ID is required when importing and updating",
       import_file_tips: "Please upload the file first!",
+      import_refresh_tips: "Content has been updated, please reopen the edit page!",
       import_format: "Import Format",
       select_import_field: "Select Field",
       select_import_all_field: "Select All",
