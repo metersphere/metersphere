@@ -27,11 +27,12 @@
     </div>
     <div class="upload-item" slot="file" slot-scope="{file}">
       <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
-      <span class="el-upload-list__item-actions" v-if="file.storage === 'FILE_REF'">
-          <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
-            <i class="el-icon-unlock"/>
-          </span>
-      </span>
+        <span v-if="file.storage === 'FILE_REF'" class="el-upload-list__item-actions">
+            <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
+                <i class="el-icon-unlock"/>
+                <span style="font-size: 13px">{{ file.isExist ? '文件已经被删除' : '' }}</span>
+            </span>
+        </span>
       <span class="el-upload-list__item-actions" v-else>
           <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUpload(file)">
             <i class="el-icon-upload" style="font-size: 23px"/>
@@ -73,6 +74,13 @@ export default {
     }
   },
   methods: {
+    exist() {
+      this.parameter.files.forEach(file => {
+        this.$get('/file/metadata/exist/' + file.fileId, response => {
+          file.isExist = !response.data;
+        });
+      });
+    },
     setModuleId(moduleId) {
       let files = [];
       if (this.file && this.file.file) {
@@ -125,6 +133,7 @@ export default {
     if (!this.parameter.files) {
       this.parameter.files = [];
     }
+    this.exist();
   }
 }
 </script>
