@@ -2155,7 +2155,7 @@ public class ApiDefinitionService {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
             List<ApiComputeResult> results = new ArrayList<>();
-            if (request != null && request.getFilters().containsKey("status") && request.getFilters().get("status").get(0).equals("Trash")) {
+            if (request != null && MapUtils.isNotEmpty(request.getFilters()) && request.getFilters().containsKey("status") && request.getFilters().get("status").get(0).equals("Trash")) {
                 results = extApiDefinitionMapper.selectByIdsAndStatusIsTrash(ids, projectId);
             } else {
                 results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
