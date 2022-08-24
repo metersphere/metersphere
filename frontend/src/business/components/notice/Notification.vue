@@ -165,6 +165,10 @@ export default {
             });
             this.noticeShow = true;
           });
+          setTimeout(() => {
+            // 弹出之后标记成已读
+            this.$get('/notification/read/' + d.id);
+          }, 5000)
         });
       });
     }
