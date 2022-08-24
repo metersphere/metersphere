@@ -1551,8 +1551,9 @@ public class TestCaseService {
         List<TestCaseExcelData> list = new ArrayList<>();
         Map<String, Map<String, String>> customSelectValueMap = new HashMap<>();
         Map<String, String> customNameMap = new HashMap<>();
+        String projectId = testCaseList.get(0).getProjectId();
         TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
-        TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(testCaseList.get(0).getProjectId());
+        TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
 
         List<CustomFieldDao> customFieldList;
         if (testCaseTemplate == null) {
@@ -1562,7 +1563,11 @@ public class TestCaseService {
         }
 
         Set<String> textFields = new HashSet<>();
-        buildExportCustomFieldMap(customSelectValueMap, customNameMap, customFieldList, textFields);
+        Map<String, String> userMap = userService.getProjectMemberOption(projectId)
+                .stream()
+                .collect(Collectors.toMap(User::getId, User::getName));
+
+        buildExportCustomFieldMap(userMap, customSelectValueMap, customNameMap, customFieldList, textFields);
 
         for (int rowIndex = 0; rowIndex < testCaseList.size(); rowIndex++) {
             TestCaseDTO t = testCaseList.get(rowIndex);
@@ -1572,6 +1577,7 @@ public class TestCaseService {
 
             setExportSystemField(t, customNameMap, customSelectValueMap);
             BeanUtils.copyBean(data, t);
+            data.setMaintainer(userMap.get(data.getMaintainer()));
             buildExportCustomNum(isUseCustomId, t, data);
             buildExportStep(t, stepDescList, stepResultList, data);
             buildExportCustomField(customSelectValueMap, customNameMap, t, data, textFields);
@@ -1715,8 +1721,8 @@ public class TestCaseService {
         }
     }
 
-    private void buildExportCustomFieldMap(Map<String, Map<String, String>> customSelectValueMap, Map<String, String> customNameMap,
-                                           List<CustomFieldDao> customFieldList, Set<String> textFields) {
+    private void buildExportCustomFieldMap(Map<String, String> userMap, Map<String, Map<String, String>> customSelectValueMap,
+                                           Map<String, String> customNameMap, List<CustomFieldDao> customFieldList, Set<String> textFields) {
         for (CustomFieldDao dto : customFieldList) {
             Map<String, String> map = new HashMap<>();
             if (CustomFieldType.getHasOptionValueSet().contains(dto.getType())) {
@@ -1744,7 +1750,11 @@ public class TestCaseService {
             if (StringUtils.equalsAny(dto.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue())) {
                 textFields.add(dto.getId());
             }
-            customSelectValueMap.put(dto.getId(), map);
+            if (StringUtils.equalsAny(dto.getType(), CustomFieldType.MULTIPLE_MEMBER.getValue(), CustomFieldType.MEMBER.getValue())) {
+                customSelectValueMap.put(dto.getId(), userMap);
+            } else {
+                customSelectValueMap.put(dto.getId(), map);
+            }
             customNameMap.put(dto.getId(), dto.getName());
         }
     }
