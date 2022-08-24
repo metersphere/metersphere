@@ -49,6 +49,7 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -399,7 +400,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
                         if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                             sampler.setProperty("HTTPSampler.port", this.getPort());
-                        } else {
+                        } else if (urlObject.getPort() != -1) {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
@@ -451,12 +452,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         if (!path.startsWith("/")) {
                             path = "/" + path;
                         }
-                        String port = sampler.getPort() != 80 ? ":" + sampler.getPort() : "";
-                        if (StringUtils.equals("https", sampler.getProtocol()) && sampler.getPort() == 443) {
-                            // 解决https delete请求时，path路径带443端口，请求头的host会变成域名加443
-                            port = "";
-                        }
-                        path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
                     sampler.setProperty("HTTPSampler.path", path);
                 }
@@ -475,7 +470,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty("HTTPSampler.port", this.getPort());
-                } else {
+                } else if (urlObject.getPort() != -1) {
                     sampler.setPort(urlObject.getPort());
                 }
                 sampler.setProtocol(urlObject.getProtocol());
