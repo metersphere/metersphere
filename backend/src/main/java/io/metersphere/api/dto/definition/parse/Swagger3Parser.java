@@ -381,7 +381,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             Object propertiesResult = parseSchemaPropertiesToJson(schema, refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         } else {
-            return getDefaultValueByPropertyType(schema);
+            if (MapUtils.isNotEmpty(schema.getProperties())) {
+                Object propertiesResult = parseSchemaPropertiesToJson(schema, refSet, infoMap);
+                return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
+            } else {
+                return getDefaultValueByPropertyType(schema);
+            }
         }
     }
 
