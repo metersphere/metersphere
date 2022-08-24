@@ -44,7 +44,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng","jpeg"]
+      images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng", "jpeg"]
     };
   },
   props: {
@@ -83,7 +83,7 @@ export default {
       this.$refs.editMetadata.open(row, this.pageSize, this.currentPage, this.total);
     },
     getType(type) {
-      return type ? type.substr(0, 1).toUpperCase() : "X";
+      return type || "";
     },
     change() {
       this.$emit("change", this.pageSize, this.currentPage);
@@ -114,7 +114,7 @@ export default {
 
 .ms-file {
   text-align: center;
-  padding-top: 90px
+  padding-top: 85px
 }
 
 .ms-file-name-width {
@@ -132,7 +132,7 @@ export default {
 .icon-title {
   color: #fff;
   text-align: center;
-  font-size: 22px;
+  font-size: 16px;
 }
 
 

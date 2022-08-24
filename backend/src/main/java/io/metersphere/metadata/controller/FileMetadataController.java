@@ -108,4 +108,8 @@ public class FileMetadataController {
         return fileMetadataService.myFiles(createUser, projectId);
     }
 
+    @GetMapping(value = "/exist/{fileId}")
+    public boolean exist(@PathVariable("fileId") String fileId) {
+        return fileMetadataService.exist(fileId);
+    }
 }

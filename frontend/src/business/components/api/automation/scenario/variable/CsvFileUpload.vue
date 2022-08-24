@@ -32,11 +32,12 @@
                 <i class="el-icon-plus" slot="reference"/>
               </el-popover>
             </div>
-            <div class="upload-item" slot="file" slot-scope="{file}">
+            <div class="upload-item" slot="file" slot-scope="{file}" v-loading="loading">
               <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
               <span class="el-upload-list__item-actions" v-if="file.storage === 'FILE_REF'">
                   <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUnlock(file)">
                     <i class="el-icon-unlock"/>
+                    <span style="font-size: 13px">{{ file.isExist ? '文件已经被删除' : '' }}</span>
                   </span>
               </span>
               <span class="el-upload-list__item-actions" v-else>
@@ -56,7 +57,6 @@
       </el-row>
           <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
     <ms-file-metadata-list ref="metadataList" @checkRows="checkRows"/>
-
     </span>
 </template>
 
@@ -71,6 +71,7 @@ export default {
   data() {
     return {
       disabled: false,
+      loading: false,
     };
   },
   components: {
@@ -83,7 +84,19 @@ export default {
       return {}
     }
   },
+  mounted() {
+    this.exist();
+  },
   methods: {
+    exist() {
+      this.loading = true;
+      this.parameter.files.forEach(file => {
+        this.$get('/file/metadata/exist/' + file.fileId, response => {
+          file.isExist = !response.data;
+          this.loading = false;
+        });
+      });
+    },
     setModuleId(moduleId) {
       let files = [];
       if (this.file && this.file.file) {
@@ -203,6 +216,7 @@ export default {
     if (!this.parameter.files) {
       this.parameter.files = [];
     }
+    this.exist();
   }
 }
 </script>
