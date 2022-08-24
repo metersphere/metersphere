@@ -115,6 +115,7 @@ export default {
     },
 
     open() {
+      this.workspaceId = getCurrentWorkspaceId();
       this.getProject();
       this.selectCounts = null;
       this.$refs.relevanceDialog.open();
