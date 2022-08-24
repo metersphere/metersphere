@@ -473,10 +473,13 @@
                             </foreach>
                         </when>
                         <when test="key=='execResult' or key=='exec_result'">
-                            and t1.STATUS in
+                            and (t3.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})
                             </foreach>
+                            <if test="values.contains(''.toString())">
+                                or t3.status is null
+                            </if>)
                         </when>
                         <when test="key=='create_user' or key=='createUser'">
                             and t1.create_user_id in
