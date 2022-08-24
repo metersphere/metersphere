@@ -396,6 +396,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (MapUtils.isEmpty(properties)) return null;
         JSONObject jsonObject = new JSONObject(true);
         properties.forEach((key, value) -> {
+            if (StringUtils.isBlank(value.getName())) {
+                value.setName(key);
+            }
             jsonObject.put(key, parseSchemaToJson(value, refSet, infoMap));
         });
         return jsonObject;
@@ -403,9 +406,18 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
         if (data instanceof JSONObject) {
-            ((JSONObject) data).forEach((k, v) -> {
-                parseKvBodyItem(schema, body, k, infoMap);
-            });
+            if (MapUtils.isNotEmpty(schema.getProperties())) {
+                schema.getProperties().forEach((key, value) -> {
+                    if (value instanceof Schema) {
+                        parseKvBodyItem(value, body, key.toString(), infoMap);
+                    }
+                });
+            } else {
+                ((JSONObject) data).forEach((k, v) -> {
+                    parseKvBodyItem(schema, body, k, infoMap);
+                });
+            }
+
         } else {
             if (data instanceof Schema) {
                 Schema dataSchema = (Schema) data;
@@ -538,7 +550,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             return example == null ? 0 : example;
         } else if (value instanceof NumberSchema) {
             return example == null ? 0.0 : example;
-        } else if (value instanceof StringSchema || StringUtils.equals("string", value.getType())) {
+        } else if (value instanceof StringSchema || StringUtils.equals("string", value.getType()) || StringUtils.equals("text", value.getType())) {
             return example == null ? "" : example;
         } else {// todo 其他类型?
             return getDefaultStringValue(value.getDescription());
