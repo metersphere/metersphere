@@ -259,7 +259,7 @@
         project_version.name as versionName,
         project_version.id as versionId,
         test_case.last_execute_result,
-        test_case.prerequisite, test_case.steps,
+        test_case.prerequisite, test_case.steps, remark,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
