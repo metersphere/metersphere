@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/notification/count/{userId}")
+@ServerEndpoint("/notification/count/{userId}/{random}")
 @Component
 public class NotificationWebSocket {
     private static NotificationService notificationService;
@@ -32,7 +32,7 @@ public class NotificationWebSocket {
      * 开启连接的操作
      */
     @OnOpen
-    public void onOpen(@PathParam("userId") String userId, Session session) {
+    public void onOpen(@PathParam("userId") String userId, @PathParam("random") double random, Session session) {
         Timer timer = new Timer(true);
         NotificationCenter task = new NotificationCenter(session, userId);
         timer.schedule(task, 0, 10 * 1000);

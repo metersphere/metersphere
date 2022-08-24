@@ -99,7 +99,7 @@ export default {
       if (window.location.protocol === 'https:') {
         protocol = "wss://";
       }
-      const uri = protocol + window.location.host + "/notification/count/" + getCurrentUserId();
+      const uri = protocol + window.location.host + "/notification/count/" + getCurrentUserId() + "/" + Math.random();
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
@@ -163,8 +163,6 @@ export default {
               type: 'info',
               message: message,
             });
-            // 弹出之后标记成已读
-            this.$get('/notification/read/' + d.id);
             this.noticeShow = true;
           });
         });
