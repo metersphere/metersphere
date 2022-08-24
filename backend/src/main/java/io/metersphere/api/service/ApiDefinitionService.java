@@ -13,6 +13,8 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
+import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
+import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
@@ -2796,5 +2798,9 @@ public class ApiDefinitionService {
         apiScenarioReferenceIdExample.createCriteria().andDataTypeEqualTo(ReportTriggerMode.API.name()).andReferenceTypeEqualTo(COPY).andReferenceIdEqualTo(testId);
         List<ApiScenarioReferenceId> apiScenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(apiScenarioReferenceIdExample);
         return apiScenarioReferenceIds.size();
+    }
+
+    public List<TcpTreeTableDataStruct> rawToXml(String rawData) {
+        return TcpTreeTableDataParser.xml2TreeTableData(rawData);
     }
 }

@@ -4,8 +4,10 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.ParseTreeDataDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
+import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
@@ -394,4 +396,8 @@ public class ApiDefinitionController {
         return apiDefinitionService.getCitedScenarioCount(definitionId);
     }
 
+    @PostMapping("/raw-to-xml")
+    public List<TcpTreeTableDataStruct> rawToXml(@RequestBody ParseTreeDataDTO parseTreeDataDTO) {
+        return apiDefinitionService.rawToXml(parseTreeDataDTO.getStringData());
+    }
 }

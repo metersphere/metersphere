@@ -14,9 +14,8 @@
                 <ms-api-variable :is-read-only="isReadOnly" :parameters="request.parameters"/>
               </el-tab-pane>
               <!--test-->
-
-              <!--query 参数-->
-              <el-tab-pane v-if="isBodyShow" :label="$t('api_test.definition.document.request_body')" name="request">
+              <el-tab-pane v-if="isBodyShow" :label="$t('api_test.definition.document.request_body')" name="request"
+                           v-loading="result.loading">
                 <el-radio-group v-model="reportType" size="mini" style="margin: 10px 0px;">
                   <el-radio :disabled="isReadOnly" label="json" @change="changeReportType">
                     json
@@ -45,6 +44,10 @@
                     <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.rawDataStruct"
                                   :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
                   </div>
+                  <el-button class="ht-btn-add" size="mini" p="$t('commons.add')" icon="el-icon-circle-plus-outline"
+                             @click="toXml">
+                    {{ $t("api_test.buttons.to_xml") }}
+                  </el-button>
                 </div>
               </el-tab-pane>
 
@@ -63,7 +66,7 @@
                       <el-input v-model="request.eolByte" size="small"/>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="6" label-width="80px" >
+                  <el-col :span="6" label-width="80px">
                     <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger" label-width="120px">
                       <el-input v-model="request.soLinger" size="small"/>
                     </el-form-item>
@@ -98,33 +101,6 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-
-<!--                  <el-col :span="12">-->
-
-<!--                  </el-col>-->
-<!--                </el-row>-->
-<!--                <el-row :gutter="20">-->
-<!--                  <el-col :span="12">-->
-
-<!--                  </el-col>-->
-<!--                  <el-col :span="12">-->
-
-<!--                  </el-col>-->
-<!--                </el-row>-->
-<!--                <el-row :gutter="10" style="margin-left: 30px">-->
-<!--                  <el-col :span="6">-->
-
-<!--                  </el-col>-->
-<!--                  <el-col :span="6">-->
-
-<!--                  </el-col>-->
-<!--                  <el-col :span="6">-->
-
-<!--                  </el-col>-->
-<!--                  <el-col :span="6">-->
-
-<!--                  </el-col>-->
-<!--                </el-row>-->
               </el-tab-pane>
               <!-- 脚本步骤/断言步骤 -->
               <el-tab-pane :label="$t('api_test.definition.request.pre_operation')" name="preOperate" v-if="showScript">
@@ -160,7 +136,8 @@
                     <div class="el-step__icon-inner">{{ request.ruleSize }}</div>
                   </div>
                 </span>
-                <ms-jmx-step :request="request" :apiId="request.id" protocol="TCP" :scenario-id="scenarioId" :response="response"
+                <ms-jmx-step :request="request" :apiId="request.id" protocol="TCP" :scenario-id="scenarioId"
+                             :response="response"
                              @reload="reloadBody"
                              :tab-type="'assertionsRule'" ref="assertionsRule"/>
               </el-tab-pane>
@@ -191,7 +168,7 @@ import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
 import TcpXmlTable from "@/business/components/api/definition/components/complete/table/TcpXmlTable";
 import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 import MsJmxStep from "../../step/JmxStep";
-import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, stepCompute} from "@/business/components/api/definition/api-definition";
 
 
 export default {
@@ -233,6 +210,7 @@ export default {
   data() {
     return {
       spanNum: 24,
+      result: {},
       activeName: "request",
       classes: TCPSampler.CLASSES,
       reportType: "xml",
@@ -316,6 +294,15 @@ export default {
     }
   },
   methods: {
+    toXml() {
+      let url = "/api/definition/raw-to-xml";
+      this.result = this.$post(url, {"stringData": this.request.rawDataStruct}, response => {
+        if (response.data) {
+          this.request.xmlDataStruct = response.data;
+          this.reportType = "xml";
+        }
+      });
+    },
     tabClick() {
       if (this.activeName === 'preOperate') {
         this.$refs.preStep.filter();
@@ -596,4 +583,10 @@ export default {
   padding: 15px 0px;
 }
 
+.ht-btn-add {
+  border: 0px;
+  margin-top: 10px;
+  color: #783887;
+  background-color: white;
+}
 </style>
