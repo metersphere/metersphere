@@ -7,12 +7,16 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.service.NotificationService;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class NotificationWebSocket {
     private static NotificationService notificationService;
-    private static ConcurrentHashMap<Session, Timer> refreshTasks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Timer> refreshTasks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Set<Session>> sessionMap = new ConcurrentHashMap<>();
 
     @Resource
     public void setNotificationService(NotificationService notificationService) {
@@ -33,21 +38,44 @@ public class NotificationWebSocket {
      */
     @OnOpen
     public void onOpen(@PathParam("userId") String userId, Session session) {
-        Timer timer = new Timer(true);
-        NotificationCenter task = new NotificationCenter(session, userId);
+        LogUtil.info("建立一个socket链接: {} - {}", userId, session.getId());
+        Timer timer = refreshTasks.get(userId);
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer(true);
+        NotificationCenter task = new NotificationCenter(userId);
         timer.schedule(task, 0, 10 * 1000);
-        refreshTasks.putIfAbsent(session, timer);
+        refreshTasks.put(userId, timer);
+
+        Set<Session> sessions = sessionMap.getOrDefault(userId, new HashSet<>());
+        sessions.add(session);
+        sessionMap.put(userId, sessions);
+
+        LogUtil.info("在线socket链接: {}, size: {}", userId, sessions.size());
     }
 
     /**
      * 连接关闭的操作
      */
     @OnClose
-    public void onClose(Session session) {
-        Timer timer = refreshTasks.get(session);
-        if (timer != null) {
-            timer.cancel();
-            refreshTasks.remove(session);
+    public void onClose(@PathParam("userId") String userId, Session session) {
+        // 删除当前session
+        Set<Session> sessions = sessionMap.get(userId);
+        if (CollectionUtils.isNotEmpty(sessions)) {
+            LogUtil.info("剔除一个socket链接: {} - {}", userId, session.getId());
+            sessions.remove(session);
+        }
+
+        // 没有在线用户了
+        if (CollectionUtils.isEmpty(sessions)) {
+            LogUtil.info("关闭socket: {} ", userId);
+
+            Timer timer = refreshTasks.get(userId);
+            if (timer != null) {
+                timer.cancel();
+                refreshTasks.remove(userId);
+            }
         }
     }
 
@@ -56,21 +84,7 @@ public class NotificationWebSocket {
      */
     @OnMessage
     public void onMessage(@PathParam("userId") String userId, Session session, String message) {
-        int refreshTime = 10;
-        try {
-            refreshTime = Integer.parseInt(message);
-        } catch (Exception e) {
-        }
-        try {
-            Timer timer = refreshTasks.get(session);
-            timer.cancel();
-
-            Timer newTimer = new Timer(true);
-            newTimer.schedule(new NotificationCenter(session, userId), 0, refreshTime * 1000L);
-            refreshTasks.put(session, newTimer);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
+        LogUtil.info(message);
     }
 
     /**
@@ -83,20 +97,15 @@ public class NotificationWebSocket {
     }
 
     public static class NotificationCenter extends TimerTask {
-        private Session session;
         private String userId;
 
-        NotificationCenter(Session session, String userId) {
-            this.session = session;
+        NotificationCenter(String userId) {
             this.userId = userId;
         }
 
         @Override
         public void run() {
             try {
-                if (!session.isOpen()) {
-                    return;
-                }
                 Notification notification = new Notification();
                 notification.setReceiver(userId);
                 notification.setStatus(NotificationConstants.Status.UNREAD.name());
@@ -105,7 +114,17 @@ public class NotificationWebSocket {
                         .count(count)
                         .now(System.currentTimeMillis())
                         .build();
-                session.getBasicRemote().sendText(JSON.toJSONString(message));
+
+                Set<Session> sessions = sessionMap.get(userId);
+                if (CollectionUtils.isNotEmpty(sessions)) {
+                    sessions.forEach(session -> {
+                        try {
+                            session.getBasicRemote().sendText(JSON.toJSONString(message));
+                        } catch (IOException e) {
+                            LogUtil.error(e.getMessage(), e);
+                        }
+                    });
+                }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }

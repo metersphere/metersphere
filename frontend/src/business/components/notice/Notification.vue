@@ -84,6 +84,9 @@ export default {
       }
     }
   },
+  beforeDestroy() {
+    this.websocket.close();
+  },
   methods: {
     getUserList() {
       this.$get('/user/ws/current/member/list', response => {
