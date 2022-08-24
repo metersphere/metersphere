@@ -200,7 +200,7 @@ export default {
       });
     },
     getType(type) {
-      return type ? type.substr(0, 1).toUpperCase() : "";
+      return type || "";
     },
     isImage(type) {
       return (type && this.images.indexOf(type.toLowerCase()) !== -1);
@@ -332,7 +332,7 @@ export default {
 .icon-title {
   color: #fff;
   text-align: center;
-  font-size: 22px;
+  font-size: 16px;
 }
 
 
