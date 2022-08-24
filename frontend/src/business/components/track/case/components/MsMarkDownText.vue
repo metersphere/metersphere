@@ -1,6 +1,6 @@
 <template>
   <mavon-editor :id="id" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpenValue"
-                :xss-options="xssOptions" :style="{'min-height': customMinHeight + 'px'}"
+                :xss-options="xssOptions" :style="{'min-height': customMinHeight + 'px', 'min-width': '100px'}"
                 @change="$emit('change')"
                 :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="!disabled"
                 @imgDel="imgDel" v-model="data[prop]" ref="md"/>
