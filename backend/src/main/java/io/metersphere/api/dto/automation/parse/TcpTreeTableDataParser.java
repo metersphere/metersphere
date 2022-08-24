@@ -94,7 +94,7 @@ public class TcpTreeTableDataParser {
 
         boolean isMatch = false;
         for (TcpTreeTableDataStruct dataStruct : tcpDataList) {
-            if(isMatch){
+            if (isMatch) {
                 break;
             }
             String key = dataStruct.getName();
@@ -111,15 +111,21 @@ public class TcpTreeTableDataParser {
                 } else if (sourceObjItem instanceof JSONArray) {
                     if (!CollectionUtils.isEmpty(dataStruct.getChildren())) {
                         JSONArray jsonArray = (JSONArray) sourceObjItem;
-                        for (int i = 0; i < jsonArray.size(); i ++){
+                        boolean hasMatchAny = false;
+                        for (int i = 0; i < jsonArray.size(); i++) {
                             Object itemObj = jsonArray.get(i);
-                            if(itemObj instanceof JSONObject){
+                            if (itemObj instanceof JSONObject) {
                                 if (!isMatchTreeTableData((JSONObject) itemObj, dataStruct.getChildren())) {
                                     continue;
+                                } else {
+                                    hasMatchAny = true;
                                 }
-                            }else {
+                            } else {
                                 continue;
                             }
+                        }
+                        if (!hasMatchAny) {
+                            continue;
                         }
                     } else {
                         continue;
@@ -134,8 +140,8 @@ public class TcpTreeTableDataParser {
                         continue;
                     }
                 }
+                isMatch = true;
             }
-            isMatch = true;
         }
 
         return isMatch;
