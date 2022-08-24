@@ -84,6 +84,9 @@ export default {
       }
     }
   },
+  beforeDestroy() {
+    this.websocket.close();
+  },
   methods: {
     getUserList() {
       this.$get('/user/ws/current/member/list', response => {
@@ -99,7 +102,7 @@ export default {
       if (window.location.protocol === 'https:') {
         protocol = "wss://";
       }
-      const uri = protocol + window.location.host + "/notification/count/" + getCurrentUserId() + "/" + Math.random();
+      const uri = protocol + window.location.host + "/notification/count/" + getCurrentUserId();
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
@@ -163,12 +166,10 @@ export default {
               type: 'info',
               message: message,
             });
-            this.noticeShow = true;
-          });
-          setTimeout(() => {
             // 弹出之后标记成已读
             this.$get('/notification/read/' + d.id);
-          }, 5000)
+            this.noticeShow = true;
+          });
         });
       });
     }
