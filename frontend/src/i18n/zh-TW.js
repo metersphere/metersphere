@@ -1177,6 +1177,9 @@ export default {
     hours: "時",
   },
   api_test: {
+    buttons: {
+      to_xml: "轉xml結構",
+    },
     case_jump_message: "跳轉的用例已經刪除！",
     scenario_jump_message: "跳轉的場景已經刪除！",
     is_continue: "是否繼續",

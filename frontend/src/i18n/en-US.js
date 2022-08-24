@@ -1170,6 +1170,9 @@ export default {
     hours: "H",
   },
   api_test: {
+    buttons: {
+      to_xml: "To xml",
+    },
     case_jump_message: "The jump use case has been removed！",
     scenario_jump_message: "The jumped scene has been deleted！",
     is_continue: "Is continue",

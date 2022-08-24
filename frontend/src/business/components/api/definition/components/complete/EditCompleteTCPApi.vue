@@ -60,7 +60,6 @@
     <!-- 请求参数 -->
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-      <!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
       <ms-tcp-format-parameters :show-pre-script="true" :show-script="false" :request="request"
                                 ref="tcpFormatParameter"/>
     </div>
