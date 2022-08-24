@@ -104,7 +104,7 @@ public class MockApiUtils {
             } else if (StringUtils.equalsIgnoreCase(type, "XML")) {
                 if (bodyObj.containsKey("raw")) {
                     String xmlStr = bodyObj.getString("raw");
-                    JSONObject matchObj = XMLUtils.stringToJSONObject(xmlStr);
+                    JSONObject matchObj = XMLUtils.xmlStringToJSONObject(xmlStr);
                     returnJson = matchObj;
                 }
             } else if (StringUtils.equalsIgnoreCase(type, "Raw")) {
@@ -415,7 +415,7 @@ public class MockApiUtils {
             return returnJson;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml")) {
             String xmlString = readXml(request);
-            JSONObject object = XMLUtils.stringToJSONObject(xmlString);
+            JSONObject object = XMLUtils.xmlStringToJSONObject(xmlString);
             return object;
         } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "application/x-www-form-urlencoded")) {
             JSONObject object = new JSONObject();
@@ -655,6 +655,9 @@ public class MockApiUtils {
     }
 
     public static boolean isValueMatch(String requestParam, MockConfigRequestParams params) {
+        if (StringUtils.isBlank(params.getCondition())) {
+            params.setCondition(MockParamConditionEnum.VALUE_EQUALS.name());
+        }
         if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_EQUALS.name())) {
             return StringUtils.equals(requestParam, params.getValue());
         } else if (StringUtils.equals(params.getCondition(), MockParamConditionEnum.VALUE_NOT_EQUALS.name())) {
