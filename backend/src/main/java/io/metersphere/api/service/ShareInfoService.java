@@ -19,8 +19,6 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.ProjectApplicationService;
 import io.metersphere.service.UserService;
-import io.metersphere.track.service.TestPlanApiCaseService;
-import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,10 +48,6 @@ public class ShareInfoService {
     @Resource
     ShareInfoMapper shareInfoMapper;
     @Resource
-    TestPlanApiCaseService testPlanApiCaseService;
-    @Resource
-    TestPlanScenarioCaseService testPlanScenarioCaseService;
-    @Resource
     TestPlanReportMapper testPlanReportMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
@@ -67,9 +61,8 @@ public class ShareInfoService {
     TestPlanMapper testPlanMapper;
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
-
     @Resource
-    ApiDefinitionService apiDefinitionService;
+    ApiScenarioReportService apiScenarioReportService;
     @Resource
     ApiModuleService apiModuleService;
     @Resource
@@ -646,6 +639,12 @@ public class ShareInfoService {
             APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(shareInfo.getCustomData());
             if (reportResult != null) {
                 projectId = reportResult.getProjectId();
+            } else {
+                // case 集成报告
+                APIScenarioReportResult result = apiScenarioReportService.getApiIntegrated(shareInfo.getCustomData());
+                if (result != null) {
+                    projectId = result.getProjectId();
+                }
             }
         }
         if (StringUtils.isBlank(type) || Strings.isBlank(projectId)) {
