@@ -141,6 +141,7 @@
         </div>
 
         <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
+                                      :project-env-map="projectEnvMap"
                                       :report="report"/>
 
       </el-card>

@@ -3,6 +3,13 @@
     <el-card id="testOverview">
       <template v-slot:header>
         <span class="title">{{ $t('report.test_overview') }}</span>
+        <span v-if="projectEnvMap && projectEnvMap.length > 0">
+          <span> {{ $t('commons.environment') + ':' }} </span>
+          <span v-for="(values,key) in projectEnvMap" :key="key" style="margin-right: 10px">
+            {{ key + ":" }}
+            <ms-tag v-for="(item,index) in values" :key="index" type="success" :content="item" style="margin-left: 2px"/>
+          </span>
+        </span>
       </template>
       <ms-report-test-overview :report="report" :export="true" ref="testOverview"/>
     </el-card>
@@ -43,11 +50,13 @@ import MsReportTitle from "../../common/components/report/MsReportTitle";
 import MsReportExportTemplate from "../../common/components/report/MsReportExportTemplate";
 import MsReportTestDetails from "@/business/components/performance/report/components/TestDetails";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
+import MsTag from "@/business/components/common/components/MsTag";
 
 
 export default {
   name: "MsPerformanceReportExport",
   components: {
+    MsTag,
     MonitorCard,
     MsReportExportTemplate,
     MsReportTitle,
@@ -56,8 +65,8 @@ export default {
     MsReportRequestStatistics,
     MsReportTestOverview,
   },
-  props: ['report', 'title']
-}
+  props: ['report', 'title', 'projectEnvMap']
+};
 </script>
 
 <style scoped>
