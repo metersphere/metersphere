@@ -80,8 +80,12 @@ export default {
       this.$emit('rowClick', row);
     },
     closeTaskConfirm(row) {
-      row.enable = !row.enable
-      operationConfirm(this, this.$t('api_test.home_page.running_task_list.confirm.close_title'), () => {
+      let message = this.$t('api_test.home_page.running_task_list.confirm.close_title');
+      if (row.enable) {
+        message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
+      }
+      row.enable = !row.enable;
+      operationConfirm(this, message, () => {
         row.enable = !row.enable
         this.updateTask(row);
       });
