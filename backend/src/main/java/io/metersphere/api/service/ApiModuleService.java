@@ -662,7 +662,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
             oldCaseMap = getOldCaseMap(repeatApiDefinitionWithBLOBs);
         }
-        Map<String, ApiDefinitionWithBLOBs> repeatDataMap = null;
+        Map<String, ApiDefinitionWithBLOBs> repeatDataMap = new HashMap<>();
         Map<String, ApiDefinitionWithBLOBs> optionMap = new HashMap<>();
 
         if (chooseModule != null) {
