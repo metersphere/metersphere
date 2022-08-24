@@ -426,4 +426,8 @@ public class FileMetadataService {
             fileMetadata.setUpdateUser(SessionUtils.getUserId());
         }
     }
+
+    public boolean exist(String fileId) {
+        return fileMetadataMapper.selectByPrimaryKey(fileId) != null;
+    }
 }
