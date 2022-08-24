@@ -34,6 +34,9 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
 
         for (int i = 0; i < keyOrValues.size(); i++) {
             String item = keyOrValues.get(i).toLowerCase();
+            if (userIdMap.containsKey(item)) {
+                keyOrValues.set(i, userIdMap.get(item));
+            }
             if (userNameMap.containsKey(item)) {
                 keyOrValues.set(i, userNameMap.get(item));
             }
