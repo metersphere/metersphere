@@ -3,7 +3,7 @@
     <el-card id="testOverview">
       <template v-slot:header>
         <span class="title">{{ $t('report.test_overview') }}</span>
-        <span v-if="projectEnvMap && projectEnvMap.length > 0">
+        <span v-if="projectEnvMap && Object.keys(projectEnvMap).length > 0">
           <span> {{ $t('commons.environment') + ':' }} </span>
           <span v-for="(values,key) in projectEnvMap" :key="key" style="margin-right: 10px">
             {{ key + ":" }}
