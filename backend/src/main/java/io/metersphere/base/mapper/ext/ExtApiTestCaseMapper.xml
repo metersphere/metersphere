@@ -445,10 +445,13 @@
                             </foreach>
                         </when>
                         <when test="key=='execResult' or key=='exec_result'">
-                            and t1.STATUS in
+                            and (t3.STATUS in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 (#{value})
                             </foreach>
+                            <if test="values.contains(''.toString())">
+                                or t3.STATUS is null
+                            </if>)
                         </when>
                     </choose>
                 </if>

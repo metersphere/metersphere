@@ -239,10 +239,7 @@ public class ApiTestCaseService {
                 if (updateUser != null) {
                     caseResult.setUpdateUser(updateUser.getName());
                 }
-                //检查用例的执行状态是否是null（如果报告被删除）。 如果执行结果是null，取记录最后执行状态的status字段
-                if (caseResult.getExecResult() == null && StringUtils.isNotEmpty(caseResult.getStatus()) && !StringUtils.equalsIgnoreCase(caseResult.getStatus(), "trash")) {
-                    caseResult.setExecResult(caseResult.getStatus());
-                }
+
             });
         }
     }
