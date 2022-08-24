@@ -1892,7 +1892,7 @@ public class TestCaseService {
                 String oldTestCaseId = batchCopy.getId();
                 String id = UUID.randomUUID().toString();
                 batchCopy.setId(id);
-                batchCopy.setName(ServiceUtils.getCopyName(batchCopy.getName()));
+                batchCopy.setName("copy_" + batchCopy.getName());
                 if (batchCopy.getName().length() > 255) {
                     batchCopy.setName(batchCopy.getName().substring(0, 250) + batchCopy.getName().substring(batchCopy.getName().length() - 5));
                 }
