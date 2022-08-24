@@ -174,7 +174,7 @@ export default {
     this.getVersionOptions();
   },
   methods: {
-    search() {
+    search(projectId) {
       this.selectRows = new Set();
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
@@ -182,6 +182,9 @@ export default {
         this.condition.moduleIds = [];
       }
 
+      if (projectId) {
+        this.projectId = projectId;
+      }
       if (this.projectId != null && typeof projectId === 'string') {
         this.condition.projectId = this.projectId;
       } else if (this.projectId != null) {
