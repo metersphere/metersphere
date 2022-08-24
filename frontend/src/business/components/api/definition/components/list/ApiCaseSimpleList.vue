@@ -755,10 +755,6 @@ export default {
       }
       this.initCondition();
       let isNext = false;
-      //导入的case执行结果默认为prepare，导致搜索未执行失败
-      if (this.condition.filters && this.condition.filters.exec_result && this.condition.filters.exec_result.indexOf('') !== -1) {
-        this.condition.filters.exec_result.push("Prepare")
-      }
       if (this.condition.projectId) {
         this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
