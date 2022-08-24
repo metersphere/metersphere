@@ -85,6 +85,11 @@ public class BaseQueryRequest {
      */
     private String refId;
 
+    /**
+     * 测试计划关联场景过滤掉步骤为0的场景
+     */
+    private boolean hasStep;
+
     public Map<String, List<String>> getFilters() {
         if (MapUtils.isEmpty(filters) || filters.containsKey("isHandleCustomMultiple")) {
             return filters;
