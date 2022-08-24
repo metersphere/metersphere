@@ -133,7 +133,7 @@ export default {
     this.isShowNum = this.scenario.num ? true : false;
     if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded && this.scenario.hashTree) {
       this.scenario.root = this.node.parent.parent ? false : true;
-      this.recursive(this.scenario.hashTree, this.scenario.projectId);
+      this.recursive(this.scenario.hashTree, this.scenario.projectId, true);
     }
   },
   components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
@@ -232,6 +232,9 @@ export default {
           this.node.expanded = !this.node.expanded;
         }
       }
+      if (this.scenario && this.scenario.hashTree && this.node.expanded) {
+        this.recursive(this.scenario.hashTree, this.scenario.projectId, false);
+      }
       this.reload();
     },
     copyRow() {
@@ -246,9 +249,9 @@ export default {
         this.loading = false
       })
     },
-    recursive(arr, id) {
+    recursive(arr, id, disabled) {
       for (let i in arr) {
-        arr[i].disabled = true;
+        arr[i].disabled = disabled;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
         // 处理子请求环境
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
