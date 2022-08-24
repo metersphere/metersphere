@@ -24,7 +24,6 @@ import io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
-import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.ProjectApplicationService;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
+import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -390,7 +389,7 @@ public class MockConfigService {
             if (StringUtils.equalsAnyIgnoreCase(type, "Form Data", "WWW_FORM") && expectBodyObject.containsKey("kvs")) {
                 JSONArray kvsArr = expectBodyObject.getJSONArray("kvs");
                 List<MockConfigRequestParams> mockConfigRequestParams = MockApiUtils.getParamsByJSONArray(kvsArr);
-                if(CollectionUtils.isNotEmpty(mockConfigRequestParams)){
+                if (CollectionUtils.isNotEmpty(mockConfigRequestParams)) {
                     if (!MockApiUtils.checkParamsCompliance(jsonArray, mockConfigRequestParams, StringUtils.equals(paramsFilterType, "And"))) {
                         return false;
                     }
@@ -705,7 +704,7 @@ public class MockConfigService {
         return returnModel;
     }
 
-    public String updateHttpServletResponse(String projectId,MockExpectConfigResponse finalExpectConfig, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, HttpServletResponse response) {
+    public String updateHttpServletResponse(String projectId, MockExpectConfigResponse finalExpectConfig, String url, Map<String, String> headerMap, RequestMockParams requestMockParams, HttpServletResponse response) {
         String returnStr = "";
         try {
             //设置响应头和响应码
@@ -737,7 +736,7 @@ public class MockConfigService {
                     if (responseJsonObj.containsKey("usePostScript")) {
                         useScript = responseJsonObj.getBoolean("usePostScript");
                     }
-                    returnStr = mockApiUtils.getResultByResponseResult(projectId,responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams, useScript);
+                    returnStr = mockApiUtils.getResultByResponseResult(projectId, responseJsonObj.getJSONObject("body"), url, headerMap, requestMockParams, useScript);
                 }
                 if (responseJsonObj.containsKey("httpCode")) {
                     int httpCodeNum = 500;
@@ -998,18 +997,18 @@ public class MockConfigService {
             JSON paramJson = MockApiUtils.getPostParamMap(request);
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                if(StringUtils.isEmpty(returnStr)){
+                if (StringUtils.isEmpty(returnStr)) {
                     RequestMockParams mockParams = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, true);
                     MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                     MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), mockParams);
                     if (finalExpectConfig != null) {
-                        returnStr = this.updateHttpServletResponse(project.getId(),finalExpectConfig, url, requestHeaderMap, mockParams, response);
-                    }else {
+                        returnStr = this.updateHttpServletResponse(project.getId(), finalExpectConfig, url, requestHeaderMap, mockParams, response);
+                    } else {
                         returnStr = this.getApiDefinitionResponse(api, response);
                     }
                 }
             }
-            if(CollectionUtils.isNotEmpty(aualifiedApiList)){
+            if (CollectionUtils.isNotEmpty(aualifiedApiList)) {
                 matchApi = true;
             }
         }
@@ -1042,21 +1041,21 @@ public class MockConfigService {
             JSONObject parameterObject = MockApiUtils.getParameterJsonObject(request);
 
             for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-                if(StringUtils.isEmpty(returnStr)){
+                if (StringUtils.isEmpty(returnStr)) {
                     RequestMockParams paramMap = MockApiUtils.getParams(urlSuffix, api.getPath(), parameterObject, paramJson, false);
                     MockConfigResponse mockConfigData = this.findByApiId(api.getId());
                     if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
                         MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(requestHeaderMap, mockConfigData.getMockExpectConfigList(), paramMap);
                         if (finalExpectConfig != null) {
-                            returnStr = this.updateHttpServletResponse(project.getId(),finalExpectConfig, url, requestHeaderMap, paramMap, response);
-                        }else {
+                            returnStr = this.updateHttpServletResponse(project.getId(), finalExpectConfig, url, requestHeaderMap, paramMap, response);
+                        } else {
                             returnStr = this.getApiDefinitionResponse(api, response);
                         }
                     }
                 }
             }
 
-            if(CollectionUtils.isNotEmpty(aualifiedApiList)){
+            if (CollectionUtils.isNotEmpty(aualifiedApiList)) {
                 matchApi = true;
             }
         }
@@ -1076,7 +1075,7 @@ public class MockConfigService {
             response.setStatus(responseDTO.getReturnCode());
             if (MapUtils.isNotEmpty(responseDTO.getHeaders())) {
                 for (Map.Entry<String, String> entry : responseDTO.getHeaders().entrySet()) {
-                    if(StringUtils.isNotEmpty(entry.getKey())){
+                    if (StringUtils.isNotEmpty(entry.getKey())) {
                         response.setHeader(entry.getKey(), entry.getValue());
                     }
                 }
@@ -1134,11 +1133,17 @@ public class MockConfigService {
 
     public MockExpectConfigDTO matchTcpMockExpect(String message, int port) {
         ProjectApplicationExample pae = new ProjectApplicationExample();
-        pae.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_OPEN.name())
-                .andTypeValueEqualTo(String.valueOf(true));
-        pae.or().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_PORT.name())
+        pae.createCriteria().andTypeEqualTo(ProjectApplicationType.MOCK_TCP_PORT.name())
                 .andTypeValueEqualTo(String.valueOf(port));
-        List<ProjectApplication> projectApplications = projectApplicationService.selectByExample(pae);
+        List<ProjectApplication> projectApplicationsByMockTcpPort = projectApplicationService.selectByExample(pae);
+        List<ProjectApplication> projectApplications = new ArrayList<>();
+        for (ProjectApplication projectApp : projectApplicationsByMockTcpPort) {
+            pae.clear();
+            pae.createCriteria().andProjectIdEqualTo(projectApp.getProjectId())
+                    .andTypeEqualTo(ProjectApplicationType.MOCK_TCP_OPEN.name())
+                    .andTypeValueEqualTo(String.valueOf(true));
+            projectApplications.addAll(projectApplicationService.selectByExample(pae));
+        }
         List<String> projectIds = projectApplications.stream().map(ProjectApplication::getProjectId).collect(Collectors.toList());
         List<Project> projectList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(projectIds)) {
@@ -1176,12 +1181,14 @@ public class MockConfigService {
                             }
                         } else if (isXMLMessage && StringUtils.equalsIgnoreCase(reportType, "xml")) {
                             if (requestJson.containsKey("xmlDataStruct")) {
-                                JSONObject sourceObj = XMLUtils.XmlToJson(message);
-                                try {
-                                    List<TcpTreeTableDataStruct> tcpDataList = JSONArray.parseArray(requestJson.getString("xmlDataStruct"), TcpTreeTableDataStruct.class);
-                                    isMatch = TcpTreeTableDataParser.isMatchTreeTableData(sourceObj, tcpDataList);
-                                } catch (Exception e) {
-                                    LogUtil.error(e);
+                                JSONObject sourceObj = XMLUtils.xmlStringToJSONObject(message);
+                                if (!sourceObj.isEmpty()) {
+                                    try {
+                                        List<TcpTreeTableDataStruct> tcpDataList = JSONArray.parseArray(requestJson.getString("xmlDataStruct"), TcpTreeTableDataStruct.class);
+                                        isMatch = TcpTreeTableDataParser.isMatchTreeTableData(sourceObj, tcpDataList);
+                                    } catch (Exception e) {
+                                        LogUtil.error(e);
+                                    }
                                 }
                             }
                         } else if (StringUtils.equalsIgnoreCase(reportType, "raw")) {

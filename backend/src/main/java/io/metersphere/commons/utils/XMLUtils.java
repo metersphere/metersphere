@@ -4,14 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class XMLUtils {
 
@@ -170,7 +170,7 @@ public class XMLUtils {
         }
     }
 
-    public static JSONObject stringToJSONObject(String xml) {
+    public static JSONObject xmlStringToJSONObject(String xml) {
         try {
             return elementToJSONObject(stringToDocument(xml).getRootElement());
         } catch (Exception e) {
@@ -181,22 +181,22 @@ public class XMLUtils {
 
     public static JSONObject elementToJSONObject(Element node) {
         JSONObject result = new JSONObject();
-        // 当前节点的名称、文本内容和属性
-        List<Attribute> listAttr = node.attributes();// 当前节点的所有属性的list
-        for (Attribute attr : listAttr) {// 遍历当前节点的所有属性
-            result.put(attr.getName(), attr.getValue());
-        }
-        // 递归遍历当前节点所有的子节点
+
         List<Element> listElement = node.elements();// 所有一级子节点的list
         if (!listElement.isEmpty()) {
+            JSONArray jsonArray = new JSONArray();
             for (Element e : listElement) {// 遍历所有一级子节点
-                if (e.attributes().isEmpty() && e.elements().isEmpty()) // 判断一级节点是否有属性和子节点
-                    result.put(e.getName(), e.getTextTrim());// 沒有则将当前节点作为上级节点的属性对待
-                else {
-                    if (!result.containsKey(e.getName())) // 判断父节点是否存在该一级节点名称的属性
-                        result.put(e.getName(), new JSONArray());// 没有则创建
-                    ((JSONArray) result.get(e.getName())).add(elementToJSONObject(e));// 将该一级节点放入该节点名称的属性对应的值中
-                }
+                JSONObject jsonObject = elementToJSONObject(e);
+                jsonArray.add(jsonObject);
+            }
+            if (jsonArray.size() == 1) {
+                result.put(node.getName(), jsonArray.getJSONObject(0));
+            } else {
+                result.put(node.getName(), jsonArray);
+            }
+        } else {
+            if (!StringUtils.isAllBlank(node.getName(), node.getText())) {
+                result.put(node.getName(), node.getText());
             }
         }
         return result;
