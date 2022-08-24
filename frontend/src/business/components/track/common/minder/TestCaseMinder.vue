@@ -201,7 +201,11 @@ name: "TestCaseMinder",
           }
           if (node.data.type === 'issue') {
             getIssuesListById(node.data.id, this.projectId,this.workspaceId,(data) => {
-              data.customFields = JSON.parse(data.customFields);
+              if (data.customFields && data.customFields.toString().trim() !== '') {
+                data.customFields = JSON.parse(data.customFields);
+              } else {
+                data.customFields = null;
+              }
               this.$refs.issueEdit.open(data);
             });
           }
