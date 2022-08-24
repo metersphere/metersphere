@@ -1,6 +1,5 @@
 package io.metersphere.track.validate;
 
-import com.alibaba.fastjson.JSONArray;
 import io.metersphere.commons.exception.CustomFieldValidateException;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.i18n.Translator;
@@ -34,7 +33,7 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
         List<String> keyOrValues = parse2Array(keyOrValuesStr);
 
         for (int i = 0; i < keyOrValues.size(); i++) {
-            String item = keyOrValues.get(i);
+            String item = keyOrValues.get(i).toLowerCase();
             if (userNameMap.containsKey(item)) {
                 keyOrValues.set(i, userNameMap.get(item));
             }
