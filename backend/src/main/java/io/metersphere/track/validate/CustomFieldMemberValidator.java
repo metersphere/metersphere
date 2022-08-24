@@ -22,8 +22,8 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
         this.isKVOption = true;
         UserService userService = CommonBeanFactory.getBean(UserService.class);
         List<User> memberOption = userService.getProjectMemberOption(SessionUtils.getCurrentProjectId());
-        userIdMap = memberOption.stream().collect(Collectors.toMap(user -> user.getId().toLowerCase(), user -> user.getName().toLowerCase()));
-        userNameMap = memberOption.stream().collect(Collectors.toMap(user -> user.getName().toLowerCase(), user -> user.getId().toLowerCase()));
+        userIdMap = memberOption.stream().collect(Collectors.toMap(user -> user.getId().toLowerCase(), User::getId));
+        userNameMap = memberOption.stream().collect(Collectors.toMap(user -> user.getName().toLowerCase(), User::getId));
     }
 
     @Override
@@ -41,6 +41,10 @@ public class CustomFieldMemberValidator extends AbstractCustomFieldValidator {
 
     @Override
     public Object parse2Key(String keyOrValue, CustomFieldDao customField) {
+        keyOrValue = keyOrValue.toLowerCase();
+        if (userIdMap.containsKey(keyOrValue)) {
+            return userIdMap.get(keyOrValue);
+        }
         if (userNameMap.containsKey(keyOrValue.toLowerCase())) {
             return userNameMap.get(keyOrValue.toLowerCase());
         }
