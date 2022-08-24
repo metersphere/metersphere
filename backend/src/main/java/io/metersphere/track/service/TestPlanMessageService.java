@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -49,6 +46,8 @@ public class TestPlanMessageService {
     @Lazy
     @Resource
     private TestPlanReportService testPlanReportService;
+
+    public static final Integer FULL_MARKS = 100;
 
 
     @Async
@@ -93,15 +92,28 @@ public class TestPlanMessageService {
             //通过率
             Double passRate = Optional.ofNullable(testPlanDTOWithMetric.getPassRate()).orElse(0.0);
 
-            //只有通过率 与 测试进度 都为100% 才为已完成状态
-            if (testRate >= 100 && passRate >= 100) {
+            // 已完成：测试进度=100% 且 通过率=100%
+            if (testRate >= FULL_MARKS && passRate >= FULL_MARKS) {
                 return TestPlanStatus.Completed.name();
             }
+
+            // 已结束：超过了计划结束时间（如有） 或 测试进度=100% 且 通过率非100%
+            Long plannedEndTime = testPlan.getPlannedEndTime();
+            long currentTime = System.currentTimeMillis();
+            if(Objects.nonNull(plannedEndTime) && currentTime >= plannedEndTime){
+                return TestPlanStatus.Finished.name();
+            }
+
+            if(testRate >= FULL_MARKS && passRate < FULL_MARKS){
+                return TestPlanStatus.Finished.name();
+            }
+
         } catch (Exception e) {
             LogUtil.error("计算通过率失败！", e);
         }
 
-        return TestPlanStatus.Finished.name();
+        // 进行中：0 < 测试进度 < 100%
+        return TestPlanStatus.Underway.name();
     }
 
     @Async
