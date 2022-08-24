@@ -47,7 +47,10 @@
                 <status-table-item v-else-if="row.lastResult === 'Running'" :value="'Underway'"/>
                 <status-table-item v-else-if="row.lastResult === 'Waiting'" :value="'Waiting'"/>
                 <status-table-item v-else-if="row.lastResult === 'Timeout'" :value="'Timeout'"/>
-                <status-table-item v-else :value="'Prepare'"/>
+                <el-tag size="mini" v-else>{{
+                    $t('api_test.home_page.detail_card.unexecute')
+                  }}
+                </el-tag>
               </template>
             </ms-table-column>
           </ms-table>

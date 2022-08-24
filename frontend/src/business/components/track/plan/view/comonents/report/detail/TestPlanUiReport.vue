@@ -21,7 +21,7 @@
         <ui-scenario-result :is-db="isDb" :share-id="shareId" :is-share="isShare"
                             :report="report" :is-template="isTemplate" :plan-id="planId"
                             :ui-all-cases="uiAllCases"
-                            :filter-status="['UnExecute']"
+                            :filter-status="['unexecute']"
                             @setSize="setUnExecuteSize"/>
       </el-tab-pane>
 
