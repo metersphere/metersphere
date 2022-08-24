@@ -180,7 +180,7 @@
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
-
+                v-if="moduleOptions && moduleOptions.length > 0"
                 ref="apiConfig"
               />
             </div>
