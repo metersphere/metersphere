@@ -3,6 +3,7 @@
     :is-across-space="isAcrossSpace"
     :dialog-title="$t('api_test.automation.scenario_import')"
     @setProject="setProject"
+    @refreshNode="refresh"
     ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-scenario-module
@@ -221,7 +222,7 @@ export default {
       this.moduleOptions = data;
     },
     refresh() {
-      this.$refs.apiScenarioList.search();
+      this.$refs.apiScenarioList.search(this.projectId);
     },
     setData(data) {
       this.currentScenario = Array.from(data).map(row => row);
@@ -229,7 +230,6 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
-      this.selectNodeIds = [];
     },
     getConditions() {
       return this.$refs.apiScenarioList.getConditions();
