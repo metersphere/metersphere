@@ -250,7 +250,7 @@ export default {
       }
     },
     addFunc() {
-      if (this.itemValue.indexOf('@') == -1) {
+      if (this.currentTab === 0 && this.itemValue.indexOf('@') == -1) {
         this.itemValue = '@' + this.itemValue;
       } else {
         this.itemValue = this.itemValue;
@@ -277,7 +277,7 @@ export default {
       this.mockVariableFuncs.push({name: '', params: []});
     },
     saveAdvanced() {
-      if (this.itemValue && this.itemValue.indexOf('@') == -1) {
+      if (this.currentTab === 0 && this.itemValue && this.itemValue.indexOf('@') == -1) {
         this.currentItem.value = '@' + this.itemValue;
       } else {
         this.currentItem.value = this.itemValue;
