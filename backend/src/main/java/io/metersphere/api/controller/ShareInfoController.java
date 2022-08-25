@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author song.tianyang
@@ -57,8 +57,18 @@ public class ShareInfoController {
         if (request.getApiIdList() != null) {
             //要根据ids的顺序进行返回排序
             List<ApiDefinitionWithBLOBs> apiModels = apiDefinitionService.getBLOBs(request.getApiIdList());
-            Map<String, ApiDefinitionWithBLOBs> apiModelMaps = apiModels.stream().collect(Collectors.toMap(ApiDefinitionWithBLOBs::getId, a -> a, (k1, k2) -> k1));
-            Map<String, User> userIdMap = userService.queryName();
+            Map<String, ApiDefinitionWithBLOBs> apiModelMaps = new HashMap<>();
+            List<String> userIdList = new ArrayList<>();
+            apiModels.forEach(item -> {
+                apiModelMaps.put(item.getId(), item);
+                if (!userIdList.contains(item.getUserId())) {
+                    userIdList.add(item.getUserId());
+                }
+                if (!userIdList.contains(item.getCreateUser())) {
+                    userIdList.add(item.getCreateUser());
+                }
+            });
+            Map<String, User> userIdMap = userService.getUserIdMapByIds(userIdList);
             for (String id : request.getApiIdList()) {
                 ApiDefinitionWithBLOBs model = apiModelMaps.get(id);
                 if (model == null) {
@@ -66,7 +76,7 @@ public class ShareInfoController {
                     model.setId(id);
                     model.setName(id);
                 }
-                ApiDocumentInfoDTO returnDTO = shareInfoService.conversionModelToDTO(model,userIdMap);
+                ApiDocumentInfoDTO returnDTO = shareInfoService.conversionModelToDTO(model, userIdMap);
                 returnList.add(returnDTO);
             }
         }
@@ -78,8 +88,15 @@ public class ShareInfoController {
         ApiDefinitionWithBLOBs apiModel = apiDefinitionService.getBLOBs(id);
         ApiDocumentInfoDTO returnDTO = new ApiDocumentInfoDTO();
         try {
-            Map<String, User> userIdMap = userService.queryName();
-            returnDTO = shareInfoService.conversionModelToDTO(apiModel,userIdMap);
+            List<String> userIdList = new ArrayList<>();
+            if (!userIdList.contains(apiModel.getUserId())) {
+                userIdList.add(apiModel.getUserId());
+            }
+            if (!userIdList.contains(apiModel.getCreateUser())) {
+                userIdList.add(apiModel.getCreateUser());
+            }
+            Map<String, User> userIdMap = userService.getUserIdMapByIds(userIdList);
+            returnDTO = shareInfoService.conversionModelToDTO(apiModel, userIdMap);
         } catch (Exception e) {
             LogUtil.error(e);
         }
