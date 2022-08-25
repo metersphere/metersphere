@@ -725,6 +725,7 @@ public class TestCaseService {
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request, boolean isSampleInfo) {
         this.initRequest(request, true);
         setDefaultOrder(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
         }
@@ -782,10 +783,12 @@ public class TestCaseService {
             MSException.throwException("workspaceId could not be null!");
         }
         request.setProjectId(null);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseDTO> returnList = extTestCaseMapper.publicList(request);
         ServiceUtils.buildVersionInfo(returnList);
         ServiceUtils.buildProjectInfo(returnList);
         buildUserInfo(returnList);
+        buildCustomField(returnList);
         return returnList;
     }
 
