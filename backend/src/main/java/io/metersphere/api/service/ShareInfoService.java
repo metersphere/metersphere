@@ -524,10 +524,10 @@ public class ShareInfoService {
         ShareInfoService shareInfoService = CommonBeanFactory.getBean(ShareInfoService.class);
         shareInfoService.validateExpired(shareInfo);
         if (shareInfo == null) {
-            MSException.throwException("shareInfo not exist!");
+            MSException.throwException("ShareInfo not exist!");
         } else {
             if (!StringUtils.equals(customData, shareInfo.getCustomData())) {
-                MSException.throwException("validate failure!");
+                MSException.throwException("ShareInfo validate failure!");
             }
         }
     }
