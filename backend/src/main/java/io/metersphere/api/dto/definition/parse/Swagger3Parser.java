@@ -536,8 +536,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Map<String, JsonSchemaItem> JsonSchemaProperties = new LinkedHashMap<>();
         properties.forEach((key, value) -> {
             JsonSchemaItem item = new JsonSchemaItem();
-            item.setType(schema.getType());
-            item.setDescription(schema.getDescription());
+            if (StringUtils.isNotBlank(schema.getType())) {
+                item.setType(schema.getType());
+            }
+            if (StringUtils.isNotBlank(schema.getDescription())) {
+                item.setDescription(schema.getDescription());
+            }
             JsonSchemaItem proItem = parseSchema(value, refSet);
             if (proItem != null) JsonSchemaProperties.put(key, proItem);
         });
