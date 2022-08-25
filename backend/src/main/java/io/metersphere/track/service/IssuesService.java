@@ -397,6 +397,7 @@ public class IssuesService {
                 order.setName("value");
             }
         });
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         Map<String, Set<String>> caseSetMap = getCaseSetMap(issues);

@@ -15,6 +15,7 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.NodeNumDTO;
 import io.metersphere.exception.ExcelException;
@@ -250,6 +251,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         return getNodeTrees(testCaseNodes, getCountMap(countMNodes));
@@ -275,6 +277,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setWorkspaceId(workspaceId);
         request.setProjectId(null);
         request.setNodeIds(null);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getWorkspaceCountNodes(request);
         return getNodeTreeWithPruningTree(countModules);
     }
@@ -285,6 +288,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         extTestCaseMapper.updateNoModuleTrashNodeToDefault(projectId, defaultNode.getId(), defaultNode.getName());
         request.setProjectId(projectId);
         request.setNodeIds(null);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getCountNodes(request);
         countModules.forEach(item -> item.setProjectId(projectId));
         return getNodeTreeWithPruningTree(countModules);
