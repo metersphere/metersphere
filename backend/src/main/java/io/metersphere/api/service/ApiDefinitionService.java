@@ -161,10 +161,7 @@ public class ApiDefinitionService {
     @Lazy
     @Resource
     private ProjectService projectService;
-    @Resource
-    private ApiDefinitionSyncService apiDefinitionSyncService;
-    @Resource
-    private ApiCaseBatchSyncService apiCaseSyncService;
+
     @Lazy
     @Resource
     private ApiAutomationService apiAutomationService;
@@ -411,6 +408,7 @@ public class ApiDefinitionService {
         }
 
         // 设置是否需要进入待更新列表
+        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
         if (apiDefinitionSyncService != null) {
             apiDefinitionSyncService.syncApi(request);
         }
@@ -426,6 +424,7 @@ public class ApiDefinitionService {
         getParamMap(paramMap, returnModel.getProjectId(), SessionUtils.getUserId(), returnModel.getId(), returnModel.getName(), returnModel.getCreateUser());
         paramMap.put("userId", returnModel.getUserId());
         // 发送通知
+        ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
         if (apiCaseSyncService != null) {
             apiCaseSyncService.sendApiNotice(returnModel, paramMap);
         }
@@ -1276,6 +1275,7 @@ public class ApiDefinitionService {
         }
         ApiSyncCaseRequest apiSyncCaseRequest = new ApiSyncCaseRequest();
         Boolean toUpdate = false;
+        ApiDefinitionSyncService apiDefinitionSyncService = CommonBeanFactory.getBean(ApiDefinitionSyncService.class);
         if (apiDefinitionSyncService != null) {
             toUpdate = apiDefinitionSyncService.getProjectApplications(existApi.getProjectId());
             apiSyncCaseRequest = apiDefinitionSyncService.getApiSyncCaseRequest(existApi.getProjectId());
