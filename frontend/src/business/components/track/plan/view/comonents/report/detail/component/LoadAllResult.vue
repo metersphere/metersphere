@@ -1,13 +1,26 @@
 <template>
   <el-container>
     <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
-      <load-failure-result :class="{'init-height': !showResponse}" :is-db="isDb" @rowClick="getReport" :is-all="isAll"
-                           :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
-                           :report="report" :plan-id="planId" @setSize="setAllSize"/>
+      <load-failure-result :class="{'init-height': !showResponse}"
+                           :is-db="isDb"
+                           :is-all="isAll"
+                           :share-id="shareId"
+                           :is-share="isShare"
+                           :is-template="isTemplate"
+                           :report="report"
+                           :plan-id="planId"
+                           @rowClick="getReport"
+                           @setSize="setAllSize"/>
     </ms-aside-container>
     <ms-main-container>
-      <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare" v-show="showResponse"
-                             :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
+      <load-case-report-view v-show="showResponse"
+                             :is-plan-report="true"
+                             :share-id="shareId"
+                             :is-share="isShare"
+                             :plan-id="planId"
+                             :plan-report-template="response"
+                             :report-id="reportId"
+                             ref="loadCaseReportView"/>
       <div class="empty" v-show="!showResponse">{{ $t('test_track.plan.load_case.content_empty') }}</div>
     </ms-main-container>
   </el-container>
