@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span v-if="showHide">
   <el-upload
     action="#"
     class="ms-upload-header"
@@ -28,16 +28,20 @@
     <div class="upload-item" slot="file" slot-scope="{file}">
       <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
         <span v-if="file.storage === 'FILE_REF'" class="el-upload-list__item-actions">
-            <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
+            <span v-if="!disabled" class="ms-list__item-delete" @click="handleRemove(file)">
                 <i class="el-icon-unlock"/>
-                <span style="font-size: 13px">{{ file.isExist ? '文件已经被删除' : '' }}</span>
+                <span style="font-size: 13px;">
+                  {{ file.isExist ? $t('permission.project_file.file_delete_tip') : '' }}
+                </span>
             </span>
         </span>
       <span class="el-upload-list__item-actions" v-else>
-          <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUpload(file)">
+          <span v-if="!disabled" class="ms-list__item-delete" @click="handleUpload(file)">
+           <el-tooltip :content="$t('permission.project_file.save_to_file_manage')" placement="top">
             <i class="el-icon-upload" style="font-size: 23px"/>
+           </el-tooltip>
           </span>
-          <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
+          <span v-if="!disabled" class="ms-list__item-delete" @click="handleRemove(file)">
             <i class="el-icon-delete"/>
           </span>
        </span>
@@ -64,6 +68,7 @@ export default {
     return {
       disabled: false,
       file: {},
+      showHide: true,
     };
   },
   props: {
@@ -75,11 +80,29 @@ export default {
   },
   methods: {
     exist() {
+      let fileIds = [];
       this.parameter.files.forEach(file => {
-        this.$get('/file/metadata/exist/' + file.fileId, response => {
-          file.isExist = !response.data;
-        });
+        if (file.storage === 'FILE_REF' && file.fileId) {
+          fileIds.push(file.fileId);
+        }
       });
+      if (fileIds.length > 0) {
+        this.result = this.$post('/file/metadata/exists/', fileIds, response => {
+          let resultIds = response.data;
+          this.parameter.files.forEach(file => {
+            if (file.storage === 'FILE_REF' && resultIds.indexOf(file.fileId) === -1) {
+              file.isExist = true;
+            }
+          });
+          this.reload();
+        });
+      }
+    },
+    reload() {
+      this.showHide = false;
+      this.$nextTick(() => {
+        this.showHide = true;
+      })
     },
     setModuleId(moduleId) {
       let files = [];
@@ -203,5 +226,12 @@ export default {
 
 .ms-upload-header >>> .el-upload-list--picture-card .el-upload-list__item {
   display: inline-block;
+}
+
+.ms-list__item-delete {
+  margin-top: -10px;
+  padding-top: -10px;
+  text-align: center;
+  vertical-align: middle;
 }
 </style>

@@ -2619,7 +2619,9 @@ export default {
       batch_download: '批量下載',
       batch_move: '批量移動',
       local_upload: '本地上傳',
-      associated_files: '關聯文件'
+      associated_files: '關聯文件',
+      file_delete_tip: '源文件已刪除',
+      save_to_file_manage: '轉存至文件管理'
     },
     project_track_case: {
       name: "測試用例",

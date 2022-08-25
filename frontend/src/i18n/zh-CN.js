@@ -2622,7 +2622,9 @@ export default {
       batch_download: '批量下载',
       batch_move: '批量移动',
       local_upload: '本地上传',
-      associated_files: '关联文件'
+      associated_files: '关联文件',
+      file_delete_tip: '源文件已删除',
+      save_to_file_manage: '转存至文件管理'
     },
     project_track_case: {
       name: "测试用例",
