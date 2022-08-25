@@ -168,7 +168,7 @@ public class ShareController {
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")
     public APIReportResult getApiReport(@PathVariable String shareId, @PathVariable String testId) {
-//        shareInfoService.apiReportValidate(shareId, testId);
+        shareInfoService.validateExpired(shareId);
         return apiDefinitionService.getDbResult(testId);
     }
 
@@ -180,25 +180,25 @@ public class ShareController {
 
     @GetMapping("/performance/report/{shareId}/{reportId}")
     public ReportDTO getLoadTestReport(@PathVariable String shareId, @PathVariable String reportId) {
-        //todo
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportTestAndProInfo(reportId);
     }
 
     @GetMapping("/performance/report/content/report_time/{shareId}/{reportId}")
     public ReportTimeInfo getReportTimeInfo(@PathVariable String shareId, @PathVariable String reportId) {
-        // todo
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportTimeInfo(reportId);
     }
 
     @PostMapping("/test/plan/load/case/report/exist/{shareId}")
     public Boolean isExistReport(@PathVariable String shareId, @RequestBody LoadCaseReportRequest request) {
-        // testPlanLoadCaseService  todo checkout
+        shareInfoService.validateExpired(shareId);
         return testPlanLoadCaseService.isExistReport(request);
     }
 
     @GetMapping("/performance/report/get-advanced-config/{shareId}/{reportId}")
     public String getAdvancedConfig(@PathVariable String shareId, @PathVariable String reportId) {
-        shareInfoService.validate(shareId, reportId);
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getAdvancedConfiguration(reportId);
     }
 
@@ -209,12 +209,13 @@ public class ShareController {
 
     @GetMapping("/performance/report/get-jmx-content/{shareId}/{reportId}")
     public LoadTestExportJmx getJmxContent(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getJmxContent(reportId).get(0);
     }
 
     @GetMapping("/performance/get-jmx-content/{shareId}/{testId}")
     public List<LoadTestExportJmx> getOldJmxContent(@PathVariable String shareId, @PathVariable String testId) {
-//        checkPermissionService.checkPerformanceTestOwner(testId);
+        shareInfoService.validateExpired(shareId);
         return performanceTestService.getJmxContent(testId);
     }
 
@@ -226,51 +227,61 @@ public class ShareController {
 
     @GetMapping("/performance/report/content/testoverview/{shareId}/{reportId}")
     public TestOverview getTestOverview(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getTestOverview(reportId);
     }
 
     @GetMapping("/performance/report/content/load_chart/{shareId}/{reportId}")
     public List<ChartsData> getLoadChartData(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getLoadChartData(reportId);
     }
 
     @GetMapping("/performance/report/content/res_chart/{shareId}/{reportId}")
     public List<ChartsData> getResponseTimeChartData(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getResponseTimeChartData(reportId);
     }
 
     @GetMapping("/performance/report/content/error_chart/{shareId}/{reportId}")
     public List<ChartsData> getErrorChartData(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getErrorChartData(reportId);
     }
 
     @GetMapping("/performance/report/content/response_code_chart/{shareId}/{reportId}")
     public List<ChartsData> getResponseCodeChartData(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getResponseCodeChartData(reportId);
     }
 
     @GetMapping("/performance/report/content/{shareId}/{reportKey}/{reportId}")
     public List<ChartsData> getReportChart(@PathVariable String shareId, @PathVariable String reportKey, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportChart(reportKey, reportId);
     }
 
     @GetMapping("/performance/report/content/{shareId}/{reportId}")
     public List<Statistics> getReportContent(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportStatistics(reportId);
     }
 
     @GetMapping("/performance/report/content/errors/{shareId}/{reportId}")
     public List<Errors> getReportErrors(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportErrors(reportId);
     }
 
     @GetMapping("/performance/report/content/errors_top5/{shareId}/{reportId}")
     public List<ErrorsTop5> getReportErrorsTop5(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportErrorsTOP5(reportId);
     }
 
     @GetMapping("/performance/report/log/resource/{shareId}/{reportId}")
     public List<LogDetailDTO> getResourceIds(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validateExpired(shareId);
         return performanceReportService.getReportLogResource(reportId);
     }
 
@@ -281,23 +292,26 @@ public class ShareController {
 
     @GetMapping("/performance/report/log/{shareId}/{reportId}/{resourceId}/{goPage}")
     public Pager<List<LoadTestReportLog>> logs(@PathVariable String shareId, @PathVariable String reportId, @PathVariable String resourceId, @PathVariable int goPage) {
+        shareInfoService.validateExpired(shareId);
         Page<Object> page = PageHelper.startPage(goPage, 1, true);
         return PageUtils.setPageInfo(page, performanceReportService.getReportLogs(reportId, resourceId));
     }
 
     @GetMapping("/metric/query/{shareId}/{id}")
     public List<MetricData> queryMetric(@PathVariable String shareId, @PathVariable("id") String reportId) {
+        shareInfoService.validateExpired(shareId);
         return metricService.queryMetric(reportId);
     }
 
     @GetMapping("/metric/query/resource/{shareId}/{id}")
     public List<Monitor> queryReportResource(@PathVariable String shareId, @PathVariable("id") String reportId) {
+        shareInfoService.validateExpired(shareId);
         return metricService.queryReportResource(reportId);
     }
 
     @GetMapping("/performance/report/get-load-config/{shareId}/{testId}")
     public String getLoadConfiguration(@PathVariable String shareId, @PathVariable String testId) {
-        //checkPermissionService.checkPerformanceTestOwner(testId);
+        shareInfoService.validateExpired(shareId);
         return performanceTestService.getLoadConfiguration(testId);
     }
 
