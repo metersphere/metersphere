@@ -430,4 +430,14 @@ public class FileMetadataService {
     public boolean exist(String fileId) {
         return fileMetadataMapper.selectByPrimaryKey(fileId) != null;
     }
+
+    public List<String> exists(List<String> fileIds) {
+        if (CollectionUtils.isEmpty(fileIds)) {
+            return new LinkedList<>();
+        }
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(fileIds);
+        List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(example);
+        return fileMetadataList.stream().map(FileMetadata::getId).collect(Collectors.toList());
+    }
 }

@@ -2618,7 +2618,9 @@ export default {
       batch_download: 'Batch download',
       batch_move: 'Batch move',
       local_upload: 'Local upload',
-      associated_files: 'Associated files'
+      associated_files: 'Associated files',
+      file_delete_tip: 'Source file deleted',
+      save_to_file_manage: 'Transfer to file management'
     },
     project_track_case: {
       name: "Case",

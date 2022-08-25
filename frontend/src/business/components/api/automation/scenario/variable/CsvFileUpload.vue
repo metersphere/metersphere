@@ -35,16 +35,20 @@
             <div class="upload-item" slot="file" slot-scope="{file}" v-loading="loading">
               <span>{{ file.file && file.file.name ? file.file.name : file.name }}</span>
               <span class="el-upload-list__item-actions" v-if="file.storage === 'FILE_REF'">
-                  <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUnlock(file)">
+                  <span v-if="!disabled" class="ms-list__item-delete" @click="handleUnlock(file)">
                     <i class="el-icon-unlock"/>
-                    <span style="font-size: 13px">{{ file.isExist ? '文件已经被删除' : '' }}</span>
+                    <span style="font-size: 13px">
+                      {{ file.isExist ? $t('permission.project_file.file_delete_tip') : '' }}
+                    </span>
                   </span>
               </span>
               <span class="el-upload-list__item-actions" v-else>
-                  <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleUpload(file)">
-                    <i class="el-icon-upload" style="font-size: 23px"/>
+                  <span v-if="!disabled" class="ms-list__item-delete" @click="handleUpload(file)">
+                    <el-tooltip :content="$t('permission.project_file.save_to_file_manage')" placement="top">
+                      <i class="el-icon-upload" style="font-size: 23px"/>
+                    </el-tooltip>
                   </span>
-                  <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleRemove(file)">
+                  <span v-if="!disabled" class="ms-list__item-delete" @click="handleRemove(file)">
                     <i class="el-icon-delete"/>
                   </span>
                </span>
@@ -272,5 +276,12 @@ export default {
   text-overflow: ellipsis;
   overflow: hidden;
   width: 180px;
+}
+
+.ms-list__item-delete {
+  margin-top: -10px;
+  padding-top: -10px;
+  text-align: center;
+  vertical-align: middle;
 }
 </style>
