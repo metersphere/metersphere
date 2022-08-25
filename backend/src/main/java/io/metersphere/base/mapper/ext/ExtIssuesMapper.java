@@ -2,9 +2,11 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesStatusCountDao;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.track.dto.CustomFieldResourceCompatibleDTO;
 import io.metersphere.track.dto.PlanReportIssueDTO;
+import io.metersphere.track.request.testcase.IssuesCountRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,7 +28,7 @@ public interface ExtIssuesMapper {
 
     List<PlanReportIssueDTO> selectForPlanReport(String planId);
 
-    List<IssuesDao> getCountByStatus(@Param("request") IssuesRequest issuesRequest);
+    List<IssuesStatusCountDao> getCountByStatus(@Param("request") IssuesCountRequest issuesRequest);
 
     List<String> selectIdNotInUuIds(@Param("projectId") String projectId, @Param("platform") String platform, @Param("platformIds") List<String> platformIds);
 
