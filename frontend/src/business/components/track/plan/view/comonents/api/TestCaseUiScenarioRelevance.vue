@@ -132,6 +132,13 @@ export default {
         this.$refs.baseRelevance.close();
       });
     },
+    getAllId(param) {
+      return new Promise((resolve) => {
+        this.$post("/test/plan/uiScenario/case/relevance/list/ids", param, (data) => {
+          resolve(data.data);
+        })
+      });
+    },
     async saveCaseRelevance() {
       let selectIds = [];
       let url = '/ui/automation/relevance';
@@ -154,10 +161,8 @@ export default {
       //查找所有数据
       let params = this.$refs.apiScenarioList.condition;
       if (params.selectAll) {
-        let result = await this.$post("/ui/automation/listAllIds", {
-          projectId: params.projectId
-        });
-        param.selectIds = result.data.data;
+        let result = await this.getAllId(params);
+        param.selectIds = result;
       }
 
       this.result = this.$post(url, param, () => {

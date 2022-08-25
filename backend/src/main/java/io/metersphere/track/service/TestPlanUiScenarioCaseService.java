@@ -618,4 +618,12 @@ public class TestPlanUiScenarioCaseService {
                 extTestPlanUiScenarioCaseMapper::getLastOrder,
                 testPlanUiScenarioMapper::updateByPrimaryKeySelective);
     }
+
+    public List<String> relevanceListIds(UiScenarioRequest request) {
+        request.setNotInTestPlan(true);
+        if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
+            request.setNotInTestPlan(false);
+        }
+        return uiAutomationServiceProxy.list(request).stream().map(UiScenarioDTO::getId).collect(Collectors.toList());
+    }
 }

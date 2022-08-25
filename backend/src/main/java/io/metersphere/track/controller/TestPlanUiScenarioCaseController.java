@@ -54,6 +54,11 @@ public class TestPlanUiScenarioCaseController {
         return testPlanUiScenarioCaseService.relevanceList(request, goPage, pageSize);
     }
 
+    @PostMapping("/relevance/list/ids")
+    public List<String> relevanceListIds(@RequestBody UiScenarioRequest request) {
+        return testPlanUiScenarioCaseService.relevanceListIds(request);
+    }
+
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanScenarioCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
