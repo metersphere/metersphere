@@ -112,4 +112,9 @@ public class FileMetadataController {
     public boolean exist(@PathVariable("fileId") String fileId) {
         return fileMetadataService.exist(fileId);
     }
+
+    @PostMapping(value = "/exists")
+    public List<String> exist(@RequestBody List<String> fileIds) {
+        return fileMetadataService.exists(fileIds);
+    }
 }
