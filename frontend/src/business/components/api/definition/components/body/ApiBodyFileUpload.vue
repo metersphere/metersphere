@@ -229,8 +229,7 @@ export default {
 }
 
 .ms-list__item-delete {
-  margin-top: -10px;
-  padding-top: -10px;
+  margin-top: -12px;
   text-align: center;
   vertical-align: middle;
 }
