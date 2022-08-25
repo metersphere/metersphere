@@ -196,7 +196,7 @@ export default {
         {
           name: this.$t('api_test.definition.request.batch_delete'),
           handleClick: this.handleDeleteBatch,
-          permission: ['PROJECT_TRACK_REPORT:READ+DELETE']
+          permissions: ['PROJECT_TRACK_REPORT:READ+DELETE']
         },
       ],
       selectDataCounts: 0,
@@ -209,7 +209,7 @@ export default {
         {
           name: this.$t('api_test.definition.request.batch_delete'),
           handleClick: this.handleDeleteBatch,
-          permission: ['PROJECT_TRACK_REPORT:READ+DELETE'],
+          permissions: ['PROJECT_TRACK_REPORT:READ+DELETE'],
         },
       ],
       simpleOperators: [
