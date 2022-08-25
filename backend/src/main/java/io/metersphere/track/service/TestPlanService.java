@@ -1604,7 +1604,11 @@ public class TestPlanService {
                     if (resultMap.get(item.getReportId()) != null &&
                             StringUtils.isNotBlank(resultMap.get(item.getReportId()).getContent())) {
                         ApiDefinitionExecResultWithBLOBs execResult = resultMap.get(item.getReportId());
-                        JSONObject responseObj = JSONObject.parseObject(execResult.getContent());
+                        JSONObject responseObj = new JSONObject();
+                        try {
+                            responseObj = JSONObject.parseObject(execResult.getContent());
+                        } catch (Exception e) {
+                        }
                         if (StringUtils.isNotEmpty(execResult.getEnvConfig())) {
                             responseObj.put("envName", apiDefinitionService.getEnvNameByEnvConfig(execResult.getProjectId(), execResult.getEnvConfig()));
                         }
