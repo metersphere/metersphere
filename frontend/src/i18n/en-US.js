@@ -883,6 +883,7 @@ export default {
     add_workspace_batch: "Batch Add User To Workspace",
     add_project_batch_tip: 'Add a read-only user group for members by default (system)',
     import_user_tip: 'User group only supports system default user group',
+    search_get_more_tip: 'Search for other options'
   },
   group: {
     add: 'Add User Group',
