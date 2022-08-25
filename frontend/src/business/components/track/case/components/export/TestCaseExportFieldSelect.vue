@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <div class="export-title"
          @click="showSelect = !showSelect">
       <span>
@@ -62,7 +62,9 @@ export default {
     return {
       selectAll: false,
       showSelect: true,
-      baseFields: [
+      baseFields: [],
+      loading: false,
+      originBaseFields: [
         {
           id: 'ID',
           key: 'A',
@@ -173,14 +175,22 @@ export default {
   },
   created() {
     this.projectId = getCurrentProjectID();
+    this.loading = true;
     getTestTemplate()
       .then((template) => {
         template.customFields.forEach(item => {
           item.enable = true;
         });
-        this.customFields = template.customFields;
-        // 系统字段排前面
-        this.customFields.sort((a, b) => a.system && !b.system ? -1 : 1);
+        this.customFields = [];
+        this.baseFields = [...this.originBaseFields];
+        template.customFields.forEach(item => {
+          if (item.system) {
+            this.baseFields.push(item);
+          } else {
+            this.customFields.push(item);
+          }
+        });
+        this.loading = false;
       });
   },
   methods: {
