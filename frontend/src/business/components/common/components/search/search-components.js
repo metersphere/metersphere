@@ -178,7 +178,7 @@ export const API_CASE_PRIORITY = {
   }
 }
 export const API_CASE_RESULT = {
-  key: "status",
+  key: "exec_result",
   name: 'MsTableSearchSelect',
   label: 'test_track.plan_view.execute_result',
   operator: {
