@@ -1,9 +1,11 @@
 package io.metersphere.commons.utils;
 
+import com.alibaba.fastjson.JSONArray;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectVersion;
 import io.metersphere.base.domain.User;
 import io.metersphere.base.domain.Workspace;
+import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
@@ -13,6 +15,8 @@ import io.metersphere.service.ProjectService;
 import io.metersphere.service.ProjectVersionService;
 import io.metersphere.service.UserService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -418,5 +422,32 @@ public class ServiceUtils {
                 })
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void setBaseQueryRequestCustomMultipleFields(BaseQueryRequest request) {
+        // filter中自定义多选字段
+        if (MapUtils.isNotEmpty(request.getFilters())) {
+            request.getFilters().entrySet().forEach(entry -> {
+                if (entry.getKey().startsWith("custom_multiple") && CollectionUtils.isNotEmpty(entry.getValue())) {
+                    List<String> customValues = JSONArray.parseArray(entry.getValue().get(0), String.class);
+                    List<String> jsonValues = customValues.stream().map(item -> "[\"".concat(item).concat("\"]")).collect(Collectors.toList());
+                    entry.setValue(jsonValues);
+                }
+            });
+        }
+        // 高级搜索中自定义多选字段
+        if (MapUtils.isNotEmpty(request.getCombine()) && ObjectUtils.isNotEmpty((request.getCombine().get("customs")))) {
+            List<Map<String, Object>> customs = (List<Map<String, Object>>) request.getCombine().get("customs");
+            customs.forEach(custom -> {
+                if (StringUtils.equalsAny(custom.get("type").toString(), CustomFieldType.MULTIPLE_MEMBER.getValue(),
+                        CustomFieldType.CHECKBOX.getValue(), CustomFieldType.MULTIPLE_SELECT.getValue())
+                        && StringUtils.isNotEmpty(custom.get("value").toString())) {
+                    List<String> customValues = JSONArray.parseArray(custom.get("value").toString(), String.class);
+                    List<String> jsonValues = customValues.stream().map(item -> "JSON_CONTAINS(`value`, '[\"".concat(item).concat("\"]')")).collect(Collectors.toList());
+                    custom.put("value", "(".concat(StringUtils.join(jsonValues, " OR ")).concat(")"));
+                }
+            });
+        }
     }
 }
