@@ -9,8 +9,7 @@ import filters from "@/common/js/filter";
 import icon from "@/common/js/icon";
 import message from "@/common/js/message";
 import mavonEditor from "mavon-editor";
-
-// import CKEditor from '@ckeditor/ckeditor5-vue';
+import ajax from "@/common/js/ajax";
 
 function planReportUse(id, template) {
   Vue.use(ElementUI, {
@@ -31,7 +30,8 @@ function planReportUse(id, template) {
   Vue.use(filters);
   Vue.use(icon);
   Vue.use(message);
-// Vue.use(CKEditor);
+  Vue.use(message);
+  Vue.use(ajax);
   Vue.use(mavonEditor);
   Vue.use(Popover);
 
