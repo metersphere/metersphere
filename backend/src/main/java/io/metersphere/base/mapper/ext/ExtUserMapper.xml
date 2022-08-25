@@ -46,7 +46,7 @@
             </if>
             <if test="userRequest.name != null">
                 AND (u.name like CONCAT('%', #{userRequest.name},'%')
-                        or u.id like CONCAT('%', #{userRequest.name},'%'))
+                or u.id like CONCAT('%', #{userRequest.name},'%'))
             </if>
             <if test="userRequest.email != null">
                 AND u.email like CONCAT('%', #{userRequest.email},'%')
@@ -68,19 +68,22 @@
 
     <!--修改密码-->
     <update id="updatePassword" parameterType="io.metersphere.base.domain.User">
-    update user
-    set
-       password=#{password,jdbcType=VARCHAR},
-       update_time = #{updateTime,jdbcType=BIGINT}
-    where  id=#{id,jdbcType=VARCHAR}
-   </update>
+        update user
+        set password=#{password,jdbcType=VARCHAR},
+            update_time = #{updateTime,jdbcType=BIGINT}
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
     <select id="getDefaultLanguage" parameterType="java.lang.String" resultType="java.lang.String">
-    select param_value from system_parameter
-    where param_key=#{paramKey,jdbcType=VARCHAR}
-   </select>
+        select param_value
+        from system_parameter
+        where param_key = #{paramKey,jdbcType=VARCHAR}
+    </select>
 
     <select id="searchUser" parameterType="java.lang.String" resultType="io.metersphere.base.domain.User">
-        select id, name, email, last_workspace_id from `user` where id like CONCAT('%', #{condition},'%') or email like CONCAT('%', #{condition},'%') limit 100;
+        select id, name, email, last_workspace_id
+        from `user`
+        where id like CONCAT('%', #{condition}, '%')
+           or email like CONCAT('%', #{condition}, '%') limit 100;
     </select>
 
     <select id="queryNameByIds" resultType="io.metersphere.base.domain.User">
@@ -93,13 +96,9 @@
         </foreach>
     </select>
 
-    <select id="queryName" resultType="io.metersphere.base.domain.User">
-        select id, name
-        from `user`
-    </select>
-
     <select id="selectAllId" resultType="java.lang.String">
-        select id from `user`
+        select id
+        from `user`
     </select>
 
     <select id="selectIdsByQuery" resultType="java.lang.String">
@@ -109,12 +108,16 @@
     </select>
 
     <update id="updateLastProjectIdIfNull">
-        update user set last_project_id = #{projectId} where id = #{userId}
-        and (last_project_id is null or last_project_id = '')
+        update user
+        set last_project_id = #{projectId}
+        where id = #{userId}
+          and (last_project_id is null or last_project_id = '')
     </update>
 
     <update id="updateLastWorkspaceIdIfNull">
-        update user set last_workspace_id = #{workspaceId} where id = #{userId}
-        and (last_workspace_id is null or last_workspace_id = '')
+        update user
+        set last_workspace_id = #{workspaceId}
+        where id = #{userId}
+          and (last_workspace_id is null or last_workspace_id = '')
     </update>
 </mapper>

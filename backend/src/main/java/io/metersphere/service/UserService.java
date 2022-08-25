@@ -104,10 +104,6 @@ public class UserService {
         return extUserMapper.queryNameByIds(userIds);
     }
 
-    public Map<String, User> queryName() {
-        return extUserMapper.queryName();
-    }
-
     public UserDTO insert(UserRequest userRequest) {
         checkUserParam(userRequest);
         String id = userRequest.getId();
@@ -1485,5 +1481,13 @@ public class UserService {
 
     public List<User> getProjectMemberOption(String projectId) {
         return extUserGroupMapper.getProjectMemberOption(projectId);
+    }
+
+    public Map<String, User> getUserIdMapByIds(List<String> userIdList) {
+        return extUserMapper.queryNameByIds(userIdList);
+    }
+
+    public User selectById(String id) {
+        return userMapper.selectByPrimaryKey(id);
     }
 }
