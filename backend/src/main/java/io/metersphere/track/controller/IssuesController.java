@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesStatusCountDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -14,7 +15,6 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.service.FileService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.dto.PlatformStatusDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -23,6 +23,7 @@ import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
+import io.metersphere.track.request.testcase.IssuesCountRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -39,8 +40,6 @@ public class IssuesController {
 
     @Resource
     private IssuesService issuesService;
-    @Resource
-    private FileService fileService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
@@ -155,7 +154,7 @@ public class IssuesController {
     }
 
     @PostMapping("/status/count")
-    public List<IssuesDao> getCountByStatus(@RequestBody IssuesRequest request) {
+    public List<IssuesStatusCountDao> getCountByStatus(@RequestBody IssuesCountRequest request) {
         return issuesService.getCountByStatus(request);
     }
 

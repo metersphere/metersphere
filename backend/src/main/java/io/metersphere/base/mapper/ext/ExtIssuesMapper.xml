@@ -83,11 +83,22 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.Issues">
         SELECT * FROM issues WHERE issues.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
-    <select id="getCountByStatus" resultType="io.metersphere.base.domain.IssuesDao">
-        select count(issues.id) as totalIssueCount, ifnull(issues.status,issues.platform_status) as status from issues
-        left join project on issues.project_id = project.id
-        <include refid="queryWhereCondition"/>
-        group by status;
+    <select id="getCountByStatus" resultType="io.metersphere.base.domain.IssuesStatusCountDao">
+        select count(1) as `count`, if(i.platform = 'Local', cfi.value, i.platform_status) as statusValue, i.platform
+        from issues i
+        inner join project p
+            on i.project_id = p.id and p.workspace_id = #{request.workspaceId}
+        left join custom_field_issues cfi
+            on i.id = cfi.resource_id and field_id in (
+              select cf.id
+              from custom_field cf
+              left join project pr
+                on cf.project_id = pr.id
+              where cf.scene = 'ISSUE' and cf.name = '状态'
+                and (pr.workspace_id = #{request.workspaceId} or global = true)
+            )
+        where i.creator = #{request.creator}
+        group by statusValue;
     </select>
     <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
         select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,

@@ -30,6 +30,7 @@ import io.metersphere.track.request.attachment.AttachmentRequest;
 import io.metersphere.track.request.issues.JiraIssueTypeRequest;
 import io.metersphere.track.request.issues.PlatformIssueTypeRequest;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
+import io.metersphere.track.request.testcase.IssuesCountRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -770,9 +771,17 @@ public class IssuesService {
         }
     }
 
-    public List<IssuesDao> getCountByStatus(IssuesRequest request) {
-        return extIssuesMapper.getCountByStatus(request);
-
+    public List<IssuesStatusCountDao> getCountByStatus(IssuesCountRequest request) {
+        request.setCreator(SessionUtils.getUserId());
+        List<IssuesStatusCountDao> countByStatus = extIssuesMapper.getCountByStatus(request);
+        countByStatus.forEach(item -> {
+            if (StringUtils.isBlank(item.getStatusValue())) {
+                item.setStatusValue(IssuesStatus.NEW.toString());
+            } else {
+                item.setStatusValue(item.getStatusValue().replace("\"", ""));
+            }
+        });
+        return countByStatus;
     }
 
     public List<String> getFollows(String issueId) {
