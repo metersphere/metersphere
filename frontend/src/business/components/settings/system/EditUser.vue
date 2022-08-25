@@ -47,13 +47,19 @@
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
               <el-select filterable v-model="group.ids" :placeholder="$t('workspace.select')" multiple
-                         class="edit-user-select"  @change="updateWorkSpace(group.index,group.type)">
+                         :filter-method="(value) => filterWorkspaceOption(value, group)"
+                         @visible-change="(value) => resetWorkspaceOption(value, group)"
+                         @change="updateWorkSpace(group.index,group.type)"
+                         class="edit-user-select">
                 <el-option
-                  v-for="item in group.workspaces"
+                  v-for="item in group.workspaceOptions"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
                 </el-option>
+                <div style="text-align: center; color: #8a8b8d;" v-if="group.showSearchGetMore">
+                  {{ $t('user.search_get_more_tip') }}
+                </div>
               </el-select>
             </el-form-item>
           </div>
@@ -63,13 +69,18 @@
                           :rules="{required: true, message: $t('user.select_project'), trigger: 'change'}"
             >
               <el-select filterable v-model="group.ids" :placeholder="$t('user.select_project')" multiple
+                         :filter-method="(value) => filterProjectOption(value, group)"
+                         @visible-change="(value) => resetProjectOption(value, group)"
                          class="edit-user-select" @change="setWorkSpaceIds(group.ids,group.projects)">
                 <el-option
-                  v-for="item in group.projects"
+                  v-for="item in group.projectOptions"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
                 </el-option>
+                <div style="text-align: center; color: #8a8b8d;" v-if="group.showSearchGetMore">
+                  {{ $t('user.search_get_more_tip') }}
+                </div>
               </el-select>
             </el-form-item>
           </div>
@@ -110,7 +121,8 @@ export default {
       btnAddRole: false,
       form: {
         groups: [{
-          type: ''
+          type: '',
+          showSearchGetMore: false,
         }]
       },
       rule: {
@@ -166,6 +178,7 @@ export default {
       title: "创建用户",
       currentWSGroupIndex:-1,
       currentGroupWSIds:new Set,
+      limitOptionCount: 400,
     }
   },
   computed: {
@@ -185,6 +198,10 @@ export default {
         this.result = this.$get('/user/group/all/' + encodeURIComponent(row.id), response => {
           let data = response.data;
           this.$set(this.form, "groups", data);
+          for (let group of this.form.groups) {
+            this.handleWorkspaceOption(group, group.workspaces);
+            this.handleProjectOption(group, group.projects);
+          }
         });
         this.form = Object.assign({}, row);
       }
@@ -358,11 +375,14 @@ export default {
     },
     _setResource(data, index, type) {
       switch (type) {
-        case GROUP_WORKSPACE:
+        case GROUP_WORKSPACE: {
           this.form.groups[index].workspaces = data.workspaces;
+          this.handleWorkspaceOption(this.form.groups[index], data.workspaces);
           break;
+        }
         case GROUP_PROJECT:
           this.form.groups[index].projects = data.projects;
+          this.handleProjectOption(this.form.groups[index], data.projects);
           break;
         default:
       }
@@ -411,7 +431,8 @@ export default {
         ids.forEach(item =>{
           if(item === project.id){
             this.currentGroupWSIds.add(project.workspaceId);
-            if(this.form.groups[this.currentWSGroupIndex].ids.indexOf(project.workspaceId) === -1){
+            if(this.form.groups[this.currentWSGroupIndex] &&
+              this.form.groups[this.currentWSGroupIndex].ids.indexOf(project.workspaceId) === -1){
               this.form.groups[this.currentWSGroupIndex].ids.push(project.workspaceId);
             }
           }
@@ -426,6 +447,69 @@ export default {
         })
       }else {
         this.form.groups[index].ids = [];
+      }
+    },
+    handleWorkspaceOption(group, workspaces) {
+      if (!workspaces) {
+        return;
+      }
+      this.$set(group, 'showSearchGetMore', workspaces.length > this.limitOptionCount);
+      const options = workspaces.slice(0, this.limitOptionCount);
+      this.$set(group, 'workspaceOptions', options);
+      if (!group.ids || group.ids.length === 0) {
+        return;
+      }
+      for (let id of group.ids) {
+        let index = options.findIndex(o => o.id === id);
+        if (index <= -1) {
+          let obj = workspaces.find(d => d.id === id);
+          if (obj) {
+            group.workspaceOptions.unshift(obj);
+          }
+        }
+      }
+    },
+    handleProjectOption(group, projects) {
+      if (!projects) {
+        return;
+      }
+      this.$set(group, 'showSearchGetMore', projects.length > this.limitOptionCount);
+      const options = projects.slice(0, this.limitOptionCount);
+      this.$set(group, 'projectOptions', options);
+      if (!group.ids || group.ids.length === 0) {
+        return;
+      }
+      for (let id of group.ids) {
+        let index = options.findIndex(o => o.id === id);
+        if (index <= -1) {
+          let obj = projects.find(d => d.id === id);
+          if (obj) {
+            group.projectOptions.unshift(obj);
+          }
+        }
+      }
+    },
+    filterWorkspaceOption(queryString, group) {
+      let workspaces = group.workspaces;
+      let copy = JSON.parse(JSON.stringify(workspaces));
+      this.handleWorkspaceOption(group, queryString ? copy.filter(this.createFilter(queryString)) : copy);
+    },
+    filterProjectOption(queryString, group) {
+      let projects = group.projects;
+      let copy = JSON.parse(JSON.stringify(projects));
+      this.handleProjectOption(group, queryString ? copy.filter(this.createFilter(queryString)) : copy);
+    },
+    createFilter(queryString) {
+      return item => (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+    },
+    resetWorkspaceOption(val, group) {
+      if (val) {
+        this.handleWorkspaceOption(group, group.workspaces);
+      }
+    },
+    resetProjectOption(val, group) {
+      if (val) {
+        this.handleProjectOption(group, group.projects);
       }
     }
   }
