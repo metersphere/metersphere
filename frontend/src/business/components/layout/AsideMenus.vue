@@ -61,8 +61,13 @@
     </el-menu-item>
 
     <el-menu-item index="/project" onselectstart="return false"
-                  v-permission="['PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE',
-                  'PROJECT_CUSTOM_CODE:READ','PROJECT_ERROR_REPORT_LIBRARY:READ', 'PROJECT_TEMPLATE:READ', 'PROJECT_MESSAGE:READ']">
+                  v-permission="['PROJECT_USER:READ', 'PROJECT_MANAGER:READ',
+                  'PROJECT_GROUP:READ', 'PROJECT_FILE:READ', 'PROJECT_VERSION:READ',
+                  'PROJECT_APP_MANAGER:READ+EDIT',
+                  'PROJECT_ENVIRONMENT:READ', 'PROJECT_OPERATING_LOG:READ',
+                  'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE',
+                  'PROJECT_CUSTOM_CODE:READ','PROJECT_ERROR_REPORT_LIBRARY:READ',
+                  'PROJECT_TEMPLATE:READ', 'PROJECT_MESSAGE:READ']">
       <div>
         <svg-icon iconClass="project" class-name="ms-menu-img"/>
         <span slot="title" class="ms-menu-item-title">{{ $t('commons.project_setting') }}</span>

@@ -463,13 +463,13 @@ export default {
           tip: this.$t('commons.copy'),
           icon: "el-icon-copy-document",
           exec: this.handleCopy,
-          permission: ['PROJECT_TRACK_PLAN:READ+COPY']
+          permissions: ['PROJECT_TRACK_PLAN:READ+COPY']
         },
         {
           tip: this.$t('test_track.plan_view.view_report'),
           icon: "el-icon-s-data",
           exec: this.openReport,
-          permission: ['PROJECT_TRACK_PLAN:READ+EDIT']
+          permissions: ['PROJECT_TRACK_PLAN:READ+EDIT']
         },
       ],
       batchExecuteType: "serial",
