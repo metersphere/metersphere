@@ -750,7 +750,7 @@ export default {
     },
     importRefresh() {
       this.refreshAll();
-      if (this.$refs.testCaseEdit) {
+      if (this.$refs.testCaseEdit && this.$refs.testCaseEdit.length > 0) {
         setTimeout(() => {
           this.$info(this.$t('test_track.case.import.import_refresh_tips'));
         }, 3000)
