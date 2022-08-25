@@ -88,13 +88,10 @@ export default {
       return {}
     }
   },
-  mounted() {
-    this.exist();
-  },
   methods: {
     exist() {
-      this.loading = true;
       this.parameter.files.forEach(file => {
+        this.loading = true;
         this.$get('/file/metadata/exist/' + file.fileId, response => {
           file.isExist = !response.data;
           this.loading = false;
@@ -279,8 +276,8 @@ export default {
 }
 
 .ms-list__item-delete {
-  margin-top: -10px;
-  padding-top: -10px;
+  margin-top: -15px;
+  padding-top: -15px;
   text-align: center;
   vertical-align: middle;
 }
