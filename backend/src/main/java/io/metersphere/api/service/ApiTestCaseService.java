@@ -122,10 +122,6 @@ public class ApiTestCaseService {
     @Resource
     private FileAssociationService fileAssociationService;
     @Resource
-    private ApiCaseBatchSyncService apiCaseSyncService;
-    @Resource
-    private ApiTestCaseSyncService apiTestCaseSyncService;
-    @Resource
     private ApiScenarioReferenceIdMapper apiScenarioReferenceIdMapper;
 
 
@@ -336,6 +332,7 @@ public class ApiTestCaseService {
             FileUtils.createBodyFiles(request.getId(), bodyFiles);
         }
         // 发送通知
+        ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
         if (apiCaseSyncService != null) {
             apiCaseSyncService.sendCaseNotice(test);
         }
@@ -462,7 +459,11 @@ public class ApiTestCaseService {
             } else {
                 test.setTags(request.getTags());
             }
-            apiTestCaseSyncService.setCaseUpdateValue(test);
+            ApiTestCaseSyncService apiTestCaseSyncService = CommonBeanFactory.getBean(ApiTestCaseSyncService.class);
+            if(apiTestCaseSyncService!=null){
+                apiTestCaseSyncService.setCaseUpdateValue(test);
+            }
+
             apiTestCaseMapper.updateByPrimaryKeySelective(test);
             saveFollows(test.getId(), request.getFollows());
         }
@@ -891,6 +892,7 @@ public class ApiTestCaseService {
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
                 // sync case
+                ApiCaseBatchSyncService apiCaseSyncService = CommonBeanFactory.getBean(ApiCaseBatchSyncService.class);
                 if (apiCaseSyncService != null) {
                     apiCaseSyncService.oneClickSyncCase(apiUpdateRule, test, batchMapper, apiTestCase);
                 }
@@ -1303,11 +1305,14 @@ public class ApiTestCaseService {
         if (request.isNoSearchStatus()) {
             request.setStatusList(new ArrayList<>());
         } else {
-            List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
-            if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
-                syncRuleCaseStatus = new ArrayList<>();
+            ApiTestCaseSyncService apiTestCaseSyncService = CommonBeanFactory.getBean(ApiTestCaseSyncService.class);
+            if (apiTestCaseSyncService !=null) {
+                List<String> syncRuleCaseStatus = apiTestCaseSyncService.getSyncRuleCaseStatus(request.getProjectId());
+                if (CollectionUtils.isEmpty(syncRuleCaseStatus)) {
+                    syncRuleCaseStatus = new ArrayList<>();
+                }
+                request.setStatusList(syncRuleCaseStatus);
             }
-            request.setStatusList(syncRuleCaseStatus);
         }
     }
 
