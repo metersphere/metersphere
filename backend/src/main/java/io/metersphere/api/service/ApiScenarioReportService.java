@@ -523,14 +523,18 @@ public class ApiScenarioReportService {
 
     @Nullable
     private boolean updateUiScenario(List<ApiScenarioReportResult> requestResults, ResultDTO dto, long errorSize, String status, ApiScenarioReport report, UiScenarioWithBLOBs scenario) {
-        if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.ERROR_REPORT_RESULT.toString())) {
-            scenario.setLastResult(status);
+        if (StringUtils.equalsAnyIgnoreCase(status, ExecuteResult.UN_EXECUTE.toString())) {
+            scenario.setLastResult(ScenarioStatus.Fail.name());
         } else {
-            scenario.setLastResult(errorSize > 0 ? "Fail" : ScenarioStatus.Success.name());
+            scenario.setLastResult(errorSize > 0 ? ScenarioStatus.Fail.name() : ScenarioStatus.Success.name());
         }
 
         long successSize = requestResults.stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-        scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+        if (CollectionUtils.isEmpty(requestResults)) {
+            scenario.setPassRate("0");
+        } else {
+            scenario.setPassRate(new DecimalFormat("0%").format((float) successSize / requestResults.size()));
+        }
         scenario.setReportId(dto.getReportId());
         int executeTimes = 0;
         if (scenario.getExecuteTimes() != null) {
