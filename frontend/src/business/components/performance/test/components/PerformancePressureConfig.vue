@@ -247,6 +247,7 @@
 <script>
 import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
@@ -303,6 +304,9 @@ export default {
     },
     isShare: Boolean,
     shareId: String,
+    planReportTemplate: {
+      type: Object
+    },
   },
   data() {
     return {
@@ -385,6 +389,18 @@ export default {
     },
     report() {
       this.resourcePool = this.report.testResourcePoolId;
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          let {resourcePools, testResourcePoolId} = this.planReportTemplate;
+          this.resourcePools = resourcePools;
+          this.resourcePool = testResourcePoolId;
+          this.handleResourcePool(resourcePools);
+          this.getJmxContent();
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -393,17 +409,120 @@ export default {
       if (this.isShare) {
         url = '/share/testresourcepool/list/quota/valid';
       }
+      if (!getCurrentProjectID()) {
+        return;
+      }
       this.result = this.$get(url, response => {
-        this.resourcePools = response.data;
-        // 如果当前的资源池无效 设置 null
-        if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
-          this.resourcePool = null;
-          // 标记因资源池无效而将资源池ID置为null
-          this.setPoolNull = true;
-        }
-
-        this.resourcePoolChange();
+        this.handleResourcePool(response.data);
       });
+    },
+    handleResourcePool(data) {
+      this.resourcePools = data;
+      // 如果当前的资源池无效 设置 null
+      if (data.filter(p => p.id === this.resourcePool).length === 0) {
+        this.resourcePool = null;
+        // 标记因资源池无效而将资源池ID置为null
+        this.setPoolNull = true;
+      }
+      this.resourcePoolChange();
+    },
+    handleLoadConfig(data) {
+      for (let i = 0; i < this.threadGroups.length; i++) {
+        data[i].forEach(item => {
+          switch (item.key) {
+            case TARGET_LEVEL:
+              this.threadGroups[i].threadNumber = item.value;
+              break;
+            case RAMP_UP:
+              this.threadGroups[i].rampUpTime = item.value;
+              break;
+            case ITERATE_RAMP_UP:
+              this.threadGroups[i].iterateRampUp = item.value;
+              break;
+            case DURATION:
+              this.threadGroups[i].duration = item.value;
+              break;
+            case DURATION_HOURS:
+              this.threadGroups[i].durationHours = item.value;
+              break;
+            case DURATION_MINUTES:
+              this.threadGroups[i].durationMinutes = item.value;
+              break;
+            case DURATION_SECONDS:
+              this.threadGroups[i].durationSeconds = item.value;
+              break;
+            case UNIT:
+              this.threadGroups[i].unit = item.value;
+              break;
+            case STEPS:
+              this.threadGroups[i].step = item.value;
+              break;
+            case RPS_LIMIT:
+              this.threadGroups[i].rpsLimit = item.value;
+              break;
+            case RPS_LIMIT_ENABLE:
+              this.threadGroups[i].rpsLimitEnable = item.value;
+              break;
+            case THREAD_TYPE:
+              this.threadGroups[i].threadType = item.value;
+              break;
+            case ITERATE_NUM:
+              this.threadGroups[i].iterateNum = item.value;
+              break;
+            case ENABLED:
+              this.threadGroups[i].enabled = item.value;
+              break;
+            case DELETED:
+              this.threadGroups[i].deleted = item.value;
+              break;
+            case HANDLER:
+              this.threadGroups[i].handler = item.value;
+              break;
+            case THREAD_GROUP_TYPE:
+              this.threadGroups[i].tgType = item.value;
+              break;
+            case ON_SAMPLE_ERROR:
+              this.threadGroups[i].onSampleError = item.value;
+              break;
+            case STRATEGY:
+              this.threadGroups[i].strategy = item.value;
+              break;
+            case RESOURCE_NODE_INDEX:
+              this.threadGroups[i].resourceNodeIndex = item.value;
+              break;
+            case RATIOS:
+              this.threadGroups[i].ratios = item.value;
+              break;
+            case SERIALIZE_THREAD_GROUPS:
+              this.serializeThreadGroups = item.value;// 所有的线程组值一样
+              break;
+            case AUTO_STOP:
+              this.autoStop = item.value;// 所有的线程组值一样
+              break;
+            case AUTO_STOP_DELAY:
+              this.autoStopDelay = item.value;// 所有的线程组值一样
+              break;
+            default:
+              break;
+          }
+          //
+          this.$set(this.threadGroups[i], "unit", this.threadGroups[i].unit || 'S');
+          this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
+          this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
+          this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
+          this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
+          this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
+          this.$set(this.threadGroups[i], "onSampleError", this.threadGroups[i].onSampleError || 'continue');
+        });
+      }
+      for (let i = 0; i < this.threadGroups.length; i++) {
+        let tg = this.threadGroups[i];
+        tg.durationHours = Math.floor(tg.duration / 3600);
+        tg.durationMinutes = Math.floor((tg.duration / 60 % 60));
+        tg.durationSeconds = Math.floor((tg.duration % 60));
+      }
+      this.resourcePoolChange();
+      this.calculateTotalChart();
     },
     getLoadConfig() {
       let url = '';
@@ -412,6 +531,13 @@ export default {
       }
       if (this.reportId) {
         url = '/performance/report/get-load-config/' + this.reportId;
+      }
+      if (this.planReportTemplate) {
+        let {loadConfiguration} = this.planReportTemplate;
+        if (loadConfiguration) {
+          this.handleLoadConfig(JSON.parse(loadConfiguration));
+        }
+        return;
       }
       if (!url) {
         return;
@@ -422,102 +548,7 @@ export default {
       this.$get(url, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
-          for (let i = 0; i < this.threadGroups.length; i++) {
-            data[i].forEach(item => {
-              switch (item.key) {
-                case TARGET_LEVEL:
-                  this.threadGroups[i].threadNumber = item.value;
-                  break;
-                case RAMP_UP:
-                  this.threadGroups[i].rampUpTime = item.value;
-                  break;
-                case ITERATE_RAMP_UP:
-                  this.threadGroups[i].iterateRampUp = item.value;
-                  break;
-                case DURATION:
-                  this.threadGroups[i].duration = item.value;
-                  break;
-                case DURATION_HOURS:
-                  this.threadGroups[i].durationHours = item.value;
-                  break;
-                case DURATION_MINUTES:
-                  this.threadGroups[i].durationMinutes = item.value;
-                  break;
-                case DURATION_SECONDS:
-                  this.threadGroups[i].durationSeconds = item.value;
-                  break;
-                case UNIT:
-                  this.threadGroups[i].unit = item.value;
-                  break;
-                case STEPS:
-                  this.threadGroups[i].step = item.value;
-                  break;
-                case RPS_LIMIT:
-                  this.threadGroups[i].rpsLimit = item.value;
-                  break;
-                case RPS_LIMIT_ENABLE:
-                  this.threadGroups[i].rpsLimitEnable = item.value;
-                  break;
-                case THREAD_TYPE:
-                  this.threadGroups[i].threadType = item.value;
-                  break;
-                case ITERATE_NUM:
-                  this.threadGroups[i].iterateNum = item.value;
-                  break;
-                case ENABLED:
-                  this.threadGroups[i].enabled = item.value;
-                  break;
-                case DELETED:
-                  this.threadGroups[i].deleted = item.value;
-                  break;
-                case HANDLER:
-                  this.threadGroups[i].handler = item.value;
-                  break;
-                case THREAD_GROUP_TYPE:
-                  this.threadGroups[i].tgType = item.value;
-                  break;
-                case ON_SAMPLE_ERROR:
-                  this.threadGroups[i].onSampleError = item.value;
-                  break;
-                case STRATEGY:
-                  this.threadGroups[i].strategy = item.value;
-                  break;
-                case RESOURCE_NODE_INDEX:
-                  this.threadGroups[i].resourceNodeIndex = item.value;
-                  break;
-                case RATIOS:
-                  this.threadGroups[i].ratios = item.value;
-                  break;
-                case SERIALIZE_THREAD_GROUPS:
-                  this.serializeThreadGroups = item.value;// 所有的线程组值一样
-                  break;
-                case AUTO_STOP:
-                  this.autoStop = item.value;// 所有的线程组值一样
-                  break;
-                case AUTO_STOP_DELAY:
-                  this.autoStopDelay = item.value;// 所有的线程组值一样
-                  break;
-                default:
-                  break;
-              }
-              //
-              this.$set(this.threadGroups[i], "unit", this.threadGroups[i].unit || 'S');
-              this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
-              this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
-              this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
-              this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
-              this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
-              this.$set(this.threadGroups[i], "onSampleError", this.threadGroups[i].onSampleError || 'continue');
-            });
-          }
-          for (let i = 0; i < this.threadGroups.length; i++) {
-            let tg = this.threadGroups[i];
-            tg.durationHours = Math.floor(tg.duration / 3600);
-            tg.durationMinutes = Math.floor((tg.duration / 60 % 60));
-            tg.durationSeconds = Math.floor((tg.duration % 60));
-          }
-          this.resourcePoolChange();
-          this.calculateTotalChart();
+          this.handleLoadConfig(data);
         }
       });
     },
@@ -529,13 +560,18 @@ export default {
       if (this.reportId) {
         url = '/performance/report/get-jmx-content/' + this.reportId;
       }
+      let threadGroups = [];
+      if (this.planReportTemplate) {
+        let {fixJmxContent} = this.planReportTemplate;
+        this.handlePlanReportJmxContent(fixJmxContent, threadGroups);
+        return;
+      }
       if (!url) {
         return;
       }
       if (this.isShare) {
         url = '/share/performance/report/get-jmx-content/' + this.reportId;
       }
-      let threadGroups = [];
       this.$get(url, (response) => {
         response.data.forEach(d => {
           threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
@@ -547,6 +583,17 @@ export default {
         this.$emit('fileChange', threadGroups);
         this.getLoadConfig();
       });
+    },
+    handlePlanReportJmxContent(fixJmxContent, threadGroups) {
+      fixJmxContent.forEach(d => {
+        threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+        threadGroups.forEach(tg => {
+          tg.options = {};
+        });
+      });
+      this.threadGroups = threadGroups;
+      this.$emit('fileChange', threadGroups);
+      this.getLoadConfig();
     },
     resourcePoolChange() {
       let result = this.resourcePools.filter(p => p.id === this.resourcePool);
