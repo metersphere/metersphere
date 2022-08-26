@@ -114,12 +114,21 @@
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
+                <if test="${object}.value.contains(''.toString())">
+                    or t3.status is null
+                </if>
+                <if test="${condition}.exec_result != null">
+                    )
+                </if>
             </when>
             <when test='${object}.operator == "not in"'>
                 not in
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
+                <if test="${condition}.exec_result != null">
+                    )
+                </if>
             </when>
             <when test='${object}.operator == "between"'>
                 between #{${object}.value[0]} and #{${object}.value[1]}
@@ -223,6 +232,13 @@
                 <property name="object" value="${condition}.status"/>
             </include>
         </if>
+        <if test="${condition}.exec_result != null">
+            and (t3.status
+            <include refid="condition">
+                <property name="object" value="${condition}.exec_result"/>
+            </include>
+        </if>
+
     </sql>
 
     <sql id="countCombine">
