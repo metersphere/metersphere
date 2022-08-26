@@ -211,7 +211,7 @@ export const API_STATUS_TRASH = {
 
 // 用例执行结果
 export const API_CASE_RESULT = {
-  key: "status",
+  key: "exec_result",
   name: 'MsTableSearchSelect',
   label: 'test_track.plan_view.execute_result',
   operator: {
