@@ -5,6 +5,7 @@
              :width="width ? width : '75%'" v-loading="result.loading"
              :close-on-click-modal="false"
              :destroy-on-close="true"
+             :fullscreen="fullScreen"
              top="50px" append-to-body>
 
     <template #title>
@@ -52,7 +53,7 @@
         dialogVisible: false,
       };
     },
-    props: ['title', 'width'],
+    props: ['title', 'width', 'fullScreen'],
     methods: {
       open() {
         this.dialogVisible = true;
