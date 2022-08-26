@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col class="protocol-col" :span="9">
+      <el-col :span="8">
         <el-select class="protocol-select" size="small" v-model="condition.protocol">
           <el-option
             v-for="item in options"
@@ -221,7 +221,7 @@ export default {
 
 <style scoped>
 .protocol-select {
-  width: 92px;
+  width: 85px;
   height: 30px;
 }
 

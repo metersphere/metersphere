@@ -12,23 +12,27 @@
           <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
 
           <div v-if="flag" style="margin: 5px; float: left;">
-            <el-checkbox v-model="checked" class="el-checkbox__label">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
+            <el-checkbox v-model="checked" class="el-checkbox__label">{{
+                $t('test_track.sync_add_api_load')
+              }}
+            </el-checkbox>
           </div>
         </template>
       </ms-dialog-header>
     </template>
 
     <template v-slot:aside>
-      <span v-if="isAcrossSpace" class="menu-title">{{'[' + $t('project.version.checkout') +  $t('commons.space') +']'}}</span>
+      <span v-if="isAcrossSpace"
+            class="menu-title">{{ '[' + $t('project.version.checkout') + $t('commons.space') + ']' }}</span>
       <el-select v-if="isAcrossSpace" filterable slot="prepend" v-model="workspaceId" @change="changeWorkspace"
-                 style="width: 160px"
+                 class="ms-header-workspace"
                  size="small">
         <el-option v-for="(item,index) in workspaceList" :key="index" :label="item.name" :value="item.id"/>
       </el-select>
       <select-menu
         :data="projects"
         v-if="multipleProject"
-        width="64.5%"
+        width="155px"
         :current-data="currentProject"
         :title="$t('test_track.switch_project')"
         @dataChange="changeProject"/>
@@ -140,14 +144,14 @@ export default {
             this.projectName = data[0].name;
             this.changeProject(data[0]);
           }
-        }else {
+        } else {
           this.$message.warning(this.$t('commons.current_workspace') + this.$t('commons.not_exist') + this.$t('commons.project') + "!");
         }
       })
     },
 
     changeProject(project) {
-      if(project){
+      if (project) {
         this.currentProject = project;
         this.$emit('setProject', project.id);
         // 获取项目时刷新该项目模块
@@ -181,7 +185,9 @@ export default {
   margin-left: 10px;
   margin-right: 10px;
 }
-/*.el-checkbox__label {*/
-/*  float: right;*/
-/*}*/
+
+.ms-header-workspace {
+  width: 155px;
+  margin-bottom: 10px;
+}
 </style>
