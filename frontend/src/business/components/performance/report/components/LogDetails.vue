@@ -85,7 +85,13 @@ export default {
       }
       this.loading = true;
       if (this.planReportTemplate) {
-        // this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
+        let {reportLogResource} = this.planReportTemplate;
+        if (reportLogResource && reportLogResource.length > 0) {
+          let {reportLogs} = reportLogResource[0];
+          if (reportLogs) {
+            this.handleGetPlanTemplateLog(reportLogs);
+          }
+        }
       } else if (this.isShare) {
         getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page || 1, data => {
           this.handleGetLogResourceDetail(data, resourceId);
@@ -95,6 +101,14 @@ export default {
           this.handleGetLogResourceDetail(data, resourceId);
         });
       }
+    },
+    handleGetPlanTemplateLog(data) {
+      data.forEach(log => {
+        if (this.logContent) {
+          this.logContent.push(log);
+        }
+      });
+      this.loading = false;
     },
     handleGetLogResourceDetail(data, resourceId) {
       data.listObject.forEach(log => {
