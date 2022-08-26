@@ -4,6 +4,8 @@
       <ms-aside-container>
         <ms-api-module
           :show-operator="true"
+          :default-protocol="defaultProtocol"
+          :select-default-protocol="isSelectDefaultProtocol"
           @nodeSelectEvent="nodeChange"
           @protocolChange="handleProtocolChange"
           @refreshTable="refresh"
@@ -180,7 +182,6 @@
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
-                v-if="moduleOptions && moduleOptions.length > 0"
                 ref="apiConfig"
               />
             </div>
@@ -284,6 +285,34 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    isSelectDefaultProtocol() {
+      let selectDefaultProtocol = true;
+      let routeParamObj = this.$route.params.paramObj;
+      if (routeParamObj) {
+        let dataRange = routeParamObj.dataSelectRange;
+        let dataType = routeParamObj.dataType;
+        if (dataRange && typeof dataRange === 'string') {
+          let selectParamArr = dataRange.split("edit:");
+          if (selectParamArr.length === 2) {
+            if (dataType === 'api') {
+              selectDefaultProtocol = false;
+            }
+          }
+        }
+      } else {
+        let dataRange = this.$route.params.dataSelectRange;
+        let dataType = this.$route.params.dataType;
+        if (dataRange && typeof dataRange === 'string') {
+          let selectParamArr = dataRange.split("edit:");
+          if (selectParamArr.length === 2) {
+            if (dataType === 'api') {
+              selectDefaultProtocol = false;
+            }
+          }
+        }
+      }
+      return selectDefaultProtocol;
+    },
   },
   components: {
     'VersionSelect': VersionSelect.default,
@@ -331,6 +360,7 @@ export default {
       selectNodeIds: [],
       currentApi: {},
       moduleOptions: [],
+      defaultProtocol: null,
       trashEnable: false,
       apiTabs: [{
         title: this.$t('api_test.definition.api_title'),
@@ -765,6 +795,7 @@ export default {
             let scenarioId = selectParamArr[1];
             if (dataType === 'api') {
               this.$get('/api/definition/get/' + scenarioId, (response) => {
+                this.defaultProtocol = response.data.protocol;
                 this.editApi(response.data);
               });
             }
@@ -779,6 +810,7 @@ export default {
             let scenarioId = selectParamArr[1];
             if (dataType === 'api') {
               this.$get('/api/definition/get/' + scenarioId, (response) => {
+                this.defaultProtocol = response.data.protocol;
                 this.editApi(response.data);
               });
             }

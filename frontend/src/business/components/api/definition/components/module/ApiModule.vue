@@ -88,6 +88,7 @@ export default {
         return false;
       }
     },
+    defaultProtocol: String,
     showCaseNum: {
       type: Boolean,
       default() {
@@ -106,6 +107,7 @@ export default {
     relevanceProjectId: String,
     reviewId: String,
     pageSource: String,
+    selectDefaultProtocol: Boolean,
     total: Number,
     isRelevance: Boolean,
     options: {
@@ -156,6 +158,11 @@ export default {
     isTrashData() {
       this.condition.trashEnable = this.isTrashData;
       this.list();
+    },
+    defaultProtocol() {
+      if (this.condition.protocol !== this.defaultProtocol) {
+        this.condition.protocol = this.defaultProtocol;
+      }
     }
   },
   methods: {
@@ -166,7 +173,7 @@ export default {
         this.condition.protocol = this.$route.params.type;
         this.$emit('protocolChange', this.condition.protocol);
         this.list();
-      } else if (!this.isRelevance && !isRedirectPage) {
+      } else if (!this.isRelevance && !isRedirectPage && this.selectDefaultProtocol) {
         //展示页面是非引用页面才会查询上一次接口类型
         this.$get('/api/module/getUserDefaultApiType/', response => {
           this.condition.protocol = response.data;
