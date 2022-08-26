@@ -1,11 +1,11 @@
 <template>
   <el-tabs>
     <el-tab-pane :label="$t('load_test.pressure_config')">
-      <performance-pressure-config :is-read-only="true" :test="test" :report="report" :report-id="reportId"
+      <performance-pressure-config :is-read-only="true" :test="test" :report="report" :report-id="reportId" :plan-report-template="planReportTemplate"
                                    :is-share="isShare" :share-id="shareId" @fileChange="fileChange"/>
     </el-tab-pane>
     <el-tab-pane :label="$t('load_test.advanced_config')">
-      <performance-advanced-config :is-read-only="true" :report-id="reportId" :report="report" :is-share="isShare"
+      <performance-advanced-config :is-read-only="true" :report-id="reportId" :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
                                    :share-id="shareId" ref="advancedConfig"/>
     </el-tab-pane>
   </el-tabs>
@@ -26,6 +26,7 @@ export default {
     report: Object,
     isShare: Boolean,
     shareId: String,
+    planReportTemplate: Object,
   },
   methods: {
     fileChange(threadGroups) {

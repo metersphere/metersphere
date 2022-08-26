@@ -507,6 +507,7 @@ export default {
     },
     isShare: Boolean,
     shareId: String,
+    planReportTemplate: Object,
   },
   mounted() {
     if (this.testId) {
@@ -523,6 +524,14 @@ export default {
     },
     csvFiles() {
       this.refreshCsv();
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getAdvancedConfig();
+        }
+      },
+      deep: true
     }
   },
   methods: {
@@ -534,23 +543,30 @@ export default {
       if (this.isShare) {
         url = '/share/performance/report/get-advanced-config/' + this.shareId + '/' + this.reportId;
       }
+      if (this.planReportTemplate) {
+        this.handleConfig(JSON.parse(this.planReportTemplate.advancedConfiguration));
+        return;
+      }
       this.$get(url, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
-          this.timeout = data.timeout;
-          this.responseTimeout = data.responseTimeout;
-          this.statusCode = data.statusCode || [];
-          this.statusCodeStr = this.statusCode.join(',');
-          this.domains = data.domains || [];
-          this.params = data.params || [];
-          this.granularity = data.granularity;
-          this.monitorParams = data.monitorParams || [];
-          this.properties = data.properties || [];
-          this.systemProperties = data.systemProperties || [];
-          this.csvConfig = data.csvConfig;
-          this.refreshCsv();
+          this.handleConfig(data);
         }
       });
+    },
+    handleConfig(data) {
+      this.timeout = data.timeout;
+      this.responseTimeout = data.responseTimeout;
+      this.statusCode = data.statusCode || [];
+      this.statusCodeStr = this.statusCode.join(',');
+      this.domains = data.domains || [];
+      this.params = data.params || [];
+      this.granularity = data.granularity;
+      this.monitorParams = data.monitorParams || [];
+      this.properties = data.properties || [];
+      this.systemProperties = data.systemProperties || [];
+      this.csvConfig = data.csvConfig;
+      this.refreshCsv();
     },
     refreshCsv() {
       if (this.csvConfig && this.csvFiles) {
