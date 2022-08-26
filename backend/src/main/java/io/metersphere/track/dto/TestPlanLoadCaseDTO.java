@@ -1,9 +1,9 @@
 package io.metersphere.track.dto;
 
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.dto.LogDetailDTO;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
@@ -35,7 +35,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
         private long startTime;
         private long endTime;
         private String fixLoadConfiguration;
-//        private LoadTestExportJmx jmxContent;
+        //        private LoadTestExportJmx jmxContent;
         private List<LoadTestExportJmx> fixJmxContent;
         private TestOverview testOverview;
         private List<ChartsData> loadChartData;
@@ -48,6 +48,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
         private List<ErrorsTop5> reportErrorsTop5;
         private List<LogDetailDTO> reportLogResource;
         private List<Monitor> reportResource;
-        private  List<MetricData> metricData;
+        private List<MetricData> metricData;
+        private List<TestResourcePoolDTO> resourcePools;
     }
 }

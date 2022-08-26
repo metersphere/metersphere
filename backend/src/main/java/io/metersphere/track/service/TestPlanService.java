@@ -194,6 +194,8 @@ public class TestPlanService {
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     private ExtTestPlanUiScenarioMapper extTestPlanUiScenarioMapper;
+    @Resource
+    private TestResourcePoolService testResourcePoolService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1664,9 +1666,8 @@ public class TestPlanService {
                             List<LoadTestExportJmx> jmxContent = performanceReportService.getJmxContent(reportId);
                             if (!CollectionUtils.isEmpty(jmxContent)) {
                                 response.setJmxContent(JSONObject.toJSONString(jmxContent.get(0)));
+                                response.setFixJmxContent(jmxContent);
                             }
-                            List<LoadTestExportJmx> fixJmxContent = performanceTestService.getJmxContent(item.getId());
-                            response.setFixJmxContent(fixJmxContent);
 
                             // 概览
                             TestOverview testOverview = performanceReportService.getTestOverview(reportId);
@@ -1711,9 +1712,15 @@ public class TestPlanService {
 
                             // 日志详情
                             List<LogDetailDTO> reportLogResource = performanceReportService.getReportLogResource(reportId);
+                            if (CollectionUtils.isNotEmpty(reportLogResource)) {
+                                for (LogDetailDTO log : reportLogResource) {
+                                    List<LoadTestReportLog> reportLogs = performanceReportService.getReportLogs(reportId, log.getResourceId());
+                                    log.setReportLogs(reportLogs);
+                                }
+                            }
                             response.setReportLogResource(reportLogResource);
-//                        performanceReportService.getReportLogs(reportId, resourceId);
-
+                            List<TestResourcePoolDTO> testResourcePoolDTOS = testResourcePoolService.listValidQuotaResourcePools();
+                            response.setResourcePools(testResourcePoolDTOS);
                             List<Monitor> reportResource = metricQueryService.queryReportResource(reportId);
                             response.setReportResource(reportResource);
                             List<MetricData> metricData = metricQueryService.queryMetric(reportId);

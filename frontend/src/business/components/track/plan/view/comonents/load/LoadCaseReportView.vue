@@ -134,7 +134,9 @@
                             :share-id="shareId"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_config')">
-              <ms-test-configuration :report-id="reportId" :report="report" :is-share="isShare" :share-id="shareId"/>
+              <ms-test-configuration :report-id="reportId" :report="report"
+                                     :plan-report-template="planReportTemplate"
+                                     :is-share="isShare" :share-id="shareId"/>
             </el-tab-pane>
           </el-tabs>
         </div>
