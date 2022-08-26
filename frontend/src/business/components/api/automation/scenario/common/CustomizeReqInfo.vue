@@ -5,14 +5,17 @@
         <el-select v-model="request.method" class="ms-select" size="small" :disabled="request.disabled">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-        <el-input v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly class="ms-input"/>
+        <el-input v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly
+                  class="ms-input"/>
 
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.path"
-                  style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled" v-if="request.isRefEnvironment"/>
+                  style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled"
+                  v-if="request.isRefEnvironment"/>
 
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url"
                   style="width: 50%" size="small" @blur="urlChange" :disabled="request.disabled" v-else/>
-        <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment" @change="setDomain" :disabled="request.disabled">
+        <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment"
+                     @change="setDomain" :disabled="request.disabled">
           {{ $t('api_test.request.refer_to_environment') }}
         </el-checkbox>
       </div>
@@ -20,7 +23,8 @@
         <el-select v-model="request.method" class="ms-select" size="small" :disabled="request.disabled">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-        <el-input v-model="request.domain" v-if="request.domain" size="small" readonly class="ms-input" :disabled="request.disabled"/>
+        <el-input v-model="request.domain" v-if="request.domain" size="small" readonly class="ms-input"
+                  :disabled="request.disabled"/>
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" style="width: 50%"
                   v-model="request.path" size="small" @blur="pathChange" :disabled="request.disabled"/>
       </div>
@@ -115,6 +119,16 @@ export default {
       }
     },
     setDomain() {
+      let urlStr = this.addProtocol(this.request.url);
+      const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/g;
+      if (reg.test(urlStr)) {
+        let url = this.getURL(urlStr);
+        if (url && url.pathname) {
+          this.request.path = url.pathname;
+        }
+      } else {
+        this.request.path = this.request.url
+      }
       this.$emit("setDomain");
     }
   }
