@@ -112,7 +112,7 @@
             <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
               <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini"
                            @command="handleCommand"
-                           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE']">
+                           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
                 {{ $t('api_test.request.debug') }}
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
@@ -393,7 +393,8 @@ import {
   handleCtrlSEvent,
   hasLicense,
   objToStrMap,
-  strMapToObj
+  strMapToObj,
+  hasPermission
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css";
 import OutsideClick from "@/common/js/outside-click";
@@ -1440,6 +1441,9 @@ export default {
       })
     },
     runDebug(runScenario) {
+      if (!hasPermission('PROJECT_API_SCENARIO:READ+EDIT')) {
+        return;
+      }
       this.mergeScenario(this.scenarioDefinition);
       if (this.debugLoading) {
         return;
